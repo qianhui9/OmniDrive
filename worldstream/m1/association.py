@@ -27,7 +27,17 @@ def legal_assignment(costs):
 
 
 def associate(anchors, predictions, timestamp, config):
+    """Same legal gates as scalar matching, with curves sampled once per input."""
     costs = np.full((len(anchors), len(predictions)), np.inf)
+    groups = {}
+    curves = {}
+    for j, new in enumerate(predictions):
+        groups.setdefault((new.anchor_type, new.semantic_class), []).append(j)
+        if new.anchor_type != "object":
+            try:
+                curves[j] = sample_polyline(new.geometry_world.points)
+            except ValueError:
+                pass
     for i, old in enumerate(anchors):
         if timestamp - old.source_timestamp > config.max_state_age_s:
             continue
@@ -35,24 +45,31 @@ def associate(anchors, predictions, timestamp, config):
             g = predict_geometry(old, timestamp)
         except ValueError:
             continue
-        for j, new in enumerate(predictions):
-            if old.anchor_type != new.anchor_type or old.semantic_class != new.semantic_class:
+        indices = groups.get((old.anchor_type, old.semantic_class), [])
+        if old.anchor_type == "object":
+            if g.size is None:
                 continue
-            if old.anchor_type == "object":
-                if g.size is None or new.geometry_world.size is None:
+            indices = [j for j in indices if predictions[j].geometry_world.size is not None]
+            if not indices:
+                continue
+            sizes = np.asarray([predictions[j].geometry_world.size for j in indices])
+            centers = np.asarray([predictions[j].geometry_world.center for j in indices])
+            ratios = np.maximum(g.size / sizes, sizes / g.size)
+            distances = np.linalg.norm(g.center - centers, axis=1)
+            legal = (~np.any(ratios > config.box_size_ratio, axis=1)
+                     & (distances <= config.association_gate_m))
+            costs[i, np.asarray(indices)[legal]] = distances[legal]
+        else:
+            try:
+                a = sample_polyline(g.points)
+            except ValueError:
+                continue
+            da = a[-1] - a[0]
+            for j in indices:
+                if j not in curves:
                     continue
-                ratio = np.maximum(g.size / new.geometry_world.size, new.geometry_world.size / g.size)
-                if np.any(ratio > config.box_size_ratio):
-                    continue
-                distance = np.linalg.norm(g.center - new.geometry_world.center)
-                if distance <= config.association_gate_m:
-                    costs[i, j] = distance
-            else:
-                try:
-                    a, b = sample_polyline(g.points), sample_polyline(new.geometry_world.points)
-                except ValueError:
-                    continue
-                da, db = a[-1] - a[0], b[-1] - b[0]
+                b = curves[j]
+                db = b[-1] - b[0]
                 cosine = abs(np.dot(da, db)) / max(np.linalg.norm(da) * np.linalg.norm(db), 1e-8)
                 if cosine < config.map_direction_cos:
                     continue
@@ -60,5 +77,4 @@ def associate(anchors, predictions, timestamp, config):
                                np.linalg.norm(a - b[::-1], axis=1).mean())
                 if distance <= config.map_gate_m:
                     costs[i, j] = distance
-    matches = legal_assignment(costs)
-    return matches, costs
+    return legal_assignment(costs), costs

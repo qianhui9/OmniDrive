@@ -46,7 +46,9 @@ def run_scene(root, frames, predictions, oracle, config, method, split):
                    for cid,obs in anchor.observation_support.items() if cid in frame.cameras]
             detail=physical_details(anchor,anns,identities.get(aid),source_anns.get(aid),frame.timestamp)
             rows.append(dict(scene_id=frame.scene_id,frame_id=frame.frame_id,anchor_id=aid,identity=identities.get(aid),
-                method=method,split=split,age_s=check['age_s'],semantic_class=anchor.semantic_class,accepted=check['valid'],
+                method=method,split=split,source_score=getattr(anchor,'source_score',None),
+                history_observations=getattr(anchor,'history_observations',1),
+                last_innovation_m=getattr(anchor,'last_innovation_m',None),age_s=check['age_s'],semantic_class=anchor.semantic_class,accepted=check['valid'],
                 geometry_only=bool(check['within_horizon'] and check['motion_known'] and eligible),
                 appearance_only=bool(fixed and max(fixed)<=config.residual_threshold),
                 appearance_residual=max(fixed,default=float('inf')),

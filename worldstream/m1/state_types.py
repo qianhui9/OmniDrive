@@ -26,6 +26,7 @@ class OnlineVisibilityEvidence:
     stable_mask: np.ndarray
     changed_mask: np.ndarray
     diagnostics: Dict[str, Any] = field(default_factory=dict)
+    dense_source_map: Optional[np.ndarray] = None  # measured current-to-history coordinates
     source: str = "same_rgb_bidirectional_lk_calibrated_geometry_local_patch"
     transformer_dependency_certified: bool = False
 
@@ -85,6 +86,9 @@ class WorldAnchor:
     geometry_uncertainty: float = 0.0  # metres
     observation_support: Dict[str, AnchorObservation] = field(default_factory=dict)
     associated_feature_ids: List[str] = field(default_factory=list)
+    source_score: Optional[float] = None  # prediction confidence, NOT localization probability
+    history_observations: int = 1
+    last_innovation_m: Optional[float] = None
 
 
 @dataclass
@@ -96,6 +100,7 @@ class PerceptionAnchor:
     velocity_world: Optional[np.ndarray] = None
     velocity_reliable: bool = False
     geometry_uncertainty: float = 0.0
+    source_score: Optional[float] = None
 
 
 @dataclass

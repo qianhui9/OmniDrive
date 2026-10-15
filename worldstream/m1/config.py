@@ -58,10 +58,25 @@ class M1Config:
     support_min_points: int = 4
     support_point_fraction: float = 0.8
     support_quadrant_fraction: float = 0.75
+    dense_motion_guard: bool = False
+    dense_local_support: bool = False
+    dense_guard_radius_px: int = 4
+    temporal_workers: int = 1
+    certification_min_source_score: float = 0.0
+    certification_min_history: int = 1
+    certification_max_innovation_m: float = 0.0  # 0 disables this additional gate
 
     def __post_init__(self):
+        if not isinstance(self.dense_guard_radius_px, int) or self.dense_guard_radius_px < 1:
+            raise ValueError("Dense support needs a positive integer boundary guard")
+        if self.dense_local_support and not (self.temporal_visibility and self.local_support):
+            raise ValueError("Dense support requires temporal visibility and local support")
         if self.execution_mode != "observe_only":
             raise ValueError("M1 supports observe_only; GPU incremental execution belongs to M2")
+        if not 1 <= self.temporal_workers <= 6 or self.certification_min_history < 1:
+            raise ValueError("Invalid temporal worker/history count")
+        if not 0 <= self.certification_min_source_score <= 1 or not 0 <= self.certification_max_innovation_m < float('inf'):
+            raise ValueError("Invalid source quality gate")
         for key in ("max_anchors", "descriptor_size", "search_step_px", "novelty_cell_px",
                     "full_refresh_interval", "max_tensor_bytes", "min_region_area_px"):
             if getattr(self, key) <= 0:

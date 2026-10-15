@@ -126,7 +126,7 @@ def outputs_from_model(frame, bbox_results, lane_results, features, config):
             if values.shape[1] >= 9 and np.isfinite(values[i, 7:9]).all():
                 velocity = pose[:3, :3] @ np.r_[values[i, 7:9], 0.]
             anchors.append(PerceptionAnchor('object', CLASS_NAMES[int(labels[i])], g, velocity,
-                           bool(config.trust_detection_velocity and velocity is not None)))
+                           bool(config.trust_detection_velocity and velocity is not None), source_score=float(scores[i])))
     if lane_results:
         lines, scores = lane_results[0]
         for line, score in zip(lines, scores):

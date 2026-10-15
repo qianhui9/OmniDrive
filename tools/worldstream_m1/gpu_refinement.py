@@ -19,6 +19,9 @@ def main():
     p.add_argument('--frames',type=int,default=8)
     p.add_argument('--warmup',type=int,default=1); p.add_argument('--repeats',type=int,default=3)
     p.add_argument('--skip-feature-oracle',action='store_true')
+    p.add_argument('--config',default='configs/worldstream_m1_refinement.yaml')
+    p.add_argument('--reference-config',default='configs/worldstream_m1_refinement.yaml')
+    p.add_argument('--reference-root',help='Optimization root containing the pre-change baseline_source snapshot')
     args=p.parse_args(); root=Path(args.output); root.mkdir(parents=True,exist_ok=True)
     if (root/'status.json').exists(): raise ValueError('Choose fresh output to protect completed/partial run')
     import torch
@@ -44,17 +47,29 @@ def main():
     model=build_model(cfg.model,test_cfg=cfg.get('test_cfg'))
     if cfg.get('fp16'): wrap_fp16_model(model)
     load_checkpoint(model,'ckpts/iter_10548.pth',map_location='cpu'); model.cuda().eval()
-    settings=M1Config.load('configs/worldstream_m1_refinement.yaml')
+    settings=M1Config.load(args.config)
+    reference_factory=None
+    modes=('baseline','old_strict','new_full')
+    if args.reference_root:
+        from .optimize_balanced import reference
+        reference_factory=reference(Path(args.reference_root))
+        modes=('baseline','reference','balanced')
+    metadata['m1_config']=settings.to_dict()
     baseline=None; runs=[]; comparisons=[]
     # Each repetition has a fresh language directory so original LLM execution runs.
-    for mode in (('baseline','old_strict','new_full') if args.skip_feature_oracle else ('baseline','old_strict','new_full','feature_oracle')):
+    for mode in (modes if args.skip_feature_oracle else modes+('feature_oracle',)):
         reps=1 if mode=='feature_oracle' else args.warmup+args.repeats
         for rep in range(reps):
             random.seed(0); np.random.seed(0); torch.manual_seed(0); torch.cuda.manual_seed_all(0)
             model.test_flag=False
             config=replace(settings,temporal_visibility=mode!='old_strict',local_support=mode!='old_strict',
                 log_path=str(root/f'{mode}_{rep:02d}.jsonl'))
-            model.m1_manager=None if mode=='baseline' else WorldStateManager(config)
+            if mode=='reference':
+                original_settings=replace(M1Config.load(args.reference_config),
+                    log_path=str(root/f'{mode}_{rep:02d}.jsonl'))
+                model.m1_manager=reference_factory(original_settings)
+            else:
+                model.m1_manager=None if mode=='baseline' else WorldStateManager(config)
             model.save_path=str(root/f'{mode}_{rep:02d}'/'language')+'/'
             oracle=FeatureOracle(model,root) if mode=='feature_oracle' else None
             backbone=[]; hook=model.img_backbone.register_forward_hook(lambda m,i,o:backbone.append(digest(o)))
@@ -84,7 +99,7 @@ def main():
             runs.append(record); write_json(root/'runs.json',runs); write_json(root/'comparisons.json',comparisons)
             print(mode,rep,'passed','frame ms',np.round(frame_times,2).tolist(),flush=True)
     summary={}
-    for mode in ('baseline','old_strict','new_full'):
+    for mode in modes:
         xs=[t for r in runs if r['mode']==mode and not r['warmup'] for t in r['frame_wall_ms']]
         ms=[t['m1_total_including_adapters_ms'] for r in runs if r['mode']==mode and not r['warmup'] for t in r['m1_timings']]
         summary[mode]=dict(frame_p50_p95_ms=np.percentile(xs,[50,95]).tolist(),samples=len(xs),

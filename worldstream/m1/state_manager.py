@@ -5,7 +5,7 @@ from time import perf_counter
 import numpy as np
 from .association import associate
 from .config import M1Config
-from .geometry import intersect_area, region_area, region_slices, project_anchor, valid_transform, valid_projection_camera
+from .geometry import intersect_area, region_area, region_slices, project_anchor, valid_transform, valid_projection_camera, predict_geometry
 from .novelty_detector import unexplained_regions
 from .observation_validator import ObservationValidator
 from .provenance import export_provenance
@@ -92,11 +92,12 @@ class WorldStateManager:
         self.last_evidence = {}
         if self.config.temporal_visibility or self.config.local_support:
             from .temporal_visibility import build_evidence
-            for cid, camera in frame.cameras.items():
-                evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config)
+            def camera_evidence(item):
+                cid, camera = item
                 # A static-scene epipolar match cannot establish trustworthy object motion.
                 # Predicted uncertain dynamic/occluded regions remain unsupported.
                 excluded = np.zeros(camera.image.shape[:2], bool)
+                anchor_excluded = np.zeros_like(excluded)
                 for aid, anchor in self.store.anchors.items():
                     p = projections[aid][cid]
                     if p.region is None: continue
@@ -106,14 +107,32 @@ class WorldStateManager:
                         and intersect_area(p.region,q[cid].region) > self.config.occlusion_overlap_fraction*region_area(p.region)
                         for other,q in projections.items())
                     if dynamic or occluded:
-                        excluded[region_slices(p.region,camera.image.shape)] = True
+                        anchor_excluded[region_slices(p.region,camera.image.shape)] = True
+                        region = p.region
+                        if dynamic and self.config.dense_local_support and self.config.dense_motion_guard:
+                            # Rejection-only swept footprint: uncertain velocity never certifies motion.
+                            # Pixel uncertainty is not capped by the small acceptance search radius.
+                            from .dense_support import swept_dynamic_region
+                            region = swept_dynamic_region(anchor, camera, p, self.config)
+                        excluded[region_slices(region,camera.image.shape)] = True
+                evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config,
+                                          dense_exclusion=excluded)
+                return evidence, excluded, anchor_excluded
+            items = list(frame.cameras.items())
+            if self.config.temporal_workers > 1 and len(items) > 1:
+                from concurrent.futures import ThreadPoolExecutor
+                with ThreadPoolExecutor(max_workers=min(self.config.temporal_workers, len(items))) as pool:
+                    evidence_list = list(pool.map(camera_evidence, items))
+            else:
+                evidence_list = [camera_evidence(item) for item in items]
+            for (cid, camera), (evidence, excluded, anchor_excluded) in zip(items, evidence_list):
                 evidence.stable_mask &= ~excluded
                 evidence.changed_mask &= ~excluded
                 if len(evidence.current_points):
                     xy = np.rint(evidence.current_points).astype(int)
                     xy[:,0] = np.clip(xy[:,0],0,excluded.shape[1]-1)
                     xy[:,1] = np.clip(xy[:,1],0,excluded.shape[0]-1)
-                    evidence.supported &= ~excluded[xy[:,1],xy[:,0]]
+                    evidence.supported &= ~anchor_excluded[xy[:,1],xy[:,0]]
                 evidence.diagnostics['excluded_motion_or_occlusion_area_ratio'] = float(excluded.mean())
                 self.last_evidence[cid] = evidence
                 for k in temporal_times: temporal_times[k] += evidence.diagnostics.get(k+'_ms',0.)
@@ -153,8 +172,19 @@ class WorldStateManager:
                     changed[cid].append(p.region)
             calibration_ok = all(p.reason not in ("invalid_calibration", "asynchronous_pose_unknown")
                                  for p in projections[aid].values())
-            valid = bool(horizon and motion_known and calibration_ok and eligible and all(eligible))
-            reasons = []
+            quality_reasons = []
+            if self.config.certification_min_source_score > 0 and (anchor.source_score is None
+                    or not np.isfinite(anchor.source_score)
+                    or anchor.source_score < self.config.certification_min_source_score):
+                quality_reasons.append("source_score_insufficient")
+            if anchor.history_observations < self.config.certification_min_history:
+                quality_reasons.append("history_insufficient")
+            if self.config.certification_max_innovation_m > 0 and (anchor.last_innovation_m is None
+                    or anchor.last_innovation_m > self.config.certification_max_innovation_m):
+                quality_reasons.append("history_innovation_unverified")
+            valid = bool(horizon and motion_known and calibration_ok and eligible and all(eligible)
+                         and not quality_reasons)
+            reasons = list(quality_reasons)
             if not horizon: reasons.append("outside_horizon")
             if not motion_known: reasons.append("motion_unknown")
             if not calibration_ok: reasons.append("calibration_or_camera_timing_unknown")
@@ -163,6 +193,9 @@ class WorldStateManager:
                            if v["geometry_valid"] and not v["valid"])
             checks[aid] = {"valid": valid, "age_s": age, "within_horizon": horizon,
                            "anchor_type": anchor.anchor_type,
+                           "source_score": anchor.source_score,
+                           "history_observations": anchor.history_observations,
+                           "last_innovation_m": anchor.last_innovation_m,
                            "motion_known": motion_known, "reasons": sorted(set(reasons)),
                            "cameras": camera_checks}
             if valid:
@@ -262,6 +295,11 @@ class WorldStateManager:
                             prior.last_verified_timestamp if prior else None,
                             np.asarray(pred.velocity_world).copy() if velocity_ok else None,
                             bool(pred.velocity_reliable and velocity_ok), pred.geometry_uncertainty)
+            a.source_score = pred.source_score
+            a.history_observations = prior.history_observations + 1 if prior else 1
+            a.last_innovation_m = (float(np.linalg.norm(
+                pred.geometry_world.center - predict_geometry(prior, frame.timestamp).center))
+                if prior else None)
             # New support always comes from an actually computed frame, never chained crops.
             for cid, camera in frame.cameras.items():
                 p = project_anchor(a, camera, self.config, validated_cameras[cid])

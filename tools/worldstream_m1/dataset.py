@@ -68,7 +68,8 @@ def prediction_outputs(predictions, config):
         velocity = np.r_[p.get('velocity', [np.nan, np.nan]), 0.]
         reliable = bool(config.trust_detection_velocity and np.isfinite(velocity).all())
         anchors.append(PerceptionAnchor('object', p['detection_name'], g,
-                                        velocity if np.isfinite(velocity).all() else None, reliable))
+                                        velocity if np.isfinite(velocity).all() else None, reliable,
+                                        source_score=float(p['detection_score'])))
     return FullOutputs(anchors, source='historical_full_model_detection_replay')
 
 

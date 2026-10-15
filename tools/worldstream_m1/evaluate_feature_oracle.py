@@ -57,6 +57,27 @@ class FeatureOracle:
                     oldv,inside0=bilinear(old[ci],p,shape); newv,inside1=bilinear(current[ci],q,shape)
                     valid=reliable&inside0&inside1
                     l2,cosine=errors(oldv,newv)
+                    if evidence.dense_source_map is not None:
+                        # Independent full-forward measurement at actually accepted pixels.
+                        # Fixed 8px evaluation grid; does not change online evidence.
+                        yy,xx=np.mgrid[4:shape[0]:8,4:shape[1]:8]
+                        xy=np.stack([xx.ravel(),yy.ravel()],axis=1)
+                        keep=~manager.last_masks[cid][xy[:,1],xy[:,0]]
+                        xy=xy[keep]
+                        if len(xy):
+                            mapped=evidence.dense_source_map[xy[:,1],xy[:,0]]
+                            a,ia=bilinear(old[ci],mapped,shape); b,ib=bilinear(current[ci],xy,shape)
+                            comparable=ia&ib
+                            if comparable.any():
+                                dl2,dcos=errors(a[comparable],b[comparable])
+                                self.rows.append(dict(scene_id=result.scene_id,frame_id=result.frame_id,
+                                    anchor_id=None,camera=cid,layer=name,patch_group='dense_stable_pixel',
+                                    accepted=True,points=int(comparable.sum()),relative_l2=float(dl2.mean()),
+                                    relative_l2_p50=float(np.median(dl2)),relative_l2_p95=float(np.percentile(dl2,95)),
+                                    cosine_similarity=float(dcos.mean()),
+                                    fraction_l2_le_01=float((dl2<=.1).mean()),
+                                    fraction_l2_le_02=float((dl2<=.2).mean()),
+                                    transformer_dependency_certified=False))
                     for aid,check in result.diagnostics['anchors'].items():
                         anchor=manager.store.anchors[aid]; obs=anchor.observation_support.get(cid)
                         if obs is None or abs(anchor.source_timestamp-old_timestamp)>1e-5: continue
