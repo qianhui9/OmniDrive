@@ -69,7 +69,10 @@ class Petr3D(MVXTwoStageDetector):
                  frozen=True,
                  use_lora=False,
                  pretrained=None,
-                 export_onnx=False):
+                 export_onnx=False,
+                 m1_enable=False,
+                 m1_execution_mode='observe_only',
+                 m1_config=None):
         super(Petr3D, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
                              img_backbone, pts_backbone, img_neck, pts_neck,
@@ -139,6 +142,15 @@ class Petr3D(MVXTwoStageDetector):
             self.lm_head = load_model(lm_head, use_lora, frozen)
 
         self.test_flag = False
+        self.m1_manager = None
+        if m1_enable:
+            from worldstream.m1 import M1Config, WorldStateManager
+            from dataclasses import replace
+            settings = replace(M1Config.load(m1_config), enabled=True,
+                               execution_mode=m1_execution_mode)
+            self.m1_manager = WorldStateManager(settings)
+            # Loading a different checkpoint invalidates external state, without touching Head memory.
+            self._register_load_state_dict_pre_hook(lambda *args: self.m1_manager.reset())
 
     @property
     def with_map_head(self):
@@ -393,6 +405,8 @@ class Petr3D(MVXTwoStageDetector):
   
     def forward_test(self, img_metas, rescale, **data):
         if not self.test_flag: #for interval evaluation
+            if self.m1_manager is not None:
+                self.m1_manager.reset()
             if self.with_pts_bbox:
                 self.pts_bbox_head.reset_memory()
             if self.with_map_head:
@@ -409,7 +423,7 @@ class Petr3D(MVXTwoStageDetector):
                 data[key] = data[key][0]
         return self.simple_test(img_metas[0], **data)
 
-    def simple_test_pts(self, img_metas, **data):
+    def simple_test_pts(self, img_metas, _m1_observer=None, **data):
         """Test function of point cloud branch."""
         #check
         location = self.prepare_location(img_metas, **data)
@@ -429,6 +443,14 @@ class Petr3D(MVXTwoStageDetector):
             outs, map_query = self.map_head(img_metas, pos_embed, **data)
             vision_embeded_map = map_query.clone()
             lane_results = self.map_head.get_bboxes(outs, img_metas)
+
+        if _m1_observer is not None:
+            observed_features = {'backbone': data['img_feats']}
+            if self.with_pts_bbox:
+                observed_features['object_carrier'] = det_query
+            if self.with_map_head:
+                observed_features['map_carrier'] = map_query
+            _m1_observer(bbox_results, lane_results, observed_features)
 
         generated_text = []
         if self.with_lm_head and not os.path.exists(self.save_path+img_metas[0]['sample_idx']) :
@@ -457,10 +479,42 @@ class Petr3D(MVXTwoStageDetector):
     
     def simple_test(self, img_metas, **data):
         """Test function without augmentaiton."""
+        m1_observer = None
+        if self.m1_manager is not None:
+            from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result
+            import hashlib
+            settings = self.m1_manager.config
+            adapter_start = time.perf_counter()
+            frame = frame_from_model(img_metas, data, settings)
+            parameter_signature = [(name, tuple(p.shape), str(p.dtype), str(p.device), p._version)
+                                   for name, p in self.named_parameters()]
+            execution_policy = (getattr(self, 'training', False), torch.is_autocast_enabled(),
+                                torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32)
+            frame.execution_signature = hashlib.sha256(
+                (frame.execution_signature + repr(parameter_signature) + repr(execution_policy)).encode()).hexdigest()
+            adapter_ms = (time.perf_counter() - adapter_start) * 1000
+            precheck = self.m1_manager.precheck(frame)
+            precheck.diagnostics['timings_ms']['input_adapter_including_transfers'] = adapter_ms
+
+            def m1_observer(boxes, lanes, features):
+                output_start = time.perf_counter()
+                outputs = outputs_from_model(frame, boxes, lanes, features, settings)
+                output_ms = (time.perf_counter() - output_start) * 1000
+                self.m1_manager.commit(frame, outputs, precheck)
+                self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
+                self.m1_manager.last_commit_diagnostics['m1_total_including_adapters_ms'] = (
+                    adapter_ms + output_ms + precheck.diagnostics['timings_ms']['precheck_total']
+                    + self.m1_manager.last_commit_diagnostics['commit_total_ms'])
+                if settings.logging and settings.log_path:
+                    append_result(settings.log_path, precheck, self.m1_manager.last_commit_diagnostics)
+
         data['img_feats'] = self.extract_img_feat(data['img'])
         bbox_list = [dict() for i in range(len(img_metas))]
-        bbox_pts, generated_text, lane_results = self.simple_test_pts(
-            img_metas, **data)
+        if m1_observer is None:
+            bbox_pts, generated_text, lane_results = self.simple_test_pts(img_metas, **data)
+        else:
+            bbox_pts, generated_text, lane_results = self.simple_test_pts(
+                img_metas, _m1_observer=m1_observer, **data)
         for result_dict, pts_bbox in zip(bbox_list, bbox_pts):
             result_dict['pts_bbox'] = pts_bbox
         bbox_list[0]['text_out'] = generated_text
