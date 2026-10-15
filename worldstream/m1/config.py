@@ -45,6 +45,19 @@ class M1Config:
     log_path: Optional[str] = None
     visualization: bool = True
     profiling: bool = True
+    temporal_visibility: bool = False  # opt-in refinement; false reproduces round one
+    local_support: bool = False
+    flow_max_points: int = 1600
+    flow_min_distance_px: int = 5
+    flow_fb_max_px: float = 0.75
+    flow_lk_max_error: float = 12.0  # OpenCV mean absolute intensity error, 0..255
+    flow_epipolar_max_px: float = 1.0
+    support_patch_radius_px: int = 3
+    support_residual_max: float = 0.04  # grayscale intensity, 0..1
+    support_gradient_max: float = 0.08
+    support_min_points: int = 4
+    support_point_fraction: float = 0.8
+    support_quadrant_fraction: float = 0.75
 
     def __post_init__(self):
         if self.execution_mode != "observe_only":
@@ -53,6 +66,16 @@ class M1Config:
                     "full_refresh_interval", "max_tensor_bytes", "min_region_area_px"):
             if getattr(self, key) <= 0:
                 raise ValueError(key + " must be positive")
+        for key in ("flow_max_points", "flow_min_distance_px", "support_patch_radius_px", "support_min_points"):
+            if getattr(self, key) <= 0:
+                raise ValueError(key + " must be positive")
+        for key in ("flow_fb_max_px", "flow_lk_max_error", "flow_epipolar_max_px",
+                    "support_residual_max", "support_gradient_max"):
+            import math
+            if not math.isfinite(getattr(self, key)) or getattr(self, key) <= 0:
+                raise ValueError(key + " must be finite and positive")
+        if not all(0 < x <= 1 for x in (self.support_point_fraction, self.support_quadrant_fraction)):
+            raise ValueError("support fractions must be in (0, 1]")
         for key in ("max_state_age_s", "max_frame_gap_s", "association_gate_m", "map_gate_m",
                     "box_size_ratio", "residual_threshold", "min_texture_std", "uncertainty_px",
                     "velocity_uncertainty_mps", "max_camera_skew_s", "novelty_threshold"):

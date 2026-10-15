@@ -1,6 +1,9 @@
 """Read-only bridge for the inspected Ego-coordinate OmniDrive pipeline."""
 import hashlib
 import json
+from contextlib import contextmanager
+from contextvars import ContextVar
+from time import perf_counter
 from pathlib import Path
 import numpy as np
 from .geometry import rigid_transform, inverse_transform, transform_points, valid_transform
@@ -9,10 +12,28 @@ from .state_types import CameraFrame, ComputedFeature, Frame, FullOutputs, Geome
 CLASS_NAMES = ['car', 'truck', 'construction_vehicle', 'bus', 'trailer', 'barrier',
                'motorcycle', 'bicycle', 'pedestrian', 'traffic_cone']
 
+_transfer_stats = ContextVar('m1_transfer_stats', default=None)
+
+
+@contextmanager
+def measure_transfers():
+    stats = {'gpu_to_cpu_transfer_ms': 0., 'gpu_to_cpu_transfer_calls': 0}
+    token = _transfer_stats.set(stats)
+    try:
+        yield stats
+    finally:
+        _transfer_stats.reset(token)
+
 
 def numpy_copy(value):
     if hasattr(value, "detach"):
-        return value.detach().cpu().numpy().copy()
+        start = perf_counter()
+        result = value.detach().cpu().numpy().copy()
+        stats = _transfer_stats.get()
+        if stats is not None and getattr(value, 'is_cuda', False):
+            stats['gpu_to_cpu_transfer_ms'] += (perf_counter()-start)*1000
+            stats['gpu_to_cpu_transfer_calls'] += 1
+        return result
     return np.array(value, copy=True)
 
 

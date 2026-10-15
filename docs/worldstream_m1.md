@@ -137,3 +137,7 @@ profile.json 是真实两帧输入的重复 CPU 微基准，分别测 Projection
 完整模型 GPU 数值回归状态见交付报告。目前仍缺：独立的当前可见性/表面证据、跨更多场景/天气的可靠阈值、深层特征 Oracle、完整 M2 依赖闭包和任何实际 GPU 跳算。相似纹理、纹理不足、遮挡、几何预测误差、新物体未覆盖和长时间外推均可能导致漏检或错误候选，因此保持周期刷新提示与保守失效。M1 本次没有测得或报告端到端模型加速。
 
 2026-10-15 宿主 GPU 验证已完成：RTX 3090，驱动 580.173.02，PyTorch 1.13.1+cu117。3 帧完整模型 Baseline/Observe-Only 的 Backbone、Detection/Map 输出与 Temporal Memory 数值摘要一致，峰值 PyTorch allocated 显存均约 15.119 GiB；详见 model_smoke/results.json。此单次检查未用于宣称速度提升。
+
+## 第二轮完善
+
+新增同源RGB时序可见性证据、局部支持和精确失效掩码导出，默认通过独立配置开启。接口、复现与边界见 [worldstream_m1_refinement.md](worldstream_m1_refinement.md)，实际风险/覆盖/成本结论见 [第二轮报告](../outputs/module1_refinement/refinement_report.md)。原配置继续复现第一轮严格行为。

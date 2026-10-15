@@ -70,8 +70,9 @@ def predict_geometry(anchor, timestamp):
 def clip_region(region, shape):
     h, w = shape[:2]
     x1, y1, x2, y2 = region
-    return (float(np.clip(x1, 0, w)), float(np.clip(y1, 0, h)),
-            float(np.clip(x2, 0, w)), float(np.clip(y2, 0, h)))
+    # Scalar clipping avoids four NumPy dispatches for every crop in the search loop.
+    return (float(min(max(x1, 0), w)), float(min(max(y1, 0), h)),
+            float(min(max(x2, 0), w)), float(min(max(y2, 0), h)))
 
 
 def region_area(region):
@@ -88,12 +89,26 @@ def region_slices(region, shape):
             slice(int(np.floor(r[0])), int(np.ceil(r[2]))))
 
 
-def project_points(points_world, intrinsic, world_to_camera, min_depth=0.1):
+def valid_projection_camera(camera):
+    k = np.asarray(camera.intrinsic)
+    return (valid_transform(camera.world_to_camera) and k.shape == (3, 3)
+            and np.isfinite(k).all() and abs(np.linalg.det(k)) >= 1e-9
+            and np.allclose(k[2], [0, 0, 1], atol=1e-5))
+
+
+def project_points(points_world, intrinsic, world_to_camera, min_depth=0.1, _camera_validated=False):
     k = np.asarray(intrinsic)
-    if (k.shape != (3, 3) or not np.isfinite(k).all() or abs(np.linalg.det(k)) < 1e-9
+    if not _camera_validated and (k.shape != (3, 3) or not np.isfinite(k).all() or abs(np.linalg.det(k)) < 1e-9
             or not np.allclose(k[2], [0, 0, 1], atol=1e-5)):
         raise ValueError("Invalid intrinsic")
-    points = transform_points(points_world, world_to_camera)
+    if _camera_validated:
+        points_world = np.asarray(points_world, dtype=np.float64)
+        if points_world.shape[-1] != 3 or not np.isfinite(points_world).all():
+            raise ValueError("Invalid points")
+        matrix = np.asarray(world_to_camera)
+        points = points_world @ matrix[:3, :3].T + matrix[:3, 3]
+    else:
+        points = transform_points(points_world, world_to_camera)
     depths = points[..., 2]
     good = depths > min_depth
     uvh = points @ k.T
@@ -113,7 +128,7 @@ class Projection:
     search_radius_px: int = 0
 
 
-def project_anchor(anchor, camera, config):
+def project_anchor(anchor, camera, config, _camera_validated=False):
     empty = Projection(None, np.empty((0, 2)), float("inf"), 0., False, "invalid_calibration")
     if not camera.timing_reliable:
         empty.reason = "asynchronous_pose_unknown"
@@ -124,7 +139,8 @@ def project_anchor(anchor, camera, config):
         return empty
     try:
         geom = predict_geometry(anchor, camera.timestamp)
-        uv, depths, good = project_points(geom.points, camera.intrinsic, camera.world_to_camera)
+        uv, depths, good = project_points(geom.points, camera.intrinsic, camera.world_to_camera,
+                                         _camera_validated=_camera_validated)
     except (ValueError, TypeError, np.linalg.LinAlgError):
         return empty
     # Near-plane crossings are not certified from the remaining subset of corners.

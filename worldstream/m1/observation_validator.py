@@ -1,5 +1,6 @@
 """CPU image evidence only. No GT, detector outputs or EVA features enter this API."""
 from dataclasses import dataclass
+from dataclasses import field
 import cv2
 import numpy as np
 from .geometry import region_area, region_slices, clip_region
@@ -13,6 +14,7 @@ class Validation:
     observation_consistent: bool
     visibility_and_coverage_valid: bool
     reason: str
+    evidence: dict = field(default_factory=dict)
 
 
 class ObservationValidator:
@@ -46,7 +48,7 @@ class ObservationValidator:
             return float("inf")
         return float(np.mean(np.abs(a - b)))
 
-    def validate(self, old, camera, projection, occluded=False):
+    def validate(self, old, camera, projection, occluded=False, temporal_evidence=None):
         region = projection.region
         if region is None:
             return Validation(False, float("inf"), (), False, False, projection.reason)
@@ -68,13 +70,19 @@ class ObservationValidator:
         consistent = best <= self.config.residual_threshold
         visible = not occluded
         visibility_reason = "projected_occlusion" if occluded else "ok"
+        evidence = {}
         if self.config.require_visibility_evidence:
             mask = camera.visibility_mask
             ys, xs = region_slices(best_region, camera.image.shape)
-            if mask is None or mask.shape != camera.image.shape[:2] or mask[ys, xs].size == 0:
+            if self.config.temporal_visibility:
+                from .temporal_visibility import anchor_visibility
+                supported, why, evidence = anchor_visibility(temporal_evidence, old, projection, self.config)
+                visible = visible and supported
+                visibility_reason = "projected_occlusion" if occluded else why
+            elif mask is None or mask.shape != camera.image.shape[:2] or mask[ys, xs].size == 0:
                 visible = False; visibility_reason = "visibility_unknown"
             elif np.asarray(mask[ys, xs], dtype=bool).mean() < self.config.min_coverage:
                 visible = False; visibility_reason = "insufficient_visible_support"
         valid = consistent and visible
         reason = "ok" if valid else ("observation_mismatch" if not consistent else visibility_reason)
-        return Validation(valid, best, best_region, consistent, visible, reason)
+        return Validation(valid, best, best_region, consistent, visible, reason, evidence)

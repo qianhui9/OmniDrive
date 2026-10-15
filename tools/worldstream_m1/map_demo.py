@@ -16,12 +16,13 @@ def main():
     p.add_argument('--lanes', default='data/nuscenes/data_dict_sample.pkl')
     p.add_argument('--data-root', default='data/nuscenes')
     p.add_argument('--frames', type=int, default=6)
+    p.add_argument('--config', default=None)
     p.add_argument('--output', default='outputs/module1/map_annotation_demo')
     args = p.parse_args()
     root = Path(args.output); root.mkdir(parents=True, exist_ok=True)
     infos = select_infos(args.infos, limit=args.frames)
     with open(args.lanes, 'rb') as handle: lanes = pickle.load(handle)
-    manager = WorldStateManager()
+    manager = WorldStateManager(args.config)
     rows = []
     for index, info in enumerate(infos):
         frame = frame_from_info(info, args.data_root)

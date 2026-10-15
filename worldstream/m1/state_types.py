@@ -7,6 +7,30 @@ Region = Tuple[float, float, float, float]  # half-open xyxy, image pixels
 
 
 @dataclass
+class OnlineVisibilityEvidence:
+    """Same-RGB temporal evidence, NOT an independent visibility sensor or object mask.
+
+    Arrays are camera pixel coordinates; supported points have bidirectional,
+    calibrated-geometry and local photometric evidence. Failed tracks are unknown.
+    """
+    camera_id: str
+    source_timestamp: float
+    timestamp: float
+    source_points: np.ndarray
+    current_points: np.ndarray
+    fb_error_px: np.ndarray
+    geometry_valid: np.ndarray
+    correspondence_valid: np.ndarray
+    supported: np.ndarray
+    patch_residual: np.ndarray
+    stable_mask: np.ndarray
+    changed_mask: np.ndarray
+    diagnostics: Dict[str, Any] = field(default_factory=dict)
+    source: str = "same_rgb_bidirectional_lk_calibrated_geometry_local_patch"
+    transformer_dependency_certified: bool = False
+
+
+@dataclass
 class CameraFrame:
     camera_id: str
     image: np.ndarray  # RGB uint8, unpadded raw or preprocessed image

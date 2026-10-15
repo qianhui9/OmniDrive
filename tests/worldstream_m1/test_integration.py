@@ -81,7 +81,10 @@ def inputs(timestamp=100.):
     return [meta], data
 
 
-def test_disabled_and_observe_only_equal_at_real_entry(tmp_path, config):
+@pytest.mark.parametrize('refinement', [False, True])
+def test_disabled_and_observe_only_equal_at_real_entry(tmp_path, config, refinement):
+    from dataclasses import replace
+    config = replace(config, temporal_visibility=refinement, local_support=refinement)
     from tools.worldstream_m1.model_smoke import digest
     baseline = make_model(tmp_path/'baseline', None)
     enabled = make_model(tmp_path/'observe', WorldStateManager(config))

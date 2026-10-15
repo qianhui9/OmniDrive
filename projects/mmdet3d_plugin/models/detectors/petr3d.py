@@ -481,11 +481,12 @@ class Petr3D(MVXTwoStageDetector):
         """Test function without augmentaiton."""
         m1_observer = None
         if self.m1_manager is not None:
-            from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result
+            from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result, measure_transfers
             import hashlib
             settings = self.m1_manager.config
             adapter_start = time.perf_counter()
-            frame = frame_from_model(img_metas, data, settings)
+            with measure_transfers() as input_transfers:
+                frame = frame_from_model(img_metas, data, settings)
             parameter_signature = [(name, tuple(p.shape), str(p.dtype), str(p.device), p._version)
                                    for name, p in self.named_parameters()]
             execution_policy = (getattr(self, 'training', False), torch.is_autocast_enabled(),
@@ -495,13 +496,16 @@ class Petr3D(MVXTwoStageDetector):
             adapter_ms = (time.perf_counter() - adapter_start) * 1000
             precheck = self.m1_manager.precheck(frame)
             precheck.diagnostics['timings_ms']['input_adapter_including_transfers'] = adapter_ms
+            precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer'] = input_transfers['gpu_to_cpu_transfer_ms']
 
             def m1_observer(boxes, lanes, features):
                 output_start = time.perf_counter()
-                outputs = outputs_from_model(frame, boxes, lanes, features, settings)
+                with measure_transfers() as output_transfers:
+                    outputs = outputs_from_model(frame, boxes, lanes, features, settings)
                 output_ms = (time.perf_counter() - output_start) * 1000
                 self.m1_manager.commit(frame, outputs, precheck)
                 self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
+                self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_ms'] = output_transfers['gpu_to_cpu_transfer_ms']
                 self.m1_manager.last_commit_diagnostics['m1_total_including_adapters_ms'] = (
                     adapter_ms + output_ms + precheck.diagnostics['timings_ms']['precheck_total']
                     + self.m1_manager.last_commit_diagnostics['commit_total_ms'])

@@ -1,9 +1,11 @@
 """Only certified local geometry explains pixels. Everything else stays invalidated."""
 import numpy as np
 from .geometry import region_slices
+from .mask_codec import encode_mask
 
 
-def unexplained_regions(camera, certified_regions, changed_regions, config, force_refresh=False):
+def unexplained_regions(camera, certified_regions, changed_regions, config, force_refresh=False,
+                        temporal_evidence=None):
     h, w = camera.image.shape[:2]
     explained = np.zeros((h, w), dtype=bool)
     for region in certified_regions:
@@ -16,9 +18,20 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
         explained &= camera.geometry_support_mask.astype(bool)
     else:
         explained[:] = False
-    invalid = ~explained
-    for region in changed_regions:
-        invalid[region_slices(region, camera.image.shape)] = True
+    changed = np.zeros((h, w), dtype=bool)
+    if config.local_support:
+        # Independently certified local patches can survive a failed whole-anchor check.
+        # No rectangle is used to mark stable pixels.
+        explained[:] = False
+        if temporal_evidence is not None:
+            explained |= temporal_evidence.stable_mask
+            changed |= temporal_evidence.changed_mask
+    else:
+        for region in changed_regions:
+            changed[region_slices(region, camera.image.shape)] = True
+    explained &= ~changed
+    unknown = ~(explained | changed)
+    invalid = changed | unknown
     ratio = float(invalid.mean())
     if force_refresh:
         invalid[:] = True
@@ -38,6 +51,15 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
         "image_shape": [h, w], "regions": regions,
         "changed_regions": changed_regions,
         "unknown_uncovered_area_ratio": ratio,
+        "verified_stable_area_ratio": float(explained.mean()),
+        "changed_area_ratio": float(changed.mean()),
+        "unknown_area_ratio": float(unknown.mean()),
+        "invalidation_area_ratio": float(invalid.mean()),
+        "refresh_override": bool(force_refresh),
+        "evidence_source": temporal_evidence.source if temporal_evidence is not None else "external_or_missing",
+        "transformer_dependency_certified": False,
+        "exact_invalidation_mask": encode_mask(invalid) if config.local_support else None,
+        "regions_are_conservative_tile_envelope": True,
         "reason": "periodic_or_reset_refresh" if force_refresh else "uncovered_or_changed",
         "feature_mapping": "unknown; no Transformer token indices",
     }, invalid

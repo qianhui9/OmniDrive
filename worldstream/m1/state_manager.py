@@ -5,7 +5,7 @@ from time import perf_counter
 import numpy as np
 from .association import associate
 from .config import M1Config
-from .geometry import intersect_area, region_area, project_anchor, valid_transform
+from .geometry import intersect_area, region_area, region_slices, project_anchor, valid_transform, valid_projection_camera
 from .novelty_detector import unexplained_regions
 from .observation_validator import ObservationValidator
 from .provenance import export_provenance
@@ -29,6 +29,8 @@ class WorldStateManager:
         self.last_masks = {}
         self.last_commit_diagnostics = {}
         self._last_precheck_timestamp = None
+        self._previous_cameras = {}
+        self.last_evidence = {}
 
     def reset(self, scene_id=None):
         self.store.reset(scene_id)
@@ -36,6 +38,8 @@ class WorldStateManager:
         self.last_masks = {}
         self._pending = None
         self._last_precheck_timestamp = None
+        self._previous_cameras = {}
+        self.last_evidence = {}
 
     def _prepare(self, frame):
         s = self.store
@@ -73,15 +77,46 @@ class WorldStateManager:
                        if frame.timestamp - a.source_timestamp > self.config.max_state_age_s]
         self.store.prune(frame.timestamp)
         periodic = self.store.commit_count % self.config.full_refresh_interval == 0
+        no_history = not self.store.anchors and not (self.config.local_support and self._previous_cameras)
         result = M1Result(frame.scene_id, frame.frame_id, frame.timestamp,
-                          full_refresh_hint=bool(reset_reason or periodic or not self.store.anchors))
+                          full_refresh_hint=bool(reset_reason or periodic or no_history))
         result.invalid_anchor_ids.extend(expired_ids)
         projections, checks = {}, {}
         projection_start = perf_counter()
+        validated_cameras = {cid: valid_projection_camera(cam) for cid, cam in frame.cameras.items()}
         for aid, anchor in self.store.anchors.items():
-            projections[aid] = {cid: project_anchor(anchor, cam, self.config)
+            projections[aid] = {cid: project_anchor(anchor, cam, self.config, validated_cameras[cid])
                                 for cid, cam in frame.cameras.items()}
         projection_ms = (perf_counter() - projection_start) * 1000
+        temporal_times = dict(temporal_correspondence=0., visibility_verification=0., geometry_support=0.)
+        self.last_evidence = {}
+        if self.config.temporal_visibility or self.config.local_support:
+            from .temporal_visibility import build_evidence
+            for cid, camera in frame.cameras.items():
+                evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config)
+                # A static-scene epipolar match cannot establish trustworthy object motion.
+                # Predicted uncertain dynamic/occluded regions remain unsupported.
+                excluded = np.zeros(camera.image.shape[:2], bool)
+                for aid, anchor in self.store.anchors.items():
+                    p = projections[aid][cid]
+                    if p.region is None: continue
+                    dynamic = anchor.anchor_type == 'object' and anchor.semantic_class not in STATIC_CLASSES
+                    occluded = any(other != aid and q[cid].region is not None
+                        and q[cid].depth < p.depth-self.config.occlusion_depth_margin_m
+                        and intersect_area(p.region,q[cid].region) > self.config.occlusion_overlap_fraction*region_area(p.region)
+                        for other,q in projections.items())
+                    if dynamic or occluded:
+                        excluded[region_slices(p.region,camera.image.shape)] = True
+                evidence.stable_mask &= ~excluded
+                evidence.changed_mask &= ~excluded
+                if len(evidence.current_points):
+                    xy = np.rint(evidence.current_points).astype(int)
+                    xy[:,0] = np.clip(xy[:,0],0,excluded.shape[1]-1)
+                    xy[:,1] = np.clip(xy[:,1],0,excluded.shape[0]-1)
+                    evidence.supported &= ~excluded[xy[:,1],xy[:,0]]
+                evidence.diagnostics['excluded_motion_or_occlusion_area_ratio'] = float(excluded.mean())
+                self.last_evidence[cid] = evidence
+                for k in temporal_times: temporal_times[k] += evidence.diagnostics.get(k+'_ms',0.)
         validation_start = perf_counter()
         certified = {cid: [] for cid in frame.cameras}
         changed = {cid: [] for cid in frame.cameras}
@@ -104,7 +139,8 @@ class WorldStateManager:
                                 and q.depth < p.depth - self.config.occlusion_depth_margin_m
                                 and intersect_area(p.region, q.region) > self.config.occlusion_overlap_fraction * region_area(p.region)):
                             occluded = True; break
-                validation = self.validator.validate(anchor.observation_support.get(cid), camera, p, occluded)
+                validation = self.validator.validate(anchor.observation_support.get(cid), camera, p, occluded,
+                                                     self.last_evidence.get(cid))
                 camera_checks[cid] = dict(asdict(validation), geometry_valid=p.valid,
                                           projected_points=p.uv,
                                           predicted_region=p.region, coverage=p.coverage,
@@ -113,7 +149,7 @@ class WorldStateManager:
                 # have enough geometry. Calibration/timing failure invalidates globally below.
                 if p.valid:
                     eligible.append(validation.valid)
-                if p.region is not None and validation.residual > self.config.novelty_threshold:
+                if p.region is not None and np.isfinite(validation.residual) and validation.residual > self.config.novelty_threshold:
                     changed[cid].append(p.region)
             calibration_ok = all(p.reason not in ("invalid_calibration", "asynchronous_pose_unknown")
                                  for p in projections[aid].values())
@@ -156,7 +192,7 @@ class WorldStateManager:
         self.last_masks = {}
         for cid, camera in frame.cameras.items():
             regions, mask = unexplained_regions(camera, certified[cid], changed[cid], self.config,
-                                                 result.full_refresh_hint)
+                                                 result.full_refresh_hint, self.last_evidence.get(cid))
             result.invalidation_regions[cid], self.last_masks[cid] = regions, mask
         novelty_ms = (perf_counter() - novelty_start) * 1000
         result.feature_versions = self.store.feature_versions()
@@ -167,9 +203,12 @@ class WorldStateManager:
             "model_id": self.config.model_id,
             "thresholds_provisional": True,  # geometry/coverage gates still provisional
             "residual_threshold_calibrated": self.calibration is not None,
-            "visibility_requires_independent_support": self.config.require_visibility_evidence,
+            "visibility_requires_independent_support": self.config.require_visibility_evidence and not self.config.temporal_visibility,
+            "temporal_evidence": {cid: e.diagnostics for cid,e in self.last_evidence.items()},
+            "transformer_dependency_certified": False,
             "timings_ms": {"projection": projection_ms, "observation_validation": validation_ms,
-                           "unexplained_regions": novelty_ms, "precheck_total": (perf_counter() - start) * 1000},
+                           "unexplained_regions": novelty_ms, **temporal_times,
+                           "precheck_total": (perf_counter() - start) * 1000},
             "tensor_bytes": self.store.tensor_bytes,
             "no_gpu_computation_skipped": True}
         if not self.config.profiling:
@@ -212,6 +251,7 @@ class WorldStateManager:
         assoc_ms = (perf_counter() - assoc_start) * 1000
         matched = {j: anchors[i].anchor_id for i, j in pairs}
         committed = []
+        validated_cameras = {cid: valid_projection_camera(cam) for cid, cam in frame.cameras.items()}
         for j, pred in enumerate(predictions[:self.config.max_anchors]):
             aid = matched.get(j) or self.store.new_anchor_id()
             prior = self.store.anchors.get(aid)
@@ -224,7 +264,7 @@ class WorldStateManager:
                             bool(pred.velocity_reliable and velocity_ok), pred.geometry_uncertainty)
             # New support always comes from an actually computed frame, never chained crops.
             for cid, camera in frame.cameras.items():
-                p = project_anchor(a, camera, self.config)
+                p = project_anchor(a, camera, self.config, validated_cameras[cid])
                 if p.valid:
                     descriptor = self.validator.descriptor(camera.image, p.region)
                     if descriptor is not None:
@@ -273,6 +313,18 @@ class WorldStateManager:
         self.store.last_timestamp = frame.timestamp
         self.store.execution_signature = frame.execution_signature
         self.store.commit_count += 1
+        if self.config.temporal_visibility or self.config.local_support:
+            # Own only one bounded grayscale frame per camera, from actual computation.
+            # precheck never replaces this source with an uncomputed/verified frame.
+            from .temporal_visibility import gray_image
+            self._previous_cameras = {}
+            for cid, camera in frame.cameras.items():
+                saved = copy.copy(camera)
+                saved.image = gray_image(camera)
+                saved.intrinsic = np.array(camera.intrinsic,copy=True)
+                saved.world_to_camera = None if camera.world_to_camera is None else np.array(camera.world_to_camera,copy=True)
+                saved.visibility_mask = None; saved.geometry_support_mask = None
+                self._previous_cameras[cid] = saved
         self.last_commit_diagnostics = {"source": full_outputs.source, "committed_anchor_ids": committed,
             "association_pairs": [[anchors[i].anchor_id, j] for i, j in pairs],
             "association_ms": assoc_ms, "state_update_ms": (perf_counter() - start) * 1000 - assoc_ms,
