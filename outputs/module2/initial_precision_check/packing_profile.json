@@ -1,0 +1,695 @@
+{
+  "1": {
+    "packed": {
+      "kernel_count": 58,
+      "kernel_active_ms": 1.311,
+      "h2d_d2h_events": [
+        "Memcpy DtoD (Device -> Device)"
+      ],
+      "cpu_cuda_calls": [
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 50,
+          "cpu_us": 124
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 10,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::indexSelectSmallIndex<float, long, unsigned int, 2, 2, -2>(at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<long, unsigned int>, int, int, unsigned int, long)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+          "calls": 11,
+          "cpu_us": 3
+        },
+        {
+          "name": "cudaMemsetAsync",
+          "calls": 7,
+          "cpu_us": 23
+        },
+        {
+          "name": "cudaStreamGetCaptureInfo",
+          "calls": 10,
+          "cpu_us": 1
+        },
+        {
+          "name": "cudaEventQuery",
+          "calls": 4,
+          "cpu_us": 4
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls": 5,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void (anonymous namespace)::elementwise_kernel_with_index<int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>(int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}, function_traits<at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>::result_type*)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaFuncSetAttribute",
+          "calls": 1,
+          "cpu_us": 1
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1,
+          "cpu_us": 11
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 2,
+          "cpu_us": 517
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float, float>(long, float, float const*, float*, float*)",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+          "calls": 1,
+          "cpu_us": 0
+        }
+      ]
+    },
+    "naive": {
+      "kernel_count": 59,
+      "kernel_active_ms": 1.314,
+      "h2d_d2h_events": [
+        "Memcpy DtoD (Device -> Device)",
+        "Memcpy DtoD (Device -> Device)"
+      ],
+      "cpu_cuda_calls": [
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 50,
+          "cpu_us": 93
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 10,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+          "calls": 11,
+          "cpu_us": 1
+        },
+        {
+          "name": "cudaMemsetAsync",
+          "calls": 7,
+          "cpu_us": 15
+        },
+        {
+          "name": "cudaStreamGetCaptureInfo",
+          "calls": 10,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaEventQuery",
+          "calls": 4,
+          "cpu_us": 2
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::indexSelectSmallIndex<float, long, unsigned int, 2, 2, -2>(at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<long, unsigned int>, int, int, unsigned int, long)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls": 5,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void (anonymous namespace)::elementwise_kernel_with_index<int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>(int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}, function_traits<at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>::result_type*)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaFuncSetAttribute",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 2,
+          "cpu_us": 11
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 2,
+          "cpu_us": 539
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float, float>(long, float, float const*, float*, float*)",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+          "calls": 1,
+          "cpu_us": 0
+        }
+      ]
+    }
+  },
+  "27": {
+    "packed": {
+      "kernel_count": 57,
+      "kernel_active_ms": 12.105,
+      "h2d_d2h_events": [
+        "Memcpy DtoD (Device -> Device)"
+      ],
+      "cpu_cuda_calls": [
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 50,
+          "cpu_us": 121
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 10,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+          "calls": 13,
+          "cpu_us": 1
+        },
+        {
+          "name": "cudaMemsetAsync",
+          "calls": 6,
+          "cpu_us": 16
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::indexSelectLargeIndex<float, long, unsigned int, 2, 2, -2, true>(at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<long, unsigned int>, int, int, unsigned int, unsigned int, long)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaFuncSetAttribute",
+          "calls": 1,
+          "cpu_us": 1
+        },
+        {
+          "name": "cudaStreamGetCaptureInfo",
+          "calls": 9,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaEventQuery",
+          "calls": 3,
+          "cpu_us": 1
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1,
+          "cpu_us": 5
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 2,
+          "cpu_us": 11289
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls": 5,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void (anonymous namespace)::elementwise_kernel_with_index<int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>(int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}, function_traits<at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>::result_type*)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float, float>(long, float, float const*, float*, float*)",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+          "calls": 1,
+          "cpu_us": 0
+        }
+      ]
+    },
+    "naive": {
+      "kernel_count": 1229,
+      "kernel_active_ms": 18.647,
+      "h2d_d2h_events": [
+        "Memcpy DtoD (Device -> Device)"
+      ],
+      "cpu_cuda_calls": [
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 1039,
+          "cpu_us": 1748
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 114,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+          "calls": 297,
+          "cpu_us": 4
+        },
+        {
+          "name": "cudaMemsetAsync",
+          "calls": 189,
+          "cpu_us": 232
+        },
+        {
+          "name": "cudaEventQuery",
+          "calls": 108,
+          "cpu_us": 23
+        },
+        {
+          "name": "cudaStreamGetCaptureInfo",
+          "calls": 270,
+          "cpu_us": 11
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::indexSelectLargeIndex<float, long, unsigned int, 2, 2, -2, true>(at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<long, unsigned int>, int, int, unsigned int, unsigned int, long)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaFuncSetAttribute",
+          "calls": 27,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 54,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls": 135,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 54,
+          "cpu_us": 0
+        },
+        {
+          "name": "void (anonymous namespace)::elementwise_kernel_with_index<int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>(int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}, function_traits<at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>::result_type*)",
+          "calls": 54,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 27,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>)",
+          "calls": 54,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float, float>(long, float, float const*, float*, float*)",
+          "calls": 27,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+          "calls": 27,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1,
+          "cpu_us": 6
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 2,
+          "cpu_us": 5119
+        }
+      ]
+    }
+  },
+  "54": {
+    "packed": {
+      "kernel_count": 55,
+      "kernel_active_ms": 23.439,
+      "h2d_d2h_events": [
+        "Memcpy DtoD (Device -> Device)"
+      ],
+      "cpu_cuda_calls": [
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 50,
+          "cpu_us": 478
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 10,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+          "calls": 11,
+          "cpu_us": 1
+        },
+        {
+          "name": "cudaMemsetAsync",
+          "calls": 4,
+          "cpu_us": 15
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::indexSelectLargeIndex<float, long, unsigned int, 2, 2, -2, true>(at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<long, unsigned int>, int, int, unsigned int, unsigned int, long)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaFuncSetAttribute",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaEventQuery",
+          "calls": 1,
+          "cpu_us": 1
+        },
+        {
+          "name": "cudaStreamGetCaptureInfo",
+          "calls": 3,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1,
+          "cpu_us": 6
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 2,
+          "cpu_us": 22629
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls": 5,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void (anonymous namespace)::elementwise_kernel_with_index<int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>(int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}, function_traits<at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>::result_type*)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float, float>(long, float, float const*, float*, float*)",
+          "calls": 1,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+          "calls": 1,
+          "cpu_us": 0
+        }
+      ]
+    },
+    "naive": {
+      "kernel_count": 2444,
+      "kernel_active_ms": 37.792,
+      "h2d_d2h_events": [
+        "Memcpy DtoD (Device -> Device)"
+      ],
+      "cpu_cuda_calls": [
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 2065,
+          "cpu_us": 2996
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 222,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+          "calls": 594,
+          "cpu_us": 2
+        },
+        {
+          "name": "cudaMemsetAsync",
+          "calls": 378,
+          "cpu_us": 450
+        },
+        {
+          "name": "cudaStreamGetCaptureInfo",
+          "calls": 540,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaEventQuery",
+          "calls": 216,
+          "cpu_us": 26
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::indexSelectLargeIndex<float, long, unsigned int, 2, 2, -2, true>(at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<float, unsigned int>, at::cuda::detail::TensorInfo<long, unsigned int>, int, int, unsigned int, unsigned int, long)",
+          "calls": 2,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaFuncSetAttribute",
+          "calls": 54,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "calls": 108,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "calls": 270,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 108,
+          "cpu_us": 0
+        },
+        {
+          "name": "void (anonymous namespace)::elementwise_kernel_with_index<int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>(int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}, function_traits<at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>::result_type*)",
+          "calls": 108,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 54,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>)",
+          "calls": 108,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float, float>(long, float, float const*, float*, float*)",
+          "calls": 54,
+          "cpu_us": 0
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+          "calls": 54,
+          "cpu_us": 0
+        },
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 1,
+          "cpu_us": 8
+        },
+        {
+          "name": "cudaDeviceSynchronize",
+          "calls": 2,
+          "cpu_us": 12411
+        }
+      ]
+    }
+  },
+  "full": {
+    "kernel_count": 48,
+    "kernel_active_ms": 20.382,
+    "h2d_d2h_events": [],
+    "cpu_cuda_calls": [
+      {
+        "name": "cudaLaunchKernel",
+        "calls": 44,
+        "cpu_us": 480
+      },
+      {
+        "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+        "calls": 10,
+        "cpu_us": 0
+      },
+      {
+        "name": "cudaMalloc",
+        "calls": 12,
+        "cpu_us": 545
+      },
+      {
+        "name": "cudaStreamIsCapturing",
+        "calls": 12,
+        "cpu_us": 0
+      },
+      {
+        "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+        "calls": 11,
+        "cpu_us": 1
+      },
+      {
+        "name": "cudaMemsetAsync",
+        "calls": 4,
+        "cpu_us": 22
+      },
+      {
+        "name": "cudaFuncSetAttribute",
+        "calls": 1,
+        "cpu_us": 1
+      },
+      {
+        "name": "cudaStreamGetCaptureInfo",
+        "calls": 3,
+        "cpu_us": 0
+      },
+      {
+        "name": "cudaEventQuery",
+        "calls": 1,
+        "cpu_us": 2
+      },
+      {
+        "name": "cudaDeviceSynchronize",
+        "calls": 2,
+        "cpu_us": 18857
+      },
+      {
+        "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+        "calls": 2,
+        "cpu_us": 0
+      },
+      {
+        "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+        "calls": 7,
+        "cpu_us": 0
+      },
+      {
+        "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+        "calls": 2,
+        "cpu_us": 0
+      },
+      {
+        "name": "void (anonymous namespace)::elementwise_kernel_with_index<int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>(int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}, function_traits<at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(long)#1}>::result_type*)",
+        "calls": 2,
+        "cpu_us": 0
+      },
+      {
+        "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+        "calls": 1,
+        "cpu_us": 0
+      },
+      {
+        "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float, float>(long, float, float const*, float*, float*)",
+        "calls": 1,
+        "cpu_us": 0
+      },
+      {
+        "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+        "calls": 1,
+        "cpu_us": 0
+      }
+    ]
+  }
+}

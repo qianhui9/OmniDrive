@@ -72,7 +72,9 @@ class Petr3D(MVXTwoStageDetector):
                  export_onnx=False,
                  m1_enable=False,
                  m1_execution_mode='observe_only',
-                 m1_config=None):
+                 m1_config=None,
+                 m2_enable=False,
+                 m2_config=None):
         super(Petr3D, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
                              img_backbone, pts_backbone, img_neck, pts_neck,
@@ -142,6 +144,12 @@ class Petr3D(MVXTwoStageDetector):
             self.lm_head = load_model(lm_head, use_lora, frozen)
 
         self.test_flag = False
+        self.m2_runtime = None
+        self._m2_context = None
+        if m2_enable:
+            from worldstream.m2 import IncrementalVisionRuntime
+            self.m2_runtime = IncrementalVisionRuntime(self.img_backbone, m2_config)
+            self._register_load_state_dict_pre_hook(lambda *args: self.m2_runtime.reset())
         self.m1_manager = None
         if m1_enable:
             from worldstream.m1 import M1Config, WorldStateManager
@@ -181,7 +189,12 @@ class Petr3D(MVXTwoStageDetector):
             if self.use_grid_mask:
                 img = self.grid_mask(img)
 
-            img_feats = self.img_backbone(img)
+            if getattr(self, 'm2_runtime', None) is not None and not self.training:
+                img_feats, self.m2_diagnostics = self.m2_runtime.forward(
+                    img, self.m1_manager.last_result if self.m1_manager else None,
+                    self.m1_manager, self._m2_context)
+            else:
+                img_feats = self.img_backbone(img)
             if isinstance(img_feats, dict):
                 img_feats = list(img_feats.values())
         else:
@@ -405,6 +418,8 @@ class Petr3D(MVXTwoStageDetector):
   
     def forward_test(self, img_metas, rescale, **data):
         if not self.test_flag: #for interval evaluation
+            if getattr(self, 'm2_runtime', None) is not None:
+                self.m2_runtime.reset()
             if self.m1_manager is not None:
                 self.m1_manager.reset()
             if self.with_pts_bbox:
@@ -480,6 +495,13 @@ class Petr3D(MVXTwoStageDetector):
     def simple_test(self, img_metas, **data):
         """Test function without augmentaiton."""
         m1_observer = None
+        if getattr(self, 'm2_runtime', None) is not None:
+            meta = img_metas[0]
+            self._m2_context = dict(scene_id=str(meta['scene_token']),
+                frame_id=str(meta['sample_idx']),
+                camera_ids=list(meta.get('cam_infos', {})) or
+                    [os.path.basename(os.path.dirname(f)) for f in meta['filename']],
+                coordinate_space='preprocessed_image')
         if self.m1_manager is not None:
             from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result, measure_transfers
             import hashlib
@@ -495,6 +517,8 @@ class Petr3D(MVXTwoStageDetector):
                 (frame.execution_signature + repr(parameter_signature) + repr(execution_policy)).encode()).hexdigest()
             adapter_ms = (time.perf_counter() - adapter_start) * 1000
             precheck = self.m1_manager.precheck(frame)
+            if getattr(self, 'm2_runtime', None) is not None:
+                self._m2_context.update(execution_signature=frame.execution_signature)
             precheck.diagnostics['timings_ms']['input_adapter_including_transfers'] = adapter_ms
             precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer'] = input_transfers['gpu_to_cpu_transfer_ms']
 

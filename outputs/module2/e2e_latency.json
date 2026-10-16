@@ -1,0 +1,2325 @@
+{
+  "summary": {
+    "baseline": {
+      "complete_wall_ms": [
+        2470.6744049908593,
+        2486.067183781415
+      ],
+      "backbone_gpu_ms": [
+        473.3156280517578,
+        476.50498352050784
+      ],
+      "m1_total_ms": [
+        0.0,
+        0.0
+      ],
+      "cold_wall_ms": [
+        2462.115950882435,
+        2470.4016589093953
+      ],
+      "steady_p50_p95_ms": [
+        2472.530093975365,
+        2487.4979252927005
+      ],
+      "vision_gpu_interval_ms": [
+        473.34666442871094,
+        476.53644409179685
+      ],
+      "vision_cpu_dispatch_ms": [
+        30.256996513344347,
+        30.311564134899527
+      ],
+      "m2_runtime_gpu_interval_ms": [
+        473.3156280517578,
+        476.50498352050784
+      ],
+      "m2_cpu_dispatch_ms": [
+        0.0,
+        0.0
+      ],
+      "m2_overhead_gpu_interval_ms": [
+        0.0,
+        0.0
+      ],
+      "peak_allocated_bytes": 16252080128
+    },
+    "m1_observe": {
+      "complete_wall_ms": [
+        2809.993401984684,
+        2872.7804473484866
+      ],
+      "backbone_gpu_ms": [
+        478.8553161621094,
+        480.1263946533203
+      ],
+      "m1_total_ms": [
+        283.4035065025091,
+        339.73635823931545
+      ],
+      "cold_wall_ms": [
+        2558.9844218920916,
+        2544.71552092582
+      ],
+      "steady_p50_p95_ms": [
+        2813.9922245172784,
+        2875.7610512548126
+      ],
+      "vision_gpu_interval_ms": [
+        478.92987060546875,
+        480.1788040161133
+      ],
+      "vision_cpu_dispatch_ms": [
+        30.58781905565411,
+        30.751408776268363
+      ],
+      "m2_runtime_gpu_interval_ms": [
+        478.8553161621094,
+        480.1263946533203
+      ],
+      "m2_cpu_dispatch_ms": [
+        0.0,
+        0.0
+      ],
+      "m2_overhead_gpu_interval_ms": [
+        0.0,
+        0.0
+      ],
+      "peak_allocated_bytes": 16252080128
+    },
+    "m1_m2_exact": {
+      "complete_wall_ms": [
+        2823.1086775194854,
+        2854.6495940885507
+      ],
+      "backbone_gpu_ms": [
+        480.59117126464844,
+        481.41156311035155
+      ],
+      "m1_total_ms": [
+        288.7269561178982,
+        317.40400813287124
+      ],
+      "cold_wall_ms": [
+        2547.379008959979,
+        2547.0925788395107
+      ],
+      "steady_p50_p95_ms": [
+        2828.992200549692,
+        2855.366850097198
+      ],
+      "vision_gpu_interval_ms": [
+        482.0146179199219,
+        482.95562133789065
+      ],
+      "vision_cpu_dispatch_ms": [
+        32.227756921201944,
+        32.34203656902537
+      ],
+      "m2_runtime_gpu_interval_ms": [
+        481.9641418457031,
+        482.9026443481445
+      ],
+      "m2_cpu_dispatch_ms": [
+        32.03139058314264,
+        32.14551138225943
+      ],
+      "m2_overhead_gpu_interval_ms": [
+        1.5564117431640625,
+        1.6635391235351562
+      ],
+      "peak_allocated_bytes": 16252080128
+    },
+    "m1_m2_auto": {
+      "complete_wall_ms": [
+        2958.008000976406,
+        3271.3508119108155
+      ],
+      "backbone_gpu_ms": [
+        480.84788513183594,
+        482.2695831298828
+      ],
+      "m1_total_ms": [
+        368.09669772628695,
+        497.114955575671
+      ],
+      "cold_wall_ms": [
+        2583.7036431767046,
+        2559.0313370339572
+      ],
+      "steady_p50_p95_ms": [
+        3012.899874942377,
+        3296.131166513078
+      ],
+      "vision_gpu_interval_ms": [
+        482.7495574951172,
+        482.91285705566406
+      ],
+      "vision_cpu_dispatch_ms": [
+        32.22300810739398,
+        33.21801132988185
+      ],
+      "m2_runtime_gpu_interval_ms": [
+        482.68482971191406,
+        482.85590209960935
+      ],
+      "m2_cpu_dispatch_ms": [
+        32.03207650221884,
+        33.00205182749778
+      ],
+      "m2_overhead_gpu_interval_ms": [
+        1.5764923095703125,
+        2.465557861328125
+      ],
+      "peak_allocated_bytes": 16252080128
+    }
+  },
+  "runs": [
+    {
+      "mode": "baseline",
+      "repeat": 0,
+      "warmup": true,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2990.4576258268207,
+          "backbone_gpu_ms": 956.147705078125,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 957.6007690429688,
+          "vision_cpu_dispatch_ms": 519.555140985176,
+          "m2_runtime_gpu_interval_ms": 956.147705078125,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2755.0872389692813,
+          "backbone_gpu_ms": 470.1580505371094,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 470.197998046875,
+          "vision_cpu_dispatch_ms": 30.059696175158024,
+          "m2_runtime_gpu_interval_ms": 470.1580505371094,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2472.1518179867417,
+          "backbone_gpu_ms": 469.4704284667969,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 469.5089416503906,
+          "vision_cpu_dispatch_ms": 30.146536184474826,
+          "m2_runtime_gpu_interval_ms": 469.4704284667969,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2457.125512883067,
+          "backbone_gpu_ms": 469.8389587402344,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 469.87567138671875,
+          "vision_cpu_dispatch_ms": 30.17051611095667,
+          "m2_runtime_gpu_interval_ms": 469.8389587402344,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "baseline",
+      "repeat": 1,
+      "warmup": false,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2462.115950882435,
+          "backbone_gpu_ms": 470.71209716796875,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 470.74273681640625,
+          "vision_cpu_dispatch_ms": 30.053036054596305,
+          "m2_runtime_gpu_interval_ms": 470.71209716796875,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2491.074779070914,
+          "backbone_gpu_ms": 470.65155029296875,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 470.6883850097656,
+          "vision_cpu_dispatch_ms": 30.175056075677276,
+          "m2_runtime_gpu_interval_ms": 470.65155029296875,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2464.831813937053,
+          "backbone_gpu_ms": 470.880859375,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 470.9181213378906,
+          "vision_cpu_dispatch_ms": 30.241226078942418,
+          "m2_runtime_gpu_interval_ms": 470.880859375,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2468.33558101207,
+          "backbone_gpu_ms": 472.1823425292969,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 472.214599609375,
+          "vision_cpu_dispatch_ms": 30.165055068209767,
+          "m2_runtime_gpu_interval_ms": 472.1823425292969,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "baseline",
+      "repeat": 2,
+      "warmup": false,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2470.4016589093953,
+          "backbone_gpu_ms": 474.44891357421875,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 474.4787292480469,
+          "vision_cpu_dispatch_ms": 30.27997096069157,
+          "m2_runtime_gpu_interval_ms": 474.44891357421875,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2470.9471510723233,
+          "backbone_gpu_ms": 474.99371337890625,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 475.0255432128906,
+          "vision_cpu_dispatch_ms": 30.272766947746277,
+          "m2_runtime_gpu_interval_ms": 474.99371337890625,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2474.113036878407,
+          "backbone_gpu_ms": 476.1006774902344,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 476.13360595703125,
+          "vision_cpu_dispatch_ms": 30.321585945785046,
+          "m2_runtime_gpu_interval_ms": 476.1006774902344,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2476.7673639580607,
+          "backbone_gpu_ms": 476.7226867675781,
+          "m1_total_ms": 0.0,
+          "vision_gpu_interval_ms": 476.75335693359375,
+          "vision_cpu_dispatch_ms": 30.29295220039785,
+          "m2_runtime_gpu_interval_ms": 476.7226867675781,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {}
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_observe",
+      "repeat": 0,
+      "warmup": true,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2659.5755878370255,
+          "backbone_gpu_ms": 475.33770751953125,
+          "m1_total_ms": 157.27833029814065,
+          "vision_gpu_interval_ms": 475.44091796875,
+          "vision_cpu_dispatch_ms": 30.611909925937653,
+          "m2_runtime_gpu_interval_ms": 475.33770751953125,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2944.9544849339873,
+          "backbone_gpu_ms": 476.9736633300781,
+          "m1_total_ms": 417.6107330713421,
+          "vision_gpu_interval_ms": 477.02801513671875,
+          "vision_cpu_dispatch_ms": 30.43701802380383,
+          "m2_runtime_gpu_interval_ms": 476.9736633300781,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2856.3969049137086,
+          "backbone_gpu_ms": 477.0473937988281,
+          "m1_total_ms": 336.5635247901082,
+          "vision_gpu_interval_ms": 477.11041259765625,
+          "vision_cpu_dispatch_ms": 30.425275908783078,
+          "m2_runtime_gpu_interval_ms": 477.0473937988281,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2918.1111191865057,
+          "backbone_gpu_ms": 479.1759338378906,
+          "m1_total_ms": 391.11507683992386,
+          "vision_gpu_interval_ms": 479.2291259765625,
+          "vision_cpu_dispatch_ms": 30.344886938109994,
+          "m2_runtime_gpu_interval_ms": 479.1759338378906,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_observe",
+      "repeat": 1,
+      "warmup": false,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2558.9844218920916,
+          "backbone_gpu_ms": 477.4884033203125,
+          "m1_total_ms": 76.5688088722527,
+          "vision_gpu_interval_ms": 477.5390625,
+          "vision_cpu_dispatch_ms": 30.672932974994183,
+          "m2_runtime_gpu_interval_ms": 477.4884033203125,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2883.2125610206276,
+          "backbone_gpu_ms": 477.6285400390625,
+          "m1_total_ms": 350.66817980259657,
+          "vision_gpu_interval_ms": 477.684814453125,
+          "vision_cpu_dispatch_ms": 30.533773126080632,
+          "m2_runtime_gpu_interval_ms": 477.6285400390625,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2811.5281730424613,
+          "backbone_gpu_ms": 478.068603515625,
+          "m1_total_ms": 287.3966332990676,
+          "vision_gpu_interval_ms": 478.1217346191406,
+          "vision_cpu_dispatch_ms": 30.55483801290393,
+          "m2_runtime_gpu_interval_ms": 478.068603515625,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2805.9055688790977,
+          "backbone_gpu_ms": 478.9917907714844,
+          "m1_total_ms": 279.4103797059506,
+          "vision_gpu_interval_ms": 479.0654296875,
+          "vision_cpu_dispatch_ms": 30.62672703526914,
+          "m2_runtime_gpu_interval_ms": 478.9917907714844,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_observe",
+      "repeat": 2,
+      "warmup": false,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2544.71552092582,
+          "backbone_gpu_ms": 480.13897705078125,
+          "m1_total_ms": 62.030852073803544,
+          "vision_gpu_interval_ms": 480.1905212402344,
+          "vision_cpu_dispatch_ms": 30.79366497695446,
+          "m2_runtime_gpu_interval_ms": 480.13897705078125,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2853.4065219573677,
+          "backbone_gpu_ms": 480.10302734375,
+          "m1_total_ms": 319.43440390750766,
+          "vision_gpu_interval_ms": 480.15704345703125,
+          "vision_cpu_dispatch_ms": 30.490208184346557,
+          "m2_runtime_gpu_interval_ms": 480.10302734375,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2816.4562759920955,
+          "backbone_gpu_ms": 479.35333251953125,
+          "m1_total_ms": 290.22648790851235,
+          "vision_gpu_interval_ms": 479.4072265625,
+          "vision_cpu_dispatch_ms": 30.544373905286193,
+          "m2_runtime_gpu_interval_ms": 479.35333251953125,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2808.458630926907,
+          "backbone_gpu_ms": 478.7188415527344,
+          "m1_total_ms": 279.1435031685978,
+          "vision_gpu_interval_ms": 478.7943115234375,
+          "vision_cpu_dispatch_ms": 30.62080009840429,
+          "m2_runtime_gpu_interval_ms": 478.7188415527344,
+          "m2_cpu_dispatch_ms": 0.0,
+          "m2_overhead_gpu_interval_ms": 0.0,
+          "m2": {},
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_m2_exact",
+      "repeat": 0,
+      "warmup": true,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2549.8806377872825,
+          "backbone_gpu_ms": 480.3783264160156,
+          "m1_total_ms": 64.25680266693234,
+          "vision_gpu_interval_ms": 480.7724304199219,
+          "vision_cpu_dispatch_ms": 31.06136596761644,
+          "m2_runtime_gpu_interval_ms": 480.7282409667969,
+          "m2_cpu_dispatch_ms": 30.884912004694343,
+          "m2_overhead_gpu_interval_ms": 0.34991455078125,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "m1_full_refresh",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2868.954468984157,
+          "backbone_gpu_ms": 480.1220397949219,
+          "m1_total_ms": 332.24226208403707,
+          "vision_gpu_interval_ms": 483.396728515625,
+          "vision_cpu_dispatch_ms": 33.84344605728984,
+          "m2_runtime_gpu_interval_ms": 483.3485412597656,
+          "m2_cpu_dispatch_ms": 33.6562090087682,
+          "m2_overhead_gpu_interval_ms": 3.22650146484375,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 3385.7801179401577,
+          "backbone_gpu_ms": 480.3613586425781,
+          "m1_total_ms": 293.38948614895344,
+          "vision_gpu_interval_ms": 481.9844970703125,
+          "vision_cpu_dispatch_ms": 32.16615691781044,
+          "m2_runtime_gpu_interval_ms": 481.935546875,
+          "m2_cpu_dispatch_ms": 31.976904021576047,
+          "m2_overhead_gpu_interval_ms": 1.574188232421875,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2837.8301120828837,
+          "backbone_gpu_ms": 479.8008117675781,
+          "m1_total_ms": 306.7307120654732,
+          "vision_gpu_interval_ms": 481.3627624511719,
+          "vision_cpu_dispatch_ms": 32.230047043412924,
+          "m2_runtime_gpu_interval_ms": 481.3044738769531,
+          "m2_cpu_dispatch_ms": 32.041678903624415,
+          "m2_overhead_gpu_interval_ms": 1.503662109375,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_m2_exact",
+      "repeat": 1,
+      "warmup": false,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2547.379008959979,
+          "backbone_gpu_ms": 481.0946960449219,
+          "m1_total_ms": 61.85943796299398,
+          "vision_gpu_interval_ms": 481.4851989746094,
+          "vision_cpu_dispatch_ms": 30.99423600360751,
+          "m2_runtime_gpu_interval_ms": 481.4437561035156,
+          "m2_cpu_dispatch_ms": 30.819954816251993,
+          "m2_overhead_gpu_interval_ms": 0.34906005859375,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "m1_full_refresh",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2857.1599901188165,
+          "backbone_gpu_ms": 480.52972412109375,
+          "m1_total_ms": 317.50235497020185,
+          "vision_gpu_interval_ms": 482.1347351074219,
+          "vision_cpu_dispatch_ms": 32.2602279484272,
+          "m2_runtime_gpu_interval_ms": 482.0865783691406,
+          "m2_cpu_dispatch_ms": 32.06739807501435,
+          "m2_overhead_gpu_interval_ms": 1.556854248046875,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2849.9874300323427,
+          "backbone_gpu_ms": 480.1938171386719,
+          "m1_total_ms": 317.2213640064001,
+          "vision_gpu_interval_ms": 481.8945007324219,
+          "vision_cpu_dispatch_ms": 32.270500902086496,
+          "m2_runtime_gpu_interval_ms": 481.8417053222656,
+          "m2_cpu_dispatch_ms": 32.073416048660874,
+          "m2_overhead_gpu_interval_ms": 1.64788818359375,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2818.5672969557345,
+          "backbone_gpu_ms": 480.7933044433594,
+          "m1_total_ms": 285.4773332364857,
+          "vision_gpu_interval_ms": 482.5277099609375,
+          "vision_cpu_dispatch_ms": 32.365615013986826,
+          "m2_runtime_gpu_interval_ms": 482.46527099609375,
+          "m2_cpu_dispatch_ms": 32.17071108520031,
+          "m2_overhead_gpu_interval_ms": 1.671966552734375,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_m2_exact",
+      "repeat": 2,
+      "warmup": false,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2547.0925788395107,
+          "backbone_gpu_ms": 480.6526184082031,
+          "m1_total_ms": 62.11863202042878,
+          "vision_gpu_interval_ms": 481.0428161621094,
+          "vision_cpu_dispatch_ms": 31.062263995409012,
+          "m2_runtime_gpu_interval_ms": 480.9981384277344,
+          "m2_cpu_dispatch_ms": 30.88621306233108,
+          "m2_overhead_gpu_interval_ms": 0.34552001953125,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "m1_full_refresh",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2816.8819358106703,
+          "backbone_gpu_ms": 480.5267028808594,
+          "m1_total_ms": 280.78245697543025,
+          "vision_gpu_interval_ms": 482.1778869628906,
+          "vision_cpu_dispatch_ms": 32.29824802838266,
+          "m2_runtime_gpu_interval_ms": 482.11505126953125,
+          "m2_cpu_dispatch_ms": 32.09871193394065,
+          "m2_overhead_gpu_interval_ms": 1.588348388671875,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2827.650058083236,
+          "backbone_gpu_ms": 480.2411193847656,
+          "m1_total_ms": 296.61154886707664,
+          "vision_gpu_interval_ms": 481.8020935058594,
+          "vision_cpu_dispatch_ms": 32.1612530387938,
+          "m2_runtime_gpu_interval_ms": 481.7501525878906,
+          "m2_cpu_dispatch_ms": 31.962373992428184,
+          "m2_overhead_gpu_interval_ms": 1.509033203125,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2830.3343430161476,
+          "backbone_gpu_ms": 481.5821838378906,
+          "m1_total_ms": 291.97657899931073,
+          "vision_gpu_interval_ms": 483.18603515625,
+          "vision_cpu_dispatch_ms": 32.19528589397669,
+          "m2_runtime_gpu_interval_ms": 483.1381530761719,
+          "m2_cpu_dispatch_ms": 31.995383091270924,
+          "m2_overhead_gpu_interval_ms": 1.55596923828125,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_m2_auto",
+      "repeat": 0,
+      "warmup": true,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2570.2900260221213,
+          "backbone_gpu_ms": 481.14453125,
+          "m1_total_ms": 75.57713403366506,
+          "vision_gpu_interval_ms": 481.6301574707031,
+          "vision_cpu_dispatch_ms": 31.222634948790073,
+          "m2_runtime_gpu_interval_ms": 481.572509765625,
+          "m2_cpu_dispatch_ms": 31.020028050988913,
+          "m2_overhead_gpu_interval_ms": 0.427978515625,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "m1_full_refresh",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 2979.8608678393066,
+          "backbone_gpu_ms": 480.4836120605469,
+          "m1_total_ms": 439.9669428821653,
+          "vision_gpu_interval_ms": 482.0541687011719,
+          "vision_cpu_dispatch_ms": 32.125144032761455,
+          "m2_runtime_gpu_interval_ms": 482.00445556640625,
+          "m2_cpu_dispatch_ms": 31.93526598624885,
+          "m2_overhead_gpu_interval_ms": 1.520843505859375,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2952.132389182225,
+          "backbone_gpu_ms": 480.7256774902344,
+          "m1_total_ms": 413.64012099802494,
+          "vision_gpu_interval_ms": 482.66375732421875,
+          "vision_cpu_dispatch_ms": 32.52711915411055,
+          "m2_runtime_gpu_interval_ms": 482.5849609375,
+          "m2_cpu_dispatch_ms": 32.3283770121634,
+          "m2_overhead_gpu_interval_ms": 1.859283447265625,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2995.330698089674,
+          "backbone_gpu_ms": 480.77789306640625,
+          "m1_total_ms": 366.30965513177216,
+          "vision_gpu_interval_ms": 482.3544006347656,
+          "vision_cpu_dispatch_ms": 32.12284296751022,
+          "m2_runtime_gpu_interval_ms": 482.2934265136719,
+          "m2_cpu_dispatch_ms": 31.93715587258339,
+          "m2_overhead_gpu_interval_ms": 1.515533447265625,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_m2_auto",
+      "repeat": 1,
+      "warmup": false,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2583.7036431767046,
+          "backbone_gpu_ms": 482.0180969238281,
+          "m1_total_ms": 63.68560204282403,
+          "vision_gpu_interval_ms": 482.43072509765625,
+          "vision_cpu_dispatch_ms": 31.18342999368906,
+          "m2_runtime_gpu_interval_ms": 482.3828125,
+          "m2_cpu_dispatch_ms": 30.992675106972456,
+          "m2_overhead_gpu_interval_ms": 0.364715576171875,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "m1_full_refresh",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 3110.27850699611,
+          "backbone_gpu_ms": 480.3204040527344,
+          "m1_total_ms": 534.8241161555052,
+          "vision_gpu_interval_ms": 482.913818359375,
+          "vision_cpu_dispatch_ms": 33.27896003611386,
+          "m2_runtime_gpu_interval_ms": 482.8470153808594,
+          "m2_cpu_dispatch_ms": 33.06314395740628,
+          "m2_overhead_gpu_interval_ms": 2.526611328125,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2949.4357160292566,
+          "backbone_gpu_ms": 480.1745910644531,
+          "m1_total_ms": 382.4189940933138,
+          "vision_gpu_interval_ms": 481.7909851074219,
+          "vision_cpu_dispatch_ms": 32.2332251816988,
+          "m2_runtime_gpu_interval_ms": 481.7407531738281,
+          "m2_cpu_dispatch_ms": 32.04282699152827,
+          "m2_overhead_gpu_interval_ms": 1.566162109375,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 3059.219463961199,
+          "backbone_gpu_ms": 480.5344543457031,
+          "m1_total_ms": 403.85993174277246,
+          "vision_gpu_interval_ms": 482.1676025390625,
+          "vision_cpu_dispatch_ms": 32.21279103308916,
+          "m2_runtime_gpu_interval_ms": 482.0979309082031,
+          "m2_cpu_dispatch_ms": 32.02132601290941,
+          "m2_overhead_gpu_interval_ms": 1.5634765625,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    },
+    {
+      "mode": "m1_m2_auto",
+      "repeat": 2,
+      "warmup": false,
+      "frames": [
+        {
+          "frame_id": "d5324133e1d241658a7b763831b3af2e",
+          "cold": true,
+          "complete_wall_ms": 2559.0313370339572,
+          "backbone_gpu_ms": 482.4049987792969,
+          "m1_total_ms": 66.01980607956648,
+          "vision_gpu_interval_ms": 482.8124084472656,
+          "vision_cpu_dispatch_ms": 31.056588981300592,
+          "m2_runtime_gpu_interval_ms": 482.7662658691406,
+          "m2_cpu_dispatch_ms": 30.871836002916098,
+          "m2_overhead_gpu_interval_ms": 0.36126708984375,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "m1_full_refresh",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "cold": false,
+          "complete_wall_ms": 3358.082053018734,
+          "backbone_gpu_ms": 481.2019348144531,
+          "m1_total_ms": 340.62993549741805,
+          "vision_gpu_interval_ms": 482.91107177734375,
+          "vision_cpu_dispatch_ms": 32.26522612385452,
+          "m2_runtime_gpu_interval_ms": 482.8606872558594,
+          "m2_cpu_dispatch_ms": 32.07448101602495,
+          "m2_overhead_gpu_interval_ms": 1.65875244140625,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 24,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 128203,
+              "complete_patch_candidates": 209,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 16539,
+              "complete_patch_candidates": 6,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 117641,
+              "complete_patch_candidates": 166,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 79536,
+              "complete_patch_candidates": 161,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "da74550a10a8408299d7e6b1735963ae",
+          "cold": false,
+          "complete_wall_ms": 2928.408718900755,
+          "backbone_gpu_ms": 480.26934814453125,
+          "m1_total_ms": 353.7744013592601,
+          "vision_gpu_interval_ms": 482.6943359375,
+          "vision_cpu_dispatch_ms": 33.10482087545097,
+          "m2_runtime_gpu_interval_ms": 482.62152099609375,
+          "m2_cpu_dispatch_ms": 32.88859501481056,
+          "m2_overhead_gpu_interval_ms": 2.3521728515625,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1315,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 131985,
+              "complete_patch_candidates": 226,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 20513,
+              "complete_patch_candidates": 8,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 67428,
+              "complete_patch_candidates": 60,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 62865,
+              "complete_patch_candidates": 123,
+              "complete_attention_windows": 0
+            }
+          }
+        },
+        {
+          "frame_id": "cf86af90b622499b8214df0024a6ea29",
+          "cold": false,
+          "complete_wall_ms": 2966.5802859235555,
+          "backbone_gpu_ms": 481.16131591796875,
+          "m1_total_ms": 427.0836573559791,
+          "vision_gpu_interval_ms": 482.8047790527344,
+          "vision_cpu_dispatch_ms": 32.20841195434332,
+          "m2_runtime_gpu_interval_ms": 482.7481384277344,
+          "m2_cpu_dispatch_ms": 32.0204459130764,
+          "m2_overhead_gpu_interval_ms": 1.586822509765625,
+          "m2": {
+            "mode": "full",
+            "fallback_reason": "insufficient_stable_windows",
+            "stages": [],
+            "cache_bytes": 0,
+            "actual_skipped_windows": 0
+          },
+          "m1_candidates": {
+            "CAM_FRONT": {
+              "stable_pixels": 1337,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_RIGHT": {
+              "stable_pixels": 0,
+              "complete_patch_candidates": 0,
+              "complete_attention_windows": 0
+            },
+            "CAM_FRONT_LEFT": {
+              "stable_pixels": 127670,
+              "complete_patch_candidates": 191,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK": {
+              "stable_pixels": 17978,
+              "complete_patch_candidates": 5,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_LEFT": {
+              "stable_pixels": 107758,
+              "complete_patch_candidates": 142,
+              "complete_attention_windows": 0
+            },
+            "CAM_BACK_RIGHT": {
+              "stable_pixels": 50428,
+              "complete_patch_candidates": 100,
+              "complete_attention_windows": 0
+            }
+          }
+        }
+      ],
+      "peak_allocated_bytes": 16252080128,
+      "peak_reserved_bytes": 16900947968
+    }
+  ],
+  "comparisons": [
+    {
+      "mode": "baseline",
+      "repeat": 0,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "baseline",
+      "repeat": 1,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "baseline",
+      "repeat": 2,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_observe",
+      "repeat": 0,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_observe",
+      "repeat": 1,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_observe",
+      "repeat": 2,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_m2_exact",
+      "repeat": 0,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_m2_exact",
+      "repeat": 1,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_m2_exact",
+      "repeat": 2,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_m2_auto",
+      "repeat": 0,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_m2_auto",
+      "repeat": 1,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    },
+    {
+      "mode": "m1_m2_auto",
+      "repeat": 2,
+      "outputs": true,
+      "memory": true,
+      "backbone": true,
+      "text": true
+    }
+  ],
+  "sample_ids": [
+    "d5324133e1d241658a7b763831b3af2e",
+    "0f5cbb909e9544dd861dc2ff63ac4d13",
+    "da74550a10a8408299d7e6b1735963ae",
+    "cf86af90b622499b8214df0024a6ea29"
+  ],
+  "unique_frames": 4,
+  "generation": "greedy, seed 0, original max_new_tokens=320; actual LLM executed every frame",
+  "protocol": "preloaded CPU samples; scatter before timing; synchronized complete forward includes all M1 adapters/commits; digests outside timer; fixed mode order"
+}

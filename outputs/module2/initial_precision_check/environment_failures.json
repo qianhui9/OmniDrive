@@ -1,0 +1,13 @@
+[
+  {
+    "status": "unsupported_sandbox_context",
+    "command": "nvidia-smi; torch.cuda.is_available()",
+    "result": "NVIDIA driver inaccessible inside sandbox, CUDA False; authorized host retry succeeded"
+  },
+  {
+    "status": "failed_initial_attempt",
+    "configuration": "production weights globally converted to half()",
+    "error": "RuntimeError: mat1 and mat2 must have the same dtype",
+    "source": "Original FlashAttention returns FP32; resolved using actual deployed FP32 weights and FP16 attention wrapper"
+  }
+]

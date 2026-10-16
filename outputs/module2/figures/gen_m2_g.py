@@ -1,0 +1,3 @@
+"""Real M1, four unique continuous nuScenes frames from one scene. Attention-window candidate counts are [0, 0, 0, 0]; accepted/skipped windows are also zero, so Exact/Auto use dense fallback and output equality validates that fallback. Base is original OmniDrive, M1 adds observation only, Exact adds strict M2, Auto adds cost-based M2. Bars are complete VLM wall P50; upper caps mark P95 over eight frame timings per arm: two four-frame replays after one warmup replay, including each replay reset frame. All M1/M2 costs are included. This evidence is separate from controlled sparse results."""
+from tools.worldstream_m2.plot_results import draw
+if __name__ == "__main__": draw("g")
