@@ -9,6 +9,9 @@ from .packing import partition
 from .scheduler import Scheduler
 from .state_cache import StateCache
 from .window_executor import WindowExecutor
+from .cheap_admission import CheapAdmission
+from .camera_executor import CameraExecutor,numeric_details
+from .execution_policy import validation_budget,optimistic_window_saving
 
 
 class IncrementalVisionRuntime:
@@ -22,18 +25,45 @@ class IncrementalVisionRuntime:
         self.scheduler=Scheduler(self.config,CostModel(self.config.cost_table))
         self.last_diagnostics={}
         self.stage_observer=None
+        self.cheap_admission=CheapAdmission()
+        self.last_admission={}
+        self.camera_executor=CameraExecutor(model,self.config)
 
     def reset(self):
         self.cache.clear();self.executor.clear()
+        self.cheap_admission.clear()
+        self.camera_executor.reset()
+
+    def pre_m1_admission(self, images, context):
+        """Reject before M1 only; the selected service owns any explicit reset."""
+        if not self.config.cheap_gate:
+            return dict(reject=False,reason='gate_disabled')
+        flat=images.flatten(0,1) if images.ndim==5 else images
+        p=self.model.patch_embed.proj
+        size=self.model.blocks[0].window_size
+        if flat.numel()*flat.element_size()*3>self.cache.budget_bytes:
+            self.cheap_admission.clear()
+            self.last_admission=dict(reject=True,reason='gate_memory_budget',sample_acceptance=False)
+        else:
+            try:
+                self.last_admission=self.cheap_admission.check(flat,context,
+                    (p.kernel_size[0]*size,p.kernel_size[1]*size))
+            except torch.cuda.OutOfMemoryError:
+                self.cheap_admission.clear()
+                self.last_admission=dict(reject=True,reason='gate_memory_budget',sample_acceptance=False)
+        self.last_admission.update(frame_id=context.get('frame_id'),scene_id=context.get('scene_id'))
+        return self.last_admission
 
     def signature(self, context):
         tensors=tuple((n,t.data_ptr(),t._version,tuple(t.shape),str(t.dtype),str(t.device))
                       for n,t in list(self.model.named_parameters())+list(self.model.named_buffers()))
         topology=tuple((type(b),b.window_size,b.use_residual_block,b.attn.flash_attn,
                         b.attn.scale,b.norm1.eps,b.norm2.eps) for b in self.model.blocks)
-        return (context.get('execution_signature'),tensors,topology,torch.is_autocast_enabled(),
+        p=self.model.patch_embed.proj
+        geometry=(p.kernel_size,p.stride,p.padding,p.dilation,self.model.pretrain_use_cls_token)
+        return (context.get('execution_signature'),tensors,topology,geometry,numeric_details(self.model),torch.is_autocast_enabled(),
                 torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_tf32,
-                torch.backends.cudnn.allow_tf32)
+                torch.backends.cudnn.allow_tf32,torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic)
 
     def _capture_reason(self, images, reason, has_opportunity):
         if self.config.cache_capture=='never': return 'capture_disabled'
@@ -56,7 +86,7 @@ class IncrementalVisionRuntime:
 
     def _dense(self, images, reason, context=None, capture=False, signature=None):
         # This frame still executes exactly once. Hooks observe its ORIGINAL forward.
-        self.reset()
+        self.cache.clear();self.executor.clear()
         outputs={};handles=[];stages=[]
         if capture:
             for i in self.prefix:
@@ -86,6 +116,18 @@ class IncrementalVisionRuntime:
 
     def forward(self,current_images,m1_result=None,m1_state=None,execution_context=None):
         try:
+            context=execution_context or {}
+            if (self.config.enabled and self.config.cheap_gate and self.config.reuse_boundary=='window'
+                    and self.last_admission.get('reject') and
+                    self.last_admission.get('frame_id')==context.get('frame_id') and
+                    self.last_admission.get('scene_id')==context.get('scene_id')):
+                self._capture_skip='capture_not_expected_to_pay'
+                return self._dense(current_images,'cheap_input_rejection')
+            if self.config.enabled and self.config.reuse_boundary=='camera':
+                context=dict(context,necessary_validation_ms=validation_budget(context,m1_result,m1_state))
+                value,self.last_diagnostics=self.camera_executor.forward(current_images,
+                    context,self.signature(context))
+                return value,self.last_diagnostics
             return self._forward(current_images,m1_result,m1_state,execution_context)
         except torch.cuda.OutOfMemoryError:
             self.reset()
@@ -130,6 +172,10 @@ class IncrementalVisionRuntime:
             return self._dense(images,reason,context,capture,self.signature(context) if capture else None)
         if self._capture_skip:
             return self._dense(images,self._capture_skip)
+        if (self.config.mode=='auto' and m1_result is not None and
+                validation_budget(context,m1_result,m1_state)>=optimistic_window_saving(self.scheduler.costs,self.prefix)):
+            self._capture_skip='capture_not_expected_to_pay'
+            return self._dense(images,'validation_cost_exceeds_window_saving')
         signature=self.signature(context)
         mismatch=self.cache.mismatch(images,context,signature)
         if mismatch:

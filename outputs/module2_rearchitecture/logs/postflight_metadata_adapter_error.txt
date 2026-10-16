@@ -1,0 +1,31 @@
+STAGE:2026-10-16 18:11:07 4088317:4088317 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2026-10-16 18:11:07 4088317:4088317 ActivityProfilerController.cpp:300] Completed Stage: Collection
+STAGE:2026-10-16 18:11:08 4088317:4088317 output_json.cpp:417] Completed Stage: Post Processing
+STAGE:2026-10-16 18:11:08 4088317:4088317 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2026-10-16 18:11:08 4088317:4088317 ActivityProfilerController.cpp:300] Completed Stage: Collection
+STAGE:2026-10-16 18:11:08 4088317:4088317 output_json.cpp:417] Completed Stage: Post Processing
+STAGE:2026-10-16 18:11:46 4088317:4088317 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2026-10-16 18:11:46 4088317:4088317 ActivityProfilerController.cpp:300] Completed Stage: Collection
+STAGE:2026-10-16 18:11:46 4088317:4088317 output_json.cpp:417] Completed Stage: Post Processing
+Traceback (most recent call last):
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m2/rearchitecture/postflight.py", line 42, in <module>
+    if __name__=='__main__':main()
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/torch/autograd/grad_mode.py", line 27, in decorate_context
+    return func(*args, **kwargs)
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m2/rearchitecture/postflight.py", line 14, in main
+    approximate();gc.collect();torch.cuda.empty_cache()
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/torch/autograd/grad_mode.py", line 27, in decorate_context
+    return func(*args, **kwargs)
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m2/rearchitecture/approximate.py", line 35, in main
+    frame=frame_from_model(metas,data,manager.config)
+  File "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/omnidrive_adapter.py", line 47, in frame_from_model
+    raise ValueError("M1 streaming supports batch size 1 only")
+ValueError: M1 streaming supports batch size 1 only
+======== shape of rope freq torch.Size([256, 64]) ========
+======== shape of rope freq torch.Size([1600, 64]) ========
+======== shape of rope freq torch.Size([256, 64]) ========
+======== shape of rope freq torch.Size([1600, 64]) ========

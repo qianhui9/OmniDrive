@@ -502,7 +502,24 @@ class Petr3D(MVXTwoStageDetector):
                 camera_ids=list(meta.get('cam_infos', {})) or
                     [os.path.basename(os.path.dirname(f)) for f in meta['filename']],
                 coordinate_space='preprocessed_image')
-        if self.m1_manager is not None:
+            if getattr(self.m2_runtime.config, 'reuse_boundary', 'window') == 'camera':
+                self._m2_context['timestamp'] = float(data['timestamp'].reshape(-1)[0])
+        run_m1 = self.m1_manager is not None
+        if run_m1 and hasattr(getattr(self, 'm2_runtime', None), 'pre_m1_admission'):
+            admission = self.m2_runtime.pre_m1_admission(data['img'], self._m2_context)
+            service = self.m2_runtime.config.m1_service
+            self.m1_admission_diagnostics = dict(admission, service=service)
+            if admission['reject'] and service != 'maintain':
+                # This is an explicit loss of WorldState continuity. No stale
+                # anchor, pending precheck, feature version or source image survives.
+                # StreamPETR memory remains current and executes below as usual.
+                self.m1_manager.reset(self._m2_context['scene_id'])
+                if service == 'output_only':
+                    run_m1 = False
+                    self.m1_manager.last_commit_diagnostics = dict(
+                        m1_total_including_adapters_ms=0., service='output_only',
+                        state_reset=True, world_history_preserved=False)
+        if run_m1:
             from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result, measure_transfers
             import hashlib
             settings = self.m1_manager.config
