@@ -1,0 +1,89 @@
+{
+  "independent": {
+    "samples": 36,
+    "wall_ms": {
+      "p50": 917.9978565080091,
+      "p95": 920.6030987552367,
+      "count": 36
+    },
+    "reused_tokens": 0,
+    "effective_prefill_tokens": 103392
+  },
+  "text_prefix": {
+    "samples": 36,
+    "wall_ms": {
+      "p50": 924.9440170824528,
+      "p95": 927.1427660714835,
+      "count": 36
+    },
+    "reused_tokens": 5040,
+    "effective_prefill_tokens": 98352,
+    "first_token_logits": {
+      "questions": 180,
+      "argmax_equal": 180,
+      "max_abs": 0.03125,
+      "max_abs_distribution": {
+        "p50": 0.01953125,
+        "p95": 0.027539062499999933,
+        "count": 180
+      },
+      "limitation": "First-token agreement does not establish full generated-sequence equality"
+    }
+  },
+  "same_frame_visual": {
+    "samples": 36,
+    "wall_ms": {
+      "p50": 307.3646710254252,
+      "p95": 310.88104395894334,
+      "count": 36
+    },
+    "reused_tokens": 80322,
+    "effective_prefill_tokens": 23070,
+    "first_token_logits": {
+      "questions": 180,
+      "argmax_equal": 180,
+      "max_abs": 0.0390625,
+      "max_abs_distribution": {
+        "p50": 0.01953125,
+        "p95": 0.027539062499999933,
+        "count": 180
+      },
+      "limitation": "First-token agreement does not establish full generated-sequence equality"
+    }
+  },
+  "cross_frame": {
+    "observations": [
+      {
+        "token": "469a2125e73c4651be58d222429365b8",
+        "exact_lcp": 35,
+        "current_request_wall_ms": 181.5796981099993
+      },
+      {
+        "token": "d6b0de49811b4d1b86a0933719c0c44a",
+        "exact_lcp": 35,
+        "current_request_wall_ms": 185.8818249311298
+      },
+      {
+        "token": "5ccae885ad28471cbc786c203e0beff1",
+        "exact_lcp": 35,
+        "current_request_wall_ms": 183.15690313465893
+      },
+      {
+        "token": "463599ceb9a1454a90b192c29878a5f4",
+        "exact_lcp": 35,
+        "current_request_wall_ms": 185.22667209617794
+      },
+      {
+        "token": "bf3b9da1e7054458851f93f4a44ffb9c",
+        "exact_lcp": 35,
+        "current_request_wall_ms": 181.5222050063312
+      },
+      {
+        "token": "c24a9059f9f149a69a0d534026f5b20e",
+        "exact_lcp": 35,
+        "current_request_wall_ms": 184.95233380235732
+      }
+    ],
+    "limitation": "Single-token component probes; no cross-frame E2E speedup claim"
+  }
+}

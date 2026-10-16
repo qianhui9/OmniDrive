@@ -1,0 +1,2530 @@
+{
+  "paired_e2e": {
+    "m12": {
+      "frames": 24,
+      "frame_text_equal": 24,
+      "questions": 120,
+      "token_ids_equal": 120,
+      "tasks": {
+        "global_safety": {
+          "questions": 58,
+          "token_ids_equal": 58
+        },
+        "unknown": {
+          "questions": 28,
+          "token_ids_equal": 28
+        },
+        "object_relation": {
+          "questions": 20,
+          "token_ids_equal": 20
+        },
+        "map": {
+          "questions": 14,
+          "token_ids_equal": 14
+        }
+      },
+      "failures": [],
+      "frozen_token_target_pass": true
+    },
+    "compact": {
+      "frames": 24,
+      "frame_text_equal": 12,
+      "questions": 120,
+      "token_ids_equal": 108,
+      "tasks": {
+        "global_safety": {
+          "questions": 58,
+          "token_ids_equal": 58
+        },
+        "unknown": {
+          "questions": 28,
+          "token_ids_equal": 28
+        },
+        "object_relation": {
+          "questions": 20,
+          "token_ids_equal": 8
+        },
+        "map": {
+          "questions": 14,
+          "token_ids_equal": 14
+        }
+      },
+      "failures": [
+        {
+          "index": 2562,
+          "repeat": 1,
+          "question": "Is there a designated crosswalk for the pedestrian on the roadside?",
+          "baseline": {
+            "Q": "Is there a designated crosswalk for the pedestrian on the roadside?",
+            "A": [
+              "No, there is no designated crosswalk visible for the pedestrian on the roadside."
+            ]
+          },
+          "actual": {
+            "Q": "Is there a designated crosswalk for the pedestrian on the roadside?",
+            "A": [
+              "There is no visible designated crosswalk for the pedestrian on the roadside."
+            ]
+          },
+          "gt": "There is no designated crosswalk visible for the pedestrian on the roadside.",
+          "baseline_token_ids": [
+            [
+              1,
+              1939,
+              29892,
+              727,
+              338,
+              694,
+              25373,
+              4891,
+              20919,
+              7962,
+              363,
+              278,
+              8939,
+              342,
+              6392,
+              373,
+              278,
+              6520,
+              2975,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              1670,
+              338,
+              694,
+              7962,
+              25373,
+              4891,
+              20919,
+              363,
+              278,
+              8939,
+              342,
+              6392,
+              373,
+              278,
+              6520,
+              2975,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2563,
+          "repeat": 1,
+          "question": "What does the parking lot on the right-rear indicate about the area?",
+          "baseline": {
+            "Q": "What does the parking lot on the right-rear indicate about the area?",
+            "A": [
+              "The parking lot on the right-rear with several parked cars suggests that this area may be a commercial or industrial zone."
+            ]
+          },
+          "actual": {
+            "Q": "What does the parking lot on the right-rear indicate about the area?",
+            "A": [
+              "The parking lot on the right-rear with several cars parked suggests that this area may be a commercial or industrial zone."
+            ]
+          },
+          "gt": "The parking lot filled with cars suggests that there are facilities nearby which draw a significant number of visitors or employees, such as offices, shopping areas, or other commercial spaces.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              610,
+              9292,
+              3287,
+              373,
+              278,
+              1492,
+              29899,
+              276,
+              279,
+              411,
+              3196,
+              14089,
+              287,
+              18647,
+              14661,
+              393,
+              445,
+              4038,
+              1122,
+              367,
+              263,
+              12128,
+              470,
+              18408,
+              10640,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              610,
+              9292,
+              3287,
+              373,
+              278,
+              1492,
+              29899,
+              276,
+              279,
+              411,
+              3196,
+              18647,
+              14089,
+              287,
+              14661,
+              393,
+              445,
+              4038,
+              1122,
+              367,
+              263,
+              12128,
+              470,
+              18408,
+              10640,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2367,
+          "repeat": 1,
+          "question": "What type of area is the vehicle currently in?",
+          "baseline": {
+            "Q": "What type of area is the vehicle currently in?",
+            "A": [
+              "The vehicle is in an urban area with a mix of commercial and residential buildings."
+            ]
+          },
+          "actual": {
+            "Q": "What type of area is the vehicle currently in?",
+            "A": [
+              "The vehicle is in an urban area with a mix of residential and commercial buildings."
+            ]
+          },
+          "gt": "The vehicle is in an industrial area, characterized by large storage tanks, industrial buildings, and commercial vehicles.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              19716,
+              338,
+              297,
+              385,
+              17164,
+              4038,
+              411,
+              263,
+              6837,
+              310,
+              12128,
+              322,
+              20201,
+              616,
+              13814,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              19716,
+              338,
+              297,
+              385,
+              17164,
+              4038,
+              411,
+              263,
+              6837,
+              310,
+              20201,
+              616,
+              322,
+              12128,
+              13814,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2368,
+          "repeat": 1,
+          "question": "What is the nature of the buildings surrounding the vehicle?",
+          "baseline": {
+            "Q": "What is the nature of the buildings surrounding the vehicle?",
+            "A": [
+              "The buildings surrounding the vehicle are modern office buildings, indicating that the vehicle is likely in a commercial or business district."
+            ]
+          },
+          "actual": {
+            "Q": "What is the nature of the buildings surrounding the vehicle?",
+            "A": [
+              "The buildings surrounding the vehicle are a mix of residential and commercial structures."
+            ]
+          },
+          "gt": "The buildings around the vehicle are industrial, with visible large equipment and storage tanks outside, suggesting heavy manufacturing or processing activities within.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              13814,
+              18830,
+              278,
+              19716,
+              526,
+              5400,
+              8034,
+              13814,
+              29892,
+              23941,
+              393,
+              278,
+              19716,
+              338,
+              5517,
+              297,
+              263,
+              12128,
+              470,
+              5381,
+              6474,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              13814,
+              18830,
+              278,
+              19716,
+              526,
+              263,
+              6837,
+              310,
+              20201,
+              616,
+              322,
+              12128,
+              12286,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 3802,
+          "repeat": 1,
+          "question": "Is there any pedestrian activity observed?",
+          "baseline": {
+            "Q": "Is there any pedestrian activity observed?",
+            "A": [
+              "No pedestrians are visible in the immediate vicinity of the vehicle."
+            ]
+          },
+          "actual": {
+            "Q": "Is there any pedestrian activity observed?",
+            "A": [
+              "No pedestrians are observed in the immediate vicinity of the vehicle."
+            ]
+          },
+          "gt": "Currently, no pedestrians are observed in the immediate vicinity of the vehicle, particularly near the pedestrian path to the right.",
+          "baseline_token_ids": [
+            [
+              1,
+              1939,
+              8939,
+              342,
+              374,
+              550,
+              526,
+              7962,
+              297,
+              278,
+              16800,
+              9467,
+              13593,
+              310,
+              278,
+              19716,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              1939,
+              8939,
+              342,
+              374,
+              550,
+              526,
+              8900,
+              297,
+              278,
+              16800,
+              9467,
+              13593,
+              310,
+              278,
+              19716,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 5417,
+          "repeat": 1,
+          "question": "Can you describe the residential area visible from the vehicle?",
+          "baseline": {
+            "Q": "Can you describe the residential area visible from the vehicle?",
+            "A": [
+              "The residential area has houses with lights on, indicating that people are likely inside. The area is quiet with no visible activity."
+            ]
+          },
+          "actual": {
+            "Q": "Can you describe the residential area visible from the vehicle?",
+            "A": [
+              "The residential area has houses with lit windows, indicating that people are likely inside. The area is quiet with no visible activity."
+            ]
+          },
+          "gt": "The residential area appears quiet with parked cars and houses that are dimly lit, suggesting a late hour with minimal activity.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              20201,
+              616,
+              4038,
+              756,
+              12955,
+              411,
+              26068,
+              373,
+              29892,
+              23941,
+              393,
+              2305,
+              526,
+              5517,
+              2768,
+              29889,
+              450,
+              4038,
+              338,
+              11813,
+              411,
+              694,
+              7962,
+              6354,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              20201,
+              616,
+              4038,
+              756,
+              12955,
+              411,
+              11872,
+              5417,
+              29892,
+              23941,
+              393,
+              2305,
+              526,
+              5517,
+              2768,
+              29889,
+              450,
+              4038,
+              338,
+              11813,
+              411,
+              694,
+              7962,
+              6354,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2562,
+          "repeat": 2,
+          "question": "Is there a designated crosswalk for the pedestrian on the roadside?",
+          "baseline": {
+            "Q": "Is there a designated crosswalk for the pedestrian on the roadside?",
+            "A": [
+              "No, there is no designated crosswalk visible for the pedestrian on the roadside."
+            ]
+          },
+          "actual": {
+            "Q": "Is there a designated crosswalk for the pedestrian on the roadside?",
+            "A": [
+              "There is no visible designated crosswalk for the pedestrian on the roadside."
+            ]
+          },
+          "gt": "There is no designated crosswalk visible for the pedestrian on the roadside.",
+          "baseline_token_ids": [
+            [
+              1,
+              1939,
+              29892,
+              727,
+              338,
+              694,
+              25373,
+              4891,
+              20919,
+              7962,
+              363,
+              278,
+              8939,
+              342,
+              6392,
+              373,
+              278,
+              6520,
+              2975,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              1670,
+              338,
+              694,
+              7962,
+              25373,
+              4891,
+              20919,
+              363,
+              278,
+              8939,
+              342,
+              6392,
+              373,
+              278,
+              6520,
+              2975,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2563,
+          "repeat": 2,
+          "question": "What does the parking lot on the right-rear indicate about the area?",
+          "baseline": {
+            "Q": "What does the parking lot on the right-rear indicate about the area?",
+            "A": [
+              "The parking lot on the right-rear with several parked cars suggests that this area may be a commercial or industrial zone."
+            ]
+          },
+          "actual": {
+            "Q": "What does the parking lot on the right-rear indicate about the area?",
+            "A": [
+              "The parking lot on the right-rear with several cars parked suggests that this area may be a commercial or industrial zone."
+            ]
+          },
+          "gt": "The parking lot filled with cars suggests that there are facilities nearby which draw a significant number of visitors or employees, such as offices, shopping areas, or other commercial spaces.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              610,
+              9292,
+              3287,
+              373,
+              278,
+              1492,
+              29899,
+              276,
+              279,
+              411,
+              3196,
+              14089,
+              287,
+              18647,
+              14661,
+              393,
+              445,
+              4038,
+              1122,
+              367,
+              263,
+              12128,
+              470,
+              18408,
+              10640,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              610,
+              9292,
+              3287,
+              373,
+              278,
+              1492,
+              29899,
+              276,
+              279,
+              411,
+              3196,
+              18647,
+              14089,
+              287,
+              14661,
+              393,
+              445,
+              4038,
+              1122,
+              367,
+              263,
+              12128,
+              470,
+              18408,
+              10640,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2367,
+          "repeat": 2,
+          "question": "What type of area is the vehicle currently in?",
+          "baseline": {
+            "Q": "What type of area is the vehicle currently in?",
+            "A": [
+              "The vehicle is in an urban area with a mix of commercial and residential buildings."
+            ]
+          },
+          "actual": {
+            "Q": "What type of area is the vehicle currently in?",
+            "A": [
+              "The vehicle is in an urban area with a mix of residential and commercial buildings."
+            ]
+          },
+          "gt": "The vehicle is in an industrial area, characterized by large storage tanks, industrial buildings, and commercial vehicles.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              19716,
+              338,
+              297,
+              385,
+              17164,
+              4038,
+              411,
+              263,
+              6837,
+              310,
+              12128,
+              322,
+              20201,
+              616,
+              13814,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              19716,
+              338,
+              297,
+              385,
+              17164,
+              4038,
+              411,
+              263,
+              6837,
+              310,
+              20201,
+              616,
+              322,
+              12128,
+              13814,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2368,
+          "repeat": 2,
+          "question": "What is the nature of the buildings surrounding the vehicle?",
+          "baseline": {
+            "Q": "What is the nature of the buildings surrounding the vehicle?",
+            "A": [
+              "The buildings surrounding the vehicle are modern office buildings, indicating that the vehicle is likely in a commercial or business district."
+            ]
+          },
+          "actual": {
+            "Q": "What is the nature of the buildings surrounding the vehicle?",
+            "A": [
+              "The buildings surrounding the vehicle are a mix of residential and commercial structures."
+            ]
+          },
+          "gt": "The buildings around the vehicle are industrial, with visible large equipment and storage tanks outside, suggesting heavy manufacturing or processing activities within.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              13814,
+              18830,
+              278,
+              19716,
+              526,
+              5400,
+              8034,
+              13814,
+              29892,
+              23941,
+              393,
+              278,
+              19716,
+              338,
+              5517,
+              297,
+              263,
+              12128,
+              470,
+              5381,
+              6474,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              13814,
+              18830,
+              278,
+              19716,
+              526,
+              263,
+              6837,
+              310,
+              20201,
+              616,
+              322,
+              12128,
+              12286,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 3802,
+          "repeat": 2,
+          "question": "Is there any pedestrian activity observed?",
+          "baseline": {
+            "Q": "Is there any pedestrian activity observed?",
+            "A": [
+              "No pedestrians are visible in the immediate vicinity of the vehicle."
+            ]
+          },
+          "actual": {
+            "Q": "Is there any pedestrian activity observed?",
+            "A": [
+              "No pedestrians are observed in the immediate vicinity of the vehicle."
+            ]
+          },
+          "gt": "Currently, no pedestrians are observed in the immediate vicinity of the vehicle, particularly near the pedestrian path to the right.",
+          "baseline_token_ids": [
+            [
+              1,
+              1939,
+              8939,
+              342,
+              374,
+              550,
+              526,
+              7962,
+              297,
+              278,
+              16800,
+              9467,
+              13593,
+              310,
+              278,
+              19716,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              1939,
+              8939,
+              342,
+              374,
+              550,
+              526,
+              8900,
+              297,
+              278,
+              16800,
+              9467,
+              13593,
+              310,
+              278,
+              19716,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 5417,
+          "repeat": 2,
+          "question": "Can you describe the residential area visible from the vehicle?",
+          "baseline": {
+            "Q": "Can you describe the residential area visible from the vehicle?",
+            "A": [
+              "The residential area has houses with lights on, indicating that people are likely inside. The area is quiet with no visible activity."
+            ]
+          },
+          "actual": {
+            "Q": "Can you describe the residential area visible from the vehicle?",
+            "A": [
+              "The residential area has houses with lit windows, indicating that people are likely inside. The area is quiet with no visible activity."
+            ]
+          },
+          "gt": "The residential area appears quiet with parked cars and houses that are dimly lit, suggesting a late hour with minimal activity.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              20201,
+              616,
+              4038,
+              756,
+              12955,
+              411,
+              26068,
+              373,
+              29892,
+              23941,
+              393,
+              2305,
+              526,
+              5517,
+              2768,
+              29889,
+              450,
+              4038,
+              338,
+              11813,
+              411,
+              694,
+              7962,
+              6354,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              20201,
+              616,
+              4038,
+              756,
+              12955,
+              411,
+              11872,
+              5417,
+              29892,
+              23941,
+              393,
+              2305,
+              526,
+              5517,
+              2768,
+              29889,
+              450,
+              4038,
+              338,
+              11813,
+              411,
+              694,
+              7962,
+              6354,
+              29889,
+              2
+            ]
+          ]
+        }
+      ],
+      "frozen_token_target_pass": false
+    },
+    "exact": {
+      "frames": 24,
+      "frame_text_equal": 22,
+      "questions": 120,
+      "token_ids_equal": 118,
+      "tasks": {
+        "global_safety": {
+          "questions": 58,
+          "token_ids_equal": 56
+        },
+        "unknown": {
+          "questions": 28,
+          "token_ids_equal": 28
+        },
+        "object_relation": {
+          "questions": 20,
+          "token_ids_equal": 20
+        },
+        "map": {
+          "questions": 14,
+          "token_ids_equal": 14
+        }
+      },
+      "failures": [
+        {
+          "index": 5489,
+          "repeat": 1,
+          "question": "Please shortly describe your driving action.",
+          "baseline": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around."
+            ]
+          },
+          "actual": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no visible obstructions or traffic."
+            ]
+          },
+          "gt": null,
+          "baseline_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              16800,
+              14979,
+              23435,
+              470,
+              12469,
+              2820,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              7962,
+              704,
+              10582,
+              1953,
+              470,
+              12469,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 5489,
+          "repeat": 2,
+          "question": "Please shortly describe your driving action.",
+          "baseline": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around."
+            ]
+          },
+          "actual": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no visible obstructions or traffic."
+            ]
+          },
+          "gt": null,
+          "baseline_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              16800,
+              14979,
+              23435,
+              470,
+              12469,
+              2820,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              7962,
+              704,
+              10582,
+              1953,
+              470,
+              12469,
+              29889,
+              2
+            ]
+          ]
+        }
+      ],
+      "frozen_token_target_pass": false
+    },
+    "combined": {
+      "frames": 24,
+      "frame_text_equal": 12,
+      "questions": 120,
+      "token_ids_equal": 108,
+      "tasks": {
+        "global_safety": {
+          "questions": 58,
+          "token_ids_equal": 56
+        },
+        "unknown": {
+          "questions": 28,
+          "token_ids_equal": 28
+        },
+        "object_relation": {
+          "questions": 20,
+          "token_ids_equal": 10
+        },
+        "map": {
+          "questions": 14,
+          "token_ids_equal": 14
+        }
+      },
+      "failures": [
+        {
+          "index": 2562,
+          "repeat": 1,
+          "question": "Is there a designated crosswalk for the pedestrian on the roadside?",
+          "baseline": {
+            "Q": "Is there a designated crosswalk for the pedestrian on the roadside?",
+            "A": [
+              "No, there is no designated crosswalk visible for the pedestrian on the roadside."
+            ]
+          },
+          "actual": {
+            "Q": "Is there a designated crosswalk for the pedestrian on the roadside?",
+            "A": [
+              "There is no visible designated crosswalk for the pedestrian on the roadside."
+            ]
+          },
+          "gt": "There is no designated crosswalk visible for the pedestrian on the roadside.",
+          "baseline_token_ids": [
+            [
+              1,
+              1939,
+              29892,
+              727,
+              338,
+              694,
+              25373,
+              4891,
+              20919,
+              7962,
+              363,
+              278,
+              8939,
+              342,
+              6392,
+              373,
+              278,
+              6520,
+              2975,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              1670,
+              338,
+              694,
+              7962,
+              25373,
+              4891,
+              20919,
+              363,
+              278,
+              8939,
+              342,
+              6392,
+              373,
+              278,
+              6520,
+              2975,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2563,
+          "repeat": 1,
+          "question": "What does the parking lot on the right-rear indicate about the area?",
+          "baseline": {
+            "Q": "What does the parking lot on the right-rear indicate about the area?",
+            "A": [
+              "The parking lot on the right-rear with several parked cars suggests that this area may be a commercial or industrial zone."
+            ]
+          },
+          "actual": {
+            "Q": "What does the parking lot on the right-rear indicate about the area?",
+            "A": [
+              "The parking lot on the right-rear with several cars parked suggests that this area may be a commercial or industrial zone."
+            ]
+          },
+          "gt": "The parking lot filled with cars suggests that there are facilities nearby which draw a significant number of visitors or employees, such as offices, shopping areas, or other commercial spaces.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              610,
+              9292,
+              3287,
+              373,
+              278,
+              1492,
+              29899,
+              276,
+              279,
+              411,
+              3196,
+              14089,
+              287,
+              18647,
+              14661,
+              393,
+              445,
+              4038,
+              1122,
+              367,
+              263,
+              12128,
+              470,
+              18408,
+              10640,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              610,
+              9292,
+              3287,
+              373,
+              278,
+              1492,
+              29899,
+              276,
+              279,
+              411,
+              3196,
+              18647,
+              14089,
+              287,
+              14661,
+              393,
+              445,
+              4038,
+              1122,
+              367,
+              263,
+              12128,
+              470,
+              18408,
+              10640,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2368,
+          "repeat": 1,
+          "question": "What is the nature of the buildings surrounding the vehicle?",
+          "baseline": {
+            "Q": "What is the nature of the buildings surrounding the vehicle?",
+            "A": [
+              "The buildings surrounding the vehicle are modern office buildings, indicating that the vehicle is likely in a commercial or business district."
+            ]
+          },
+          "actual": {
+            "Q": "What is the nature of the buildings surrounding the vehicle?",
+            "A": [
+              "The buildings surrounding the vehicle are a mix of residential and commercial structures."
+            ]
+          },
+          "gt": "The buildings around the vehicle are industrial, with visible large equipment and storage tanks outside, suggesting heavy manufacturing or processing activities within.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              13814,
+              18830,
+              278,
+              19716,
+              526,
+              5400,
+              8034,
+              13814,
+              29892,
+              23941,
+              393,
+              278,
+              19716,
+              338,
+              5517,
+              297,
+              263,
+              12128,
+              470,
+              5381,
+              6474,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              13814,
+              18830,
+              278,
+              19716,
+              526,
+              263,
+              6837,
+              310,
+              20201,
+              616,
+              322,
+              12128,
+              12286,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 5489,
+          "repeat": 1,
+          "question": "Please shortly describe your driving action.",
+          "baseline": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around."
+            ]
+          },
+          "actual": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no visible obstructions or traffic."
+            ]
+          },
+          "gt": null,
+          "baseline_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              16800,
+              14979,
+              23435,
+              470,
+              12469,
+              2820,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              7962,
+              704,
+              10582,
+              1953,
+              470,
+              12469,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 3802,
+          "repeat": 1,
+          "question": "Is there any pedestrian activity observed?",
+          "baseline": {
+            "Q": "Is there any pedestrian activity observed?",
+            "A": [
+              "No pedestrians are visible in the immediate vicinity of the vehicle."
+            ]
+          },
+          "actual": {
+            "Q": "Is there any pedestrian activity observed?",
+            "A": [
+              "No pedestrians are observed in the immediate vicinity of the vehicle."
+            ]
+          },
+          "gt": "Currently, no pedestrians are observed in the immediate vicinity of the vehicle, particularly near the pedestrian path to the right.",
+          "baseline_token_ids": [
+            [
+              1,
+              1939,
+              8939,
+              342,
+              374,
+              550,
+              526,
+              7962,
+              297,
+              278,
+              16800,
+              9467,
+              13593,
+              310,
+              278,
+              19716,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              1939,
+              8939,
+              342,
+              374,
+              550,
+              526,
+              8900,
+              297,
+              278,
+              16800,
+              9467,
+              13593,
+              310,
+              278,
+              19716,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 5417,
+          "repeat": 1,
+          "question": "Can you describe the residential area visible from the vehicle?",
+          "baseline": {
+            "Q": "Can you describe the residential area visible from the vehicle?",
+            "A": [
+              "The residential area has houses with lights on, indicating that people are likely inside. The area is quiet with no visible activity."
+            ]
+          },
+          "actual": {
+            "Q": "Can you describe the residential area visible from the vehicle?",
+            "A": [
+              "The residential area has houses with lit windows, indicating that people are likely inside. The area is quiet with no visible activity."
+            ]
+          },
+          "gt": "The residential area appears quiet with parked cars and houses that are dimly lit, suggesting a late hour with minimal activity.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              20201,
+              616,
+              4038,
+              756,
+              12955,
+              411,
+              26068,
+              373,
+              29892,
+              23941,
+              393,
+              2305,
+              526,
+              5517,
+              2768,
+              29889,
+              450,
+              4038,
+              338,
+              11813,
+              411,
+              694,
+              7962,
+              6354,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              20201,
+              616,
+              4038,
+              756,
+              12955,
+              411,
+              11872,
+              5417,
+              29892,
+              23941,
+              393,
+              2305,
+              526,
+              5517,
+              2768,
+              29889,
+              450,
+              4038,
+              338,
+              11813,
+              411,
+              694,
+              7962,
+              6354,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2562,
+          "repeat": 2,
+          "question": "Is there a designated crosswalk for the pedestrian on the roadside?",
+          "baseline": {
+            "Q": "Is there a designated crosswalk for the pedestrian on the roadside?",
+            "A": [
+              "No, there is no designated crosswalk visible for the pedestrian on the roadside."
+            ]
+          },
+          "actual": {
+            "Q": "Is there a designated crosswalk for the pedestrian on the roadside?",
+            "A": [
+              "There is no visible designated crosswalk for the pedestrian on the roadside."
+            ]
+          },
+          "gt": "There is no designated crosswalk visible for the pedestrian on the roadside.",
+          "baseline_token_ids": [
+            [
+              1,
+              1939,
+              29892,
+              727,
+              338,
+              694,
+              25373,
+              4891,
+              20919,
+              7962,
+              363,
+              278,
+              8939,
+              342,
+              6392,
+              373,
+              278,
+              6520,
+              2975,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              1670,
+              338,
+              694,
+              7962,
+              25373,
+              4891,
+              20919,
+              363,
+              278,
+              8939,
+              342,
+              6392,
+              373,
+              278,
+              6520,
+              2975,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2563,
+          "repeat": 2,
+          "question": "What does the parking lot on the right-rear indicate about the area?",
+          "baseline": {
+            "Q": "What does the parking lot on the right-rear indicate about the area?",
+            "A": [
+              "The parking lot on the right-rear with several parked cars suggests that this area may be a commercial or industrial zone."
+            ]
+          },
+          "actual": {
+            "Q": "What does the parking lot on the right-rear indicate about the area?",
+            "A": [
+              "The parking lot on the right-rear with several cars parked suggests that this area may be a commercial or industrial zone."
+            ]
+          },
+          "gt": "The parking lot filled with cars suggests that there are facilities nearby which draw a significant number of visitors or employees, such as offices, shopping areas, or other commercial spaces.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              610,
+              9292,
+              3287,
+              373,
+              278,
+              1492,
+              29899,
+              276,
+              279,
+              411,
+              3196,
+              14089,
+              287,
+              18647,
+              14661,
+              393,
+              445,
+              4038,
+              1122,
+              367,
+              263,
+              12128,
+              470,
+              18408,
+              10640,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              610,
+              9292,
+              3287,
+              373,
+              278,
+              1492,
+              29899,
+              276,
+              279,
+              411,
+              3196,
+              18647,
+              14089,
+              287,
+              14661,
+              393,
+              445,
+              4038,
+              1122,
+              367,
+              263,
+              12128,
+              470,
+              18408,
+              10640,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 2368,
+          "repeat": 2,
+          "question": "What is the nature of the buildings surrounding the vehicle?",
+          "baseline": {
+            "Q": "What is the nature of the buildings surrounding the vehicle?",
+            "A": [
+              "The buildings surrounding the vehicle are modern office buildings, indicating that the vehicle is likely in a commercial or business district."
+            ]
+          },
+          "actual": {
+            "Q": "What is the nature of the buildings surrounding the vehicle?",
+            "A": [
+              "The buildings surrounding the vehicle are a mix of residential and commercial structures."
+            ]
+          },
+          "gt": "The buildings around the vehicle are industrial, with visible large equipment and storage tanks outside, suggesting heavy manufacturing or processing activities within.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              13814,
+              18830,
+              278,
+              19716,
+              526,
+              5400,
+              8034,
+              13814,
+              29892,
+              23941,
+              393,
+              278,
+              19716,
+              338,
+              5517,
+              297,
+              263,
+              12128,
+              470,
+              5381,
+              6474,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              13814,
+              18830,
+              278,
+              19716,
+              526,
+              263,
+              6837,
+              310,
+              20201,
+              616,
+              322,
+              12128,
+              12286,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 5489,
+          "repeat": 2,
+          "question": "Please shortly describe your driving action.",
+          "baseline": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around."
+            ]
+          },
+          "actual": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no visible obstructions or traffic."
+            ]
+          },
+          "gt": null,
+          "baseline_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              16800,
+              14979,
+              23435,
+              470,
+              12469,
+              2820,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              7962,
+              704,
+              10582,
+              1953,
+              470,
+              12469,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 3802,
+          "repeat": 2,
+          "question": "Is there any pedestrian activity observed?",
+          "baseline": {
+            "Q": "Is there any pedestrian activity observed?",
+            "A": [
+              "No pedestrians are visible in the immediate vicinity of the vehicle."
+            ]
+          },
+          "actual": {
+            "Q": "Is there any pedestrian activity observed?",
+            "A": [
+              "No pedestrians are observed in the immediate vicinity of the vehicle."
+            ]
+          },
+          "gt": "Currently, no pedestrians are observed in the immediate vicinity of the vehicle, particularly near the pedestrian path to the right.",
+          "baseline_token_ids": [
+            [
+              1,
+              1939,
+              8939,
+              342,
+              374,
+              550,
+              526,
+              7962,
+              297,
+              278,
+              16800,
+              9467,
+              13593,
+              310,
+              278,
+              19716,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              1939,
+              8939,
+              342,
+              374,
+              550,
+              526,
+              8900,
+              297,
+              278,
+              16800,
+              9467,
+              13593,
+              310,
+              278,
+              19716,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 5417,
+          "repeat": 2,
+          "question": "Can you describe the residential area visible from the vehicle?",
+          "baseline": {
+            "Q": "Can you describe the residential area visible from the vehicle?",
+            "A": [
+              "The residential area has houses with lights on, indicating that people are likely inside. The area is quiet with no visible activity."
+            ]
+          },
+          "actual": {
+            "Q": "Can you describe the residential area visible from the vehicle?",
+            "A": [
+              "The residential area has houses with lit windows, indicating that people are likely inside. The area is quiet with no visible activity."
+            ]
+          },
+          "gt": "The residential area appears quiet with parked cars and houses that are dimly lit, suggesting a late hour with minimal activity.",
+          "baseline_token_ids": [
+            [
+              1,
+              450,
+              20201,
+              616,
+              4038,
+              756,
+              12955,
+              411,
+              26068,
+              373,
+              29892,
+              23941,
+              393,
+              2305,
+              526,
+              5517,
+              2768,
+              29889,
+              450,
+              4038,
+              338,
+              11813,
+              411,
+              694,
+              7962,
+              6354,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              450,
+              20201,
+              616,
+              4038,
+              756,
+              12955,
+              411,
+              11872,
+              5417,
+              29892,
+              23941,
+              393,
+              2305,
+              526,
+              5517,
+              2768,
+              29889,
+              450,
+              4038,
+              338,
+              11813,
+              411,
+              694,
+              7962,
+              6354,
+              29889,
+              2
+            ]
+          ]
+        }
+      ],
+      "frozen_token_target_pass": false
+    },
+    "m123": {
+      "frames": 24,
+      "frame_text_equal": 22,
+      "questions": 120,
+      "token_ids_equal": 118,
+      "tasks": {
+        "global_safety": {
+          "questions": 58,
+          "token_ids_equal": 56
+        },
+        "unknown": {
+          "questions": 28,
+          "token_ids_equal": 28
+        },
+        "object_relation": {
+          "questions": 20,
+          "token_ids_equal": 20
+        },
+        "map": {
+          "questions": 14,
+          "token_ids_equal": 14
+        }
+      },
+      "failures": [
+        {
+          "index": 5489,
+          "repeat": 1,
+          "question": "Please shortly describe your driving action.",
+          "baseline": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around."
+            ]
+          },
+          "actual": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no visible obstructions or traffic."
+            ]
+          },
+          "gt": null,
+          "baseline_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              16800,
+              14979,
+              23435,
+              470,
+              12469,
+              2820,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              7962,
+              704,
+              10582,
+              1953,
+              470,
+              12469,
+              29889,
+              2
+            ]
+          ]
+        },
+        {
+          "index": 5489,
+          "repeat": 2,
+          "question": "Please shortly describe your driving action.",
+          "baseline": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around."
+            ]
+          },
+          "actual": {
+            "Q": "Please shortly describe your driving action.",
+            "A": [
+              "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no visible obstructions or traffic."
+            ]
+          },
+          "gt": null,
+          "baseline_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              16800,
+              14979,
+              23435,
+              470,
+              12469,
+              2820,
+              29889,
+              2
+            ]
+          ],
+          "actual_token_ids": [
+            [
+              1,
+              306,
+              29915,
+              29885,
+              7344,
+              292,
+              263,
+              17768,
+              403,
+              6210,
+              322,
+              7952,
+              292,
+              297,
+              278,
+              1857,
+              301,
+              1662,
+              29892,
+              408,
+              278,
+              6520,
+              338,
+              2821,
+              322,
+              727,
+              526,
+              694,
+              7962,
+              704,
+              10582,
+              1953,
+              470,
+              12469,
+              29889,
+              2
+            ]
+          ]
+        }
+      ],
+      "frozen_token_target_pass": false
+    }
+  },
+  "llm": {
+    "full_full_1.0": {
+      "questions": 30,
+      "token_ids_equal": 30,
+      "f1": [
+        0.9,
+        0.96,
+        0.42857142857142855,
+        0.3076923076923077,
+        0.7222222222222222,
+        0.5625,
+        0.56,
+        0.5185185185185185,
+        0.46808510638297873,
+        0.6285714285714286,
+        0.6,
+        0.8,
+        0.46511627906976744,
+        0.6666666666666666
+      ],
+      "numeric_mae": [],
+      "input_tokens": 17241,
+      "visual_tokens": 15390,
+      "wall_ms": {
+        "p50": 7974.6648829896,
+        "p95": 8582.908873737324,
+        "count": 6
+      },
+      "mean_gt_token_f1": 0.6134245684068084,
+      "mean_numeric_mae": null,
+      "carrier_reduction": 0.0,
+      "strict_token_retention": 1.0
+    },
+    "exact_full_1.0": {
+      "questions": 30,
+      "token_ids_equal": 29,
+      "f1": [
+        0.9,
+        0.96,
+        0.42857142857142855,
+        0.3076923076923077,
+        0.7222222222222222,
+        0.5625,
+        0.56,
+        0.5185185185185185,
+        0.46808510638297873,
+        0.6285714285714286,
+        0.6,
+        0.8,
+        0.46511627906976744,
+        0.6666666666666666
+      ],
+      "numeric_mae": [],
+      "input_tokens": 17241,
+      "visual_tokens": 15390,
+      "wall_ms": {
+        "p50": 7367.5449040019885,
+        "p95": 7974.707049899735,
+        "count": 6
+      },
+      "mean_gt_token_f1": 0.6134245684068084,
+      "mean_numeric_mae": null,
+      "carrier_reduction": 0.0,
+      "strict_token_retention": 0.9666666666666667
+    },
+    "compact_task_0.5": {
+      "questions": 30,
+      "token_ids_equal": 27,
+      "f1": [
+        0.9,
+        1.0,
+        0.42857142857142855,
+        0.3076923076923077,
+        0.7222222222222222,
+        0.5625,
+        0.56,
+        0.5185185185185185,
+        0.46808510638297873,
+        0.6285714285714286,
+        0.6,
+        0.8,
+        0.5116279069767442,
+        0.6666666666666666
+      ],
+      "numeric_mae": [],
+      "input_tokens": 16601,
+      "visual_tokens": 14750,
+      "wall_ms": {
+        "p50": 7944.5005770539865,
+        "p95": 8562.711620994378,
+        "count": 6
+      },
+      "mean_gt_token_f1": 0.6196039704001638,
+      "mean_numeric_mae": null,
+      "carrier_reduction": 0.04158544509421702,
+      "strict_token_retention": 0.9
+    },
+    "compact_topk_0.75": {
+      "questions": 30,
+      "token_ids_equal": 17,
+      "f1": [
+        0.9,
+        0.8461538461538461,
+        0.4090909090909091,
+        0.2962962962962963,
+        0.7222222222222222,
+        0.5625,
+        0.56,
+        0.5185185185185185,
+        0.46808510638297873,
+        0.6285714285714286,
+        0.6,
+        0.8,
+        0.46511627906976744,
+        0.6666666666666666
+      ],
+      "numeric_mae": [],
+      "input_tokens": 13401,
+      "visual_tokens": 11550,
+      "wall_ms": {
+        "p50": 7725.976428133436,
+        "p95": 7999.564664205536,
+        "count": 6
+      },
+      "mean_gt_token_f1": 0.6030872337837595,
+      "mean_numeric_mae": null,
+      "carrier_reduction": 0.24951267056530213,
+      "strict_token_retention": 0.5666666666666667
+    },
+    "compact_topk_0.5": {
+      "questions": 30,
+      "token_ids_equal": 9,
+      "f1": [
+        0.9,
+        0.8461538461538461,
+        0.4583333333333333,
+        0.2962962962962963,
+        0.7222222222222222,
+        0.5625,
+        0.56,
+        0.5185185185185185,
+        0.46808510638297873,
+        0.6285714285714286,
+        0.5555555555555556,
+        0.8,
+        0.22857142857142856,
+        0.6896551724137931
+      ],
+      "numeric_mae": [],
+      "input_tokens": 9561,
+      "visual_tokens": 7710,
+      "wall_ms": {
+        "p50": 7278.317021438852,
+        "p95": 8168.5483600595035,
+        "count": 6
+      },
+      "mean_gt_token_f1": 0.5881759220013858,
+      "mean_numeric_mae": null,
+      "carrier_reduction": 0.49902534113060426,
+      "strict_token_retention": 0.3
+    },
+    "compact_random_0.5": {
+      "questions": 30,
+      "token_ids_equal": 12,
+      "f1": [
+        0.9,
+        1.0,
+        0.4583333333333333,
+        0.2962962962962963,
+        0.7222222222222222,
+        0.5625,
+        0.56,
+        0.5185185185185185,
+        0.46808510638297873,
+        0.5714285714285714,
+        0.5555555555555556,
+        0.8,
+        0.4444444444444444,
+        0.6666666666666666
+      ],
+      "numeric_mae": [],
+      "input_tokens": 9561,
+      "visual_tokens": 7710,
+      "wall_ms": {
+        "p50": 7312.385748606175,
+        "p95": 7966.630555223674,
+        "count": 6
+      },
+      "mean_gt_token_f1": 0.6088607653463276,
+      "mean_numeric_mae": null,
+      "carrier_reduction": 0.49902534113060426,
+      "strict_token_retention": 0.4
+    },
+    "combined_task_0.5": {
+      "questions": 30,
+      "token_ids_equal": 27,
+      "f1": [
+        0.9,
+        1.0,
+        0.42857142857142855,
+        0.3076923076923077,
+        0.7222222222222222,
+        0.5625,
+        0.56,
+        0.5185185185185185,
+        0.46808510638297873,
+        0.6285714285714286,
+        0.6,
+        0.8,
+        0.5116279069767442,
+        0.6666666666666666
+      ],
+      "numeric_mae": [],
+      "input_tokens": 16601,
+      "visual_tokens": 14750,
+      "wall_ms": {
+        "p50": 7338.855744572356,
+        "p95": 7972.543718060479,
+        "count": 6
+      },
+      "mean_gt_token_f1": 0.6196039704001638,
+      "mean_numeric_mae": null,
+      "carrier_reduction": 0.04158544509421702,
+      "strict_token_retention": 0.9
+    }
+  },
+  "metric_limits": "F1/normalized exact and numeric-list error are diagnostics, not relation/safety accuracy; frozen token equality separately enforced",
+  "extra_source": "outputs/module3/clean_multi_20261016_220113/extended_quality.json"
+}

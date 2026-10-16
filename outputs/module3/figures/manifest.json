@@ -1,0 +1,9 @@
+{
+  "m3a_cost_breakdown": "frames.jsonl; measured CUDA intervals; stacked component medians need not equal total median",
+  "m3b_prefix_distribution": "input_audit.json; all original questions, not just timed subset",
+  "m3c_compression_quality": "llm_probes.jsonl; unchanged GT; F1 is not safety/semantic accuracy",
+  "m3d_prefill_tokens": "frames.jsonl + input_audit.json; no fitted/synthetic curve",
+  "m3e_reuse_latency": "prefix_ablation.json; one generated token isolates prefill, not full E2E",
+  "m3f_runtime_breakdown": "frames.jsonl; CPU wall is non-additive with asynchronous GPU intervals",
+  "m3g_e2e_speedup": "frames.jsonl; all visual/state/cache/language included, warmup excluded"
+}

@@ -1,0 +1,527 @@
+{
+  "status": "partial_delivery",
+  "final_gpu_experiments_complete": false,
+  "valid_for_final_performance_claims": false,
+  "source": "outputs/module3/run03",
+  "recorded_frames": 119,
+  "complete_timed_frames": 42,
+  "cuda_failure": "experiment wrapper retained old runtime/KV; fixed, clean rerun pending",
+  "current_blocker": "Host exec automatic approval timed out; one retry also timed out",
+  "auto_approved": false,
+  "measured_methods": [
+    "baseline",
+    "combined",
+    "compact",
+    "exact",
+    "m12",
+    "m123"
+  ],
+  "balanced_exploratory_subset": {
+    "m12": {
+      "frames": 7,
+      "questions": 35,
+      "e2e_wall_ms": {
+        "p50": 8286.729488987476,
+        "p95": 10536.5179319866,
+        "count": 7
+      },
+      "prefill_gpu_ms": {
+        "p50": 891.4398651123047,
+        "p95": 893.3672912597656,
+        "count": 7
+      },
+      "prefill_calls": 35,
+      "decode_gpu_ms": {
+        "p50": 6661.500154495239,
+        "p95": 8853.23769302368,
+        "count": 7
+      },
+      "decode_calls": 1769,
+      "eva_gpu_ms": {
+        "p50": 484.1922607421875,
+        "p95": 484.75950622558594,
+        "count": 7
+      },
+      "eva_calls": 7,
+      "multimodal_preparation_gpu_ms": {
+        "p50": 7.056768011301756,
+        "p95": 8.656841647624969,
+        "count": 7
+      },
+      "multimodal_preparation_calls": 1804,
+      "detection_gpu_ms": {
+        "p50": 14.507007598876953,
+        "p95": 14.583910274505616,
+        "count": 7
+      },
+      "detection_calls": 7,
+      "map_gpu_ms": {
+        "p50": 30.774944305419922,
+        "p95": 31.488966369628905,
+        "count": 7
+      },
+      "map_calls": 7,
+      "llm_gpu_ms": {
+        "p50": 7553.817232131958,
+        "p95": 9744.980165863037,
+        "count": 7
+      },
+      "peak_allocated_gib": {
+        "p50": 20.45338535308838,
+        "p95": 21.68824987411499,
+        "count": 7
+      },
+      "peak_reserved_gib": {
+        "p50": 21.26953125,
+        "p95": 22.5919921875,
+        "count": 7
+      },
+      "generated_tokens": 1804,
+      "decode_tokens_per_second": 40.02028446782926,
+      "actual_reused_tokens": 0,
+      "cache_max_mib": 0.0,
+      "m1_total_ms": {
+        "p50": 54.41639223136008,
+        "p95": 309.98843710403884,
+        "count": 7
+      },
+      "cold_sequence_wall_ms": {
+        "p50": 9381.401577382348,
+        "p95": 10668.853798951022,
+        "count": 4
+      },
+      "later_frame_wall_ms": {
+        "p50": 6222.5561439991,
+        "p95": 6252.36588998232,
+        "count": 3
+      },
+      "prefill_speedup": 1.0034637819293728,
+      "decode_speedup": 1.0007100381781726,
+      "llm_latency_reduction": 0.0011317697367090318,
+      "e2e_speedup": 0.9960623208428104
+    },
+    "compact": {
+      "frames": 7,
+      "questions": 35,
+      "e2e_wall_ms": {
+        "p50": 8181.758306920528,
+        "p95": 10453.28292849008,
+        "count": 7
+      },
+      "prefill_gpu_ms": {
+        "p50": 874.1281127929688,
+        "p95": 888.4858184814453,
+        "count": 7
+      },
+      "prefill_calls": 35,
+      "decode_gpu_ms": {
+        "p50": 6605.455541610718,
+        "p95": 8849.383980369566,
+        "count": 7
+      },
+      "decode_calls": 1759,
+      "eva_gpu_ms": {
+        "p50": 487.8086853027344,
+        "p95": 489.7439331054687,
+        "count": 7
+      },
+      "eva_calls": 7,
+      "multimodal_preparation_gpu_ms": {
+        "p50": 6.693631988018751,
+        "p95": 8.39401281895116,
+        "count": 7
+      },
+      "multimodal_preparation_calls": 1794,
+      "detection_gpu_ms": {
+        "p50": 14.59712028503418,
+        "p95": 14.635110092163085,
+        "count": 7
+      },
+      "detection_calls": 7,
+      "map_gpu_ms": {
+        "p50": 30.822975158691406,
+        "p95": 31.232796287536623,
+        "count": 7
+      },
+      "map_calls": 7,
+      "llm_gpu_ms": {
+        "p50": 7480.791784286499,
+        "p95": 9708.111723899841,
+        "count": 7
+      },
+      "peak_allocated_gib": {
+        "p50": 19.78502607345581,
+        "p95": 21.597142601013182,
+        "count": 7
+      },
+      "peak_reserved_gib": {
+        "p50": 20.583984375,
+        "p95": 22.5919921875,
+        "count": 7
+      },
+      "generated_tokens": 1794,
+      "decode_tokens_per_second": 40.09524435358013,
+      "actual_reused_tokens": 0,
+      "cache_max_mib": 0.0,
+      "m1_total_ms": {
+        "p50": 0.0,
+        "p95": 0.0,
+        "count": 7
+      },
+      "cold_sequence_wall_ms": {
+        "p50": 9312.2776534874,
+        "p95": 10582.272008841392,
+        "count": 4
+      },
+      "later_frame_wall_ms": {
+        "p50": 5739.080914994702,
+        "p95": 5851.179460179992,
+        "count": 3
+      },
+      "prefill_speedup": 1.0233369746570156,
+      "decode_speedup": 1.009200657234807,
+      "llm_latency_reduction": 0.01078818550796945,
+      "e2e_speedup": 1.008841705824493
+    },
+    "exact": {
+      "frames": 7,
+      "questions": 35,
+      "e2e_wall_ms": {
+        "p50": 7648.794578155503,
+        "p95": 9886.427093320526,
+        "count": 7
+      },
+      "prefill_gpu_ms": {
+        "p50": 290.5036735534668,
+        "p95": 294.8138784408569,
+        "count": 7
+      },
+      "prefill_calls": 35,
+      "decode_gpu_ms": {
+        "p50": 6656.75577545166,
+        "p95": 8853.490183830261,
+        "count": 7
+      },
+      "decode_calls": 1769,
+      "eva_gpu_ms": {
+        "p50": 488.4499816894531,
+        "p95": 489.5163909912109,
+        "count": 7
+      },
+      "eva_calls": 7,
+      "multimodal_preparation_gpu_ms": {
+        "p50": 6.997952035628259,
+        "p95": 8.43074245462194,
+        "count": 7
+      },
+      "multimodal_preparation_calls": 1804,
+      "detection_gpu_ms": {
+        "p50": 14.591008186340332,
+        "p95": 14.629990196228027,
+        "count": 7
+      },
+      "detection_calls": 7,
+      "map_gpu_ms": {
+        "p50": 30.7258243560791,
+        "p95": 31.19153575897217,
+        "count": 7
+      },
+      "map_calls": 7,
+      "llm_gpu_ms": {
+        "p50": 6947.259449005127,
+        "p95": 9144.362567901611,
+        "count": 7
+      },
+      "peak_allocated_gib": {
+        "p50": 20.07285785675049,
+        "p95": 21.6257737159729,
+        "count": 7
+      },
+      "peak_reserved_gib": {
+        "p50": 20.876953125,
+        "p95": 22.36640625,
+        "count": 7
+      },
+      "generated_tokens": 1804,
+      "decode_tokens_per_second": 40.059311317992126,
+      "actual_reused_tokens": 15615,
+      "cache_max_mib": 293.14363956451416,
+      "m1_total_ms": {
+        "p50": 0.0,
+        "p95": 0.0,
+        "count": 7
+      },
+      "cold_sequence_wall_ms": {
+        "p50": 8712.833024910651,
+        "p95": 10020.337092701811,
+        "count": 4
+      },
+      "later_frame_wall_ms": {
+        "p50": 5321.4497161097825,
+        "p95": 5353.942941594869,
+        "count": 3
+      },
+      "prefill_speedup": 3.0792299714019506,
+      "decode_speedup": 1.00142326063878,
+      "llm_latency_reduction": 0.08133907165647292,
+      "e2e_speedup": 1.0791372317110766
+    },
+    "combined": {
+      "frames": 7,
+      "questions": 35,
+      "e2e_wall_ms": {
+        "p50": 7602.925797924399,
+        "p95": 9888.138403673656,
+        "count": 7
+      },
+      "prefill_gpu_ms": {
+        "p50": 292.7884407043457,
+        "p95": 297.13531284332277,
+        "count": 7
+      },
+      "prefill_calls": 35,
+      "decode_gpu_ms": {
+        "p50": 6606.52188873291,
+        "p95": 8842.746720695495,
+        "count": 7
+      },
+      "decode_calls": 1759,
+      "eva_gpu_ms": {
+        "p50": 488.39990234375,
+        "p95": 491.84581604003904,
+        "count": 7
+      },
+      "eva_calls": 7,
+      "multimodal_preparation_gpu_ms": {
+        "p50": 7.102272043004632,
+        "p95": 8.806707217916847,
+        "count": 7
+      },
+      "multimodal_preparation_calls": 1794,
+      "detection_gpu_ms": {
+        "p50": 14.57049560546875,
+        "p95": 14.726758193969726,
+        "count": 7
+      },
+      "detection_calls": 7,
+      "map_gpu_ms": {
+        "p50": 30.894880294799805,
+        "p95": 31.390323448181153,
+        "count": 7
+      },
+      "map_calls": 7,
+      "llm_gpu_ms": {
+        "p50": 6898.31760597229,
+        "p95": 9136.913118171691,
+        "count": 7
+      },
+      "peak_allocated_gib": {
+        "p50": 20.26224374771118,
+        "p95": 21.30969443321228,
+        "count": 7
+      },
+      "peak_reserved_gib": {
+        "p50": 20.876953125,
+        "p95": 22.1650390625,
+        "count": 7
+      },
+      "generated_tokens": 1794,
+      "decode_tokens_per_second": 40.13137898050741,
+      "actual_reused_tokens": 14654,
+      "cache_max_mib": 293.14363956451416,
+      "m1_total_ms": {
+        "p50": 0.0,
+        "p95": 0.0,
+        "count": 7
+      },
+      "cold_sequence_wall_ms": {
+        "p50": 8714.145342586562,
+        "p95": 10019.528298301157,
+        "count": 4
+      },
+      "later_frame_wall_ms": {
+        "p50": 5150.020691100508,
+        "p95": 5261.16340092849,
+        "count": 3
+      },
+      "prefill_speedup": 3.055201278630691,
+      "decode_speedup": 1.0090377639250316,
+      "llm_latency_reduction": 0.08781082635131554,
+      "e2e_speedup": 1.085647713311998
+    },
+    "m123": {
+      "frames": 7,
+      "questions": 35,
+      "e2e_wall_ms": {
+        "p50": 7688.5457371827215,
+        "p95": 9945.853265398182,
+        "count": 7
+      },
+      "prefill_gpu_ms": {
+        "p50": 289.32703590393066,
+        "p95": 292.503448677063,
+        "count": 7
+      },
+      "prefill_calls": 35,
+      "decode_gpu_ms": {
+        "p50": 6660.952829360962,
+        "p95": 8859.832016563414,
+        "count": 7
+      },
+      "decode_calls": 1769,
+      "eva_gpu_ms": {
+        "p50": 484.2672119140625,
+        "p95": 484.7400848388672,
+        "count": 7
+      },
+      "eva_calls": 7,
+      "multimodal_preparation_gpu_ms": {
+        "p50": 6.783103981986642,
+        "p95": 8.508512031193822,
+        "count": 7
+      },
+      "multimodal_preparation_calls": 1804,
+      "detection_gpu_ms": {
+        "p50": 14.436351776123047,
+        "p95": 14.592921447753906,
+        "count": 7
+      },
+      "detection_calls": 7,
+      "map_gpu_ms": {
+        "p50": 30.687007904052734,
+        "p95": 31.069539260864257,
+        "count": 7
+      },
+      "map_calls": 7,
+      "llm_gpu_ms": {
+        "p50": 6950.279865264893,
+        "p95": 9149.229172897338,
+        "count": 7
+      },
+      "peak_allocated_gib": {
+        "p50": 20.454262733459473,
+        "p95": 21.688528633117677,
+        "count": 7
+      },
+      "peak_reserved_gib": {
+        "p50": 21.267578125,
+        "p95": 22.4916015625,
+        "count": 7
+      },
+      "generated_tokens": 1804,
+      "decode_tokens_per_second": 40.06916616344617,
+      "actual_reused_tokens": 15615,
+      "cache_max_mib": 293.14363956451416,
+      "m1_total_ms": {
+        "p50": 53.67490416392684,
+        "p95": 290.8380160108208,
+        "count": 7
+      },
+      "cold_sequence_wall_ms": {
+        "p50": 8768.04415951483,
+        "p95": 10075.801730703097,
+        "count": 4
+      },
+      "later_frame_wall_ms": {
+        "p50": 5611.427332973108,
+        "p95": 5624.476360087283,
+        "count": 3
+      },
+      "prefill_speedup": 3.0917526100299377,
+      "decode_speedup": 1.000792265716792,
+      "llm_latency_reduction": 0.08093967122734724,
+      "e2e_speedup": 1.073557898872815
+    },
+    "baseline": {
+      "frames": 7,
+      "questions": 35,
+      "e2e_wall_ms": {
+        "p50": 8254.099006997421,
+        "p95": 10494.532031030394,
+        "count": 7
+      },
+      "prefill_gpu_ms": {
+        "p50": 894.5276184082031,
+        "p95": 896.0323776245117,
+        "count": 7
+      },
+      "prefill_calls": 35,
+      "decode_gpu_ms": {
+        "p50": 6666.230073928833,
+        "p95": 8861.093943023681,
+        "count": 7
+      },
+      "decode_calls": 1769,
+      "eva_gpu_ms": {
+        "p50": 486.4624938964844,
+        "p95": 490.3073211669922,
+        "count": 7
+      },
+      "eva_calls": 7,
+      "multimodal_preparation_gpu_ms": {
+        "p50": 6.950656026601791,
+        "p95": 8.646694420836866,
+        "count": 7
+      },
+      "multimodal_preparation_calls": 1804,
+      "detection_gpu_ms": {
+        "p50": 14.587967872619629,
+        "p95": 14.685286617279052,
+        "count": 7
+      },
+      "detection_calls": 7,
+      "map_gpu_ms": {
+        "p50": 30.728960037231445,
+        "p95": 39.93790645599364,
+        "count": 7
+      },
+      "map_calls": 7,
+      "llm_gpu_ms": {
+        "p50": 7562.376100540161,
+        "p95": 9756.489266204833,
+        "count": 7
+      },
+      "peak_allocated_gib": {
+        "p50": 20.36119270324707,
+        "p95": 21.597012329101563,
+        "count": 7
+      },
+      "peak_reserved_gib": {
+        "p50": 21.267578125,
+        "p95": 22.61328125,
+        "count": 7
+      },
+      "generated_tokens": 1804,
+      "decode_tokens_per_second": 40.0403058729105,
+      "actual_reused_tokens": 0,
+      "cache_max_mib": 0.0,
+      "m1_total_ms": {
+        "p50": 0.0,
+        "p95": 0.0,
+        "count": 7
+      },
+      "cold_sequence_wall_ms": {
+        "p50": 9318.1660635164,
+        "p95": 10629.742956964765,
+        "count": 4
+      },
+      "later_frame_wall_ms": {
+        "p50": 5886.831059819087,
+        "p95": 5954.890457727015,
+        "count": 3
+      },
+      "prefill_speedup": 1.0,
+      "decode_speedup": 1.0,
+      "llm_latency_reduction": 0.0,
+      "e2e_speedup": 1.0
+    }
+  },
+  "not_run": [
+    "topk/random real-GT comparison",
+    "one-question deployment",
+    "fixed-RNG real-model sampling",
+    "whole-model prefix logits",
+    "profiler trace",
+    "clean full 6-scene repeat after lifetime fix"
+  ]
+}

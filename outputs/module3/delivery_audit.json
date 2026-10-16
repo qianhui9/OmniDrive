@@ -1,0 +1,143 @@
+{
+  "main": {
+    "frames": 216,
+    "measured_frames": 144,
+    "unique_cells": true,
+    "answers_and_call_counts_verified": true,
+    "raw_perception_files_verified": 0
+  },
+  "single": {
+    "frames": 72,
+    "measured_frames": 48,
+    "unique_cells": true,
+    "answers_and_call_counts_verified": true,
+    "raw_perception_files_verified": 72
+  },
+  "inference_source_matches_gpu_snapshot": {
+    "worldstream/m3/config.py": true,
+    "worldstream/m3/task_conditioner.py": true,
+    "worldstream/m3/prefix_kv_cache.py": true,
+    "worldstream/m3/runtime.py": true,
+    "worldstream/m3/scheduler.py": true,
+    "worldstream/m3/prefill_executor.py": true,
+    "worldstream/m3/carrier_selector.py": true,
+    "worldstream/m3/__init__.py": true,
+    "worldstream/m3/visual_state.py": true,
+    "worldstream/m3/prefix_matcher.py": true,
+    "projects/mmdet3d_plugin/models/detectors/petr3d.py": true
+  },
+  "regression": {
+    "passed": 197,
+    "skipped": 0,
+    "log": "outputs/module3/logs/clean_tests_20261016_220113.log"
+  },
+  "profiler": {
+    "identical": {
+      "path": "outputs/module3/clean_multi_20261016_220113/traces/identical_prefix.json",
+      "sha256": "e42be4daa7910cecb3bd160d086936a18e59fab62808c1a252577e0cf76afd74",
+      "cuda_kernel_events": 4405,
+      "regions": {
+        "m3_probe_decode": 2,
+        "m3_probe_multimodal_preparation": 2
+      },
+      "bmm_query_lengths": [
+        1
+      ],
+      "bmm_calls": 128
+    },
+    "shared_visual": {
+      "path": "outputs/module3/quantity_supplement_01/traces/shared_visual_prefix.json",
+      "sha256": "a010b820c4a970d06a74cf135dda050d434b1b0dcd45f8a73a17749cc38e6f8d",
+      "cuda_kernel_events": 4553,
+      "regions": {
+        "m3_suffix_prefill": 1,
+        "m3_probe_prefill": 1,
+        "m3_probe_decode": 1
+      },
+      "bmm_query_lengths": [
+        1,
+        18
+      ],
+      "bmm_calls": 128,
+      "proof": {
+        "diagnostics": {
+          "input_tokens": 576,
+          "reused_tokens": 558,
+          "effective_prefill_tokens": 18,
+          "forward_prefill_lengths": [
+            18
+          ],
+          "computed_source": [
+            "planning",
+            "000681a060c04755a1537cf83b53ba57"
+          ],
+          "suffix_computed_source": [
+            "quantity",
+            "000681a060c04755a1537cf83b53ba57"
+          ],
+          "cache_stored": true,
+          "prefill_including_cache_cpu_enqueue_ms": 25.092866038903594,
+          "llm_cpu_enqueue_ms": 62.13390617631376,
+          "cache_bytes": 306850880,
+          "prefix_lineage": [
+            [
+              0,
+              558,
+              [
+                "planning",
+                "000681a060c04755a1537cf83b53ba57"
+              ]
+            ]
+          ],
+          "branch_workspace_bytes": 292552704
+        },
+        "initial_prompt_tokens": 577,
+        "current_prompt_tokens": 576,
+        "actual_reused_tokens": 558,
+        "expected_suffix_tokens": 18,
+        "source_token": "000681a060c04755a1537cf83b53ba57",
+        "source_sha256": "686c078d6240338b7a1ad920b3211e57139faa27532d82bf6bcf32a42c4bb01d"
+      }
+    }
+  },
+  "memory_stability": {
+    "baseline": {
+      "min_allocated_gib": 15.108814239501953,
+      "max_allocated_gib": 15.175426483154297,
+      "max_same_frame_repeat_peak_delta_mib": 0.0,
+      "actual_reused_cameras": 0
+    },
+    "combined": {
+      "min_allocated_gib": 15.398034572601318,
+      "max_allocated_gib": 15.463030815124512,
+      "max_same_frame_repeat_peak_delta_mib": 0.0,
+      "actual_reused_cameras": 0
+    },
+    "compact": {
+      "min_allocated_gib": 15.108828067779541,
+      "max_allocated_gib": 15.175441265106201,
+      "max_same_frame_repeat_peak_delta_mib": 0.0,
+      "actual_reused_cameras": 0
+    },
+    "exact": {
+      "min_allocated_gib": 15.398030281066895,
+      "max_allocated_gib": 15.463026523590088,
+      "max_same_frame_repeat_peak_delta_mib": 0.0,
+      "actual_reused_cameras": 0
+    },
+    "m12": {
+      "min_allocated_gib": 15.199678421020508,
+      "max_allocated_gib": 15.269371509552002,
+      "max_same_frame_repeat_peak_delta_mib": 0.0,
+      "actual_reused_cameras": 0
+    },
+    "m123": {
+      "min_allocated_gib": 15.488250255584717,
+      "max_allocated_gib": 15.558264255523682,
+      "max_same_frame_repeat_peak_delta_mib": 0.0,
+      "actual_reused_cameras": 0
+    }
+  },
+  "all_frozen_quality_targets_pass": false,
+  "decision": "NO_GO for online optimization; keep Auto full fallback"
+}

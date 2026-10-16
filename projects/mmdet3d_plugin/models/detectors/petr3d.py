@@ -74,7 +74,9 @@ class Petr3D(MVXTwoStageDetector):
                  m1_execution_mode='observe_only',
                  m1_config=None,
                  m2_enable=False,
-                 m2_config=None):
+                 m2_config=None,
+                 m3_enable=False,
+                 m3_config=None):
         super(Petr3D, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
                              img_backbone, pts_backbone, img_neck, pts_neck,
@@ -144,6 +146,11 @@ class Petr3D(MVXTwoStageDetector):
             self.lm_head = load_model(lm_head, use_lora, frozen)
 
         self.test_flag = False
+        self.m3_runtime = None
+        if m3_enable:
+            from worldstream.m3 import M3Runtime
+            self.m3_runtime = M3Runtime(m3_config)
+            self._register_load_state_dict_pre_hook(lambda *args: self.m3_runtime.reset())
         self.m2_runtime = None
         self._m2_context = None
         if m2_enable:
@@ -468,12 +475,31 @@ class Petr3D(MVXTwoStageDetector):
             _m1_observer(bbox_results, lane_results, observed_features)
 
         generated_text = []
-        if self.with_lm_head and not os.path.exists(self.save_path+img_metas[0]['sample_idx']) :
+        m3 = getattr(self, 'm3_runtime', None) if not getattr(self, 'training', False) else None
+        if self.with_lm_head and (m3 is not None or not os.path.exists(self.save_path+img_metas[0]['sample_idx'])):
             mmcv.mkdir_or_exist(self.save_path)
             vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
+            m3_answers = None
+            if m3 is not None:
+                from worldstream.m3 import CarrierLayout
+                meta = img_metas[0]
+                timestamp = float(data['timestamp'].reshape(-1)[0])
+                m3_answers, self.m3_diagnostics = m3.generate(
+                    lm_head=self.lm_head, input_ids_list=data['input_ids'][0],
+                    vision_carriers=vision_embeded,
+                    world_state=getattr(self.m1_manager, 'store', None),
+                    visual_execution=getattr(getattr(self, 'm2_runtime', None), 'last_diagnostics', None),
+                    context=dict(scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']),
+                        timestamp=timestamp, camera_ids=list(meta.get('cam_infos', {})) or
+                        [os.path.basename(os.path.dirname(f)) for f in meta['filename']]),
+                    questions=meta['vlm_labels'].data,
+                    layout=CarrierLayout(self.pts_bbox_head.num_extra,
+                        det_query.shape[1] - self.pts_bbox_head.num_extra, map_query.shape[1]),
+                    do_sample=True, temperature=0.1, top_p=0.75, num_beams=1,
+                    max_new_tokens=320, use_cache=True)
             for i, input_ids in enumerate(data['input_ids'][0]):
                 input_ids = input_ids.unsqueeze(0)
-                output_ids = self.lm_head.generate(
+                output_ids = m3_answers[i] if m3_answers is not None else self.lm_head.generate(
                     inputs=input_ids,
                     images=vision_embeded,
                     do_sample=True,
