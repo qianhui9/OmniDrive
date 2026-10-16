@@ -145,7 +145,8 @@ def test_auto_without_measurement(eva, context):
     x = torch.randn(2, 3, 40, 40)
     r.forward(x, execution_context=context)
     _, d = r.forward(x, execution_context=dict(context, frame_id='1'))
-    assert d['stages'][0]['fallback_reason'] == 'unprofiled_cost'
+    assert d['fallback_reason'] == 'unprofiled_cost'
+    assert not d['cache_saved']
     assert not d['actual_skipped_windows']
 
 

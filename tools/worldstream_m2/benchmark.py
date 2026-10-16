@@ -118,7 +118,7 @@ def main():
             correctness=e['max_abs'] <= .02 and e['relative_l2'] <= .002,
             executed_attention_sequences=count, dense_attention_sequences=54)
         rows.append(row)
-        cost_records.append(dict(key=cost_key(block, x), updated=count,
+        cost_records.append(dict(key=cost_key(block, x, 0), updated=count,
             incremental_gpu_ms=packed_time['gpu_ms'], full_gpu_ms=dense_time['gpu_ms'],
             incremental_wall_ms=packed_time['wall_ms'], full_wall_ms=dense_time['wall_ms']))
         if count in (1, 27, 54):
@@ -150,7 +150,7 @@ def main():
     write(root/'controlled_sparse_benchmark.json', dict(status='measured', checkpoint='ckpts/iter_10548.pth',
         dtype='float32 weights/activations, original FP16 FlashAttention', shape=list(x.shape), seed=2026, warmup=5, repeats=args.repeats,
         calibration_dense_repeat=calibration, tolerance=dict(max_abs=.02, relative_l2=.002), rows=rows))
-    write(root/'break_even_results.json', dict(records=cost_records,
+    write(root/'break_even_results.json', dict(schema_version=2,records=cost_records,
         beneficial_counts=[r['updated'] for r in rows if r['packed']['gpu_ms']<dense_time['gpu_ms']
                            and r['packed']['wall_ms']<dense_time['wall_ms']],
         scope='block 0 only; includes packing/cache/scatter; backbone input comparison excluded'))
@@ -219,7 +219,7 @@ def main():
             certified_counts.add(row['diagnostics']['stages'][0]['updated_windows'])
     for record in cost_records:
         record['quality_certified']=record['updated'] in certified_counts
-    write(root/'break_even_results.json',dict(records=cost_records,
+    write(root/'break_even_results.json',dict(schema_version=2,records=cost_records,
         beneficial_counts=[r['updated'] for r in rows if r['packed']['gpu_ms']<dense_time['gpu_ms']
                            and r['packed']['wall_ms']<dense_time['wall_ms']],
         calibrated_quality_counts=sorted(certified_counts),

@@ -29,11 +29,15 @@ class DependencyPlanner:
     def __init__(self, backbone):
         self.backbone = backbone
 
-    def plan(self, updates):
+    def plan(self, updates, stop_after=None):
         plans = []
-        for i, block in enumerate(self.backbone.blocks):
+        last_size = None
+        for i, block in enumerate(self.backbone.blocks[:stop_after]):
             size = block.window_size
             if size:
+                if size == last_size and plans[-1].reason == 'window_dependency':
+                    plans.append(StagePlan(i, size, plans[-1].updated, updates, 'window_dependency'))
+                    continue
                 changed = window_mask(updates, size)
                 packed, padded = partition(updates[..., None], size)
                 packed = changed[:, None, None, None].expand_as(packed)
@@ -48,6 +52,7 @@ class DependencyPlanner:
                 updates = changed[:, None, None].expand_as(updates)
                 reason = 'global_dependency'
             plans.append(StagePlan(i, size, changed, updates, reason))
+            last_size = size
         return plans
 
     def cacheable_prefix(self):

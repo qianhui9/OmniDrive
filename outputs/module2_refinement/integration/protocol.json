@@ -1,0 +1,121 @@
+{
+  "scenes": [
+    {
+      "scene": "ca6e45c25d954dc4af6e12dd7b23454d",
+      "indices": [
+        2562,
+        2563,
+        2564,
+        2566
+      ],
+      "turn_rad": 1.0726910457124628,
+      "travel_m": 3.982265974228249,
+      "max_object_speed_mps": 3.1352430204511634,
+      "low_visibility_fraction": 0.5157894736842106,
+      "description": "Parking lot, U turn, parked cars, peds",
+      "scene_name": "scene-0778",
+      "category": "turn",
+      "sample_ids": [
+        "def4504377694f7dbb99241a60d49455",
+        "469a2125e73c4651be58d222429365b8",
+        "d763ff87e53e4b4f967ee4dc4193dda9",
+        "4766635d123148caae23055a9bf031b7"
+      ],
+      "gaps_s": [
+        0.5009629726409912,
+        0.5004580020904541,
+        1.0008430480957031
+      ]
+    },
+    {
+      "scene": "c5224b9b454b4ded9b5d2d2634bbda8a",
+      "indices": [
+        4569,
+        4570,
+        4571,
+        4573
+      ],
+      "turn_rad": 0.023619092882813497,
+      "travel_m": 27.041076129011913,
+      "max_object_speed_mps": 17.783815503449247,
+      "low_visibility_fraction": 0.37373737373737376,
+      "description": "Scooter, peds on sidewalk, bus, cars, truck, fake construction worker, bicycle, cross intersection, car overtaking us",
+      "scene_name": "scene-0796",
+      "category": "straight",
+      "sample_ids": [
+        "c1676a2feac74eee8aa38ca3901787d6",
+        "d6b0de49811b4d1b86a0933719c0c44a",
+        "6d5d0e60cbf4429d8b6cfa055924e5ca",
+        "092051710b7b4d9294e98dcb3f0f7be1"
+      ],
+      "gaps_s": [
+        0.5999569892883301,
+        0.4998641014099121,
+        1.0008690357208252
+      ]
+    },
+    {
+      "scene": "6a24a80e2ea3493c81f5fdb9fe78c28a",
+      "indices": [
+        2367,
+        2368,
+        2369,
+        2371
+      ],
+      "turn_rad": 0.10088506605129377,
+      "travel_m": 15.408720695934395,
+      "max_object_speed_mps": 26.411221294590696,
+      "low_visibility_fraction": 0.5596707818930041,
+      "description": "Parking lot, parked truck, pedestrian, oncoming truck",
+      "scene_name": "scene-0524",
+      "category": "moving_objects",
+      "sample_ids": [
+        "bd55e82c188f43daa1bca8fcb0b1a361",
+        "5ccae885ad28471cbc786c203e0beff1",
+        "e01bba3bbeb04dce85972faad08016b8",
+        "6b300f08a5af43d3aebbd3b52afaa324"
+      ],
+      "gaps_s": [
+        0.4993109703063965,
+        0.4993250370025635,
+        0.9991841316223145
+      ]
+    },
+    {
+      "scene": "7052d21b95fc4bae8761b8d9524f3e42",
+      "indices": [
+        5489,
+        5490,
+        5491,
+        5493
+      ],
+      "turn_rad": 0.006383158108914877,
+      "travel_m": 21.742606790864585,
+      "max_object_speed_mps": 7.921039466475996,
+      "low_visibility_fraction": 1.0,
+      "description": "Night, rain, turn, ped in dark",
+      "scene_name": "scene-1060",
+      "category": "occlusion",
+      "sample_ids": [
+        "e12ae352f31d4268a7f71c4d27aa0886",
+        "463599ceb9a1454a90b192c29878a5f4",
+        "0b0e7d27f48442e4960e836e8936a3b7",
+        "302fb03cf733449986066a416428f2c7"
+      ],
+      "gaps_s": [
+        0.5003800392150879,
+        0.4998798370361328,
+        0.9997451305389404
+      ]
+    }
+  ],
+  "warmup": 1,
+  "repeats": 2,
+  "order": "Latin-square rotation over scene/replay; full state reset each run",
+  "controlled_scenes": [
+    "ca6e45c25d954dc4af6e12dd7b23454d",
+    "c5224b9b454b4ded9b5d2d2634bbda8a"
+  ],
+  "generation": "greedy, seed=0, original max_new_tokens=320",
+  "quality": "new independent random inputs checked against frozen prior per-layer envelope; real nonzero sparse task checks separately"
+}

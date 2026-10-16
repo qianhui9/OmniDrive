@@ -39,3 +39,32 @@ class PackBuffer:
 
     def clear(self):
         self.tensor = None
+
+
+class SpatialWindowGather:
+    """Bounded shape metadata; gather selected windows without partitioning all channels."""
+    def __init__(self):
+        self.key = None
+
+    def clear(self):
+        self.__dict__.clear()
+        self.key = None
+
+    def gather(self, x, size, ids):
+        b,h,w,_ = x.shape
+        key = (b,h,w,size,x.device)
+        if key != self.key:
+            self.clear()
+            nh,nw = (h+size-1)//size,(w+size-1)//size
+            wid = torch.arange(b*nh*nw,device=x.device)
+            off = torch.arange(size,device=x.device)
+            self.camera = (wid//(nh*nw))[:,None,None]
+            row = ((wid//nw)%nh)[:,None,None]*size+off[None,:,None]
+            col = (wid%nw)[:,None,None]*size+off[None,None,:]
+            self.valid = ((row<h)&(col<w))[...,None]
+            self.row,self.col = row.clamp_max(h-1),col.clamp_max(w-1)
+            self.key = key
+        valid = self.valid.index_select(0,ids)
+        packed = x[self.camera.index_select(0,ids), self.row.index_select(0,ids),
+                   self.col.index_select(0,ids)]
+        return packed.masked_fill(~valid,0),valid

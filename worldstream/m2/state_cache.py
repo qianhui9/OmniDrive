@@ -2,6 +2,7 @@
 class StateCache:
     def __init__(self, budget_bytes):
         self.budget_bytes = budget_bytes
+        self.version = 0
         self.clear()
 
     def clear(self):
@@ -9,7 +10,19 @@ class StateCache:
         self.outputs = {}
         self.context = None
         self.signature = None
-        self.version = 0
+        self.output_stride = None
+        self.input_stride = None
+
+    def commit(self, images, outputs, context, signature, output_stride=None):
+        """Publish a single completed forward atomically; retained outputs are immutable."""
+        self.images = images.detach().clone()
+        self.outputs = outputs
+        self.context = dict(context)
+        self.context['camera_ids'] = list(context['camera_ids'])
+        self.signature = signature
+        self.input_stride = tuple(images.stride())
+        if output_stride is not None:self.output_stride = tuple(output_stride)
+        self.version += 1
 
     @property
     def bytes(self):
@@ -23,6 +36,8 @@ class StateCache:
             return 'execution_signature_mismatch'
         if self.images.shape != images.shape or self.images.device != images.device or self.images.dtype != images.dtype:
             return 'shape_unsupported'
+        if self.input_stride != tuple(images.stride()):
+            return 'execution_signature_mismatch'
         if self.context['scene_id'] != context['scene_id']:
             return 'scene_change'
         if self.context['camera_ids'] != context['camera_ids']:

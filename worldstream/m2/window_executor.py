@@ -1,6 +1,6 @@
 """Execute original EVA attention/MLP weights on selected independent windows only."""
 import torch
-from .packing import partition, unpartition, PackBuffer
+from .packing import partition, unpartition, PackBuffer, SpatialWindowGather
 
 
 def packed_forward(block, windows, valid):
@@ -15,16 +15,24 @@ def packed_forward(block, windows, valid):
 class WindowExecutor:
     def __init__(self):
         self.buffer = PackBuffer()
+        self.spatial = SpatialWindowGather()
 
-    def execute(self, block, x, cached_windows, ids, naive=False):
+    def execute(self, block, x, cached_windows, ids, naive=False, strategy='spatial'):
         size = block.window_size
-        windows, padded = partition(x, size)
-        valid, _ = partition(torch.ones_like(x[..., :1]), size)
+        h,w = x.shape[1:3]
+        padded = ((h+size-1)//size*size,(w+size-1)//size*size)
         if len(ids) == 0:
             # No clone needed: caller cannot mutate a previous frame through this view.
             return unpartition(cached_windows, size, padded, x.shape[1:3]), cached_windows
-        selected = self.buffer.gather(windows, ids)
-        selected_valid = valid.index_select(0, ids)
+        if strategy=='original':
+            windows,_=partition(x,size)
+            valid,_=partition(torch.ones_like(x[...,:1]),size)
+            selected=self.buffer.gather(windows,ids)
+            selected_valid=valid.index_select(0,ids)
+        elif strategy=='spatial':
+            selected,selected_valid = self.spatial.gather(x,size,ids)
+        else:
+            raise ValueError('Unknown packing strategy')
         if naive:
             updates = torch.cat([packed_forward(block, selected[i:i+1], selected_valid[i:i+1])
                                  for i in range(len(ids))], dim=0)
@@ -36,3 +44,4 @@ class WindowExecutor:
 
     def clear(self):
         self.buffer.clear()
+        self.spatial.clear()

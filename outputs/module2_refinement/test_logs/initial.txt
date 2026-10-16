@@ -1,0 +1,119 @@
+...................F.F.s.......                                          [100%]
+=================================== FAILURES ===================================
+_______________________ test_disabled_and_memory_budget ________________________
+
+eva = EVAViT(
+  (patch_embed): PatchEmbed(
+    (proj): Conv2d(3, 32, kernel_size=(4, 4), stride=(4, 4))
+  )
+  (rope_win): Vi...): Linear(in_features=85, out_features=32, bias=True)
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+  )
+)
+context = {'camera_ids': ['front', 'back'], 'coordinate_space': 'preprocessed_image', 'execution_signature': 'test', 'frame_id': '0', ...}
+
+    @torch.no_grad()
+    def test_disabled_and_memory_budget(eva, context):
+        x = torch.randn(2, 3, 40, 40)
+        for config, reason in [(dict(enabled=False), 'disabled'), (dict(memory_budget_mb=0), 'memory_budget')]:
+            r = IncrementalVisionRuntime(eva, config)
+            y, d = r.forward(x, execution_context=context)
+>           assert torch.equal(y[0], eva(x)[0]) and d['fallback_reason'] == reason
+E           AssertionError: assert (True and 'unprofiled_cost' == 'memory_budget'
+E            +  where True = <built-in method equal of type object at 0x70ce3d403460>(tensor([[[[ 4.0614e-02, -7.2284e-01,  4.8546e-01,  ..., -1.2218e-01,\n            7.9226e-01, -6.2606e-01],\n          [...697e-01],\n          [ 1.4163e+00, -1.2504e+00, -9.7592e-02,  ...,  1.2108e+00,\n           -2.0900e+00,  1.3213e+00]]]]), tensor([[[[ 4.0614e-02, -7.2284e-01,  4.8546e-01,  ..., -1.2218e-01,\n            7.9226e-01, -6.2606e-01],\n          [...697e-01],\n          [ 1.4163e+00, -1.2504e+00, -9.7592e-02,  ...,  1.2108e+00,\n           -2.0900e+00,  1.3213e+00]]]]))
+E            +    where <built-in method equal of type object at 0x70ce3d403460> = torch.equal
+E             
+E             - memory_budget
+E             + unprofiled_cost)
+
+tests/worldstream_m2/test_execution.py:127: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+======== shape of rope freq torch.Size([16, 8]) ========
+======== shape of rope freq torch.Size([100, 8]) ========
+________________________ test_auto_without_measurement _________________________
+
+eva = EVAViT(
+  (patch_embed): PatchEmbed(
+    (proj): Conv2d(3, 32, kernel_size=(4, 4), stride=(4, 4))
+  )
+  (rope_win): Vi...): Linear(in_features=85, out_features=32, bias=True)
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+  )
+)
+context = {'camera_ids': ['front', 'back'], 'coordinate_space': 'preprocessed_image', 'execution_signature': 'test', 'frame_id': '0', ...}
+
+    @torch.no_grad()
+    def test_auto_without_measurement(eva, context):
+        r = IncrementalVisionRuntime(eva)
+        x = torch.randn(2, 3, 40, 40)
+        r.forward(x, execution_context=context)
+        _, d = r.forward(x, execution_context=dict(context, frame_id='1'))
+>       assert d['stages'][0]['fallback_reason'] == 'unprofiled_cost'
+E       IndexError: list index out of range
+
+tests/worldstream_m2/test_execution.py:148: IndexError
+---------------------------- Captured stdout setup -----------------------------
+======== shape of rope freq torch.Size([16, 8]) ========
+======== shape of rope freq torch.Size([100, 8]) ========
+=============================== warnings summary ===============================
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    family = Regex(
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:68: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    size = Regex(
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:72: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    name = Regex(
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:76: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    value = Regex(
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:80: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    families = (
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:87: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    point_sizes = (
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:94: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    property = (
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:127: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    self._parser.parseString(pattern)
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:134: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    self._parser.resetCache()
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/_mathtext.py:30: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+tests/worldstream_m2/test_dependency.py::test_full_patch_footprint
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/trimesh/curvature.py:12: DeprecationWarning: Please use `coo_matrix` from the `scipy.sparse` namespace, the `scipy.sparse.coo` namespace is deprecated.
+    from scipy.sparse.coo import coo_matrix
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/worldstream_m2/test_execution.py::test_disabled_and_memory_budget
+FAILED tests/worldstream_m2/test_execution.py::test_auto_without_measurement
+2 failed, 28 passed, 1 skipped, 19 warnings in 1.99s
