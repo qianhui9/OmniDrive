@@ -67,7 +67,9 @@ def execution_signature(lm_head, model_version=''):
                      for n, m in base.named_modules())
     return (id(base), model_version, repr(base.config.to_dict()), tensors, adapters, backends,
             torch.is_autocast_enabled(), torch.get_autocast_gpu_dtype(),
-            torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32)
+            torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32,
+            torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+            torch.are_deterministic_algorithms_enabled())
 
 
 def deployment_key(lm_head):
@@ -77,14 +79,32 @@ def deployment_key(lm_head):
     prevents loading a cost/quality certificate for a different backend or GPU.
     """
     import transformers
+    import marshal
+    import os
     base = base_model(lm_head)
     device = base.get_input_embeddings().weight.device
     hardware = torch.cuda.get_device_name(device) if device.type == 'cuda' else 'cpu'
+    def forward_implementation(module):
+        # Keep the entire wrapper chain: unwrap alone would hide the FP32 LoRA
+        # probe, and class names alone miss instance-level backend replacements.
+        fn=module.forward;chain=[];seen=set()
+        while fn is not None and id(fn) not in seen:
+            seen.add(id(fn));actual=getattr(fn,'__func__',fn);code=getattr(actual,'__code__',None)
+            chain.append((getattr(actual,'__module__',type(actual).__module__),
+                getattr(actual,'__qualname__',type(actual).__qualname__),
+                hashlib.sha256(marshal.dumps(code)).hexdigest() if code is not None else str(type(actual))))
+            fn=getattr(fn,'__wrapped__',None)
+        return tuple(chain)
+    adapters=[(n,repr(m.active_adapters),repr(m.disable_adapters),
+        repr(getattr(m,'merged_adapters',None)),repr(m.scaling)) for n,m in base.named_modules() if hasattr(m,'lora_A')]
     description = (base.config.to_dict(), torch.__version__, transformers.__version__, hardware,
-        [(n, type(m).__module__, type(m).__qualname__) for n, m in base.named_modules()],
+        [(n, type(m).__module__, type(m).__qualname__,forward_implementation(m)) for n, m in base.named_modules()],
         [(n, tuple(p.shape), str(p.dtype), str(p.device)) for n, p in base.named_parameters()],
+        adapters,os.environ.get('CUBLAS_WORKSPACE_CONFIG'),
         torch.is_autocast_enabled(), str(torch.get_autocast_gpu_dtype()),
-        torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32)
+        torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32,
+        torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+        torch.are_deterministic_algorithms_enabled())
     return hashlib.sha256(repr(description).encode()).hexdigest()
 
 
@@ -113,9 +133,10 @@ def expand_input(lm_head, input_ids, images, attention_mask=None, position_ids=N
             embeds = base.get_input_embeddings()(input_ids)
         raw = input_ids[0] if attention_mask is None else input_ids[0][attention_mask[0].bool().to(input_ids.device)]
         count = images.reshape(images.shape[0], -1, base.config.hidden_size).shape[1]
-        chunks = [t.reshape(1) if t.item() != IMAGE_TOKEN_INDEX else
-                  raw.new_full((count,), IMAGE_TOKEN_INDEX) for t in raw]
-        ids = torch.cat(chunks).unsqueeze(0).to(embeds.device)
+        # Native expansion already determines the output size. Keep provenance
+        # on device instead of synchronizing once per text token with .item().
+        repeats = torch.where(raw == IMAGE_TOKEN_INDEX, count, 1)
+        ids = torch.repeat_interleave(raw, repeats, output_size=embeds.shape[1]).unsqueeze(0).to(embeds.device)
         visual = ids == IMAGE_TOKEN_INDEX
     if ids.shape[1] != embeds.shape[1]:
         raise ValueError('Native expansion and provenance disagree')

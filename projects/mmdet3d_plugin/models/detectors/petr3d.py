@@ -488,8 +488,12 @@ class Petr3D(MVXTwoStageDetector):
                     lm_head=self.lm_head, input_ids_list=data['input_ids'][0],
                     vision_carriers=vision_embeded,
                     world_state=getattr(self.m1_manager, 'store', None),
+                    verified_state=getattr(self, 'm3_verified_state', None),
+                    tokenizer=self.tokenizer,
                     visual_execution=getattr(getattr(self, 'm2_runtime', None), 'last_diagnostics', None),
                     context=dict(scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']),
+                        state_epoch=getattr(getattr(self.m1_manager,'store',None),'generation',None),
+                        state_execution_signature=getattr(getattr(self.m1_manager,'store',None),'execution_signature',None),
                         timestamp=timestamp, camera_ids=list(meta.get('cam_infos', {})) or
                         [os.path.basename(os.path.dirname(f)) for f in meta['filename']]),
                     questions=meta['vlm_labels'].data,
@@ -530,6 +534,7 @@ class Petr3D(MVXTwoStageDetector):
                 coordinate_space='preprocessed_image')
             if getattr(self.m2_runtime.config, 'reuse_boundary', 'window') == 'camera':
                 self._m2_context['timestamp'] = float(data['timestamp'].reshape(-1)[0])
+        self.m3_verified_state = None
         run_m1 = self.m1_manager is not None
         if run_m1 and hasattr(getattr(self, 'm2_runtime', None), 'pre_m1_admission'):
             admission = self.m2_runtime.pre_m1_admission(data['img'], self._m2_context)
@@ -560,6 +565,10 @@ class Petr3D(MVXTwoStageDetector):
                 (frame.execution_signature + repr(parameter_signature) + repr(execution_policy)).encode()).hexdigest()
             adapter_ms = (time.perf_counter() - adapter_start) * 1000
             precheck = self.m1_manager.precheck(frame)
+            if (getattr(self,'m3_runtime',None) is not None
+                    and getattr(getattr(self.m3_runtime,'config',None),'state_context','none')!='none'):
+                from worldstream.m3.world_state import freeze_verified_state
+                self.m3_verified_state = freeze_verified_state(self.m1_manager,frame)
             if getattr(self, 'm2_runtime', None) is not None:
                 self._m2_context.update(execution_signature=frame.execution_signature)
             precheck.diagnostics['timings_ms']['input_adapter_including_transfers'] = adapter_ms

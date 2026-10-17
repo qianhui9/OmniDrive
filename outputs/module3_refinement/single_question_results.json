@@ -1,0 +1,507 @@
+{
+  "baseline": {
+    "frames": 8,
+    "questions": 8,
+    "token_equal": 8,
+    "frozen_token_target_pass": true,
+    "tasks": {
+      "global_safety": {
+        "questions": 8,
+        "equal": 8,
+        "f1": [],
+        "numeric_errors": [],
+        "numeric_count_mismatch": 0,
+        "annotated": 0,
+        "mean_gt_token_f1": null,
+        "aligned_numeric_list_mae": null
+      }
+    },
+    "wall_ms": {
+      "p50": 2876.0494554881006,
+      "p95": 2933.540449338034,
+      "count": 8
+    },
+    "prefill_gpu_ms": {
+      "p50": 181.85165405273438,
+      "p95": 183.84680404663087,
+      "count": 8
+    },
+    "decode_gpu_ms": {
+      "p50": 2125.334746360779,
+      "p95": 2179.0043347358705,
+      "count": 8
+    },
+    "eva_gpu_ms": {
+      "p50": 484.10853576660156,
+      "p95": 487.756364440918,
+      "count": 8
+    },
+    "detection_gpu_ms": {
+      "p50": 14.405119895935059,
+      "p95": 14.554263973236084,
+      "count": 8
+    },
+    "map_gpu_ms": {
+      "p50": 30.513120651245117,
+      "p95": 31.169073486328124,
+      "count": 8
+    },
+    "multimodal_preparation_gpu_ms": {
+      "p50": 1.2332640057429671,
+      "p95": 1.329151992080733,
+      "count": 8
+    },
+    "llm_gpu_ms": {
+      "p50": 2307.8535299301147,
+      "p95": 2362.71996049881,
+      "count": 8
+    },
+    "generated_tokens": 680,
+    "useful_decode_tokens": 672,
+    "useful_decode_tokens_per_second": 39.50914974865774,
+    "peak_allocated_gib": {
+      "p50": 15.11862826347351,
+      "p95": 15.121015071868896,
+      "count": 8
+    },
+    "cache_peak_mib": 0.0,
+    "m1_maintenance_ms": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "count": 8
+    },
+    "m2_actual_reused_cameras": 0,
+    "cold_sequence_wall_ms": {
+      "p50": 2874.019068432972,
+      "p95": 2930.7143660611473,
+      "count": 4
+    },
+    "later_frame_wall_ms": {
+      "p50": 2877.787215518765,
+      "p95": 2933.7858710205182,
+      "count": 4
+    },
+    "actual_reused_prefix_tokens": 0,
+    "effective_prefill_tokens": 4612,
+    "physical_prefill_tokens": 4612,
+    "input_tokens": 4612,
+    "original_input_tokens": 4612,
+    "suffix_padding_tokens": 0,
+    "decode_padding_tokens": 0,
+    "state_context_activated_questions": 0,
+    "nvml_utilization_percent": {
+      "p50": 99.0,
+      "p95": 99.85,
+      "count": 24
+    },
+    "nvml_scope": "1 Hz samples inside each synchronized service interval, finite-window descriptive utilization",
+    "prefill_speedup": 1.0,
+    "e2e_speedup": 1.0,
+    "quality_constrained_offline_e2e_speedup": 1.0,
+    "input_token_scope": "Native raw/expanded inputs retained per frame in carriers/*.pt; optimized counts are diagnostic actual forwards"
+  },
+  "legacy_exact": {
+    "frames": 8,
+    "questions": 8,
+    "token_equal": 8,
+    "frozen_token_target_pass": true,
+    "tasks": {
+      "global_safety": {
+        "questions": 8,
+        "equal": 8,
+        "f1": [],
+        "numeric_errors": [],
+        "numeric_count_mismatch": 0,
+        "annotated": 0,
+        "mean_gt_token_f1": null,
+        "aligned_numeric_list_mae": null
+      }
+    },
+    "wall_ms": {
+      "p50": 2887.7598979743198,
+      "p95": 2944.5056008989923,
+      "count": 8
+    },
+    "prefill_gpu_ms": {
+      "p50": 179.98841857910156,
+      "p95": 182.0316535949707,
+      "count": 8
+    },
+    "decode_gpu_ms": {
+      "p50": 2125.1294927597046,
+      "p95": 2179.766701602936,
+      "count": 8
+    },
+    "eva_gpu_ms": {
+      "p50": 485.34625244140625,
+      "p95": 488.1998001098633,
+      "count": 8
+    },
+    "detection_gpu_ms": {
+      "p50": 14.528512001037598,
+      "p95": 14.634086513519287,
+      "count": 8
+    },
+    "map_gpu_ms": {
+      "p50": 30.78593635559082,
+      "p95": 31.220121765136717,
+      "count": 8
+    },
+    "multimodal_preparation_gpu_ms": {
+      "p50": 1.2500160057097673,
+      "p95": 1.2665712075307964,
+      "count": 8
+    },
+    "llm_gpu_ms": {
+      "p50": 2305.555618286133,
+      "p95": 2361.7983551979064,
+      "count": 8
+    },
+    "generated_tokens": 680,
+    "useful_decode_tokens": 672,
+    "useful_decode_tokens_per_second": 39.50843570995086,
+    "peak_allocated_gib": {
+      "p50": 15.40636396408081,
+      "p95": 15.408820152282715,
+      "count": 8
+    },
+    "cache_peak_mib": 293.14363956451416,
+    "m1_maintenance_ms": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "count": 8
+    },
+    "m2_actual_reused_cameras": 0,
+    "cold_sequence_wall_ms": {
+      "p50": 2884.271009475924,
+      "p95": 2940.182190958876,
+      "count": 4
+    },
+    "later_frame_wall_ms": {
+      "p50": 2887.783995596692,
+      "p95": 2945.4817633959465,
+      "count": 4
+    },
+    "actual_reused_prefix_tokens": 0,
+    "effective_prefill_tokens": 4612,
+    "physical_prefill_tokens": 4612,
+    "input_tokens": 4612,
+    "original_input_tokens": 4612,
+    "suffix_padding_tokens": 0,
+    "decode_padding_tokens": 0,
+    "state_context_activated_questions": 0,
+    "nvml_utilization_percent": {
+      "p50": 99.0,
+      "p95": 100.0,
+      "count": 23
+    },
+    "nvml_scope": "1 Hz samples inside each synchronized service interval, finite-window descriptive utilization",
+    "prefill_speedup": 1.010351974245576,
+    "e2e_speedup": 0.995944800502828,
+    "quality_constrained_offline_e2e_speedup": 0.995944800502828,
+    "input_token_scope": "Native raw/expanded inputs retained per frame in carriers/*.pt; optimized counts are diagnostic actual forwards"
+  },
+  "refined_exact": {
+    "frames": 8,
+    "questions": 8,
+    "token_equal": 8,
+    "frozen_token_target_pass": true,
+    "tasks": {
+      "global_safety": {
+        "questions": 8,
+        "equal": 8,
+        "f1": [],
+        "numeric_errors": [],
+        "numeric_count_mismatch": 0,
+        "annotated": 0,
+        "mean_gt_token_f1": null,
+        "aligned_numeric_list_mae": null
+      }
+    },
+    "wall_ms": {
+      "p50": 2878.2910915324464,
+      "p95": 2936.6762637975626,
+      "count": 8
+    },
+    "prefill_gpu_ms": {
+      "p50": 181.94576263427734,
+      "p95": 183.723974609375,
+      "count": 8
+    },
+    "decode_gpu_ms": {
+      "p50": 2125.778557777405,
+      "p95": 2178.193992614746,
+      "count": 8
+    },
+    "eva_gpu_ms": {
+      "p50": 485.23406982421875,
+      "p95": 488.4236541748047,
+      "count": 8
+    },
+    "detection_gpu_ms": {
+      "p50": 14.428160190582275,
+      "p95": 14.572543716430664,
+      "count": 8
+    },
+    "map_gpu_ms": {
+      "p50": 30.912367820739746,
+      "p95": 31.46381721496582,
+      "count": 8
+    },
+    "multimodal_preparation_gpu_ms": {
+      "p50": 1.227904005907476,
+      "p95": 1.2891663974151015,
+      "count": 8
+    },
+    "llm_gpu_ms": {
+      "p50": 2308.0105295181274,
+      "p95": 2361.5642990112306,
+      "count": 8
+    },
+    "generated_tokens": 680,
+    "useful_decode_tokens": 672,
+    "useful_decode_tokens_per_second": 39.520813849917566,
+    "peak_allocated_gib": {
+      "p50": 15.11862826347351,
+      "p95": 15.121015071868896,
+      "count": 8
+    },
+    "cache_peak_mib": 0.0,
+    "m1_maintenance_ms": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "count": 8
+    },
+    "m2_actual_reused_cameras": 0,
+    "cold_sequence_wall_ms": {
+      "p50": 2875.661317957565,
+      "p95": 2928.693595621735,
+      "count": 4
+    },
+    "later_frame_wall_ms": {
+      "p50": 2882.038197480142,
+      "p95": 2937.0863308547996,
+      "count": 4
+    },
+    "actual_reused_prefix_tokens": 0,
+    "effective_prefill_tokens": 4612,
+    "physical_prefill_tokens": 4612,
+    "input_tokens": 4612,
+    "original_input_tokens": 4612,
+    "suffix_padding_tokens": 0,
+    "decode_padding_tokens": 0,
+    "state_context_activated_questions": 0,
+    "nvml_utilization_percent": {
+      "p50": 99.0,
+      "p95": 100.0,
+      "count": 24
+    },
+    "nvml_scope": "1 Hz samples inside each synchronized service interval, finite-window descriptive utilization",
+    "prefill_speedup": 0.9994827657419418,
+    "e2e_speedup": 0.9992211920292078,
+    "quality_constrained_offline_e2e_speedup": 0.9992211920292078,
+    "input_token_scope": "Native raw/expanded inputs retained per frame in carriers/*.pt; optimized counts are diagnostic actual forwards"
+  },
+  "batched": {
+    "frames": 8,
+    "questions": 8,
+    "token_equal": 8,
+    "frozen_token_target_pass": true,
+    "tasks": {
+      "global_safety": {
+        "questions": 8,
+        "equal": 8,
+        "f1": [],
+        "numeric_errors": [],
+        "numeric_count_mismatch": 0,
+        "annotated": 0,
+        "mean_gt_token_f1": null,
+        "aligned_numeric_list_mae": null
+      }
+    },
+    "wall_ms": {
+      "p50": 2878.729790565558,
+      "p95": 2936.001443513669,
+      "count": 8
+    },
+    "prefill_gpu_ms": {
+      "p50": 181.5085906982422,
+      "p95": 183.59445877075194,
+      "count": 8
+    },
+    "decode_gpu_ms": {
+      "p50": 2127.031823158264,
+      "p95": 2177.8831837654116,
+      "count": 8
+    },
+    "eva_gpu_ms": {
+      "p50": 484.1501770019531,
+      "p95": 488.54429779052737,
+      "count": 8
+    },
+    "detection_gpu_ms": {
+      "p50": 14.440863609313965,
+      "p95": 14.561638355255127,
+      "count": 8
+    },
+    "map_gpu_ms": {
+      "p50": 30.508048057556152,
+      "p95": 31.10483102798462,
+      "count": 8
+    },
+    "multimodal_preparation_gpu_ms": {
+      "p50": 1.2558720018714666,
+      "p95": 1.2921648020856082,
+      "count": 8
+    },
+    "llm_gpu_ms": {
+      "p50": 2308.3842554092407,
+      "p95": 2361.463810443878,
+      "count": 8
+    },
+    "generated_tokens": 680,
+    "useful_decode_tokens": 672,
+    "useful_decode_tokens_per_second": 39.510211727717675,
+    "peak_allocated_gib": {
+      "p50": 15.11862826347351,
+      "p95": 15.121015071868896,
+      "count": 8
+    },
+    "cache_peak_mib": 0.0,
+    "m1_maintenance_ms": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "count": 8
+    },
+    "m2_actual_reused_cameras": 0,
+    "cold_sequence_wall_ms": {
+      "p50": 2873.2546204701066,
+      "p95": 2927.0279902382754,
+      "count": 4
+    },
+    "later_frame_wall_ms": {
+      "p50": 2882.9729149583727,
+      "p95": 2936.501529556699,
+      "count": 4
+    },
+    "actual_reused_prefix_tokens": 0,
+    "effective_prefill_tokens": 4612,
+    "physical_prefill_tokens": 4612,
+    "input_tokens": 4612,
+    "original_input_tokens": 4612,
+    "suffix_padding_tokens": 0,
+    "decode_padding_tokens": 0,
+    "state_context_activated_questions": 0,
+    "nvml_utilization_percent": {
+      "p50": 99.0,
+      "p95": 100.0,
+      "count": 24
+    },
+    "nvml_scope": "1 Hz samples inside each synchronized service interval, finite-window descriptive utilization",
+    "prefill_speedup": 1.0018900667630797,
+    "e2e_speedup": 0.999068917448855,
+    "quality_constrained_offline_e2e_speedup": 0.999068917448855,
+    "input_token_scope": "Native raw/expanded inputs retained per frame in carriers/*.pt; optimized counts are diagnostic actual forwards"
+  },
+  "m123": {
+    "frames": 8,
+    "questions": 8,
+    "token_equal": 8,
+    "frozen_token_target_pass": true,
+    "tasks": {
+      "global_safety": {
+        "questions": 8,
+        "equal": 8,
+        "f1": [],
+        "numeric_errors": [],
+        "numeric_count_mismatch": 0,
+        "annotated": 0,
+        "mean_gt_token_f1": null,
+        "aligned_numeric_list_mae": null
+      }
+    },
+    "wall_ms": {
+      "p50": 2993.041368550621,
+      "p95": 3167.29873274453,
+      "count": 8
+    },
+    "prefill_gpu_ms": {
+      "p50": 179.2305145263672,
+      "p95": 180.86241455078124,
+      "count": 8
+    },
+    "decode_gpu_ms": {
+      "p50": 2125.9034337997437,
+      "p95": 2178.045728778839,
+      "count": 8
+    },
+    "eva_gpu_ms": {
+      "p50": 481.2631072998047,
+      "p95": 483.27819976806643,
+      "count": 8
+    },
+    "detection_gpu_ms": {
+      "p50": 14.350895881652832,
+      "p95": 14.44234104156494,
+      "count": 8
+    },
+    "map_gpu_ms": {
+      "p50": 31.037280082702637,
+      "p95": 31.891035079956055,
+      "count": 8
+    },
+    "multimodal_preparation_gpu_ms": {
+      "p50": 1.2737599941901863,
+      "p95": 1.3447471877094357,
+      "count": 8
+    },
+    "llm_gpu_ms": {
+      "p50": 2305.432991027832,
+      "p95": 2358.894740009308,
+      "count": 8
+    },
+    "generated_tokens": 680,
+    "useful_decode_tokens": 672,
+    "useful_decode_tokens_per_second": 39.504064658501854,
+    "peak_allocated_gib": {
+      "p50": 15.210298299789429,
+      "p95": 15.213490962982178,
+      "count": 8
+    },
+    "cache_peak_mib": 0.0,
+    "m1_maintenance_ms": {
+      "p50": 111.44698620773852,
+      "p95": 218.29018070129678,
+      "count": 8
+    },
+    "m2_actual_reused_cameras": 0,
+    "cold_sequence_wall_ms": {
+      "p50": 2918.430956546217,
+      "p95": 2975.0031806062907,
+      "count": 4
+    },
+    "later_frame_wall_ms": {
+      "p50": 3090.9257909515873,
+      "p95": 3168.791095772758,
+      "count": 4
+    },
+    "actual_reused_prefix_tokens": 0,
+    "effective_prefill_tokens": 4612,
+    "physical_prefill_tokens": 4612,
+    "input_tokens": 4612,
+    "original_input_tokens": 4612,
+    "suffix_padding_tokens": 0,
+    "decode_padding_tokens": 0,
+    "state_context_activated_questions": 0,
+    "nvml_utilization_percent": {
+      "p50": 99.0,
+      "p95": 100.0,
+      "count": 23
+    },
+    "nvml_scope": "1 Hz samples inside each synchronized service interval, finite-window descriptive utilization",
+    "prefill_speedup": 1.0146244044062127,
+    "e2e_speedup": 0.9609120293852893,
+    "quality_constrained_offline_e2e_speedup": 0.9609120293852893,
+    "input_token_scope": "Native raw/expanded inputs retained per frame in carriers/*.pt; optimized counts are diagnostic actual forwards"
+  }
+}

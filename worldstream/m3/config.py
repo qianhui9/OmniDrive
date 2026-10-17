@@ -15,6 +15,12 @@ class M3Config:
     quality_certificate: str = ''
     cross_frame: bool = False
     model_version: str = ''  # deployment's verified checkpoint/content identifier
+    single_question_fastpath: bool = True
+    borrow_prefix: bool = False
+    batched_decode: bool = False
+    batch_workspace_mb: float = 6144
+    state_context: str = 'none'  # none / only / augment; offline approximation
+    common_prefix_seed: bool = False
 
     def __post_init__(self):
         if self.mode not in ('full', 'auto', 'exact', 'compact', 'combined'):
@@ -23,3 +29,11 @@ class M3Config:
             raise ValueError('Unknown selector')
         if not 0 < self.keep_ratio <= 1 or self.memory_budget_mb < 0 or self.min_prefix_tokens < 1:
             raise ValueError('Invalid M3 budget, ratio or prefix length')
+        if self.state_context not in ('none','only','augment') or self.batch_workspace_mb < 0:
+            raise ValueError('Invalid state context or batch workspace')
+        if (self.batched_decode or (self.common_prefix_seed and self.mode!='auto') or self.state_context!='none') and not self.offline_experiment:
+            raise ValueError('Uncertified batch/state strategies require offline_experiment=True')
+        if self.batched_decode and (self.mode!='exact' or self.state_context!='none'):
+            raise ValueError('Batch experiment requires exact mode and unchanged full carriers')
+        if self.common_prefix_seed and (self.mode not in ('exact','auto') or self.state_context!='none' or self.batched_decode):
+            raise ValueError('Independent prefix seeding requires sequential exact mode and full carriers')

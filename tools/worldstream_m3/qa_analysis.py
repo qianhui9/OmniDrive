@@ -14,6 +14,7 @@ import numpy as np
 from .experiment import write
 from .llm_probe import quality
 from worldstream.m3.task_conditioner import task_type
+from .offline_reference import resolve_reference
 
 
 def planning_quality(answer, info):
@@ -38,14 +39,19 @@ def analyze(run, annotations):
     with Path(annotations).open('rb') as handle:payload=pickle.load(handle)
     targets={r['token']:r for r in payload['infos']}
     results=[]
+    recording_normalizations=0
     for row in rows:
+        if len(row['generated_ids'])!=len(row['questions']):
+            from .refinement_report import normalize_recordings
+            recording_normalizations+=normalize_recordings(row)
         for qi,question in enumerate(row['questions']):
             answer=' '.join(str(x) for x in row['answers'][qi]['A'])
-            reference=row['ground_truth'].get(question)
+            reference,reference_source=resolve_reference(row['token'],question,row['ground_truth'])
             record=dict(mode=row['mode'],repeat=row['repeat'],warmup=row['warmup'],
                 sample_token=row['token'],question=question,task=task_type(question),answer=answer,
                 token_ids=row['generated_ids'][qi],
                 ground_truth=reference,
+                ground_truth_source=reference_source,
                 qa_diagnostics=quality(answer,reference) if reference is not None else None)
             if 'planning trajectory' in question.lower():
                 record['planning']=planning_quality(answer,targets.get(row['token'],{}))
@@ -87,6 +93,7 @@ def analyze(run, annotations):
             method_planning_ade_m=float(np.mean([b['ade_m'] for a,b in plans])) if plans else None,
             planning_max_abs_ade_delta_m=max((abs(a['ade_m']-b['ade_m']) for a,b in plans),default=None)))
     return dict(source=str(run),source_sha256=hashlib.sha256((run/'frames.jsonl').read_bytes()).hexdigest(),
+        duplicate_fallback_recordings_normalized=recording_normalizations,
         annotation_source=str(annotations),rows=results,summary=summaries,paired_summary=paired_summaries,
         comparison_rule='Use paired_summary for method comparisons. Raw summaries have unequal sample counts in incomplete runs.',
         quality_limits='Token F1 and numeric-list alignment are descriptive diagnostics, not semantic QA accuracy or safety certification. Planning uses actual native ground truth/mask by sample token.',

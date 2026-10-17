@@ -1,0 +1,42 @@
+{
+  "torch": "1.13.1+cu117",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "argv": {
+    "output": "outputs/module3_refinement/multi_20261017_005514",
+    "precision": "native",
+    "warmup": 1,
+    "repeats": 2,
+    "single": false,
+    "sampling": false,
+    "smoke": false,
+    "probes": false,
+    "numeric_only": false,
+    "modes": [
+      "baseline",
+      "legacy_exact",
+      "refined_exact",
+      "compact",
+      "state_only",
+      "state_full",
+      "batched",
+      "refined_combined",
+      "m123",
+      "m12"
+    ]
+  },
+  "python": "3.9.25",
+  "python_executable": "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+  "cuda_build": "11.7",
+  "cudnn": 8500,
+  "installed": {
+    "torch": "1.13.1+cu117",
+    "transformers": "4.31.0",
+    "peft": "0.7.0",
+    "mmcv-full": "1.6.2",
+    "mmdet": "2.28.2",
+    "numpy": "1.23.4",
+    "pytest": "8.4.2"
+  },
+  "generation_limit": 320,
+  "arithmetic_scope": "Actual dtype audit in state_sweep_02/projection_probe/parameter_dtypes.json; native baseline retained"
+}

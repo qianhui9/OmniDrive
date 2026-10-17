@@ -6,7 +6,7 @@ from tools.worldstream_m3.experiment import ExperimentRuntime
 
 def test_experiment_runtime_releases_without_cyclic_gc(llm,carriers,context):
     recorded=[]
-    runtime=ExperimentRuntime(dict(mode='exact',offline_experiment=True),False,recorded)
+    runtime=ExperimentRuntime(dict(mode='exact',offline_experiment=True,single_question_fastpath=False),False,recorded)
     runtime.generate(llm,[torch.tensor([1,-200,4])],carriers,context=context,max_new_tokens=2)
     assert recorded and runtime.cache.entry is not None
     reference=weakref.ref(runtime)

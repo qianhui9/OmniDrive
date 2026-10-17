@@ -15,5 +15,5 @@ def exact_lcp(previous, current):
         same &= (getattr(previous, name)[:, :n] == getattr(current, name)[:, :n])[0]
     # Do not reuse padding. Arbitrary 4D/noncausal masks never enter ExpandedInput.
     same &= previous.attention_mask[0, :n].bool() & current.attention_mask[0, :n].bool()
-    mismatches = (~same).nonzero(as_tuple=False)
-    return int(mismatches[0, 0]) if len(mismatches) else n
+    # One scalar transfer, with no dynamic nonzero allocation/metadata sync.
+    return int(torch.where(same, n, torch.arange(n,device=a.device)).min()) if n else 0

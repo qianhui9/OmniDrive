@@ -16,6 +16,29 @@ class Scheduler:
         self.costs = read_artifact(config.cost_table)
         self.quality = read_artifact(config.quality_certificate)
 
+    def common_seed_allowed(self,inputs,prefix,context,generation_key):
+        """A new execution plan needs its own whole-workload evidence, not an
+        old first-question cache row or a global average speedup.
+        """
+        if self.config.offline_experiment:return True,'explicit_common_prefix_experiment'
+        if prefix<self.config.min_prefix_tokens or not generation_key:return False,'uncertified_common_prefix'
+        def compatible(row):
+            return (row.get('strategy')=='independent_common_prefix'
+                and bool(context.get('model_version')) and row.get('model_version')==context['model_version']
+                and bool(context.get('execution_key')) and row.get('execution_key')==context['execution_key']
+                and row.get('generation_key')==generation_key
+                and row.get('input_tokens')==[x.length for x in inputs]
+                and row.get('prefix_tokens')==prefix
+                and row.get('protocol_sha256') and row.get('evidence_sha256'))
+        quality=any(compatible(row) and row.get('frozen_targets_pass') is True
+            and row.get('heldout_samples',0)>0 and row.get('calibration_scenes') and row.get('heldout_scenes')
+            and not set(row['calibration_scenes'])&set(row['heldout_scenes']) for row in self.quality.get('approved',[]))
+        cost=any(compatible(row) and row.get('includes_cold_capture_and_maintenance') is True
+            and row.get('baseline_ms',0)>row.get('optimized_including_overhead_ms',float('inf'))
+            and 0<row.get('cache_bytes',float('inf'))<=self.config.memory_budget_mb*1024**2
+            for row in self.costs.get('approved',[]))
+        return (True,'shape_generation_quality_and_net_cost_verified') if quality and cost else (False,'no_independent_common_prefix_quality_and_cost_evidence')
+
     def compact_allowed(self, selection, context):
         if not selection['approximate']:
             return False, selection['reason']

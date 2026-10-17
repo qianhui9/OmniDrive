@@ -1,0 +1,22 @@
+{
+  "torch": "1.13.1+cu117",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "argv": {
+    "output": "outputs/module3_refinement/numeric_e2e_20261017_005514",
+    "precision": "native",
+    "warmup": 1,
+    "repeats": 2,
+    "single": false,
+    "sampling": false,
+    "smoke": false,
+    "probes": false,
+    "numeric_only": true,
+    "modes": [
+      "baseline",
+      "precision_deterministic",
+      "precision_no_fp16_reduction",
+      "precision_fp32_lora",
+      "common_prefix_seq"
+    ]
+  }
+}

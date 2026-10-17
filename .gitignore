@@ -28,3 +28,7 @@ deploy/llm_lib/llm_safetensor*/
 # Large generated profiling traces are retained locally (GitHub 100 MiB limit)
 /outputs/module2_rearchitecture/traces/carrier_profile.json
 /outputs/module2_rearchitecture/traces/full_pipeline.json
+
+# Generated M3 tensor intermediates and large decode traces stay on the server
+/outputs/module3_refinement/**/*_intermediates.pt
+/outputs/module3_refinement/**/batched_decode_trace.json

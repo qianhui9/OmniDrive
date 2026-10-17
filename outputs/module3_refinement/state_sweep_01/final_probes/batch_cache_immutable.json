@@ -1,0 +1,126 @@
+{
+  "verified_all_elements": true,
+  "layers": 32,
+  "prefix_tokens": 558,
+  "token_counts": [
+    88,
+    35,
+    125,
+    15,
+    29
+  ],
+  "max_new_tokens": 320,
+  "diagnostics": {
+    "mode": "batched",
+    "requests": [
+      {
+        "input_tokens": 577,
+        "reused_tokens": 0,
+        "effective_prefill_tokens": 577,
+        "shared_prefix_tokens": 558,
+        "visual_tokens": 513,
+        "mode": "batched"
+      },
+      {
+        "input_tokens": 570,
+        "reused_tokens": 558,
+        "effective_prefill_tokens": 12,
+        "shared_prefix_tokens": 558,
+        "visual_tokens": 513,
+        "mode": "batched"
+      },
+      {
+        "input_tokens": 576,
+        "reused_tokens": 558,
+        "effective_prefill_tokens": 18,
+        "shared_prefix_tokens": 558,
+        "visual_tokens": 513,
+        "mode": "batched"
+      },
+      {
+        "input_tokens": 575,
+        "reused_tokens": 558,
+        "effective_prefill_tokens": 17,
+        "shared_prefix_tokens": 558,
+        "visual_tokens": 513,
+        "mode": "batched"
+      },
+      {
+        "input_tokens": 579,
+        "reused_tokens": 558,
+        "effective_prefill_tokens": 21,
+        "shared_prefix_tokens": 558,
+        "visual_tokens": 513,
+        "mode": "batched"
+      }
+    ],
+    "batch": {
+      "admitted": true,
+      "reason": "offline_shared_prefix_greedy_batch",
+      "batch_size": 5,
+      "shared_prefix_tokens": 558,
+      "actual_reused_tokens": 2232,
+      "suffix_lengths": [
+        19,
+        12,
+        18,
+        17,
+        21
+      ],
+      "suffix_padding_tokens": 18,
+      "decode_padding_tokens": 333,
+      "effective_prefill_tokens": 645,
+      "physical_prefill_tokens": 663,
+      "estimated_workspace_bytes": 4726789120,
+      "persistent_bytes": 297265790,
+      "shared_prefix_is_readonly": true,
+      "full_sequence_equality_guaranteed": false,
+      "llm_cpu_enqueue_ms": 4214.781656162813,
+      "requests": [
+        {
+          "input_tokens": 577,
+          "reused_tokens": 0,
+          "effective_prefill_tokens": 577,
+          "shared_prefix_tokens": 558,
+          "visual_tokens": 513,
+          "mode": "batched"
+        },
+        {
+          "input_tokens": 570,
+          "reused_tokens": 558,
+          "effective_prefill_tokens": 12,
+          "shared_prefix_tokens": 558,
+          "visual_tokens": 513,
+          "mode": "batched"
+        },
+        {
+          "input_tokens": 576,
+          "reused_tokens": 558,
+          "effective_prefill_tokens": 18,
+          "shared_prefix_tokens": 558,
+          "visual_tokens": 513,
+          "mode": "batched"
+        },
+        {
+          "input_tokens": 575,
+          "reused_tokens": 558,
+          "effective_prefill_tokens": 17,
+          "shared_prefix_tokens": 558,
+          "visual_tokens": 513,
+          "mode": "batched"
+        },
+        {
+          "input_tokens": 579,
+          "reused_tokens": 558,
+          "effective_prefill_tokens": 21,
+          "shared_prefix_tokens": 558,
+          "visual_tokens": 513,
+          "mode": "batched"
+        }
+      ]
+    },
+    "cache_bytes": 297265790,
+    "signature_cpu_ms": 5.582011071965098,
+    "m2_required": false
+  }
+}

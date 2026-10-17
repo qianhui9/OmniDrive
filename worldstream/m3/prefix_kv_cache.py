@@ -53,7 +53,11 @@ class PrefixKVCache:
                                 logits[:, -1:].detach().clone(), expanded.source, size, tuple(prefix_lineage))
         return True
 
-    def branch(self, length):
+    def branch(self, length, read_only=False):
         if self.entry is None or not 0 < length <= self.entry.expanded.length:
             raise ValueError('Invalid cache branch')
+        if read_only:
+            # Internal loan, only after the executor certifies the installed
+            # out-of-place torch.cat attention implementation. Never public COW.
+            return tuple(tuple(t[..., :length, :].detach() for t in layer) for layer in self.entry.kv)
         return clone_kv(self.entry.kv, length)

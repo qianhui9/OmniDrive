@@ -13,6 +13,17 @@ from transformers.generation.utils import GenerationMixin
 from transformers.modeling_outputs import CausalLMOutputWithPast
 
 
+def readonly_cache_safe(model):
+    """Version-pinned native attention concatenates K/V without mutating inputs."""
+    import transformers
+    from transformers.models.llama.modeling_llama import LlamaAttention
+    layers=getattr(getattr(model,'model',None),'layers',())
+    return bool(transformers.__version__=='4.31.0' and len(layers) and all(
+        type(layer.self_attn) is LlamaAttention and
+        getattr(layer.self_attn.forward,'__func__',None) is LlamaAttention.forward
+        for layer in layers))
+
+
 class GenerationFacade(nn.Module, GenerationMixin):
     main_input_name = 'input_ids'
 
@@ -59,7 +70,8 @@ class PrefillExecutor:
         self.cache = cache
 
     @torch.no_grad()
-    def generate(self, model, expanded, reuse_length=0, capture=True, profile=False, **generation):
+    def generate(self, model, expanded, reuse_length=0, capture=True, profile=False,
+                 borrow_prefix=False, **generation):
         if any(m.training for m in model.modules()):
             raise ValueError('M3 execution is inference only')
         effective = lambda name, default=None: generation.get(name, getattr(model.generation_config, name, default))
@@ -72,17 +84,19 @@ class PrefillExecutor:
         if generation.get('max_new_tokens', 1) < 1:
             raise ValueError('max_new_tokens must be positive')
         n = expanded.length
+        read_only=bool(borrow_prefix and readonly_cache_safe(model))
         if reuse_length and self.cache.match(expanded) < reuse_length:
             raise ValueError('Prefix equality must be certified before execution')
         # Only the end of the stored prefill has saved last-token logits.
         if reuse_length == n and self.cache.entry.expanded.length != n:
             reuse_length -= 1
         branch_workspace_bytes = (sum(t[..., :reuse_length, :].numel() * t.element_size()
-            for layer in self.cache.entry.kv for t in layer) if reuse_length else 0)
+            for layer in self.cache.entry.kv for t in layer) if reuse_length and not read_only else 0)
         diagnostics = dict(input_tokens=n, reused_tokens=reuse_length,
             effective_prefill_tokens=n - reuse_length, forward_prefill_lengths=[],
             computed_source=list(self.cache.entry.computed_source) if reuse_length else list(expanded.source),
             suffix_computed_source=list(expanded.source))
+        diagnostics['prefix_storage']='borrowed_readonly_native_cat' if read_only else 'owned_clone'
         events = []
 
         def first_forward():
@@ -92,9 +106,10 @@ class PrefillExecutor:
                 start.record()
             if reuse_length == n:
                 output = CausalLMOutputWithPast(logits=self.cache.entry.last_logits.clone(),
-                                               past_key_values=self.cache.branch(n))
+                                               past_key_values=self.cache.branch(n,read_only=read_only))
             else:
-                kv = self.cache.branch(reuse_length) if reuse_length else None
+                with torch.autograd.profiler.record_function('m3_prefix_branch'):
+                    kv = self.cache.branch(reuse_length,read_only=read_only) if reuse_length else None
                 with torch.autograd.profiler.record_function('m3_suffix_prefill' if reuse_length else 'm3_full_prefill'):
                     output = model(inputs_embeds=expanded.embeddings[:, reuse_length:],
                         position_ids=expanded.position_ids[:, reuse_length:],
