@@ -1,0 +1,834 @@
+{
+  "scope": "Controlled actual GPU frames, not independent samples or performance",
+  "cases": [
+    {
+      "fault": "worker_failure",
+      "prior": {
+        "commits": 1,
+        "cameras": 6,
+        "features": 74
+      },
+      "cleared": {
+        "worker_finished": true,
+        "pending_cleared": true,
+        "anchors": 0,
+        "features": 0,
+        "cameras": 0,
+        "previous_cleared": true,
+        "verified_state_cleared": true,
+        "future_cleared": true,
+        "heads": {
+          "pts_bbox_head": {
+            "memory_embedding": true,
+            "memory_reference_point": true,
+            "memory_timestamp": true,
+            "memory_egopose": true,
+            "memory_velo": true,
+            "sample_time": true,
+            "memory_canbus": true
+          },
+          "map_head": {
+            "memory_embedding": true,
+            "memory_reference_point": true,
+            "memory_timestamp": true,
+            "memory_egopose": true,
+            "sample_time": true,
+            "memory_mask": true
+          }
+        },
+        "status": "failed"
+      },
+      "recovery": {
+        "pass_equal": true,
+        "numerical": {
+          "output": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root[0].lane_results[0][0]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].lane_results[0][1]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.labels_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.boxes_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.scores_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "feature": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "memory": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root.det.memory_canbus",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_velo",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_mask",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          }
+        },
+        "complete_token_equality": true
+      },
+      "scene_switch": {
+        "pass_equal": true,
+        "numerical": {
+          "output": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root[0].lane_results[0][0]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].lane_results[0][1]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.labels_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.boxes_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.scores_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "feature": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "memory": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root.det.memory_canbus",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_velo",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_mask",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          }
+        },
+        "complete_token_equality": true
+      }
+    },
+    {
+      "fault": "worker_timeout",
+      "prior": {
+        "commits": 1,
+        "cameras": 6,
+        "features": 74
+      },
+      "cleared": {
+        "worker_finished": true,
+        "pending_cleared": true,
+        "anchors": 0,
+        "features": 0,
+        "cameras": 0,
+        "previous_cleared": true,
+        "verified_state_cleared": true,
+        "future_cleared": true,
+        "heads": {
+          "pts_bbox_head": {
+            "memory_embedding": true,
+            "memory_reference_point": true,
+            "memory_timestamp": true,
+            "memory_egopose": true,
+            "memory_velo": true,
+            "sample_time": true,
+            "memory_canbus": true
+          },
+          "map_head": {
+            "memory_embedding": true,
+            "memory_reference_point": true,
+            "memory_timestamp": true,
+            "memory_egopose": true,
+            "sample_time": true,
+            "memory_mask": true
+          }
+        },
+        "status": "failed"
+      },
+      "recovery": {
+        "pass_equal": true,
+        "numerical": {
+          "output": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root[0].lane_results[0][0]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].lane_results[0][1]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.labels_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.boxes_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.scores_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "feature": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "memory": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root.det.memory_canbus",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_velo",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_mask",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          }
+        },
+        "complete_token_equality": true
+      },
+      "scene_switch": {
+        "pass_equal": true,
+        "numerical": {
+          "output": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root[0].lane_results[0][0]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].lane_results[0][1]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.labels_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.boxes_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.scores_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "feature": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "memory": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root.det.memory_canbus",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_velo",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_mask",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          }
+        },
+        "complete_token_equality": true
+      }
+    },
+    {
+      "fault": "eva_failure",
+      "prior": {
+        "commits": 1,
+        "cameras": 6,
+        "features": 74
+      },
+      "cleared": {
+        "worker_finished": true,
+        "pending_cleared": true,
+        "anchors": 0,
+        "features": 0,
+        "cameras": 0,
+        "previous_cleared": true,
+        "verified_state_cleared": true,
+        "future_cleared": true,
+        "heads": {
+          "pts_bbox_head": {
+            "memory_embedding": true,
+            "memory_reference_point": true,
+            "memory_timestamp": true,
+            "memory_egopose": true,
+            "memory_velo": true,
+            "sample_time": true,
+            "memory_canbus": true
+          },
+          "map_head": {
+            "memory_embedding": true,
+            "memory_reference_point": true,
+            "memory_timestamp": true,
+            "memory_egopose": true,
+            "sample_time": true,
+            "memory_mask": true
+          }
+        },
+        "status": "failed"
+      },
+      "recovery": {
+        "pass_equal": true,
+        "numerical": {
+          "output": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root[0].lane_results[0][0]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].lane_results[0][1]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.labels_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.boxes_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.scores_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "feature": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "memory": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root.det.memory_canbus",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_velo",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_mask",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          }
+        },
+        "complete_token_equality": true
+      },
+      "scene_switch": {
+        "pass_equal": true,
+        "numerical": {
+          "output": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root[0].lane_results[0][0]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].lane_results[0][1]",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.labels_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.boxes_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root[0].pts_bbox.scores_3d",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "feature": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          },
+          "memory": {
+            "max_abs": 0.0,
+            "leaves": [
+              {
+                "path": "root.det.memory_canbus",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_velo",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.det.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_mask",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_embedding",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.sample_time",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_egopose",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_timestamp",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              },
+              {
+                "path": "root.map.memory_reference_point",
+                "max_abs": 0.0,
+                "relative_l2": 0.0
+              }
+            ],
+            "shape_mismatches": []
+          }
+        },
+        "complete_token_equality": true
+      }
+    }
+  ],
+  "passed": true
+}

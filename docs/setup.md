@@ -77,3 +77,16 @@ The [pkl files](https://github.com/NVlabs/OmniDrive/releases/download/v1.0/eval_
 
 
 
+
+## Current server CPU affinity
+
+CPU cores 4/5 are faulty on this server. Prefix execution commands with
+`taskset -c 0-3,6-31`; child processes inherit this affinity. For example:
+
+```bash
+conda activate OmniDrive
+taskset -c 0-3,6-31 python -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q
+taskset -c 0-3,6-31 bash tools/system_optimization/finalize_v2.sh
+```
+
+The finalizer resumes the authorized second-round experiment; existing measurement directories are never overwritten.

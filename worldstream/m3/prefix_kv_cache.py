@@ -8,6 +8,17 @@ def kv_bytes(kv):
     return sum(t.numel() * t.element_size() for layer in kv for t in layer)
 
 
+def minimum_native_prefix_bytes(model,expanded,length):
+    """Rejection-only lower bound for inspected floating legacy LLaMA KV.
+
+    Native FP16/BF16/FP32 keys/values use at least two bytes per element.
+    Last logits are omitted, so this never approves a cache allocation.
+    """
+    cfg=model.config
+    heads=getattr(cfg,'num_key_value_heads',cfg.num_attention_heads)
+    return expanded.prefix(length).nbytes+length*cfg.num_hidden_layers*heads*(cfg.hidden_size//cfg.num_attention_heads)*2*2
+
+
 def clone_kv(kv, length):
     if not isinstance(kv, (tuple, list)) or any(len(layer) != 2 for layer in kv):
         raise ValueError('Only Transformers 4.31 legacy Llama K/V tuples are supported')

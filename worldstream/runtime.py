@@ -21,6 +21,11 @@ class RuntimeConfig:
     cost_aware: bool = True
     cost_table: str = ''
     quality_certificate: str = ''
+    m1_overlap: str = 'serial'  # serial / experimental / auto (certificate required)
+    m1_timeout_s: float = 30.
+    reuse_m1_signature: bool = False
+    capture_cost_key: bool = False
+    generation_key: str = 'native_sampling_temp0.1_topp0.75_beams1_max320_cache'
 
     def __post_init__(self):
         if self.service not in ('persistent_state', 'current_output'):
@@ -31,6 +36,9 @@ class RuntimeConfig:
             raise ValueError('Invalid freshness limit')
         if not math.isfinite(self.memory_budget_mb) or self.memory_budget_mb < 0:
             raise ValueError('Invalid memory budget')
+        if self.m1_overlap not in ('serial','experimental','auto') or not math.isfinite(self.m1_timeout_s) or self.m1_timeout_s<=0:
+            raise ValueError('Invalid M1 worker configuration')
+        if not self.generation_key:raise ValueError('Explicit generation contract required')
 
 
 class UnifiedRuntime:
@@ -42,6 +50,10 @@ class UnifiedRuntime:
         self.input_preparation_wall_ms = None
         self._content_witness = None
         self._certificate_invalidated = False
+        self._m1_worker = None
+        self._overlap_active = False
+        self._m1_signature_cache = None
+        self._request_key = None
         from pathlib import Path
         self.costs = json.loads(Path(self.config.cost_table).read_text()) if self.config.cost_table else {}
         self.quality = json.loads(Path(self.config.quality_certificate).read_text()) if self.config.quality_certificate else {}
@@ -58,20 +70,7 @@ class UnifiedRuntime:
         if not self.costs.get('records') or not self.quality.get('records'):
             return False, 'no_system_workload_certificate'
         admission_tick = perf_counter()
-        from .m3.visual_state import deployment_key
-        key = dict(model_version=self.config.model_version, lora_version=self.config.lora_version,
-            execution_key=deployment_key(model.lm_head),
-            # This is the fixed native Petr3D generation call. Alternate callers
-            # must obtain their own coordinator/certificate, never reuse this key.
-            generation_key='native_sampling_temp0.1_topp0.75_beams1_max320_cache',
-            input_shape=list(data['img'].shape), question_lengths=[x.numel() for x in data['input_ids'][0]],
-            service=self.config.service, strategy={name:
-                dict(vars(getattr(model,name).config)) if getattr(model,name,None) is not None else None
-                for name in ('m1_manager','m2_runtime','m3_runtime')},
-            cache_state='cold' if self.previous is None else 'warm',
-            memory_budget_bytes=int(self.config.memory_budget_mb*1024**2),
-            refresh_interval=getattr(getattr(getattr(model, 'm1_manager', None), 'config', None), 'full_refresh_interval', 0),
-            frame_gap_s=0. if self.previous is None else float(data['timestamp'].reshape(-1)[0])-self.previous.timestamp)
+        key=self._request_key or self.workload_key(model,data)
         for costs in self.costs['records']:
             for quality in self.quality['records']:
                 admitted, reason = self.admit(key, costs, quality,
@@ -79,6 +78,57 @@ class UnifiedRuntime:
                 if admitted:
                     return admitted, reason
         return False, 'no_matching_quality_and_cost_evidence'
+
+    def workload_key(self,model,data):
+        import os
+        from pathlib import Path
+        from .m3.visual_state import deployment_key
+        def strategy(name):
+            obj=getattr(model,name,None)
+            if obj is None:return None
+            cfg=dict(vars(obj.config))
+            path=cfg.pop('log_path',None)
+            if cfg.get('logging') and path:
+                parent=Path(path).parent
+                while not parent.exists():parent=parent.parent
+                cfg['log_filesystem_device']=os.stat(parent).st_dev
+            return cfg
+        from .code_signature import stable_function_hash
+        from .overlap import M1Worker
+        functions=[type(self).execute,type(self).admit,type(self).workload_key,type(self).identity,type(self).m1_signature_suffix,M1Worker.submit,M1Worker.join,model.simple_test]
+        if hasattr(model,"simple_test_pts"):functions.append(model.simple_test_pts)
+        manager=getattr(model,'m1_manager',None)
+        if manager is not None:functions.extend([manager.precheck,manager.commit])
+        code_hash=hashlib.sha256(''.join(stable_function_hash(function) for function in functions).encode()).hexdigest()
+        key = dict(model_version=self.config.model_version, lora_version=self.config.lora_version,
+            execution_key=deployment_key(model.lm_head),
+            # This is the fixed native Petr3D generation call. Alternate callers
+            # must obtain their own coordinator/certificate, never reuse this key.
+            generation_key=self.config.generation_key,
+            input_shape=list(data['img'].shape), question_lengths=[x.numel() for x in data['input_ids'][0]],
+            service=self.config.service, strategy={name:strategy(name) for name in ('m1_manager','m2_runtime','m3_runtime')},
+            cache_state='cold' if self.previous is None else 'warm',
+            memory_budget_bytes=int(self.config.memory_budget_mb*1024**2),
+            refresh_interval=getattr(getattr(getattr(model, 'm1_manager', None), 'config', None), 'full_refresh_interval', 0),
+            frame_gap_s=0. if self.previous is None else float(data['timestamp'].reshape(-1)[0])-self.previous.timestamp)
+        key['strategy']['runtime']=dict(m1_execution='full_eva_overlap_v1' if self.config.m1_overlap in ('auto','experimental') else 'serial',
+            reuse_m1_signature=self.config.reuse_m1_signature,implementation_sha256=code_hash)
+        import torch,cv2
+        key['strategy']['runtime']['cpu_resources']=dict(cpu_affinity=sorted(os.sched_getaffinity(0)),torch_threads=torch.get_num_threads(),
+            torch_interop_threads=torch.get_num_interop_threads(),opencv_threads=cv2.getNumThreads(),m1_workers=1,
+            omp_num_threads=os.environ.get('OMP_NUM_THREADS'),mkl_num_threads=os.environ.get('MKL_NUM_THREADS'))
+        import numpy as np
+        key['strategy']['runtime']['cpu_resources'].update(opencv_version=cv2.__version__,numpy_version=np.__version__,
+            openblas_num_threads=os.environ.get('OPENBLAS_NUM_THREADS'))
+        trace_parent=Path(self.config.trace_path).parent if self.config.trace_path else None
+        if trace_parent is not None:
+            while not trace_parent.exists():trace_parent=trace_parent.parent
+        key['strategy']['runtime']['policy']=dict(profile_stages=self.config.profile_stages,
+            timeout_s=self.config.m1_timeout_s,capture_cost_key=self.config.capture_cost_key,
+            freshness_limit_s=self.config.max_frame_gap_s,trace_logging=bool(self.config.trace_path),
+            trace_filesystem_device=os.stat(trace_parent).st_dev if trace_parent is not None else None,
+            cudnn_benchmark=torch.backends.cudnn.benchmark,cudnn_deterministic=torch.backends.cudnn.deterministic)
+        return json.loads(json.dumps(key,sort_keys=True,allow_nan=False))
 
     @staticmethod
     def admit(key, costs, quality, overhead_ms=0.):
@@ -94,7 +144,16 @@ class UnifiedRuntime:
                     'memory_budget_bytes', 'refresh_interval', 'frame_gap_s')
         if any(k not in key or key[k] is None for k in required):
             return False, 'incomplete_workload_key'
-        if costs.get('key') != key or quality.get('key') != key:
+        def matches(row):
+            bounds=row.get('cost_frame_gap_s_range')
+            if bounds is None:return row.get('key')==key
+            if not isinstance(bounds,list) or len(bounds)!=2 or row.get('range_calibrated') is not True:return False
+            try:
+                if not all(math.isfinite(float(x)) for x in bounds) or not bounds[0]<=key['frame_gap_s']<=bounds[1]:return False
+            except (KeyError,ValueError,TypeError):return False
+            a=dict(row.get('key',{}));b=dict(key);a.pop('frame_gap_s',None);b.pop('frame_gap_s',None)
+            return a==b
+        if not matches(costs) or not matches(quality):
             return False, 'workload_evidence_mismatch'
         heldout=quality.get('heldout_samples')
         if (quality.get('exact_targets_pass') is not True
@@ -105,6 +164,15 @@ class UnifiedRuntime:
             return False, 'uncertified_quality'
         if costs.get('includes_all_incremental_costs') is not True:
             return False, 'incomplete_cost_scope'
+        if 'paired_increment_upper_ms' in costs:
+            try:
+                delta=float(costs['paired_increment_upper_ms']);overhead=float(overhead_ms)
+                peak=int(costs['peak_cache_bytes']);budget=int(key['memory_budget_bytes'])
+                evidence=int(costs['paired_samples'])
+            except (KeyError,TypeError,ValueError,OverflowError):return False,'invalid_paired_cost_bound'
+            if (costs.get('independent_scene_bound_validated') is not True or not costs.get('evidence_sha256') or evidence<=0 or peak<0 or peak>budget
+                    or not math.isfinite(delta) or not math.isfinite(overhead) or overhead<0):return False,'uncalibrated_paired_cost_bound'
+            return (True,'measured_paired_net_cost_bound') if delta+overhead<0 else (False,'no_net_benefit')
         try:
             full, optimized = float(costs['full_wall_ms']), float(costs['optimized_wall_ms'])
             overhead = float(overhead_ms)
@@ -136,7 +204,8 @@ class UnifiedRuntime:
         flags = (model.training, torch.is_autocast_enabled(), torch.backends.cuda.matmul.allow_tf32,
                  torch.backends.cudnn.allow_tf32,torch.get_autocast_gpu_dtype(),
                  torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
-                 torch.are_deterministic_algorithms_enabled())
+                 torch.are_deterministic_algorithms_enabled(),
+                 getattr(getattr(model,'lm_head',None),'_worldstream_decode_policy','native'))
         # This version witness is runtime-local, never a portable quality key.
         signature = hashlib.sha256(repr((parameters, buffers, flags)).encode()).hexdigest()
         return FrameIdentity(str(meta['scene_token']), str(meta['sample_idx']), timestamp,
@@ -144,6 +213,8 @@ class UnifiedRuntime:
 
     @staticmethod
     def invalidate(model, reason):
+        runtime=getattr(model,'stream_runtime',None)
+        if getattr(runtime,'_m1_worker',None) is not None:runtime._m1_worker.drain()
         for attr in ('m1_manager', 'm2_runtime', 'm3_runtime'):
             obj = getattr(model, attr, None)
             if obj is not None:
@@ -157,6 +228,30 @@ class UnifiedRuntime:
                 head.reset_memory()
         model.test_flag = False
         model.stream_invalidation_reason = reason
+
+    def close(self):
+        if self._m1_worker is not None:self._m1_worker.close();self._m1_worker=None
+
+    def precheck_async(self,manager,frame):
+        if not self.active or not self._overlap_active:raise RuntimeError('Overlap not admitted on this request')
+        if self._m1_worker is None:
+            from .overlap import M1Worker
+            self._m1_worker=M1Worker()
+        self._m1_worker.submit(manager,frame)
+
+    def join_precheck(self):
+        return self._m1_worker.join(self.config.m1_timeout_s)
+
+    def m1_signature_suffix(self,model):
+        witness=self.last_record.identity.execution_signature
+        if self._m1_signature_cache is None or self._m1_signature_cache[0]!=witness:
+            import torch
+            parameters=[(n,tuple(p.shape),str(p.dtype),str(p.device),p._version) for n,p in model.named_parameters()]
+            policy=(model.training,torch.is_autocast_enabled(),torch.backends.cuda.matmul.allow_tf32,
+                torch.backends.cudnn.allow_tf32,torch.get_autocast_gpu_dtype(),
+                torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,torch.are_deterministic_algorithms_enabled())
+            self._m1_signature_cache=(witness,repr(parameters)+repr(policy))
+        return self._m1_signature_cache[1]
 
     def lifecycle_reason(self, current):
         previous = self.previous
@@ -202,7 +297,9 @@ class UnifiedRuntime:
                         return original(*args, **kwargs)
                 setattr(obj, attr, call)
                 stack.callback(setattr, obj, attr, original) if owned else stack.callback(delattr, obj, attr)
-            wrap(getattr(model, 'm1_manager', None), 'precheck', 'm1_precheck')
+            # StageRecorder's stack belongs to the main thread. Worker timing
+            # has its own thread/timestamps and is published only after join.
+            if not self._overlap_active:wrap(getattr(model, 'm1_manager', None), 'precheck', 'm1_precheck')
             wrap(getattr(model, 'm1_manager', None), 'commit', 'm1_commit')
             if getattr(model, 'm1_manager', None) is not None:
                 from .m1 import omnidrive_adapter
@@ -310,7 +407,13 @@ class UnifiedRuntime:
             recorder = StageRecorder(record, cuda and self.config.profile_stages)
             self.active = True
             with ExitStack() as stack:
+                self._request_key=None
+                lookup_tick=perf_counter()
+                if self.config.capture_cost_key:
+                    self._request_key=self.workload_key(model,data)
+                    record.admission['workload_key']=self._request_key
                 admitted, reason = self.optimization_admission(model, data, (perf_counter()-tick)*1000)
+                record.admission.update(allowed=admitted,reason=reason,lookup_wall_ms=(perf_counter()-lookup_tick)*1000)
                 if not admitted:
                     record.fallback_reasons.append(reason)
                 # Temporary bypass preserves each module's bounded cache but
@@ -328,6 +431,8 @@ class UnifiedRuntime:
                     saved = getattr(model, 'm1_manager', None)
                     model.m1_manager = None
                     stack.callback(setattr, model, 'm1_manager', saved)
+                self._overlap_active=(self.config.m1_overlap=='experimental' or
+                    (self.config.m1_overlap=='auto' and admitted)) and self.config.service=='persistent_state' and not model.training and getattr(model,'m2_runtime',None) is None
                 if self.config.profile_stages:
                     stack.enter_context(self.instrument(model, recorder))
                 with recorder.stage('inference'):
@@ -338,6 +443,8 @@ class UnifiedRuntime:
             recorder.finish()
             manager = getattr(model, 'm1_manager', None)
             record.m1 = dict(getattr(manager, 'last_commit_diagnostics', {}) or {})
+            record.m1['overlap_active']=bool(self._overlap_active)
+            if self._overlap_active and self._m1_worker is not None:record.m1['worker']=dict(self._m1_worker.diagnostics)
             if self.config.service == 'current_output':
                 model.m3_verified_state = None
                 record.m1 = dict(service='current_output', history_preserved=False)
@@ -385,6 +492,7 @@ class UnifiedRuntime:
             raise
         finally:
             self.active = False
+            self._overlap_active = False
             if record:
                 record.inference_wall_ms = (perf_counter()-tick)*1000
                 record.e2e_wall_ms = record.inference_wall_ms+(preparation or 0.)

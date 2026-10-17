@@ -66,6 +66,7 @@ def execution_signature(lm_head, model_version=''):
                       id(getattr(m.forward, '__func__', m.forward)))
                      for n, m in base.named_modules())
     return (id(base), model_version, repr(base.config.to_dict()), tensors, adapters, backends,
+            getattr(base,'_worldstream_decode_policy','native'),
             torch.is_autocast_enabled(), torch.get_autocast_gpu_dtype(),
             torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32,
             torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
@@ -79,7 +80,7 @@ def deployment_key(lm_head):
     prevents loading a cost/quality certificate for a different backend or GPU.
     """
     import transformers
-    import marshal
+    from ..code_signature import stable_function_hash
     import os
     base = base_model(lm_head)
     device = base.get_input_embeddings().weight.device
@@ -92,7 +93,7 @@ def deployment_key(lm_head):
             seen.add(id(fn));actual=getattr(fn,'__func__',fn);code=getattr(actual,'__code__',None)
             chain.append((getattr(actual,'__module__',type(actual).__module__),
                 getattr(actual,'__qualname__',type(actual).__qualname__),
-                hashlib.sha256(marshal.dumps(code)).hexdigest() if code is not None else str(type(actual))))
+                stable_function_hash(actual) if code is not None else str(type(actual))))
             fn=getattr(fn,'__wrapped__',None)
         return tuple(chain)
     adapters=[(n,repr(m.active_adapters),repr(m.disable_adapters),
@@ -100,7 +101,7 @@ def deployment_key(lm_head):
     description = (base.config.to_dict(), torch.__version__, transformers.__version__, hardware,
         [(n, type(m).__module__, type(m).__qualname__,forward_implementation(m)) for n, m in base.named_modules()],
         [(n, tuple(p.shape), str(p.dtype), str(p.device)) for n, p in base.named_parameters()],
-        adapters,os.environ.get('CUBLAS_WORKSPACE_CONFIG'),
+        adapters,os.environ.get('CUBLAS_WORKSPACE_CONFIG'),getattr(base,'_worldstream_decode_policy','native'),
         torch.is_autocast_enabled(), str(torch.get_autocast_gpu_dtype()),
         torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32,
         torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,

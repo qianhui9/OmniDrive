@@ -30,6 +30,7 @@ class FrameExecutionRecord:
     quality: dict = field(default_factory=dict)
     fallback_reasons: list = field(default_factory=list)
     lifecycle_resets: list = field(default_factory=list)
+    admission: dict = field(default_factory=dict)
     e2e_wall_ms: float = None
     inference_wall_ms: float = None
     input_preparation_wall_ms: float = None

@@ -341,13 +341,18 @@ def main(root):
     if annotation_path.exists():
         import pickle
         with annotation_path.open('rb') as handle:infos=pickle.load(handle)['infos']
+        from .identity import token_index,resolve_sequence
+        by_token=token_index(infos)
         for run in runs:
             if runs[run].get('status')!='completed' or run=='lifecycle_validation':continue
             protocol_path=root/run/'protocol.json'
             if not protocol_path.exists():continue
             protocol=json.loads(protocol_path.read_text())
+            executed=defaultdict(list)
+            for row in rows:
+                if row['run']==run:executed[row['frame']['identity']['frame_id']].append(row['frame']['identity'])
             for scene in protocol['scenes']:
-                selected=[infos[i] for i in scene['indices']]
+                selected,_=resolve_sequence(scene,by_token,executed)
                 ts=[i['timestamp']/1e6 for i in selected]
                 positions=np.asarray([i['ego2global_translation'] for i in selected])
                 class_counts=[dict(__import__('collections').Counter(map(str,i['gt_names']))) for i in selected]

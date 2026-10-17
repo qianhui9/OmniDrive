@@ -9,7 +9,7 @@ from time import perf_counter
 import torch
 from .prefill_executor import GenerationFacade,readonly_cache_safe
 from .prefix_matcher import exact_lcp
-from .prefix_kv_cache import kv_bytes
+from .prefix_kv_cache import kv_bytes,minimum_native_prefix_bytes
 
 
 class BatchedExecutor:
@@ -39,6 +39,8 @@ class BatchedExecutor:
         n=prefix+width;new_tokens=effective('max_new_tokens',None)
         if not isinstance(new_tokens,int) or new_tokens<1:return fallback('explicit_positive_token_limit_required')
         cfg=model.config;dtype=first.embeddings.dtype;device=first.embeddings.device
+        if minimum_native_prefix_bytes(model,first,prefix)>self.cache.budget_bytes:
+            return fallback('persistent_prefix_budget_precheck')
         per_token=cfg.num_hidden_layers*getattr(cfg,'num_key_value_heads',cfg.num_attention_heads)*(cfg.hidden_size//cfg.num_attention_heads)*2*first.embeddings.element_size()
         # Live KV plus transient concatenation input/output and prefix staging.
         estimate=2*batch*(n+new_tokens)*per_token+batch*width*cfg.vocab_size*4

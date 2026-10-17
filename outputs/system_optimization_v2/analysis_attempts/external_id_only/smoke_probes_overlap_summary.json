@@ -1,0 +1,39 @@
+{
+  "source": "outputs/system_optimization_v2/smoke_probes/overlap_pipeline_trace.json",
+  "evidence": "actual profiler GPU kernels, exclusive component attribution via External id",
+  "phases": {
+    "outside_llm": {
+      "kernel_count": 160415,
+      "kernel_sum_ms": 2421.8469999989447,
+      "kernel_active_union_ms": 2421.847
+    }
+  },
+  "decode_forward_calls": 70,
+  "per_decode_token_kernel_ms": 0.0,
+  "decode_operators": {},
+  "decode_layers": {},
+  "decode_top_kernel_duration_ms": {},
+  "cpu_cuda_synchronize_ms": 0.786,
+  "cpu_cuda_allocation_api_ms": 0.0,
+  "gpu_copy_ms": {
+    "HtoD": 2.717,
+    "DtoH": 2.02,
+    "DtoD": 0.673
+  },
+  "launch_gap_attribution_ms": null,
+  "note": "Kernel sums and active unions are distinguished; profiler runs are excluded from E2E tables",
+  "m1_worker_gpu_kernel_overlap_lower_ms": 200.5025,
+  "clock_alignment_uncertainty_us": 4,
+  "m1_worker": {
+    "submitted_s": 1576546.253460499,
+    "main_thread": 134360238933056,
+    "clock_sync_s": 1576546.253492236,
+    "worker_thread": 134354803852864,
+    "worker_start_s": 1576546.253575732,
+    "worker_native_thread": 615637,
+    "worker_end_s": 1576546.457227679,
+    "worker_ms": 203.65199306979775,
+    "join_wait_ms": 156.76290006376803,
+    "joined_s": 1576546.457248665
+  }
+}

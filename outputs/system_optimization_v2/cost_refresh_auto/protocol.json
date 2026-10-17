@@ -1,0 +1,78 @@
+{
+  "scenes": [
+    {
+      "scene": "c164a8e8e8b8489f964f711f472789be",
+      "indices": [
+        3679,
+        3680,
+        3681,
+        3682
+      ],
+      "split": "calibration",
+      "tokens": [
+        "4e04d32a9949430287c14d49851f6f55",
+        "22498bfb553f4b4d9c51272fc5ca2427",
+        "25b1f618bb474872bc6cc19a527a26ed",
+        "42752758fe0a460e8eb8ec6e16de0ba3"
+      ],
+      "timestamps_s": [
+        1537297945.698626,
+        1537297946.198546,
+        1537297946.698377,
+        1537297947.198795
+      ]
+    },
+    {
+      "scene": "c3ab8ee2c1a54068a72d7eb4cf22e43d",
+      "indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "split": "heldout",
+      "tokens": [
+        "30e55a3ec6184d8cb1944b39ba19d622",
+        "cc18fde20db74d30825b0b60ec511b7b",
+        "08e76760a8c64a92a86686baf68f6aff",
+        "2140329a6990437aa46b83c30f49cf49"
+      ],
+      "timestamps_s": [
+        1531281439.800013,
+        1531281440.299931,
+        1531281440.800341,
+        1531281441.300213
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v2/cost_refresh_auto",
+    "workload": "single",
+    "scene_start": 114,
+    "scenes": 2,
+    "frames": 4,
+    "modes": [
+      "m1",
+      "unified_auto"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

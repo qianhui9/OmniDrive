@@ -30,6 +30,7 @@ from .audit import write
 
 MODES = ['original', 'm1', 'm2', 'm3', 'm12', 'm13', 'm23', 'm123',
          'unified_persistent', 'unified_output']
+RUN_HOOKS = {}  # Optional audit callbacks, always outside measured inference.
 
 
 def seed(value):
@@ -67,6 +68,8 @@ def snapshot(dest):
 
 
 def configure(model, mode, sink, dest, budget, refresh, profile):
+    previous=getattr(model,'stream_runtime',None)
+    if previous is not None and hasattr(previous,'close'):previous.close()
     model.m1_manager = model.m2_runtime = model.m3_runtime = None
     persistent = mode in ('m1', 'm12', 'm13', 'm123', 'unified_persistent', 'state_only', 'state_full')
     if persistent:
@@ -153,8 +156,10 @@ def run(args):
         indices = indices[::args.frame_stride][:args.frames]
         if len(indices) < args.frames:
             raise ValueError('Requested sequence exceeds available unique frames')
-        scenes.append(dict(scene=scene, indices=indices, split='calibration' if si%2==0 else 'heldout',
-            tokens=[dataset.data_infos[i]['token'] for i in indices]))
+        from .identity import validate_sequence
+        identity=validate_sequence([dataset.data_infos[i] for i in indices],scene)
+        scenes.append(dict(scene=scene, indices=indices, split=(getattr(args,'scene_splits',None) or {}).get(scene,'calibration' if si%2==0 else 'heldout'),
+            tokens=identity['sample_tokens'],timestamps_s=identity['timestamps_s']))
     if not scenes:
         raise ValueError('No scenes selected')
     # Freeze native question IDs before any method's results or ground truth.
@@ -170,7 +175,7 @@ def run(args):
     write(dest/'questions.json', {str(i): dict(questions=x['questions'], ids=[t.tolist() for t in x['ids']]) for i,x in frozen.items()})
     write(dest/'protocol.json', dict(scenes=scenes, args=vars(args), generation=dict(
         do_sample=args.workload=='single', temperature=.1, top_p=.75, max_new_tokens=320, num_beams=1),
-        timing='Preprocess/disk/collate/scatter plus synchronized VLM inference; audit CPU copies included equally; reference I/O excluded',
+        timing='Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded',
         quality='Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed',
         independence='Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted'))
     write(dest/'environment.json', dict(torch=torch.__version__, gpu=torch.cuda.get_device_name(),
@@ -204,6 +209,7 @@ def run(args):
                     prep_ms = (perf_counter()-prep_tick)*1000
                     seed(index+10000)
                     sink.ids = []
+                    if RUN_HOOKS.get('before'):RUN_HOOKS['before'](model,mode,rep,index,sink,dest)
                     # Fresh path: existing language files can never skip generation.
                     model.save_path = str(dest/'language'/f'{rep}_{si}_{mode}')+'/'
                     model.stream_runtime.input_preparation_wall_ms = prep_ms
@@ -245,6 +251,7 @@ def run(args):
                     row = dict(mode=mode, workload=args.workload, repeat=rep, warmup=rep<args.warmup,
                         split=scene['split'], ordinal=ordinal, cold=ordinal==0, index=index,
                         frame=record.to_dict(), generated_ids=sink.ids, tasks=tasks)
+                    if RUN_HOOKS.get('after'):RUN_HOOKS['after'](model,row,sink,dest)
                     with (dest/'frames.jsonl').open('a') as handle:
                         handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False)+'\n')
                     print(args.workload, mode, rep, si, ordinal, round(wall,2), 'token_equal', equality, flush=True)

@@ -1,0 +1,78 @@
+{
+  "scenes": [
+    {
+      "scene": "bd338b912ce9434995b29b6dac9fbf1d",
+      "indices": [
+        5658,
+        5659,
+        5660,
+        5661
+      ],
+      "split": "calibration",
+      "tokens": [
+        "dc2def2a7bc94693b67eba2ffbe13a56",
+        "d528a32b7367451e84f119068d4568a0",
+        "6350cb22be8c458792dee63332f31617",
+        "7aac5fbd9a7348ce9f85890881ec0dfb"
+      ],
+      "timestamps_s": [
+        1542799542.148297,
+        1542799542.64873,
+        1542799543.148073,
+        1542799543.647403
+      ]
+    },
+    {
+      "scene": "bed67ef03c4a4066a74f6c0117d512ee",
+      "indices": [
+        1467,
+        1468,
+        1469,
+        1470
+      ],
+      "split": "heldout",
+      "tokens": [
+        "04ebf63518914e0883bdffdb0b6c3f4c",
+        "99cd0464cb684d94970b3a01f53ece23",
+        "22dab782087e453c9281a752f2189c5a",
+        "5e10fe792690427ebf26e32eba6281dd"
+      ],
+      "timestamps_s": [
+        1533151709.546759,
+        1533151710.046646,
+        1533151710.54706,
+        1533151711.04808
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v2/auto_validation",
+    "workload": "single",
+    "scene_start": 112,
+    "scenes": 2,
+    "frames": 4,
+    "modes": [
+      "m1",
+      "unified_auto"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; audit CPU copies included equally; reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

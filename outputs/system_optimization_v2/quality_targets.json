@@ -1,0 +1,12 @@
+{
+  "frozen_before_new_gpu_results": true,
+  "complete_generated_token_ids": "bitwise identical to unchanged native same-seed reference",
+  "detection_map_feature_temporal_memory": "same shapes, max_abs=0",
+  "m1_state": "identical anchors, observations, masks, evidence, feature provenance and versions; runtime timings excluded",
+  "generation": {"sampling": true, "temperature": 0.1, "top_p": 0.75, "num_beams": 1, "max_new_tokens": 320, "use_cache": true},
+  "physical_oracle": {"source_assignment_gate_m": 2.0, "current_center_gate_m": 1.0, "visibility_token": "4", "requires_lidar_or_radar_support": true, "unknown_source_identity": "unscorable, never a negative"},
+  "critical_region_oracle": {"motion_threshold_m": 0.25, "invalidation_coverage_threshold": 0.9, "events": ["newly_visible", "moving_object", "visibility_drop"], "scope": "independent annotation identities and projected object regions; not pixelwise segmentation or closed-loop safety"},
+  "relative_risk": "no additional physical false accepts or critical misses compared with original serial at identical states",
+  "splits": {"exploratory_smoke": [100,101], "formal_main": [102,103,104,105], "independent_long": [106,107,108,109], "stride_refresh": [110,111]},
+  "selection": "fixed sorted scene order, no outcome-based replacement; repeated frames do not add independent samples"
+}

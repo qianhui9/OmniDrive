@@ -61,13 +61,13 @@ M3 新增 `adaptive_batch=True, max_batch_size=3` 离线选项，需要已有 `b
 conda activate OmniDrive
 export PYTHONPATH=.
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
-python -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q
+taskset -c 0-3,6-31 python -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q
 ```
 
 完整运行（需要 GPU 和全量本地权重/nuScenes）：
 
 ```bash
-bash tools/system_optimization/run.sh
+taskset -c 0-3,6-31 bash tools/system_optimization/run.sh
 ```
 
 脚本只观察其他 GPU 进程，等待至少 19500 MiB 空闲显存。每个推理实验目录必须不存在；若重跑，设置 `SYSTEM_ROOT=outputs/system_optimization_repeat`。中断/失败实验保留，使用新的目录名重试，不能混入正式统计。显存空闲不代表 GPU 独占，环境快照保留并发进程；有竞争的时间只能按其实际运行条件解读。
@@ -75,7 +75,7 @@ bash tools/system_optimization/run.sh
 图和报告：
 
 ```bash
-python -m tools.system_optimization.report --root outputs/system_optimization
+taskset -c 0-3,6-31 python -m tools.system_optimization.report --root outputs/system_optimization
 ```
 
 报告区分历史证据、新实验、受控重复、离线候选与正式准入。未测的官方检测/地图和闭环指标保持未测。图清单 `figures/manifest.json` 明确说明缺少数据的图；不画虚构点。
@@ -85,9 +85,46 @@ python -m tools.system_optimization.report --root outputs/system_optimization
 最终源码/历史文件完整性检查可独立重建：
 
 ```bash
-python -m tools.system_optimization.delivery
+taskset -c 0-3,6-31 python -m tools.system_optimization.delivery
 ```
 
 它只更新本轮交付补丁、清单和源版本差异审计，不改写逐运行源码快照或旧模块结果。
 
 本轮本地实验已完成：正式计时 760 次方法帧执行，覆盖 76 个唯一真实帧、4 个场景；最终 GPU 可见环境回归 246 项通过。报告与 S1–S10（PNG/PDF）见 [experiment_report.md](../outputs/system_optimization/experiment_report.md)。严格质量目标下尚无生产批准的端到端净加速，Prefix/Batch 保持 Auto Full 回退；物理 FAR/关键变化召回的新独立 Oracle、官方检测/地图和闭环安全仍未测。长序列使用完成的 `long_stream_retry`，旧失败目录不进入统计。
+
+## 第二轮优化（system_optimization_v2）
+
+第二轮修复了覆盖报告的 Dataset/raw-pickle 下标混用：Dataset 会按 timestamp 排序，所有身份连接现在使用 sample_token，并检查 scene_token、timestamp、重复帧、时间间隔和位姿跳变。历史实际执行连续，原时延记录保留；修正对照见 [sequence_identity_audit.md](../outputs/system_optimization_v2/sequence_identity_audit.md)。
+
+`RuntimeConfig.m1_overlap` 默认 `serial`；`experimental` 仅用于显式研究，`auto` 必须通过成本与质量双证书。只有完整 EVA、不依赖本帧 M1 结果的路径可并行。输入 Adapter 创建独立 CPU Frame，一个有界 Worker 独占 M1 manager/store；主线程只执行 EVA，在 heads、M1 commit 和 M3 读取前 join。超时或异常先等待 Worker 退出再 reset，不承诺硬截止，也不发布上一帧状态。`reuse_m1_signature=True` 利用运行时已有完整参数版本 witness，避免重复扫描，保留原 M1 签名内容。
+
+单问题 Decode 候选在 `worldstream/m3/native_decode.py`，由可恢复 context 显式启用，仅跳过已经证明为全零的单 Token additive mask。完整 all-ones 检查和主机同步计入候选成本；不更改 Q/K/V 形状、LoRA、权重、KV、采样循环或停止条件。默认不启用。Batch 继续复用原执行器，只增加不可能容纳公共前缀时的预算预拒绝；它不是复用认证。
+
+成本键增加执行实现和 CPU/OpenCV 线程资源。仅性能 frame gap 可以在独立测量证实的闭区间内匹配，状态有效性、服务、形状、问题长度和生成合同仍严格检查。校准采用保守的逐帧配对增量上界，并要求独立场景验证；无收益或证据不足就保持空批准表。原有正准入和负回退测试保留。
+
+在 `OmniDrive` 环境完整执行：
+
+```bash
+taskset -c 0-3,6-31 bash tools/system_optimization/run_v2.sh
+taskset -c 0-3,6-31 bash tools/system_optimization/finalize_v2.sh
+```
+
+已有 smoke 自动启动器时，用 `taskset -c 0-3,6-31 bash tools/system_optimization/run_v2.sh after-smoke` 接续，避免同时运行两个模型。推理输出目录不可覆盖；失败重跑需选择新目录并保留旧记录。第二轮固定输出根目录，重跑前应在新分支副本调整 `v2.ROOT`，不能删除旧实验来重跑。
+
+`v2.py` 复用原 experiment runner，冻结提交 `b4782ab` 的 `simple_test` 作 Original Persistent Serial 对照；统一协调/测量层共同使用本轮版本，新增记录开销计入各方法 E2E，不用历史旧时延代替本轮基线。所有方法使用同一实际模型实例、内容哈希、问题和 RNG。正式场景 102–105，独立长序列 106–109，stride/refresh 110–111，校准后 Auto 112–113；100–101 仅为探索性冒烟，不混入正式统计。Profiler、逐层 Logits 和独立物理 Oracle 单独运行，不混入时延样本。
+
+`finalize_v2.sh` 是本次任务的第二阶段：等初始正式 GPU 流程完成后，以源 SHA 守卫补全成本键的 profiling/trace/timeout 策略字段，保留初始版本，再在固定 102–105 场景复测；新 Auto 场景固定 114–115。模型计算保持一致。脚本在新模型加载后还会等原流水线全部分析/回归退出，才开始新的计时。初始证书归档，新键必须重新取得实测证书。已有完成目录不能覆盖重跑。
+
+本轮成本校准候选的部署键为 M1-only 的 Persistent-State：完整 EVA、两个感知头和原生 LLM 都真实执行，M2/M3 缓存策略关闭。含 M2/M3 实例的组合独立消融，不继承这个不同策略键的证书。默认仍为 serial；实际批准范围由结果和证书决定。
+
+`long_state_supply` 在四个完整 32 帧历史的第 8/16/32 帧调用真实五问题原生/状态候选，记录实际冻结的 commit 前历史、当前真实 carriers 和进入 LLM 的状态；附加请求属于混合服务，不加入普通单问题 E2E。物理 Oracle 在 GPU 工作结束后使用独立标注评估这些历史记录。资源控制另以 20ms 采样记录进程 resident 峰值、线程数和 GPU allocator 峰值，范围明确且不当作整段增量内存。
+
+结果、失败状态、原始帧记录、源快照和图表均保存在 `outputs/system_optimization_v2/`。可分别运行 `taskset -c 0-3,6-31 python -m tools.system_optimization.physical_oracle` 与 `taskset -c 0-3,6-31 python -m tools.system_optimization.v2_report` 重建离线分析；它们不向在线推理提供 GT。资源不足或未完成的项目必须在报告中保留未测原因。
+
+## 服务器 CPU 核约束与故障恢复
+
+用户确认当前服务器物理核 4/5 存在故障。后续 Python、测试及实验启动命令统一加 `taskset -c 0-3,6-31`，子进程继承亲和性。此处使用用户指定的 Linux CPU ID 范围；不另外推断 SMT 对应关系。`run_v2.sh`、`finalize_v2.sh` 和第二轮 `commands.sh` 已内置此约束。
+
+初始正式程序完成所有 GPU 工作并写出完整结果后以 139 退出，原始日志与 `formal_process_failure.json` 保留。逐帧完整性检查通过不等于该进程正常退出；初始未绑定 CPU 的性能结果保留为历史测量，硬件故障的影响不能排除。后续在排除故障核的配置下重跑 GPU 回归、独立成本校准和新场景 Auto 验证，不覆盖初始逐帧结果。`cpu_affinity_revision.json` 记录资源与源版本变化；CPU 亲和性现在属于成本键，不允许旧环境的证书继承准入。
+
+成本校准首次尝试在回归完成门检查失败，尚未创建任何测量目录；只有这种无测量的失败允许恢复，并保存原失败标记。其他失败或已存在测量目录仍拒绝覆盖。

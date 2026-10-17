@@ -535,6 +535,7 @@ class Petr3D(MVXTwoStageDetector):
             return runtime.execute(self, img_metas, data,
                 lambda: self.simple_test(img_metas, **data))
         m1_observer = None
+        pending_precheck = False
         if getattr(self, 'm2_runtime', None) is not None:
             meta = img_metas[0]
             self._m2_context = dict(scene_id=str(meta['scene_token']),
@@ -567,24 +568,34 @@ class Petr3D(MVXTwoStageDetector):
             adapter_start = time.perf_counter()
             with measure_transfers() as input_transfers:
                 frame = frame_from_model(img_metas, data, settings)
-            parameter_signature = [(name, tuple(p.shape), str(p.dtype), str(p.device), p._version)
-                                   for name, p in self.named_parameters()]
-            execution_policy = (getattr(self, 'training', False), torch.is_autocast_enabled(),
-                                torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32,
-                                torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
-                                torch.are_deterministic_algorithms_enabled())
-            frame.execution_signature = hashlib.sha256(
-                (frame.execution_signature + repr(parameter_signature) + repr(execution_policy)).encode()).hexdigest()
+            if runtime is not None and runtime.active and runtime.config.reuse_m1_signature:
+                suffix=runtime.m1_signature_suffix(self)
+            else:
+                parameter_signature=[(name,tuple(p.shape),str(p.dtype),str(p.device),p._version) for name,p in self.named_parameters()]
+                execution_policy=(getattr(self,'training',False),torch.is_autocast_enabled(),
+                    torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32,
+                    torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+                    torch.are_deterministic_algorithms_enabled())
+                suffix=repr(parameter_signature)+repr(execution_policy)
+            frame.execution_signature = hashlib.sha256((frame.execution_signature+suffix).encode()).hexdigest()
             adapter_ms = (time.perf_counter() - adapter_start) * 1000
-            precheck = self.m1_manager.precheck(frame)
-            if (getattr(self,'m3_runtime',None) is not None
-                    and getattr(getattr(self.m3_runtime,'config',None),'state_context','none')!='none'):
-                from worldstream.m3.world_state import freeze_verified_state
-                self.m3_verified_state = freeze_verified_state(self.m1_manager,frame)
-            if getattr(self, 'm2_runtime', None) is not None:
-                self._m2_context.update(execution_signature=frame.execution_signature)
-            precheck.diagnostics['timings_ms']['input_adapter_including_transfers'] = adapter_ms
-            precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer'] = input_transfers['gpu_to_cpu_transfer_ms']
+            pending_precheck=bool(runtime is not None and runtime.active and runtime._overlap_active)
+            if pending_precheck:
+                # Adapter owns CPU snapshots; only full EVA may run while the
+                # worker exclusively owns the mutable M1 manager/store.
+                if getattr(self,'m2_runtime',None) is not None:raise RuntimeError('Overlap cannot depend on unverified M2 state')
+                runtime.precheck_async(self.m1_manager,frame)
+                precheck=None
+            else:precheck=self.m1_manager.precheck(frame)
+            def publish_precheck():
+                if (getattr(self,'m3_runtime',None) is not None
+                        and getattr(getattr(self.m3_runtime,'config',None),'state_context','none')!='none'):
+                    from worldstream.m3.world_state import freeze_verified_state
+                    self.m3_verified_state=freeze_verified_state(self.m1_manager,frame)
+                if getattr(self,'m2_runtime',None) is not None:self._m2_context.update(execution_signature=frame.execution_signature)
+                precheck.diagnostics['timings_ms']['input_adapter_including_transfers']=adapter_ms
+                precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer']=input_transfers['gpu_to_cpu_transfer_ms']
+            if not pending_precheck:publish_precheck()
 
             def m1_observer(boxes, lanes, features):
                 output_start = time.perf_counter()
@@ -613,6 +624,9 @@ class Petr3D(MVXTwoStageDetector):
                     append_result(settings.log_path, precheck, self.m1_manager.last_commit_diagnostics)
 
         data['img_feats'] = self.extract_img_feat(data['img'])
+        if pending_precheck:
+            precheck=runtime.join_precheck()
+            publish_precheck()
         bbox_list = [dict() for i in range(len(img_metas))]
         if m1_observer is None:
             bbox_pts, generated_text, lane_results = self.simple_test_pts(img_metas, **data)

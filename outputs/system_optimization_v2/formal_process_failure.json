@@ -1,0 +1,41 @@
+{
+  "process_exit_code": 139,
+  "phase": "After the complete GPU stage marker; no native stack trace available",
+  "raw_compute_artifacts_eligible": true,
+  "eligibility_reason": "All expected rows, weight checks, strict state gates, lifecycle controls and standalone probes exist and pass",
+  "original_process_not_marked_successful": true,
+  "verified_runs": {
+    "single": {
+      "expected_rows": 352,
+      "actual_rows": 352,
+      "weights_unchanged": true,
+      "frame_file_sha256": "a2a6b4fdb62c560b6fa38ee02cb126b27dc40de63644b8640f56e84b21326770"
+    },
+    "multi": {
+      "expected_rows": 144,
+      "actual_rows": 144,
+      "weights_unchanged": true,
+      "frame_file_sha256": "d5cfdc5003211def99169e3fcd966f7b5dd6b327e92f3d8058c02701081302fd"
+    },
+    "long_stream": {
+      "expected_rows": 384,
+      "actual_rows": 384,
+      "weights_unchanged": true,
+      "frame_file_sha256": "28a3a9fc00eb2200e9dcabaa9ab82c70b33ea3213183207488caf41922350005"
+    },
+    "stride_refresh": {
+      "expected_rows": 48,
+      "actual_rows": 48,
+      "weights_unchanged": true,
+      "frame_file_sha256": "7c4d425d9c81cceb75e90939f3a2f8571dffd5e94ec08c787949e6bd619f6f82"
+    },
+    "auto_validation": {
+      "expected_rows": 16,
+      "actual_rows": 16,
+      "weights_unchanged": true,
+      "frame_file_sha256": "571f1818b04eb7292175cc68e66b2a910f6e282cbc59b557bb1da044e993db57"
+    }
+  },
+  "earlier_phase_inference": "After the complete GPU stage marker; inferred interpreter/native-library cleanup, exact cause undetermined",
+  "user_reported_hardware_cause": "Faulty physical CPU cores 4/5; subsequent execution uses taskset -c 0-3,6-31"
+}
