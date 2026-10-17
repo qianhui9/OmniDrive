@@ -85,6 +85,7 @@ def historical_state():
     from worldstream.m1.state_types import WorldAnchor,Geometry,Frame,M1Result,AnchorObservation
     anchor=WorldAnchor('a','s','object','car',Geometry(np.array([[8.,2.,0.],[10.,2.,0.]]),np.array([9.,2.,0.])),1.,2.)
     anchor.history_observations=2
+    anchor.evidence_origin='actual_perception'  # explicit mock historical observation, no GT
     anchor.observation_support={'front':AnchorObservation('front',(0,0,4,4),np.ones(3),1.,1.)}
     result=M1Result('s','f',2.,valid_anchor_ids=['a'],diagnostics=dict(execution_signature='weights',
         anchors={'a':dict(valid=True,cameras={'front':dict(valid=True)})}))
@@ -110,6 +111,13 @@ def test_world_state_is_historical_precommit_and_unknown_stays_unknown():
     assert not freeze_verified_state(manager,frame).records
     manager._pending=None
     assert freeze_verified_state(manager,frame).diagnostics['reason']=='stale_or_missing_precheck'
+
+
+@pytest.mark.parametrize('origin',[None,'annotation_assisted_commit','ground_truth_oracle'])
+def test_world_state_rejects_unknown_and_annotation_origins(origin):
+    manager,frame=historical_state()
+    manager.store.anchors['a'].evidence_origin=origin
+    assert freeze_verified_state(manager,frame).records==()
 
 
 def test_context_insertion_preserves_original_ids_and_auto_gate():

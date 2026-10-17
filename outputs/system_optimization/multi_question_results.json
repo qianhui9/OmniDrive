@@ -1,0 +1,6053 @@
+{
+  "evidence": "new_real_weight_gpu",
+  "results": [
+    {
+      "run": "language_candidates",
+      "mode": "adaptive",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 5454.72784305457,
+        "p95": 9061.760868644342
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 141.53249352239072,
+        "p95": 143.52452947059646
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 5297.92626953125,
+          "p95": 8896.551025390625
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.4435119628906,
+          "p95": 484.95350646972656
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.3986358642578,
+          "p95": 484.9096374511719
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.408704280853271,
+          "p95": 14.490111827850342
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.91105556488037,
+          "p95": 31.167935848236084
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 4762.537841796875,
+          "p95": 8359.73193359375
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.5039360248483717,
+          "p95": 5.029584042029455
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 438.6717777252197,
+          "p95": 441.88845920562744
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 1.7075200080871582,
+          "p95": 1.7095920145511627
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.0030559999868273735,
+          "p95": 0.004095999989658594
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 4283.2383069992065,
+          "p95": 7858.72928237915
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.044415999203920364,
+          "p95": 0.050983999855816364
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 5297.9022526415065,
+          "p95": 8896.521565504372
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.415503424592316,
+          "p95": 30.473485530819744
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.337876407429576,
+          "p95": 30.395143141504377
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.084741024300456,
+          "p95": 7.309343083761632
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.887696360237896,
+          "p95": 10.190970613621175
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 4762.515238020569,
+          "p95": 8359.704626898747
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 2.720608375966549,
+          "p95": 3.626355086453259
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 247.4425578257069,
+          "p95": 249.34079317608848
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 10.478718555532396,
+          "p95": 10.523644334170967
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.19154814071953297,
+          "p95": 0.21930865477770567
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 2223.734712228179,
+          "p95": 4072.3828482441604
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03917096182703972,
+          "p95": 0.04562170943245292
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 5300.039383500007,
+          "p95": 8900.315120250014
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.420992499898603,
+          "p95": 30.474348749976343
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.3419340000346,
+          "p95": 30.397008500017364
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.085169999982099,
+          "p95": 7.3095594999585956
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.889106000002812,
+          "p95": 10.190141250006945
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 4764.446590000148,
+          "p95": 8363.244045499925
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 2.749980000544383,
+          "p95": 3.6769930004254547
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 247.5424980001435,
+          "p95": 249.44195925007762
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 10.47918749998189,
+          "p95": 10.524391750237783
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.19168500000432687,
+          "p95": 0.2194275001556889
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 2224.7328520002156,
+          "p95": 4074.0721104988042
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.039202500033752585,
+          "p95": 0.045746499978349675
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 487.0127106551081,
+          "p95": 489.65834721457213
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.07722049485892057,
+          "p95": 0.08202006574720144
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.337876407429576,
+          "p95": 30.395143141504377
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.084741024300456,
+          "p95": 7.309343083761632
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.887696360237896,
+          "p95": 10.190970613621175
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 2284.075410105288,
+          "p95": 4025.9906082064845
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 2.720608375966549,
+          "p95": 3.626355086453259
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 247.4425578257069,
+          "p95": 249.34079317608848
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 10.478718555532396,
+          "p95": 10.523644334170967
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.19154814071953297,
+          "p95": 0.21930865477770567
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 2222.670215414837,
+          "p95": 4070.4381559044123
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03917096182703972,
+          "p95": 0.04562170943245292
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": false,
+      "token_equal_frames": 10,
+      "complete_question_token_equality": {
+        "equal": 72,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 34,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 38,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4122,
+      "useful_decode_tokens": 4042,
+      "effective_decode_tokens_per_second": 48.468695864831176,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 26784,
+      "suffix_padding_tokens": 178,
+      "decode_padding_tokens": 3084,
+      "physical_prefill_forward_tokens": 19446,
+      "duplicate_prefill_tokens_avoided": 26606,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "memory": {
+        "cache_peak_bytes": 297265790,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 18206031360,
+        "gpu_peak_reserved": 23339204608,
+        "cpu_rss_highwater_bytes": 37860192256
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 7563.731703907251,
+        "p95": 9054.564730962738
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 4759.560858597979,
+        "p95": 9062.498110858724
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.43727304863982336,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.4440900914359176,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.4440900914359176,
+      "quality_constrained_service_speedup": null,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "language_candidates",
+      "mode": "batch",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 4497.898209374398,
+        "p95": 6446.933287079446
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 141.8582210317254,
+        "p95": 143.6784382094629
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 4344.906494140625,
+          "p95": 6285.2421875
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.63771057128906,
+          "p95": 484.5911636352539
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.5936584472656,
+          "p95": 484.54544830322266
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.484992027282715,
+          "p95": 14.577920198440552
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 31.072303771972656,
+          "p95": 31.142576217651367
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3809.8427734375,
+          "p95": 5749.1212158203125
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.2619360401295125,
+          "p95": 4.000456030014902
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 235.0766429901123,
+          "p95": 236.6137819290161
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 0.8550400137901306,
+          "p95": 0.8565760105848312
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.0010239999974146485,
+          "p95": 0.002047999994829297
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3544.6490535736084,
+          "p95": 5474.225823879242
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.043487999588251114,
+          "p95": 0.05428000073879957
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 4344.8825280647725,
+          "p95": 6285.217213793658
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.426324461586773,
+          "p95": 30.49995843321085
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.34734644461423,
+          "p95": 30.42309475131333
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.234912482090294,
+          "p95": 7.709498982876539
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.931795066222548,
+          "p95": 10.347859526518732
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3809.8188515286893,
+          "p95": 5749.098647967912
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 2.599209314212203,
+          "p95": 3.019977768417448
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 132.08633358590305,
+          "p95": 132.95604597078636
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 5.202456959523261,
+          "p95": 5.212125543039292
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.09733100887387991,
+          "p95": 0.10150752495974302
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 1962.0232417946681,
+          "p95": 2998.6303960322402
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.038269092328846455,
+          "p95": 0.04876905586570501
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 4346.703945500053,
+          "p95": 6288.068370749926
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.433819999984735,
+          "p95": 30.545019499982118
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.354727499968703,
+          "p95": 30.468950499994207
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.24407599989263,
+          "p95": 7.709286499988366
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.9334924999539,
+          "p95": 10.349791250035878
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3811.393293500032,
+          "p95": 5751.731512249904
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 2.623719000382607,
+          "p95": 3.057355749575663
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 132.13359449991913,
+          "p95": 132.98675749999234
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 5.202715499990518,
+          "p95": 5.212582499950713
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.09735300000102143,
+          "p95": 0.10160550002069613
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 1962.859659999026,
+          "p95": 3000.054963000423
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03829300010238512,
+          "p95": 0.04886625001176981
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 487.5469518592581,
+          "p95": 497.28887586388737
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.07784611079841852,
+          "p95": 0.08242425974458456
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.34734644461423,
+          "p95": 30.42309475131333
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.234912482090294,
+          "p95": 7.709498982876539
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.931795066222548,
+          "p95": 10.347859526518732
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 1727.9593390412629,
+          "p95": 2610.5405549751595
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 2.599209314212203,
+          "p95": 3.019977768417448
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 132.08633358590305,
+          "p95": 132.95604597078636
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 5.202456959523261,
+          "p95": 5.212125543039292
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.09733100887387991,
+          "p95": 0.10150752495974302
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 1961.154833668843,
+          "p95": 2997.288212296553
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.038269092328846455,
+          "p95": 0.04876905586570501
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": false,
+      "token_equal_frames": 8,
+      "complete_question_token_equality": {
+        "equal": 68,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 34,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 34,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4120,
+      "useful_decode_tokens": 4040,
+      "effective_decode_tokens_per_second": 65.44883604409175,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 35712,
+      "suffix_padding_tokens": 328,
+      "decode_padding_tokens": 5780,
+      "physical_prefill_forward_tokens": 10668,
+      "duplicate_prefill_tokens_avoided": 35384,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "memory": {
+        "cache_peak_bytes": 297265790,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 19870073344,
+        "gpu_peak_reserved": 23339204608,
+        "cpu_rss_highwater_bytes": 37860192256
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 5913.795719970949,
+        "p95": 6436.308013449889
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 3600.0391495181248,
+        "p95": 6446.988551854156
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.43385142755037154,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 1.0123124516650217
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.3298784069199645,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.7512887270808937,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.7512887270808937,
+      "quality_constrained_service_speedup": null,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "language_candidates",
+      "mode": "compact",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 7867.065972648561,
+        "p95": 10573.24727595551
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 141.9528943952173,
+        "p95": 143.5012191068381
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7700.870361328125,
+          "p95": 10398.127685546875
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.68359375,
+          "p95": 484.67713165283203
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.63853454589844,
+          "p95": 484.6335678100586
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.446591854095459,
+          "p95": 14.500864028930664
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.961567878723145,
+          "p95": 31.479919910430908
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7166.427490234375,
+          "p95": 9861.98046875
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 4.806848026812077,
+          "p95": 6.106560052372515
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 886.0644149780273,
+          "p95": 906.1686897277832
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6224.470519065857,
+          "p95": 8901.069834709167
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04257600009441376,
+          "p95": 0.04660800099372864
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7700.844106497243,
+          "p95": 10398.096404504031
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.390800908207893,
+          "p95": 30.462903785519302
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.314040603116155,
+          "p95": 30.38366255350411
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.181221502833068,
+          "p95": 7.3476703255437315
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.940409567207098,
+          "p95": 10.188866523094475
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7166.399605572224,
+          "p95": 9861.950629099738
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.493346506729722,
+          "p95": 4.281652218196541
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 483.2039800239727,
+          "p95": 489.8044358706102
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3339.661977952346,
+          "p95": 4777.4368628743105
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03703555557876825,
+          "p95": 0.040384125895798206
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7704.435104499964,
+          "p95": 10402.684959500079
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.391124499999478,
+          "p95": 30.513605750059014
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.31554899996536,
+          "p95": 30.43450075008991
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.189460000063264,
+          "p95": 7.345515750017739
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.94181699991259,
+          "p95": 10.190227749944825
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7169.764171499992,
+          "p95": 9866.266953249948
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.5452164989919766,
+          "p95": 4.350485499998058
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 483.4627985000566,
+          "p95": 489.96525899985954
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3341.461016998437,
+          "p95": 4779.817131249103
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03708949998326716,
+          "p95": 0.04042325011255343
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 487.68757353536785,
+          "p95": 492.1737562981434
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.07819477468729019,
+          "p95": 0.08360872743651271
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.314040603116155,
+          "p95": 30.38366255350411
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.181221502833068,
+          "p95": 7.3476703255437315
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.940409567207098,
+          "p95": 10.188866523094475
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3349.600548390299,
+          "p95": 4589.608329057228
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.493346506729722,
+          "p95": 4.281652218196541
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 483.2039800239727,
+          "p95": 489.8044358706102
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3337.8133601509035,
+          "p95": 4774.841925536748
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03703555557876825,
+          "p95": 0.040384125895798206
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": false,
+      "token_equal_frames": 6,
+      "complete_question_token_equality": {
+        "equal": 70,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 34,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 36,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4110,
+      "useful_decode_tokens": 4030,
+      "effective_decode_tokens_per_second": 39.573664672676514,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": 44260,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "memory": {
+        "cache_peak_bytes": 0,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16317555712,
+        "gpu_peak_reserved": 23339204608,
+        "cpu_rss_highwater_bytes": 37860192256
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9199.070857604966,
+        "p95": 9557.743854797445
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6741.155302035622,
+        "p95": 10575.130932813045
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.43460132954116076,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.0012777898419956,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.0012777898419956,
+      "quality_constrained_service_speedup": null,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "language_candidates",
+      "mode": "original",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 7877.11842963472,
+        "p95": 10717.122578178532
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 141.35092101059854,
+        "p95": 143.09142768615857
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7712.78076171875,
+          "p95": 10542.947509765625
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.9375,
+          "p95": 484.8170852661133
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.89288330078125,
+          "p95": 484.7719421386719
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.41433572769165,
+          "p95": 14.485248327255249
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.88828754425049,
+          "p95": 31.22264051437378
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 4.947936024982482,
+          "p95": 6.354408066952601
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 906.3536605834961,
+          "p95": 909.85400390625
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6231.11425113678,
+          "p95": 9040.785737991333
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04363200068473816,
+          "p95": 0.04918399918824434
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7712.752706953324,
+          "p95": 10542.906276881695
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.419257935136557,
+          "p95": 30.467085307464004
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.341314966790378,
+          "p95": 30.387101287487894
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.092760526575148,
+          "p95": 7.317801064345986
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.839802514761686,
+          "p95": 10.169117245823145
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.6418347153812647,
+          "p95": 4.4788457453250885
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.96969769056886,
+          "p95": 499.7246852144599
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3353.536006179638,
+          "p95": 4855.765199230518
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03829353954643011,
+          "p95": 0.043082283809781075
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7714.700652499971,
+          "p95": 10548.082711750027
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.433840999990025,
+          "p95": 30.49558199995772
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.356398499975512,
+          "p95": 30.416248749958186
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.09279050005307,
+          "p95": 7.317319249949605
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.831272999974772,
+          "p95": 10.170973999947819
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.6933930003328896,
+          "p95": 4.5518730010201125
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 493.1967190001387,
+          "p95": 499.80124249998426
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3354.45884299952,
+          "p95": 4858.090367000187
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03833149992260587,
+          "p95": 0.043110750056030156
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 3829.706152318977,
+          "p95": 5135.699776466936
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.07759209256619215,
+          "p95": 0.08131377398967743
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.341314966790378,
+          "p95": 30.387101287487894
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.092760526575148,
+          "p95": 7.317801064345986
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.839802514761686,
+          "p95": 10.169117245823145
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.6418347153812647,
+          "p95": 4.4788457453250885
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.96969769056886,
+          "p95": 499.7246852144599
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3351.7006339970976,
+          "p95": 4853.0751655926
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03829353954643011,
+          "p95": 0.043082283809781075
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.49876281708449,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "memory": {
+        "cache_peak_bytes": 0,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16317539840,
+        "gpu_peak_reserved": 23339204608,
+        "cpu_rss_highwater_bytes": 37860192256
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9209.29758134298,
+        "p95": 9560.970778891351
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6596.562069025822,
+        "p95": 10724.810628802516
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.0,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.0,
+      "quality_constrained_service_speedup": 1.0,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "language_candidates",
+      "mode": "prefix",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 7301.162221934646,
+        "p95": 10138.579861843027
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 141.26631256658584,
+        "p95": 144.3465887568891
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7136.952392578125,
+          "p95": 9964.353759765625
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.95262145996094,
+          "p95": 484.6918487548828
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.9090576171875,
+          "p95": 484.64823150634766
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.445568084716797,
+          "p95": 14.496000289916992
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.955679893493652,
+          "p95": 31.168703079223633
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 6599.67822265625,
+          "p95": 9427.73974609375
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 4.783392034005374,
+          "p95": 6.048088053881656
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 327.95252990722656,
+          "p95": 330.1321392059326
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 0.8541759848594666,
+          "p95": 0.8601600229740143
+        },
+        "m3_prefix_verification": {
+          "count": 16,
+          "p50": 2.0759679973125458,
+          "p95": 2.18435999751091
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.5837280005216599,
+          "p95": 0.8572880141437054
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6214.521007537842,
+          "p95": 9025.298655986786
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04380800016224384,
+          "p95": 0.05132799968123436
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7136.927207466215,
+          "p95": 9964.311917021405
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.41468095034361,
+          "p95": 30.533594719599932
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.336814932525158,
+          "p95": 30.44968389440328
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.189100026153028,
+          "p95": 7.3234892333857715
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.895178489387035,
+          "p95": 10.16204443294555
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 6599.655809113756,
+          "p95": 9427.710004500113
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.4640313824638724,
+          "p95": 4.205570323392749
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 183.2887640921399,
+          "p95": 184.14199992548674
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 5.20255696028471,
+          "p95": 5.216010147705674
+        },
+        "m3_prefix_verification": {
+          "count": 16,
+          "p50": 76.69137406628579,
+          "p95": 76.80055708624423
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.554169062525034,
+          "p95": 0.8235019631683826
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3341.3241253001615,
+          "p95": 4838.822457822971
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03850157372653484,
+          "p95": 0.04590273601934314
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7138.341837000098,
+          "p95": 9969.055552749978
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.435507999868605,
+          "p95": 30.530289249838916
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.35444700003609,
+          "p95": 30.447189000085473
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.20256650004103,
+          "p95": 7.323391250054101
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.896297500006312,
+          "p95": 10.163762499985296
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 6602.8420845000255,
+          "p95": 9432.144980749967
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.5163750009132855,
+          "p95": 4.279285000052369
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 183.37125649986774,
+          "p95": 184.19423749998032
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 5.20373000000518,
+          "p95": 5.252223750062512
+        },
+        "m3_prefix_verification": {
+          "count": 16,
+          "p50": 76.73471900011464,
+          "p95": 76.86258625017217
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.5538559998967685,
+          "p95": 0.8237477503030277
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3342.9298855003253,
+          "p95": 4841.157035247306
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03854999999930442,
+          "p95": 0.04597724995392127
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 487.8254078794271,
+          "p95": 493.09168668696657
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.07899838965386152,
+          "p95": 0.09036390110850334
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.336814932525158,
+          "p95": 30.44968389440328
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.189100026153028,
+          "p95": 7.3234892333857715
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.895178489387035,
+          "p95": 10.16204443294555
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 2996.5743897482753,
+          "p95": 4320.692325884011
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.4640313824638724,
+          "p95": 4.205570323392749
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 183.2887640921399,
+          "p95": 184.14199992548674
+        },
+        "m3_kv_capture": {
+          "count": 16,
+          "p50": 5.20255696028471,
+          "p95": 5.216010147705674
+        },
+        "m3_prefix_verification": {
+          "count": 16,
+          "p50": 76.69137406628579,
+          "p95": 76.80055708624423
+        },
+        "m3_kv_branch": {
+          "count": 16,
+          "p50": 0.554169062525034,
+          "p95": 0.8235019631683826
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3339.46682093665,
+          "p95": 4836.168158333749
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03850157372653484,
+          "p95": 0.04590273601934314
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": false,
+      "token_equal_frames": 10,
+      "complete_question_token_equality": {
+        "equal": 70,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 34,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 36,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4096,
+      "useful_decode_tokens": 4016,
+      "effective_decode_tokens_per_second": 39.577212537373896,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 44640,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": 10340,
+      "duplicate_prefill_tokens_avoided": 35712,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "memory": {
+        "cache_peak_bytes": 297265790,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16637965312,
+        "gpu_peak_reserved": 23339204608,
+        "cpu_rss_highwater_bytes": 37860192256
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 8649.42547492683,
+        "p95": 8991.150555456989
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6025.029188487679,
+        "p95": 10140.360492025502
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.43059433968302385,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 1.0123124516650217
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.3298784069199645,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.078885551394783,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.078885551394783,
+      "quality_constrained_service_speedup": null,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "language_candidates",
+      "mode": "state_full",
+      "service": "persistent_state",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 8068.985524936579,
+        "p95": 10993.322890251875
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 141.16723753977567,
+        "p95": 142.79784762766212
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7902.0478515625,
+          "p95": 10817.4921875
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.387792110443115,
+          "p95": 10.79418396949768
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 205.4189910888672,
+          "p95": 285.5956726074219
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 482.77490234375,
+          "p95": 484.58235931396484
+        },
+        "eva": {
+          "count": 16,
+          "p50": 482.6824035644531,
+          "p95": 484.4919128417969
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.427103996276855,
+          "p95": 14.506495714187622
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.893535614013672,
+          "p95": 31.122608184814453
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.688559889793396,
+          "p95": 4.920216083526611
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.954079627990723,
+          "p95": 52.37131309509277
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7173.944091796875,
+          "p95": 10006.215576171875
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 4.946720027830452,
+          "p95": 6.397400063229725
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 903.0712585449219,
+          "p95": 906.2596549987793
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6221.175689697266,
+          "p95": 9033.998279094696
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.046272000297904015,
+          "p95": 0.05782399978488684
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7902.018700144254,
+          "p95": 10817.459792713635
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.356266051530838,
+          "p95": 10.760260454844683
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 205.3682436235249,
+          "p95": 285.54256923962384
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.435658525675535,
+          "p95": 30.53200274007395
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.3123485064134,
+          "p95": 30.397454393096268
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.079616654664278,
+          "p95": 7.305454928427935
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.735786588862538,
+          "p95": 10.24251978378743
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.6719749914482236,
+          "p95": 4.894253506790847
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.926224447786808,
+          "p95": 52.3514894885011
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7173.9188701612875,
+          "p95": 10006.185329868458
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.6452796775847673,
+          "p95": 4.513504391070455
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 490.51585409324616,
+          "p95": 495.9773322334513
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3335.8012054814026,
+          "p95": 4844.246369146276
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04125910345464945,
+          "p95": 0.05298183532431722
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 8397.890154500034,
+          "p95": 11566.841399250052
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.3516709999667,
+          "p95": 10.761346999998977
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 830.3855039999917,
+          "p95": 1307.0799027499334
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.45409149990519,
+          "p95": 30.555325500046138
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.330384000080812,
+          "p95": 30.42499475006366
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.087139499844852,
+          "p95": 7.306774999960908
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.737665999978162,
+          "p95": 10.255270750064938
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.672492000021066,
+          "p95": 4.894576249995453
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.95262150002509,
+          "p95": 52.34851000008689
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7177.437370500115,
+          "p95": 10011.149476250012
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.695702499840081,
+          "p95": 4.598906999717656
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 490.75837849989057,
+          "p95": 496.03104225013794
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3337.4336679997327,
+          "p95": 4847.048308751113
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04126850001284765,
+          "p95": 0.05241875010142394
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 509.18741477653384,
+          "p95": 536.1622001510113
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.356266051530838,
+          "p95": 10.760260454844683
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 205.3682436235249,
+          "p95": 285.54256923962384
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.12631388381123543,
+          "p95": 0.13683963334187865
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.3123485064134,
+          "p95": 30.397454393096268
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.079616654664278,
+          "p95": 7.305454928427935
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.735786588862538,
+          "p95": 10.24251978378743
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.6719749914482236,
+          "p95": 4.894253506790847
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.926224447786808,
+          "p95": 52.3514894885011
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3351.535876165144,
+          "p95": 4666.525559325237
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.6452796775847673,
+          "p95": 4.513504391070455
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 490.51585409324616,
+          "p95": 495.9773322334513
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3333.9981097960845,
+          "p95": 4841.585659130942
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04125910345464945,
+          "p95": 0.05298183532431722
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.532109192020926,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 254.8898480599746,
+        "p95": 331.08655392425135
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": 0.0,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 80,
+      "task_query_hit_rate": 0.0,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "state_query_full_fallback:full_scene_task_requires_visual": 50,
+        "state_query_full_fallback:no_task_relevant_verified_history": 20,
+        "state_query_full_fallback:partial_history_cannot_establish_count_or_absence": 10
+      },
+      "memory": {
+        "cache_peak_bytes": 29830050,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16317540864,
+        "gpu_peak_reserved": 23339204608,
+        "cpu_rss_highwater_bytes": 37860192256
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9263.406209181994,
+        "p95": 9605.254062102176
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6924.886808614247,
+        "p95": 10994.293459318578
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 0.976221658260644,
+      "service_matched_reference": null,
+      "service_matched_p50_speedup": null,
+      "quality_constrained_service_speedup": null,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "language_candidates",
+      "mode": "state_only",
+      "service": "persistent_state",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 8038.307557580993,
+        "p95": 11006.928125629202
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 142.05915911588818,
+        "p95": 144.36586515512317
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7869.41943359375,
+          "p95": 10830.033203125
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.468480110168457,
+          "p95": 10.724431991577148
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 199.23332977294922,
+          "p95": 230.5467643737793
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.2530975341797,
+          "p95": 484.26448822021484
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.1611785888672,
+          "p95": 484.1725082397461
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.439935684204102,
+          "p95": 14.475584030151367
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 31.00908851623535,
+          "p95": 31.270135402679443
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.690047860145569,
+          "p95": 4.985688090324402
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.145343780517578,
+          "p95": 53.131014823913574
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7174.8779296875,
+          "p95": 10020.8896484375
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 4.9276320417411625,
+          "p95": 6.552936076419428
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 903.2696762084961,
+          "p95": 907.4139862060547
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6221.170442581177,
+          "p95": 9044.035054206848
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04315200075507164,
+          "p95": 0.051184000447392464
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7869.393755448982,
+          "p95": 10830.001727154013
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.436250478960574,
+          "p95": 10.687008732929826
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 199.18119651265442,
+          "p95": 230.4963746573776
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.42411303613335,
+          "p95": 30.48477368429303
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.29851207975298,
+          "p95": 30.3563826601021
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.083958014845848,
+          "p95": 7.45542295044288
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.928419021889567,
+          "p95": 10.500383912585676
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.6734361201524734,
+          "p95": 4.960218793712556
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.125874978490174,
+          "p95": 53.109846950974315
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7174.855697434396,
+          "p95": 10020.861194992904
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.612580825574696,
+          "p95": 4.64153423672542
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 490.1968160411343,
+          "p95": 496.25048332381994
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3336.8888520635664,
+          "p95": 4858.631354116369
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.0381020363420248,
+          "p95": 0.04683854058384895
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 8265.421605499967,
+          "p95": 11494.69742499997
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.44034599999577,
+          "p95": 10.688308749962516
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 889.6737024999766,
+          "p95": 988.9063052500546
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.44858949999707,
+          "p95": 30.50927050000496
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.322393500000544,
+          "p95": 30.381047500071645
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.084120999934385,
+          "p95": 7.453826749980408
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.932230999993408,
+          "p95": 10.509338749983499
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.6940695000566848,
+          "p95": 4.960183749915359
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.13777050008548,
+          "p95": 53.12420099997439
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7178.245721999985,
+          "p95": 10025.62458
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.664073000550161,
+          "p95": 4.719472751531839
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 490.4532740000036,
+          "p95": 496.4484589999927
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3338.4971269988455,
+          "p95": 4860.684799253022
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03814100000454346,
+          "p95": 0.046874000076968514
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 509.9522889358923,
+          "p95": 535.9931826242246
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.436250478960574,
+          "p95": 10.687008732929826
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 199.18119651265442,
+          "p95": 230.4963746573776
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.1288305502384901,
+          "p95": 0.1458959886804223
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.29851207975298,
+          "p95": 30.3563826601021
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.083958014845848,
+          "p95": 7.45542295044288
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.928419021889567,
+          "p95": 10.500383912585676
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.6734361201524734,
+          "p95": 4.960218793712556
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.125874978490174,
+          "p95": 53.109846950974315
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3347.41761314217,
+          "p95": 4664.823932165746
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.612580825574696,
+          "p95": 4.64153423672542
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 490.1968160411343,
+          "p95": 496.25048332381994
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3335.0871497532353,
+          "p95": 4855.894516746048
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.0381020363420248,
+          "p95": 0.04683854058384895
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.48583928790614,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 249.51126344967633,
+        "p95": 302.5380817707628
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": 0.0,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 80,
+      "task_query_hit_rate": 0.0,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "state_query_full_fallback:full_scene_task_requires_visual": 50,
+        "state_query_full_fallback:no_task_relevant_verified_history": 20,
+        "state_query_full_fallback:partial_history_cannot_establish_count_or_absence": 10
+      },
+      "memory": {
+        "cache_peak_bytes": 29830050,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16317540864,
+        "gpu_peak_reserved": 23339204608,
+        "cpu_rss_highwater_bytes": 37860192256
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9263.839596300386,
+        "p95": 9612.863783841021
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6910.059012006968,
+        "p95": 11009.097448410466
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 0.9799473798692545,
+      "service_matched_reference": null,
+      "service_matched_p50_speedup": null,
+      "quality_constrained_service_speedup": null,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "m1",
+      "service": "persistent_state",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 8031.158459489234,
+        "p95": 10987.92668239912
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 148.6127465032041,
+        "p95": 155.2311367704533
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7857.89013671875,
+          "p95": 10798.8251953125
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.550911903381348,
+          "p95": 12.144895792007446
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 186.0381088256836,
+          "p95": 232.34872436523438
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.8338165283203,
+          "p95": 485.16980743408203
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.74974060058594,
+          "p95": 485.08385467529297
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.450687885284424,
+          "p95": 14.6037118434906
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.549728393554688,
+          "p95": 31.03548765182495
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.699568033218384,
+          "p95": 4.9512399435043335
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.90937614440918,
+          "p95": 52.48703193664551
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.130960052832961,
+          "p95": 6.311832043109462
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 902.3479309082031,
+          "p95": 904.8415298461914
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6227.08708190918,
+          "p95": 9034.691395759583
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.043376000598073006,
+          "p95": 0.0519439997151494
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7857.852182118222,
+          "p95": 10798.790390021168
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.520892101339996,
+          "p95": 12.11304566822946
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 185.98639604169875,
+          "p95": 232.2918192949146
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.41846991982311,
+          "p95": 30.550408002454787
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.291652539744973,
+          "p95": 30.413820291869342
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.259436999447644,
+          "p95": 7.636594353243709
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.523477405309677,
+          "p95": 9.97609196929261
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.6812215112149715,
+          "p95": 4.929608840029687
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.89104513451457,
+          "p95": 52.46601317776367
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.792788600549102,
+          "p95": 4.510371072683483
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.67413255013525,
+          "p95": 495.9303356590681
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3343.6314270365983,
+          "p95": 4846.263755229302
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.037872930988669395,
+          "p95": 0.04605978028848767
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 8217.365893000078,
+          "p95": 11563.345785000081
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.521924000045146,
+          "p95": 12.126233250114637
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 785.4864775000578,
+          "p95": 1088.590869499967
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.43237700012469,
+          "p95": 30.55720999998357
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.309942000144474,
+          "p95": 30.435613249949256
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.2599190000346425,
+          "p95": 7.636913499936782
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.524873499969999,
+          "p95": 9.977010999989488
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.6815229999547228,
+          "p95": 4.9677047501006655
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.885082499982673,
+          "p95": 52.46473975000754
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.8426475015285178,
+          "p95": 4.5780764995129175
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.8829710002701,
+          "p95": 496.20530249993067
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3345.587470999021,
+          "p95": 4848.932843750446
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03711199997269432,
+          "p95": 0.046124499931465834
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 3843.5805055778474,
+          "p95": 5165.105850319378
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.520892101339996,
+          "p95": 12.11304566822946
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 185.98639604169875,
+          "p95": 232.2918192949146
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.1240619458258152,
+          "p95": 0.13544532703235745
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.291652539744973,
+          "p95": 30.413820291869342
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.259436999447644,
+          "p95": 7.636594353243709
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.523477405309677,
+          "p95": 9.97609196929261
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.6812215112149715,
+          "p95": 4.929608840029687
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.89104513451457,
+          "p95": 52.46601317776367
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.792788600549102,
+          "p95": 4.510371072683483
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.67413255013525,
+          "p95": 495.9303356590681
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3341.8087809113786,
+          "p95": 4843.691202928312
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.037872930988669395,
+          "p95": 0.04605978028848767
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.49114166712459,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 236.27901496365666,
+        "p95": 280.35394271137193
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "memory": {
+        "cache_peak_bytes": 29830050,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16319161344,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9276.253903168254,
+        "p95": 9610.098809353076
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6888.175748521462,
+        "p95": 10992.8737708251
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 0.9818403525832986,
+      "service_matched_reference": "m1",
+      "service_matched_p50_speedup": 1.0,
+      "quality_constrained_service_speedup": 1.0,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "m12",
+      "service": "persistent_state",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 8044.625196955167,
+        "p95": 10939.830077928491
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 148.63565692212433,
+        "p95": 155.77244473388419
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7872.171142578125,
+          "p95": 10761.756103515625
+        },
+        "m2_cheap_admission": {
+          "count": 16,
+          "p50": 0.2306559979915619,
+          "p95": 0.24585599824786186
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.468976020812988,
+          "p95": 10.733272075653076
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 162.03199768066406,
+          "p95": 217.11261367797852
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 485.16064453125,
+          "p95": 486.7826843261719
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 485.07684326171875,
+          "p95": 486.6919250488281
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.08709716796875,
+          "p95": 484.31365966796875
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.476287841796875,
+          "p95": 14.56819224357605
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.808159828186035,
+          "p95": 31.156583786010742
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.799199938774109,
+          "p95": 4.966648101806641
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.0423526763916,
+          "p95": 53.239840507507324
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.137056029692758,
+          "p95": 6.42158407298848
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 901.9603500366211,
+          "p95": 904.5992240905762
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6230.392669677734,
+          "p95": 9038.110019683838
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04569599963724613,
+          "p95": 0.054920000955462456
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7872.128950548358,
+          "p95": 10761.698675749358
+        },
+        "m2_cheap_admission": {
+          "count": 16,
+          "p50": 0.22200937382876873,
+          "p95": 0.23552461061626673
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.439520003274083,
+          "p95": 10.703711188398302
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 161.9800963671878,
+          "p95": 217.0588321168907
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 32.738300040364265,
+          "p95": 33.05005136644468
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 32.61503600515425,
+          "p95": 32.93610364198685
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.234324978664517,
+          "p95": 30.387232545763254
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.420620648190379,
+          "p95": 7.633675413671881
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.800227591767907,
+          "p95": 10.486457613296807
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7801055004820228,
+          "p95": 4.939379869028926
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.02104496024549,
+          "p95": 53.21524996543303
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.8125511491671205,
+          "p95": 4.501800169236958
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 488.99019975215197,
+          "p95": 494.94277528719977
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3346.7407138086855,
+          "p95": 4849.709525355138
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.040182494558393955,
+          "p95": 0.04923244705423713
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 8208.7549135,
+          "p95": 11334.821220749973
+        },
+        "m2_cheap_admission": {
+          "count": 16,
+          "p50": 0.22228999989692966,
+          "p95": 0.23586649990647857
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.45205050002096,
+          "p95": 10.74903124992943
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 716.1325214999579,
+          "p95": 927.4755302499784
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 32.76266349996604,
+          "p95": 33.06003274997238
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 32.63963949996196,
+          "p95": 32.946347000006426
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.244013000015002,
+          "p95": 30.38676825005382
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.421023000006244,
+          "p95": 7.63365625005008
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.80179299995143,
+          "p95": 10.491034250037501
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7805279998792685,
+          "p95": 4.939497250120439
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.021675999956642,
+          "p95": 53.21622675000981
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.8598239991642913,
+          "p95": 4.571699499251736
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.23281800000495,
+          "p95": 495.22341099998357
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3348.0919680011993,
+          "p95": 4850.7407547502335
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.040264499943987175,
+          "p95": 0.04934349999530241
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 3843.9662910532206,
+          "p95": 5165.683781669941
+        },
+        "m2_cheap_admission": {
+          "count": 16,
+          "p50": 0.22200937382876873,
+          "p95": 0.23552461061626673
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.439520003274083,
+          "p95": 10.703711188398302
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 161.9800963671878,
+          "p95": 217.0588321168907
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.11166045442223549,
+          "p95": 0.12228044215589762
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 2.386303967796266,
+          "p95": 2.547514159232378
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.234324978664517,
+          "p95": 30.387232545763254
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.420620648190379,
+          "p95": 7.633675413671881
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.800227591767907,
+          "p95": 10.486457613296807
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7801055004820228,
+          "p95": 4.939379869028926
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.02104496024549,
+          "p95": 53.21524996543303
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.8125511491671205,
+          "p95": 4.501800169236958
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 488.99019975215197,
+          "p95": 494.94277528719977
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3344.8859782656655,
+          "p95": 4847.108110028785
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.040182494558393955,
+          "p95": 0.04923244705423713
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.487297215594054,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 208.34405231289566,
+        "p95": 269.45690595312044
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "no_valid_cache": 4,
+        "no_exact_camera": 12
+      },
+      "memory": {
+        "cache_peak_bytes": 98649978,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16388417024,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9272.34597702045,
+        "p95": 9615.02179254312
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6847.294865059666,
+        "p95": 10941.722221882083
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 0.9801967475752364,
+      "service_matched_reference": "m1",
+      "service_matched_p50_speedup": 0.9983259956634114,
+      "quality_constrained_service_speedup": 0.9983259956634114,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "m123",
+      "service": "persistent_state",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 8030.901661491953,
+        "p95": 10964.72300356254
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 149.26213747821748,
+        "p95": 153.90281099826097
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7855.76171875,
+          "p95": 10779.366455078125
+        },
+        "m2_cheap_admission": {
+          "count": 16,
+          "p50": 0.23390400409698486,
+          "p95": 0.2503199987113476
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.470047950744629,
+          "p95": 10.795503854751587
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 158.1944351196289,
+          "p95": 189.00225830078125
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 485.3930969238281,
+          "p95": 487.016845703125
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 485.3069763183594,
+          "p95": 486.9313201904297
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.17030334472656,
+          "p95": 484.7724151611328
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.47219181060791,
+          "p95": 14.533631801605225
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.549903869628906,
+          "p95": 31.25278329849243
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.8090559244155884,
+          "p95": 5.049471855163574
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.827759742736816,
+          "p95": 52.55623912811279
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7172.4345703125,
+          "p95": 10010.754150390625
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.013808029238135,
+          "p95": 6.351328061427921
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 902.3922271728516,
+          "p95": 904.0504913330078
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6226.725727081299,
+          "p95": 9046.535604953766
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.049375999718904495,
+          "p95": 0.05361600127071142
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7855.7102280901745,
+          "p95": 10779.319280176423
+        },
+        "m2_cheap_admission": {
+          "count": 16,
+          "p50": 0.22533908486366272,
+          "p95": 0.2417098148725927
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.43769996613264,
+          "p95": 10.762460471596569
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 158.14273455180228,
+          "p95": 188.95115767372772
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 32.7119289431721,
+          "p95": 32.86772151477635
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 32.60038187727332,
+          "p95": 32.745847245678306
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.236131977289915,
+          "p95": 30.290792870800942
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.326408522203565,
+          "p95": 7.597457908559591
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.52735950704664,
+          "p95": 10.605235351249576
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7823929451406,
+          "p95": 5.019456380978227
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.809637064114213,
+          "p95": 52.53530392656103
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7172.390158986673,
+          "p95": 10010.721962840762
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.683868679217994,
+          "p95": 4.467929888051003
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.17674215044826,
+          "p95": 496.97548255790025
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3342.697137617506,
+          "p95": 4855.233416543342
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.044008949771523476,
+          "p95": 0.04816579166799784
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 8147.837464999839,
+          "p95": 11354.649035250077
+        },
+        "m2_cheap_admission": {
+          "count": 16,
+          "p50": 0.22554349993697542,
+          "p95": 0.24200650000238966
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.439132499982406,
+          "p95": 10.754012249947209
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 691.7955989999882,
+          "p95": 873.5234124998215
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 32.721199500088005,
+          "p95": 32.88085675012553
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 32.609174999947754,
+          "p95": 32.75930374968539
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.23676049997448,
+          "p95": 30.33300775001635
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.326986500061139,
+          "p95": 7.597578249999515
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.528976999945371,
+          "p95": 10.606849749876801
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.782410500093647,
+          "p95": 5.019718500022918
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.819780000048922,
+          "p95": 52.55278325000745
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7175.7366824999735,
+          "p95": 10015.086529750079
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.732794999791622,
+          "p95": 4.540791247563902
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.3881269999838,
+          "p95": 497.13870874990107
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3344.2452395012197,
+          "p95": 4857.643089005534
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04402150000260008,
+          "p95": 0.048153249963434064
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 509.91720089223236,
+          "p95": 535.6330510112457
+        },
+        "m2_cheap_admission": {
+          "count": 16,
+          "p50": 0.22533908486366272,
+          "p95": 0.2417098148725927
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.43769996613264,
+          "p95": 10.762460471596569
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 158.14273455180228,
+          "p95": 188.95115767372772
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.11195708066225052,
+          "p95": 0.12607552343979478
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 2.357446006499231,
+          "p95": 2.466670353896916
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.236131977289915,
+          "p95": 30.290792870800942
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.326408522203565,
+          "p95": 7.597457908559591
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.52735950704664,
+          "p95": 10.605235351249576
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7823929451406,
+          "p95": 5.019456380978227
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.809637064114213,
+          "p95": 52.53530392656103
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3343.7939854338765,
+          "p95": 4661.222588911187
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.683868679217994,
+          "p95": 4.467929888051003
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.17674215044826,
+          "p95": 496.97548255790025
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3340.9237884916365,
+          "p95": 4852.676413720474
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.044008949771523476,
+          "p95": 0.04816579166799784
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.49446081499922,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 208.20824604015797,
+        "p95": 246.18759501026943
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "no_valid_cache": 4,
+        "no_calibrated_policy": 16,
+        "no_exact_camera": 12
+      },
+      "memory": {
+        "cache_peak_bytes": 98649978,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16388418048,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9270.762511063367,
+        "p95": 9620.945273770485
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6843.726285966113,
+        "p95": 10968.092703353614
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 0.9818717481409609,
+      "service_matched_reference": "m1",
+      "service_matched_p50_speedup": 1.0000319762348122,
+      "quality_constrained_service_speedup": 1.0000319762348122,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "m13",
+      "service": "persistent_state",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 8050.412853015587,
+        "p95": 10957.30961713707
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 150.97069751936942,
+        "p95": 156.72842791536823
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7876.082763671875,
+          "p95": 10775.78076171875
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.407055854797363,
+          "p95": 10.704240322113037
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 166.8508529663086,
+          "p95": 193.93980026245117
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.0854797363281,
+          "p95": 484.48221588134766
+        },
+        "eva": {
+          "count": 16,
+          "p50": 482.9980010986328,
+          "p95": 484.39498138427734
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.468608379364014,
+          "p95": 14.549439907073975
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.43465518951416,
+          "p95": 30.896472454071045
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7639200687408447,
+          "p95": 4.825664043426514
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.045536041259766,
+          "p95": 52.54484844207764
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7189.64990234375,
+          "p95": 10011.61669921875
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 4.994960023090243,
+          "p95": 6.388920035213232
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 902.6897811889648,
+          "p95": 905.1814880371094
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6242.288174629211,
+          "p95": 9045.199499607086
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.0488319993019104,
+          "p95": 0.053672000765800476
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7876.049170619808,
+          "p95": 10775.732224283274
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.377230471931398,
+          "p95": 10.667423950508237
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 166.79280390962958,
+          "p95": 193.88427352532744
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.40338447317481,
+          "p95": 30.468947370536625
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.27669235598296,
+          "p95": 30.332200461998582
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.238921010866761,
+          "p95": 7.663491531275213
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.203680092468858,
+          "p95": 9.994287334848195
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7455344572663307,
+          "p95": 4.806131473742425
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.026037896983325,
+          "p95": 52.524881495628506
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7189.625305472873,
+          "p95": 10011.585799104068
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.672559862025082,
+          "p95": 4.472362285014242
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.1835879534483,
+          "p95": 494.97499864082783
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3366.1028096685186,
+          "p95": 4854.541300504934
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04335050471127033,
+          "p95": 0.04836800508201122
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 8229.66548350007,
+          "p95": 11380.638871750023
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.381420000044272,
+          "p95": 10.668474249939663
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 726.7448070000455,
+          "p95": 883.9764194998452
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.429711000010684,
+          "p95": 30.493464499926404
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.304539499923067,
+          "p95": 30.349031749921096
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.260098999893216,
+          "p95": 7.6639320000424505
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.201056000165408,
+          "p95": 9.995734999961314
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7458650000417038,
+          "p95": 4.806308749977006
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.0475609999703,
+          "p95": 52.57242949994634
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7193.055176500025,
+          "p95": 10015.835057249944
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.7240174999624287,
+          "p95": 4.5731447496564215
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.3460525000819,
+          "p95": 495.1395029999617
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3367.606427001192,
+          "p95": 4856.828011500056
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04332599996814679,
+          "p95": 0.04845574997602853
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 509.59853432141244,
+          "p95": 533.875341352541
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.377230471931398,
+          "p95": 10.667423950508237
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 166.79280390962958,
+          "p95": 193.88427352532744
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.1262580044567585,
+          "p95": 0.15017518308013678
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.27669235598296,
+          "p95": 30.332200461998582
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.238921010866761,
+          "p95": 7.663491531275213
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.203680092468858,
+          "p95": 9.994287334848195
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7455344572663307,
+          "p95": 4.806131473742425
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 29.026037896983325,
+          "p95": 52.524881495628506
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3344.438787549734,
+          "p95": 4661.735385481734
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.672559862025082,
+          "p95": 4.472362285014242
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.1835879534483,
+          "p95": 494.97499864082783
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3364.3078154418617,
+          "p95": 4851.968039642088
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04335050471127033,
+          "p95": 0.04836800508201122
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.47506136183114,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 218.96451548673213,
+        "p95": 252.80698825372383
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "no_calibrated_policy": 16
+      },
+      "memory": {
+        "cache_peak_bytes": 29830050,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16319162368,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9270.70021792315,
+        "p95": 9615.805591549724
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6849.514303030446,
+        "p95": 10963.676602195483
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 0.9794920580456327,
+      "service_matched_reference": "m1",
+      "service_matched_p50_speedup": 0.9976082725348501,
+      "quality_constrained_service_speedup": 0.9976082725348501,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "m2",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 7880.454038619064,
+        "p95": 10720.504766271915
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 149.13538051769137,
+        "p95": 155.7515615131706
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7707.3408203125,
+          "p95": 10541.43017578125
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 485.09169006347656,
+          "p95": 486.9963684082031
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 485.04530334472656,
+          "p95": 486.9541778564453
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.23016357421875,
+          "p95": 485.4663619995117
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.455296039581299,
+          "p95": 14.510616064071655
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.767935752868652,
+          "p95": 30.923039436340332
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.025872030295432,
+          "p95": 6.306264050072059
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 906.0714416503906,
+          "p95": 909.2952537536621
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6223.741579055786,
+          "p95": 9037.641949653625
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.043136000633239746,
+          "p95": 0.050560000352561474
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7707.295417087153,
+          "p95": 10541.39085492352
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 32.3237624252215,
+          "p95": 32.51345799071714
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 32.25399297662079,
+          "p95": 32.43635769467801
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.279644415713847,
+          "p95": 30.35579266725108
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.280501537024975,
+          "p95": 7.508693845011294
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.684430086053908,
+          "p95": 9.97940293746069
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.693040111102164,
+          "p95": 4.415529896505177
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.78087192215025,
+          "p95": 499.3770408909768
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3338.913687854074,
+          "p95": 4848.268117813859
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.037482473999261856,
+          "p95": 0.04528916906565428
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7710.579120500029,
+          "p95": 10546.097736000092
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 32.364597499963565,
+          "p95": 32.5306249999926
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 32.29519399997116,
+          "p95": 32.452238249987886
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.300796000062746,
+          "p95": 30.34226650007099
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.280793499944593,
+          "p95": 7.508779249860709
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.68640700011747,
+          "p95": 9.973205000022745
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.7448434997031654,
+          "p95": 4.490532501279176
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 493.0450130000281,
+          "p95": 499.56334750004316
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3340.600104499117,
+          "p95": 4850.333757996395
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.037541999859058706,
+          "p95": 0.045402250009374256
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 3830.801586038433,
+          "p95": 5145.317854185123
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.07028132677078247,
+          "p95": 0.07901660865172744
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 1.9701551645994186,
+          "p95": 2.1085944026708603
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.279644415713847,
+          "p95": 30.35579266725108
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.280501537024975,
+          "p95": 7.508693845011294
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.684430086053908,
+          "p95": 9.97940293746069
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.693040111102164,
+          "p95": 4.415529896505177
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.78087192215025,
+          "p95": 499.3770408909768
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3337.1446907985955,
+          "p95": 4845.723674690817
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.037482473999261856,
+          "p95": 0.04528916906565428
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.51522865536504,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "no_valid_cache": 4,
+        "no_exact_camera": 12
+      },
+      "memory": {
+        "cache_peak_bytes": 68812800,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16388408832,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9225.56051646825,
+        "p95": 9570.054016634822
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6611.433492507786,
+        "p95": 10722.554148815107
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.0006168952796834,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.0006168952796834,
+      "quality_constrained_service_speedup": 1.0006168952796834,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "m23",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 7883.095433469862,
+        "p95": 10735.444689868018
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 150.069453404285,
+        "p95": 153.09671993600205
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7711.536376953125,
+          "p95": 10554.93994140625
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 484.1665496826172,
+          "p95": 485.9821243286133
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 484.12261962890625,
+          "p95": 485.93668365478516
+        },
+        "eva": {
+          "count": 16,
+          "p50": 482.4200439453125,
+          "p95": 484.1689682006836
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.450687885284424,
+          "p95": 14.519296169281006
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.728191375732422,
+          "p95": 30.95623207092285
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7176.797607421875,
+          "p95": 10016.463623046875
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.06923203507904,
+          "p95": 6.370680036721751
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 904.7023468017578,
+          "p95": 909.2157135009766
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6229.745977401733,
+          "p95": 9048.505854606628
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.046911999583244324,
+          "p95": 0.054951999336481094
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7711.509580491111,
+          "p95": 10554.909554659389
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 32.32516103889793,
+          "p95": 32.45864837663248
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 32.25670650135726,
+          "p95": 32.387590094003826
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.294395051896572,
+          "p95": 30.377029499504715
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.282851962372661,
+          "p95": 7.547765504568815
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.596596471965313,
+          "p95": 9.94555267971009
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7176.770390593447,
+          "p95": 10016.438193037175
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.755579236894846,
+          "p95": 4.480995412450284
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.371944594197,
+          "p95": 499.1728959721513
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3344.2906788550317,
+          "p95": 4857.535575225484
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04136399365961552,
+          "p95": 0.04959112266078591
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7714.904488000116,
+          "p95": 10559.506976499848
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 32.3226094999427,
+          "p95": 32.506733250073694
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 32.25593749999689,
+          "p95": 32.435974249949595
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.308978500045214,
+          "p95": 30.3985695000506
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.283206000067821,
+          "p95": 7.54786549993014
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.598196499950973,
+          "p95": 9.960556500061557
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7180.088219500021,
+          "p95": 10020.781072499802
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.8063224999405065,
+          "p95": 4.553239502456563
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.5898590001907,
+          "p95": 499.4077904998733
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3345.9174820002318,
+          "p95": 4860.004757749948
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04140999988067051,
+          "p95": 0.04973149998477311
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 486.37076502200216,
+          "p95": 488.84601367171854
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.06845453754067421,
+          "p95": 0.07320346776396036
+        },
+        "m2_cache_and_execution": {
+          "count": 16,
+          "p50": 1.952539081685245,
+          "p95": 2.0333362626843154
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.294395051896572,
+          "p95": 30.377029499504715
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.282851962372661,
+          "p95": 7.547765504568815
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.596596471965313,
+          "p95": 9.94555267971009
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3343.273402424529,
+          "p95": 4659.972699650098
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.755579236894846,
+          "p95": 4.480995412450284
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.371944594197,
+          "p95": 499.1728959721513
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3342.4782258225605,
+          "p95": 4854.913769522682
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04136399365961552,
+          "p95": 0.04959112266078591
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.47795240912507,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "no_valid_cache": 4,
+        "no_calibrated_policy": 16,
+        "no_exact_camera": 12
+      },
+      "memory": {
+        "cache_peak_bytes": 68812800,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16388409856,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9222.763667930849,
+        "p95": 9569.817818596493
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6609.975386061706,
+        "p95": 10736.249219207093
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.0002816178068787,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.0002816178068787,
+      "quality_constrained_service_speedup": 1.0002816178068787,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "m3",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 7877.780765993521,
+        "p95": 10727.583349798806
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 149.66814254876226,
+        "p95": 156.02216898696497
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7708.083251953125,
+          "p95": 10546.937744140625
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.7310485839844,
+          "p95": 484.5513000488281
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.68751525878906,
+          "p95": 484.5060806274414
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.459392070770264,
+          "p95": 14.539008140563965
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.719247817993164,
+          "p95": 30.928240299224854
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7173.9267578125,
+          "p95": 10011.2060546875
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.0131680350750685,
+          "p95": 6.3714160525705665
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 905.2643127441406,
+          "p95": 909.3065490722656
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6224.022890090942,
+          "p95": 9041.431608200073
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.045504000037908554,
+          "p95": 0.04925599880516529
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7708.037580363452,
+          "p95": 10546.899919339921
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.3960379678756,
+          "p95": 30.503968126140535
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.312326503917575,
+          "p95": 30.419604503549635
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.247116998769343,
+          "p95": 7.5110437464900315
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.567726869136095,
+          "p95": 9.947272017598152
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7173.901455593295,
+          "p95": 10011.164577270392
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.6846050061285496,
+          "p95": 4.472155997063965
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.14839295018464,
+          "p95": 499.3163328617811
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3340.0551301892847,
+          "p95": 4852.692257845774
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04007143434137106,
+          "p95": 0.04252284998074174
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7711.148872499962,
+          "p95": 10549.167732999877
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.40101900000991,
+          "p95": 30.55129200001261
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.319541000039862,
+          "p95": 30.46779949997358
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.247363999908885,
+          "p95": 7.510992999954169
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.569346500029496,
+          "p95": 9.948491250014513
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 7176.855155500107,
+          "p95": 10013.184481500048
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.7335184991889037,
+          "p95": 4.544696001687498
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.38197500005754,
+          "p95": 499.47831674992926
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3341.6030830011323,
+          "p95": 4853.87997375085
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04013249997569801,
+          "p95": 0.0425924999660765
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 487.4028889462352,
+          "p95": 488.9325750991702
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.08339097257703543,
+          "p95": 0.08830195292830467
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.312326503917575,
+          "p95": 30.419604503549635
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.247116998769343,
+          "p95": 7.5110437464900315
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.567726869136095,
+          "p95": 9.947272017598152
+        },
+        "m3_context_cache_and_generation": {
+          "count": 16,
+          "p50": 3344.11505877506,
+          "p95": 4659.950441331603
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.6846050061285496,
+          "p95": 4.472155997063965
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.14839295018464,
+          "p95": 499.3163328617811
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3338.274816283956,
+          "p95": 4850.10189312743
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04007143434137106,
+          "p95": 0.04252284998074174
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.500568924531265,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "no_calibrated_policy": 16
+      },
+      "memory": {
+        "cache_peak_bytes": 0,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16319162368,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9229.180610389449,
+        "p95": 9572.593782516196
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6607.378190616146,
+        "p95": 10727.903513633646
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.0009564479829467,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.0009564479829467,
+      "quality_constrained_service_speedup": 1.0009564479829467,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "original",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 7885.315453517251,
+        "p95": 10725.446189811919
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 151.16374951321632,
+        "p95": 154.26103939535096
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7711.982666015625,
+          "p95": 10544.407470703125
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.45989990234375,
+          "p95": 485.37718200683594
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.4147491455078,
+          "p95": 485.33211517333984
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.482912063598633,
+          "p95": 14.565935850143433
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.833200454711914,
+          "p95": 31.163984298706055
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.0748960499768145,
+          "p95": 6.46184806531528
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 905.6795883178711,
+          "p95": 909.4603729248047
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6229.586530685425,
+          "p95": 9040.499939918518
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04295999929308891,
+          "p95": 0.055456001311540604
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7711.936323554255,
+          "p95": 10544.364305154886
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.41186649352312,
+          "p95": 30.457628425210714
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.328866094350815,
+          "p95": 30.375783157069236
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.312590489163995,
+          "p95": 7.611991255544126
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.746379917487502,
+          "p95": 10.272006737068295
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.726066555827856,
+          "p95": 4.554778221063316
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.20098345540464,
+          "p95": 499.3215504218824
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3348.7907669041306,
+          "p95": 4853.684660629369
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.037642428651452065,
+          "p95": 0.04992081085219979
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7715.12592900001,
+          "p95": 10548.856006249878
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.39713049997772,
+          "p95": 30.493472000102884
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.31787949998943,
+          "p95": 30.41386699993609
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.3280394998391785,
+          "p95": 7.615224000062426
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.768360500061135,
+          "p95": 10.273501999961354
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.778118000241193,
+          "p95": 4.648480752450723
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.39142250007717,
+          "p95": 499.5527477498172
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3350.256255000545,
+          "p95": 4855.715646999556
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03764149982998788,
+          "p95": 0.04998725012228533
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 3829.8268489306793,
+          "p95": 5143.806117819622
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.08269958198070526,
+          "p95": 0.08675915887579322
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.328866094350815,
+          "p95": 30.375783157069236
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.312590489163995,
+          "p95": 7.611991255544126
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.746379917487502,
+          "p95": 10.272006737068295
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.726066555827856,
+          "p95": 4.554778221063316
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.20098345540464,
+          "p95": 499.3215504218824
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3346.9551887828857,
+          "p95": 4851.004552154336
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.037642428651452065,
+          "p95": 0.04992081085219979
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.493702529560615,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "memory": {
+        "cache_peak_bytes": 0,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16319161344,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9222.842650138773,
+        "p95": 9569.972442451399
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6604.844348854385,
+        "p95": 10727.371122606564
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.0,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.0,
+      "quality_constrained_service_speedup": 1.0,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "unified_output",
+      "service": "current_output",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 7880.933194071986,
+        "p95": 10731.082147336565
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 148.99707841686904,
+        "p95": 166.33292176993564
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7710.867919921875,
+          "p95": 10552.2412109375
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.3647918701172,
+          "p95": 484.3344421386719
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.321044921875,
+          "p95": 484.2866668701172
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.47321605682373,
+          "p95": 14.55630373954773
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.752816200256348,
+          "p95": 31.082631587982178
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.034320019651204,
+          "p95": 6.438264050288126
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 905.4238891601562,
+          "p95": 908.9812240600586
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6230.206023216248,
+          "p95": 9047.083201885223
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04302399978041649,
+          "p95": 0.04860799852758646
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7710.832062410191,
+          "p95": 10552.205498912372
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.404289020225406,
+          "p95": 30.46248364262283
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.323330429382622,
+          "p95": 30.382481520064175
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.289251545444131,
+          "p95": 7.507024798542261
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.595859446562827,
+          "p95": 9.99756355304271
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.701606299728155,
+          "p95": 4.560199100524187
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.69650562200695,
+          "p95": 498.90697991941124
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3352.0276374183595,
+          "p95": 4861.796784156468
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03763055428862572,
+          "p95": 0.04313362296670675
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7714.1651740000725,
+          "p95": 10556.675433250006
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.40850299998965,
+          "p95": 30.474911249882553
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.327273499892726,
+          "p95": 30.395706000035716
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.289542499961499,
+          "p95": 7.507198249982139
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.597240500170301,
+          "p95": 9.99785249996421
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.7519115007853543,
+          "p95": 4.636300500635571
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.9231289999052,
+          "p95": 499.1117382500079
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3353.502566498946,
+          "p95": 4863.752361249964
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03769599993574957,
+          "p95": 0.043138999899383634
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 3828.1093013938516,
+          "p95": 5136.825022229459
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.08107919711619616,
+          "p95": 0.08709990652278066
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.323330429382622,
+          "p95": 30.382481520064175
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.289251545444131,
+          "p95": 7.507024798542261
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.595859446562827,
+          "p95": 9.99756355304271
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.701606299728155,
+          "p95": 4.560199100524187
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 492.69650562200695,
+          "p95": 498.90697991941124
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3350.2177328336984,
+          "p95": 4859.12464739522
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.03763055428862572,
+          "p95": 0.04313362296670675
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.472298230375706,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 0.0,
+        "p95": 0.0
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "no_system_workload_certificate": 16
+      },
+      "memory": {
+        "cache_peak_bytes": 0,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16319161344,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9218.873418984003,
+        "p95": 9566.253962239716
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6630.836785421707,
+        "p95": 10737.041726778261
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 1.0005560584435054,
+      "service_matched_reference": "original",
+      "service_matched_p50_speedup": 1.0005560584435054,
+      "quality_constrained_service_speedup": 1.0005560584435054,
+      "production_auto_certificate": false
+    },
+    {
+      "run": "multi",
+      "mode": "unified_persistent",
+      "service": "persistent_state",
+      "workload": "multi",
+      "measured_frames": 16,
+      "unique_frames": 8,
+      "scenes": 2,
+      "questions": 80,
+      "e2e_wall_ms": {
+        "count": 16,
+        "p50": 8030.900296522304,
+        "p95": 10965.269327221904
+      },
+      "preprocessing_wall_ms": {
+        "count": 16,
+        "p50": 150.2430560067296,
+        "p95": 155.02977423602715
+      },
+      "components_cuda_interval_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7857.75537109375,
+          "p95": 10781.682861328125
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.461967945098877,
+          "p95": 10.97656798362732
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 163.92139434814453,
+          "p95": 200.23666763305664
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 483.78257751464844,
+          "p95": 485.56107330322266
+        },
+        "eva": {
+          "count": 16,
+          "p50": 483.6887664794922,
+          "p95": 485.47376251220703
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 14.463488101959229,
+          "p95": 14.985215663909912
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 30.29865550994873,
+          "p95": 31.118167877197266
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7502400875091553,
+          "p95": 4.907376050949097
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.956144332885742,
+          "p95": 52.39571952819824
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 5.1142880083061755,
+          "p95": 6.455608059186488
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 902.6978988647461,
+          "p95": 904.9338569641113
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 6226.762259483337,
+          "p95": 9041.834923267365
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.046320000663399696,
+          "p95": 0.04926400072872639
+        }
+      },
+      "components_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 7857.71906748414,
+          "p95": 10781.641335284803
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.430307011120021,
+          "p95": 10.932024219073355
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 163.86783542111516,
+          "p95": 200.18032676307485
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.413075000979006,
+          "p95": 30.60931054642424
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.286033055745065,
+          "p95": 30.479328124783933
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.255436037667096,
+          "p95": 7.960026268847287
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.311155998148024,
+          "p95": 10.215286398306489
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7187853595241904,
+          "p95": 4.8814668552950025
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.930217493325472,
+          "p95": 52.37556400243193
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.7848256761208177,
+          "p95": 4.56676387693733
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.8456077789888,
+          "p95": 495.5039563938044
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3343.13142450992,
+          "p95": 4851.058627013117
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04003604408353567,
+          "p95": 0.04326278576627374
+        }
+      },
+      "components_cpu_process_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 8221.995826999773,
+          "p95": 11452.755703250034
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.431541499997365,
+          "p95": 10.933187000091493
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 722.2330319999628,
+          "p95": 967.1345452502464
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 30.43874949992187,
+          "p95": 30.651790499916842
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.312208500049564,
+          "p95": 30.522450500029663
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.255397999870183,
+          "p95": 7.973376500046925
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.312783500035948,
+          "p95": 10.216719750019365
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.719126499959202,
+          "p95": 4.881755499980045
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.98039649983275,
+          "p95": 52.41238924998015
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.8340965004408645,
+          "p95": 4.636075249493388
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 490.05418699982783,
+          "p95": 495.5823707498439
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3344.9484530002564,
+          "p95": 4853.628331251457
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04009400004179042,
+          "p95": 0.04329950002102123
+        }
+      },
+      "components_exclusive_wall_ms": {
+        "inference": {
+          "count": 16,
+          "p50": 3842.4035428324714,
+          "p95": 5166.7318906402215
+        },
+        "m1_input_adapter_and_d2h": {
+          "count": 16,
+          "p50": 10.430307011120021,
+          "p95": 10.932024219073355
+        },
+        "m1_precheck": {
+          "count": 16,
+          "p50": 163.86783542111516,
+          "p95": 200.18032676307485
+        },
+        "vision_service": {
+          "count": 16,
+          "p50": 0.12683949898928404,
+          "p95": 0.13275560922920704
+        },
+        "eva": {
+          "count": 16,
+          "p50": 30.286033055745065,
+          "p95": 30.479328124783933
+        },
+        "detection_head": {
+          "count": 16,
+          "p50": 7.255436037667096,
+          "p95": 7.960026268847287
+        },
+        "map_head": {
+          "count": 16,
+          "p50": 9.311155998148024,
+          "p95": 10.215286398306489
+        },
+        "m1_output_adapter_and_d2h": {
+          "count": 16,
+          "p50": 3.7187853595241904,
+          "p95": 4.8814668552950025
+        },
+        "m1_commit": {
+          "count": 16,
+          "p50": 28.930217493325472,
+          "p95": 52.37556400243193
+        },
+        "m3_input_preparation": {
+          "count": 16,
+          "p50": 3.7848256761208177,
+          "p95": 4.56676387693733
+        },
+        "llm_prefill": {
+          "count": 16,
+          "p50": 489.8456077789888,
+          "p95": 495.5039563938044
+        },
+        "llm_decode": {
+          "count": 16,
+          "p50": 3341.3325677393004,
+          "p95": 4848.458703898359
+        },
+        "completion_synchronization": {
+          "count": 16,
+          "p50": 0.04003604408353567,
+          "p95": 0.04326278576627374
+        }
+      },
+      "timing_classification": "Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged",
+      "exact_full_output_equality": true,
+      "token_equal_frames": 16,
+      "complete_question_token_equality": {
+        "equal": 80,
+        "total": 80
+      },
+      "token_equality_by_split": {
+        "calibration": {
+          "equal": 40,
+          "total": 40
+        },
+        "heldout": {
+          "equal": 40,
+          "total": 40
+        }
+      },
+      "generated_tokens": 4094,
+      "useful_decode_tokens": 4014,
+      "effective_decode_tokens_per_second": 39.48196215577028,
+      "m1_maintenance_ms": {
+        "count": 16,
+        "p50": 215.93375247903168,
+        "p95": 255.82029204815626
+      },
+      "verified_anchor_records": 0,
+      "useful_state_yield_per_ms": null,
+      "actual_skipped_windows": 0,
+      "actual_reused_cameras": 0,
+      "actual_reused_kv_tokens": 0,
+      "suffix_padding_tokens": 0,
+      "decode_padding_tokens": 0,
+      "physical_prefill_forward_tokens": null,
+      "duplicate_prefill_tokens_avoided": null,
+      "state_activated_questions": 0,
+      "state_queries": 0,
+      "task_query_hit_rate": null,
+      "task_consumed_unique_frame_anchor_pairs": 0,
+      "fallback_frames": 16,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "no_system_workload_certificate": 16
+      },
+      "memory": {
+        "cache_peak_bytes": 29830050,
+        "cache_peak_scope": "Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.",
+        "m1_payload_accounted": true,
+        "gpu_peak_allocated": 16319161344,
+        "gpu_peak_reserved": 16903045120,
+        "cpu_rss_highwater_bytes": 37854015488
+      },
+      "cold_wall_ms": {
+        "count": 4,
+        "p50": 9268.265279009938,
+        "p95": 9621.514058485627
+      },
+      "warm_wall_ms": {
+        "count": 12,
+        "p50": 6849.43866787944,
+        "p95": 10979.77678506868
+      },
+      "qa_ground_truth": {
+        "available_questions": 48,
+        "total_questions": 80,
+        "exact_matches": 0,
+        "mean_lexical_token_f1": 0.4335555556159379,
+        "numeric_mae": null,
+        "note": "Original annotation text overlap, not an LLM judge or driving safety metric"
+      },
+      "planning": {
+        "parsed": 16,
+        "questions": 16,
+        "ade_m": {
+          "count": 16,
+          "p50": 0.5773387138175681,
+          "p95": 0.9173032409228118
+        },
+        "fde_m": {
+          "count": 16,
+          "p50": 1.386864611248929,
+          "p95": 2.22009902899053
+        }
+      },
+      "p50_ratio_to_original": 0.9818719150245088,
+      "service_matched_reference": "m1",
+      "service_matched_p50_speedup": 1.000032146204958,
+      "quality_constrained_service_speedup": 1.000032146204958,
+      "production_auto_certificate": false
+    }
+  ]
+}

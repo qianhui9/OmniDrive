@@ -1,0 +1,68 @@
+{
+  "scenes": [
+    {
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "indices": [
+        39,
+        41,
+        43,
+        45
+      ],
+      "split": "calibration",
+      "tokens": [
+        "adce54dcf6404d37bd170ffc4c2a7836",
+        "c0f6cef97fa44973afe8ed8e18e652c3",
+        "18f10858b2b1410f8485ffa35253033d",
+        "3d2ce1b79d1c45e5b7db4f26f411bb86"
+      ]
+    },
+    {
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "indices": [
+        5337,
+        5339,
+        5341,
+        5343
+      ],
+      "split": "heldout",
+      "tokens": [
+        "e57fa7124f6741e697b1841bc023a90f",
+        "ee81134b6b24406995723630e2cee714",
+        "36648b9ce44d4266a9c1987eafb2bed6",
+        "09b85d87b18b4d7db466997161867f09"
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization/stride_refresh",
+    "workload": "single",
+    "scenes": 2,
+    "scene_start": 96,
+    "frames": 4,
+    "warmup": 1,
+    "repeats": 1,
+    "frame_stride": 2,
+    "cache_budget_mb": 512,
+    "refresh_interval": 2,
+    "modes": [
+      "original",
+      "m1",
+      "m123",
+      "unified_persistent"
+    ],
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; audit CPU copies included equally; reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

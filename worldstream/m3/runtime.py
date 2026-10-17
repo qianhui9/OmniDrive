@@ -120,11 +120,23 @@ class M3Runtime:
                     note='Independent true common prefix, not a slice of the first full-question prefill')
         batch_diagnostics=None
         if self.config.batched_decode:
-            from .batched_executor import BatchedExecutor
+            from .batched_executor import BatchedExecutor, AdaptiveBatchExecutor
             expanded_batch=[expand_input(lm_head,ids,vision_carriers,scope=scope,signature=signature,
                 source=(context['scene_id'],context['frame_id'],timestamp,i)) for i,ids in enumerate(ids_list)]
-            answers,batch_diagnostics=BatchedExecutor(self.cache,int(self.config.batch_workspace_mb*1024**2)).try_generate(
-                base,expanded_batch,**generation)
+            workspace=int(self.config.batch_workspace_mb*1024**2)
+            executor=BatchedExecutor(self.cache,workspace)
+            if self.config.adaptive_batch:
+                import hashlib,json
+                from .scheduler import read_artifact
+                try:
+                    contract=hashlib.sha256(json.dumps(dict(defaults=base.generation_config.to_dict(),overrides=generation),
+                        sort_keys=True,allow_nan=False).encode()).hexdigest()
+                except (TypeError,ValueError):contract=None
+                cost_context=dict(model_version=context.get('model_version'),execution_key=deployment_key(lm_head),
+                    generation_key=contract,workspace_bytes=workspace,memory_budget_bytes=self.cache.budget_bytes)
+                executor=AdaptiveBatchExecutor(self.cache,workspace,self.config.max_batch_size,
+                    read_artifact(self.config.batch_cost_table),cost_context)
+            answers,batch_diagnostics=executor.try_generate(base,expanded_batch,**generation)
             if answers is not None:
                 return answers,dict(mode='batched',requests=batch_diagnostics['requests'],batch=batch_diagnostics,
                     cache_bytes=self.cache.nbytes,signature_cpu_ms=signature_ms,m2_required=False)

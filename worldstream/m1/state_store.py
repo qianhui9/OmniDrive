@@ -55,6 +55,8 @@ class StateStore:
         values["computation_version"] = previous.computation_version + 1 if previous else 1
         values["computation_timestamp"] = frame.timestamp
         values["execution_signature"] = frame.execution_signature
+        values["source_frame_id"] = frame.frame_id
+        values["source_state_epoch"] = self.generation
         record = FeatureRecord(**values)
         self.features[feature.feature_id] = record
         self.provenance[feature.feature_id] = provenance_for(record, frame)
@@ -70,7 +72,7 @@ class StateStore:
         for key in expired:
             del self.anchors[key]
         for key, record in list(self.features.items()):
-            if (timestamp - record.computation_timestamp > self.config.max_state_age_s
+            if (record.computation_timestamp is None or timestamp - record.computation_timestamp > self.config.max_state_age_s
                     or any(a not in self.anchors for a in record.source_anchor_ids)):
                 self.tensor_bytes -= self._nbytes(record.tensor)
                 del self.features[key]
@@ -84,5 +86,7 @@ class StateStore:
                     "shape": list(r.shape), "dtype": r.dtype, "source_device": r.device,
                     "storage_device": str(r.tensor.device) if hasattr(r.tensor, "device") else "cpu",
                     "tensor_captured": r.tensor is not None,
-                    "execution_signature": r.execution_signature}
+                    "execution_signature": r.execution_signature,
+                    "source_frame_id": r.source_frame_id, "source_state_epoch": r.source_state_epoch,
+                    "computation_sources": [dict(s) for s in r.computation_sources]}
                 for k, r in self.features.items()}

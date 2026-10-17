@@ -41,13 +41,13 @@ class IncrementalVisionRuntime:
         flat=images.flatten(0,1) if images.ndim==5 else images
         p=self.model.patch_embed.proj
         size=self.model.blocks[0].window_size
-        if flat.numel()*flat.element_size()*3>self.cache.budget_bytes:
+        pixel_window=(p.kernel_size[0]*size,p.kernel_size[1]*size)
+        if self.cheap_admission.required_bytes(flat,pixel_window)>self.cache.budget_bytes:
             self.cheap_admission.clear()
             self.last_admission=dict(reject=True,reason='gate_memory_budget',sample_acceptance=False)
         else:
             try:
-                self.last_admission=self.cheap_admission.check(flat,context,
-                    (p.kernel_size[0]*size,p.kernel_size[1]*size))
+                self.last_admission=self.cheap_admission.check(flat,context,pixel_window)
             except torch.cuda.OutOfMemoryError:
                 self.cheap_admission.clear()
                 self.last_admission=dict(reject=True,reason='gate_memory_budget',sample_acceptance=False)
@@ -63,7 +63,9 @@ class IncrementalVisionRuntime:
         geometry=(p.kernel_size,p.stride,p.padding,p.dilation,self.model.pretrain_use_cls_token)
         return (context.get('execution_signature'),tensors,topology,geometry,numeric_details(self.model),torch.is_autocast_enabled(),
                 torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_tf32,
-                torch.backends.cudnn.allow_tf32,torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic)
+                torch.backends.cudnn.allow_tf32,torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic,
+                torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+                torch.are_deterministic_algorithms_enabled())
 
     def _capture_reason(self, images, reason, has_opportunity):
         if self.config.cache_capture=='never': return 'capture_disabled'

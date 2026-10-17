@@ -26,7 +26,9 @@ def camera_cost_key(model,images):
         numeric_details=numeric_details(model),
         cudnn=[torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic],
         autocast=torch.is_autocast_enabled(),autocast_dtype=str(torch.get_autocast_gpu_dtype()),
-        tf32=[torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32]),sort_keys=True)
+        tf32=[torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32],
+        fp16_reduced_precision_reduction=torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+        deterministic_algorithms=torch.are_deterministic_algorithms_enabled()),sort_keys=True)
 
 
 class CameraExecutor:
@@ -119,12 +121,15 @@ class CameraExecutor:
                 fresh=self.model(images.index_select(0,ids))[0]
                 result.index_copy_(0,ids,fresh)
             out=[result];computed=changed.cpu().tolist()
+        # Output lineage must survive an OOM/eviction while saving the NEXT
+        # cache. The returned features still have these actual computation sources.
+        output_sources=cache.output_sources(context,computed)
         saved=self._save(images,out[0],context,signature,computed)
         return out,dict(mode='full' if reason else 'camera_reuse',fallback_reason=reason,
             actual_reused_cameras=0 if reason else n-count,recomputed_cameras=n if reason else count,
             camera_ids=list(context['camera_ids']),source_version=source_version,
             source_computation_frames=source_frames,cache_version=cache.version,cache_bytes=cache.bytes,
-            output_camera_provenance=[dict(s) for s in cache.sources],
+            output_camera_provenance=output_sources,
             cache_saved=saved,feature_stride=list(out[0].stride()),
             actual_skipped_windows=0,evidence='finite_same_coordinate_full_camera_input_equality',
             task_quality_certified=self.config.mode=='auto' and reason is None)

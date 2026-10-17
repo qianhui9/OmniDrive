@@ -76,7 +76,8 @@ class Petr3D(MVXTwoStageDetector):
                  m2_enable=False,
                  m2_config=None,
                  m3_enable=False,
-                 m3_config=None):
+                 m3_config=None,
+                 stream_config=None):
         super(Petr3D, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
                              img_backbone, pts_backbone, img_neck, pts_neck,
@@ -146,6 +147,10 @@ class Petr3D(MVXTwoStageDetector):
             self.lm_head = load_model(lm_head, use_lora, frozen)
 
         self.test_flag = False
+        self.stream_runtime = None
+        if stream_config is not None:
+            from worldstream.runtime import UnifiedRuntime
+            self.stream_runtime = UnifiedRuntime(stream_config)
         self.m3_runtime = None
         if m3_enable:
             from worldstream.m3 import M3Runtime
@@ -476,7 +481,8 @@ class Petr3D(MVXTwoStageDetector):
 
         generated_text = []
         m3 = getattr(self, 'm3_runtime', None) if not getattr(self, 'training', False) else None
-        if self.with_lm_head and (m3 is not None or not os.path.exists(self.save_path+img_metas[0]['sample_idx'])):
+        if self.with_lm_head and (getattr(getattr(self, 'stream_runtime', None), 'active', False)
+                or m3 is not None or not os.path.exists(self.save_path+img_metas[0]['sample_idx'])):
             mmcv.mkdir_or_exist(self.save_path)
             vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
             m3_answers = None
@@ -524,6 +530,10 @@ class Petr3D(MVXTwoStageDetector):
     
     def simple_test(self, img_metas, **data):
         """Test function without augmentaiton."""
+        runtime = getattr(self, 'stream_runtime', None)
+        if runtime is not None and not runtime.active:
+            return runtime.execute(self, img_metas, data,
+                lambda: self.simple_test(img_metas, **data))
         m1_observer = None
         if getattr(self, 'm2_runtime', None) is not None:
             meta = img_metas[0]
@@ -560,7 +570,9 @@ class Petr3D(MVXTwoStageDetector):
             parameter_signature = [(name, tuple(p.shape), str(p.dtype), str(p.device), p._version)
                                    for name, p in self.named_parameters()]
             execution_policy = (getattr(self, 'training', False), torch.is_autocast_enabled(),
-                                torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32)
+                                torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32,
+                                torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+                                torch.are_deterministic_algorithms_enabled())
             frame.execution_signature = hashlib.sha256(
                 (frame.execution_signature + repr(parameter_signature) + repr(execution_policy)).encode()).hexdigest()
             adapter_ms = (time.perf_counter() - adapter_start) * 1000
@@ -579,12 +591,24 @@ class Petr3D(MVXTwoStageDetector):
                 with measure_transfers() as output_transfers:
                     outputs = outputs_from_model(frame, boxes, lanes, features, settings)
                 output_ms = (time.perf_counter() - output_start) * 1000
+                reused = (getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck and
+                    getattr(self, 'm2_diagnostics', {}).get('actual_reused_cameras', 0))
+                if reused:
+                    from worldstream.m1.provenance import feature_source_snapshot, preserve_camera_computation_source
+                    source_start = time.perf_counter()
+                    previous_backbone = feature_source_snapshot(self.m1_manager.store.features.get('backbone'))
                 self.m1_manager.commit(frame, outputs, precheck)
+                if reused:
+                    self.m1_manager.last_commit_diagnostics['backbone_computation_source'] = preserve_camera_computation_source(
+                        self.m1_manager.store, frame, self.m2_diagnostics, previous_backbone)
+                    self.m1_manager.last_commit_diagnostics['computation_source_metadata_ms'] = max(0.,
+                        (time.perf_counter() - source_start)*1000 - self.m1_manager.last_commit_diagnostics['commit_total_ms'])
                 self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
                 self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_ms'] = output_transfers['gpu_to_cpu_transfer_ms']
                 self.m1_manager.last_commit_diagnostics['m1_total_including_adapters_ms'] = (
                     adapter_ms + output_ms + precheck.diagnostics['timings_ms']['precheck_total']
-                    + self.m1_manager.last_commit_diagnostics['commit_total_ms'])
+                    + self.m1_manager.last_commit_diagnostics['commit_total_ms']
+                    + self.m1_manager.last_commit_diagnostics.get('computation_source_metadata_ms', 0.))
                 if settings.logging and settings.log_path:
                     append_result(settings.log_path, precheck, self.m1_manager.last_commit_diagnostics)
 

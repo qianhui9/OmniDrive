@@ -27,6 +27,27 @@ def test_nonfinite_never_creates_sample_acceptance():
     assert gate.check(x,ctx,(16,16))['reject']
 
 
+def test_sample_snapshot_matches_full_snapshot_rejections():
+    gate=CheapAdmission();ctx=dict(scene_id='s',camera_ids=['a','b'])
+    generator=torch.Generator().manual_seed(71)
+    previous=None
+    for step in range(30):
+        image=torch.randn(2,3,33,37,generator=generator)
+        if step%3 and previous is not None:
+            image=previous.clone()
+            image[:,:,step%33,step%37]+=1
+        result=gate.check(image,ctx,(16,16))
+        if previous is not None:
+            current=image[:,:,gate.rows,gate.cols]
+            old=previous[:,:,gate.rows,gate.cols]
+            reference=bool(((current!=old)|~torch.isfinite(current)).any(1).any(-1).all())
+            assert result['reject']==reference
+        previous=image.clone()
+        image.fill_(float('nan'))  # caller mutation must not alter sample history
+        assert gate.previous.storage().data_ptr()!=image.storage().data_ptr()
+    assert result['snapshot_bytes']<previous.numel()*previous.element_size()
+
+
 @torch.no_grad()
 def test_gate_rejection_reaches_runtime_before_planner(eva,context,monkeypatch):
     from worldstream.m2 import IncrementalVisionRuntime

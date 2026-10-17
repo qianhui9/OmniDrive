@@ -32,3 +32,8 @@ deploy/llm_lib/llm_safetensor*/
 # Generated M3 tensor intermediates and large decode traces stay on the server
 /outputs/module3_refinement/**/*_intermediates.pt
 /outputs/module3_refinement/**/batched_decode_trace.json
+
+# Generated system optimization reference data and raw traces stay on the server
+/outputs/system_optimization/**/references/*.pkl
+/outputs/system_optimization/**/pipeline_trace.json
+/outputs/system_optimization/**/cross_module_trace.jsonl

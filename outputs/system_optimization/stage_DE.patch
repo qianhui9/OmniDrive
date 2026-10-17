@@ -1,0 +1,2619 @@
+diff --git a/docs/worldstream_system_optimization.md b/docs/worldstream_system_optimization.md
+new file mode 100644
+index 0000000..1313d75
+--- /dev/null
++++ b/docs/worldstream_system_optimization.md
+@@ -0,0 +1,93 @@
++# 跨模块 Stateful VLM Runtime
++
++Python 环境为 `OmniDrive`。本次实现复用原有 M1/M2/M3，不新增研究模块，实验保存到 `outputs/system_optimization/`。
++
++## 使用
++
++`Petr3D` 增加可选的 `stream_config`。默认不配置，原入口保持兼容。也可以在权重加载完成后设置：
++
++```python
++from worldstream.runtime import UnifiedRuntime
++model.stream_runtime = UnifiedRuntime(dict(
++    service='persistent_state',
++    model_version='已核对的 checkpoint 内容版本',
++    lora_version='已核对的 LoRA 内容版本',
++    memory_budget_mb=1024,
++    cost_aware=True,
++    profile_stages=False,
++    trace_path='outputs/system_optimization/live_trace.jsonl',
++))
++```
++
++`persistent_state` 要求 M1 manager，且 M2 的 `m1_service='maintain'`。即使不存在视觉复用机会，M1 仍 precheck/commit。缓存预算不足时先淘汰 M2/M3，仍不足则明确失效 M1，并在记录中说明；不承诺在预算不足时保存全部历史。
++
++`current_output` 每帧显式清空 M1 历史并跳过状态维护，始终运行当前 Head 和 LLM。M3 不会得到可消费的持久语义视图。这是另一种服务契约，不能把其省去的维护成本算作同服务算法加速。
++
++场景、相机顺序、时间倒退/重复、长间隔、模型参数版本或执行设置变化使三个模块共同失效。执行异常后清空缓存与两个 StreamPETR Head 的时序 memory；错误向调用者返回，下次从干净状态执行，不在已推进的时序状态上重试。
++
++统一入口启用时即使语言输出路径已有文件，也执行真实生成。不会缓存完整答案。
++
++## 成本与质量准入
++
++`cost_aware=True` 默认没有准入证书，因此 M2/M3 的优化被提前绕过；Persistent 服务的 M1 仍维护。不会用旧实验的全局平均速度批准新输入。独立模块消融设为 `cost_aware=False`，该设置本身不改变模块各自的 Exact/Auto 质量门限。
++
++成本文件和质量文件都使用 `records` 数组。每行完整 `key` 必须匹配模型/LoRA 版本、执行后端、生成契约、图像形状、问题长度列表、服务、策略、冷暖缓存、内存预算、刷新间隔及实际帧间隔。质量行还要求互斥 calibration/heldout 场景、完整 Exact 目标、协议和证据哈希。成本行必须明确包含全部增量工作和峰值缓存；总优化耗时加必要准入开销小于完整执行耗时才可能通过。实际缓存仍由 M2/M3 独立验证，系统证书不证明缓存输入等价。
++
++当前原生生成契约固定为 Sampling、temperature=0.1、top_p=0.75、num_beams=1、max_new_tokens=320、use_cache=True。其他调用契约需要独立记录/校准，不能复用本入口的证书。本次不生成生产批准证书。
++
++## 低成本改动
++
++Cheap Gate 只读取每个 Window 的九个固定采样点，保存这些点即可精确复现旧的拒绝决策。高级索引生成独立存储，之后调用者修改图像不会改变历史。未采样像素从未参与该 Gate；Gate 始终只拒绝，完整图像/特征依赖仍由原 M2 精确验证。源图像快照不再由 Cheap Gate 持有；真实特征缓存仍持有其合法计算来源。
++
++M1 在真实 commit 时写入 source_frame_id、source_state_epoch、source_execution_signature、evidence_origin；FeatureRecord 同样记录来源帧和 epoch。旧数据缺失来源时保持 Unknown，precheck 不会把当前预测写成历史。未知计算来源或 annotation/oracle 来源不进入 M3 语义视图；历史帧 ID 本身缺失仍如实保留 Unknown。没有放宽任何物理认证条件。
++
++整个相机的 EVA 输出被 M2 复用时，M1 的 backbone 记录保留实际计算来源；相同来源不因本帧验证而增加计算版本，混合相机分别记录源帧/时间，缺失来源为 Unknown。Detection/Map carrier 仍是本帧实际计算，保留各自的新版本；M2 证据不会提升 M1 的物理有效性。缓存保存 OOM/淘汰不抹掉本次已返回输出的来源。执行键绑定 FP16 reduction、确定性设置及原数值选项；旧成本行不匹配新键时按未校准回退，不自动继承批准。
++
++M3 新增 `adaptive_batch=True, max_batch_size=3` 离线选项，需要已有 `batched_decode=True, offline_experiment=True`。按实际输入长度稳定分组，恢复原问题顺序，单问题或无收益组走独立完整 Prefill。Sampling 在重排前直接原生顺序回退。成本表行必须精确绑定执行/生成环境和输入长度，包含共享 Prefix seed 与 padding。新分组形状没有继承旧 Batch 的质量证书。
++
++## 时间与来源
++
++`FrameExecutionRecord` 包含真实帧标识、版本、问题数、M1/M2/M3 诊断、源计算版本、内存、回退及质量。StageRecorder 记录嵌套父子关系、墙钟、进程 CPU 时间与 CUDA interval，独占墙钟只扣一次直接子阶段；GPU interval 不能当 kernel active 时间。完整 E2E 按每帧实测，包含输入准备与同步，不能相加组件 P50。缓存预算约束请求后保留的数据，瞬时算子工作区及 allocator 由实测 GPU peak / RSS 另报；M1 的历史图像、几何、掩码和证据数组计入保留量，共享存储去重。
++
++`profile_stages=True` 仅用于诊断/同插桩的公平对照。请求结束一定恢复包装器，保留函数签名供 Transformers 检查。真实 kernel、H2D/D2H、同步与分配来自独立完整 `torch.profiler` trace。Profiler 控制运行不混入普通计时表。KV 分支保留 prefix_lineage，视觉缓存来源与物理状态有效性不互相推导。
++
++后缀即使已有 Past KV，仍属于 Prefill；新记录携带实际 Forward Shape/Token 数。较早语言候选记录的原计时标签保留，汇总器只依据其显式 KV 分支事件重新归类相应后缀，不估计或修改实际时间。单/多问题配对回归使用每帧固定的 CPU/CUDA seed（准备输入用 index，生成用 index+10000），重复计时不增加独立随机种子或独立数据数。
++
++长序列默认另跑真实缓存故障控制：受控重复图像仅验证非零相机复用的来源版本，随后在原生 Head 已推进后注入异常，检查三模块/Head 清空，并与干净原生请求比较。此控制单独归档，不计入真实移动场景的覆盖率、长流独立帧或速度表。
++
++## 复现
++
++```bash
++conda activate OmniDrive
++export PYTHONPATH=.
++export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
++python -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q
++```
++
++完整运行（需要 GPU 和全量本地权重/nuScenes）：
++
++```bash
++bash tools/system_optimization/run.sh
++```
++
++脚本只观察其他 GPU 进程，等待至少 19500 MiB 空闲显存。每个推理实验目录必须不存在；若重跑，设置 `SYSTEM_ROOT=outputs/system_optimization_repeat`。中断/失败实验保留，使用新的目录名重试，不能混入正式统计。显存空闲不代表 GPU 独占，环境快照保留并发进程；有竞争的时间只能按其实际运行条件解读。
++
++图和报告：
++
++```bash
++python -m tools.system_optimization.report --root outputs/system_optimization
++```
++
++报告区分历史证据、新实验、受控重复、离线候选与正式准入。未测的官方检测/地图和闭环指标保持未测。图清单 `figures/manifest.json` 明确说明缺少数据的图；不画虚构点。
++
++本轮长序列曾因诊断脚本将配置 `memory_len` 当成时序状态而在后置控制失败；原目录保持 failed，正式结果采用新目录 `long_stream_retry`。修正后的独立 `lifecycle_validation/lifecycle_probe/results.json` 已通过真实六相机复用来源、故障清空、恢复及场景切换对照；该控制不进入性能表。`outputs/system_optimization/resume_after_probe_fix.sh` 记录补跑命令。
++
++最终源码/历史文件完整性检查可独立重建：
++
++```bash
++python -m tools.system_optimization.delivery
++```
++
++它只更新本轮交付补丁、清单和源版本差异审计，不改写逐运行源码快照或旧模块结果。
++
++本轮本地实验已完成：正式计时 760 次方法帧执行，覆盖 76 个唯一真实帧、4 个场景；最终 GPU 可见环境回归 246 项通过。报告与 S1–S10（PNG/PDF）见 [experiment_report.md](../outputs/system_optimization/experiment_report.md)。严格质量目标下尚无生产批准的端到端净加速，Prefix/Batch 保持 Auto Full 回退；物理 FAR/关键变化召回的新独立 Oracle、官方检测/地图和闭环安全仍未测。长序列使用完成的 `long_stream_retry`，旧失败目录不进入统计。
+diff --git a/projects/mmdet3d_plugin/models/detectors/petr3d.py b/projects/mmdet3d_plugin/models/detectors/petr3d.py
+index 411ea7b..04b99e7 100644
+--- a/projects/mmdet3d_plugin/models/detectors/petr3d.py
++++ b/projects/mmdet3d_plugin/models/detectors/petr3d.py
+@@ -76,7 +76,8 @@ class Petr3D(MVXTwoStageDetector):
+                  m2_enable=False,
+                  m2_config=None,
+                  m3_enable=False,
+-                 m3_config=None):
++                 m3_config=None,
++                 stream_config=None):
+         super(Petr3D, self).__init__(pts_voxel_layer, pts_voxel_encoder,
+                              pts_middle_encoder, pts_fusion_layer,
+                              img_backbone, pts_backbone, img_neck, pts_neck,
+@@ -146,6 +147,10 @@ class Petr3D(MVXTwoStageDetector):
+             self.lm_head = load_model(lm_head, use_lora, frozen)
+ 
+         self.test_flag = False
++        self.stream_runtime = None
++        if stream_config is not None:
++            from worldstream.runtime import UnifiedRuntime
++            self.stream_runtime = UnifiedRuntime(stream_config)
+         self.m3_runtime = None
+         if m3_enable:
+             from worldstream.m3 import M3Runtime
+@@ -476,7 +481,8 @@ class Petr3D(MVXTwoStageDetector):
+ 
+         generated_text = []
+         m3 = getattr(self, 'm3_runtime', None) if not getattr(self, 'training', False) else None
+-        if self.with_lm_head and (m3 is not None or not os.path.exists(self.save_path+img_metas[0]['sample_idx'])):
++        if self.with_lm_head and (getattr(getattr(self, 'stream_runtime', None), 'active', False)
++                or m3 is not None or not os.path.exists(self.save_path+img_metas[0]['sample_idx'])):
+             mmcv.mkdir_or_exist(self.save_path)
+             vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
+             m3_answers = None
+@@ -524,6 +530,10 @@ class Petr3D(MVXTwoStageDetector):
+     
+     def simple_test(self, img_metas, **data):
+         """Test function without augmentaiton."""
++        runtime = getattr(self, 'stream_runtime', None)
++        if runtime is not None and not runtime.active:
++            return runtime.execute(self, img_metas, data,
++                lambda: self.simple_test(img_metas, **data))
+         m1_observer = None
+         if getattr(self, 'm2_runtime', None) is not None:
+             meta = img_metas[0]
+@@ -560,7 +570,9 @@ class Petr3D(MVXTwoStageDetector):
+             parameter_signature = [(name, tuple(p.shape), str(p.dtype), str(p.device), p._version)
+                                    for name, p in self.named_parameters()]
+             execution_policy = (getattr(self, 'training', False), torch.is_autocast_enabled(),
+-                                torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32)
++                                torch.backends.cuda.matmul.allow_tf32, torch.backends.cudnn.allow_tf32,
++                                torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
++                                torch.are_deterministic_algorithms_enabled())
+             frame.execution_signature = hashlib.sha256(
+                 (frame.execution_signature + repr(parameter_signature) + repr(execution_policy)).encode()).hexdigest()
+             adapter_ms = (time.perf_counter() - adapter_start) * 1000
+@@ -579,12 +591,24 @@ class Petr3D(MVXTwoStageDetector):
+                 with measure_transfers() as output_transfers:
+                     outputs = outputs_from_model(frame, boxes, lanes, features, settings)
+                 output_ms = (time.perf_counter() - output_start) * 1000
++                reused = (getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck and
++                    getattr(self, 'm2_diagnostics', {}).get('actual_reused_cameras', 0))
++                if reused:
++                    from worldstream.m1.provenance import feature_source_snapshot, preserve_camera_computation_source
++                    source_start = time.perf_counter()
++                    previous_backbone = feature_source_snapshot(self.m1_manager.store.features.get('backbone'))
+                 self.m1_manager.commit(frame, outputs, precheck)
++                if reused:
++                    self.m1_manager.last_commit_diagnostics['backbone_computation_source'] = preserve_camera_computation_source(
++                        self.m1_manager.store, frame, self.m2_diagnostics, previous_backbone)
++                    self.m1_manager.last_commit_diagnostics['computation_source_metadata_ms'] = max(0.,
++                        (time.perf_counter() - source_start)*1000 - self.m1_manager.last_commit_diagnostics['commit_total_ms'])
+                 self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
+                 self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_ms'] = output_transfers['gpu_to_cpu_transfer_ms']
+                 self.m1_manager.last_commit_diagnostics['m1_total_including_adapters_ms'] = (
+                     adapter_ms + output_ms + precheck.diagnostics['timings_ms']['precheck_total']
+-                    + self.m1_manager.last_commit_diagnostics['commit_total_ms'])
++                    + self.m1_manager.last_commit_diagnostics['commit_total_ms']
++                    + self.m1_manager.last_commit_diagnostics.get('computation_source_metadata_ms', 0.))
+                 if settings.logging and settings.log_path:
+                     append_result(settings.log_path, precheck, self.m1_manager.last_commit_diagnostics)
+ 
+diff --git a/tests/worldstream_m3/test_adaptive_batch.py b/tests/worldstream_m3/test_adaptive_batch.py
+new file mode 100644
+index 0000000..23d9ce0
+--- /dev/null
++++ b/tests/worldstream_m3/test_adaptive_batch.py
+@@ -0,0 +1,45 @@
++import torch
++from worldstream.m3 import M3Runtime
++from worldstream.m3.batched_executor import length_groups
++
++
++def test_groups_use_lengths_and_preserve_all_indices():
++    assert length_groups([30,10,20,10,40],2)==[[1,3],[2,0],[4]]
++
++
++def test_adaptive_tiny_native_model_outputs_and_order(llm,carriers,context):
++    ids=[torch.tensor([1,3,-200,4,5,6]),torch.tensor([1,3,-200,7]),torch.tensor([1,3,-200,8,9])]
++    kw=dict(do_sample=False,max_new_tokens=5)
++    reference=[llm.generate(inputs=x[None],images=carriers,**kw) for x in ids]
++    runtime=M3Runtime(dict(mode='exact',batched_decode=True,adaptive_batch=True,
++        max_batch_size=2,offline_experiment=True))
++    actual,diag=runtime.generate(llm,ids,carriers,context=context,**kw)
++    assert all(torch.equal(a,b) for a,b in zip(actual,reference))
++    assert diag['batch']['groups'][0]['indices']==[1,2]
++    assert diag['batch']['full_sequence_equality_guaranteed'] is False
++
++
++def test_adaptive_sampling_preserves_native_rng(llm,carriers,context):
++    ids=[torch.tensor([1,3,-200,4,5]),torch.tensor([1,3,-200,7])]
++    kw=dict(do_sample=True,temperature=.8,max_new_tokens=5)
++    torch.manual_seed(91)
++    expected=[llm.generate(inputs=x[None],images=carriers,**kw) for x in ids]
++    rng=torch.get_rng_state()
++    runtime=M3Runtime(dict(mode='exact',batched_decode=True,adaptive_batch=True,
++        offline_experiment=True))
++    torch.manual_seed(91)
++    actual,diag=runtime.generate(llm,ids,carriers,context=context,**kw)
++    assert all(torch.equal(a,b) for a,b in zip(actual,expected))
++    assert torch.equal(rng,torch.get_rng_state())
++    assert diag['mode']=='full' and 'sampling' in diag['batch_fallback']['reason']
++
++
++def test_adaptive_hooks_fall_back_before_any_reordering(llm,carriers):
++    from worldstream.m3.batched_executor import AdaptiveBatchExecutor
++    from worldstream.m3.prefix_kv_cache import PrefixKVCache
++    from worldstream.m3 import expand_input
++    ids=[torch.tensor([1,3,-200,4,5]),torch.tensor([1,3,-200,7])]
++    inputs=[expand_input(llm,x,carriers) for x in ids]
++    executor=AdaptiveBatchExecutor(PrefixKVCache(1024**2),1024**2,2)
++    output,diag=executor.try_generate(llm,inputs,do_sample=False,stopping_criteria=[])
++    assert output is None and 'hook_requires_sequential' in diag['reason']
+diff --git a/tests/worldstream_m3/test_refinement.py b/tests/worldstream_m3/test_refinement.py
+index 508edea..e56fc0d 100644
+--- a/tests/worldstream_m3/test_refinement.py
++++ b/tests/worldstream_m3/test_refinement.py
+@@ -85,6 +85,7 @@ def historical_state():
+     from worldstream.m1.state_types import WorldAnchor,Geometry,Frame,M1Result,AnchorObservation
+     anchor=WorldAnchor('a','s','object','car',Geometry(np.array([[8.,2.,0.],[10.,2.,0.]]),np.array([9.,2.,0.])),1.,2.)
+     anchor.history_observations=2
++    anchor.evidence_origin='actual_perception'  # explicit mock historical observation, no GT
+     anchor.observation_support={'front':AnchorObservation('front',(0,0,4,4),np.ones(3),1.,1.)}
+     result=M1Result('s','f',2.,valid_anchor_ids=['a'],diagnostics=dict(execution_signature='weights',
+         anchors={'a':dict(valid=True,cameras={'front':dict(valid=True)})}))
+@@ -112,6 +113,13 @@ def test_world_state_is_historical_precommit_and_unknown_stays_unknown():
+     assert freeze_verified_state(manager,frame).diagnostics['reason']=='stale_or_missing_precheck'
+ 
+ 
++@pytest.mark.parametrize('origin',[None,'annotation_assisted_commit','ground_truth_oracle'])
++def test_world_state_rejects_unknown_and_annotation_origins(origin):
++    manager,frame=historical_state()
++    manager.store.anchors['a'].evidence_origin=origin
++    assert freeze_verified_state(manager,frame).records==()
++
++
+ def test_context_insertion_preserves_original_ids_and_auto_gate():
+     ids=torch.tensor([1,3,-200,4,5])
+     tokenizer=SimpleNamespace(encode=lambda s,add_special_tokens:[6,7])
+diff --git a/tests/worldstream_m3/test_system_reporting.py b/tests/worldstream_m3/test_system_reporting.py
+new file mode 100644
+index 0000000..f06e2c1
+--- /dev/null
++++ b/tests/worldstream_m3/test_system_reporting.py
+@@ -0,0 +1,15 @@
++from tools.system_optimization.report import measured_stages
++
++
++def test_legacy_suffix_time_is_reclassified_by_executed_branch_not_guessed_duration():
++    frame=dict(m3=dict(shared_seed=dict(prefix_tokens=10)),stages=[
++        dict(name='llm_prefill',cuda_interval_ms=5),dict(name='m3_kv_branch'),
++        dict(name='llm_decode',cuda_interval_ms=2),dict(name='llm_decode',cuda_interval_ms=3)])
++    assert [label for label,_ in measured_stages(frame)]==['llm_prefill','m3_kv_branch','llm_prefill','llm_decode']
++    assert frame['stages'][2]['name']=='llm_decode'  # raw timing is never edited
++
++
++def test_shape_recorded_decode_is_not_relabelled_after_a_full_prompt_cache_hit():
++    frame=dict(m3=dict(batch={}),stages=[dict(name='m3_kv_branch'),
++        dict(name='llm_decode',input_shape=[1,1],forward_tokens=1)])
++    assert list(measured_stages(frame))[-1][0]=='llm_decode'
+diff --git a/tests/worldstream_m3/test_system_runtime.py b/tests/worldstream_m3/test_system_runtime.py
+new file mode 100644
+index 0000000..7bebad2
+--- /dev/null
++++ b/tests/worldstream_m3/test_system_runtime.py
+@@ -0,0 +1,203 @@
++"""Cross-module service/lifecycle regressions, independent of pretrained weights."""
++import importlib.util
++from pathlib import Path
++from types import SimpleNamespace
++import pytest
++import torch
++from worldstream.execution import FrameIdentity, FrameExecutionRecord, StageRecorder
++from worldstream.runtime import UnifiedRuntime
++from worldstream.m1 import M1Config, WorldStateManager
++
++
++def helpers():
++    spec = importlib.util.spec_from_file_location('stream_test_helpers',
++        Path('tests/worldstream_m1/test_integration.py'))
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def runtime(service='persistent_state', **kwargs):
++    return UnifiedRuntime(dict(service=service, model_version='checkpoint-sha',
++        lora_version='lora-sha', **kwargs))
++
++
++@pytest.mark.parametrize('change,reason', [
++    ({'scene_id': 'other'}, 'scene_change'),
++    ({'camera_ids': ('b', 'a')}, 'camera_order_change'),
++    ({'timestamp': 1.}, 'timestamp_reversal_or_repeat'),
++    ({'timestamp': 8.}, 'stale_stream'),
++    ({'execution_signature': 'new'}, 'model_or_execution_change'),
++    ({'lora_version': 'new'}, 'model_or_execution_change'),
++])
++def test_lifecycle(change, reason):
++    from dataclasses import replace
++    r = runtime()
++    r.previous = FrameIdentity('s', 'f', 1., ('a', 'b'), 'm', 'l', 'sig')
++    current = replace(r.previous, frame_id='next', timestamp=1.5, **change) if 'timestamp' not in change else replace(r.previous, **change)
++    assert r.lifecycle_reason(current) == reason
++
++
++def test_current_output_cannot_export_history_and_still_generates(tmp_path):
++    h = helpers(); manager = WorldStateManager(M1Config(enabled=True))
++    model = h.make_model(tmp_path, manager); model.training = False
++    model.stream_runtime = runtime('current_output')
++    for ts in (100., 100.5):
++        meta, data = h.inputs(ts)
++        model.simple_test(meta, **data)
++        assert not manager.store.anchors and manager._pending is None
++        assert model.m3_verified_state is None
++        assert model.stream_runtime.last_record.m1['history_preserved'] is False
++    assert len(model.lm_inputs) == 2
++    assert model.map_head.calls == model.pts_bbox_head.calls == 2
++
++
++def test_persistent_no_gpu_hit_retains_real_commit_sources(tmp_path):
++    h = helpers(); manager = WorldStateManager(M1Config(enabled=True))
++    model = h.make_model(tmp_path, manager); model.training = False
++    model.stream_runtime = runtime(trace_path=str(tmp_path/'trace.jsonl'))
++    for ts in (100., 100.5):
++        meta, data = h.inputs(ts)
++        model.simple_test(meta, **data)
++        assert manager.store.last_timestamp == ts
++        assert all(a.source_frame_id == str(ts) for a in manager.store.anchors.values())
++        assert all(a.evidence_origin == 'actual_perception' for a in manager.store.anchors.values())
++        assert all(f.source_frame_id == str(ts) for f in manager.store.features.values())
++    assert len((tmp_path/'trace.jsonl').read_text().splitlines()) == 2
++
++
++def test_exception_after_head_mutation_clears_all_caches_and_heads(tmp_path):
++    h = helpers(); model = h.make_model(tmp_path, WorldStateManager(M1Config(enabled=True)))
++    model.training = False
++    model.stream_runtime = runtime(cost_aware=False)
++    reset = []
++    for name in ('pts_bbox_head', 'map_head'):
++        getattr(model, name).reset_memory = lambda name=name: reset.append(name)
++    model.m3_runtime = SimpleNamespace(reset=lambda: reset.append('m3'), config=SimpleNamespace(state_context='none'))
++    def failed(*args, **kw):
++        raise RuntimeError('failure after temporal mutation')
++    model.map_head.get_bboxes = failed
++    meta, data = h.inputs()
++    with pytest.raises(RuntimeError, match='temporal mutation'):
++        model.simple_test(meta, **data)
++    assert model.stream_runtime.previous is None
++    assert model.stream_runtime.last_record.status == 'failed'
++    assert not model.m1_manager.store.anchors
++    assert all(reset.count(name) == 2 for name in ('pts_bbox_head', 'map_head', 'm3'))
++
++
++def test_persistent_rejects_output_only_admission(tmp_path):
++    h = helpers(); model = h.make_model(tmp_path, WorldStateManager(M1Config(enabled=True)))
++    model.training = False; model.stream_runtime = runtime()
++    model.m2_runtime = SimpleNamespace(reset=lambda: None, config=SimpleNamespace(m1_service='output_only'))
++    meta, data = h.inputs()
++    with pytest.raises(ValueError, match='Persistent service'):
++        model.simple_test(meta, **data)
++
++
++def test_memory_budget_includes_physical_history_and_explicitly_invalidates(tmp_path):
++    h=helpers();manager=WorldStateManager(M1Config(enabled=True))
++    model=h.make_model(tmp_path,manager);model.training=False
++    model.stream_runtime=runtime(memory_budget_mb=0)
++    meta,data=h.inputs()
++    model.simple_test(meta,**data)
++    record=model.stream_runtime.last_record
++    assert record.memory['m1_payload_bytes']>0
++    assert 'persistent_state_explicitly_invalidated_for_budget' in record.fallback_reasons
++    assert manager.last_result is None and not manager.store.anchors
++
++
++def test_nonfinite_timestamp_invalidates_previous_state(tmp_path):
++    h = helpers(); model = h.make_model(tmp_path, WorldStateManager(M1Config(enabled=True)))
++    model.training = False; model.stream_runtime = runtime()
++    for head in (model.pts_bbox_head, model.map_head):
++        head.reset_memory = lambda head=head: setattr(head, 'memory_timestamp', None)
++    meta, data = h.inputs(float('nan'))
++    with pytest.raises(ValueError, match='lifecycle'):
++        model.simple_test(meta, **data)
++    assert model.pts_bbox_head.memory_timestamp is None
++
++
++def test_camera_metadata_must_cover_actual_batch(tmp_path):
++    h=helpers();model=h.make_model(tmp_path,WorldStateManager(M1Config(enabled=True)))
++    model.training=False;model.stream_runtime=runtime()
++    meta,data=h.inputs();meta[0]['cam_infos']={'front':{}}
++    with pytest.raises(ValueError,match='lifecycle'):
++        model.simple_test(meta,**data)
++
++
++def test_nested_timers_do_not_double_count():
++    identity = FrameIdentity('s', 'f', 1., ('a',), 'm', 'l', 'sig')
++    record = FrameExecutionRecord(identity, 1, 'persistent_state')
++    timer = StageRecorder(record)
++    with timer.stage('outer'):
++        with timer.stage('inner', dict(frame='historical', computation_version=2)):
++            sum(range(1000))
++    timer.finish()
++    assert sum(s['exclusive_wall_ms'] for s in record.stages) == pytest.approx(record.stages[0]['wall_ms'])
++    assert record.stages[1]['computed_source']['frame'] == 'historical'
++    assert record.gpu_kernel_ms is None
++
++
++def test_instrumentation_preserves_hf_generation_signature(llm,carriers):
++    import inspect
++    identity=FrameIdentity('s','f',1.,('a',),'m','l','sig')
++    record=FrameExecutionRecord(identity,1,'current_output')
++    model=SimpleNamespace(lm_head=llm)
++    original=inspect.signature(llm.forward)
++    ids=torch.tensor([[1,3,-200,4]])
++    expected=llm.generate(inputs=ids,images=carriers,max_new_tokens=4,do_sample=False)
++    with runtime().instrument(model,StageRecorder(record)):
++        assert inspect.signature(llm.forward)==original
++        actual=llm.generate(inputs=ids,images=carriers,max_new_tokens=4,do_sample=False)
++    assert inspect.signature(llm.forward)==original
++    assert torch.equal(expected,actual)
++
++
++def test_cached_suffix_embedding_forward_is_prefill(llm,carriers):
++    from worldstream.m3 import expand_input
++    identity=FrameIdentity('s','f',1.,('a',),'m','l','sig')
++    record=FrameExecutionRecord(identity,1,'current_output')
++    model=SimpleNamespace(lm_head=llm)
++    expanded=expand_input(llm,torch.tensor([1,3,-200,4,5]),carriers)
++    with runtime().instrument(model,StageRecorder(record)):
++        prefix=llm(inputs_embeds=expanded.embeddings[:,:-1],use_cache=True)
++        llm(inputs_embeds=expanded.embeddings[:,-1:],past_key_values=prefix.past_key_values,use_cache=True)
++    calls=[s for s in record.stages if s['name'].startswith('llm_')]
++    assert [s['name'] for s in calls]==['llm_prefill','llm_prefill']
++    assert calls[-1]['forward_tokens']==1 and len(calls[-1]['input_shape'])==3
++
++
++def test_cost_admission_needs_identical_workload_independent_quality_and_net_cost():
++    key = dict(model_version='m', lora_version='l', execution_key='e', generation_key='g',
++        input_shape=[6, 3, 640, 640], question_lengths=[20, 30], service='persistent_state',
++        strategy='batch', cache_state='cold', memory_budget_bytes=100, refresh_interval=10, frame_gap_s=.5)
++    costs = dict(key=key, includes_all_incremental_costs=True, full_wall_ms=10., optimized_wall_ms=8., peak_cache_bytes=90)
++    quality = dict(key=key, exact_targets_pass=True, heldout_samples=10, calibration_scenes=['a'],
++        heldout_scenes=['b'], evidence_sha256='sha', protocol_sha256='protocol')
++    assert UnifiedRuntime.admit(key, costs, quality)[0]
++    assert not UnifiedRuntime.admit(key, costs, quality, overhead_ms=3)[0]
++    assert not UnifiedRuntime.admit(key, costs, dict(quality, heldout_scenes=['a']))[0]
++    assert not UnifiedRuntime.admit(key, costs, dict(quality, exact_targets_pass=False))[0]
++    assert not UnifiedRuntime.admit(dict(key, question_lengths=[20]), costs, quality)[0]
++    assert not UnifiedRuntime.admit(key, dict(costs, optimized_wall_ms=float('nan')), quality)[0]
++    assert not UnifiedRuntime.admit(key, dict(costs, peak_cache_bytes=101), quality)[0]
++
++
++def test_offline_strategy_cannot_inherit_full_quality_certificate():
++    r=runtime()
++    model=SimpleNamespace(m3_runtime=SimpleNamespace(config=SimpleNamespace(offline_experiment=True)))
++    allowed,reason=r.optimization_admission(model,{})
++    assert not allowed and reason=='offline_strategy_cannot_inherit_production_certificate'
++
++
++def test_inplace_weight_change_cannot_reuse_old_content_certificate(tmp_path):
++    h=helpers();model=h.make_model(tmp_path,WorldStateManager(M1Config(enabled=True)))
++    model.training=False;model.stream_runtime=runtime()
++    weight=torch.nn.Parameter(torch.ones(1))
++    model.named_parameters=lambda:[('actual_weight_version_witness',weight)]
++    meta,data=h.inputs();model.simple_test(meta,**data)
++    with torch.no_grad():weight.add_(1)
++    meta,data=h.inputs(100.5);model.simple_test(meta,**data)
++    assert model.stream_runtime._certificate_invalidated
++    assert 'model_changed_without_new_content_version' in model.stream_runtime.last_record.fallback_reasons
+diff --git a/tools/system_optimization/__init__.py b/tools/system_optimization/__init__.py
+new file mode 100644
+index 0000000..db0e8c1
+--- /dev/null
++++ b/tools/system_optimization/__init__.py
+@@ -0,0 +1 @@
++"""System experiments; historical evidence and new measurements stay separate."""
+diff --git a/tools/system_optimization/audit.py b/tools/system_optimization/audit.py
+new file mode 100644
+index 0000000..a870495
+--- /dev/null
++++ b/tools/system_optimization/audit.py
+@@ -0,0 +1,102 @@
++"""Rebuild a source-anchored audit before changing any execution algorithm."""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++import numpy as np
++
++
++def write(path, value):
++    path = Path(path)
++    path.parent.mkdir(parents=True, exist_ok=True)
++    path.write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False))
++
++
++def stats(values):
++    return dict(count=len(values), p50=float(np.percentile(values, 50)),
++                p95=float(np.percentile(values, 95))) if values else None
++
++
++def main(output):
++    dest = Path(output)
++    if (dest / 'audit_manifest.json').exists():
++        raise ValueError('Audit already frozen; choose a fresh output')
++    sources = [Path('outputs/module3_refinement') / name for name in (
++        'performance_results.json', 'quality_results.json', 'state_feasibility.json',
++        'admission_review.json', 'multi_20261017_005514/frames.jsonl',
++        'single_20261017_005514/frames.jsonl')]
++    sources += [Path('outputs/module2_rearchitecture') / name for name in (
++        'pipeline_profile.json', 'feasibility_raw.json', 'real_reuse_coverage.json')]
++    sources += [Path('outputs/module1_optimization/holdout_summary.json')]
++    manifest = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}
++    all_rows, breakdown, bounds = {}, {}, {}
++    for workload, p in zip(('single', 'multi'), (sources[5], sources[4])):
++        rows = [json.loads(line) for line in p.open()]
++        rows = [r for r in rows if not r['warmup']]
++        all_rows[workload] = rows
++        base = [r for r in rows if r['mode'] == 'baseline']
++        breakdown[workload] = dict(source=str(p), evidence='historical_real_gpu',
++            frames=len(base), unique_frames=len({r['token'] for r in base}),
++            e2e_wall_ms=stats([r['wall_ms'] for r in base]),
++            components={k: stats([r['components'][k]['gpu_ms'] for r in base])
++                        for k in ('eva', 'detection', 'map', 'prefill', 'decode')},
++            note='CUDA intervals include launch gaps; projections are nested in heads. '
++                 'Do not add component percentiles or call intervals kernel time.')
++        # Amdahl-style counterfactual on each measured frame, then aggregate.
++        # It is an ideal bound, never an actual or quality-admitted speedup.
++        values = {}
++        for stage in ('decode', 'prefill', 'eva'):
++            residual = [max(1e-9, r['wall_ms']-r['components'][stage]['gpu_ms']) for r in base]
++            values['remove_' + stage] = dict(
++                residual_wall_ms=stats(residual),
++                aggregate_time_ratio=sum(r['wall_ms'] for r in base)/sum(residual),
++                assumption='remove entire measured interval, including its launch gaps; zero replacement cost')
++        maintained = [r for r in rows if r['mode'] == 'm123']
++        if maintained:
++            residual = [r['wall_ms']-r['m1'].get('m1_total_including_adapters_ms', 0) for r in maintained]
++            values['remove_m1'] = dict(residual_wall_ms=stats(residual),
++                aggregate_time_ratio=sum(r['wall_ms'] for r in maintained)/sum(residual),
++                assumption='Changes persistent-state service semantics; hypothetical bound only')
++        bounds[workload] = values
++    feasibility = json.loads(sources[7].read_text())
++    state = json.loads(sources[2].read_text())
++    write(dest/'audit_manifest.json', dict(head=subprocess.check_output(
++        ['git', 'rev-parse', 'HEAD'], text=True).strip(), sources=manifest,
++        evidence='Historical measurements only; new code has not been measured by these runs'))
++    write(dest/'baseline_profile.json', breakdown)
++    write(dest/'latency_breakdown.json', dict(workloads=breakdown,
++        historical_kernel_profile=json.loads(sources[6].read_text()),
++        idealized_bounds=bounds, visual_conditional_bounds=feasibility['upper_bounds']))
++    write(dest/'state_consumption.json', dict(evidence='historical_real_gpu', **state))
++    write(dest/'reuse_coverage.json', dict(evidence='historical_real_gpu',
++        **json.loads(sources[8].read_text())))
++    lines = ['# 系统瓶颈审计（算法修改前）', '',
++        '来源为已有真实 GPU 原始逐帧记录；SHA256 见 audit_manifest.json。'
++        '这些记录不代表本次新代码的性能。单问题 Sampling 与五问题 Greedy 分开。', '',
++        '| 工作负载 | E2E P50/P95 ms | Decode interval P50 ms | Prefill interval P50 ms |',
++        '|---|---:|---:|---:|']
++    for name, row in breakdown.items():
++        wall = row['e2e_wall_ms']
++        lines.append(f"| {name} | {wall['p50']:.2f}/{wall['p95']:.2f} | "
++                     f"{row['components']['decode']['p50']:.2f} | {row['components']['prefill']['p50']:.2f} |")
++    lines += ['', '首要热点为 Decode。完整消除单问题 Prefill 也只是理想上限；'
++        '同帧只有一个问题，不能从同帧共享 Prefix 获益。理想上限按每帧残余时间计算后汇总，'
++        '没有相加组件 P50。', '',
++        'EVA 前两层的受控理想节省仅 %.2f ms，尚未包含认证和缓存；'
++        '真实移动场景 Camera/Window 跳算为零。Camera 上限仅是条件性收益，'
++        '不能外推到真实场景。' % feasibility['upper_bounds'][0]['saving_ms'], '',
++        'M1 延长历史实验拒绝原因：`%s`。任务激活仍为零；M1→M3 No-Go，'
++        '保留可靠性条件。' % json.dumps(state['extended_history']['verification_rejections'], ensure_ascii=False), '',
++        'Prefix 与 Batch 均未通过冻结的完整 Token 等价标准；Auto 必须回退。'
++        '不继续堆叠精度补丁或 Window Kernel 优化。优先处理拒绝路径成本、真实来源记录、'
++        '跨模块失效及公平的单问题后端评估。', '',
++        '新增插桩文件：tools/system_optimization/audit.py（只读历史证据并输出审计）。'
++        '完整预处理、H2D/D2H、分配及 launch-gap 的本轮数值需新的 GPU trace；未知值不填零。']
++    (dest/'workload_audit.md').write_text('\n'.join(lines)+'\n')
++
++
++if __name__ == '__main__':
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--output', default='outputs/system_optimization')
++    main(parser.parse_args().output)
+diff --git a/tools/system_optimization/decode_probe.py b/tools/system_optimization/decode_probe.py
+new file mode 100644
+index 0000000..4230e0b
+--- /dev/null
++++ b/tools/system_optimization/decode_probe.py
+@@ -0,0 +1,42 @@
++"""Fair single-question native HF execution context comparison, same weights.
++
++Inference-mode removes autograd view/version bookkeeping; it is not a new
++decoder kernel and no gain is attributed to world state. No backend upgrade.
++"""
++from contextlib import nullcontext
++from dataclasses import asdict
++from pathlib import Path
++from time import perf_counter
++import torch
++from .audit import write, stats
++from worldstream.execution import FrameIdentity, FrameExecutionRecord, StageRecorder
++
++
++@torch.no_grad()
++def run(model, native_generate, inputs, dest):
++    dest=Path(dest);dest.mkdir(parents=True,exist_ok=False)
++    versions=[(n,p._version,p.dtype) for n,p in model.named_parameters()]
++    rows=[];reference=None
++    for rep in range(7):
++        for name in (('no_grad','inference_mode') if rep%2 else ('inference_mode','no_grad')):
++            torch.manual_seed(123);torch.cuda.manual_seed_all(123)
++            torch.cuda.synchronize();torch.cuda.reset_peak_memory_stats()
++            tick=perf_counter()
++            with torch.inference_mode() if name=='inference_mode' else nullcontext():
++                output=native_generate(inputs=inputs['ids'],images=inputs['images'],do_sample=True,
++                    temperature=.1,top_p=.75,num_beams=1,max_new_tokens=320,use_cache=True)
++            torch.cuda.synchronize();wall=(perf_counter()-tick)*1000
++            ids=output.detach().cpu().tolist()
++            if name=='no_grad':reference=ids
++            rows.append(dict(method=name,repeat=rep,warmup=rep<2,wall_ms=wall,ids=ids,
++                generated_tokens=output.shape[-1]-1,peak_allocated=torch.cuda.max_memory_allocated()))
++    # Compare each paired complete output, including EOS and unchanged sampling.
++    for row in rows:
++        row['exact_token_equality']=row['ids']==next(r['ids'] for r in rows if r['repeat']==row['repeat'] and r['method']=='no_grad')
++    unchanged=versions==[(n,p._version,p.dtype) for n,p in model.named_parameters()]
++    write(dest/'results.json',dict(rows=rows,weights_unchanged=unchanged,
++        summary={method:dict(wall_ms=stats([r['wall_ms'] for r in rows if not r['warmup'] and r['method']==method]),
++            exact_token_equality=all(r['exact_token_equality'] for r in rows if r['method']==method)) for method in ('no_grad','inference_mode')},
++        scope='One real planning prompt/carrier; 2 warmup + 5 measured paired native complete generations; no state mechanism',
++        decision='diagnostic_only_single_input_not_a_deployment_certificate'))
++    assert unchanged
+diff --git a/tools/system_optimization/delivery.py b/tools/system_optimization/delivery.py
+new file mode 100644
+index 0000000..0f19521
+--- /dev/null
++++ b/tools/system_optimization/delivery.py
+@@ -0,0 +1,87 @@
++"""Freeze delivery diffs and disclose per-run source revisions without rewriting runs."""
++import hashlib
++import json
++from pathlib import Path
++import re
++import subprocess
++from .audit import write
++
++
++def sha(path):
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def main(root='outputs/system_optimization'):
++    root=Path(root)
++    tracked=subprocess.check_output(['git','diff','--name-only'],text=True).splitlines()
++    extra=subprocess.check_output(['git','ls-files','--others','--exclude-standard'],text=True).splitlines()
++    changed=sorted(p for p in set(tracked+extra) if not p.startswith('outputs/') and Path(p).is_file())
++    patches={key:[] for key in ('BC','DE')}
++    changelog=['# 插桩与代码变更清单','','旧模块实验不改写；profile_stages=False 关闭详细插桩；不配置 stream_config 保留原入口。',
++        '时间类型与开销边界详见 docs/worldstream_system_optimization.md；实际运行版本见 delivery_source_audit.json。','',
++        '| 文件 | 类型 | 首个修改行 |','|---|---|---:|']
++    for name in changed:
++        if name in tracked:
++            diff=subprocess.check_output(['git','diff','--',name],text=True)
++            match=re.search(r'^@@ .*?\+(\d+)',diff,re.M)
++            line=int(match.group(1)) if match else 1
++            kind='modified'
++        else:
++            result=subprocess.run(['git','diff','--no-index','--','/dev/null',name],capture_output=True,text=True)
++            if result.returncode not in (0,1):raise RuntimeError(result.stderr)
++            diff=result.stdout;line=1;kind='created'
++        stage='BC' if name.startswith(('worldstream/m1/','worldstream/m2/','tests/worldstream_m1/','tests/worldstream_m2/')) else 'DE'
++        patches[stage].append(diff)
++        changelog.append(f'| [{name}](../../{name}) | {kind} | {line} |')
++    for stage,diffs in patches.items():(root/f'stage_{stage}.patch').write_text(''.join(diffs))
++    (root/'instrumentation_changelog.md').write_text('\n'.join(changelog)+'\n')
++    files=list(Path('worldstream').rglob('*.py'))+list(Path('tools/system_optimization').glob('*.py'))
++    files+=[Path('projects/mmdet3d_plugin/models/detectors/petr3d.py')]
++    files+=[Path(p) for p in changed if p.startswith(('tests/','docs/'))]
++    manifest={str(p):sha(p) for p in sorted(set(files))}
++    write(root/'implementation_manifest.json',manifest)
++    runs=[]
++    for path in sorted(root.glob('*/source_manifest.json')):
++        old=json.loads(path.read_text());status_path=path.parent/'status.json'
++        runs.append(dict(run=path.parent.name,status=json.loads(status_path.read_text()) if status_path.exists() else None,
++            source_manifest=str(path),manifest_sha256=sha(path),
++            differs_from_delivery=[p for p,s in old.items() if manifest.get(p)!=s],
++            absent_from_run=sorted(set(manifest)-set(old))))
++    frozen=json.loads((root/'audit_manifest.json').read_text())
++    integrity={p:Path(p).exists() and sha(Path(p))==s for p,s in frozen['sources'].items()}
++    write(root/'delivery_source_audit.json',dict(runs=runs,historical_evidence_unchanged=integrity,
++        notes=[
++            'Run snapshots preserve loaded revisions; different SHA values are disclosed, never silently replaced.',
++            'Early single/multi used old memory accounting and backbone capture; actual camera reuse was zero.',
++            'Language candidate suffix labels are deterministically reclassified from explicit KV branches; raw durations remain unchanged.',
++            'Late-loaded lifecycle control has its own executed_probe.py and source hash.',
++            'Failed/smoke/control runs remain separate from completed formal performance results.']))
++    traces=[dict(path=str(p),bytes=p.stat().st_size) for p in sorted(root.glob('*/pipeline_trace.json'))]
++    write(root/'traces/index.json',dict(traces=traces,note='Original Chrome traces kept in each run; not duplicated here.'))
++    long_name='long_stream_retry' if (root/'long_stream_retry').exists() else 'long_stream'
++    required=('single','multi','language_candidates',long_name,'budget_0','budget_128','stride_refresh')
++    statuses={r['run']:r['status'] for r in runs}
++    formal={name:bool((statuses.get(name) or {}).get('status')=='completed'
++        and (statuses.get(name) or {}).get('weights_unchanged') is True) for name in required}
++    controls=[json.loads(p.read_text()) for p in root.glob('*/lifecycle_probe/results.json')]
++    lifecycle=any(c.get('recovered_matches_fresh_native') is True
++        and (c.get('real_scene_switch') or {}).get('matches_fresh_native') is True
++        and c.get('controlled_reuse_source',{}).get('actual_reused_cameras',0)>0 for c in controls)
++    test_file=root/'validation_results.json'
++    tests=json.loads(test_file.read_text()) if test_file.exists() else {}
++    gpu=tests.get('delivery_gpu_tests.log',{})
++    gpu_ok=bool(gpu.get('passed') and gpu.get('failed')==0 and gpu.get('errors')==0)
++    fig_file=root/'figures/manifest.json'
++    figs=json.loads(fig_file.read_text()) if fig_file.exists() else {}
++    figures_ok=all(figs.get('S'+str(i),{}).get('status')=='measured' for i in range(1,11))
++    write(root/'completion.json',dict(formal_runs=formal,controlled_lifecycle=lifecycle,
++        gpu_regression=gpu_ok,all_ten_figures_measured=figures_ok,
++        historical_evidence_unchanged=all(integrity.values()),
++        all_local_validations_complete=all(formal.values()) and lifecycle and gpu_ok and figures_ok and all(integrity.values()),
++        production_optimization_approved=False,
++        unmeasured=['fresh physical false acceptance oracle','critical change recall','official detection/map metrics','closed-loop safety']))
++    assert all(integrity.values()),'Historical evidence changed'
++    print(f'Delivery: {len(changed)} changed/new source files; {len(runs)} run snapshots; historical hashes all preserved')
++
++
++if __name__=='__main__':main()
+diff --git a/tools/system_optimization/experiment.py b/tools/system_optimization/experiment.py
+new file mode 100644
+index 0000000..46ce602
+--- /dev/null
++++ b/tools/system_optimization/experiment.py
+@@ -0,0 +1,305 @@
++"""Fresh real-weight VLM ablations, paired by frame and generation contract.
++
++Examples (OmniDrive environment, >=19500 MiB free for full batch experiments):
++ python -m tools.system_optimization.experiment --output outputs/system_optimization/single --workload single
++Never writes any previous module's artifacts. All answers are really generated.
++"""
++import argparse
++import copy
++from dataclasses import replace
++import gc
++import hashlib
++import inspect
++from functools import wraps
++import json
++from pathlib import Path
++import pickle
++import random
++import resource
++import subprocess
++from time import perf_counter
++from types import SimpleNamespace
++import numpy as np
++import torch
++from worldstream.runtime import UnifiedRuntime
++from worldstream.m1 import M1Config, WorldStateManager
++from worldstream.m2 import IncrementalVisionRuntime
++from worldstream.m3 import M3Runtime
++from .audit import write
++
++
++MODES = ['original', 'm1', 'm2', 'm3', 'm12', 'm13', 'm23', 'm123',
++         'unified_persistent', 'unified_output']
++
++
++def seed(value):
++    random.seed(value); np.random.seed(value); torch.manual_seed(value)
++    torch.cuda.manual_seed_all(value)
++
++
++class RecordedM3(M3Runtime):
++    def __init__(self, config, sink):
++        super().__init__(config)
++        self.sink = sink
++
++    def generate(self, *args, **kwargs):
++        self.sink.in_m3 = True
++        try:
++            output, diag = super().generate(*args, **kwargs)
++        finally:
++            self.sink.in_m3 = False
++        # Outside the coordinator's timed language computation; still inside
++        # complete service wall, identically charged to all methods.
++        self.sink.ids = [x.detach().cpu().tolist() for x in output]
++        return output, diag
++
++
++def snapshot(dest):
++    manifest = {}
++    files = list(Path('worldstream').rglob('*.py'))+list(Path('tools/system_optimization').glob('*.py'))
++    files += [Path('projects/mmdet3d_plugin/models/detectors/petr3d.py')]
++    for p in files:
++        target = dest/'source'/p
++        target.parent.mkdir(parents=True, exist_ok=True)
++        target.write_bytes(p.read_bytes())
++        manifest[str(p)] = hashlib.sha256(p.read_bytes()).hexdigest()
++    write(dest/'source_manifest.json', manifest)
++
++
++def configure(model, mode, sink, dest, budget, refresh, profile):
++    model.m1_manager = model.m2_runtime = model.m3_runtime = None
++    persistent = mode in ('m1', 'm12', 'm13', 'm123', 'unified_persistent', 'state_only', 'state_full')
++    if persistent:
++        settings = replace(M1Config.load('configs/worldstream_m1_coverage.yaml'),
++            logging=True, log_path=str(dest/'m1_state.jsonl'), full_refresh_interval=refresh)
++        model.m1_manager = WorldStateManager(settings)
++    if mode in ('m2', 'm12', 'm23', 'm123', 'unified_persistent', 'unified_output'):
++        model.m2_runtime = IncrementalVisionRuntime(model.img_backbone, dict(mode='auto',
++            memory_budget_mb=budget, reuse_boundary='camera', cheap_gate=True, m1_service='maintain',
++            camera_cost_table='outputs/module2_rearchitecture/camera_costs.json'))
++    if mode in ('m3', 'm13', 'm23', 'm123', 'unified_persistent', 'unified_output',
++                'prefix', 'batch', 'adaptive', 'state_only', 'state_full', 'compact'):
++        config = dict(mode='auto', memory_budget_mb=budget)
++        if mode in ('prefix', 'batch', 'adaptive'):
++            config.update(mode='exact', offline_experiment=True, borrow_prefix=True,
++                common_prefix_seed=mode=='prefix', batched_decode=mode!='prefix',
++                adaptive_batch=mode=='adaptive', max_batch_size=3)
++        if mode in ('state_only', 'state_full', 'compact'):
++            config.update(mode='compact',offline_experiment=True,
++                state_context={'state_only':'only','state_full':'augment','compact':'none'}[mode])
++        model.m3_runtime = RecordedM3(config, sink)
++    model.stream_runtime = UnifiedRuntime(dict(service='persistent_state' if persistent else 'current_output',
++        model_version='iter_10548.pth', lora_version='embedded_original_lora_iter_10548',
++        memory_budget_mb=budget*2, cost_aware=mode.startswith('unified'), profile_stages=profile,
++        trace_path=str(dest/'cross_module_trace.jsonl')))
++    model.test_flag = False
++    model.pts_bbox_head.reset_memory(); model.map_head.reset_memory()
++    model._m2_context = None
++    model.m2_diagnostics = {}; model.m3_diagnostics = {}
++    gc.collect()
++
++
++@torch.no_grad()
++def run(args):
++    dest = Path(args.output)
++    dest.mkdir(parents=True, exist_ok=False)
++    snapshot(dest)
++    if args.lifecycle_probe is None:
++        args.lifecycle_probe=args.workload=='single' and args.frames>=16
++    torch.set_num_threads(1)
++    torch.backends.cuda.matmul.allow_tf32 = False
++    import cv2
++    cv2.setNumThreads(1)
++    write(dest/'status.json', dict(status='loading_model'))
++    from tools.worldstream_m2.rearchitecture.integration import load
++    from tools.worldstream_m3.experiment import chosen_questions, typed_digest, ground_truth
++    from tools.worldstream_m3.refinement import freeze_sample_questions
++    from tools.worldstream_m3.qa_analysis import planning_quality
++    from tools.worldstream_m3.llm_probe import quality as qa_quality
++    from tools.worldstream_m3.offline_reference import resolve_reference
++    from tools.worldstream_m2.refinement_common import arrays, numeric_diff
++    from tools.worldstream_m2.rearchitecture.common import memory
++    from mmcv.parallel import scatter, collate
++    model, dataset = load()
++    versions = [(n,p._version,p.dtype) for n,p in model.named_parameters()]
++    native = inspect.getclosurevars(model.lm_head.generate).nonlocals['generate']
++    sink = SimpleNamespace(ids=[], in_m3=False)
++    def generate(*a, **kw):
++        if args.workload != 'single':
++            kw.update(do_sample=False); kw.pop('temperature', None); kw.pop('top_p', None)
++        result = native(*a, **kw)
++        if args.decode_probe and not hasattr(sink, 'probe_input'):
++            sink.probe_input = dict(ids=kw['inputs'].detach(), images=kw['images'].detach())
++        if not sink.in_m3:
++            sink.ids.append(result.detach().cpu().tolist())
++        return result
++    model.lm_head.generate = generate
++    # M3 receives the identical workload generation contract at its entry too.
++    original_m3 = RecordedM3.generate
++    def controlled_m3(self, *a, **kw):
++        if args.workload != 'single':
++            kw.update(do_sample=False); kw.pop('temperature', None); kw.pop('top_p', None)
++        return original_m3(self, *a, **kw)
++    RecordedM3.generate = controlled_m3
++    for transform in dataset.pipeline.transforms:
++        if hasattr(transform, 'load_type'):
++            transform.load_type = ['planning'] if args.workload == 'single' else ['planning', 'short', 'conv']
++    groups = {}
++    for i, info in enumerate(dataset.data_infos):
++        groups.setdefault(info['scene_token'], []).append(i)
++    scenes = []
++    for si, (scene, indices) in enumerate(sorted(groups.items())[args.scene_start:args.scene_start+args.scenes]):
++        indices = sorted(indices, key=lambda i: dataset.data_infos[i]['timestamp'])
++        indices = indices[::args.frame_stride][:args.frames]
++        if len(indices) < args.frames:
++            raise ValueError('Requested sequence exceeds available unique frames')
++        scenes.append(dict(scene=scene, indices=indices, split='calibration' if si%2==0 else 'heldout',
++            tokens=[dataset.data_infos[i]['token'] for i in indices]))
++    if not scenes:
++        raise ValueError('No scenes selected')
++    # Freeze native question IDs before any method's results or ground truth.
++    frozen = {}
++    for scene in scenes:
++        for index in scene['indices']:
++            seed(index)
++            sample = dataset[index]
++            questions = sample['img_metas'][0].data['vlm_labels'].data
++            ids = sample['input_ids'][0].data
++            chosen = chosen_questions(questions, 1 if args.workload=='single' else 5)
++            frozen[index] = dict(questions=[questions[i] for i in chosen], ids=[ids[i] for i in chosen])
++    write(dest/'questions.json', {str(i): dict(questions=x['questions'], ids=[t.tolist() for t in x['ids']]) for i,x in frozen.items()})
++    write(dest/'protocol.json', dict(scenes=scenes, args=vars(args), generation=dict(
++        do_sample=args.workload=='single', temperature=.1, top_p=.75, max_new_tokens=320, num_beams=1),
++        timing='Preprocess/disk/collate/scatter plus synchronized VLM inference; audit CPU copies included equally; reference I/O excluded',
++        quality='Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed',
++        independence='Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted'))
++    write(dest/'environment.json', dict(torch=torch.__version__, gpu=torch.cuda.get_device_name(),
++        head=subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
++        nvidia_smi=subprocess.run(['nvidia-smi'],capture_output=True,text=True).stdout))
++    captured = {}
++    extract_owned='extract_img_feat' in vars(model)
++    original_extract=model.extract_img_feat
++    @wraps(original_extract)
++    def capture_extract(*a,**kw):
++        result=original_extract(*a,**kw)
++        captured['feature']=result.detach()
++        return result
++    model.extract_img_feat=capture_extract
++    (dest/'references').mkdir()
++    modes = args.modes
++    for rep in range(args.warmup+args.repeats):
++        for si, scene in enumerate(scenes):
++            # Establish native reference separately; never treat this extra
++            # inference as a new unique frame or include it in speed statistics.
++            order = modes[(rep+si)%len(modes):]+modes[:(rep+si)%len(modes)]
++            for mode in ['reference']+order:
++                configure(model, 'original' if mode=='reference' else mode, sink, dest,
++                          args.cache_budget_mb, args.refresh_interval, args.profile_stages)
++                for ordinal, index in enumerate(scene['indices']):
++                    seed(index)
++                    prep_tick = perf_counter()
++                    sample = freeze_sample_questions(dataset[index], frozen[index])
++                    batch = scatter(collate([sample], samples_per_gpu=1), [torch.cuda.current_device()])[0]
++                    torch.cuda.synchronize()
++                    prep_ms = (perf_counter()-prep_tick)*1000
++                    seed(index+10000)
++                    sink.ids = []
++                    # Fresh path: existing language files can never skip generation.
++                    model.save_path = str(dest/'language'/f'{rep}_{si}_{mode}')+'/'
++                    model.stream_runtime.input_preparation_wall_ms = prep_ms
++                    torch.cuda.reset_peak_memory_stats()
++                    tick = perf_counter()
++                    output = model(return_loss=False, rescale=True, **batch)
++                    torch.cuda.synchronize()
++                    wall = (perf_counter()-tick)*1000+prep_ms
++                    record = model.stream_runtime.last_record
++                    record.e2e_wall_ms = wall  # includes outer native forward_test overhead
++                    record.memory.update(gpu_peak_allocated=torch.cuda.max_memory_allocated(),
++                        gpu_peak_reserved=torch.cuda.max_memory_reserved(),
++                        cpu_rss_highwater_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024)
++                    current = dict(output=arrays(output), feature=arrays(captured.pop('feature')),
++                        memory=memory(model), ids=sink.ids)
++                    reference_path = dest/'references'/f'{rep}_{index}.pkl'
++                    if mode=='reference':
++                        with reference_path.open('wb') as handle:
++                            pickle.dump(current, handle)
++                        continue
++                    with reference_path.open('rb') as handle:
++                        reference = pickle.load(handle)
++                    equality = sink.ids==reference['ids']
++                    diff = {key: numeric_diff(current[key], reference[key]) for key in ('output','feature','memory')}
++                    # numeric_diff compares numerical leaves; output text is
++                    # checked independently through complete generated IDs.
++                    record.quality = dict(exact_token_equality=equality,
++                        token_count_matches=len(sink.ids)==len(frozen[index]['questions']),
++                        numerical=diff, exact_perception_memory_digest=all(
++                            typed_digest(current[k])==typed_digest(reference[k]) for k in ('feature','memory')))
++                    tasks = []
++                    for question, answer in zip(frozen[index]['questions'], output[0]['text_out']):
++                        text = ' '.join(answer['A'])
++                        gt, origin = resolve_reference(dataset.data_infos[index]['token'], question,
++                            ground_truth(dataset.data_infos[index]['token']))
++                        tasks.append(dict(question=question, answer=text, ground_truth=gt, ground_truth_source=origin,
++                            text_overlap=qa_quality(text,gt) if gt is not None else None,
++                            planning=planning_quality(text,dataset.data_infos[index]) if 'planning trajectory' in question.lower() else None))
++                    row = dict(mode=mode, workload=args.workload, repeat=rep, warmup=rep<args.warmup,
++                        split=scene['split'], ordinal=ordinal, cold=ordinal==0, index=index,
++                        frame=record.to_dict(), generated_ids=sink.ids, tasks=tasks)
++                    with (dest/'frames.jsonl').open('a') as handle:
++                        handle.write(json.dumps(row, ensure_ascii=False, allow_nan=False)+'\n')
++                    print(args.workload, mode, rep, si, ordinal, round(wall,2), 'token_equal', equality, flush=True)
++                    write(dest/'status.json', dict(status='running', mode=mode, repeat=rep, scene=si, ordinal=ordinal))
++                del current
++    if args.trace:
++        # Profiler is a separate full generation, not a timing-table sample.
++        configure(model, 'original', sink, dest, args.cache_budget_mb, args.refresh_interval, True)
++        index = scenes[0]['indices'][0]
++        model.save_path = str(dest/'profile_language')+'/'
++        with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU,
++                torch.profiler.ProfilerActivity.CUDA], record_shapes=True) as prof:
++            with torch.autograd.profiler.record_function('stream/input_preparation'):
++                seed(index)
++                batch = scatter(collate([freeze_sample_questions(dataset[index],frozen[index])],samples_per_gpu=1),[0])[0]
++            model(return_loss=False,rescale=True,**batch)
++            torch.cuda.synchronize()
++        prof.export_chrome_trace(str(dest/'pipeline_trace.json'))
++    if extract_owned:model.extract_img_feat=original_extract
++    else:delattr(model,'extract_img_feat')
++    if args.lifecycle_probe:
++        from .lifecycle_probe import run as lifecycle_probe
++        lifecycle_probe(model,dataset,frozen,scenes[0]['indices'],sink,dest/'lifecycle_probe',
++            args,configure,seed,RecordedM3)
++    if args.decode_probe:
++        from .decode_probe import run as decode_probe
++        decode_probe(model, native, sink.probe_input, dest/'decode_probe')
++    unchanged = versions == [(n,p._version,p.dtype) for n,p in model.named_parameters()]
++    assert unchanged, 'Model parameters changed during inference'
++    write(dest/'status.json', dict(status='completed', weights_unchanged=unchanged))
++
++
++if __name__ == '__main__':
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--output', required=True)
++    parser.add_argument('--workload', choices=['single','multi'], default='single')
++    parser.add_argument('--scenes', type=int, default=2)
++    parser.add_argument('--scene-start', type=int, default=96)
++    parser.add_argument('--frames', type=int, default=4)
++    parser.add_argument('--warmup', type=int, default=1)
++    parser.add_argument('--repeats', type=int, default=2)
++    parser.add_argument('--frame-stride', type=int, default=1)
++    parser.add_argument('--cache-budget-mb', type=int, default=512)
++    parser.add_argument('--refresh-interval', type=int, default=10)
++    parser.add_argument('--modes', nargs='+', default=MODES, choices=MODES+['prefix','batch','adaptive','state_only','state_full','compact'])
++    parser.add_argument('--profile-stages', action='store_true')
++    parser.add_argument('--trace', action='store_true')
++    parser.add_argument('--decode-probe', action='store_true')
++    parser.add_argument('--lifecycle-probe', action=argparse.BooleanOptionalAction, default=None,
++        help='Controlled real-cache post-head failure/recovery; enabled by default for long single-question streams')
++    args=parser.parse_args()
++    preexisting_output=Path(args.output).exists()
++    try:
++        run(args)
++    except Exception as error:
++        if not preexisting_output and (Path(args.output)/'source_manifest.json').exists():
++            write(Path(args.output)/'status.json',dict(status='failed',error=type(error).__name__+': '+str(error)))
++        raise
+diff --git a/tools/system_optimization/gate_benchmark.py b/tools/system_optimization/gate_benchmark.py
+new file mode 100644
+index 0000000..ddf76e6
+--- /dev/null
++++ b/tools/system_optimization/gate_benchmark.py
+@@ -0,0 +1,76 @@
++"""Paired original/current rejection gate on real preprocessed images.
++
++This microbenchmark does not claim visual reuse or complete VLM acceleration.
++"""
++import argparse
++import importlib.util
++import json
++from pathlib import Path
++import subprocess
++from time import perf_counter
++import numpy as np
++import torch
++from worldstream.m2.cheap_admission import CheapAdmission
++from .audit import write, stats
++
++
++@torch.no_grad()
++def run(dest, cuda=False):
++    dest=Path(dest);dest.mkdir(parents=True,exist_ok=True)
++    old_source=subprocess.check_output(['git','show','HEAD:worldstream/m2/cheap_admission.py'])
++    path=dest/'original_cheap_admission.py'
++    if path.exists() and path.read_bytes()!=old_source:
++        raise ValueError('Frozen reference differs from current HEAD')
++    path.write_bytes(old_source)
++    spec=importlib.util.spec_from_file_location('original_gate',path)
++    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
++    # The same actual raw cameras and existing deployment normalization. Never
++    # call synthetic repeated pixels a real consecutive driving sample.
++    import pickle,cv2
++    with open('data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl','rb') as handle:
++        infos=pickle.load(handle)['infos']
++    infos=sorted(infos,key=lambda x:(x['scene_token'],x['timestamp']))[:4]
++    images=[]
++    for info in infos:
++        cameras=[]
++        for camera in info['cams'].values():
++            image=cv2.imread(camera['data_path'])
++            if image is None:
++                raise FileNotFoundError(camera['data_path'])
++            image=cv2.resize(image,(640,640)).astype(np.float32)
++            # Gate equality is invariant to a deterministic affine transform;
++            # exact deployed pipeline correctness is checked in full VLM runs.
++            cameras.append(torch.from_numpy(image).permute(2,0,1)/255.)
++        images.append(torch.stack(cameras).to('cuda' if cuda else 'cpu'))
++    ctx=dict(scene_id=infos[0]['scene_token'],camera_ids=list(infos[0]['cams']),execution_signature='same_raw_resize')
++    samples={'original':[],'samples_only':[]};memory={};equal=[]
++    for repeat in range(12):
++        names=['original','samples_only'] if repeat%2 else ['samples_only','original']
++        decisions={}
++        for name in names:
++            gate=module.CheapAdmission() if name=='original' else CheapAdmission()
++            decisions[name]=[]
++            for i,image in enumerate(images):
++                if cuda:torch.cuda.synchronize()
++                tick=perf_counter()
++                result=gate.check(image,ctx,(256,256))
++                if cuda:torch.cuda.synchronize()
++                wall=(perf_counter()-tick)*1000
++                decisions[name].append((result['reject'],result['reason']))
++                if repeat>=2:samples[name].append(wall)
++                memory[name]=result['snapshot_bytes']
++        equal.append(decisions['original']==decisions['samples_only'])
++    write(dest/('gate_gpu.json' if cuda else 'gate_cpu.json'),dict(
++        device='cuda' if cuda else 'cpu',wall_ms={k:stats(v) for k,v in samples.items()},samples_ms=samples,
++        snapshot_bytes=memory,decisions_equal=all(equal),unique_frames=len(infos),
++        tokens=[i['token'] for i in infos],warmup=2,repeats=10,
++        evidence='real_images_resized_gate_microbenchmark',
++        caveat='Resize-only input, excludes full VLM and M1; shared GPU load may affect timing'))
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser()
++    parser.add_argument('--output',default='outputs/system_optimization')
++    parser.add_argument('--cuda',action='store_true')
++    args=parser.parse_args();torch.set_num_threads(1)
++    run(args.output,args.cuda)
+diff --git a/tools/system_optimization/lifecycle_probe.py b/tools/system_optimization/lifecycle_probe.py
+new file mode 100644
+index 0000000..88f5094
+--- /dev/null
++++ b/tools/system_optimization/lifecycle_probe.py
+@@ -0,0 +1,140 @@
++"""Real-weight controlled failure AFTER native temporal heads have advanced.
++
++Uses repeated real frames solely as a lifecycle control, never independent
++driving samples or performance measurements. No GT or final answers are cached.
++"""
++from pathlib import Path
++import copy
++import hashlib
++from functools import wraps
++import torch
++from .audit import write
++
++
++def head_memory_status(model):
++    # memory_len is immutable configuration, not temporal state to clear.
++    fields=('memory_embedding','memory_reference_point','memory_timestamp',
++        'memory_egopose','memory_velo','sample_time','memory_canbus','memory_mask')
++    return {branch:{name:getattr(getattr(model,branch),name) is None
++        for name in fields if hasattr(getattr(model,branch),name)}
++        for branch in ('pts_bbox_head','map_head')}
++
++
++@torch.no_grad()
++def run(model,dataset,frozen,indices,sink,dest,args,configure,seed,recorded_m3):
++    from mmcv.parallel import collate,scatter
++    from tools.worldstream_m3.refinement import freeze_sample_questions
++    from tools.worldstream_m2.refinement_common import arrays,numeric_diff
++    from tools.worldstream_m2.rearchitecture.common import memory
++    dest=Path(dest);dest.mkdir(parents=True,exist_ok=False)
++    source=Path(__file__).read_bytes()
++    (dest/'executed_probe.py').write_bytes(source)
++    write(dest/'source.json',dict(path=__file__,sha256=hashlib.sha256(source).hexdigest(),
++        note='Probe imported at control execution; main inference source snapshot is in the parent run'))
++    if len(indices)<3:raise ValueError('Lifecycle control needs three real source frames')
++    feature={}
++    repeated={}
++    extract_owned='extract_img_feat' in vars(model)
++    original_extract=model.extract_img_feat
++    @wraps(original_extract)
++    def capture_extract(*a,**kw):
++        result=original_extract(*a,**kw);feature['value']=result.detach();return result
++    model.extract_img_feat=capture_extract
++    def execute(index,label,repeat_input=False,capture_input=False):
++        seed(index)
++        sample=freeze_sample_questions(dataset[index],frozen[index])
++        batch=scatter(collate([sample],samples_per_gpu=1),[torch.cuda.current_device()])[0]
++        if repeat_input:batch['img'][0].copy_(repeated['image'])
++        if capture_input:repeated['image']=batch['img'][0].detach().clone()
++        seed(index+10000);sink.ids=[]
++        model.save_path=str(dest/label/'language')+'/'
++        output=model(return_loss=False,rescale=True,**batch)
++        torch.cuda.synchronize()
++        return dict(output=arrays(output),feature=arrays(feature.pop('value')),
++            memory=memory(model),ids=copy.deepcopy(sink.ids))
++    try:
++        configure(model,'m123',sink,dest,args.cache_budget_mb,args.refresh_interval,False)
++        from worldstream.m2 import IncrementalVisionRuntime
++        model.m2_runtime=IncrementalVisionRuntime(model.img_backbone,dict(mode='exact',reuse_boundary='camera',
++            memory_budget_mb=512,cache_capture='always',cheap_gate=True,m1_service='maintain'))
++        # Populate a real source KV, plus real camera features and world history.
++        # This is an explicit offline materialization, not a quality approval.
++        model.m3_runtime=recorded_m3(dict(mode='exact',offline_experiment=True,
++            cross_frame=True,borrow_prefix=True,memory_budget_mb=512),sink)
++        warm=execute(indices[0],'warm_real_sources',capture_input=True)
++        prior=model.m1_manager.store.features['backbone']
++        prior_source=dict(frame=prior.source_frame_id,timestamp=prior.computation_timestamp,
++            version=prior.computation_version)
++        repeated_output=execute(indices[1],'controlled_repeat_input',repeat_input=True)
++        repeat_diag=model.m2_diagnostics
++        carried=model.m1_manager.store.features['backbone']
++        reuse_proof=dict(actual_reused_cameras=repeat_diag.get('actual_reused_cameras',0),
++            source_frame=carried.source_frame_id,source_timestamp=carried.computation_timestamp,
++            source_version=carried.computation_version,prior=prior_source,
++            current_heads_timestamp=model.m1_manager.store.features['object_carrier'].computation_timestamp,
++            feature_difference=numeric_diff(repeated_output['feature'],warm['feature']))
++        assert reuse_proof['actual_reused_cameras']==len(carried.source_camera_ids)
++        assert (carried.source_frame_id,carried.computation_timestamp,carried.computation_version)==(
++            prior_source['frame'],prior_source['timestamp'],prior_source['version'])
++        assert reuse_proof['feature_difference']['max_abs']==0
++        populated=dict(m1_anchors=len(model.m1_manager.store.anchors),
++            m1_history_cameras=len(model.m1_manager._previous_cameras),m1_commits=model.m1_manager.store.commit_count,
++            m2_bytes=model.m2_runtime.camera_executor.cache.bytes,m3_bytes=model.m3_runtime.cache.nbytes)
++        if not all(populated[k]>0 for k in ('m1_history_cameras','m1_commits','m2_bytes','m3_bytes')):
++            raise AssertionError('Controlled failure must start with actual nonempty state/cache sources')
++        original=model.m3_runtime.generate
++        def fail_after_heads(*a,**kw):
++            raise RuntimeError('controlled_after_native_temporal_heads')
++        model.m3_runtime.generate=fail_after_heads
++        try:
++            execute(indices[2],'fault_after_heads')
++        except RuntimeError as error:
++            if str(error)!='controlled_after_native_temporal_heads':raise
++        else:
++            raise AssertionError('Expected controlled post-head failure')
++        finally:
++            model.m3_runtime.generate=original
++        heads=head_memory_status(model)
++        cleared=dict(heads=heads,m1_anchors=len(model.m1_manager.store.anchors),
++            m1_pending=model.m1_manager._pending,m1_camera_history=len(model.m1_manager._previous_cameras),
++            m2_bytes=model.m2_runtime.cache.bytes+model.m2_runtime.camera_executor.cache.bytes,
++            m3_bytes=model.m3_runtime.cache.nbytes,stream_previous=model.stream_runtime.previous,
++            failed_record_status=model.stream_runtime.last_record.status)
++        write(dest/'fault_state.json',cleared)
++        assert all(all(values.values()) for values in heads.values())
++        assert all(cleared[k]==0 for k in ('m1_anchors','m1_camera_history','m2_bytes','m3_bytes'))
++        assert cleared['m1_pending'] is None and cleared['stream_previous'] is None
++        assert cleared['failed_record_status']=='failed'
++        # No manual head reset here: exercise the coordinator's real recovery.
++        model.m3_runtime=recorded_m3(dict(mode='auto'),sink)
++        recovered=execute(indices[2],'recovered_request')
++        other=next((i for i in frozen if dataset.data_infos[i]['scene_token']!=
++            dataset.data_infos[indices[0]]['scene_token']),None)
++        switched=execute(other,'real_scene_switch') if other is not None else None
++        switch_resets=list(model.stream_runtime.last_record.lifecycle_resets) if switched is not None else []
++        if switched is not None:assert 'scene_change' in switch_resets
++        configure(model,'original',sink,dest,args.cache_budget_mb,args.refresh_interval,False)
++        reference=execute(indices[2],'fresh_native_reference')
++        differences={key:numeric_diff(recovered[key],reference[key]) for key in ('output','feature','memory')}
++        token_equal=recovered['ids']==reference['ids']
++        equal=token_equal and all(not d['shape_mismatches'] and d['max_abs']==0 for d in differences.values())
++        switch_proof=None
++        if switched is not None:
++            configure(model,'original',sink,dest,args.cache_budget_mb,args.refresh_interval,False)
++            switch_reference=execute(other,'fresh_native_scene_switch_reference')
++            switch_diff={key:numeric_diff(switched[key],switch_reference[key]) for key in ('output','feature','memory')}
++            switch_equal=switched['ids']==switch_reference['ids'] and all(
++                not d['shape_mismatches'] and d['max_abs']==0 for d in switch_diff.values())
++            switch_proof=dict(source_index=other,lifecycle_resets=switch_resets,
++                matches_fresh_native=switch_equal,numerical=switch_diff)
++        write(dest/'results.json',dict(scope='controlled repeated real-input failure/recovery, not latency or independent sample data',
++            vision_policy='explicit exact offline control, finite whole-camera equality still required',production_approved=False,
++            source_indices=indices[:3],controlled_reuse_source= reuse_proof,populated_sources=populated,cleared=cleared,
++            recovered_complete_token_equality=token_equal,recovered_numerical=differences,
++            recovered_matches_fresh_native=equal,real_scene_switch=switch_proof,
++            reference_ids=reference['ids'],recovered_ids=recovered['ids']))
++        assert equal,'Recovery differs from fresh native heads/memory/vision/generation'
++        if switch_proof is not None:assert switch_proof['matches_fresh_native'],'Scene switch differs from fresh native'
++    finally:
++        if extract_owned:model.extract_img_feat=original_extract
++        else:delattr(model,'extract_img_feat')
+diff --git a/tools/system_optimization/report.py b/tools/system_optimization/report.py
+new file mode 100644
+index 0000000..9fc5b9c
+--- /dev/null
++++ b/tools/system_optimization/report.py
+@@ -0,0 +1,575 @@
++"""Report only real measured rows; historical evidence stays explicitly labelled."""
++import argparse
++from collections import defaultdict
++import hashlib
++import json
++from pathlib import Path
++import re
++import numpy as np
++from .audit import write, stats
++
++
++def measured_stages(frame):
++    """Recover legacy suffix labels from explicit executed KV-branch events.
++
++    Older timers used `past_key_values != None` as decode. These experiments
++    clamp shared prefixes below every prompt length, so the first actual model
++    call after a branch is an embedding suffix prefill. Never rewrite raw rows;
++    new timers record the true input shape and classify directly.
++    """
++    pending=False
++    shared=bool(frame['m3'].get('shared_seed') or frame['m3'].get('batch'))
++    for stage in frame['stages']:
++        label=stage['name']
++        if label=='m3_kv_branch':pending=True
++        if label in ('llm_prefill','llm_decode'):
++            if label=='llm_decode' and pending and shared and 'input_shape' not in stage:
++                label='llm_prefill'
++            pending=False
++        yield label,stage
++
++
++def prefill_token_accounting(frame):
++    """Count executed forward rows, including independent seed and padding.
++
++    Producer `reused_tokens` has different first-question charging conventions;
++    it is not itself the number of GPU prefill tokens avoided.
++    """
++    prefill=[s for label,s in measured_stages(frame) if label=='llm_prefill']
++    actual=sum(s['forward_tokens'] for s in prefill) if prefill and all('forward_tokens' in s for s in prefill) else None
++    diag=frame['m3'];requests=diag.get('requests',[]);batch=diag.get('batch',{})
++    if actual is None and 'physical_prefill_tokens' in batch:actual=batch['physical_prefill_tokens']
++    if actual is None and batch.get('groups') and all('physical_prefill_tokens' in g['diagnostics'] for g in batch['groups']):
++        actual=sum(g['diagnostics']['physical_prefill_tokens'] for g in batch['groups'])
++    if actual is None and requests and all('forward_prefill_lengths' in q for q in requests):
++        actual=sum(sum(q['forward_prefill_lengths']) for q in requests)+(diag.get('shared_seed') or {}).get('prefix_tokens',0)
++    original=sum(q['input_tokens'] for q in requests) if requests and all('input_tokens' in q for q in requests) else None
++    approximate=any(q.get('selection',{}).get('approximate') for q in requests)
++    return dict(physical_forward_tokens=actual,
++        duplicate_prefill_tokens_avoided=original-actual if original is not None and actual is not None and not approximate else None)
++
++
++def summarize(rows):
++    groups=defaultdict(list)
++    references={(r['run'],r['repeat'],r['index']):r['generated_ids'] for r in rows if r['mode']=='original'}
++    for row in rows:
++        if not row['warmup']:
++            groups[(row['run'],row['mode'],row['frame']['service'])].append(row)
++    output=[]
++    for (run,mode,service),frames in sorted(groups.items()):
++        identities=[r['frame']['identity'] for r in frames]
++        numerical=[r['frame']['quality']['numerical'] for r in frames]
++        exact=all(r['frame']['quality']['exact_token_equality'] and r['frame']['quality']['token_count_matches']
++            and all(not d['shape_mismatches'] and all(v['max_abs']==0 for v in d['leaves']) for d in n.values())
++            for r,n in zip(frames,numerical))
++        components=defaultdict(list)
++        stage_wall=defaultdict(list);stage_cpu=defaultdict(list);stage_exclusive=defaultdict(list)
++        for row in frames:
++            by_stage=defaultdict(float)
++            by_wall=defaultdict(float);by_cpu=defaultdict(float);by_exclusive=defaultdict(float)
++            for label,stage in measured_stages(row['frame']):
++                if 'cuda_interval_ms' in stage:
++                    by_stage[label]+=stage['cuda_interval_ms']
++                for field,bucket in (('wall_ms',by_wall),('cpu_process_ms',by_cpu),('exclusive_wall_ms',by_exclusive)):
++                    if field in stage:bucket[label]+=stage[field]
++            for name,value in by_stage.items():components[name].append(value)
++            for source,target in ((by_wall,stage_wall),(by_cpu,stage_cpu),(by_exclusive,stage_exclusive)):
++                for name,value in source.items():target[name].append(value)
++        planning=[task['planning'] for r in frames for task in r['tasks'] if task['planning'] is not None]
++        qa=[task['text_overlap'] for r in frames for task in r['tasks'] if task['text_overlap'] is not None]
++        qs=sum(r['frame']['question_count'] for r in frames)
++        def question_equality(selected):
++            equal=total=0
++            for r in selected:
++                reference=references.get((r['run'],r['repeat'],r['index']))
++                if reference is None:return None
++                total+=r['frame']['question_count']
++                equal+=sum(a==b for a,b in zip(r['generated_ids'],reference))
++            return dict(equal=equal,total=total)
++        requests=[q for r in frames for q in r['frame']['m3'].get('requests',[])]
++        state_queries=[q['state_retrieval'] for q in requests if q.get('state_retrieval') is not None]
++        activated=sum(bool(q.get('admitted')) for q in state_queries)
++        consumed={(r['frame']['identity']['frame_id'],state['anchor_id']) for r in frames
++            for request in r['frame']['m3'].get('requests',[]) if (request.get('state_retrieval') or {}).get('admitted')
++            for state in request['state_retrieval'].get('records',[])}
++        def batch_metric(row,name):
++            batch=row['frame']['m3'].get('batch',{})
++            if name in batch:return batch[name]
++            return sum(g['diagnostics'].get(name,0) for g in batch.get('groups',[]))
++        generated=sum(max(0,len(ids[0])-1) for r in frames for ids in r['generated_ids'])
++        useful_decode=sum(max(0,len(ids[0])-2) for r in frames for ids in r['generated_ids'])
++        m1=[r['frame']['m1'].get('m1_total_including_adapters_ms',0.) for r in frames]
++        accepted=sum(r['frame']['m1'].get('valid_anchor_count',0) for r in frames)
++        token_counts=[prefill_token_accounting(r['frame']) for r in frames]
++        decoded=sum(components.get('llm_decode',[]))
++        def fallback_reasons(row):
++            frame=row['frame'];reasons=list(frame['fallback_reasons'])
++            batch_fallback=frame['m3'].get('batch_fallback')
++            if batch_fallback is not None:
++                reasons.append('batch_full_fallback:'+batch_fallback.get('reason','unknown'))
++            for group in frame['m3'].get('batch',{}).get('groups',[]):
++                diag=group['diagnostics']
++                if diag.get('admitted') is False:reasons.append('batch_group_full_fallback:'+diag.get('reason','unknown'))
++            for request in frame['m3'].get('requests',[]):
++                query=request.get('state_retrieval')
++                if query is not None and not query.get('admitted'):
++                    reasons.append('state_query_full_fallback:'+query.get('reason','unknown'))
++            return reasons
++        output.append(dict(run=run,mode=mode,service=service,workload=frames[0]['workload'],
++            measured_frames=len(frames),unique_frames=len({i['frame_id'] for i in identities}),
++            scenes=len({i['scene_id'] for i in identities}),questions=qs,
++            e2e_wall_ms=stats([r['frame']['e2e_wall_ms'] for r in frames]),
++            preprocessing_wall_ms=stats([r['frame']['input_preparation_wall_ms'] for r in frames]),
++            components_cuda_interval_ms={k:stats(v) for k,v in components.items()},
++            components_wall_ms={k:stats(v) for k,v in stage_wall.items()},
++            components_cpu_process_ms={k:stats(v) for k,v in stage_cpu.items()},
++            components_exclusive_wall_ms={k:stats(v) for k,v in stage_exclusive.items()},
++            timing_classification='Actual input-shape labels when present; legacy cached suffixes identified by explicit preceding KV branch; raw rows unchanged',
++            exact_full_output_equality=exact,
++            token_equal_frames=sum(r['frame']['quality']['exact_token_equality'] for r in frames),
++            complete_question_token_equality=question_equality(frames),
++            token_equality_by_split={s:question_equality([r for r in frames if r['split']==s]) for s in ('calibration','heldout')},
++            generated_tokens=generated,useful_decode_tokens=useful_decode,
++            effective_decode_tokens_per_second=useful_decode/(decoded/1000) if decoded else None,
++            m1_maintenance_ms=stats(m1),verified_anchor_records=accepted,
++            useful_state_yield_per_ms=0. if state_queries and not activated and sum(m1)>0 else None,
++            actual_skipped_windows=sum(r['frame']['m2'].get('actual_skipped_windows',0) for r in frames),
++            actual_reused_cameras=sum(r['frame']['m2'].get('actual_reused_cameras',0) for r in frames),
++            actual_reused_kv_tokens=sum(q.get('reused_tokens',0) for q in requests),
++            suffix_padding_tokens=sum(batch_metric(r,'suffix_padding_tokens') for r in frames),
++            decode_padding_tokens=sum(batch_metric(r,'decode_padding_tokens') for r in frames),
++            physical_prefill_forward_tokens=sum(c['physical_forward_tokens'] for c in token_counts) if all(c['physical_forward_tokens'] is not None for c in token_counts) else None,
++            duplicate_prefill_tokens_avoided=sum(c['duplicate_prefill_tokens_avoided'] for c in token_counts) if all(c['duplicate_prefill_tokens_avoided'] is not None for c in token_counts) else None,
++            state_activated_questions=activated,state_queries=len(state_queries),
++            task_query_hit_rate=activated/len(state_queries) if state_queries else None,
++            task_consumed_unique_frame_anchor_pairs=len(consumed),
++            fallback_frames=sum(bool(fallback_reasons(r)) for r in frames),
++            fallback_rate=sum(bool(fallback_reasons(r)) for r in frames)/len(frames),
++            fallback_reasons=dict(__import__('collections').Counter(reason for r in frames for reason in fallback_reasons(r))),
++            memory=dict(cache_peak_bytes=max(r['frame']['memory']['tracked_cache_bytes'] for r in frames),
++                cache_peak_scope='Observed before budget enforcement; includes payload explicitly invalidated at completion. Not a post-eviction residency guarantee.',
++                m1_payload_accounted=all('m1_payload_bytes' in r['frame']['memory'] for r in frames),
++                gpu_peak_allocated=max(r['frame']['memory'].get('gpu_peak_allocated',0) for r in frames),
++                gpu_peak_reserved=max(r['frame']['memory'].get('gpu_peak_reserved',0) for r in frames),
++                cpu_rss_highwater_bytes=max(r['frame']['memory'].get('cpu_rss_highwater_bytes',0) for r in frames)),
++            cold_wall_ms=stats([r['frame']['e2e_wall_ms'] for r in frames if r['cold']]),
++            warm_wall_ms=stats([r['frame']['e2e_wall_ms'] for r in frames if not r['cold']]),
++            qa_ground_truth=dict(available_questions=len(qa),total_questions=qs,
++                exact_matches=sum(bool(q['exact']) for q in qa),
++                mean_lexical_token_f1=float(np.mean([q['token_f1'] for q in qa])) if qa else None,
++                numeric_mae=stats([q['numeric_mae'] for q in qa if q['numeric_mae'] is not None]),
++                note='Original annotation text overlap, not an LLM judge or driving safety metric'),
++            planning=dict(parsed=sum(p.get('status')=='parsed' for p in planning),questions=len(planning),
++                ade_m=stats([p['ade_m'] for p in planning if p.get('ade_m') is not None]),
++                fde_m=stats([p['fde_m'] for p in planning if p.get('fde_m') is not None]))))
++    for row in output:
++        base=next((x for x in output if x['run']==row['run'] and x['mode']=='original'),None)
++        matched=next((x for x in output if x['run']==row['run'] and x['mode']=='m1' and x['service']==row['service']),None) if row['service']=='persistent_state' else base
++        row['p50_ratio_to_original']=base['e2e_wall_ms']['p50']/row['e2e_wall_ms']['p50'] if base else None
++        row['service_matched_reference']=matched['mode'] if matched else None
++        row['service_matched_p50_speedup']=matched['e2e_wall_ms']['p50']/row['e2e_wall_ms']['p50'] if matched else None
++        row['quality_constrained_service_speedup']=row['service_matched_p50_speedup'] if row['exact_full_output_equality'] else None
++        row['production_auto_certificate']=False
++    return output
++
++
++def trace_summary(path):
++    events=json.loads(path.read_text())['traceEvents']
++    def union(items):
++        total=0.;end=-float('inf')
++        for start,stop in sorted(items):
++            if stop>end:total+=stop-max(start,end);end=stop
++        return total/1000
++    kernels=[e for e in events if e.get('cat')=='kernel' and e.get('ph')=='X']
++    cuda=[e for e in events if e.get('cat')=='cuda_runtime' and e.get('ph')=='X']
++    copies=[e for e in events if e.get('cat')=='gpu_memcpy' and e.get('ph')=='X']
++    full_input=any(e.get('name')=='stream/input_preparation' for e in events)
++    return dict(source=str(path),evidence='separate_real_full_gpu_trace_not_latency_sample',
++        kernel_count=len(kernels),kernel_duration_sum_ms=sum(e['dur'] for e in kernels)/1000,
++        kernel_active_union_ms=union([(e['ts'],e['ts']+e['dur']) for e in kernels]),
++        scope='input_preparation_scatter_and_inference' if full_input else 'inference_only_preparation_outside_trace',
++        gpu_copy_ms={kind:sum(e['dur'] for e in copies if kind.lower() in e['name'].lower())/1000 for kind in ('HtoD','DtoH','DtoD')},
++        synchronize_cpu_ms=sum(e['dur'] for e in cuda if 'synchroniz' in e['name'].lower())/1000,
++        allocation_api_ms=sum(e['dur'] for e in cuda if 'malloc' in e['name'].lower() or 'free' in e['name'].lower())/1000,
++        kernel_names=dict(__import__('collections').Counter(e['name'] for e in kernels).most_common(15)),
++        launch_gap_ms=None,note='CUDA intervals include idle gaps; no inference from FLOPs. Gap attribution remains unmeasured.')
++
++
++def figures(root, summary, rows):
++    import matplotlib
++    matplotlib.use('Agg')
++    import matplotlib.pyplot as plt
++    (root/'figures').mkdir(parents=True,exist_ok=True)
++    made={}
++    def save(number,title,draw):
++        fig,ax=plt.subplots(figsize=(10,4.5));draw(ax)
++        ax.set_title(title);fig.tight_layout()
++        fig.savefig(root/'figures'/f'{number}.png',dpi=180)
++        fig.savefig(root/'figures'/f'{number}.pdf');plt.close(fig)
++        made[number]=dict(title=title,status='measured')
++    base=[r for r in summary if r['mode']=='original' and r['run'] in ('single','multi')]
++    if base:
++        def breakdown(ax):
++            stages=['eva','detection_head','map_head','llm_prefill','llm_decode']
++            for i,row in enumerate(base):
++                xs=[row['preprocessing_wall_ms']['p50']]+[row['components_cuda_interval_ms'].get(k,{}).get('p50',0) for k in stages]+[row['e2e_wall_ms']['p50']]
++                ax.bar(np.arange(len(stages)+2)+i*.35,xs,width=.35,label=row['workload'])
++            ax.set_xticks(np.arange(len(stages)+2)+.17);ax.set_xticklabels(['input prep\n(wall)']+stages+['E2E\n(wall)'],rotation=15)
++            ax.set_ylabel('P50 ms; components = CUDA intervals (not additive)');ax.legend()
++        save('S1','Complete VLM measured components',breakdown)
++    state=[r for r in rows if not r['warmup'] and r['frame']['m1'].get('m1_total_including_adapters_ms') is not None]
++    if state:
++        save('S2','Verified physical anchors vs maintenance cost (not task quality)',lambda ax:(
++            ax.scatter([r['frame']['m1']['m1_total_including_adapters_ms'] for r in state],
++                       [r['frame']['m1'].get('valid_anchor_count',0) for r in state],s=10),
++            ax.set_xlabel('M1 wall ms'),ax.set_ylabel('Verified physical anchors')))
++    if summary:
++        selected=[r for r in summary if r['run'] in ('single','multi','language_candidates')]
++        def bars(ax,key,ylabel):
++            ax.bar(range(len(selected)),[r[key] for r in selected]);ax.set_xticks(range(len(selected)))
++            ax.set_xticklabels([r['run']+':'+r['mode'] for r in selected],rotation=75,fontsize=7);ax.set_ylabel(ylabel)
++        save('S3','Actual visual reuse on real moving inputs',lambda ax:bars(ax,'actual_reused_cameras','Reused cameras (zero is measured)'))
++        joint=next((r for r in summary if r['run']=='multi' and r['mode']=='m123'),None)
++        queried=next((r for r in summary if r['run']=='language_candidates' and r['mode']=='state_only'),None)
++        if joint and queried:
++            def consumption(ax):
++                values=[joint['verified_anchor_records'],joint['actual_reused_cameras'],queried['state_activated_questions']]
++                ax.bar(range(3),values);ax.set_xticks(range(3))
++                ax.set_xticklabels(['M1 verified physical\nanchor records','M2 actual reused\ncameras',f"M3 state-input activations\n({queried['state_queries']} actual queries)"])
++                for i,value in enumerate(values):ax.annotate(str(value),(i,value),xytext=(0,4),textcoords='offset points',ha='center')
++                ax.set_ylabel('Actual counts; units differ, no implied conversion')
++            save('S4','M1 to M2 to M3: actual state consumption',consumption)
++        candidates=[r for r in summary if r['run']=='language_candidates']
++        if candidates:
++            def language_quality(ax):
++                for i,r in enumerate(candidates):
++                    label=r['mode']
++                    if label.startswith('state_'):label+=f" ({r['state_activated_questions']} state activations)"
++                    ax.scatter(r['p50_ratio_to_original'] or 1,r['token_equal_frames']/r['measured_frames'],
++                        color=f'C{i}',label=label,marker='o' if r['exact_full_output_equality'] else 'x',s=45)
++                ax.set_xlabel('P50 ratio to native');ax.set_ylabel('Frames with complete token equality')
++                ax.set_ylim(0,1.08);ax.legend(loc='upper right',fontsize=8)
++            save('S5','Offline language quality vs speed (no Auto certificate)',language_quality)
++        save('S6','Single/multi service wall measured separately',lambda ax:(
++            ax.bar(range(len(base)),[r['e2e_wall_ms']['p50'] for r in base]),
++            ax.set_xticks(range(len(base))),ax.set_xticklabels([r['workload'] for r in base]),ax.set_ylabel('Full service P50 ms')))
++        budget_names=['budget_0','budget_128','language_candidates']
++        sample_sets=[{r['index'] for r in rows if r['run']==name and r['mode']=='original' and not r['warmup']} for name in budget_names]
++        common=set.intersection(*sample_sets) if all(sample_sets) else set()
++        if common:
++            prompts=[json.loads((root/name/'questions.json').read_text()) for name in budget_names]
++            common={i for i in common if all(p[str(i)]==prompts[0][str(i)] for p in prompts)}
++        if common:
++            references={(r['run'],r['repeat'],r['index']):r['frame']['e2e_wall_ms'] for r in rows if r['mode']=='original'}
++            points=[r for r in rows if r['run'] in budget_names and r['mode']=='batch' and not r['warmup'] and r['repeat']==1 and r['index'] in common]
++            def memory_serving(ax):
++                for name,budget,color in zip(budget_names,(0,128,512),('C0','C1','C2')):
++                    for equal in (True,False):
++                        selected=[r for r in points if r['run']==name and r['frame']['quality']['exact_token_equality']==equal]
++                        if not selected:continue
++                        ax.scatter([r['frame']['memory']['tracked_cache_bytes']/1024**2 for r in selected],
++                            [references[(r['run'],r['repeat'],r['index'])]/r['frame']['e2e_wall_ms'] for r in selected],
++                            color=color,marker='o' if equal else 'x',label=f'M3 budget {budget} MiB: tokens '+('equal' if equal else 'differ'))
++                ax.axhline(1,color='black',linewidth=.7);ax.set_xlabel('Actual retained cache MiB')
++                ax.set_ylabel('Paired E2E ratio to native, same frame');ax.legend(fontsize=7)
++            save('S7','Offline Batch: M3 cache budgets on matched real frames',memory_serving)
++            made['S7'].update(matched_frame_indices=sorted(common),repeat=1,scope='same frames/questions, no independent extra samples or production approval')
++        long=[r for r in rows if r['run'].startswith('long_stream') and not r['warmup']]
++        if long:
++            def draw_long(ax):
++                for mode in sorted({r['mode'] for r in long}):
++                    values=[r for r in long if r['mode']==mode]
++                    ax.plot([r['frame']['e2e_wall_ms'] for r in values],label=mode)
++                state=[r for r in long if r['mode']=='m123']
++                if state:
++                    other=ax.twinx();other.plot([r['frame']['m1'].get('valid_anchor_count',0) for r in state],
++                        color='black',linestyle=':',alpha=.6,label='M1 rule-verified physical anchors')
++                    other.set_ylabel('M1 verified anchor count (not task certification)')
++                    boundaries=[i for i in range(1,len(state)) if state[i]['frame']['identity']['scene_id']!=state[i-1]['frame']['identity']['scene_id']]
++                    for boundary in boundaries:ax.axvline(boundary,color='gray',linestyle='--',linewidth=.7)
++                ax.set_xlabel('Unique frame order; dashed = scene switch');ax.set_ylabel('E2E ms');ax.legend(fontsize=7)
++            save('S8','Long-stream latency and physical state validity',draw_long)
++        ablation=[r for r in summary if r['run']=='single']
++        if ablation:
++            save('S9','Cross-module ablation; service semantics are labelled',lambda ax:(
++                ax.bar(range(len(ablation)),[r['e2e_wall_ms']['p50'] for r in ablation]),
++                ax.set_xticks(range(len(ablation))),ax.set_xticklabels([r['mode']+'\n'+r['service'] for r in ablation],rotation=60,fontsize=7),ax.set_ylabel('E2E P50 ms')))
++        admitted=[r for r in summary if r['quality_constrained_service_speedup'] is not None and r['run'] in ('single','multi')]
++        if admitted:
++            save('S10','Observed output-equal service ratios (not deployment approval)',lambda ax:(
++                ax.bar(range(len(admitted)),[r['quality_constrained_service_speedup'] for r in admitted]),
++                ax.set_xticks(range(len(admitted))),ax.set_xticklabels([r['run']+':'+r['mode'] for r in admitted],rotation=75,fontsize=7),
++                ax.set_ylabel('P50 ratio to service-matched reference'),ax.axhline(1,color='black',linewidth=.7)))
++    for i in range(1,11):made.setdefault('S'+str(i),dict(status='unmeasured_no_fabricated_figure'))
++    write(root/'figures/manifest.json',made)
++
++
++def main(root):
++    root=Path(root);rows=[];runs={};sources={}
++    tests={}
++    for name in ('resume_cpu_tests.log','delivery_gpu_tests.log'):
++        path=root/'logs'/name
++        if path.exists():
++            source=path.read_text();passed=re.search(r'(\d+) passed',source)
++            skipped=re.search(r'(\d+) skipped',source)
++            failed=re.search(r'(\d+) failed',source);errors=re.search(r'(\d+) errors?',source)
++            tests[name]=dict(source=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
++                passed=int(passed.group(1)) if passed else None,
++                skipped=int(skipped.group(1)) if skipped else (0 if passed else None),
++                failed=int(failed.group(1)) if failed else (0 if passed else None),
++                errors=int(errors.group(1)) if errors else (0 if passed else None),
++                completed_summary_present=passed is not None,
++                caveat='GPU-visible environment does not mean every individual test executes on CUDA')
++    write(root/'validation_results.json',tests)
++    for path in sorted(root.glob('*/frames.jsonl')):
++        run=path.parent.name
++        # Smoke runs check the harness and are never merged with formal tables.
++        if run.startswith('smoke'):continue
++        status=json.loads((path.parent/'status.json').read_text())
++        runs[run]=status
++        if status.get('status')!='completed':continue
++        if run=='lifecycle_validation':continue  # Separate controlled correctness validation.
++        sources[str(path)]=hashlib.sha256(path.read_bytes()).hexdigest()
++        for line in path.open():
++            row=json.loads(line);row['run']=run;rows.append(row)
++    summary=summarize(rows)
++    # Offline description of actual selected sequences, never online admission
++    # or quality calibration. No instance IDs exist in this info file, so class
++    # count changes are not labelled as individual enter/leave ground truth.
++    annotation_path=Path('data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl')
++    coverage=[]
++    if annotation_path.exists():
++        import pickle
++        with annotation_path.open('rb') as handle:infos=pickle.load(handle)['infos']
++        for run in runs:
++            if runs[run].get('status')!='completed' or run=='lifecycle_validation':continue
++            protocol_path=root/run/'protocol.json'
++            if not protocol_path.exists():continue
++            protocol=json.loads(protocol_path.read_text())
++            for scene in protocol['scenes']:
++                selected=[infos[i] for i in scene['indices']]
++                ts=[i['timestamp']/1e6 for i in selected]
++                positions=np.asarray([i['ego2global_translation'] for i in selected])
++                class_counts=[dict(__import__('collections').Counter(map(str,i['gt_names']))) for i in selected]
++                coverage.append(dict(run=run,scene=scene['scene'],split=scene['split'],
++                    scene_name=selected[0].get('scene_name'),description=selected[0].get('description'),
++                    unique_frames=len(selected),duration_s=ts[-1]-ts[0],
++                    measured_frame_gaps_s=np.diff(ts).tolist(),ego_sampled_path_length_m=float(np.linalg.norm(np.diff(positions,axis=0),axis=1).sum()),
++                    classes_observed=sorted(set(k for counts in class_counts for k in counts)),
++                    class_counts=class_counts,independent_instance_enter_leave_recall=None,
++                    scope='Offline annotation coverage only, not a safety score or an online state input'))
++        del infos
++    write(root/'sequence_coverage.json',dict(source=str(annotation_path),sequences=coverage))
++    write(root/'scheduler_results.json',dict(results=summary,run_status=runs,source_sha256=sources))
++    for name,keep in [('single_question_results',lambda r:r['run']=='single'),
++            ('multi_question_results',lambda r:r['run'] in ('multi','language_candidates')),
++            ('long_stream_results',lambda r:r['run'].startswith('long_stream')),
++            ('ablation_results',lambda r:r['run'] in ('single','multi')),
++            ('memory_results',lambda r:True)]:
++        write(root/(name+'.json'),dict(evidence='new_real_weight_gpu',results=[r for r in summary if keep(r)]))
++    controls=[dict(source=str(p),**json.loads(p.read_text())) for p in root.glob('*/lifecycle_probe/results.json')]
++    lifecycle_verified=any(c.get('recovered_matches_fresh_native') is True
++        and (c.get('real_scene_switch') or {}).get('matches_fresh_native') is True for c in controls)
++    write(root/'exact_correctness.json',dict(results=[{k:r[k] for k in ('run','mode','measured_frames','token_equal_frames','exact_full_output_equality')} for r in summary],
++        controlled_lifecycle=controls,
++        caveat='No reuse when skipped computation is zero; full fallback equality is not reuse certification'))
++    write(root/'task_quality.json',dict(results=[dict(run=r['run'],mode=r['mode'],planning=r['planning'],qa_ground_truth=r['qa_ground_truth']) for r in summary],
++        qa_rows=[dict(run=r['run'],mode=r['mode'],index=r['index'],tasks=r['tasks']) for r in rows if not r['warmup']],
++        physical_false_acceptance='not newly measured; historical heldout evidence in state_consumption.json and workload_audit.md',
++        critical_change_recall='not newly measured',official_detection_map_metrics=None,closed_loop_safety=None))
++    with (root/'cross_module_trace.jsonl').open('w') as handle:
++        for row in rows:handle.write(json.dumps(row,ensure_ascii=False,allow_nan=False)+'\n')
++    profiles=[trace_summary(p) for p in root.glob('*/pipeline_trace.json')
++        if not p.parent.name.startswith('smoke') and runs.get(p.parent.name,{}).get('status')=='completed']
++    latency=json.loads((root/'latency_breakdown.json').read_text())
++    latency['new_gpu_profiles']=profiles;latency['new_frame_components']=summary
++    bounds={}
++    for workload in ('single','multi'):
++        native=[r for r in rows if r['run']==workload and r['mode']=='original' and not r['warmup']]
++        if not native:continue
++        repeated=[];decode=[];walls=[]
++        for r in native:
++            stages=r['frame']['stages']
++            prefill=[s['cuda_interval_ms'] for s in stages if s['name']=='llm_prefill' and 'cuda_interval_ms' in s]
++            if len(prefill)!=r['frame']['question_count']:continue
++            walls.append(r['frame']['e2e_wall_ms'])
++            repeated.append(sum(prefill[1:]))
++            decode.append(sum(s.get('cuda_interval_ms',0.) for s in stages if s['name']=='llm_decode'))
++        if walls:
++            bounds[workload]=dict(source='new original per-forward CUDA intervals and measured complete frame wall',
++                eliminate_later_question_prefill=dict(saving_ms=stats(repeated),
++                    residual_e2e_ms=stats([w-s for w,s in zip(walls,repeated)]),
++                    aggregate_time_ratio=sum(walls)/sum(w-s for w,s in zip(walls,repeated)),
++                    assumption='Optimistic zero-cost later-question prefill, including unique suffixes; first question retained. Single-question saving exactly zero.'),
++                eliminate_decode=dict(saving_ms=stats(decode),
++                    residual_e2e_ms=stats([w-s for w,s in zip(walls,decode)]),
++                    aggregate_time_ratio=sum(walls)/sum(w-s for w,s in zip(walls,decode)),
++                    assumption='Ideal complete removal of measured decoder-forward intervals, not a deployable autoregressive method'))
++    latency['new_idealized_bounds']=bounds
++    write(root/'latency_breakdown.json',latency)
++    historical=json.loads((root/'state_consumption.json').read_text())
++    historical['new_runs']=[dict(run=r['run'],mode=r['mode'],verified_anchor_records=r['verified_anchor_records'],
++        task_queries=r['state_queries'],activated_questions=r['state_activated_questions']) for r in summary]
++    audits=[]
++    for path in root.glob('*/m1_state.jsonl'):
++        if (path.parent.name.startswith('smoke') or path.parent.name=='lifecycle_validation'
++                or runs.get(path.parent.name,{}).get('status')!='completed'):continue
++        unique={}
++        for line in path.open():
++            entry=json.loads(line);p=entry['precheck']
++            unique.setdefault((p['scene_id'],p['frame_id']),p)
++        reasons=__import__('collections').Counter();checked=accepted=0;areas=[]
++        for p in unique.values():
++            anchors=p.get('diagnostics',{}).get('anchors',{})
++            checked+=len(anchors);accepted+=len(p['valid_anchor_ids'])
++            for check in anchors.values():reasons.update(check.get('reasons',[]))
++            for region in p['invalidation_regions'].values():
++                if 'verified_stable_area_ratio' in region:areas.append(region['verified_stable_area_ratio'])
++        audits.append(dict(run=path.parent.name,source=str(path),unique_frames=len(unique),
++            history_anchor_checks=checked,accepted_physical_anchors=accepted,
++            verified_physical_anchor_coverage=accepted/checked if checked else None,
++            mean_verified_observation_area_ratio=float(np.mean(areas)) if areas else None,
++            rejection_reasons=dict(reasons),reason_counts_are_multilabel=True,
++            task_consumable_states='see actual M3 query/activation rows; not implied by physical coverage',
++            physical_false_acceptance_rate=None,valid_state_recovery=None,critical_change_recall=None,
++            denominator='First occurrence of each real frame within this run; repeated timings and modes deduplicated'))
++    historical['new_m1_rejection_audit']=audits
++    historical['rejection_interpretation']=dict(
++        mandatory_until_independent_evidence=['motion_unknown','no_reliable_view','observation_mismatch','projected_occlusion','source/version mismatch'],
++        potentially_improvable_with_real_historical_evidence=['no_historical_observation','temporal_support_insufficient','temporal_source_missing'],
++        no_validation_threshold_disabled=True)
++    write(root/'state_consumption.json',historical)
++    reuse=json.loads((root/'reuse_coverage.json').read_text())
++    reuse['new_real_moving_runs']=[{k:r[k] for k in (
++        'run','mode','measured_frames','unique_frames','actual_skipped_windows',
++        'actual_reused_cameras','actual_reused_kv_tokens')} for r in summary]
++    reuse['controlled_repeats_excluded']=True
++    write(root/'reuse_coverage.json',reuse)
++    decisions=dict(A='Go: prioritize measured Decode and remove rejection-only copy cost',
++        B='No-Go: insufficient task-consumable verified history; physical validity never proves feature equality',
++        C='No-Go for real-scene reuse when actual skipped operations remain zero',
++        D='No production Prefix/Batch certificate; native Full fallback retained',
++        E='Go for tested lifecycle/source correctness; native failure recovery and scene switch passed' if lifecycle_verified else 'Pending: real lifecycle verification incomplete',
++        F='No-Go for production quality-constrained net acceleration on evaluated workloads; service changes and full fallback are not reuse gains')
++    write(root/'go_nogo_decisions.json',decisions)
++    write(root/'quality_admission.json',dict(approved=[],reasons=decisions,
++        rule='No untested shapes or global average speedups can grant approval; observations are not certificates'))
++    figures(root,summary,rows)
++    report=['# OmniDrive 跨模块系统优化实验报告','',
++        '审计与新增实验分开归档。原始模型、LoRA、Transformers 和质量门限保持不变。'
++        '本报告不把完整回退的正确性称为状态复用成功。','',
++        '**结论：尚未建立可生产批准的质量约束端到端净加速。** '
++        '真实移动输入的视觉跳算和任务世界状态消费以实测计数为准；'
++        '离线 Prefix/Batch 未满足完整原生输出等价，Auto 保持 Full 回退。'
++        '生命周期和来源正确性通过不代表已获得状态化计算收益。','',
++        f"本轮正式计时共 {sum(r['measured_frames'] for r in summary)} 次方法帧执行，"
++        f"覆盖 {len({r['frame']['identity']['frame_id'] for r in rows})} 个唯一真实帧、"
++        f"{len({r['frame']['identity']['scene_id'] for r in rows})} 个场景。"
++        '唯一数量跨方法、预热及重复去重；故障控制和独立 Profiler 不计入。','',
++        '## 新增真实 GPU 实验','',
++        '| Run | 方法 | 服务 | 唯一帧/计时帧 | E2E P50/P95 ms | 完整输出等价 | 同服务参考 | 同服务 P50 比值 |',
++        '|---|---|---|---:|---:|---|---|---:|']
++    for r in summary:
++        speed=r['service_matched_p50_speedup']
++        report.append(f"| {r['run']} | {r['mode']} | {r['service']} | {r['unique_frames']}/{r['measured_frames']} | "
++            f"{r['e2e_wall_ms']['p50']:.2f}/{r['e2e_wall_ms']['p95']:.2f} | {r['exact_full_output_equality']} | "
++            f"{r['service_matched_reference']} | {speed:.3f} |" if speed is not None else
++            f"| {r['run']} | {r['mode']} | {r['service']} | {r['unique_frames']}/{r['measured_frames']} | "
++            f"{r['e2e_wall_ms']['p50']:.2f}/{r['e2e_wall_ms']['p95']:.2f} | {r['exact_full_output_equality']} | 未测同服务基线 | — |")
++    report+=['','单问题使用原始 Sampling，多问题使用受控 Greedy；两者不合并。'
++        '所有问题均来自原始数据管线并在实验前固定，320 Token 上限与正常 EOS 保留。'
++        '完整服务 wall 包含本次输入读取/预处理、collate/scatter、同步、缓存和实际推理；'
++        'GT 与输出差异计算在计时外。原生输出解析和所有方法同样的 Token 记录在计时内。'
++        'Original 对照也使用相同的帧记录、生命周期包装与阶段插桩，实际模型计算保持原生；'
++        '这些绝对耗时对应共同插桩条件，未测量无插桩部署的绝对延迟。'
++        '组件 CUDA interval 包含 launch gap，不能当作 kernel time；嵌套阶段不相加，组件 P50 不相加。','',
++        '## 十二项结论','',
++        '1. 主要瓶颈是原生 LLM Decode；阶段 A 的历史逐帧依据见 workload_audit.md，本轮 GPU trace 的独立 kernel 统计见 latency_breakdown.json。',
++        '2. 当前可确认的工程改进是拒绝路径的采样快照。任何 Prefix/Batch 离线速度必须同时看本表输出等价，不能自动归因于世界状态。',
++        '3. 有效物理 Anchor、通过验证的观测区域、视觉计算状态、任务语义状态分别记录。历史延长序列任务消费为零，来源帧元数据补齐不创造新的证据。',
++        '4. M1 成本只有实际跳算/任务收益才可能支付；前两层 Window 的历史理想节省约 43.6ms，尚未包含认证/缓存，不能支付既有完整 M1 维护。',
++        '5. M2 是否发生真实跳算以 actual_skipped_windows/actual_reused_cameras 为准；为零时不声称视觉复用加速。',
++        '6. M3 状态消费以 state_activated_questions 为准；零激活或全回退维持 No-Go。',
++        '7. Shared Prefix/Batch 的 FP16 shape 敏感性尚无完整原生输出等价修复。Adaptive 分组是独立离线候选，Sampling 在重排前回退。',
++        '8. 单问题没有同帧 Prefix 共享收益；完整服务和通用 inference-mode 控制实验分开报告，后者不属于世界状态收益。',
++        '9. 多问题质量约束下的观察比值只在完整输出等价时给出；小样本通过不自动发布生产证书。',
++        '10. Persistent-State 与 Current-Output 使用不同同服务参考。跳过 M1 只减少服务责任，不能当作同服务算法加速。',
++        '11. 保留合法来源、早期拒绝和跨模块失效假设；不支持以物理关联代替 Feature Equality、以默认完整回退证明状态消费的假设。',
++        '12. 自回归 Decode 的逐 Token 依赖、全局视觉注意力、未建立的对象到 Carrier 映射、原生 FP16 shape 敏感性，仍是当前推理修改无法保证解决的结构性限制。','',
++        '## 完整性、限制和复现','',
++        f'本轮执行状态：`{json.dumps(runs,ensure_ascii=False)}`。',
++        f'测试记录：`{json.dumps(tests,ensure_ascii=False)}`。',
++        '正式结果只读取独立运行目录 frames.jsonl；smoke 和失败记录不混入。源代码快照、原始 Token IDs、原生参考张量、逐任务 GT 和完整 trace 均保留。',
++        '物理 FAR/关键变化召回的新独立 Oracle、官方检测/地图指标和闭环安全未测，不能由 Token 等价推断。重复计时不增加独立帧或独立场景数量。',
++        '详见 commands.sh、tools/system_optimization/run.sh 与 docs/worldstream_system_optimization.md。',
++        '插桩清单：worldstream/execution.py（嵌套时间与来源）；worldstream/runtime.py（统一入口与请求级包装）；'
++        'petr3d.py（可选统一入口）；tools/system_optimization/experiment.py（真实模型、数据、输出与 Profiler）。'
++        '不配置 stream_config 时保持原入口。']
++    # Concrete answers accompany the general interpretation above, never infer
++    # quality or speed when a workload has not completed.
++    report+=['','## 本轮关键实测值','']
++    for workload in ('single','multi'):
++        selected=[r for r in summary if r['run']==workload]
++        if not selected:
++            report.append(f'- {workload}：尚无完整运行结果。');continue
++        for r in selected:
++            if r['mode'] in ('original','m1','m123','unified_persistent','unified_output'):
++                report.append(f"- {workload}/{r['mode']}：M1 P50={r['m1_maintenance_ms']['p50']:.2f} ms；"
++                    f"实际 Camera 复用={r['actual_reused_cameras']}，Window 跳算={r['actual_skipped_windows']}；"
++                    f"问题完整 Token 等价={r['complete_question_token_equality']}。")
++            if r['mode']=='original':
++                report.append(f"- {workload} 原生 Planning：{r['planning']['parsed']}/{r['planning']['questions']} 可解析；"
++                    f"ADE P50={r['planning']['ade_m']['p50']} m，FDE P50={r['planning']['fde_m']['p50']} m；"
++                    f"原始 QA 文本标注可用 {r['qa_ground_truth']['available_questions']}/{r['questions']}，"
++                    f"平均词级 F1={r['qa_ground_truth']['mean_lexical_token_f1']}。未标注问题不填补答案。")
++    for r in summary:
++        if r['run']=='language_candidates':
++            report.append(f"- 离线 {r['mode']}：完整 Token 等价={r['complete_question_token_equality']}；"
++                f"状态查询激活={r['state_activated_questions']}/{r['state_queries']}；"
++                f"源计算 KV 复用={r['actual_reused_kv_tokens']} tokens；仍无生产证书。")
++    long=[r for r in summary if r['run'].startswith('long_stream')]
++    if long:
++        report+=['','## 长序列与生命周期','',
++            '以下为新场景的连续真实帧；跨方法重复不增加独立样本数。场景运动、类别和实际帧间隔见 sequence_coverage.json。','']
++        for r in long:
++            report.append(f"- {r['mode']}：{r['scenes']} 场景、{r['unique_frames']} 唯一帧；"
++                f"完整输出等价={r['exact_full_output_equality']}；实际相机复用={r['actual_reused_cameras']}；"
++                f"保留缓存峰值={r['memory']['cache_peak_bytes']/1024**2:.2f} MiB，"
++                f"GPU allocated 峰值={r['memory']['gpu_peak_allocated']/1024**3:.2f} GiB。")
++        for path in root.glob('*/lifecycle_probe/results.json'):
++            control=json.loads(path.read_text())
++            report.append(f"- 单独受控复用/故障恢复：实际复用 {control['controlled_reuse_source']['actual_reused_cameras']} 个相机；"
++                f"清空后的恢复与干净原生完整结果相同={control['recovered_matches_fresh_native']}。"
++                f"详见 {path.relative_to(root)}；受控重复不计入上表速度或复用覆盖率。")
++            if control.get('real_scene_switch') is not None:
++                report.append(f"- 同一 Runtime 的真实场景切换：触发 {control['real_scene_switch']['lifecycle_resets']}；"
++                    f"完整输出/特征/时序 memory 与干净原生结果相同={control['real_scene_switch']['matches_fresh_native']}。")
++    decode=root/'single/decode_probe/results.json'
++    if decode.exists():
++        result=json.loads(decode.read_text())
++        report.append('- 原生单问题 no_grad / inference_mode 专项：`'+json.dumps(result['summary'],ensure_ascii=False)+'`。'
++            '单个真实输入的通用执行上下文控制，不是世界状态收益或独立后端准入。')
++    report+=['','cold 表示场景第一帧，后续帧标记 warm 仅表示序列位置，不保证缓存已填充或命中；零预算没有保留缓存。'
++        '这不是进程冷启动。模型加载、每序列的配置构造和 GC 不在逐帧服务计时内。'
++        '早期 single 运行的细分缓存计数只覆盖 M1 捕获张量，未含全部 CPU 历史数组；其 CPU RSS/GPU peak 是实际测量。'
++        '后续运行 m1_payload_accounted=True 时包含历史图像、几何、掩码和证据。各运行源快照明确保留该诊断差异。']
++    report+=['','## 缓存预算、刷新与复现边界','',
++        'budget_0 / budget_128 设置每个计算模块的缓存上限为 0 / 128 MiB，统一 Runtime 的总保留预算为该值的两倍；'
++        '默认对应 512 / 1024 MiB。S7 仅比较相同帧、原始问题和计时轮次的离线 Batch，标注完整 Token 是否相同。'
++        '预算为零时持久历史会显式失效，不能把其耗时降低解释为同等历史维护服务的加速。',
++        'stride_refresh 同时设置 frame_stride=2、full_refresh_interval=2，与默认间隔为联合敏感性对照；'
++        '这不能独立估计两项设置各自的因果贡献。真实帧间隔保存在 sequence_coverage.json。',
++        '源码改动清单和补丁见 instrumentation_changelog.md、stage_BC.patch、stage_DE.patch；'
++        '逐轮源快照与最终交付差异见 delivery_source_audit.json。']
++    report+=['','## 实验图','', '| 图 | 内容 | 文件 |','|---|---|---|']
++    figure_manifest=json.loads((root/'figures/manifest.json').read_text())
++    for i in range(1,11):
++        name='S'+str(i);meta=figure_manifest[name]
++        links=f'[PNG](figures/{name}.png) / [PDF](figures/{name}.pdf)' if meta['status']=='measured' else '未测，不绘制'
++        report.append(f"| {name} | {meta.get('title','')} | {links} |")
++    (root/'experiment_report.md').write_text('\n'.join(report)+'\n')
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser();parser.add_argument('--root',default='outputs/system_optimization')
++    main(parser.parse_args().root)
+diff --git a/tools/system_optimization/run.sh b/tools/system_optimization/run.sh
+new file mode 100644
+index 0000000..0c24fcd
+--- /dev/null
++++ b/tools/system_optimization/run.sh
+@@ -0,0 +1,54 @@
++#!/usr/bin/env bash
++set -euo pipefail
++cd /data/qh/phdCode/work4/OmniDrive
++SYSTEM_PYTHON=/home/qh/miniconda3/envs/OmniDrive/bin/python
++SYSTEM_ROOT=${SYSTEM_ROOT:-outputs/system_optimization}
++export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.
++export MPLCONFIGDIR=/tmp/omnidrive-system-mpl
++mkdir -p "$SYSTEM_ROOT/logs"
++ready() { "$SYSTEM_PYTHON" -u -m tools.system_optimization.wait_gpu --output "$SYSTEM_ROOT/logs/gpu_availability.jsonl"; }
++# The audit is frozen before algorithm changes and intentionally not overwritten.
++if [[ ! -f "$SYSTEM_ROOT/audit_manifest.json" ]]; then
++  "$SYSTEM_PYTHON" -m tools.system_optimization.audit --output "$SYSTEM_ROOT"
++fi
++ready
++"$SYSTEM_PYTHON" -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q \
++  > "$SYSTEM_ROOT/logs/final_gpu_tests.log" 2>&1
++"$SYSTEM_PYTHON" -m tools.system_optimization.gate_benchmark --output "$SYSTEM_ROOT" --cuda \
++  > "$SYSTEM_ROOT/logs/gate_gpu.log" 2>&1
++for workload in single multi; do
++  ready
++  SYSTEM_EXTRA=()
++  if [[ "$workload" == single ]]; then SYSTEM_EXTRA=(--decode-probe); fi
++  "$SYSTEM_PYTHON" -u -m tools.system_optimization.experiment \
++    --output "$SYSTEM_ROOT/$workload" --workload "$workload" --profile-stages --trace "${SYSTEM_EXTRA[@]}" \
++    > "$SYSTEM_ROOT/logs/$workload.log" 2>&1
++done
++ready
++"$SYSTEM_PYTHON" -u -m tools.system_optimization.experiment \
++  --output "$SYSTEM_ROOT/language_candidates" --workload multi --scenes 2 --frames 4 \
++  --warmup 1 --repeats 2 --modes original prefix batch adaptive compact state_only state_full --profile-stages \
++  > "$SYSTEM_ROOT/logs/language_candidates.log" 2>&1
++ready
++"$SYSTEM_PYTHON" -u -m tools.system_optimization.experiment \
++  --output "$SYSTEM_ROOT/long_stream" --workload single --scene-start 98 --scenes 2 \
++  --frames 32 --warmup 0 --repeats 1 --modes original m123 unified_persistent unified_output --profile-stages \
++  > "$SYSTEM_ROOT/logs/long_stream.log" 2>&1
++for budget in 0 128; do
++  ready
++  "$SYSTEM_PYTHON" -u -m tools.system_optimization.experiment \
++    --output "$SYSTEM_ROOT/budget_$budget" --workload multi --scenes 2 --frames 2 \
++    --warmup 1 --repeats 1 --cache-budget-mb "$budget" \
++    --modes original m123 batch adaptive unified_persistent --profile-stages \
++    > "$SYSTEM_ROOT/logs/budget_$budget.log" 2>&1
++done
++ready
++"$SYSTEM_PYTHON" -u -m tools.system_optimization.experiment \
++  --output "$SYSTEM_ROOT/stride_refresh" --workload single --scenes 2 --frames 4 \
++  --frame-stride 2 --refresh-interval 2 --warmup 1 --repeats 1 \
++  --modes original m1 m123 unified_persistent --profile-stages \
++  > "$SYSTEM_ROOT/logs/stride_refresh.log" 2>&1
++"$SYSTEM_PYTHON" -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q \
++  > "$SYSTEM_ROOT/logs/delivery_gpu_tests.log" 2>&1
++"$SYSTEM_PYTHON" -m tools.system_optimization.report --root "$SYSTEM_ROOT"
++"$SYSTEM_PYTHON" -c 'import sys; from tools.system_optimization.delivery import main; main(sys.argv[1])' "$SYSTEM_ROOT"
+diff --git a/tools/system_optimization/wait_gpu.py b/tools/system_optimization/wait_gpu.py
+new file mode 100644
+index 0000000..ee9fc1b
+--- /dev/null
++++ b/tools/system_optimization/wait_gpu.py
+@@ -0,0 +1,38 @@
++"""Observe only: never stop another user's GPU processes."""
++import argparse
++import json
++from pathlib import Path
++import subprocess
++import time
++
++
++def wait(output, minimum_mib=19500, interval=10):
++    path = Path(output)
++    path.parent.mkdir(parents=True, exist_ok=True)
++    last = None
++    while True:
++        proc = subprocess.run(['nvidia-smi', '--query-gpu=memory.free,memory.used,utilization.gpu',
++            '--format=csv,noheader,nounits'], capture_output=True, text=True)
++        row = dict(epoch_s=time.time(), raw=proc.stdout.strip(), error=proc.stderr.strip(),
++                   required_free_mib=minimum_mib)
++        try:
++            free, used, util = map(int, proc.stdout.splitlines()[0].split(','))
++            row.update(free_mib=free, used_mib=used, utilization_percent=util, ready=free>=minimum_mib)
++        except (ValueError, IndexError):
++            row['ready'] = False
++        with path.open('a') as handle:
++            handle.write(json.dumps(row)+'\n')
++        if row['ready'] or last is None or abs(row.get('free_mib', 0)-last) > 256:
++            print(json.dumps(row), flush=True)
++        if row['ready']:
++            return
++        last = row.get('free_mib', 0)
++        time.sleep(interval)
++
++
++if __name__ == '__main__':
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--output', default='outputs/system_optimization/logs/gpu_availability.jsonl')
++    parser.add_argument('--minimum-mib', type=int, default=19500)
++    args = parser.parse_args()
++    wait(args.output, args.minimum_mib)
+diff --git a/worldstream/execution.py b/worldstream/execution.py
+new file mode 100644
+index 0000000..3bb2218
+--- /dev/null
++++ b/worldstream/execution.py
+@@ -0,0 +1,94 @@
++"""Serializable frame costs with explicit computation lineage and timing scopes."""
++from contextlib import contextmanager, nullcontext
++from dataclasses import asdict, dataclass, field
++import json
++from pathlib import Path
++from time import perf_counter, process_time
++
++
++@dataclass(frozen=True)
++class FrameIdentity:
++    scene_id: str
++    frame_id: str
++    timestamp: float
++    camera_ids: tuple
++    model_version: str
++    lora_version: str
++    execution_signature: str
++
++
++@dataclass
++class FrameExecutionRecord:
++    identity: FrameIdentity
++    question_count: int
++    service: str
++    stages: list = field(default_factory=list)
++    m1: dict = field(default_factory=dict)
++    m2: dict = field(default_factory=dict)
++    m3: dict = field(default_factory=dict)
++    memory: dict = field(default_factory=dict)
++    quality: dict = field(default_factory=dict)
++    fallback_reasons: list = field(default_factory=list)
++    lifecycle_resets: list = field(default_factory=list)
++    e2e_wall_ms: float = None
++    inference_wall_ms: float = None
++    input_preparation_wall_ms: float = None
++    gpu_kernel_ms: float = None  # Only a real profiler trace can supply this.
++    status: str = 'running'
++    schema_version: int = 1
++
++    def to_dict(self):
++        return asdict(self)
++
++    def append(self, path):
++        path = Path(path)
++        path.parent.mkdir(parents=True, exist_ok=True)
++        with path.open('a') as handle:
++            handle.write(json.dumps(self.to_dict(), ensure_ascii=False, allow_nan=False)+'\n')
++
++
++class StageRecorder:
++    """Nested wall/CPU and CUDA intervals. GPU intervals are NOT kernel time.
++
++    Direct child wall durations are subtracted once; inclusive parent CUDA
++    intervals are never summed with their children. Synchronize once per frame.
++    """
++    def __init__(self, record, cuda=False):
++        self.record, self.cuda = record, cuda
++        self.stack, self.events = [], []
++
++    @contextmanager
++    def stage(self, name, source=None):
++        index = len(self.record.stages)
++        row = dict(name=name, parent=self.stack[-1] if self.stack else None,
++                   computed_source=source or asdict(self.record.identity))
++        self.record.stages.append(row)
++        self.stack.append(index)
++        if self.cuda:
++            import torch
++            a, b = (torch.cuda.Event(enable_timing=True) for _ in range(2))
++            a.record()
++        tick, cpu = perf_counter(), process_time()
++        try:
++            if self.cuda:
++                import torch
++                scope = torch.autograd.profiler.record_function('stream/'+name)
++            else:
++                scope = nullcontext()
++            with scope:
++                yield row
++        finally:
++            row.update(wall_ms=(perf_counter()-tick)*1000,
++                       cpu_process_ms=(process_time()-cpu)*1000)
++            if self.cuda:
++                b.record()
++                self.events.append((row, a, b))
++            self.stack.pop()
++
++    def finish(self):
++        for row, a, b in self.events:
++            row['cuda_interval_ms'] = a.elapsed_time(b)
++        for i, row in enumerate(self.record.stages):
++            children = sum(c['wall_ms'] for c in self.record.stages if c['parent'] == i)
++            row['exclusive_wall_ms'] = max(0., row['wall_ms']-children)
++        self.events.clear()
+diff --git a/worldstream/m3/batched_executor.py b/worldstream/m3/batched_executor.py
+index ebf9b3a..f9aaf57 100644
+--- a/worldstream/m3/batched_executor.py
++++ b/worldstream/m3/batched_executor.py
+@@ -90,3 +90,68 @@ class BatchedExecutor:
+                 effective_prefill_tokens=x.length-prefix if i else x.length,
+                 shared_prefix_tokens=prefix,visual_tokens=int(x.visual_mask.sum()),mode='batched') for i,x in enumerate(inputs)])
+         return answers,diagnostics
++
++
++def length_groups(lengths, maximum):
++    """Stable grouping by actual input length, no reference answer lengths."""
++    if maximum < 1:
++        raise ValueError('Batch size must be positive')
++    ordered=sorted(range(len(lengths)),key=lambda i:(lengths[i],i))
++    return [ordered[i:i+maximum] for i in range(0,len(ordered),maximum)]
++
++
++class AdaptiveBatchExecutor:
++    """Offline experiment only. Restore original question order after grouping.
++
++    A measured cost row may reject a group before seeding any KV. No row means
++    an explicit uncalibrated experiment, never a production quality admission.
++    Sampling falls back before reordering, preserving sequential RNG draws.
++    """
++    def __init__(self, cache, workspace_bytes, maximum, costs=None, cost_key=None):
++        self.executor=BatchedExecutor(cache,workspace_bytes)
++        self.maximum=maximum;self.costs=costs or {};self.cost_key=cost_key
++
++    def try_generate(self,model,inputs,**generation):
++        def fallback(reason):return None,dict(admitted=False,reason=reason)
++        sample=generation.get('do_sample',getattr(model.generation_config,'do_sample',False))
++        if sample:
++            return fallback('sampling_requires_sequential_rng_isolation')
++        if any(generation.get(k) is not None for k in ('stopping_criteria','logits_processor',
++                'prefix_allowed_tokens_fn','constraints','force_words_ids','generation_config')):
++            return fallback('request_local_generation_hook_requires_sequential')
++        if any(generation.get(k,getattr(model.generation_config,k,False)) for k in (
++                'return_dict_in_generate','output_scores','output_hidden_states','output_attentions')):
++            return fallback('structured_outputs_require_sequential')
++        groups=length_groups([x.length for x in inputs],self.maximum)
++        answers=[None]*len(inputs);requests=[None]*len(inputs);rows=[]
++        for indices in groups:
++            selected=[inputs[i] for i in indices]
++            lengths=[x.length for x in selected]
++            allowed=len(selected)>1
++            reason='offline_uncalibrated_group'
++            if self.costs:
++                import math
++                measured=next((r for r in self.costs.get('records',[]) if r.get('key')==self.cost_key
++                    and r.get('input_lengths')==lengths and r.get('includes_seed_and_padding') is True),None)
++                try:
++                    group=float(measured['group_wall_ms']);sequential=float(measured['sequential_wall_ms'])
++                    allowed=bool(allowed and self.cost_key and math.isfinite(group) and math.isfinite(sequential)
++                        and 0<group<sequential)
++                except (TypeError,KeyError,ValueError):allowed=False
++                reason='measured_group_cost' if allowed else 'unprofitable_or_unmeasured_group'
++            output,diag=self.executor.try_generate(model,selected,**generation) if allowed else (None,dict(admitted=False,reason=reason))
++            if output is None:
++                # Expanded inputs already contain native visual embeddings.
++                # Each request gets the native HF loop and fresh full prefill.
++                from .prefill_executor import PrefillExecutor
++                output=[];native_rows=[]
++                for x in selected:
++                    result,d=PrefillExecutor(self.executor.cache).generate(model,x,capture=False,**generation)
++                    output.append(result);native_rows.append(d)
++                diag.update(requests=native_rows,actual_reused_tokens=0)
++            for index,answer,request in zip(indices,output,diag['requests']):
++                answers[index]=answer;requests[index]=request
++            rows.append(dict(indices=indices,diagnostics=diag))
++        return answers,dict(admitted=True,reason='offline_adaptive_grouping',groups=rows,
++            requests=requests,actual_reused_tokens=sum(r['diagnostics'].get('actual_reused_tokens',0) for r in rows),
++            full_sequence_equality_guaranteed=False)
+diff --git a/worldstream/m3/config.py b/worldstream/m3/config.py
+index b17c7be..189931a 100644
+--- a/worldstream/m3/config.py
++++ b/worldstream/m3/config.py
+@@ -21,6 +21,9 @@ class M3Config:
+     batch_workspace_mb: float = 6144
+     state_context: str = 'none'  # none / only / augment; offline approximation
+     common_prefix_seed: bool = False
++    adaptive_batch: bool = False  # offline length grouping; each shape is uncertified
++    max_batch_size: int = 5
++    batch_cost_table: str = ''
+ 
+     def __post_init__(self):
+         if self.mode not in ('full', 'auto', 'exact', 'compact', 'combined'):
+@@ -37,3 +40,5 @@ class M3Config:
+             raise ValueError('Batch experiment requires exact mode and unchanged full carriers')
+         if self.common_prefix_seed and (self.mode not in ('exact','auto') or self.state_context!='none' or self.batched_decode):
+             raise ValueError('Independent prefix seeding requires sequential exact mode and full carriers')
++        if self.max_batch_size < 1 or (self.adaptive_batch and not self.batched_decode):
++            raise ValueError('Adaptive grouping requires the offline batched executor')
+diff --git a/worldstream/m3/runtime.py b/worldstream/m3/runtime.py
+index 94af45c..3624323 100644
+--- a/worldstream/m3/runtime.py
++++ b/worldstream/m3/runtime.py
+@@ -120,11 +120,23 @@ class M3Runtime:
+                     note='Independent true common prefix, not a slice of the first full-question prefill')
+         batch_diagnostics=None
+         if self.config.batched_decode:
+-            from .batched_executor import BatchedExecutor
++            from .batched_executor import BatchedExecutor, AdaptiveBatchExecutor
+             expanded_batch=[expand_input(lm_head,ids,vision_carriers,scope=scope,signature=signature,
+                 source=(context['scene_id'],context['frame_id'],timestamp,i)) for i,ids in enumerate(ids_list)]
+-            answers,batch_diagnostics=BatchedExecutor(self.cache,int(self.config.batch_workspace_mb*1024**2)).try_generate(
+-                base,expanded_batch,**generation)
++            workspace=int(self.config.batch_workspace_mb*1024**2)
++            executor=BatchedExecutor(self.cache,workspace)
++            if self.config.adaptive_batch:
++                import hashlib,json
++                from .scheduler import read_artifact
++                try:
++                    contract=hashlib.sha256(json.dumps(dict(defaults=base.generation_config.to_dict(),overrides=generation),
++                        sort_keys=True,allow_nan=False).encode()).hexdigest()
++                except (TypeError,ValueError):contract=None
++                cost_context=dict(model_version=context.get('model_version'),execution_key=deployment_key(lm_head),
++                    generation_key=contract,workspace_bytes=workspace,memory_budget_bytes=self.cache.budget_bytes)
++                executor=AdaptiveBatchExecutor(self.cache,workspace,self.config.max_batch_size,
++                    read_artifact(self.config.batch_cost_table),cost_context)
++            answers,batch_diagnostics=executor.try_generate(base,expanded_batch,**generation)
+             if answers is not None:
+                 return answers,dict(mode='batched',requests=batch_diagnostics['requests'],batch=batch_diagnostics,
+                     cache_bytes=self.cache.nbytes,signature_cpu_ms=signature_ms,m2_required=False)
+diff --git a/worldstream/m3/world_state.py b/worldstream/m3/world_state.py
+index d23115d..73f5689 100644
+--- a/worldstream/m3/world_state.py
++++ b/worldstream/m3/world_state.py
+@@ -41,6 +41,11 @@ def freeze_verified_state(manager, frame):
+         if (anchor is None or anchor.scene_id!=frame.scene_id or not check.get('valid')
+                 or anchor.last_verified_timestamp!=frame.timestamp
+                 or not 0<frame.timestamp-anchor.source_timestamp<=manager.config.max_state_age_s):continue
++        # Observation geometry cannot legalize an annotation/oracle commit.
++        # Unknown historical origins stay unknown and are not task inputs.
++        if anchor.evidence_origin not in ('actual_perception','historical_full_model_detection_replay'):continue
++        if anchor.source_execution_signature not in (None,frame.execution_signature):continue
++        if anchor.source_state_epoch not in (None,store.generation):continue
+         cameras=sorted(cid for cid,c in check.get('cameras',{}).items() if c.get('valid'))
+         if not cameras:continue
+         g=predict_geometry(anchor,frame.timestamp)
+@@ -60,7 +65,10 @@ def freeze_verified_state(manager, frame):
+         records.append(dict(anchor_id=aid,anchor_type=anchor.anchor_type,semantic_class=anchor.semantic_class,
+             center_ego_m=center.tolist(),geometry_ego_m=((world_to_ego[:3,:3]@g.points.T).T+world_to_ego[:3,3]).tolist(),
+             velocity_ego_mps=velocity,source_timestamp=anchor.source_timestamp,
+-            verified_timestamp=frame.timestamp,source_frame=None,source_frame_reason='M1 does not store frame IDs per anchor',
++            verified_timestamp=frame.timestamp,source_frame=anchor.source_frame_id,
++            source_frame_reason=None if anchor.source_frame_id is not None else 'Unknown historical source frame',
++            source_state_epoch=anchor.source_state_epoch,
++            source_execution_signature=anchor.source_execution_signature,evidence_origin=anchor.evidence_origin,
+             source_cameras=sorted(anchor.observation_support),verified_cameras=cameras,
+             feature_versions=features,history_observations=anchor.history_observations))
+     return VerifiedWorldState(frame.scene_id,frame.frame_id,frame.timestamp,store.generation,
+diff --git a/worldstream/runtime.py b/worldstream/runtime.py
+new file mode 100644
+index 0000000..411cc8f
+--- /dev/null
++++ b/worldstream/runtime.py
+@@ -0,0 +1,392 @@
++"""Minimal M1/M2/M3 lifecycle and service coordination; no new research module."""
++from contextlib import ExitStack, contextmanager
++from dataclasses import dataclass, fields, is_dataclass
++from functools import wraps
++import hashlib
++import json
++import math
++from time import perf_counter
++from .execution import FrameExecutionRecord, FrameIdentity, StageRecorder
++
++
++@dataclass(frozen=True)
++class RuntimeConfig:
++    service: str = 'persistent_state'  # or current_output
++    model_version: str = ''
++    lora_version: str = ''
++    max_frame_gap_s: float = 2.
++    memory_budget_mb: float = 1024.
++    trace_path: str = ''
++    profile_stages: bool = False
++    cost_aware: bool = True
++    cost_table: str = ''
++    quality_certificate: str = ''
++
++    def __post_init__(self):
++        if self.service not in ('persistent_state', 'current_output'):
++            raise ValueError('Unknown service contract')
++        if not self.model_version or not self.lora_version:
++            raise ValueError('Explicit checkpoint and LoRA content versions required')
++        if not math.isfinite(self.max_frame_gap_s) or self.max_frame_gap_s <= 0:
++            raise ValueError('Invalid freshness limit')
++        if not math.isfinite(self.memory_budget_mb) or self.memory_budget_mb < 0:
++            raise ValueError('Invalid memory budget')
++
++
++class UnifiedRuntime:
++    def __init__(self, config):
++        self.config = config if isinstance(config, RuntimeConfig) else RuntimeConfig(**config)
++        self.previous = None
++        self.active = False
++        self.last_record = None
++        self.input_preparation_wall_ms = None
++        self._content_witness = None
++        self._certificate_invalidated = False
++        from pathlib import Path
++        self.costs = json.loads(Path(self.config.cost_table).read_text()) if self.config.cost_table else {}
++        self.quality = json.loads(Path(self.config.quality_certificate).read_text()) if self.config.quality_certificate else {}
++
++    def optimization_admission(self, model, data, prior_overhead_ms=0.):
++        """Cold negative decision avoids all module signatures/cache captures."""
++        if not self.config.cost_aware:
++            return True, 'explicit_independent_module_experiment'
++        if self._certificate_invalidated:
++            return False, 'model_changed_without_new_content_version'
++        m3 = getattr(model, 'm3_runtime', None)
++        if getattr(getattr(m3, 'config', None), 'offline_experiment', False):
++            return False, 'offline_strategy_cannot_inherit_production_certificate'
++        if not self.costs.get('records') or not self.quality.get('records'):
++            return False, 'no_system_workload_certificate'
++        admission_tick = perf_counter()
++        from .m3.visual_state import deployment_key
++        key = dict(model_version=self.config.model_version, lora_version=self.config.lora_version,
++            execution_key=deployment_key(model.lm_head),
++            # This is the fixed native Petr3D generation call. Alternate callers
++            # must obtain their own coordinator/certificate, never reuse this key.
++            generation_key='native_sampling_temp0.1_topp0.75_beams1_max320_cache',
++            input_shape=list(data['img'].shape), question_lengths=[x.numel() for x in data['input_ids'][0]],
++            service=self.config.service, strategy={name:
++                dict(vars(getattr(model,name).config)) if getattr(model,name,None) is not None else None
++                for name in ('m1_manager','m2_runtime','m3_runtime')},
++            cache_state='cold' if self.previous is None else 'warm',
++            memory_budget_bytes=int(self.config.memory_budget_mb*1024**2),
++            refresh_interval=getattr(getattr(getattr(model, 'm1_manager', None), 'config', None), 'full_refresh_interval', 0),
++            frame_gap_s=0. if self.previous is None else float(data['timestamp'].reshape(-1)[0])-self.previous.timestamp)
++        for costs in self.costs['records']:
++            for quality in self.quality['records']:
++                admitted, reason = self.admit(key, costs, quality,
++                    overhead_ms=prior_overhead_ms+(perf_counter()-admission_tick)*1000)
++                if admitted:
++                    return admitted, reason
++        return False, 'no_matching_quality_and_cost_evidence'
++
++    @staticmethod
++    def admit(key, costs, quality, overhead_ms=0.):
++        """One exact shape/contract key; complete measured cost, no weighted score.
++
++        The modules still independently verify their own cache dependencies.
++        A system certificate never proves M1 validity or M2/M3 cache equality.
++        """
++        if not key or not isinstance(costs, dict) or not isinstance(quality, dict):
++            return False, 'missing_workload_evidence'
++        required = ('model_version', 'lora_version', 'execution_key', 'generation_key',
++                    'input_shape', 'question_lengths', 'service', 'strategy', 'cache_state',
++                    'memory_budget_bytes', 'refresh_interval', 'frame_gap_s')
++        if any(k not in key or key[k] is None for k in required):
++            return False, 'incomplete_workload_key'
++        if costs.get('key') != key or quality.get('key') != key:
++            return False, 'workload_evidence_mismatch'
++        heldout=quality.get('heldout_samples')
++        if (quality.get('exact_targets_pass') is not True
++                or not isinstance(heldout,int) or isinstance(heldout,bool) or heldout<=0
++                or not quality.get('calibration_scenes') or not quality.get('heldout_scenes')
++                or set(quality['calibration_scenes']) & set(quality['heldout_scenes'])
++                or not quality.get('evidence_sha256') or not quality.get('protocol_sha256')):
++            return False, 'uncertified_quality'
++        if costs.get('includes_all_incremental_costs') is not True:
++            return False, 'incomplete_cost_scope'
++        try:
++            full, optimized = float(costs['full_wall_ms']), float(costs['optimized_wall_ms'])
++            overhead = float(overhead_ms)
++            budget = int(key['memory_budget_bytes'])
++            memory = int(costs['peak_cache_bytes'])
++        except (KeyError, TypeError, ValueError, OverflowError):
++            return False, 'invalid_measured_cost'
++        if (not all(math.isfinite(x) and x >= 0 for x in (full, optimized, overhead))
++                or memory < 0 or budget < 0 or memory > budget):
++            return False, 'invalid_cost_or_memory_budget'
++        return (True, 'measured_quality_and_net_cost') if optimized+overhead < full else (False, 'no_net_benefit')
++
++    def identity(self, model, metas, data):
++        import torch
++        meta = metas[0]
++        cameras = tuple(meta.get('cam_infos', {}))
++        if not cameras:
++            from pathlib import Path
++            cameras = tuple(Path(f).parent.name for f in meta['filename'])
++        image = data['img']
++        camera_count = image.shape[1] if image.ndim==5 and image.shape[0]==1 else image.shape[0] if image.ndim==4 else -1
++        timestamp = float(data['timestamp'].reshape(-1)[0])
++        if (not math.isfinite(timestamp) or not cameras or len(set(cameras)) != len(cameras) or len(cameras)!=camera_count
++                or not meta.get('scene_token') or not meta.get('sample_idx')):
++            raise ValueError('Invalid stream lifecycle metadata')
++        parameters = [(n, p.data_ptr(), p._version, tuple(p.shape), str(p.dtype), str(p.device))
++                      for n, p in model.named_parameters()]
++        buffers = [(n, b.data_ptr(), b._version) for n, b in model.named_buffers()] if hasattr(model, 'named_buffers') else []
++        flags = (model.training, torch.is_autocast_enabled(), torch.backends.cuda.matmul.allow_tf32,
++                 torch.backends.cudnn.allow_tf32,torch.get_autocast_gpu_dtype(),
++                 torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
++                 torch.are_deterministic_algorithms_enabled())
++        # This version witness is runtime-local, never a portable quality key.
++        signature = hashlib.sha256(repr((parameters, buffers, flags)).encode()).hexdigest()
++        return FrameIdentity(str(meta['scene_token']), str(meta['sample_idx']), timestamp,
++            cameras, self.config.model_version, self.config.lora_version, signature)
++
++    @staticmethod
++    def invalidate(model, reason):
++        for attr in ('m1_manager', 'm2_runtime', 'm3_runtime'):
++            obj = getattr(model, attr, None)
++            if obj is not None:
++                obj.reset()
++        model.m3_verified_state = None
++        for attr in ('m1_admission_diagnostics', 'm2_diagnostics', 'm3_diagnostics'):
++            setattr(model, attr, {})
++        for attr in ('pts_bbox_head', 'map_head'):
++            head = getattr(model, attr, None)
++            if hasattr(head, 'reset_memory'):
++                head.reset_memory()
++        model.test_flag = False
++        model.stream_invalidation_reason = reason
++
++    def lifecycle_reason(self, current):
++        previous = self.previous
++        if previous is None:
++            return 'cold_stream'
++        if current.scene_id != previous.scene_id:
++            return 'scene_change'
++        if current.camera_ids != previous.camera_ids:
++            return 'camera_order_change'
++        if (current.model_version, current.lora_version, current.execution_signature) != (
++                previous.model_version, previous.lora_version, previous.execution_signature):
++            return 'model_or_execution_change'
++        if current.timestamp <= previous.timestamp:
++            return 'timestamp_reversal_or_repeat'
++        if current.timestamp-previous.timestamp > self.config.max_frame_gap_s:
++            return 'stale_stream'
++        return None
++
++    @contextmanager
++    def instrument(self, model, recorder):
++        """Request-scoped wrappers always restored, including on exceptions."""
++        with ExitStack() as stack:
++            def wrap(obj, attr, name, dynamic=False, source=None):
++                if obj is None or not hasattr(obj, attr):
++                    return
++                owned = attr in vars(obj)
++                original = getattr(obj, attr)
++                @wraps(original)
++                def call(*args, **kwargs):
++                    label = name
++                    tensor = None
++                    if dynamic:
++                        tensor=kwargs.get('inputs_embeds')
++                        if tensor is None:tensor=kwargs.get('input_ids')
++                        if tensor is None and args:tensor=args[0]
++                        # A cached suffix still PREFILLS embeddings, including
++                        # a one-token suffix. Past KV alone does not mean decode.
++                        label = 'llm_prefill' if kwargs.get('inputs_embeds') is not None or kwargs.get('past_key_values') is None else 'llm_decode'
++                    with recorder.stage(label, source() if source else None) as row:
++                        if dynamic and tensor is not None:
++                            row['input_shape']=list(tensor.shape)
++                            row['forward_tokens']=int(tensor.shape[0]*tensor.shape[1])
++                        return original(*args, **kwargs)
++                setattr(obj, attr, call)
++                stack.callback(setattr, obj, attr, original) if owned else stack.callback(delattr, obj, attr)
++            wrap(getattr(model, 'm1_manager', None), 'precheck', 'm1_precheck')
++            wrap(getattr(model, 'm1_manager', None), 'commit', 'm1_commit')
++            if getattr(model, 'm1_manager', None) is not None:
++                from .m1 import omnidrive_adapter
++                wrap(omnidrive_adapter, 'frame_from_model', 'm1_input_adapter_and_d2h')
++                wrap(omnidrive_adapter, 'outputs_from_model', 'm1_output_adapter_and_d2h')
++            m2 = getattr(model, 'm2_runtime', None)
++            wrap(m2, 'pre_m1_admission', 'm2_cheap_admission')
++            wrap(m2, 'forward', 'm2_cache_and_execution')
++            m3 = getattr(model, 'm3_runtime', None)
++            wrap(m3, 'generate', 'm3_context_cache_and_generation')
++            if m3 is not None:
++                wrap(m3.cache, 'put', 'm3_kv_capture')
++                wrap(m3.cache, 'match', 'm3_prefix_verification')
++                wrap(m3.cache, 'branch', 'm3_kv_branch', source=lambda:
++                    dict(prefix_lineage=m3.cache.entry.prefix_lineage) if m3.cache.entry else dict(source='missing_cache'))
++            wrap(model, 'extract_img_feat', 'vision_service')
++            for attr, name in (('img_backbone', 'eva'), ('pts_bbox_head', 'detection_head'), ('map_head', 'map_head')):
++                wrap(getattr(model, attr, None), 'forward', name)
++            if getattr(model, 'lm_head', None) is not None:
++                from .m3.visual_state import base_model
++                base = base_model(model.lm_head)
++                wrap(base, 'forward', 'llm', dynamic=True)
++                wrap(base, 'prepare_inputs_labels_for_multimodal', 'm3_input_preparation')
++            yield
++
++    def cache_memory(self, model):
++        m1, m2, m3 = (getattr(model, name, None) for name in ('m1_manager', 'm2_runtime', 'm3_runtime'))
++        gate = getattr(getattr(m2, 'cheap_admission', None), 'previous', None)
++        gate_bytes = gate.numel()*gate.element_size() if gate is not None else 0
++        for name in ('rows', 'cols'):
++            index = getattr(getattr(m2, 'cheap_admission', None), name, None)
++            if index is not None:
++                gate_bytes += index.numel()*index.element_size()
++        # Payload arrays include grayscale history, geometric state, evidence
++        # maps and exact masks, not just optional captured feature tensors.
++        # Deduplicate shared base storage. Python/OpenCV allocator overhead is
++        # separately observed by process RSS, not fabricated as zero here.
++        seen=set()
++        def payload(value):
++            import numpy as np
++            import torch
++            if isinstance(value,np.ndarray):
++                base=value
++                while isinstance(base.base,np.ndarray):base=base.base
++                key=('numpy',id(base))
++                if key in seen:return 0
++                seen.add(key);return base.nbytes
++            if isinstance(value,torch.Tensor):
++                storage=value.storage();key=(str(value.device),storage.data_ptr())
++                if key in seen:return 0
++                seen.add(key);return storage.size()*value.element_size()
++            if is_dataclass(value):return sum(payload(getattr(value,f.name)) for f in fields(value))
++            if isinstance(value,dict):return sum(payload(v) for v in value.values())
++            if isinstance(value,(list,tuple)):return sum(payload(v) for v in value)
++            return 0
++        m1_bytes=payload((m1.store.anchors,m1.store.features,m1._previous_cameras,
++            m1.last_masks,m1.last_evidence)) if m1 else 0
++        return dict(m1_payload_bytes=m1_bytes,
++            m2_cache_bytes=(m2.cache.bytes+m2.camera_executor.cache.bytes if m2 else 0),
++            m2_gate_bytes=gate_bytes, m3_cache_bytes=m3.cache.nbytes if m3 else 0)
++
++    def execute(self, model, metas, data, forward):
++        import torch
++        tick = perf_counter()
++        preparation = self.input_preparation_wall_ms
++        self.input_preparation_wall_ms = None
++        record = None
++        self.last_record = None
++        cuda = data['img'].is_cuda
++        try:
++            identity = self.identity(model, metas, data)
++            declared=(identity.model_version,identity.lora_version)
++            if self._content_witness is None or self._content_witness[0]!=declared:
++                self._content_witness=(declared,identity.execution_signature)
++                self._certificate_invalidated=False
++            elif self._content_witness[1]!=identity.execution_signature:
++                # Reloading/mutating tensors cannot silently reuse a quality
++                # certificate naming the previous content. Fail closed until
++                # the caller supplies the new verified deployment version.
++                self._certificate_invalidated=True
++            ids = data.get('input_ids', [[]])[0]
++            record = FrameExecutionRecord(identity, len(ids), self.config.service,
++                input_preparation_wall_ms=preparation)
++            self.last_record = record
++            reason = self.lifecycle_reason(identity)
++            if reason:
++                self.invalidate(model, reason)
++                # Already reset both heads at this actual inference boundary.
++                # forward_test must not discard this frame's commit next time.
++                model.test_flag = True
++                self.previous = None
++                record.lifecycle_resets.append(reason)
++            if self.config.service == 'persistent_state':
++                if getattr(model, 'm1_manager', None) is None:
++                    raise ValueError('Persistent-state service requires an M1 manager')
++                m2 = getattr(model, 'm2_runtime', None)
++                if m2 and m2.config.m1_service != 'maintain':
++                    raise ValueError('Persistent service cannot use output-only M1 admission')
++            else:
++                # This service never exports persistent history, even if some
++                # visual/LLM cache happens to hit. Full heads and generation run.
++                manager = getattr(model, 'm1_manager', None)
++                if manager is not None:
++                    manager.reset(identity.scene_id)
++            recorder = StageRecorder(record, cuda and self.config.profile_stages)
++            self.active = True
++            with ExitStack() as stack:
++                admitted, reason = self.optimization_admission(model, data, (perf_counter()-tick)*1000)
++                if not admitted:
++                    record.fallback_reasons.append(reason)
++                # Temporary bypass preserves each module's bounded cache but
++                # cannot use it as a certificate; lifecycle reset remains shared.
++                if not admitted:
++                    for attr in ('m2_runtime', 'm3_runtime'):
++                        saved = getattr(model, attr, None)
++                        if saved is not None:
++                            saved.reset()
++                        setattr(model, attr, None)
++                        stack.callback(setattr, model, attr, saved)
++                for attr in ('m2_diagnostics', 'm3_diagnostics'):
++                    setattr(model, attr, {})
++                if self.config.service == 'current_output':
++                    saved = getattr(model, 'm1_manager', None)
++                    model.m1_manager = None
++                    stack.callback(setattr, model, 'm1_manager', saved)
++                if self.config.profile_stages:
++                    stack.enter_context(self.instrument(model, recorder))
++                with recorder.stage('inference'):
++                    output = forward()
++            if cuda:
++                with recorder.stage('completion_synchronization'):
++                    torch.cuda.synchronize(data['img'].device)
++            recorder.finish()
++            manager = getattr(model, 'm1_manager', None)
++            record.m1 = dict(getattr(manager, 'last_commit_diagnostics', {}) or {})
++            if self.config.service == 'current_output':
++                model.m3_verified_state = None
++                record.m1 = dict(service='current_output', history_preserved=False)
++            elif manager:
++                result = manager.last_result
++                record.m1.update(state_epoch=manager.store.generation,
++                    valid_anchor_count=len(result.valid_anchor_ids) if result else 0,
++                    source_versions=manager.store.feature_versions())
++            record.m2 = dict(getattr(model, 'm2_diagnostics', {}) or {})
++            record.m3 = dict(getattr(model, 'm3_diagnostics', {}) or {})
++            # Module cache/source fields are kept separately. No cross-module
++            # validity inference is made from either module's hit.
++            for diag in (record.m2, record.m3):
++                why = diag.get('fallback_reason') or diag.get('reason')
++                if why:
++                    record.fallback_reasons.append(why)
++            record.memory = self.cache_memory(model)
++            record.memory['budget_bytes'] = int(self.config.memory_budget_mb*1024**2)
++            record.memory['tracked_cache_bytes'] = sum(v for k, v in record.memory.items() if k != 'budget_bytes')
++            if record.memory['tracked_cache_bytes'] > record.memory['budget_bytes']:
++                # Evict computation caches first; persistent physical history
++                # stays governed by its own bounded M1 store.
++                for attr in ('m3_runtime', 'm2_runtime'):
++                    obj = getattr(model, attr, None)
++                    if obj:
++                        obj.reset()
++                record.fallback_reasons.append('aggregate_cache_budget_eviction')
++                record.memory['after_eviction'] = self.cache_memory(model)
++                if sum(record.memory['after_eviction'].values()) > record.memory['budget_bytes']:
++                    if manager:
++                        manager.reset(identity.scene_id)
++                    model.m3_verified_state = None
++                    record.fallback_reasons.append('persistent_state_explicitly_invalidated_for_budget')
++            record.status = 'completed'
++            self.previous = identity
++            return output
++        except Exception as error:
++            # A head may already have mutated StreamPETR memory. Never retry
++            # against that partially advanced state or publish partial output.
++            self.invalidate(model, 'execution_error')
++            self.previous = None
++            if record:
++                record.status = 'failed'
++                record.fallback_reasons.append(type(error).__name__+': '+str(error))
++            raise
++        finally:
++            self.active = False
++            if record:
++                record.inference_wall_ms = (perf_counter()-tick)*1000
++                record.e2e_wall_ms = record.inference_wall_ms+(preparation or 0.)
++                if self.config.trace_path:
++                    record.append(self.config.trace_path)

@@ -90,3 +90,68 @@ class BatchedExecutor:
                 effective_prefill_tokens=x.length-prefix if i else x.length,
                 shared_prefix_tokens=prefix,visual_tokens=int(x.visual_mask.sum()),mode='batched') for i,x in enumerate(inputs)])
         return answers,diagnostics
+
+
+def length_groups(lengths, maximum):
+    """Stable grouping by actual input length, no reference answer lengths."""
+    if maximum < 1:
+        raise ValueError('Batch size must be positive')
+    ordered=sorted(range(len(lengths)),key=lambda i:(lengths[i],i))
+    return [ordered[i:i+maximum] for i in range(0,len(ordered),maximum)]
+
+
+class AdaptiveBatchExecutor:
+    """Offline experiment only. Restore original question order after grouping.
+
+    A measured cost row may reject a group before seeding any KV. No row means
+    an explicit uncalibrated experiment, never a production quality admission.
+    Sampling falls back before reordering, preserving sequential RNG draws.
+    """
+    def __init__(self, cache, workspace_bytes, maximum, costs=None, cost_key=None):
+        self.executor=BatchedExecutor(cache,workspace_bytes)
+        self.maximum=maximum;self.costs=costs or {};self.cost_key=cost_key
+
+    def try_generate(self,model,inputs,**generation):
+        def fallback(reason):return None,dict(admitted=False,reason=reason)
+        sample=generation.get('do_sample',getattr(model.generation_config,'do_sample',False))
+        if sample:
+            return fallback('sampling_requires_sequential_rng_isolation')
+        if any(generation.get(k) is not None for k in ('stopping_criteria','logits_processor',
+                'prefix_allowed_tokens_fn','constraints','force_words_ids','generation_config')):
+            return fallback('request_local_generation_hook_requires_sequential')
+        if any(generation.get(k,getattr(model.generation_config,k,False)) for k in (
+                'return_dict_in_generate','output_scores','output_hidden_states','output_attentions')):
+            return fallback('structured_outputs_require_sequential')
+        groups=length_groups([x.length for x in inputs],self.maximum)
+        answers=[None]*len(inputs);requests=[None]*len(inputs);rows=[]
+        for indices in groups:
+            selected=[inputs[i] for i in indices]
+            lengths=[x.length for x in selected]
+            allowed=len(selected)>1
+            reason='offline_uncalibrated_group'
+            if self.costs:
+                import math
+                measured=next((r for r in self.costs.get('records',[]) if r.get('key')==self.cost_key
+                    and r.get('input_lengths')==lengths and r.get('includes_seed_and_padding') is True),None)
+                try:
+                    group=float(measured['group_wall_ms']);sequential=float(measured['sequential_wall_ms'])
+                    allowed=bool(allowed and self.cost_key and math.isfinite(group) and math.isfinite(sequential)
+                        and 0<group<sequential)
+                except (TypeError,KeyError,ValueError):allowed=False
+                reason='measured_group_cost' if allowed else 'unprofitable_or_unmeasured_group'
+            output,diag=self.executor.try_generate(model,selected,**generation) if allowed else (None,dict(admitted=False,reason=reason))
+            if output is None:
+                # Expanded inputs already contain native visual embeddings.
+                # Each request gets the native HF loop and fresh full prefill.
+                from .prefill_executor import PrefillExecutor
+                output=[];native_rows=[]
+                for x in selected:
+                    result,d=PrefillExecutor(self.executor.cache).generate(model,x,capture=False,**generation)
+                    output.append(result);native_rows.append(d)
+                diag.update(requests=native_rows,actual_reused_tokens=0)
+            for index,answer,request in zip(indices,output,diag['requests']):
+                answers[index]=answer;requests[index]=request
+            rows.append(dict(indices=indices,diagnostics=diag))
+        return answers,dict(admitted=True,reason='offline_adaptive_grouping',groups=rows,
+            requests=requests,actual_reused_tokens=sum(r['diagnostics'].get('actual_reused_tokens',0) for r in rows),
+            full_sequence_equality_guaranteed=False)

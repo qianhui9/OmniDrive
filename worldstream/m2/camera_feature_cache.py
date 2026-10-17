@@ -13,17 +13,21 @@ class CameraFeatureCache(StateCache):
         super().clear()
         self.features=None;self.sources=[]
 
+    def output_sources(self,context,changed):
+        sources=[]
+        for i,computed in enumerate(changed):
+            source=(dict(camera_id=context['camera_ids'][i],computation_frame=context['frame_id'],
+                computation_timestamp=context.get('timestamp')) if computed else dict(self.sources[i]))
+            source.update(verification_frame=context['frame_id'],verification_timestamp=context.get('timestamp'))
+            sources.append(source)
+        return sources
+
     def publish(self,images,features,context,signature,changed):
         # Build owned allocations before publishing anything. OOM cannot publish
         # a new frame with old features or half-updated source provenance.
         owned_images=layout_copy(images.detach())
         owned_features=layout_copy(features.detach())
-        sources=[]
-        for i in range(len(images)):
-            sources.append(dict(camera_id=context['camera_ids'][i],
-                computation_frame=context['frame_id'],computation_timestamp=context.get('timestamp'))
-                if changed[i] else dict(self.sources[i]))
-            sources[-1].update(verification_frame=context['frame_id'],verification_timestamp=context.get('timestamp'))
+        sources=self.output_sources(context,changed)
         owned_context=dict(context);owned_context['camera_ids']=list(context['camera_ids'])
         self.images=owned_images;self.features=owned_features;self.sources=sources
         self.context=owned_context;self.signature=signature

@@ -1,0 +1,434 @@
+diff --git a/tests/worldstream_m2/test_cheap_admission.py b/tests/worldstream_m2/test_cheap_admission.py
+index 2eb99d7..3677a2b 100644
+--- a/tests/worldstream_m2/test_cheap_admission.py
++++ b/tests/worldstream_m2/test_cheap_admission.py
+@@ -27,6 +27,27 @@ def test_nonfinite_never_creates_sample_acceptance():
+     assert gate.check(x,ctx,(16,16))['reject']
+ 
+ 
++def test_sample_snapshot_matches_full_snapshot_rejections():
++    gate=CheapAdmission();ctx=dict(scene_id='s',camera_ids=['a','b'])
++    generator=torch.Generator().manual_seed(71)
++    previous=None
++    for step in range(30):
++        image=torch.randn(2,3,33,37,generator=generator)
++        if step%3 and previous is not None:
++            image=previous.clone()
++            image[:,:,step%33,step%37]+=1
++        result=gate.check(image,ctx,(16,16))
++        if previous is not None:
++            current=image[:,:,gate.rows,gate.cols]
++            old=previous[:,:,gate.rows,gate.cols]
++            reference=bool(((current!=old)|~torch.isfinite(current)).any(1).any(-1).all())
++            assert result['reject']==reference
++        previous=image.clone()
++        image.fill_(float('nan'))  # caller mutation must not alter sample history
++        assert gate.previous.storage().data_ptr()!=image.storage().data_ptr()
++    assert result['snapshot_bytes']<previous.numel()*previous.element_size()
++
++
+ @torch.no_grad()
+ def test_gate_rejection_reaches_runtime_before_planner(eva,context,monkeypatch):
+     from worldstream.m2 import IncrementalVisionRuntime
+diff --git a/tests/worldstream_m2/test_computation_source.py b/tests/worldstream_m2/test_computation_source.py
+new file mode 100644
+index 0000000..eb0e088
+--- /dev/null
++++ b/tests/worldstream_m2/test_computation_source.py
+@@ -0,0 +1,94 @@
++"""A verified cache value is not newly computed by the current M1 commit."""
++from types import SimpleNamespace
++import json
++import numpy as np
++import pytest
++import torch
++from worldstream.m1 import M1Config
++from worldstream.m1.state_store import StateStore
++from worldstream.m1.state_types import ComputedFeature
++from worldstream.m1.provenance import feature_source_snapshot,preserve_camera_computation_source
++
++
++def setup_sources():
++    store=StateStore(M1Config())
++    def frame(t):
++        return SimpleNamespace(frame_id='f'+str(t),timestamp=float(t),execution_signature='weights',
++            cameras={cid:SimpleNamespace(coordinate_space='image') for cid in ('a','b')})
++    def feature(fid):
++        return ComputedFeature(fid,fid,(2,3),'float32','cpu','EVA' if fid=='backbone' else 'current_head',
++            source_camera_ids=['a','b'])
++    store.put_feature(feature('backbone'),frame(1))
++    previous=feature_source_snapshot(store.features['backbone'])
++    store.put_feature(feature('backbone'),frame(2))
++    store.put_feature(feature('object_carrier'),frame(2))
++    store.provenance['object_carrier'].upstream_versions['backbone']=2
++    return store,previous,frame(2)
++
++
++def test_full_camera_reuse_preserves_computation_not_verification_time():
++    store,previous,frame=setup_sources()
++    sources=[dict(camera_id=c,computation_frame='f1',computation_timestamp=1.,
++        verification_frame='f2',verification_timestamp=2.) for c in ('a','b')]
++    proof=preserve_camera_computation_source(store,frame,dict(actual_reused_cameras=2,
++        output_camera_provenance=sources),previous)
++    record=store.features['backbone']
++    assert record.computation_version==1 and record.computation_timestamp==1.
++    assert record.source_frame_id=='f1' and record.source_state_epoch==previous['source_state_epoch']
++    assert record.last_verified_timestamp is None and proof['physical_state_certified'] is False
++    assert store.provenance['object_carrier'].upstream_versions['backbone']==1
++    assert store.features['object_carrier'].computation_timestamp==2.
++
++
++def test_mixed_camera_sources_are_explicit_not_all_current():
++    store,previous,frame=setup_sources()
++    sources=[dict(camera_id='a',computation_frame='f1',computation_timestamp=1.),
++             dict(camera_id='b',computation_frame='f2',computation_timestamp=2.)]
++    preserve_camera_computation_source(store,frame,dict(actual_reused_cameras=1,
++        output_camera_provenance=sources),previous)
++    record=store.features['backbone']
++    assert record.source_frame_id is None and record.source_state_epoch is None
++    assert record.computation_timestamp==1. and record.computation_version==2
++    assert record.computation_sources==sources
++
++
++def test_missing_cached_source_is_unknown_and_cannot_survive_freshness_prune():
++    store,previous,frame=setup_sources()
++    preserve_camera_computation_source(store,frame,dict(actual_reused_cameras=2),previous)
++    record=store.features['backbone']
++    assert record.source_frame_id is None and record.computation_timestamp is None
++    assert record.computation_version==0
++    json.dumps(store.feature_versions(),allow_nan=False)
++    store.prune(2.)
++    assert 'backbone' not in store.features
++
++
++@torch.no_grad()
++def test_output_lineage_survives_failed_cache_publish(eva,context,monkeypatch):
++    from worldstream.m2 import IncrementalVisionRuntime
++    runtime=IncrementalVisionRuntime(eva,dict(mode='exact',reuse_boundary='camera'))
++    image=torch.randn(2,3,40,40)
++    runtime.forward(image,execution_context=dict(context,timestamp=1.))
++    cache=runtime.camera_executor.cache
++    def oom(*a,**kw):raise torch.cuda.OutOfMemoryError('controlled publish failure')
++    monkeypatch.setattr(cache,'publish',oom)
++    output,diag=runtime.forward(image,execution_context=dict(context,frame_id='next',timestamp=2.))
++    assert diag['actual_reused_cameras']==2 and not diag['cache_saved'] and cache.bytes==0
++    assert {s['computation_frame'] for s in diag['output_camera_provenance']}=={context['frame_id']}
++    assert all(s['computation_timestamp']==1. and s['verification_timestamp']==2. for s in diag['output_camera_provenance'])
++    assert torch.equal(output[0],eva(image)[0])
++
++
++@torch.no_grad()
++def test_numeric_policy_change_invalidates_camera_computation(eva,context,monkeypatch):
++    from worldstream.m2 import IncrementalVisionRuntime
++    from worldstream.m2.camera_executor import camera_cost_key
++    runtime=IncrementalVisionRuntime(eva,dict(mode='exact',reuse_boundary='camera'))
++    image=torch.randn(2,3,40,40)
++    runtime.forward(image,execution_context=dict(context,timestamp=1.))
++    key=camera_cost_key(eva,image)
++    flag=torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction
++    monkeypatch.setattr(torch.backends.cuda.matmul,'allow_fp16_reduced_precision_reduction',not flag)
++    assert camera_cost_key(eva,image)!=key
++    _,diag=runtime.forward(image,execution_context=dict(context,frame_id='next',timestamp=2.))
++    assert diag['actual_reused_cameras']==0 and diag['fallback_reason']=='execution_signature_mismatch'
+diff --git a/worldstream/m1/provenance.py b/worldstream/m1/provenance.py
+index 8d3c3a9..91fe013 100644
+--- a/worldstream/m1/provenance.py
++++ b/worldstream/m1/provenance.py
+@@ -1,5 +1,7 @@
+ from dataclasses import asdict
+ from .state_types import ComputationalProvenance
++import copy
++import math
+ 
+ 
+ def provenance_for(record, frame):
+@@ -11,3 +13,59 @@ def provenance_for(record, frame):
+ 
+ def export_provenance(store):
+     return {key: asdict(value) for key, value in store.provenance.items()}
++
++
++def feature_source_snapshot(record):
++    """Only metadata: do not extend a large tensor allocation's lifetime."""
++    if record is None:return None
++    return {name:copy.deepcopy(getattr(record,name)) for name in (
++        'computation_version','computation_timestamp','source_frame_id','source_state_epoch',
++        'source_camera_ids','execution_signature','computation_sources')}
++
++
++def preserve_camera_computation_source(store,frame,diagnostics,previous):
++    """M2 may verify old EVA values; current heads still compute new carriers.
++
++    No M1 physical/observation verification is inferred from this M2 witness.
++    Mixed camera outputs carry each actual source and a conservative oldest
++    computation time. Missing provenance is Unknown, never the current frame.
++    """
++    record=store.features.get('backbone')
++    if record is None or not diagnostics.get('actual_reused_cameras'):return None
++    sources=copy.deepcopy(diagnostics.get('output_camera_provenance',[]))
++    expected=set(record.source_camera_ids)
++    known=(len(sources)==len(expected) and {s.get('camera_id') for s in sources}==expected)
++    for source in sources:
++        timestamp=source.get('computation_timestamp')
++        known=known and bool(source.get('computation_frame')) and isinstance(timestamp,(int,float)) and math.isfinite(timestamp) and timestamp<=frame.timestamp
++    if not known:
++        record.source_frame_id=None;record.source_state_epoch=None
++        record.computation_timestamp=None;record.computation_version=0
++        record.computation_sources=sources or [dict(source='Unknown cached EVA computation source')]
++    else:
++        frames={s['computation_frame'] for s in sources}
++        record.source_frame_id=next(iter(frames)) if len(frames)==1 else None
++        record.computation_timestamp=min(s['computation_timestamp'] for s in sources)
++        record.computation_sources=sources
++        def identity(values):
++            return sorted((s['camera_id'],s['computation_frame'],s['computation_timestamp']) for s in values)
++        old=[]
++        if previous and previous['execution_signature']==frame.execution_signature:
++            old=previous['computation_sources']
++            if not old and previous['source_frame_id'] is not None and previous['computation_timestamp'] is not None:
++                old=[dict(camera_id=cid,computation_frame=previous['source_frame_id'],
++                    computation_timestamp=previous['computation_timestamp']) for cid in previous['source_camera_ids']]
++        same=bool(old and all('camera_id' in s for s in old) and identity(old)==identity(sources))
++        if same:
++            record.computation_version=previous['computation_version']
++            record.source_state_epoch=previous['source_state_epoch']
++        else:
++            record.source_state_epoch=None
++    for fid in ('object_carrier','map_carrier'):
++        provenance=store.provenance.get(fid)
++        if provenance is not None:
++            if known:provenance.upstream_versions['backbone']=record.computation_version
++            else:provenance.upstream_versions.pop('backbone',None)
++    return dict(actual_camera_sources_known=bool(known),computation_sources=record.computation_sources,
++        source_frame_id=record.source_frame_id,computation_timestamp=record.computation_timestamp,
++        computation_version=record.computation_version,physical_state_certified=False)
+diff --git a/worldstream/m1/state_manager.py b/worldstream/m1/state_manager.py
+index 3007937..6f6fa19 100644
+--- a/worldstream/m1/state_manager.py
++++ b/worldstream/m1/state_manager.py
+@@ -296,6 +296,10 @@ class WorldStateManager:
+                             np.asarray(pred.velocity_world).copy() if velocity_ok else None,
+                             bool(pred.velocity_reliable and velocity_ok), pred.geometry_uncertainty)
+             a.source_score = pred.source_score
++            a.source_frame_id = frame.frame_id
++            a.source_state_epoch = self.store.generation
++            a.source_execution_signature = frame.execution_signature
++            a.evidence_origin = full_outputs.source
+             a.history_observations = prior.history_observations + 1 if prior else 1
+             a.last_innovation_m = (float(np.linalg.norm(
+                 pred.geometry_world.center - predict_geometry(prior, frame.timestamp).center))
+diff --git a/worldstream/m1/state_store.py b/worldstream/m1/state_store.py
+index 2f6a53d..4db2794 100644
+--- a/worldstream/m1/state_store.py
++++ b/worldstream/m1/state_store.py
+@@ -55,6 +55,8 @@ class StateStore:
+         values["computation_version"] = previous.computation_version + 1 if previous else 1
+         values["computation_timestamp"] = frame.timestamp
+         values["execution_signature"] = frame.execution_signature
++        values["source_frame_id"] = frame.frame_id
++        values["source_state_epoch"] = self.generation
+         record = FeatureRecord(**values)
+         self.features[feature.feature_id] = record
+         self.provenance[feature.feature_id] = provenance_for(record, frame)
+@@ -70,7 +72,7 @@ class StateStore:
+         for key in expired:
+             del self.anchors[key]
+         for key, record in list(self.features.items()):
+-            if (timestamp - record.computation_timestamp > self.config.max_state_age_s
++            if (record.computation_timestamp is None or timestamp - record.computation_timestamp > self.config.max_state_age_s
+                     or any(a not in self.anchors for a in record.source_anchor_ids)):
+                 self.tensor_bytes -= self._nbytes(record.tensor)
+                 del self.features[key]
+@@ -84,5 +86,7 @@ class StateStore:
+                     "shape": list(r.shape), "dtype": r.dtype, "source_device": r.device,
+                     "storage_device": str(r.tensor.device) if hasattr(r.tensor, "device") else "cpu",
+                     "tensor_captured": r.tensor is not None,
+-                    "execution_signature": r.execution_signature}
++                    "execution_signature": r.execution_signature,
++                    "source_frame_id": r.source_frame_id, "source_state_epoch": r.source_state_epoch,
++                    "computation_sources": [dict(s) for s in r.computation_sources]}
+                 for k, r in self.features.items()}
+diff --git a/worldstream/m1/state_types.py b/worldstream/m1/state_types.py
+index f3da17c..1158cb3 100644
+--- a/worldstream/m1/state_types.py
++++ b/worldstream/m1/state_types.py
+@@ -89,6 +89,10 @@ class WorldAnchor:
+     source_score: Optional[float] = None  # prediction confidence, NOT localization probability
+     history_observations: int = 1
+     last_innovation_m: Optional[float] = None
++    source_frame_id: Optional[str] = None
++    source_state_epoch: Optional[int] = None
++    source_execution_signature: Optional[str] = None
++    evidence_origin: Optional[str] = None
+ 
+ 
+ @dataclass
+@@ -121,9 +125,12 @@ class ComputedFeature:
+ @dataclass
+ class FeatureRecord(ComputedFeature):
+     computation_version: int = 0
+-    computation_timestamp: float = 0.0
++    computation_timestamp: Optional[float] = 0.0
+     last_verified_timestamp: Optional[float] = None
+     execution_signature: str = ""
++    source_frame_id: Optional[str] = None
++    source_state_epoch: Optional[int] = None
++    computation_sources: List[dict] = field(default_factory=list)
+ 
+ 
+ @dataclass
+diff --git a/worldstream/m2/camera_executor.py b/worldstream/m2/camera_executor.py
+index d58a0a2..7a18281 100644
+--- a/worldstream/m2/camera_executor.py
++++ b/worldstream/m2/camera_executor.py
+@@ -26,7 +26,9 @@ def camera_cost_key(model,images):
+         numeric_details=numeric_details(model),
+         cudnn=[torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic],
+         autocast=torch.is_autocast_enabled(),autocast_dtype=str(torch.get_autocast_gpu_dtype()),
+-        tf32=[torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32]),sort_keys=True)
++        tf32=[torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32],
++        fp16_reduced_precision_reduction=torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
++        deterministic_algorithms=torch.are_deterministic_algorithms_enabled()),sort_keys=True)
+ 
+ 
+ class CameraExecutor:
+@@ -119,12 +121,15 @@ class CameraExecutor:
+                 fresh=self.model(images.index_select(0,ids))[0]
+                 result.index_copy_(0,ids,fresh)
+             out=[result];computed=changed.cpu().tolist()
++        # Output lineage must survive an OOM/eviction while saving the NEXT
++        # cache. The returned features still have these actual computation sources.
++        output_sources=cache.output_sources(context,computed)
+         saved=self._save(images,out[0],context,signature,computed)
+         return out,dict(mode='full' if reason else 'camera_reuse',fallback_reason=reason,
+             actual_reused_cameras=0 if reason else n-count,recomputed_cameras=n if reason else count,
+             camera_ids=list(context['camera_ids']),source_version=source_version,
+             source_computation_frames=source_frames,cache_version=cache.version,cache_bytes=cache.bytes,
+-            output_camera_provenance=[dict(s) for s in cache.sources],
++            output_camera_provenance=output_sources,
+             cache_saved=saved,feature_stride=list(out[0].stride()),
+             actual_skipped_windows=0,evidence='finite_same_coordinate_full_camera_input_equality',
+             task_quality_certified=self.config.mode=='auto' and reason is None)
+diff --git a/worldstream/m2/camera_feature_cache.py b/worldstream/m2/camera_feature_cache.py
+index eb4940b..49f5cfa 100644
+--- a/worldstream/m2/camera_feature_cache.py
++++ b/worldstream/m2/camera_feature_cache.py
+@@ -13,17 +13,21 @@ class CameraFeatureCache(StateCache):
+         super().clear()
+         self.features=None;self.sources=[]
+ 
++    def output_sources(self,context,changed):
++        sources=[]
++        for i,computed in enumerate(changed):
++            source=(dict(camera_id=context['camera_ids'][i],computation_frame=context['frame_id'],
++                computation_timestamp=context.get('timestamp')) if computed else dict(self.sources[i]))
++            source.update(verification_frame=context['frame_id'],verification_timestamp=context.get('timestamp'))
++            sources.append(source)
++        return sources
++
+     def publish(self,images,features,context,signature,changed):
+         # Build owned allocations before publishing anything. OOM cannot publish
+         # a new frame with old features or half-updated source provenance.
+         owned_images=layout_copy(images.detach())
+         owned_features=layout_copy(features.detach())
+-        sources=[]
+-        for i in range(len(images)):
+-            sources.append(dict(camera_id=context['camera_ids'][i],
+-                computation_frame=context['frame_id'],computation_timestamp=context.get('timestamp'))
+-                if changed[i] else dict(self.sources[i]))
+-            sources[-1].update(verification_frame=context['frame_id'],verification_timestamp=context.get('timestamp'))
++        sources=self.output_sources(context,changed)
+         owned_context=dict(context);owned_context['camera_ids']=list(context['camera_ids'])
+         self.images=owned_images;self.features=owned_features;self.sources=sources
+         self.context=owned_context;self.signature=signature
+diff --git a/worldstream/m2/cheap_admission.py b/worldstream/m2/cheap_admission.py
+index 84c8b06..419cf9c 100644
+--- a/worldstream/m2/cheap_admission.py
++++ b/worldstream/m2/cheap_admission.py
+@@ -14,8 +14,15 @@ class CheapAdmission:
+         self.identity = None
+         self.rows = self.cols = None
+ 
++    @staticmethod
++    def required_bytes(images, pixel_window):
++        """Owned samples, next samples, comparison workspace and index arrays."""
++        h, w = images.shape[-2:]; ph, pw = pixel_window
++        samples = ((h + ph - 1)//ph)*((w + pw - 1)//pw)*9
++        return samples*(len(images)*images.shape[1]*(3*images.element_size()+2)+16)
++
+     def check(self, images, context, pixel_window):
+-        """Snapshot current input. A possible window is NEVER an equality witness.
++        """Snapshot only rejection samples. A possible window is NEVER an equality witness.
+ 
+         Finite values at three deterministic rows/columns per window are necessary
+         for whole-window equality. One differing sample rules out that window.
+@@ -28,14 +35,7 @@ class CheapAdmission:
+                   context.get('execution_signature'),tuple(images.shape),tuple(images.stride()),
+                   images.dtype,images.device,pixel_window)
+         compatible=self.previous is not None and self.identity==identity
+-        if compatible:
+-            current=images[:,:,self.rows,self.cols]
+-            previous=self.previous[:,:,self.rows,self.cols]
+-            invalid=((current!=previous)|~torch.isfinite(current)).any(dim=1).any(dim=-1)
+-            rejected=bool(invalid.all().item())
+-            reason='all_windows_have_changed_samples' if rejected else 'full_verification_required'
+-        else:
+-            rejected=True;reason='gate_no_compatible_history'
++        if not compatible:
+             h,w=images.shape[-2:];ph,pw=pixel_window
+             rows=[];cols=[]
+             for y in range(0,h,ph):
+@@ -44,7 +44,18 @@ class CheapAdmission:
+                     xx=(x,(x+min(x+pw,w)-1)//2,min(x+pw,w)-1)
+                     rows.append([a for a in yy for b in xx]);cols.append([b for a in yy for b in xx])
+             self.rows=torch.tensor(rows,device=images.device);self.cols=torch.tensor(cols,device=images.device)
+-        # This allocation owns its source; caller mutation cannot change history.
+-        self.previous=images.detach().clone();self.identity=identity;self.version+=1
++        # Advanced indexing creates owned storage. Unsampled pixels have never
++        # contributed to this rejection-only gate; exact execution still compares
++        # the full input against its independent feature-cache source.
++        current=images[:,:,self.rows,self.cols]
++        if compatible:
++            invalid=((current!=self.previous)|~torch.isfinite(current)).any(dim=1).any(dim=-1)
++            rejected=bool(invalid.all().item())
++            reason='all_windows_have_changed_samples' if rejected else 'full_verification_required'
++        else:
++            rejected=True;reason='gate_no_compatible_history'
++        self.previous=current.detach();self.identity=identity;self.version+=1
+         return dict(reject=rejected,reason=reason,sample_acceptance=False,snapshot_version=self.version,
+-                    snapshot_bytes=self.previous.numel()*self.previous.element_size())
++                    snapshot_bytes=self.previous.numel()*self.previous.element_size(),
++                    index_bytes=(self.rows.numel()+self.cols.numel())*self.rows.element_size(),
++                    snapshot_kind='rejection_samples_only')
+diff --git a/worldstream/m2/runtime.py b/worldstream/m2/runtime.py
+index 0bd34db..6ebdc78 100644
+--- a/worldstream/m2/runtime.py
++++ b/worldstream/m2/runtime.py
+@@ -41,13 +41,13 @@ class IncrementalVisionRuntime:
+         flat=images.flatten(0,1) if images.ndim==5 else images
+         p=self.model.patch_embed.proj
+         size=self.model.blocks[0].window_size
+-        if flat.numel()*flat.element_size()*3>self.cache.budget_bytes:
++        pixel_window=(p.kernel_size[0]*size,p.kernel_size[1]*size)
++        if self.cheap_admission.required_bytes(flat,pixel_window)>self.cache.budget_bytes:
+             self.cheap_admission.clear()
+             self.last_admission=dict(reject=True,reason='gate_memory_budget',sample_acceptance=False)
+         else:
+             try:
+-                self.last_admission=self.cheap_admission.check(flat,context,
+-                    (p.kernel_size[0]*size,p.kernel_size[1]*size))
++                self.last_admission=self.cheap_admission.check(flat,context,pixel_window)
+             except torch.cuda.OutOfMemoryError:
+                 self.cheap_admission.clear()
+                 self.last_admission=dict(reject=True,reason='gate_memory_budget',sample_acceptance=False)
+@@ -63,7 +63,9 @@ class IncrementalVisionRuntime:
+         geometry=(p.kernel_size,p.stride,p.padding,p.dilation,self.model.pretrain_use_cls_token)
+         return (context.get('execution_signature'),tensors,topology,geometry,numeric_details(self.model),torch.is_autocast_enabled(),
+                 torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_tf32,
+-                torch.backends.cudnn.allow_tf32,torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic)
++                torch.backends.cudnn.allow_tf32,torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic,
++                torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
++                torch.are_deterministic_algorithms_enabled())
+ 
+     def _capture_reason(self, images, reason, has_opportunity):
+         if self.config.cache_capture=='never': return 'capture_disabled'

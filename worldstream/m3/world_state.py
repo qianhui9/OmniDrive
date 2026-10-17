@@ -41,6 +41,11 @@ def freeze_verified_state(manager, frame):
         if (anchor is None or anchor.scene_id!=frame.scene_id or not check.get('valid')
                 or anchor.last_verified_timestamp!=frame.timestamp
                 or not 0<frame.timestamp-anchor.source_timestamp<=manager.config.max_state_age_s):continue
+        # Observation geometry cannot legalize an annotation/oracle commit.
+        # Unknown historical origins stay unknown and are not task inputs.
+        if anchor.evidence_origin not in ('actual_perception','historical_full_model_detection_replay'):continue
+        if anchor.source_execution_signature not in (None,frame.execution_signature):continue
+        if anchor.source_state_epoch not in (None,store.generation):continue
         cameras=sorted(cid for cid,c in check.get('cameras',{}).items() if c.get('valid'))
         if not cameras:continue
         g=predict_geometry(anchor,frame.timestamp)
@@ -60,7 +65,10 @@ def freeze_verified_state(manager, frame):
         records.append(dict(anchor_id=aid,anchor_type=anchor.anchor_type,semantic_class=anchor.semantic_class,
             center_ego_m=center.tolist(),geometry_ego_m=((world_to_ego[:3,:3]@g.points.T).T+world_to_ego[:3,3]).tolist(),
             velocity_ego_mps=velocity,source_timestamp=anchor.source_timestamp,
-            verified_timestamp=frame.timestamp,source_frame=None,source_frame_reason='M1 does not store frame IDs per anchor',
+            verified_timestamp=frame.timestamp,source_frame=anchor.source_frame_id,
+            source_frame_reason=None if anchor.source_frame_id is not None else 'Unknown historical source frame',
+            source_state_epoch=anchor.source_state_epoch,
+            source_execution_signature=anchor.source_execution_signature,evidence_origin=anchor.evidence_origin,
             source_cameras=sorted(anchor.observation_support),verified_cameras=cameras,
             feature_versions=features,history_observations=anchor.history_observations))
     return VerifiedWorldState(frame.scene_id,frame.frame_id,frame.timestamp,store.generation,

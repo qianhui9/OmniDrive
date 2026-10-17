@@ -296,6 +296,10 @@ class WorldStateManager:
                             np.asarray(pred.velocity_world).copy() if velocity_ok else None,
                             bool(pred.velocity_reliable and velocity_ok), pred.geometry_uncertainty)
             a.source_score = pred.source_score
+            a.source_frame_id = frame.frame_id
+            a.source_state_epoch = self.store.generation
+            a.source_execution_signature = frame.execution_signature
+            a.evidence_origin = full_outputs.source
             a.history_observations = prior.history_observations + 1 if prior else 1
             a.last_innovation_m = (float(np.linalg.norm(
                 pred.geometry_world.center - predict_geometry(prior, frame.timestamp).center))

@@ -89,6 +89,10 @@ class WorldAnchor:
     source_score: Optional[float] = None  # prediction confidence, NOT localization probability
     history_observations: int = 1
     last_innovation_m: Optional[float] = None
+    source_frame_id: Optional[str] = None
+    source_state_epoch: Optional[int] = None
+    source_execution_signature: Optional[str] = None
+    evidence_origin: Optional[str] = None
 
 
 @dataclass
@@ -121,9 +125,12 @@ class ComputedFeature:
 @dataclass
 class FeatureRecord(ComputedFeature):
     computation_version: int = 0
-    computation_timestamp: float = 0.0
+    computation_timestamp: Optional[float] = 0.0
     last_verified_timestamp: Optional[float] = None
     execution_signature: str = ""
+    source_frame_id: Optional[str] = None
+    source_state_epoch: Optional[int] = None
+    computation_sources: List[dict] = field(default_factory=list)
 
 
 @dataclass
