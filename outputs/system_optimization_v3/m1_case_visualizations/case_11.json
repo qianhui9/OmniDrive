@@ -1,0 +1,794 @@
+{
+  "case": 11,
+  "source_frame": "70fce5a2055144d093d21875e8da0b7e",
+  "current_frame": "529080134759454a8176daca17b87a15",
+  "anchor_id": "afd73f70ff7d46d6b772d341c08e31a5:g4:a12",
+  "semantic_class": "traffic_cone",
+  "oracle": {
+    "scene": "afd73f70ff7d46d6b772d341c08e31a5",
+    "frame": "529080134759454a8176daca17b87a15",
+    "anchor": "afd73f70ff7d46d6b772d341c08e31a5:g4:a12",
+    "accepted": true,
+    "run": "long_stream",
+    "exploratory": false,
+    "split": "calibration",
+    "reasons": [],
+    "identity_known": true,
+    "same_instance_present": true,
+    "visibility": "4",
+    "sensor_support": true,
+    "center_error_m": 1.2766860596213094,
+    "gt_displacement_m": 0.0,
+    "gt_speed_mps": 0.0,
+    "category": "static_object",
+    "speed_bin": "<0.5",
+    "oracle_valid": false
+  },
+  "source_center_error_m": 1.2766860596213094,
+  "primary_mechanism": "historical_source_localization_bias",
+  "mechanisms": {
+    "identity_switch": "not established by source assignment alone",
+    "geometry_projection": "GT/predicted projected corners saved; appearance match is not metric localization",
+    "ego_motion_compensation": "no evidence of pose corruption; independent GT world center comparison",
+    "dynamic_motion": "not supported: static-object labels and zero/small GT displacement",
+    "descriptor_alias": "plausible foreground/background alias; not independently proven",
+    "visibility": "nuScenes visibility=4 and sensor support; not pixel segmentation",
+    "temporal_correspondence": "measured forward/backward tracks saved; depth observability tested",
+    "historical_source_mismatch": "historical_source_localization_bias",
+    "oracle_uncertainty": "2m source assignment can confuse adjacent cones; no guaranteed identity labels"
+  },
+  "source_world_center": [
+    582.0171063627681,
+    1504.0069812608674,
+    0.42438852550275996
+  ],
+  "cameras": [
+    {
+      "camera": "CAM_FRONT_LEFT",
+      "source_region": [
+        192.91069053856754,
+        340.9333496593614,
+        216.86815838917587,
+        448.7512081678665
+      ],
+      "original_validation": {
+        "valid": true,
+        "residual": 0.01913268491625786,
+        "region": [
+          192.91071815885238,
+          340.99485901287284,
+          216.8682306094371,
+          448.8138744641419
+        ],
+        "observation_consistent": true,
+        "visibility_and_coverage_valid": true,
+        "reason": "ok",
+        "evidence": {
+          "selected_points": 19,
+          "supported_points": 19,
+          "support_fraction": 1.0,
+          "quadrant_fraction": 1.0,
+          "source": "same_rgb_dense_bidirectional_ray_photo_neighbourhood",
+          "foreground_ownership_certified": false
+        },
+        "geometry_valid": true,
+        "projected_points": [
+          [
+            192.91071815885238,
+            445.2369509483095
+          ],
+          [
+            192.9458405770921,
+            342.09912860866325
+          ],
+          [
+            208.25228960985245,
+            340.99485901287284
+          ],
+          [
+            208.2444070606004,
+            441.7687703203619
+          ],
+          [
+            201.35889470412346,
+            448.8138744641419
+          ],
+          [
+            201.37961458523066,
+            343.09930577437905
+          ],
+          [
+            216.86107475873308,
+            341.9447388523806
+          ],
+          [
+            216.8682306094371,
+            445.1772248678012
+          ]
+        ],
+        "predicted_region": [
+          192.91071815885238,
+          340.99485901287284,
+          216.8682306094371,
+          448.8138744641419
+        ],
+        "coverage": 1.0,
+        "search_radius_px": 2,
+        "depth": 11.839526036248571
+      },
+      "bidirectional": {
+        "source": "same_RGB_bidirectional_triangulation",
+        "independent_sensor": false,
+        "foreground_ownership_certified": false,
+        "passed": false,
+        "reason": "depth_unobservable",
+        "points": [
+          {
+            "source_uv": [
+              200.0,
+              399.0
+            ],
+            "current_uv": [
+              200.0076904296875,
+              399.04559326171875
+            ],
+            "world_xyz": [
+              592.9815673828125,
+              1512.7750244140625,
+              1.6432384252548218
+            ],
+            "angle_deg": 0.0010634555323757139,
+            "fb_error_px": 0.0004315837286412716,
+            "patch_residual": 0.00480691809207201,
+            "reprojection_error_px": 0.01063320273124271,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              202.0,
+              364.0
+            ],
+            "current_uv": [
+              202.01133728027344,
+              364.02178955078125
+            ],
+            "world_xyz": [
+              592.3164672851562,
+              1512.2310791015625,
+              1.5434999465942383
+            ],
+            "angle_deg": 0.0023783360239255295,
+            "fb_error_px": 0.0012604905059561133,
+            "patch_residual": 0.004601842723786831,
+            "reprojection_error_px": 0.03325381557987123,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              205.0,
+              429.0
+            ],
+            "current_uv": [
+              205.01806640625,
+              429.0494079589844
+            ],
+            "world_xyz": [
+              592.909423828125,
+              1512.6998291015625,
+              1.6743206977844238
+            ],
+            "angle_deg": 0.0018243532685639633,
+            "fb_error_px": 0.001044419244863093,
+            "patch_residual": 0.0036969513166695833,
+            "reprojection_error_px": 0.011555747383690152,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              202.0,
+              371.0
+            ],
+            "current_uv": [
+              202.0006866455078,
+              371.01617431640625
+            ],
+            "world_xyz": [
+              592.1612548828125,
+              1512.1058349609375,
+              1.5349165201187134
+            ],
+            "angle_deg": 0.0024288037084931394,
+            "fb_error_px": 0.0003639789065346122,
+            "patch_residual": 0.003558922791853547,
+            "reprojection_error_px": 0.039546198257142284,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              201.0,
+              439.0
+            ],
+            "current_uv": [
+              201.0148468017578,
+              439.0367126464844
+            ],
+            "world_xyz": [
+              592.4695434570312,
+              1512.3568115234375,
+              1.6149578094482422
+            ],
+            "angle_deg": 0.0018781161228306818,
+            "fb_error_px": 0.0004425048828125,
+            "patch_residual": 0.003666467731818557,
+            "reprojection_error_px": 0.012350155960233157,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              206.0,
+              397.0
+            ],
+            "current_uv": [
+              206.0081787109375,
+              397.03179931640625
+            ],
+            "world_xyz": [
+              592.4172973632812,
+              1512.3052978515625,
+              1.5750502347946167
+            ],
+            "angle_deg": 0.0017109653693924425,
+            "fb_error_px": 0.0004892339929938316,
+            "patch_residual": 0.006392558570951223,
+            "reprojection_error_px": 0.06818960367793908,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              194.0,
+              431.0
+            ],
+            "current_uv": [
+              194.01768493652344,
+              430.99591064453125
+            ],
+            "world_xyz": [
+              592.0440673828125,
+              1512.016845703125,
+              1.5419913530349731
+            ],
+            "angle_deg": 0.0038706312959892416,
+            "fb_error_px": 0.001154536847025156,
+            "patch_residual": 0.004179175943136215,
+            "reprojection_error_px": 0.12539910171165577,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              201.0,
+              390.0
+            ],
+            "current_uv": [
+              200.99807739257812,
+              390.04083251953125
+            ],
+            "world_xyz": [
+              592.3692016601562,
+              1512.275390625,
+              1.5650699138641357
+            ],
+            "angle_deg": 0.0011451256336749577,
+            "fb_error_px": 0.0024736186023801565,
+            "patch_residual": 0.0039015631191432476,
+            "reprojection_error_px": 0.02980698672596336,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              207.0,
+              442.0
+            ],
+            "current_uv": [
+              206.9955596923828,
+              442.057373046875
+            ],
+            "world_xyz": [
+              590.34814453125,
+              1510.6649169921875,
+              1.2569997310638428
+            ],
+            "angle_deg": 0.0007095809286481962,
+            "fb_error_px": 0.000335693359375,
+            "patch_residual": 0.00528711499646306,
+            "reprojection_error_px": 0.008362860971130436,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              200.0,
+              341.0
+            ],
+            "current_uv": [
+              200.03831481933594,
+              341.016845703125
+            ],
+            "world_xyz": [
+              592.2483520507812,
+              1512.1787109375,
+              1.5263115167617798
+            ],
+            "angle_deg": 0.004656407971441411,
+            "fb_error_px": 0.0013647875748574734,
+            "patch_residual": 0.004076860845088959,
+            "reprojection_error_px": 0.037808456290563626,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              196.0,
+              353.0
+            ],
+            "current_uv": [
+              196.02752685546875,
+              353.00506591796875
+            ],
+            "world_xyz": [
+              592.1807250976562,
+              1512.1282958984375,
+              1.5286128520965576
+            ],
+            "angle_deg": 0.004139446311513702,
+            "fb_error_px": 0.001286543090827763,
+            "patch_residual": 0.006087432615458965,
+            "reprojection_error_px": 0.09734920245983682,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              193.0,
+              437.0
+            ],
+            "current_uv": [
+              193.020751953125,
+              437.0245666503906
+            ],
+            "world_xyz": [
+              592.2417602539062,
+              1512.1827392578125,
+              1.5764130353927612
+            ],
+            "angle_deg": 0.0027761865043844794,
+            "fb_error_px": 0.0005800347425974905,
+            "patch_residual": 0.004405825864523649,
+            "reprojection_error_px": 0.04643747755359981,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              194.0,
+              426.0
+            ],
+            "current_uv": [
+              194.00796508789062,
+              425.99462890625
+            ],
+            "world_xyz": [
+              592.01708984375,
+              1511.9945068359375,
+              1.5365054607391357
+            ],
+            "angle_deg": 0.0036578434083724197,
+            "fb_error_px": 0.0010926827089861035,
+            "patch_residual": 0.0047218892723321915,
+            "reprojection_error_px": 0.11492339324418174,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              201.0,
+              416.0
+            ],
+            "current_uv": [
+              200.96824645996094,
+              416.0375671386719
+            ],
+            "world_xyz": [
+              591.6318969726562,
+              1511.67822265625,
+              1.4805750846862793
+            ],
+            "angle_deg": 0.003787030303251867,
+            "fb_error_px": 0.00494782580062747,
+            "patch_residual": 0.0041870661079883575,
+            "reprojection_error_px": 0.2157889497886956,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              196.0,
+              447.0
+            ],
+            "current_uv": [
+              195.98968505859375,
+              447.0208435058594
+            ],
+            "world_xyz": [
+              591.9345703125,
+              1511.925048828125,
+              1.5269370079040527
+            ],
+            "angle_deg": 0.0025977808210475343,
+            "fb_error_px": 0.0030744471587240696,
+            "patch_residual": 0.0036864730063825846,
+            "reprojection_error_px": 0.2957388493993667,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              214.0,
+              430.0
+            ],
+            "current_uv": [
+              213.98782348632812,
+              430.0512390136719
+            ],
+            "world_xyz": [
+              591.229736328125,
+              1511.37548828125,
+              1.4157463312149048
+            ],
+            "angle_deg": 0.0015889695535499953,
+            "fb_error_px": 0.001642288058064878,
+            "patch_residual": 0.003601440927013755,
+            "reprojection_error_px": 0.057884148388372636,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              204.0,
+              446.0
+            ],
+            "current_uv": [
+              203.9744873046875,
+              446.0385437011719
+            ],
+            "world_xyz": [
+              591.611328125,
+              1511.663330078125,
+              1.470112681388855
+            ],
+            "angle_deg": 0.0031979168668694524,
+            "fb_error_px": 0.001794643816538155,
+            "patch_residual": 0.004999426193535328,
+            "reprojection_error_px": 0.06316355426252623,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              208.0,
+              352.0
+            ],
+            "current_uv": [
+              208.0246124267578,
+              351.9795227050781
+            ],
+            "world_xyz": [
+              592.072509765625,
+              1512.0296630859375,
+              1.5215840339660645
+            ],
+            "angle_deg": 0.005078652998664541,
+            "fb_error_px": 0.0015954740811139345,
+            "patch_residual": 0.004194723907858133,
+            "reprojection_error_px": 0.12696830408343487,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          },
+          {
+            "source_uv": [
+              201.0,
+              381.0
+            ],
+            "current_uv": [
+              200.98992919921875,
+              381.07708740234375
+            ],
+            "world_xyz": [
+              590.69580078125,
+              1510.919921875,
+              1.399445652961731
+            ],
+            "angle_deg": 0.001462964249655875,
+            "fb_error_px": 0.004182689823210239,
+            "patch_residual": 0.003771509975194931,
+            "reprojection_error_px": 0.011691297824702664,
+            "source_box": false,
+            "current_box": false,
+            "accepted": false
+          }
+        ],
+        "available_points": 19,
+        "supported_points": 0,
+        "support_fraction": 0.0,
+        "observable_points": 0
+      },
+      "calibration": {
+        "source": {
+          "timestamp": 1533151476.004799,
+          "intrinsic": [
+            [
+              503.14501953125,
+              0.0,
+              330.89642333984375
+            ],
+            [
+              0.0,
+              1006.2900390625,
+              280.7323913574219
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "world_to_camera": [
+            [
+              -0.4149719872086381,
+              0.9097913971221439,
+              -0.008824032788391618,
+              -1129.8484074574121
+            ],
+            [
+              -0.015160733967432772,
+              -0.01661158908521953,
+              -0.9997470716404384,
+              35.59258757106421
+            ],
+            [
+              -0.909707866283282,
+              -0.41473325021102486,
+              0.02068644947101473,
+              1165.3587117197042
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "timing_reliable": true,
+          "coordinate_space": "preprocessed_image"
+        },
+        "current": {
+          "timestamp": 1533151476.604799,
+          "intrinsic": [
+            [
+              503.14501953125,
+              0.0,
+              330.89642333984375
+            ],
+            [
+              0.0,
+              1006.2900390625,
+              280.7323913574219
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "world_to_camera": [
+            [
+              -0.4149720170926041,
+              0.9097909937288238,
+              -0.00886412770748344,
+              -1129.8477845514838
+            ],
+            [
+              -0.015189099131244475,
+              -0.016668580698453568,
+              -0.9997456925063892,
+              35.69556002138586
+            ],
+            [
+              -0.9097073794895127,
+              -0.4147318484845577,
+              0.0207359001469687,
+              1165.3563079941312
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "timing_reliable": true,
+          "coordinate_space": "preprocessed_image"
+        }
+      },
+      "oracle_projected_points": [
+        [
+          196.0857239614985,
+          446.87174989568456
+        ],
+        [
+          195.93390542981524,
+          354.79859948234053
+        ],
+        [
+          191.3161072021234,
+          443.5405620114481
+        ],
+        [
+          191.1767169738721,
+          353.67069200062366
+        ],
+        [
+          210.0446582013674,
+          444.3888027728525
+        ],
+        [
+          209.86922242578507,
+          353.7581442084526
+        ],
+        [
+          205.01929062684127,
+          441.1669597585282
+        ],
+        [
+          204.85711356562663,
+          352.67188652686707
+        ]
+      ]
+    }
+  ],
+  "independent_oracle": {
+    "source": {
+      "instance_id": "754aa426fcf34e02a19e81d0692f4ab7",
+      "semantic_class": "traffic_cone",
+      "visibility": "4",
+      "sensor_support": true,
+      "world_center": [
+        581.102,
+        1503.134,
+        0.25
+      ],
+      "world_points": [
+        [
+          581.3626278419036,
+          1503.1979795125385,
+          -0.34650000000000014
+        ],
+        [
+          581.3626278419036,
+          1503.1979795125385,
+          0.8465000000000001
+        ],
+        [
+          581.1597814948678,
+          1502.8719283516843,
+          -0.34650000000000014
+        ],
+        [
+          581.1597814948678,
+          1502.8719283516843,
+          0.8465000000000001
+        ],
+        [
+          581.0442185051321,
+          1503.3960716483157,
+          -0.34650000000000014
+        ],
+        [
+          581.0442185051321,
+          1503.3960716483157,
+          0.8465000000000001
+        ],
+        [
+          580.8413721580963,
+          1503.0700204874615,
+          -0.34650000000000014
+        ],
+        [
+          580.8413721580963,
+          1503.0700204874615,
+          0.8465000000000001
+        ]
+      ]
+    },
+    "current": {
+      "instance_id": "754aa426fcf34e02a19e81d0692f4ab7",
+      "semantic_class": "traffic_cone",
+      "visibility": "4",
+      "sensor_support": true,
+      "world_center": [
+        581.102,
+        1503.134,
+        0.25
+      ],
+      "world_points": [
+        [
+          581.3626278419036,
+          1503.1979795125385,
+          -0.34650000000000014
+        ],
+        [
+          581.3626278419036,
+          1503.1979795125385,
+          0.8465000000000001
+        ],
+        [
+          581.1597814948678,
+          1502.8719283516843,
+          -0.34650000000000014
+        ],
+        [
+          581.1597814948678,
+          1502.8719283516843,
+          0.8465000000000001
+        ],
+        [
+          581.0442185051321,
+          1503.3960716483157,
+          -0.34650000000000014
+        ],
+        [
+          581.0442185051321,
+          1503.3960716483157,
+          0.8465000000000001
+        ],
+        [
+          580.8413721580963,
+          1503.0700204874615,
+          -0.34650000000000014
+        ],
+        [
+          580.8413721580963,
+          1503.0700204874615,
+          0.8465000000000001
+        ]
+      ]
+    },
+    "source_assignment_gate_m": 2.0,
+    "identity_is_assignment_not_guarantee": true
+  }
+}

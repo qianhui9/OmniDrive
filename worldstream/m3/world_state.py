@@ -81,6 +81,9 @@ def freeze_verified_state(manager, frame):
 
 def query_world_state(state,question,context):
     """Simple dependency filters; partial history never establishes absence/counts."""
+    if state is not None and state.diagnostics.get('stage')=='post_perception':
+        from .post_perception import local_query
+        return local_query(state,question,context)
     task=task_type(question);q=question.lower()
     def reject(reason):return dict(admitted=False,reason=reason,task=task,records=[],text='')
     if state is None:return reject('no_frozen_verified_history')

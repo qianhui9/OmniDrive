@@ -65,8 +65,18 @@ class M1Config:
     certification_min_source_score: float = 0.0
     certification_min_history: int = 1
     certification_max_innovation_m: float = 0.0  # 0 disables this additional gate
+    vectorized_occlusion: bool = False  # exact scalar-rule implementation candidate
+    bidirectional_geometry: bool = False  # rejection-only, not a task certificate
+    depth_padding_m: float = .25
+    min_triangulation_angle_deg: float = .5
 
     def __post_init__(self):
+        import math
+        if (not math.isfinite(self.depth_padding_m) or self.depth_padding_m < 0
+                or not math.isfinite(self.min_triangulation_angle_deg) or not 0 < self.min_triangulation_angle_deg < 90):
+            raise ValueError('Invalid bidirectional geometry bounds')
+        if self.bidirectional_geometry and not self.temporal_visibility:
+            raise ValueError('Bidirectional geometry requires measured temporal evidence')
         if not isinstance(self.dense_guard_radius_px, int) or self.dense_guard_radius_px < 1:
             raise ValueError("Dense support needs a positive integer boundary guard")
         if self.dense_local_support and not (self.temporal_visibility and self.local_support):

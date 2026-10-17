@@ -21,6 +21,7 @@ class M1Worker:
             start=perf_counter()
             try:return manager.precheck(frame)
             finally:self.diagnostics.update(worker_thread=get_ident(),worker_start_s=start,
+                queue_delay_ms=(start-submitted)*1000,
                 worker_native_thread=get_native_id(),worker_end_s=perf_counter(),worker_ms=(perf_counter()-start)*1000)
         self.diagnostics=dict(submitted_s=submitted,main_thread=get_ident())
         import torch

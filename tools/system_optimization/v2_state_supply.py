@@ -17,7 +17,7 @@ from .v2_probes import frozen_question
 
 
 class CaptureFull(M3Runtime):
-    def __init__(self):super().__init__(dict(mode='full',state_context='augment',offline_experiment=True))
+    def __init__(self,post_perception=False):super().__init__(dict(mode='full',state_context='augment',offline_experiment=True,post_perception=post_perception))
     def generate(self,**kwargs):
         kwargs=dict(kwargs)
         if self.greedy:
@@ -29,7 +29,7 @@ class CaptureFull(M3Runtime):
 
 
 @torch.no_grad()
-def run(driver,source,dest):
+def run(driver,source,dest,checkpoints=(7,15,31),base_mode='m1',post_perception=False):
     from mmcv.parallel import collate,scatter
     from tools.worldstream_m3.experiment import chosen_questions
     from tools.worldstream_m3.refinement import freeze_sample_questions
@@ -41,7 +41,7 @@ def run(driver,source,dest):
     native=inspect.getclosurevars(driver.native_generate).nonlocals['generate'];model.lm_head.generate=native
     for transform in dataset.pipeline.transforms:
         if hasattr(transform,'load_type'):transform.load_type=['planning','short','conv']
-    checkpoints={7,15,31};frozen={}
+    checkpoints=set(checkpoints);frozen={}
     preflight=dest.parent/'long_state_question_preflight.json'
     predeclared={r['index']:r for r in json.loads(preflight.read_text())['checkpoints']} if preflight.exists() else {}
     # Freeze real extra questions before observing any candidate answer.
@@ -62,13 +62,14 @@ def run(driver,source,dest):
     write(dest/'questions.json',frozen)
     write(dest/'protocol.json',dict(source=str(source),scene_tokens=[s['scene'] for s in protocol['scenes']],
         checkpoint_ordinals_zero_based=sorted(checkpoints),noncheckpoint_contract='Native single Planning Sampling',
+        base_mode=base_mode,post_perception=post_perception,
         checkpoint_contract='Five actual questions, Greedy max_new_tokens=320, unchanged weights, same carriers and frozen M1 history',
         timing='Supplemental mixed-request stream and separate state candidate LM calls; excluded from ordinary E2E tables',
         independent_oracle_used_online=False))
     versions=[(n,p._version,p.dtype) for n,p in model.named_parameters()];records=[];stream=[]
     for scene in protocol['scenes']:
-        driver.setup(model,'m1',sink,dest,512,10,False)
-        supply=CaptureFull();model.m3_runtime=supply
+        driver.setup(model,base_mode,sink,dest,512,10,False)
+        supply=CaptureFull(post_perception);model.m3_runtime=supply
         for ordinal,index in enumerate(scene['indices']):
             supply.greedy=ordinal in checkpoints
             seed(index);spec=frozen[str(index)]
@@ -84,7 +85,8 @@ def run(driver,source,dest):
             captured=dict(supply.captured);state=captured['verified_state'];expected=supply.answers
             assert state.frame_id==frame.identity.frame_id and state.timestamp==frame.identity.timestamp
             assert state.state_epoch==model.m1_manager.store.generation and state.execution_signature==model.m1_manager.store.execution_signature
-            assert state.diagnostics['source']=='M1 history before current perception commit'
+            if post_perception:assert state.diagnostics['stage']=='post_perception'
+            else:assert state.diagnostics['source']=='M1 history before current perception commit'
             captured['world_state']=None  # candidates may read only the frozen precommit view
             for mode,context in (('state_only','only'),('state_full','augment')):
                 runtime=M3Runtime(dict(mode='compact',offline_experiment=True,state_context=context))

@@ -54,6 +54,7 @@ class UnifiedRuntime:
         self._overlap_active = False
         self._m1_signature_cache = None
         self._request_key = None
+        self._admission_matches = {}
         from pathlib import Path
         self.costs = json.loads(Path(self.config.cost_table).read_text()) if self.config.cost_table else {}
         self.quality = json.loads(Path(self.config.quality_certificate).read_text()) if self.config.quality_certificate else {}
@@ -71,8 +72,16 @@ class UnifiedRuntime:
             return False, 'no_system_workload_certificate'
         admission_tick = perf_counter()
         key=self._request_key or self.workload_key(model,data)
-        for costs in self.costs['records']:
-            for quality in self.quality['records']:
+        # Content-keyed, bounded lookup only. Re-run admission with actual
+        # overhead; model/CPU/strategy/provenance changes produce another key.
+        cache_key=json.dumps((key,self.costs,self.quality),sort_keys=True,allow_nan=False)
+        candidates=self._admission_matches.get(cache_key)
+        if candidates is None:
+            candidates=[(c,q) for c in self.costs['records'] for q in self.quality['records']
+                if self.admit(key,c,q,overhead_ms=0)[0]]
+            if len(self._admission_matches)>=64:self._admission_matches.clear()
+            self._admission_matches[cache_key]=candidates
+        for costs,quality in candidates:
                 admitted, reason = self.admit(key, costs, quality,
                     overhead_ms=prior_overhead_ms+(perf_counter()-admission_tick)*1000)
                 if admitted:

@@ -1,0 +1,26 @@
+{
+  "frozen_before_additional_gpu_outcomes": true,
+  "reason": "Initial exact question-length strata have 2 calibration/2 heldout scenes; frozen requirement is 3/3. Retain No-Go and all original scenes; add fixed sorted scenes for support.",
+  "calibration_extension": {
+    "scene_start": 136,
+    "scenes": 8,
+    "frames": 4,
+    "modes": [
+      "m1",
+      "overlap"
+    ],
+    "splits": "first4 calibration, last4 heldout"
+  },
+  "new_auto": {
+    "scene_start": 144,
+    "scenes": 4,
+    "frames": 4,
+    "modes": [
+      "m1",
+      "unified_auto"
+    ]
+  },
+  "risk_targets_unchanged": true,
+  "initial_results_archived": true,
+  "analysis_correction": "Enforce originally frozen warm frame-gap domain [.49,.51] in addition to calibration observed range; initial result had no approvals or real positive admissions"
+}

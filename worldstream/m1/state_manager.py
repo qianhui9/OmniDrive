@@ -88,6 +88,10 @@ class WorldStateManager:
             projections[aid] = {cid: project_anchor(anchor, cam, self.config, validated_cameras[cid])
                                 for cid, cam in frame.cameras.items()}
         projection_ms = (perf_counter() - projection_start) * 1000
+        occlusions=None
+        if self.config.vectorized_occlusion:
+            from .bidirectional_geometry import occlusion_table
+            occlusions=occlusion_table(projections,frame.cameras,self.config)
         temporal_times = dict(temporal_correspondence=0., visibility_verification=0., geometry_support=0.)
         self.last_evidence = {}
         if self.config.temporal_visibility or self.config.local_support:
@@ -102,7 +106,7 @@ class WorldStateManager:
                     p = projections[aid][cid]
                     if p.region is None: continue
                     dynamic = anchor.anchor_type == 'object' and anchor.semantic_class not in STATIC_CLASSES
-                    occluded = any(other != aid and q[cid].region is not None
+                    occluded = occlusions[aid][cid] if occlusions is not None else any(other != aid and q[cid].region is not None
                         and q[cid].depth < p.depth-self.config.occlusion_depth_margin_m
                         and intersect_area(p.region,q[cid].region) > self.config.occlusion_overlap_fraction*region_area(p.region)
                         for other,q in projections.items())
@@ -151,7 +155,8 @@ class WorldStateManager:
             for cid, camera in frame.cameras.items():
                 p = projections[aid][cid]
                 occluded = False
-                if p.region is not None:
+                if occlusions is not None:occluded=occlusions[aid][cid]
+                elif p.region is not None:
                     for other, views in projections.items():
                         q = views[cid]
                         if (other != aid and q.region is not None
@@ -160,6 +165,12 @@ class WorldStateManager:
                             occluded = True; break
                 validation = self.validator.validate(anchor.observation_support.get(cid), camera, p, occluded,
                                                      self.last_evidence.get(cid))
+                if validation.valid and self.config.bidirectional_geometry:
+                    from .bidirectional_geometry import verify_anchor_geometry
+                    proof=verify_anchor_geometry(anchor,self._previous_cameras.get(cid),camera,self.last_evidence.get(cid),p,self.config)
+                    validation.evidence['bidirectional_geometry']=proof
+                    if not proof['passed']:
+                        validation.valid=False;validation.reason=proof['reason']
                 camera_checks[cid] = dict(asdict(validation), geometry_valid=p.valid,
                                           projected_points=p.uv,
                                           predicted_region=p.region, coverage=p.coverage,

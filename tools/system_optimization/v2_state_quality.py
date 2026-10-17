@@ -7,12 +7,12 @@ from .audit import write,stats
 from .identity import token_index
 
 
-def main(root):
+def main(root,subdirectory='long_state_supply'):
     from tools.worldstream_m3.experiment import ground_truth
     from tools.worldstream_m3.offline_reference import resolve_reference
     from tools.worldstream_m3.llm_probe import quality
     from tools.worldstream_m3.qa_analysis import planning_quality
-    root=Path(root);path=root/'long_state_supply/queries.jsonl'
+    root=Path(root);path=root/subdirectory/'queries.jsonl'
     if not path.exists():return None
     infos=token_index(pickle.load(open('data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl','rb'))['infos'])
     records=[]
@@ -42,4 +42,4 @@ def main(root):
         modes.append(row)
     result=dict(scope='Independent annotation scoring after all model generations; no online GT',modes=modes,records=records,
         caveat='Annotation text overlap and trajectory distance are reported separately; no LLM judge or closed-loop safety claim')
-    write(root/'long_state_supply/task_quality.json',result);return result
+    write(root/subdirectory/'task_quality.json',result);return result

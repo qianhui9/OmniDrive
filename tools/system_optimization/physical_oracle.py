@@ -30,7 +30,7 @@ def historical_anchor(record,ego_to_world,scene):
     return anchor
 
 
-def main(root='outputs/system_optimization_v2'):
+def main(root='outputs/system_optimization_v2',query_subdirectory='long_state_supply'):
     root=Path(root)
     paths=list(root.glob('*/oracle_frames/*.pkl.gz'))
     if not paths:raise ValueError('No actual preprocessed M1 snapshots; refusing fabricated oracle output')
@@ -105,7 +105,7 @@ def main(root='outputs/system_optimization_v2'):
         previous[frame.scene_id]=(frame,current)
     summary=summarize_rows(records)
     frozen_records=[];consumed=set();unique_frozen={}
-    query_path=root/'long_state_supply/queries.jsonl'
+    query_path=root/query_subdirectory/'queries.jsonl'
     if query_path.exists():
         for line in query_path.open():
             row=json.loads(line)

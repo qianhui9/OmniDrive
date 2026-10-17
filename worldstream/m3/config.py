@@ -20,12 +20,15 @@ class M3Config:
     batched_decode: bool = False
     batch_workspace_mb: float = 6144
     state_context: str = 'none'  # none / only / augment; offline approximation
+    post_perception: bool = False
     common_prefix_seed: bool = False
     adaptive_batch: bool = False  # offline length grouping; each shape is uncertified
     max_batch_size: int = 5
     batch_cost_table: str = ''
 
     def __post_init__(self):
+        if self.post_perception and (not self.offline_experiment or self.state_context=='none'):
+            raise ValueError('Post-perception task candidates require an offline state experiment')
         if self.mode not in ('full', 'auto', 'exact', 'compact', 'combined'):
             raise ValueError('Unknown M3 mode')
         if self.selector not in ('full', 'task', 'topk', 'random'):

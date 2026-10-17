@@ -128,3 +128,19 @@ taskset -c 0-3,6-31 bash tools/system_optimization/finalize_v2.sh
 初始正式程序完成所有 GPU 工作并写出完整结果后以 139 退出，原始日志与 `formal_process_failure.json` 保留。逐帧完整性检查通过不等于该进程正常退出；初始未绑定 CPU 的性能结果保留为历史测量，硬件故障的影响不能排除。后续在排除故障核的配置下重跑 GPU 回归、独立成本校准和新场景 Auto 验证，不覆盖初始逐帧结果。`cpu_affinity_revision.json` 记录资源与源版本变化；CPU 亲和性现在属于成本键，不允许旧环境的证书继承准入。
 
 成本校准首次尝试在回归完成门检查失败，尚未创建任何测量目录；只有这种无测量的失败允许恢复，并保存原失败标记。其他失败或已存在测量目录仍拒绝覆盖。
+
+## 第三轮：物理证据、双阶段任务验证与执行优化
+
+新结果与冻结风险预算见 `outputs/system_optimization_v3/protocol.json`，旧第二轮数据不覆盖。所有执行使用健康 CPU 核和 `OmniDrive`。完整入口：
+
+```bash
+taskset -c 0-3,6-31 bash tools/system_optimization/run_v3.sh
+```
+
+`M1Config.vectorized_occlusion` 是原逐对遮挡公式的向量化实现，默认关闭；保持相同投影、遮挡门和独占 Worker，不增加并发 Store 写者。`bidirectional_geometry` 为单独的拒绝式物理候选：要求真实来源时间、双向观测、可观视差和源/当前三维范围内的对应支持。动态目标不使用静态场景三角化授权运动，地图深度保持未认证。它不改变 Transformer 依赖，也不是独立物理真值。两类候选分别验证状态等价或风险/覆盖，不混为一种保证。
+
+`M3Config.post_perception=True` 仅允许显式离线状态实验。完整 Heads 执行后、Commit/LLM 前，使用冻结历史和当前预测进行唯一、双向的同类几何核对；当前结果不回填 Precheck，不追溯改变 M2 准入。保留历史源帧/时间/版本及单独的当前预测核对记录。只支持输入需求明确的局部任务，原始全局计数、不存在性、语义和 Planning 保持 Full Carrier。Direct Query 没有独立任务证书不执行。实际任务激活与真正减少 Prefill 另报，不能以记录数量替代消费证据。
+
+第三轮成本校准同时保存最坏观测增量、预先固定分位数和场景均值单侧上界。仅在 calibration 实测帧间隔范围、精确部署/线程/Shape/问题长度/生成合同内评估新场景。统计均值性能不是确定性截止保证。准入匹配缓存绑定实际键和证书内容，仍对每次实际开销复核；模型或环境变化不能继承许可。若没有足够支持或风险未过，则空批准和 Full 回退。三种证据始终分开：物理可信、计算可复用、任务质量认证。
+
+性能分析使用本轮真实 GPU kernel traces；M2 的掩码依赖上界是乐观可行性分析，不是 Exact 视觉复用批准。通用 Decode 候选同样作用于 Original 对照，Batch 仍遵守完整 Token 等价。实现与测量文件清单将随最终报告保存，不将尚未完成的实验记作成功。

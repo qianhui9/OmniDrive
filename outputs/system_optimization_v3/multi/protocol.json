@@ -1,0 +1,102 @@
+{
+  "scenes": [
+    {
+      "scene": "d01e7279da2649ef896dc42f6b9ee7ab",
+      "indices": [
+        3841,
+        3842
+      ],
+      "split": "calibration",
+      "tokens": [
+        "a4782f7ade234010b5b50553403f6e79",
+        "a1109d0a808d499bad37e7a777ff4ac8"
+      ],
+      "timestamps_s": [
+        1537298025.699833,
+        1537298026.199711
+      ]
+    },
+    {
+      "scene": "d1e57234fd6a463d963670938f9f556e",
+      "indices": [
+        555,
+        556
+      ],
+      "split": "heldout",
+      "tokens": [
+        "43cfc03be6f842ae8942c995f8e3f2fb",
+        "b4799bade00a402693dfa295adeea027"
+      ],
+      "timestamps_s": [
+        1531885397.04917,
+        1531885397.549618
+      ]
+    },
+    {
+      "scene": "d29527ec841045d18d04a933e7a0afd2",
+      "indices": [
+        5818,
+        5819
+      ],
+      "split": "calibration",
+      "tokens": [
+        "b58985f7ddc2454d95cb84a65d1fe9fe",
+        "d475ca96e672440885e6920f92a7b55b"
+      ],
+      "timestamps_s": [
+        1542799622.147843,
+        1542799622.648263
+      ]
+    },
+    {
+      "scene": "d3b86ca0a17840109e9e049b3dd40037",
+      "indices": [
+        3720,
+        3721
+      ],
+      "split": "heldout",
+      "tokens": [
+        "bc94beb70f694ee8a0399c4e7e1fc2d0",
+        "3513b64493ee42b3a231d5fffc0f0d81"
+      ],
+      "timestamps_s": [
+        1537297965.798743,
+        1537297966.29917
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v3/multi",
+    "workload": "multi",
+    "scene_start": 124,
+    "scenes": 4,
+    "frames": 2,
+    "modes": [
+      "original",
+      "prefix",
+      "batch",
+      "adaptive",
+      "task_full",
+      "task_compact"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false
+  },
+  "generation": {
+    "do_sample": false,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

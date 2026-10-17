@@ -1,0 +1,93 @@
+{
+  "frozen_before_candidate_outcomes": true,
+  "exploratory_v2_cases": "All 29 errors are development-only, not independent risk evidence",
+  "physical_risk": {
+    "far_upper95_max": 0.05,
+    "min_accepted_scorable": 30,
+    "min_support_scenes": 3,
+    "min_critical_recall": 0.998,
+    "one_sided_binomial": "Clopper-Pearson descriptive; scene clusters separately reported",
+    "unknown": "unscorable; never counted valid"
+  },
+  "candidate_grid": [
+    {
+      "name": "reference",
+      "bidirectional_geometry": false
+    },
+    {
+      "name": "bidirectional_depth",
+      "bidirectional_geometry": true,
+      "depth_padding_m": 0.25,
+      "min_angle_deg": 0.5
+    },
+    {
+      "name": "bidirectional_depth_strict",
+      "bidirectional_geometry": true,
+      "depth_padding_m": 0.1,
+      "min_angle_deg": 1.0
+    }
+  ],
+  "task_quality": {
+    "exact_tokens": true,
+    "planning_ade_fde_delta_max": 0.0,
+    "qa_token_f1_drop_max": 0.0,
+    "direct_numeric_error_m_max": 0.5,
+    "global_count_absence_planning": "full visual fallback",
+    "no_original_question_replacement": true
+  },
+  "performance": {
+    "scene_bootstrap_samples": 10000,
+    "seed": 20261017,
+    "min_calibration_scenes": 3,
+    "min_heldout_scenes": 3,
+    "mean_increment_upper95_ms_max": 0,
+    "frame_quantile": 0.95,
+    "max_positive_increment_rate": 0.1,
+    "frame_gap_domain_s": [
+      0.49,
+      0.51
+    ],
+    "not_hard_realtime": true
+  },
+  "runs": {
+    "main": {
+      "scene_start": 120,
+      "scenes": 8,
+      "frames": 4,
+      "calibration_scene_ordinals": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "heldout_scene_ordinals": [
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "long": {
+      "scene_start": 132,
+      "scenes": 4,
+      "frames": 16
+    },
+    "auto": {
+      "scene_start": 128,
+      "scenes": 4,
+      "frames": 4
+    },
+    "multi": {
+      "scene_start": 124,
+      "scenes": 4,
+      "frames": 2
+    }
+  },
+  "generation": {
+    "single": "native Sampling temp.1 topp.75 beams1 max320 cache",
+    "multi": "Greedy beams1 max320 cache"
+  },
+  "cpu_affinity": "0-3,6-31",
+  "selection": "Sorted scene order, fixed input only, no replacements",
+  "defaults": "All new research options off; certification must pass independently"
+}

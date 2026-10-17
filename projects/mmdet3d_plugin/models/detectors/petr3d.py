@@ -602,6 +602,12 @@ class Petr3D(MVXTwoStageDetector):
                 with measure_transfers() as output_transfers:
                     outputs = outputs_from_model(frame, boxes, lanes, features, settings)
                 output_ms = (time.perf_counter() - output_start) * 1000
+                if getattr(getattr(getattr(self,'m3_runtime',None),'config',None),'post_perception',False):
+                    from worldstream.m3.post_perception import post_verify
+                    task_start=time.perf_counter()
+                    with torch.autograd.profiler.record_function('stream/post_perception_task_verification'):
+                        self.m3_verified_state=post_verify(self.m3_verified_state,frame,outputs)
+                    self.m3_post_verification_ms=(time.perf_counter()-task_start)*1000
                 reused = (getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck and
                     getattr(self, 'm2_diagnostics', {}).get('actual_reused_cameras', 0))
                 if reused:
