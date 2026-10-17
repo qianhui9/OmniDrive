@@ -1,0 +1,4078 @@
+{
+  "scope": "Independent annotation scoring after all model generations; no online GT",
+  "modes": [
+    {
+      "mode": "state_full",
+      "questions": 40,
+      "complete_tokens_equal": 40,
+      "qa_scorable": 24,
+      "native": {
+        "mean_lexical_token_f1": 0.45888591485249147,
+        "planning_parsed": 8,
+        "planning_questions": 8,
+        "ade_m": {
+          "count": 8,
+          "p50": 0.5026728349914565,
+          "p95": 0.9818285142506439
+        },
+        "fde_m": {
+          "count": 8,
+          "p50": 1.2308988748445389,
+          "p95": 2.496789845780787
+        }
+      },
+      "candidate": {
+        "mean_lexical_token_f1": 0.45888591485249147,
+        "planning_parsed": 8,
+        "planning_questions": 8,
+        "ade_m": {
+          "count": 8,
+          "p50": 0.5026728349914565,
+          "p95": 0.9818285142506439
+        },
+        "fde_m": {
+          "count": 8,
+          "p50": 1.2308988748445389,
+          "p95": 2.496789845780787
+        }
+      }
+    },
+    {
+      "mode": "state_only",
+      "questions": 40,
+      "complete_tokens_equal": 40,
+      "qa_scorable": 24,
+      "native": {
+        "mean_lexical_token_f1": 0.45888591485249147,
+        "planning_parsed": 8,
+        "planning_questions": 8,
+        "ade_m": {
+          "count": 8,
+          "p50": 0.5026728349914565,
+          "p95": 0.9818285142506439
+        },
+        "fde_m": {
+          "count": 8,
+          "p50": 1.2308988748445389,
+          "p95": 2.496789845780787
+        }
+      },
+      "candidate": {
+        "mean_lexical_token_f1": 0.45888591485249147,
+        "planning_parsed": 8,
+        "planning_questions": 8,
+        "ade_m": {
+          "count": 8,
+          "p50": 0.5026728349914565,
+          "p95": 0.9818285142506439
+        },
+        "fde_m": {
+          "count": 8,
+          "p50": 1.2308988748445389,
+          "p95": 2.496789845780787
+        }
+      }
+    }
+  ],
+  "records": [
+    {
+      "mode": "state_only",
+      "scene": "e005041f659c47e194cd5b18ea6fc346",
+      "token": "d11f99c71cc44264a994fb0a14494b55",
+      "ordinal": 7,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+1.59, 0.0), (+3.39, -0.02), (+5.40, -0.03), (+7.64, -0.04), (+10.02, -0.05), (+12.62, -0.06)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+1.59, 0.0), (+3.39, -0.02), (+5.40, -0.03), (+7.64, -0.04), (+10.02, -0.05), (+12.62, -0.06)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                1.6304560899734497,
+                -0.02428789623081684
+              ],
+              [
+                3.397733449935913,
+                -0.06392734497785568
+              ],
+              [
+                5.39560079574585,
+                -0.12380928546190262
+              ],
+              [
+                7.275191783905029,
+                -0.198443204164505
+              ],
+              [
+                9.401313781738281,
+                -0.2918945252895355
+              ],
+              [
+                11.80198860168457,
+                -0.4058060944080353
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                1.59,
+                0.0
+              ],
+              [
+                3.39,
+                -0.02
+              ],
+              [
+                5.4,
+                -0.03
+              ],
+              [
+                7.64,
+                -0.04
+              ],
+              [
+                10.02,
+                -0.05
+              ],
+              [
+                12.62,
+                -0.06
+              ]
+            ],
+            "ade_m": 0.355971200431547,
+            "fde_m": 0.888101628589714
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                1.6304560899734497,
+                -0.02428789623081684
+              ],
+              [
+                3.397733449935913,
+                -0.06392734497785568
+              ],
+              [
+                5.39560079574585,
+                -0.12380928546190262
+              ],
+              [
+                7.275191783905029,
+                -0.198443204164505
+              ],
+              [
+                9.401313781738281,
+                -0.2918945252895355
+              ],
+              [
+                11.80198860168457,
+                -0.4058060944080353
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                1.59,
+                0.0
+              ],
+              [
+                3.39,
+                -0.02
+              ],
+              [
+                5.4,
+                -0.03
+              ],
+              [
+                7.64,
+                -0.04
+              ],
+              [
+                10.02,
+                -0.05
+              ],
+              [
+                12.62,
+                -0.06
+              ]
+            ],
+            "ade_m": 0.355971200431547,
+            "fde_m": 0.888101628589714
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+          "candidate_text": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What type of crossing is the vehicle at?",
+          "native_text": "The vehicle is at a pedestrian crossing.",
+          "candidate_text": "The vehicle is at a pedestrian crossing.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is at a pedestrian crossing, distinguished by the zebra markings on the road.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "d11f99c71cc44264a994fb0a14494b55"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6363636363636364,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6363636363636364,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there a traffic light visible at the junction ahead?",
+          "native_text": "No, there is no traffic light visible at the junction ahead.",
+          "candidate_text": "No, there is no traffic light visible at the junction ahead.",
+          "complete_token_equality": true,
+          "ground_truth": "No, there isn't a traffic light visible at the junction ahead; the path is clear to proceed with caution.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "d11f99c71cc44264a994fb0a14494b55"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6451612903225806,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6451612903225806,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Given the empty road behind the vehicle, is it necessary to check the mirrors frequently?",
+          "native_text": "Even though the road behind is currently empty, it's important to regularly check the mirrors to stay aware of any vehicles that may approach from behind.",
+          "candidate_text": "Even though the road behind is currently empty, it's important to regularly check the mirrors to stay aware of any vehicles that may approach from behind.",
+          "complete_token_equality": true,
+          "ground_truth": "Yes, despite the road being empty, it's a good driving practice to frequently check the mirrors to stay aware of any vehicles that may enter the road behind.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "d11f99c71cc44264a994fb0a14494b55"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6428571428571429,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6428571428571429,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_full",
+      "scene": "e005041f659c47e194cd5b18ea6fc346",
+      "token": "d11f99c71cc44264a994fb0a14494b55",
+      "ordinal": 7,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+1.59, 0.0), (+3.39, -0.02), (+5.40, -0.03), (+7.64, -0.04), (+10.02, -0.05), (+12.62, -0.06)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+1.59, 0.0), (+3.39, -0.02), (+5.40, -0.03), (+7.64, -0.04), (+10.02, -0.05), (+12.62, -0.06)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                1.6304560899734497,
+                -0.02428789623081684
+              ],
+              [
+                3.397733449935913,
+                -0.06392734497785568
+              ],
+              [
+                5.39560079574585,
+                -0.12380928546190262
+              ],
+              [
+                7.275191783905029,
+                -0.198443204164505
+              ],
+              [
+                9.401313781738281,
+                -0.2918945252895355
+              ],
+              [
+                11.80198860168457,
+                -0.4058060944080353
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                1.59,
+                0.0
+              ],
+              [
+                3.39,
+                -0.02
+              ],
+              [
+                5.4,
+                -0.03
+              ],
+              [
+                7.64,
+                -0.04
+              ],
+              [
+                10.02,
+                -0.05
+              ],
+              [
+                12.62,
+                -0.06
+              ]
+            ],
+            "ade_m": 0.355971200431547,
+            "fde_m": 0.888101628589714
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                1.6304560899734497,
+                -0.02428789623081684
+              ],
+              [
+                3.397733449935913,
+                -0.06392734497785568
+              ],
+              [
+                5.39560079574585,
+                -0.12380928546190262
+              ],
+              [
+                7.275191783905029,
+                -0.198443204164505
+              ],
+              [
+                9.401313781738281,
+                -0.2918945252895355
+              ],
+              [
+                11.80198860168457,
+                -0.4058060944080353
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                1.59,
+                0.0
+              ],
+              [
+                3.39,
+                -0.02
+              ],
+              [
+                5.4,
+                -0.03
+              ],
+              [
+                7.64,
+                -0.04
+              ],
+              [
+                10.02,
+                -0.05
+              ],
+              [
+                12.62,
+                -0.06
+              ]
+            ],
+            "ade_m": 0.355971200431547,
+            "fde_m": 0.888101628589714
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+          "candidate_text": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What type of crossing is the vehicle at?",
+          "native_text": "The vehicle is at a pedestrian crossing.",
+          "candidate_text": "The vehicle is at a pedestrian crossing.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is at a pedestrian crossing, distinguished by the zebra markings on the road.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "d11f99c71cc44264a994fb0a14494b55"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6363636363636364,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6363636363636364,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there a traffic light visible at the junction ahead?",
+          "native_text": "No, there is no traffic light visible at the junction ahead.",
+          "candidate_text": "No, there is no traffic light visible at the junction ahead.",
+          "complete_token_equality": true,
+          "ground_truth": "No, there isn't a traffic light visible at the junction ahead; the path is clear to proceed with caution.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "d11f99c71cc44264a994fb0a14494b55"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6451612903225806,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6451612903225806,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Given the empty road behind the vehicle, is it necessary to check the mirrors frequently?",
+          "native_text": "Even though the road behind is currently empty, it's important to regularly check the mirrors to stay aware of any vehicles that may approach from behind.",
+          "candidate_text": "Even though the road behind is currently empty, it's important to regularly check the mirrors to stay aware of any vehicles that may approach from behind.",
+          "complete_token_equality": true,
+          "ground_truth": "Yes, despite the road being empty, it's a good driving practice to frequently check the mirrors to stay aware of any vehicles that may enter the road behind.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "d11f99c71cc44264a994fb0a14494b55"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6428571428571429,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6428571428571429,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_only",
+      "scene": "e005041f659c47e194cd5b18ea6fc346",
+      "token": "68d1a32884e745aea83ecace65a55628",
+      "ordinal": 15,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+2.46, -0.04), (+4.90, -0.16), (+7.35, -0.41), (+9.79, -0.83), (+12.17, -1.44), (+14.46, -2.24)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+2.46, -0.04), (+4.90, -0.16), (+7.35, -0.41), (+9.79, -0.83), (+12.17, -1.44), (+14.46, -2.24)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                2.42559814453125,
+                -0.042943328619003296
+              ],
+              [
+                4.499303817749023,
+                -0.1557130068540573
+              ],
+              [
+                7.30699348449707,
+                -0.453647255897522
+              ],
+              [
+                10.307923316955566,
+                -0.9726637005805969
+              ],
+              [
+                13.468823432922363,
+                -1.6645267009735107
+              ],
+              [
+                16.784679412841797,
+                -2.437441349029541
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.46,
+                -0.04
+              ],
+              [
+                4.9,
+                -0.16
+              ],
+              [
+                7.35,
+                -0.41
+              ],
+              [
+                9.79,
+                -0.83
+              ],
+              [
+                12.17,
+                -1.44
+              ],
+              [
+                14.46,
+                -2.24
+              ]
+            ],
+            "ade_m": 0.7808118208945934,
+            "fde_m": 2.333048961937379
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                2.42559814453125,
+                -0.042943328619003296
+              ],
+              [
+                4.499303817749023,
+                -0.1557130068540573
+              ],
+              [
+                7.30699348449707,
+                -0.453647255897522
+              ],
+              [
+                10.307923316955566,
+                -0.9726637005805969
+              ],
+              [
+                13.468823432922363,
+                -1.6645267009735107
+              ],
+              [
+                16.784679412841797,
+                -2.437441349029541
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.46,
+                -0.04
+              ],
+              [
+                4.9,
+                -0.16
+              ],
+              [
+                7.35,
+                -0.41
+              ],
+              [
+                9.79,
+                -0.83
+              ],
+              [
+                12.17,
+                -1.44
+              ],
+              [
+                14.46,
+                -2.24
+              ]
+            ],
+            "ade_m": 0.7808118208945934,
+            "fde_m": 2.333048961937379
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding slowly and maintaining my lane, as the road ahead is clear and there are no immediate obstacles or traffic.",
+          "candidate_text": "I'm proceeding slowly and maintaining my lane, as the road ahead is clear and there are no immediate obstacles or traffic.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What type of area is the vehicle navigating through?",
+          "native_text": "The vehicle is navigating through a residential area with apartment buildings and a park.",
+          "candidate_text": "The vehicle is navigating through a residential area with apartment buildings and a park.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is navigating through a quiet commercial district with a mix of utilitarian and modern buildings.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "68d1a32884e745aea83ecace65a55628"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6451612903225806,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6451612903225806,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What does the presence of buildings such as 'INNOSPARKS' indicate about the area?",
+          "native_text": "The presence of 'INNOSPARKS' suggests that the area is likely a business or technology park, which could mean a higher likelihood of pedestrian activity and the need for cautious driving.",
+          "candidate_text": "The presence of 'INNOSPARKS' suggests that the area is likely a business or technology park, which could mean a higher likelihood of pedestrian activity and the need for cautious driving.",
+          "complete_token_equality": true,
+          "ground_truth": "The building labeled 'INNOSPARKS' suggests the area may be a hub for innovation or business.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "68d1a32884e745aea83ecace65a55628"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.4,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.4,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "How should the driver respond to the worn road markings?",
+          "native_text": "The driver should be cautious and prepared to adjust their position within the lane if the worn markings are not clearly visible.",
+          "candidate_text": "The driver should be cautious and prepared to adjust their position within the lane if the worn markings are not clearly visible.",
+          "complete_token_equality": true,
+          "ground_truth": "The driver should pay extra attention to ensure correct lane following and positioning due to the worn road markings.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "68d1a32884e745aea83ecace65a55628"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.43902439024390244,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.43902439024390244,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_full",
+      "scene": "e005041f659c47e194cd5b18ea6fc346",
+      "token": "68d1a32884e745aea83ecace65a55628",
+      "ordinal": 15,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+2.46, -0.04), (+4.90, -0.16), (+7.35, -0.41), (+9.79, -0.83), (+12.17, -1.44), (+14.46, -2.24)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+2.46, -0.04), (+4.90, -0.16), (+7.35, -0.41), (+9.79, -0.83), (+12.17, -1.44), (+14.46, -2.24)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                2.42559814453125,
+                -0.042943328619003296
+              ],
+              [
+                4.499303817749023,
+                -0.1557130068540573
+              ],
+              [
+                7.30699348449707,
+                -0.453647255897522
+              ],
+              [
+                10.307923316955566,
+                -0.9726637005805969
+              ],
+              [
+                13.468823432922363,
+                -1.6645267009735107
+              ],
+              [
+                16.784679412841797,
+                -2.437441349029541
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.46,
+                -0.04
+              ],
+              [
+                4.9,
+                -0.16
+              ],
+              [
+                7.35,
+                -0.41
+              ],
+              [
+                9.79,
+                -0.83
+              ],
+              [
+                12.17,
+                -1.44
+              ],
+              [
+                14.46,
+                -2.24
+              ]
+            ],
+            "ade_m": 0.7808118208945934,
+            "fde_m": 2.333048961937379
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                2.42559814453125,
+                -0.042943328619003296
+              ],
+              [
+                4.499303817749023,
+                -0.1557130068540573
+              ],
+              [
+                7.30699348449707,
+                -0.453647255897522
+              ],
+              [
+                10.307923316955566,
+                -0.9726637005805969
+              ],
+              [
+                13.468823432922363,
+                -1.6645267009735107
+              ],
+              [
+                16.784679412841797,
+                -2.437441349029541
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.46,
+                -0.04
+              ],
+              [
+                4.9,
+                -0.16
+              ],
+              [
+                7.35,
+                -0.41
+              ],
+              [
+                9.79,
+                -0.83
+              ],
+              [
+                12.17,
+                -1.44
+              ],
+              [
+                14.46,
+                -2.24
+              ]
+            ],
+            "ade_m": 0.7808118208945934,
+            "fde_m": 2.333048961937379
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding slowly and maintaining my lane, as the road ahead is clear and there are no immediate obstacles or traffic.",
+          "candidate_text": "I'm proceeding slowly and maintaining my lane, as the road ahead is clear and there are no immediate obstacles or traffic.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What type of area is the vehicle navigating through?",
+          "native_text": "The vehicle is navigating through a residential area with apartment buildings and a park.",
+          "candidate_text": "The vehicle is navigating through a residential area with apartment buildings and a park.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is navigating through a quiet commercial district with a mix of utilitarian and modern buildings.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "68d1a32884e745aea83ecace65a55628"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6451612903225806,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6451612903225806,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What does the presence of buildings such as 'INNOSPARKS' indicate about the area?",
+          "native_text": "The presence of 'INNOSPARKS' suggests that the area is likely a business or technology park, which could mean a higher likelihood of pedestrian activity and the need for cautious driving.",
+          "candidate_text": "The presence of 'INNOSPARKS' suggests that the area is likely a business or technology park, which could mean a higher likelihood of pedestrian activity and the need for cautious driving.",
+          "complete_token_equality": true,
+          "ground_truth": "The building labeled 'INNOSPARKS' suggests the area may be a hub for innovation or business.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "68d1a32884e745aea83ecace65a55628"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.4,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.4,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "How should the driver respond to the worn road markings?",
+          "native_text": "The driver should be cautious and prepared to adjust their position within the lane if the worn markings are not clearly visible.",
+          "candidate_text": "The driver should be cautious and prepared to adjust their position within the lane if the worn markings are not clearly visible.",
+          "complete_token_equality": true,
+          "ground_truth": "The driver should pay extra attention to ensure correct lane following and positioning due to the worn road markings.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "68d1a32884e745aea83ecace65a55628"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.43902439024390244,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.43902439024390244,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_only",
+      "scene": "e036014a715945aa965f4ec24e8639c9",
+      "token": "c507bbfdc8e7475098eb217530a23559",
+      "ordinal": 7,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+3.36, -0.02), (+6.76, -0.03), (+10.17, -0.03), (+13.60, -0.03), (+17.11, -0.03), (+20.61, -0.03)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+3.36, -0.02), (+6.76, -0.03), (+10.17, -0.03), (+13.60, -0.03), (+17.11, -0.03), (+20.61, -0.03)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                3.237257719039917,
+                -0.008192397654056549
+              ],
+              [
+                6.432806491851807,
+                0.0034470348618924618
+              ],
+              [
+                9.50438404083252,
+                0.05097286030650139
+              ],
+              [
+                12.527312278747559,
+                0.13070987164974213
+              ],
+              [
+                15.382612228393555,
+                0.23804837465286255
+              ],
+              [
+                18.056779861450195,
+                0.3738252818584442
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                3.36,
+                -0.02
+              ],
+              [
+                6.76,
+                -0.03
+              ],
+              [
+                10.17,
+                -0.03
+              ],
+              [
+                13.6,
+                -0.03
+              ],
+              [
+                17.11,
+                -0.03
+              ],
+              [
+                20.61,
+                -0.03
+              ]
+            ],
+            "ade_m": 1.0900682722115944,
+            "fde_m": 2.5849580140041604
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                3.237257719039917,
+                -0.008192397654056549
+              ],
+              [
+                6.432806491851807,
+                0.0034470348618924618
+              ],
+              [
+                9.50438404083252,
+                0.05097286030650139
+              ],
+              [
+                12.527312278747559,
+                0.13070987164974213
+              ],
+              [
+                15.382612228393555,
+                0.23804837465286255
+              ],
+              [
+                18.056779861450195,
+                0.3738252818584442
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                3.36,
+                -0.02
+              ],
+              [
+                6.76,
+                -0.03
+              ],
+              [
+                10.17,
+                -0.03
+              ],
+              [
+                13.6,
+                -0.03
+              ],
+              [
+                17.11,
+                -0.03
+              ],
+              [
+                20.61,
+                -0.03
+              ]
+            ],
+            "ade_m": 1.0900682722115944,
+            "fde_m": 2.5849580140041604
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm maintaining a moderate speed and staying in the current lane, as the road ahead is clear and there are no immediate obstacles or traffic.",
+          "candidate_text": "I'm maintaining a moderate speed and staying in the current lane, as the road ahead is clear and there are no immediate obstacles or traffic.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What type of area is the vehicle moving through?",
+          "native_text": "The vehicle is moving through a residential area with multi-story buildings.",
+          "candidate_text": "The vehicle is moving through a residential area with multi-story buildings.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is moving through an urban area with moderate traffic, surrounded by greenery and urban buildings. There is a bus stop and a pull-out area for buses which suggests a residential or commercial area with public transportation facilities.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "c507bbfdc8e7475098eb217530a23559"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.38461538461538464,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.38461538461538464,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is the vehicle approaching an intersection, and if so, what kind?",
+          "native_text": "The vehicle is approaching a T-intersection, as indicated by the road markings and the absence of traffic lights.",
+          "candidate_text": "The vehicle is approaching a T-intersection, as indicated by the road markings and the absence of traffic lights.",
+          "complete_token_equality": true,
+          "ground_truth": "No, the vehicle is not approaching an intersection. The road seems to continue straight ahead without any immediate signs of cross traffic.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "c507bbfdc8e7475098eb217530a23559"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.43902439024390244,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.43902439024390244,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there any oncoming traffic that could affect the driver's decision-making?",
+          "native_text": "There is no oncoming traffic visible in the images, so the driver does not need to consider other vehicles affecting their decision-making at this moment.",
+          "candidate_text": "There is no oncoming traffic visible in the images, so the driver does not need to consider other vehicles affecting their decision-making at this moment.",
+          "complete_token_equality": true,
+          "ground_truth": "There is no oncoming traffic visible in the scene that would immediately affect the driver's decision-making. The road ahead is clear, but the driver should still maintain a cautious speed due to the 'SLOW' sign and the potential for buses and pedestrians.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "c507bbfdc8e7475098eb217530a23559"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.37142857142857144,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.37142857142857144,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_full",
+      "scene": "e036014a715945aa965f4ec24e8639c9",
+      "token": "c507bbfdc8e7475098eb217530a23559",
+      "ordinal": 7,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+3.36, -0.02), (+6.76, -0.03), (+10.17, -0.03), (+13.60, -0.03), (+17.11, -0.03), (+20.61, -0.03)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+3.36, -0.02), (+6.76, -0.03), (+10.17, -0.03), (+13.60, -0.03), (+17.11, -0.03), (+20.61, -0.03)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                3.237257719039917,
+                -0.008192397654056549
+              ],
+              [
+                6.432806491851807,
+                0.0034470348618924618
+              ],
+              [
+                9.50438404083252,
+                0.05097286030650139
+              ],
+              [
+                12.527312278747559,
+                0.13070987164974213
+              ],
+              [
+                15.382612228393555,
+                0.23804837465286255
+              ],
+              [
+                18.056779861450195,
+                0.3738252818584442
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                3.36,
+                -0.02
+              ],
+              [
+                6.76,
+                -0.03
+              ],
+              [
+                10.17,
+                -0.03
+              ],
+              [
+                13.6,
+                -0.03
+              ],
+              [
+                17.11,
+                -0.03
+              ],
+              [
+                20.61,
+                -0.03
+              ]
+            ],
+            "ade_m": 1.0900682722115944,
+            "fde_m": 2.5849580140041604
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                3.237257719039917,
+                -0.008192397654056549
+              ],
+              [
+                6.432806491851807,
+                0.0034470348618924618
+              ],
+              [
+                9.50438404083252,
+                0.05097286030650139
+              ],
+              [
+                12.527312278747559,
+                0.13070987164974213
+              ],
+              [
+                15.382612228393555,
+                0.23804837465286255
+              ],
+              [
+                18.056779861450195,
+                0.3738252818584442
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                3.36,
+                -0.02
+              ],
+              [
+                6.76,
+                -0.03
+              ],
+              [
+                10.17,
+                -0.03
+              ],
+              [
+                13.6,
+                -0.03
+              ],
+              [
+                17.11,
+                -0.03
+              ],
+              [
+                20.61,
+                -0.03
+              ]
+            ],
+            "ade_m": 1.0900682722115944,
+            "fde_m": 2.5849580140041604
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm maintaining a moderate speed and staying in the current lane, as the road ahead is clear and there are no immediate obstacles or traffic.",
+          "candidate_text": "I'm maintaining a moderate speed and staying in the current lane, as the road ahead is clear and there are no immediate obstacles or traffic.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What type of area is the vehicle moving through?",
+          "native_text": "The vehicle is moving through a residential area with multi-story buildings.",
+          "candidate_text": "The vehicle is moving through a residential area with multi-story buildings.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is moving through an urban area with moderate traffic, surrounded by greenery and urban buildings. There is a bus stop and a pull-out area for buses which suggests a residential or commercial area with public transportation facilities.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "c507bbfdc8e7475098eb217530a23559"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.38461538461538464,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.38461538461538464,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is the vehicle approaching an intersection, and if so, what kind?",
+          "native_text": "The vehicle is approaching a T-intersection, as indicated by the road markings and the absence of traffic lights.",
+          "candidate_text": "The vehicle is approaching a T-intersection, as indicated by the road markings and the absence of traffic lights.",
+          "complete_token_equality": true,
+          "ground_truth": "No, the vehicle is not approaching an intersection. The road seems to continue straight ahead without any immediate signs of cross traffic.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "c507bbfdc8e7475098eb217530a23559"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.43902439024390244,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.43902439024390244,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there any oncoming traffic that could affect the driver's decision-making?",
+          "native_text": "There is no oncoming traffic visible in the images, so the driver does not need to consider other vehicles affecting their decision-making at this moment.",
+          "candidate_text": "There is no oncoming traffic visible in the images, so the driver does not need to consider other vehicles affecting their decision-making at this moment.",
+          "complete_token_equality": true,
+          "ground_truth": "There is no oncoming traffic visible in the scene that would immediately affect the driver's decision-making. The road ahead is clear, but the driver should still maintain a cautious speed due to the 'SLOW' sign and the potential for buses and pedestrians.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "c507bbfdc8e7475098eb217530a23559"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.37142857142857144,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.37142857142857144,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_only",
+      "scene": "e036014a715945aa965f4ec24e8639c9",
+      "token": "8dffb9bba025425e9d03fd0384ed1d1f",
+      "ordinal": 15,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+2.34, -0.02), (+4.66, -0.05), (+6.94, -0.09), (+9.17, -0.14), (+11.36, -0.19), (+13.45, -0.24)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+2.34, -0.02), (+4.66, -0.05), (+6.94, -0.09), (+9.17, -0.14), (+11.36, -0.19), (+13.45, -0.24)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                2.3208367824554443,
+                -0.008964987471699715
+              ],
+              [
+                4.537813663482666,
+                0.003534086514264345
+              ],
+              [
+                6.664974212646484,
+                0.022877678275108337
+              ],
+              [
+                8.912399291992188,
+                -0.005540195852518082
+              ],
+              [
+                10.698173522949219,
+                -0.16686733067035675
+              ],
+              [
+                12.339194297790527,
+                -0.5656810998916626
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.34,
+                -0.02
+              ],
+              [
+                4.66,
+                -0.05
+              ],
+              [
+                6.94,
+                -0.09
+              ],
+              [
+                9.17,
+                -0.14
+              ],
+              [
+                11.36,
+                -0.19
+              ],
+              [
+                13.45,
+                -0.24
+              ]
+            ],
+            "ade_m": 0.4271964670149975,
+            "fde_m": 1.1575653272656887
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                2.3208367824554443,
+                -0.008964987471699715
+              ],
+              [
+                4.537813663482666,
+                0.003534086514264345
+              ],
+              [
+                6.664974212646484,
+                0.022877678275108337
+              ],
+              [
+                8.912399291992188,
+                -0.005540195852518082
+              ],
+              [
+                10.698173522949219,
+                -0.16686733067035675
+              ],
+              [
+                12.339194297790527,
+                -0.5656810998916626
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.34,
+                -0.02
+              ],
+              [
+                4.66,
+                -0.05
+              ],
+              [
+                6.94,
+                -0.09
+              ],
+              [
+                9.17,
+                -0.14
+              ],
+              [
+                11.36,
+                -0.19
+              ],
+              [
+                13.45,
+                -0.24
+              ]
+            ],
+            "ade_m": 0.4271964670149975,
+            "fde_m": 1.1575653272656887
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding straight at a cautious speed, as the road is clear and there are no immediate obstacles.",
+          "candidate_text": "I'm proceeding straight at a cautious speed, as the road is clear and there are no immediate obstacles.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there a traffic light present at the intersection?",
+          "native_text": "No, there is no traffic light visible at the intersection.",
+          "candidate_text": "No, there is no traffic light visible at the intersection.",
+          "complete_token_equality": true,
+          "ground_truth": "No, there is no traffic light observed at the intersection, only road markings and a 'Bus Stop' sign are visible.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "8dffb9bba025425e9d03fd0384ed1d1f"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6666666666666666,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6666666666666666,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Are there any traffic signs visible?",
+          "native_text": "Yes, there is a 'No Entry' sign visible on the left side of the road.",
+          "candidate_text": "Yes, there is a 'No Entry' sign visible on the left side of the road.",
+          "complete_token_equality": true,
+          "ground_truth": "Yes, there is a 'Bus Stop' sign to the right-front of the vehicle, indicating the presence of a public transport facility.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "8dffb9bba025425e9d03fd0384ed1d1f"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.43243243243243246,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.43243243243243246,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Considering the setting, what kind of area is the vehicle in?",
+          "native_text": "The vehicle is in a residential area, as indicated by the presence of apartment buildings and a pedestrian crossing.",
+          "candidate_text": "The vehicle is in a residential area, as indicated by the presence of apartment buildings and a pedestrian crossing.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is in a calm, suburban residential area, characterized by greenery and well-maintained roads, with a clear road ahead and no immediate traffic pressure from behind.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "8dffb9bba025425e9d03fd0384ed1d1f"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.425531914893617,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.425531914893617,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_full",
+      "scene": "e036014a715945aa965f4ec24e8639c9",
+      "token": "8dffb9bba025425e9d03fd0384ed1d1f",
+      "ordinal": 15,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+2.34, -0.02), (+4.66, -0.05), (+6.94, -0.09), (+9.17, -0.14), (+11.36, -0.19), (+13.45, -0.24)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+2.34, -0.02), (+4.66, -0.05), (+6.94, -0.09), (+9.17, -0.14), (+11.36, -0.19), (+13.45, -0.24)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                2.3208367824554443,
+                -0.008964987471699715
+              ],
+              [
+                4.537813663482666,
+                0.003534086514264345
+              ],
+              [
+                6.664974212646484,
+                0.022877678275108337
+              ],
+              [
+                8.912399291992188,
+                -0.005540195852518082
+              ],
+              [
+                10.698173522949219,
+                -0.16686733067035675
+              ],
+              [
+                12.339194297790527,
+                -0.5656810998916626
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.34,
+                -0.02
+              ],
+              [
+                4.66,
+                -0.05
+              ],
+              [
+                6.94,
+                -0.09
+              ],
+              [
+                9.17,
+                -0.14
+              ],
+              [
+                11.36,
+                -0.19
+              ],
+              [
+                13.45,
+                -0.24
+              ]
+            ],
+            "ade_m": 0.4271964670149975,
+            "fde_m": 1.1575653272656887
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                2.3208367824554443,
+                -0.008964987471699715
+              ],
+              [
+                4.537813663482666,
+                0.003534086514264345
+              ],
+              [
+                6.664974212646484,
+                0.022877678275108337
+              ],
+              [
+                8.912399291992188,
+                -0.005540195852518082
+              ],
+              [
+                10.698173522949219,
+                -0.16686733067035675
+              ],
+              [
+                12.339194297790527,
+                -0.5656810998916626
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.34,
+                -0.02
+              ],
+              [
+                4.66,
+                -0.05
+              ],
+              [
+                6.94,
+                -0.09
+              ],
+              [
+                9.17,
+                -0.14
+              ],
+              [
+                11.36,
+                -0.19
+              ],
+              [
+                13.45,
+                -0.24
+              ]
+            ],
+            "ade_m": 0.4271964670149975,
+            "fde_m": 1.1575653272656887
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding straight at a cautious speed, as the road is clear and there are no immediate obstacles.",
+          "candidate_text": "I'm proceeding straight at a cautious speed, as the road is clear and there are no immediate obstacles.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there a traffic light present at the intersection?",
+          "native_text": "No, there is no traffic light visible at the intersection.",
+          "candidate_text": "No, there is no traffic light visible at the intersection.",
+          "complete_token_equality": true,
+          "ground_truth": "No, there is no traffic light observed at the intersection, only road markings and a 'Bus Stop' sign are visible.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "8dffb9bba025425e9d03fd0384ed1d1f"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6666666666666666,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6666666666666666,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Are there any traffic signs visible?",
+          "native_text": "Yes, there is a 'No Entry' sign visible on the left side of the road.",
+          "candidate_text": "Yes, there is a 'No Entry' sign visible on the left side of the road.",
+          "complete_token_equality": true,
+          "ground_truth": "Yes, there is a 'Bus Stop' sign to the right-front of the vehicle, indicating the presence of a public transport facility.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "8dffb9bba025425e9d03fd0384ed1d1f"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.43243243243243246,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.43243243243243246,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Considering the setting, what kind of area is the vehicle in?",
+          "native_text": "The vehicle is in a residential area, as indicated by the presence of apartment buildings and a pedestrian crossing.",
+          "candidate_text": "The vehicle is in a residential area, as indicated by the presence of apartment buildings and a pedestrian crossing.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is in a calm, suburban residential area, characterized by greenery and well-maintained roads, with a clear road ahead and no immediate traffic pressure from behind.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "8dffb9bba025425e9d03fd0384ed1d1f"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.425531914893617,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.425531914893617,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_only",
+      "scene": "e60ef590e3614187b7800db3e5284e1a",
+      "token": "7c05d013f2eb41d38ce85f4d2ec94e07",
+      "ordinal": 7,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+2.65, -0.04), (+5.22, -0.14), (+7.69, -0.30), (+9.99, -0.51), (+12.17, -0.78), (+14.16, -1.07)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+2.65, -0.04), (+5.22, -0.14), (+7.69, -0.30), (+9.99, -0.51), (+12.17, -0.78), (+14.16, -1.07)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                2.70560359954834,
+                -0.023524586111307144
+              ],
+              [
+                4.839051723480225,
+                -0.07631120830774307
+              ],
+              [
+                7.483362197875977,
+                -0.1993025541305542
+              ],
+              [
+                10.040714263916016,
+                -0.4230131208896637
+              ],
+              [
+                12.572796821594238,
+                -0.7692368626594543
+              ],
+              [
+                14.92622184753418,
+                -1.2373765707015991
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.65,
+                -0.04
+              ],
+              [
+                5.22,
+                -0.14
+              ],
+              [
+                7.69,
+                -0.3
+              ],
+              [
+                9.99,
+                -0.51
+              ],
+              [
+                12.17,
+                -0.78
+              ],
+              [
+                14.16,
+                -1.07
+              ]
+            ],
+            "ade_m": 0.3270029632940174,
+            "fde_m": 0.7842900203741718
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                2.70560359954834,
+                -0.023524586111307144
+              ],
+              [
+                4.839051723480225,
+                -0.07631120830774307
+              ],
+              [
+                7.483362197875977,
+                -0.1993025541305542
+              ],
+              [
+                10.040714263916016,
+                -0.4230131208896637
+              ],
+              [
+                12.572796821594238,
+                -0.7692368626594543
+              ],
+              [
+                14.92622184753418,
+                -1.2373765707015991
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.65,
+                -0.04
+              ],
+              [
+                5.22,
+                -0.14
+              ],
+              [
+                7.69,
+                -0.3
+              ],
+              [
+                9.99,
+                -0.51
+              ],
+              [
+                12.17,
+                -0.78
+              ],
+              [
+                14.16,
+                -1.07
+              ]
+            ],
+            "ade_m": 0.3270029632940174,
+            "fde_m": 0.7842900203741718
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding straight at a cautious speed, as the road is clear and there are no immediate obstacles.",
+          "candidate_text": "I'm proceeding straight at a cautious speed, as the road is clear and there are no immediate obstacles.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Can you describe the overall conditions and environment based on the images?",
+          "native_text": "The vehicle is positioned on a well-maintained road within what appears to be a corporate or university campus, surrounded by modern buildings with large glass facades. The road is marked with clear white lines and directional arrows, indicating a straightforward path with no immediate turns. There are no pedestrians or other vehicles in the immediate vicinity, suggesting a quiet time of day or a less frequented area. The weather seems overcast, with no sign of rain, and the natural light suggests it could be midday. Behind the vehicle, the road is clear with no following traffic, and parked cars line the sides, indicating a parking area or a designated parking zone adjacent to the driving lane.",
+          "candidate_text": "The vehicle is positioned on a well-maintained road within what appears to be a corporate or university campus, surrounded by modern buildings with large glass facades. The road is marked with clear white lines and directional arrows, indicating a straightforward path with no immediate turns. There are no pedestrians or other vehicles in the immediate vicinity, suggesting a quiet time of day or a less frequented area. The weather seems overcast, with no sign of rain, and the natural light suggests it could be midday. Behind the vehicle, the road is clear with no following traffic, and parked cars line the sides, indicating a parking area or a designated parking zone adjacent to the driving lane.",
+          "complete_token_equality": true,
+          "ground_truth": "The driving scene suggests a tranquil campus or corporate area, with moderate traffic and a well-maintained environment. To the left-front and right-front, there are no oncoming cars or pedestrians, suggesting a clear path. In front, the road appears to ascend slightly, indicating a gentle slope. The building labeled 'COM1' signifies an institutional setting. The weather seems overcast, hinting it might be early morning or late afternoon. Directly behind, the road is clear without any close-following vehicles, while the left-rear shows a pedestrian walkway adjacent to parked cars, indicating caution is needed when passing by.",
+          "ground_truth_source": {
+            "source": "data/nuscenes/desc/val/7c05d013f2eb41d38ce85f4d2ec94e07.json",
+            "sha256": "c08446d1e55f7d9d473fc05a269833ab183c51dca62fdb3aa2cb1738db88dd79",
+            "kind": "original_native_description_annotation"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.5185185185185185,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.5185185185185185,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What is the building labeled 'COM1' used for?",
+          "native_text": "The building labeled 'COM1' appears to be a commercial or office building, possibly housing businesses or services.",
+          "candidate_text": "The building labeled 'COM1' appears to be a commercial or office building, possibly housing businesses or services.",
+          "complete_token_equality": true,
+          "ground_truth": "The 'COM1' label suggests that it's part of a university or college campus, likely housing departments related to communications or computing, consistent with common academic building naming conventions.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "7c05d013f2eb41d38ce85f4d2ec94e07"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.34782608695652173,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.34782608695652173,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there any signage visible that indicates pedestrian crossings?",
+          "native_text": "Yes, there is a pedestrian crossing sign visible on the right side of the road.",
+          "candidate_text": "Yes, there is a pedestrian crossing sign visible on the right side of the road.",
+          "complete_token_equality": true,
+          "ground_truth": "I don't see any pedestrian crossing signs. However, the pedestrian walkway visible on the left-rear side and the presence of parked cars indicate areas where pedestrians might cross, so caution is warranted.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "7c05d013f2eb41d38ce85f4d2ec94e07"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.3673469387755102,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.3673469387755102,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_full",
+      "scene": "e60ef590e3614187b7800db3e5284e1a",
+      "token": "7c05d013f2eb41d38ce85f4d2ec94e07",
+      "ordinal": 7,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+2.65, -0.04), (+5.22, -0.14), (+7.69, -0.30), (+9.99, -0.51), (+12.17, -0.78), (+14.16, -1.07)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+2.65, -0.04), (+5.22, -0.14), (+7.69, -0.30), (+9.99, -0.51), (+12.17, -0.78), (+14.16, -1.07)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                2.70560359954834,
+                -0.023524586111307144
+              ],
+              [
+                4.839051723480225,
+                -0.07631120830774307
+              ],
+              [
+                7.483362197875977,
+                -0.1993025541305542
+              ],
+              [
+                10.040714263916016,
+                -0.4230131208896637
+              ],
+              [
+                12.572796821594238,
+                -0.7692368626594543
+              ],
+              [
+                14.92622184753418,
+                -1.2373765707015991
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.65,
+                -0.04
+              ],
+              [
+                5.22,
+                -0.14
+              ],
+              [
+                7.69,
+                -0.3
+              ],
+              [
+                9.99,
+                -0.51
+              ],
+              [
+                12.17,
+                -0.78
+              ],
+              [
+                14.16,
+                -1.07
+              ]
+            ],
+            "ade_m": 0.3270029632940174,
+            "fde_m": 0.7842900203741718
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                2.70560359954834,
+                -0.023524586111307144
+              ],
+              [
+                4.839051723480225,
+                -0.07631120830774307
+              ],
+              [
+                7.483362197875977,
+                -0.1993025541305542
+              ],
+              [
+                10.040714263916016,
+                -0.4230131208896637
+              ],
+              [
+                12.572796821594238,
+                -0.7692368626594543
+              ],
+              [
+                14.92622184753418,
+                -1.2373765707015991
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.65,
+                -0.04
+              ],
+              [
+                5.22,
+                -0.14
+              ],
+              [
+                7.69,
+                -0.3
+              ],
+              [
+                9.99,
+                -0.51
+              ],
+              [
+                12.17,
+                -0.78
+              ],
+              [
+                14.16,
+                -1.07
+              ]
+            ],
+            "ade_m": 0.3270029632940174,
+            "fde_m": 0.7842900203741718
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding straight at a cautious speed, as the road is clear and there are no immediate obstacles.",
+          "candidate_text": "I'm proceeding straight at a cautious speed, as the road is clear and there are no immediate obstacles.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Can you describe the overall conditions and environment based on the images?",
+          "native_text": "The vehicle is positioned on a well-maintained road within what appears to be a corporate or university campus, surrounded by modern buildings with large glass facades. The road is marked with clear white lines and directional arrows, indicating a straightforward path with no immediate turns. There are no pedestrians or other vehicles in the immediate vicinity, suggesting a quiet time of day or a less frequented area. The weather seems overcast, with no sign of rain, and the natural light suggests it could be midday. Behind the vehicle, the road is clear with no following traffic, and parked cars line the sides, indicating a parking area or a designated parking zone adjacent to the driving lane.",
+          "candidate_text": "The vehicle is positioned on a well-maintained road within what appears to be a corporate or university campus, surrounded by modern buildings with large glass facades. The road is marked with clear white lines and directional arrows, indicating a straightforward path with no immediate turns. There are no pedestrians or other vehicles in the immediate vicinity, suggesting a quiet time of day or a less frequented area. The weather seems overcast, with no sign of rain, and the natural light suggests it could be midday. Behind the vehicle, the road is clear with no following traffic, and parked cars line the sides, indicating a parking area or a designated parking zone adjacent to the driving lane.",
+          "complete_token_equality": true,
+          "ground_truth": "The driving scene suggests a tranquil campus or corporate area, with moderate traffic and a well-maintained environment. To the left-front and right-front, there are no oncoming cars or pedestrians, suggesting a clear path. In front, the road appears to ascend slightly, indicating a gentle slope. The building labeled 'COM1' signifies an institutional setting. The weather seems overcast, hinting it might be early morning or late afternoon. Directly behind, the road is clear without any close-following vehicles, while the left-rear shows a pedestrian walkway adjacent to parked cars, indicating caution is needed when passing by.",
+          "ground_truth_source": {
+            "source": "data/nuscenes/desc/val/7c05d013f2eb41d38ce85f4d2ec94e07.json",
+            "sha256": "c08446d1e55f7d9d473fc05a269833ab183c51dca62fdb3aa2cb1738db88dd79",
+            "kind": "original_native_description_annotation"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.5185185185185185,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.5185185185185185,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What is the building labeled 'COM1' used for?",
+          "native_text": "The building labeled 'COM1' appears to be a commercial or office building, possibly housing businesses or services.",
+          "candidate_text": "The building labeled 'COM1' appears to be a commercial or office building, possibly housing businesses or services.",
+          "complete_token_equality": true,
+          "ground_truth": "The 'COM1' label suggests that it's part of a university or college campus, likely housing departments related to communications or computing, consistent with common academic building naming conventions.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "7c05d013f2eb41d38ce85f4d2ec94e07"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.34782608695652173,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.34782608695652173,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there any signage visible that indicates pedestrian crossings?",
+          "native_text": "Yes, there is a pedestrian crossing sign visible on the right side of the road.",
+          "candidate_text": "Yes, there is a pedestrian crossing sign visible on the right side of the road.",
+          "complete_token_equality": true,
+          "ground_truth": "I don't see any pedestrian crossing signs. However, the pedestrian walkway visible on the left-rear side and the presence of parked cars indicate areas where pedestrians might cross, so caution is warranted.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "7c05d013f2eb41d38ce85f4d2ec94e07"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.3673469387755102,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.3673469387755102,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_only",
+      "scene": "e60ef590e3614187b7800db3e5284e1a",
+      "token": "20f91bd424014298b38029276e0bfb10",
+      "ordinal": 15,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+1.94, -0.06), (+3.67, -0.20), (+5.17, -0.36), (+6.48, -0.53), (+7.62, -0.69), (+8.61, -0.85)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+1.94, -0.06), (+3.67, -0.20), (+5.17, -0.36), (+6.48, -0.53), (+7.62, -0.69), (+8.61, -0.85)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                1.990281105041504,
+                -0.07524730265140533
+              ],
+              [
+                3.7347912788391113,
+                -0.22684016823768616
+              ],
+              [
+                5.367617130279541,
+                -0.4461934566497803
+              ],
+              [
+                6.765570163726807,
+                -0.6862555742263794
+              ],
+              [
+                7.98435115814209,
+                -0.9064430594444275
+              ],
+              [
+                8.934882164001465,
+                -1.086735486984253
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                1.94,
+                -0.06
+              ],
+              [
+                3.67,
+                -0.2
+              ],
+              [
+                5.17,
+                -0.36
+              ],
+              [
+                6.48,
+                -0.53
+              ],
+              [
+                7.62,
+                -0.69
+              ],
+              [
+                8.61,
+                -0.85
+              ]
+            ],
+            "ade_m": 0.24826173774791402,
+            "fde_m": 0.40198521276776644
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                1.990281105041504,
+                -0.07524730265140533
+              ],
+              [
+                3.7347912788391113,
+                -0.22684016823768616
+              ],
+              [
+                5.367617130279541,
+                -0.4461934566497803
+              ],
+              [
+                6.765570163726807,
+                -0.6862555742263794
+              ],
+              [
+                7.98435115814209,
+                -0.9064430594444275
+              ],
+              [
+                8.934882164001465,
+                -1.086735486984253
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                1.94,
+                -0.06
+              ],
+              [
+                3.67,
+                -0.2
+              ],
+              [
+                5.17,
+                -0.36
+              ],
+              [
+                6.48,
+                -0.53
+              ],
+              [
+                7.62,
+                -0.69
+              ],
+              [
+                8.61,
+                -0.85
+              ]
+            ],
+            "ade_m": 0.24826173774791402,
+            "fde_m": 0.40198521276776644
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+          "candidate_text": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Please provide an overview of the current driving conditions based on the images.",
+          "native_text": "The vehicle is positioned on a quiet, tree-lined street with a clear road ahead. To the left, a pedestrian is walking along the sidewalk, passing by a building with large windows and a sign that reads 'INNOSPARKS.' The road ahead is marked with a 'SLOW' sign, suggesting a zone where cautious driving is advised. There are no immediate obstructions in the vehicle's path, and the traffic is light with a few cars parked on the right side of the road. The weather appears to be clear, and the daylight suggests it is daytime. Behind the vehicle, the street continues with similar conditions, and there are no signs of congestion or immediate traffic.",
+          "candidate_text": "The vehicle is positioned on a quiet, tree-lined street with a clear road ahead. To the left, a pedestrian is walking along the sidewalk, passing by a building with large windows and a sign that reads 'INNOSPARKS.' The road ahead is marked with a 'SLOW' sign, suggesting a zone where cautious driving is advised. There are no immediate obstructions in the vehicle's path, and the traffic is light with a few cars parked on the right side of the road. The weather appears to be clear, and the daylight suggests it is daytime. Behind the vehicle, the street continues with similar conditions, and there are no signs of congestion or immediate traffic.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is positioned on a campus-like setting, indicated by the 'COM1' building sign. It's likely daytime given the natural light, despite overcast conditions. To the left-front, there's a building entrance with no visible pedestrian activity. Directly in front, the road is clear, marked with arrows pointing straight, flanked by lush greenery and another building entrance to the right-front. No pedestrians or other vehicles are in immediate proximity. The rear views show a well-maintained path with an overhead shelter to the left-rear, and parking spaces with a few cars to the right-rear. The area is devoid of heavy traffic, suggesting a quiet environment, possibly a private road or university campus drive.",
+          "ground_truth_source": {
+            "source": "data/nuscenes/desc/val/20f91bd424014298b38029276e0bfb10.json",
+            "sha256": "1a4fc0747bc4b50cb0158adb572ef9ae18b366767c54f80e9dd513bc788d864a",
+            "kind": "original_native_description_annotation"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.5064377682403434,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.5064377682403434,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What kind of buildings surround the vehicle?",
+          "native_text": "The vehicle is surrounded by modern buildings with large glass windows and structured landscaping.",
+          "candidate_text": "The vehicle is surrounded by modern buildings with large glass windows and structured landscaping.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is surrounded by multi-story academic buildings, which suggests the location could be a university or educational institute.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "20f91bd424014298b38029276e0bfb10"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.35294117647058826,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.35294117647058826,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there any signage or information visible that provides context to the setting?",
+          "native_text": "Yes, there is a sign that reads 'NUS School of Computing' which provides context to the setting as being near an educational institution.",
+          "candidate_text": "Yes, there is a sign that reads 'NUS School of Computing' which provides context to the setting as being near an educational institution.",
+          "complete_token_equality": true,
+          "ground_truth": "Yes, there's a sign indicating 'COM1', likely referring to a building name on a campus, and another sign for '13 Computing Drive', which suggests this is a technology-related educational facility.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "20f91bd424014298b38029276e0bfb10"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.32727272727272727,
+            "numeric_count_match": false,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": [
+              13.0
+            ]
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.32727272727272727,
+            "numeric_count_match": false,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": [
+              13.0
+            ]
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_full",
+      "scene": "e60ef590e3614187b7800db3e5284e1a",
+      "token": "20f91bd424014298b38029276e0bfb10",
+      "ordinal": 15,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+1.94, -0.06), (+3.67, -0.20), (+5.17, -0.36), (+6.48, -0.53), (+7.62, -0.69), (+8.61, -0.85)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+1.94, -0.06), (+3.67, -0.20), (+5.17, -0.36), (+6.48, -0.53), (+7.62, -0.69), (+8.61, -0.85)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                1.990281105041504,
+                -0.07524730265140533
+              ],
+              [
+                3.7347912788391113,
+                -0.22684016823768616
+              ],
+              [
+                5.367617130279541,
+                -0.4461934566497803
+              ],
+              [
+                6.765570163726807,
+                -0.6862555742263794
+              ],
+              [
+                7.98435115814209,
+                -0.9064430594444275
+              ],
+              [
+                8.934882164001465,
+                -1.086735486984253
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                1.94,
+                -0.06
+              ],
+              [
+                3.67,
+                -0.2
+              ],
+              [
+                5.17,
+                -0.36
+              ],
+              [
+                6.48,
+                -0.53
+              ],
+              [
+                7.62,
+                -0.69
+              ],
+              [
+                8.61,
+                -0.85
+              ]
+            ],
+            "ade_m": 0.24826173774791402,
+            "fde_m": 0.40198521276776644
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                1.990281105041504,
+                -0.07524730265140533
+              ],
+              [
+                3.7347912788391113,
+                -0.22684016823768616
+              ],
+              [
+                5.367617130279541,
+                -0.4461934566497803
+              ],
+              [
+                6.765570163726807,
+                -0.6862555742263794
+              ],
+              [
+                7.98435115814209,
+                -0.9064430594444275
+              ],
+              [
+                8.934882164001465,
+                -1.086735486984253
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                1.94,
+                -0.06
+              ],
+              [
+                3.67,
+                -0.2
+              ],
+              [
+                5.17,
+                -0.36
+              ],
+              [
+                6.48,
+                -0.53
+              ],
+              [
+                7.62,
+                -0.69
+              ],
+              [
+                8.61,
+                -0.85
+              ]
+            ],
+            "ade_m": 0.24826173774791402,
+            "fde_m": 0.40198521276776644
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+          "candidate_text": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Please provide an overview of the current driving conditions based on the images.",
+          "native_text": "The vehicle is positioned on a quiet, tree-lined street with a clear road ahead. To the left, a pedestrian is walking along the sidewalk, passing by a building with large windows and a sign that reads 'INNOSPARKS.' The road ahead is marked with a 'SLOW' sign, suggesting a zone where cautious driving is advised. There are no immediate obstructions in the vehicle's path, and the traffic is light with a few cars parked on the right side of the road. The weather appears to be clear, and the daylight suggests it is daytime. Behind the vehicle, the street continues with similar conditions, and there are no signs of congestion or immediate traffic.",
+          "candidate_text": "The vehicle is positioned on a quiet, tree-lined street with a clear road ahead. To the left, a pedestrian is walking along the sidewalk, passing by a building with large windows and a sign that reads 'INNOSPARKS.' The road ahead is marked with a 'SLOW' sign, suggesting a zone where cautious driving is advised. There are no immediate obstructions in the vehicle's path, and the traffic is light with a few cars parked on the right side of the road. The weather appears to be clear, and the daylight suggests it is daytime. Behind the vehicle, the street continues with similar conditions, and there are no signs of congestion or immediate traffic.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is positioned on a campus-like setting, indicated by the 'COM1' building sign. It's likely daytime given the natural light, despite overcast conditions. To the left-front, there's a building entrance with no visible pedestrian activity. Directly in front, the road is clear, marked with arrows pointing straight, flanked by lush greenery and another building entrance to the right-front. No pedestrians or other vehicles are in immediate proximity. The rear views show a well-maintained path with an overhead shelter to the left-rear, and parking spaces with a few cars to the right-rear. The area is devoid of heavy traffic, suggesting a quiet environment, possibly a private road or university campus drive.",
+          "ground_truth_source": {
+            "source": "data/nuscenes/desc/val/20f91bd424014298b38029276e0bfb10.json",
+            "sha256": "1a4fc0747bc4b50cb0158adb572ef9ae18b366767c54f80e9dd513bc788d864a",
+            "kind": "original_native_description_annotation"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.5064377682403434,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.5064377682403434,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What kind of buildings surround the vehicle?",
+          "native_text": "The vehicle is surrounded by modern buildings with large glass windows and structured landscaping.",
+          "candidate_text": "The vehicle is surrounded by modern buildings with large glass windows and structured landscaping.",
+          "complete_token_equality": true,
+          "ground_truth": "The vehicle is surrounded by multi-story academic buildings, which suggests the location could be a university or educational institute.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "20f91bd424014298b38029276e0bfb10"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.35294117647058826,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.35294117647058826,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there any signage or information visible that provides context to the setting?",
+          "native_text": "Yes, there is a sign that reads 'NUS School of Computing' which provides context to the setting as being near an educational institution.",
+          "candidate_text": "Yes, there is a sign that reads 'NUS School of Computing' which provides context to the setting as being near an educational institution.",
+          "complete_token_equality": true,
+          "ground_truth": "Yes, there's a sign indicating 'COM1', likely referring to a building name on a campus, and another sign for '13 Computing Drive', which suggests this is a technology-related educational facility.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "20f91bd424014298b38029276e0bfb10"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.32727272727272727,
+            "numeric_count_match": false,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": [
+              13.0
+            ]
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.32727272727272727,
+            "numeric_count_match": false,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": [
+              13.0
+            ]
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_only",
+      "scene": "e6f1a7e6218a4737bfedc6af90926b3e",
+      "token": "e0233c48f9714711b8fa97ee05b4a8a2",
+      "ordinal": 7,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+2.97, -0.04), (+6.02, -0.12), (+9.19, -0.24), (+12.46, -0.39), (+15.84, -0.56), (+19.34, -0.76)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+2.97, -0.04), (+6.02, -0.12), (+9.19, -0.24), (+12.46, -0.39), (+15.84, -0.56), (+19.34, -0.76)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                3.0625216960906982,
+                -0.023130113258957863
+              ],
+              [
+                6.464973449707031,
+                -0.08619756996631622
+              ],
+              [
+                9.692493438720703,
+                -0.23602800071239471
+              ],
+              [
+                13.131795883178711,
+                -0.44476741552352905
+              ],
+              [
+                16.783185958862305,
+                -0.6678892374038696
+              ],
+              [
+                20.71144676208496,
+                -0.8640137910842896
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.97,
+                -0.04
+              ],
+              [
+                6.02,
+                -0.12
+              ],
+              [
+                9.19,
+                -0.24
+              ],
+              [
+                12.46,
+                -0.39
+              ],
+              [
+                15.84,
+                -0.56
+              ],
+              [
+                19.34,
+                -0.76
+              ]
+            ],
+            "ade_m": 0.6735930525677686,
+            "fde_m": 1.3753854332400972
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                3.0625216960906982,
+                -0.023130113258957863
+              ],
+              [
+                6.464973449707031,
+                -0.08619756996631622
+              ],
+              [
+                9.692493438720703,
+                -0.23602800071239471
+              ],
+              [
+                13.131795883178711,
+                -0.44476741552352905
+              ],
+              [
+                16.783185958862305,
+                -0.6678892374038696
+              ],
+              [
+                20.71144676208496,
+                -0.8640137910842896
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.97,
+                -0.04
+              ],
+              [
+                6.02,
+                -0.12
+              ],
+              [
+                9.19,
+                -0.24
+              ],
+              [
+                12.46,
+                -0.39
+              ],
+              [
+                15.84,
+                -0.56
+              ],
+              [
+                19.34,
+                -0.76
+              ]
+            ],
+            "ade_m": 0.6735930525677686,
+            "fde_m": 1.3753854332400972
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around.",
+          "candidate_text": "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What is the layout of the road ahead and how should the vehicle navigate it?",
+          "native_text": "The road ahead curves gently to the right. The vehicle should navigate the curve at a moderate speed, adjusting speed as necessary to maintain safety.",
+          "candidate_text": "The road ahead curves gently to the right. The vehicle should navigate the curve at a moderate speed, adjusting speed as necessary to maintain safety.",
+          "complete_token_equality": true,
+          "ground_truth": "The road is a two-lane road with one lane for each direction, marked by a center line. The vehicle should proceed straight, maintaining a moderate speed and staying within its lane to navigate the road safely.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "e0233c48f9714711b8fa97ee05b4a8a2"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.3548387096774194,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.3548387096774194,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Are there any other vehicles present in your immediate vicinity, and if so, where are they located?",
+          "native_text": "Yes, there is a vehicle directly ahead with its rear lights on, indicating it is either slowing down or stopped.",
+          "candidate_text": "Yes, there is a vehicle directly ahead with its rear lights on, indicating it is either slowing down or stopped.",
+          "complete_token_equality": true,
+          "ground_truth": "Yes, there is a vehicle approaching with its headlights on in the left-front, and another set of taillights can be seen ahead in the distance on the right-front, indicating moderate traffic flow.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "e0233c48f9714711b8fa97ee05b4a8a2"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.37037037037037035,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.37037037037037035,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there any indication of pedestrian activity around the vehicle?",
+          "native_text": "There is no visible pedestrian activity in the immediate vicinity of the vehicle.",
+          "candidate_text": "There is no visible pedestrian activity in the immediate vicinity of the vehicle.",
+          "complete_token_equality": true,
+          "ground_truth": "Currently, there are no pedestrians visible around the vehicle, but the presence of stairs on the right-front suggests the potential for pedestrian activity, requiring the driver's attention.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "e0233c48f9714711b8fa97ee05b4a8a2"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.42857142857142855,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.42857142857142855,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_full",
+      "scene": "e6f1a7e6218a4737bfedc6af90926b3e",
+      "token": "e0233c48f9714711b8fa97ee05b4a8a2",
+      "ordinal": 7,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+2.97, -0.04), (+6.02, -0.12), (+9.19, -0.24), (+12.46, -0.39), (+15.84, -0.56), (+19.34, -0.76)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+2.97, -0.04), (+6.02, -0.12), (+9.19, -0.24), (+12.46, -0.39), (+15.84, -0.56), (+19.34, -0.76)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                3.0625216960906982,
+                -0.023130113258957863
+              ],
+              [
+                6.464973449707031,
+                -0.08619756996631622
+              ],
+              [
+                9.692493438720703,
+                -0.23602800071239471
+              ],
+              [
+                13.131795883178711,
+                -0.44476741552352905
+              ],
+              [
+                16.783185958862305,
+                -0.6678892374038696
+              ],
+              [
+                20.71144676208496,
+                -0.8640137910842896
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.97,
+                -0.04
+              ],
+              [
+                6.02,
+                -0.12
+              ],
+              [
+                9.19,
+                -0.24
+              ],
+              [
+                12.46,
+                -0.39
+              ],
+              [
+                15.84,
+                -0.56
+              ],
+              [
+                19.34,
+                -0.76
+              ]
+            ],
+            "ade_m": 0.6735930525677686,
+            "fde_m": 1.3753854332400972
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                3.0625216960906982,
+                -0.023130113258957863
+              ],
+              [
+                6.464973449707031,
+                -0.08619756996631622
+              ],
+              [
+                9.692493438720703,
+                -0.23602800071239471
+              ],
+              [
+                13.131795883178711,
+                -0.44476741552352905
+              ],
+              [
+                16.783185958862305,
+                -0.6678892374038696
+              ],
+              [
+                20.71144676208496,
+                -0.8640137910842896
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                2.97,
+                -0.04
+              ],
+              [
+                6.02,
+                -0.12
+              ],
+              [
+                9.19,
+                -0.24
+              ],
+              [
+                12.46,
+                -0.39
+              ],
+              [
+                15.84,
+                -0.56
+              ],
+              [
+                19.34,
+                -0.76
+              ]
+            ],
+            "ade_m": 0.6735930525677686,
+            "fde_m": 1.3753854332400972
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around.",
+          "candidate_text": "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What is the layout of the road ahead and how should the vehicle navigate it?",
+          "native_text": "The road ahead curves gently to the right. The vehicle should navigate the curve at a moderate speed, adjusting speed as necessary to maintain safety.",
+          "candidate_text": "The road ahead curves gently to the right. The vehicle should navigate the curve at a moderate speed, adjusting speed as necessary to maintain safety.",
+          "complete_token_equality": true,
+          "ground_truth": "The road is a two-lane road with one lane for each direction, marked by a center line. The vehicle should proceed straight, maintaining a moderate speed and staying within its lane to navigate the road safely.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "e0233c48f9714711b8fa97ee05b4a8a2"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.3548387096774194,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.3548387096774194,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Are there any other vehicles present in your immediate vicinity, and if so, where are they located?",
+          "native_text": "Yes, there is a vehicle directly ahead with its rear lights on, indicating it is either slowing down or stopped.",
+          "candidate_text": "Yes, there is a vehicle directly ahead with its rear lights on, indicating it is either slowing down or stopped.",
+          "complete_token_equality": true,
+          "ground_truth": "Yes, there is a vehicle approaching with its headlights on in the left-front, and another set of taillights can be seen ahead in the distance on the right-front, indicating moderate traffic flow.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "e0233c48f9714711b8fa97ee05b4a8a2"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.37037037037037035,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.37037037037037035,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there any indication of pedestrian activity around the vehicle?",
+          "native_text": "There is no visible pedestrian activity in the immediate vicinity of the vehicle.",
+          "candidate_text": "There is no visible pedestrian activity in the immediate vicinity of the vehicle.",
+          "complete_token_equality": true,
+          "ground_truth": "Currently, there are no pedestrians visible around the vehicle, but the presence of stairs on the right-front suggests the potential for pedestrian activity, requiring the driver's attention.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "e0233c48f9714711b8fa97ee05b4a8a2"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.42857142857142855,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.42857142857142855,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_only",
+      "scene": "e6f1a7e6218a4737bfedc6af90926b3e",
+      "token": "6582e6af1b174290b37bbbe623f004d4",
+      "ordinal": 15,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+4.40, -0.02), (+8.89, -0.03), (+13.48, -0.03), (+18.14, -0.03), (+22.86, -0.03), (+27.61, -0.03)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+4.40, -0.02), (+8.89, -0.03), (+13.48, -0.03), (+18.14, -0.03), (+22.86, -0.03), (+27.61, -0.03)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                4.39476203918457,
+                -0.07990105450153351
+              ],
+              [
+                8.920878410339355,
+                -0.2530340552330017
+              ],
+              [
+                13.408173561096191,
+                -0.42979326844215393
+              ],
+              [
+                18.588268280029297,
+                -0.6246233582496643
+              ],
+              [
+                22.666210174560547,
+                -0.7322681546211243
+              ],
+              [
+                26.55079460144043,
+                -0.7909902334213257
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                4.4,
+                -0.02
+              ],
+              [
+                8.89,
+                -0.03
+              ],
+              [
+                13.48,
+                -0.03
+              ],
+              [
+                18.14,
+                -0.03
+              ],
+              [
+                22.86,
+                -0.03
+              ],
+              [
+                27.61,
+                -0.03
+              ]
+            ],
+            "ade_m": 0.5781492029679156,
+            "fde_m": 1.3042324224233888
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                4.39476203918457,
+                -0.07990105450153351
+              ],
+              [
+                8.920878410339355,
+                -0.2530340552330017
+              ],
+              [
+                13.408173561096191,
+                -0.42979326844215393
+              ],
+              [
+                18.588268280029297,
+                -0.6246233582496643
+              ],
+              [
+                22.666210174560547,
+                -0.7322681546211243
+              ],
+              [
+                26.55079460144043,
+                -0.7909902334213257
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                4.4,
+                -0.02
+              ],
+              [
+                8.89,
+                -0.03
+              ],
+              [
+                13.48,
+                -0.03
+              ],
+              [
+                18.14,
+                -0.03
+              ],
+              [
+                22.86,
+                -0.03
+              ],
+              [
+                27.61,
+                -0.03
+              ]
+            ],
+            "ade_m": 0.5781492029679156,
+            "fde_m": 1.3042324224233888
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around.",
+          "candidate_text": "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Please provide an overview of the current driving conditions based on the images.",
+          "native_text": "The vehicle is navigating a quiet, dimly lit road at night. The road appears to be a two-lane street with no visible lane markings, suggesting a less-traveled, possibly residential area. Streetlights provide sparse illumination, casting long shadows and creating pockets of darkness. There are no pedestrians or cyclists in sight, and the traffic is minimal with only a few vehicles visible in the distance. The surroundings are tranquil, with no immediate signs of activity or obstacles. The rear view shows no vehicles following closely, indicating a clear path behind.",
+          "candidate_text": "The vehicle is navigating a quiet, dimly lit road at night. The road appears to be a two-lane street with no visible lane markings, suggesting a less-traveled, possibly residential area. Streetlights provide sparse illumination, casting long shadows and creating pockets of darkness. There are no pedestrians or cyclists in sight, and the traffic is minimal with only a few vehicles visible in the distance. The surroundings are tranquil, with no immediate signs of activity or obstacles. The rear view shows no vehicles following closely, indicating a clear path behind.",
+          "complete_token_equality": true,
+          "ground_truth": "The environment suggests nighttime driving conditions with wet road surfaces, indicative of recent rain. To the left-front, the absence of visible traffic or signals suggests a quieter road section or a residential area. Directly ahead, the road is illuminated by street lights, reflecting on the wet tarmac, with no immediate obstructions or traffic signals in sight, pointing to an open stretch of road. On the right-front, there's a hint of reflective road markings, possibly indicating a turn or lane demarcation. Behind the vehicle, the views are less clear, but there appears to be no immediate following traffic, with faint street lighting suggesting ongoing road conditions similar to the front.",
+          "ground_truth_source": {
+            "source": "data/nuscenes/desc/val/6582e6af1b174290b37bbbe623f004d4.json",
+            "sha256": "89ea2d68c1328f9fb339a26e9fc75ac9bb8932def7e456f4e728a0231a372346",
+            "kind": "original_native_description_annotation"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.4433497536945813,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.4433497536945813,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there a discernible change in elevation or terrain ahead?",
+          "native_text": "The road ahead appears to be straight with no discernible change in elevation or terrain.",
+          "candidate_text": "The road ahead appears to be straight with no discernible change in elevation or terrain.",
+          "complete_token_equality": true,
+          "ground_truth": "No significant change in elevation is apparent ahead; the road appears to be flat and continues straight under consistent street lighting.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "6582e6af1b174290b37bbbe623f004d4"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6111111111111112,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6111111111111112,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What is the current weather condition as per the scene?",
+          "native_text": "The weather appears to be clear as there are no signs of rain or adverse weather conditions.",
+          "candidate_text": "The weather appears to be clear as there are no signs of rain or adverse weather conditions.",
+          "complete_token_equality": true,
+          "ground_truth": "The current weather condition suggests recent rain due to the wet road surfaces, although no precipitation is visibly falling at the moment.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "6582e6af1b174290b37bbbe623f004d4"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.2564102564102564,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.2564102564102564,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    },
+    {
+      "mode": "state_full",
+      "scene": "e6f1a7e6218a4737bfedc6af90926b3e",
+      "token": "6582e6af1b174290b37bbbe623f004d4",
+      "ordinal": 15,
+      "tasks": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "native_text": "Here is the planning trajectory [PT, (+4.40, -0.02), (+8.89, -0.03), (+13.48, -0.03), (+18.14, -0.03), (+22.86, -0.03), (+27.61, -0.03)].",
+          "candidate_text": "Here is the planning trajectory [PT, (+4.40, -0.02), (+8.89, -0.03), (+13.48, -0.03), (+18.14, -0.03), (+22.86, -0.03), (+27.61, -0.03)].",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": {
+            "ground_truth": [
+              [
+                4.39476203918457,
+                -0.07990105450153351
+              ],
+              [
+                8.920878410339355,
+                -0.2530340552330017
+              ],
+              [
+                13.408173561096191,
+                -0.42979326844215393
+              ],
+              [
+                18.588268280029297,
+                -0.6246233582496643
+              ],
+              [
+                22.666210174560547,
+                -0.7322681546211243
+              ],
+              [
+                26.55079460144043,
+                -0.7909902334213257
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                4.4,
+                -0.02
+              ],
+              [
+                8.89,
+                -0.03
+              ],
+              [
+                13.48,
+                -0.03
+              ],
+              [
+                18.14,
+                -0.03
+              ],
+              [
+                22.86,
+                -0.03
+              ],
+              [
+                27.61,
+                -0.03
+              ]
+            ],
+            "ade_m": 0.5781492029679156,
+            "fde_m": 1.3042324224233888
+          },
+          "candidate_planning": {
+            "ground_truth": [
+              [
+                4.39476203918457,
+                -0.07990105450153351
+              ],
+              [
+                8.920878410339355,
+                -0.2530340552330017
+              ],
+              [
+                13.408173561096191,
+                -0.42979326844215393
+              ],
+              [
+                18.588268280029297,
+                -0.6246233582496643
+              ],
+              [
+                22.666210174560547,
+                -0.7322681546211243
+              ],
+              [
+                26.55079460144043,
+                -0.7909902334213257
+              ]
+            ],
+            "valid_mask": [
+              true,
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "predicted_pair_count": 6,
+            "status": "parsed",
+            "trajectory": [
+              [
+                4.4,
+                -0.02
+              ],
+              [
+                8.89,
+                -0.03
+              ],
+              [
+                13.48,
+                -0.03
+              ],
+              [
+                18.14,
+                -0.03
+              ],
+              [
+                22.86,
+                -0.03
+              ],
+              [
+                27.61,
+                -0.03
+              ]
+            ],
+            "ade_m": 0.5781492029679156,
+            "fde_m": 1.3042324224233888
+          }
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "native_text": "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around.",
+          "candidate_text": "I'm maintaining a moderate speed and staying in the current lane, as the road is clear and there are no immediate obstacles or traffic around.",
+          "complete_token_equality": true,
+          "ground_truth": null,
+          "ground_truth_source": null,
+          "native_qa": null,
+          "candidate_qa": null,
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Please provide an overview of the current driving conditions based on the images.",
+          "native_text": "The vehicle is navigating a quiet, dimly lit road at night. The road appears to be a two-lane street with no visible lane markings, suggesting a less-traveled, possibly residential area. Streetlights provide sparse illumination, casting long shadows and creating pockets of darkness. There are no pedestrians or cyclists in sight, and the traffic is minimal with only a few vehicles visible in the distance. The surroundings are tranquil, with no immediate signs of activity or obstacles. The rear view shows no vehicles following closely, indicating a clear path behind.",
+          "candidate_text": "The vehicle is navigating a quiet, dimly lit road at night. The road appears to be a two-lane street with no visible lane markings, suggesting a less-traveled, possibly residential area. Streetlights provide sparse illumination, casting long shadows and creating pockets of darkness. There are no pedestrians or cyclists in sight, and the traffic is minimal with only a few vehicles visible in the distance. The surroundings are tranquil, with no immediate signs of activity or obstacles. The rear view shows no vehicles following closely, indicating a clear path behind.",
+          "complete_token_equality": true,
+          "ground_truth": "The environment suggests nighttime driving conditions with wet road surfaces, indicative of recent rain. To the left-front, the absence of visible traffic or signals suggests a quieter road section or a residential area. Directly ahead, the road is illuminated by street lights, reflecting on the wet tarmac, with no immediate obstructions or traffic signals in sight, pointing to an open stretch of road. On the right-front, there's a hint of reflective road markings, possibly indicating a turn or lane demarcation. Behind the vehicle, the views are less clear, but there appears to be no immediate following traffic, with faint street lighting suggesting ongoing road conditions similar to the front.",
+          "ground_truth_source": {
+            "source": "data/nuscenes/desc/val/6582e6af1b174290b37bbbe623f004d4.json",
+            "sha256": "89ea2d68c1328f9fb339a26e9fc75ac9bb8932def7e456f4e728a0231a372346",
+            "kind": "original_native_description_annotation"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.4433497536945813,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.4433497536945813,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "Is there a discernible change in elevation or terrain ahead?",
+          "native_text": "The road ahead appears to be straight with no discernible change in elevation or terrain.",
+          "candidate_text": "The road ahead appears to be straight with no discernible change in elevation or terrain.",
+          "complete_token_equality": true,
+          "ground_truth": "No significant change in elevation is apparent ahead; the road appears to be flat and continues straight under consistent street lighting.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "6582e6af1b174290b37bbbe623f004d4"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.6111111111111112,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.6111111111111112,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        },
+        {
+          "question": "What is the current weather condition as per the scene?",
+          "native_text": "The weather appears to be clear as there are no signs of rain or adverse weather conditions.",
+          "candidate_text": "The weather appears to be clear as there are no signs of rain or adverse weather conditions.",
+          "complete_token_equality": true,
+          "ground_truth": "The current weather condition suggests recent rain due to the wet road surfaces, although no precipitation is visibly falling at the moment.",
+          "ground_truth_source": {
+            "kind": "original_conv_or_vqa_annotation",
+            "sample_token": "6582e6af1b174290b37bbbe623f004d4"
+          },
+          "native_qa": {
+            "exact": false,
+            "token_f1": 0.2564102564102564,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "candidate_qa": {
+            "exact": false,
+            "token_f1": 0.2564102564102564,
+            "numeric_count_match": true,
+            "numeric_mae": null,
+            "answer_numbers": [],
+            "gt_numbers": []
+          },
+          "native_planning": null,
+          "candidate_planning": null
+        }
+      ]
+    }
+  ],
+  "caveat": "Annotation text overlap and trajectory distance are reported separately; no LLM judge or closed-loop safety claim"
+}

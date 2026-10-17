@@ -1,0 +1,2844 @@
+{
+  "source": "outputs/system_optimization_v3/probes/overlap_pipeline_trace.json",
+  "evidence": "actual profiler GPU kernels; CUDA correlation to host scopes, CPU External id fallback; exclusive nested components",
+  "phases": {
+    "decode": {
+      "kernel_count": 177120,
+      "kernel_sum_ms": 2013.9839999973806,
+      "kernel_active_union_ms": 2013.984
+    },
+    "outside_llm": {
+      "kernel_count": 7722,
+      "kernel_sum_ms": 536.0539999999556,
+      "kernel_active_union_ms": 536.054
+    },
+    "prefill": {
+      "kernel_count": 2261,
+      "kernel_sum_ms": 176.7810000000006,
+      "kernel_active_union_ms": 176.781
+    }
+  },
+  "kernel_host_linkage": {
+    "cuda_correlation": 187020,
+    "unresolved": 83
+  },
+  "decode_forward_calls": 82,
+  "per_decode_token_kernel_ms": 24.560780487772934,
+  "decode_operators": {
+    "model.layers.28.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.507999999999996
+    },
+    "model.layers.28.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.28.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41100000000000025
+    },
+    "model.layers.28.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.4299999999999935
+    },
+    "model.layers.28.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.28.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.28.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.4539999999999935
+    },
+    "model.layers.28.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.28.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.28.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.08999999999993
+    },
+    "model.layers.28.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.505999999999997
+    },
+    "model.layers.28.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.28.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.28": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.28.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.458999999999991
+    },
+    "model.layers.28.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.885
+    },
+    "model.layers.28.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.28.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.876999999999997
+    },
+    "model.layers.28.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.082000000000004
+    },
+    "model.layers.29.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.536999999999991
+    },
+    "model.layers.29.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.252999999999999
+    },
+    "model.layers.29.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.29.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.29.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.380999999999995
+    },
+    "model.layers.29.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4940000000000003
+    },
+    "model.layers.29.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.40900000000000025
+    },
+    "model.layers.29.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.442
+    },
+    "model.layers.29.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.29.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.29.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.065999999999928
+    },
+    "model.layers.29.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.533999999999997
+    },
+    "model.layers.29.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.29.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4340000000000003
+    },
+    "model.layers.29": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.29.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4289999999999923
+    },
+    "model.layers.29.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.846999999999998
+    },
+    "model.layers.29.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.34100000000000025
+    },
+    "model.layers.29.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.98
+    },
+    "model.layers.29.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.077000000000005
+    },
+    "model.layers.30.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4799999999999898
+    },
+    "model.layers.30.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.423999999999994
+    },
+    "model.layers.30.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.30.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.30.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.506999999999997
+    },
+    "model.layers.30.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4890000000000003
+    },
+    "model.layers.30.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.43000000000000027
+    },
+    "model.layers.30.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.458999999999993
+    },
+    "model.layers.30.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4900000000000003
+    },
+    "model.layers.30.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.30.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.068999999999932
+    },
+    "model.layers.30.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.456999999999996
+    },
+    "model.layers.30.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.30.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.30": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.30.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.434999999999992
+    },
+    "model.layers.30.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.910000000000013
+    },
+    "model.layers.30.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.30.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.94300000000001
+    },
+    "model.layers.30.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.143000000000002
+    },
+    "model.layers.31.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5299999999999911
+    },
+    "model.layers.31.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.344999999999996
+    },
+    "model.layers.31.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4900000000000003
+    },
+    "model.layers.31.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.31.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.503000000000001
+    },
+    "model.layers.31.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4880000000000003
+    },
+    "model.layers.31.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.42000000000000026
+    },
+    "model.layers.31.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.325999999999994
+    },
+    "model.layers.31.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.31.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.31.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.087999999999939
+    },
+    "model.layers.31.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.462999999999995
+    },
+    "model.layers.31.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.31.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.31": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.31.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4529999999999925
+    },
+    "model.layers.31.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.882000000000007
+    },
+    "model.layers.31.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.31.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.940000000000012
+    },
+    "model.layers.31.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.056000000000001
+    },
+    "model.norm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5009999999999895
+    },
+    "lm_head": {
+      "kernel_count": 164,
+      "kernel_ms": 28.578000000000007
+    },
+    "unattributed": {
+      "kernel_count": 492,
+      "kernel_ms": 1.2899999999999923
+    },
+    "model.layers.0.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.377999999999988
+    },
+    "model.layers.0.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.426999999999995
+    },
+    "model.layers.0.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.0.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.0.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.3889999999999905
+    },
+    "model.layers.0.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.0.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.0.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.466999999999996
+    },
+    "model.layers.0.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5180000000000003
+    },
+    "model.layers.0.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.0.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.016999999999928
+    },
+    "model.layers.0.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.503999999999996
+    },
+    "model.layers.0.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.0.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.40900000000000025
+    },
+    "model.layers.0": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.0.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4679999999999909
+    },
+    "model.layers.0.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.882000000000005
+    },
+    "model.layers.0.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33200000000000024
+    },
+    "model.layers.0.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.863999999999999
+    },
+    "model.layers.0.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.137000000000004
+    },
+    "model.layers.1.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5209999999999912
+    },
+    "model.layers.1.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.355999999999996
+    },
+    "model.layers.1.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.1.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.1.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.463999999999994
+    },
+    "model.layers.1.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4900000000000003
+    },
+    "model.layers.1.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.1.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.4359999999999955
+    },
+    "model.layers.1.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.1.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.1.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.072999999999933
+    },
+    "model.layers.1.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.513999999999997
+    },
+    "model.layers.1.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.1.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.40900000000000025
+    },
+    "model.layers.1": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.1.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.431999999999993
+    },
+    "model.layers.1.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.943000000000016
+    },
+    "model.layers.1.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33100000000000024
+    },
+    "model.layers.1.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.851999999999995
+    },
+    "model.layers.1.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.20700000000001
+    },
+    "model.layers.2.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4749999999999897
+    },
+    "model.layers.2.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.417999999999992
+    },
+    "model.layers.2.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.2.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.2.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.511999999999995
+    },
+    "model.layers.2.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4890000000000003
+    },
+    "model.layers.2.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.2.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.363999999999992
+    },
+    "model.layers.2.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5140000000000003
+    },
+    "model.layers.2.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.2.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.062999999999928
+    },
+    "model.layers.2.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.467999999999992
+    },
+    "model.layers.2.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.2.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.2": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33000000000000024
+    },
+    "model.layers.2.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4549999999999919
+    },
+    "model.layers.2.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.921000000000003
+    },
+    "model.layers.2.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.2.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.922000000000015
+    },
+    "model.layers.2.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.165000000000006
+    },
+    "model.layers.3.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5249999999999915
+    },
+    "model.layers.3.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.407999999999996
+    },
+    "model.layers.3.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.3.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.42200000000000026
+    },
+    "model.layers.3.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.367999999999992
+    },
+    "model.layers.3.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5010000000000003
+    },
+    "model.layers.3.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.3.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.365999999999996
+    },
+    "model.layers.3.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4880000000000003
+    },
+    "model.layers.3.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.3.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.093999999999937
+    },
+    "model.layers.3.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.548999999999996
+    },
+    "model.layers.3.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.3.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.3": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33000000000000024
+    },
+    "model.layers.3.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4479999999999922
+    },
+    "model.layers.3.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.887000000000002
+    },
+    "model.layers.3.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33100000000000024
+    },
+    "model.layers.3.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 10.024999999999995
+    },
+    "model.layers.3.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.205000000000005
+    },
+    "model.layers.4.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.47799999999999
+    },
+    "model.layers.4.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.48599999999999
+    },
+    "model.layers.4.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5130000000000003
+    },
+    "model.layers.4.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.4.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.333999999999993
+    },
+    "model.layers.4.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5090000000000003
+    },
+    "model.layers.4.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.4.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.280999999999996
+    },
+    "model.layers.4.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.49700000000000033
+    },
+    "model.layers.4.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.4.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.142999999999931
+    },
+    "model.layers.4.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.434999999999992
+    },
+    "model.layers.4.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.4.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.4": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.4.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4489999999999919
+    },
+    "model.layers.4.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.878000000000002
+    },
+    "model.layers.4.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.4.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.878999999999994
+    },
+    "model.layers.4.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.204000000000008
+    },
+    "model.layers.5.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5489999999999913
+    },
+    "model.layers.5.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.332999999999994
+    },
+    "model.layers.5.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.5.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.5.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.474999999999996
+    },
+    "model.layers.5.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.5.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.5.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.3669999999999956
+    },
+    "model.layers.5.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.5.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.5.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.119999999999933
+    },
+    "model.layers.5.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.510999999999995
+    },
+    "model.layers.5.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.5.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.5": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.5.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4289999999999925
+    },
+    "model.layers.5.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.858999999999996
+    },
+    "model.layers.5.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.35500000000000026
+    },
+    "model.layers.5.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.887000000000006
+    },
+    "model.layers.5.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.113000000000003
+    },
+    "model.layers.6.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4859999999999898
+    },
+    "model.layers.6.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.450999999999992
+    },
+    "model.layers.6.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.6.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.6.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.456999999999993
+    },
+    "model.layers.6.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.6.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.6.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.371999999999993
+    },
+    "model.layers.6.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4900000000000004
+    },
+    "model.layers.6.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.6.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.14399999999993
+    },
+    "model.layers.6.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.4589999999999925
+    },
+    "model.layers.6.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.6.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.6": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32700000000000023
+    },
+    "model.layers.6.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4709999999999914
+    },
+    "model.layers.6.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.809999999999986
+    },
+    "model.layers.6.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.6.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.912000000000011
+    },
+    "model.layers.6.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.164000000000005
+    },
+    "model.layers.7.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.534999999999992
+    },
+    "model.layers.7.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.45
+    },
+    "model.layers.7.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.7.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.7.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.336999999999992
+    },
+    "model.layers.7.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4900000000000003
+    },
+    "model.layers.7.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.7.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.404999999999998
+    },
+    "model.layers.7.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4880000000000003
+    },
+    "model.layers.7.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.7.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.105999999999927
+    },
+    "model.layers.7.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.4999999999999964
+    },
+    "model.layers.7.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.7.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41200000000000025
+    },
+    "model.layers.7": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.7.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4369999999999925
+    },
+    "model.layers.7.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.795999999999989
+    },
+    "model.layers.7.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33100000000000024
+    },
+    "model.layers.7.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.936000000000016
+    },
+    "model.layers.7.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.247000000000009
+    },
+    "model.layers.8.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4809999999999894
+    },
+    "model.layers.8.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.457999999999989
+    },
+    "model.layers.8.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.8.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.8.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.340999999999993
+    },
+    "model.layers.8.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.49600000000000033
+    },
+    "model.layers.8.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.8.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.431999999999993
+    },
+    "model.layers.8.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4880000000000003
+    },
+    "model.layers.8.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.8.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.133999999999936
+    },
+    "model.layers.8.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.487999999999994
+    },
+    "model.layers.8.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.8.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.8": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.8.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.460999999999991
+    },
+    "model.layers.8.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.848999999999997
+    },
+    "model.layers.8.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33000000000000024
+    },
+    "model.layers.8.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.990000000000006
+    },
+    "model.layers.8.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.067000000000005
+    },
+    "model.layers.9.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5559999999999914
+    },
+    "model.layers.9.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.278999999999995
+    },
+    "model.layers.9.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.9.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.9.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.427999999999992
+    },
+    "model.layers.9.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.9.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.9.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.369999999999995
+    },
+    "model.layers.9.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.9.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.9.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.118999999999936
+    },
+    "model.layers.9.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.399999999999991
+    },
+    "model.layers.9.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.9.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.9": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.9.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.436999999999992
+    },
+    "model.layers.9.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.80099999999999
+    },
+    "model.layers.9.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.9.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.916000000000015
+    },
+    "model.layers.9.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.123000000000003
+    },
+    "model.layers.10.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4889999999999899
+    },
+    "model.layers.10.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.363999999999989
+    },
+    "model.layers.10.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.10.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4420000000000003
+    },
+    "model.layers.10.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.437999999999991
+    },
+    "model.layers.10.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4900000000000003
+    },
+    "model.layers.10.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.10.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.379999999999994
+    },
+    "model.layers.10.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4940000000000003
+    },
+    "model.layers.10.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4190000000000003
+    },
+    "model.layers.10.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.082999999999926
+    },
+    "model.layers.10.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.493999999999993
+    },
+    "model.layers.10.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4950000000000004
+    },
+    "model.layers.10.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.10": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33000000000000024
+    },
+    "model.layers.10.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4629999999999919
+    },
+    "model.layers.10.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.908000000000008
+    },
+    "model.layers.10.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.10.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.932000000000015
+    },
+    "model.layers.10.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.101000000000008
+    },
+    "model.layers.11.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5409999999999915
+    },
+    "model.layers.11.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.359999999999996
+    },
+    "model.layers.11.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.11.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.11.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.261999999999998
+    },
+    "model.layers.11.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5070000000000003
+    },
+    "model.layers.11.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.11.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.390999999999993
+    },
+    "model.layers.11.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4870000000000003
+    },
+    "model.layers.11.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.11.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.062999999999935
+    },
+    "model.layers.11.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.429999999999992
+    },
+    "model.layers.11.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.11.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.11": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.11.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4439999999999926
+    },
+    "model.layers.11.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.927000000000014
+    },
+    "model.layers.11.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.11.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 10.056999999999997
+    },
+    "model.layers.11.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.065000000000003
+    },
+    "model.layers.12.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4789999999999899
+    },
+    "model.layers.12.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.541999999999993
+    },
+    "model.layers.12.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.12.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.12.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.472999999999993
+    },
+    "model.layers.12.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4870000000000003
+    },
+    "model.layers.12.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.12.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.446999999999995
+    },
+    "model.layers.12.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.12.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.12.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.09199999999993
+    },
+    "model.layers.12.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.569999999999997
+    },
+    "model.layers.12.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.12.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.12": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.12.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.449999999999992
+    },
+    "model.layers.12.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.91200000000001
+    },
+    "model.layers.12.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.12.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.974000000000004
+    },
+    "model.layers.12.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.094000000000003
+    },
+    "model.layers.13.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5379999999999916
+    },
+    "model.layers.13.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.358999999999993
+    },
+    "model.layers.13.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.13.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41100000000000025
+    },
+    "model.layers.13.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.367999999999993
+    },
+    "model.layers.13.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4890000000000003
+    },
+    "model.layers.13.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.13.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.355999999999992
+    },
+    "model.layers.13.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.13.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.13.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.08899999999993
+    },
+    "model.layers.13.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.481999999999997
+    },
+    "model.layers.13.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.13.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.13": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.13.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.443999999999992
+    },
+    "model.layers.13.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.874000000000004
+    },
+    "model.layers.13.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33400000000000024
+    },
+    "model.layers.13.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.931000000000013
+    },
+    "model.layers.13.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.099000000000004
+    },
+    "model.layers.14.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4799999999999895
+    },
+    "model.layers.14.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.468999999999995
+    },
+    "model.layers.14.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.14.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.14.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.491999999999995
+    },
+    "model.layers.14.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4890000000000003
+    },
+    "model.layers.14.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.14.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.315999999999993
+    },
+    "model.layers.14.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4890000000000003
+    },
+    "model.layers.14.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.14.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.137999999999929
+    },
+    "model.layers.14.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.448999999999992
+    },
+    "model.layers.14.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.14.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41300000000000026
+    },
+    "model.layers.14": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.14.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4659999999999909
+    },
+    "model.layers.14.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.891000000000005
+    },
+    "model.layers.14.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.14.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.851999999999997
+    },
+    "model.layers.14.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.006000000000002
+    },
+    "model.layers.15.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5299999999999914
+    },
+    "model.layers.15.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.396999999999998
+    },
+    "model.layers.15.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.15.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.15.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.499999999999999
+    },
+    "model.layers.15.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4880000000000003
+    },
+    "model.layers.15.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.15.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.314999999999994
+    },
+    "model.layers.15.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.15.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.15.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.084999999999928
+    },
+    "model.layers.15.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.447999999999994
+    },
+    "model.layers.15.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.15.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.15": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.15.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4319999999999926
+    },
+    "model.layers.15.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.918000000000012
+    },
+    "model.layers.15.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33000000000000024
+    },
+    "model.layers.15.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.87
+    },
+    "model.layers.15.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.200000000000008
+    },
+    "model.layers.16.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4819999999999898
+    },
+    "model.layers.16.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.373999999999991
+    },
+    "model.layers.16.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4890000000000003
+    },
+    "model.layers.16.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41900000000000026
+    },
+    "model.layers.16.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.422999999999992
+    },
+    "model.layers.16.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4860000000000003
+    },
+    "model.layers.16.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.16.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.305999999999994
+    },
+    "model.layers.16.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4850000000000003
+    },
+    "model.layers.16.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41100000000000025
+    },
+    "model.layers.16.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.102999999999925
+    },
+    "model.layers.16.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.484999999999996
+    },
+    "model.layers.16.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.16.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.16": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.16.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4559999999999915
+    },
+    "model.layers.16.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.916000000000007
+    },
+    "model.layers.16.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.16.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.94700000000001
+    },
+    "model.layers.16.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.116000000000003
+    },
+    "model.layers.17.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5219999999999914
+    },
+    "model.layers.17.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.329999999999995
+    },
+    "model.layers.17.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4900000000000003
+    },
+    "model.layers.17.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.17.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.399999999999992
+    },
+    "model.layers.17.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.17.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.17.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.368999999999995
+    },
+    "model.layers.17.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.17.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41100000000000025
+    },
+    "model.layers.17.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.09399999999993
+    },
+    "model.layers.17.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.432999999999994
+    },
+    "model.layers.17.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.17.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.17": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.17.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.429999999999993
+    },
+    "model.layers.17.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.922000000000004
+    },
+    "model.layers.17.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33100000000000024
+    },
+    "model.layers.17.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.862000000000002
+    },
+    "model.layers.17.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.25000000000001
+    },
+    "model.layers.18.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5019999999999891
+    },
+    "model.layers.18.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.294999999999994
+    },
+    "model.layers.18.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.18.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.18.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.576
+    },
+    "model.layers.18.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.18.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.18.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.489999999999996
+    },
+    "model.layers.18.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4780000000000003
+    },
+    "model.layers.18.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.40900000000000025
+    },
+    "model.layers.18.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.06599999999993
+    },
+    "model.layers.18.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.505999999999996
+    },
+    "model.layers.18.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.18.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41100000000000025
+    },
+    "model.layers.18": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33500000000000024
+    },
+    "model.layers.18.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4529999999999919
+    },
+    "model.layers.18.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.866999999999997
+    },
+    "model.layers.18.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33900000000000025
+    },
+    "model.layers.18.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.959000000000009
+    },
+    "model.layers.18.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.097000000000003
+    },
+    "model.layers.19.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5349999999999915
+    },
+    "model.layers.19.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.285999999999997
+    },
+    "model.layers.19.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5120000000000003
+    },
+    "model.layers.19.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41400000000000026
+    },
+    "model.layers.19.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.414999999999996
+    },
+    "model.layers.19.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4840000000000003
+    },
+    "model.layers.19.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.19.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.420999999999996
+    },
+    "model.layers.19.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.19.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.19.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.10099999999993
+    },
+    "model.layers.19.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.402999999999992
+    },
+    "model.layers.19.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.19.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.19": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.19.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.434999999999993
+    },
+    "model.layers.19.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.892000000000005
+    },
+    "model.layers.19.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33500000000000024
+    },
+    "model.layers.19.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.87
+    },
+    "model.layers.19.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.083000000000004
+    },
+    "model.layers.20.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4939999999999893
+    },
+    "model.layers.20.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.467999999999992
+    },
+    "model.layers.20.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4880000000000003
+    },
+    "model.layers.20.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.20.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.465999999999994
+    },
+    "model.layers.20.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4890000000000003
+    },
+    "model.layers.20.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.20.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.4759999999999955
+    },
+    "model.layers.20.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.20.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41100000000000025
+    },
+    "model.layers.20.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.093999999999928
+    },
+    "model.layers.20.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.477999999999995
+    },
+    "model.layers.20.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.20.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.20": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.20.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4449999999999918
+    },
+    "model.layers.20.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.916000000000013
+    },
+    "model.layers.20.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.20.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.981
+    },
+    "model.layers.20.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.080000000000007
+    },
+    "model.layers.21.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.527999999999991
+    },
+    "model.layers.21.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.271999999999998
+    },
+    "model.layers.21.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5130000000000003
+    },
+    "model.layers.21.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.21.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.401999999999993
+    },
+    "model.layers.21.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5160000000000003
+    },
+    "model.layers.21.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.21.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.351999999999994
+    },
+    "model.layers.21.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4830000000000004
+    },
+    "model.layers.21.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.21.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.073999999999934
+    },
+    "model.layers.21.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.519999999999997
+    },
+    "model.layers.21.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.21.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.21": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33100000000000024
+    },
+    "model.layers.21.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.430999999999993
+    },
+    "model.layers.21.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.967000000000004
+    },
+    "model.layers.21.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.21.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.921000000000006
+    },
+    "model.layers.21.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.201000000000006
+    },
+    "model.layers.22.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4859999999999898
+    },
+    "model.layers.22.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.477999999999996
+    },
+    "model.layers.22.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.22.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.22.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.470999999999994
+    },
+    "model.layers.22.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4830000000000003
+    },
+    "model.layers.22.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.22.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.510999999999997
+    },
+    "model.layers.22.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4870000000000003
+    },
+    "model.layers.22.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.22.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.114999999999927
+    },
+    "model.layers.22.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.390999999999991
+    },
+    "model.layers.22.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.22.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.22": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.22.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.473999999999991
+    },
+    "model.layers.22.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.838999999999995
+    },
+    "model.layers.22.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.22.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.932000000000015
+    },
+    "model.layers.22.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.168000000000006
+    },
+    "model.layers.23.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5329999999999917
+    },
+    "model.layers.23.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.458999999999999
+    },
+    "model.layers.23.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.23.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.23.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.424999999999996
+    },
+    "model.layers.23.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4910000000000003
+    },
+    "model.layers.23.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.42000000000000026
+    },
+    "model.layers.23.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.474000000000003
+    },
+    "model.layers.23.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4860000000000003
+    },
+    "model.layers.23.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41100000000000025
+    },
+    "model.layers.23.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.058999999999928
+    },
+    "model.layers.23.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.599999999999997
+    },
+    "model.layers.23.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.23.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4430000000000003
+    },
+    "model.layers.23": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.23.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4289999999999927
+    },
+    "model.layers.23.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.937000000000014
+    },
+    "model.layers.23.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.23.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.985999999999999
+    },
+    "model.layers.23.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.053999999999998
+    },
+    "model.layers.24.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4799999999999898
+    },
+    "model.layers.24.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.45799999999999
+    },
+    "model.layers.24.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.24.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.42500000000000027
+    },
+    "model.layers.24.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.3839999999999915
+    },
+    "model.layers.24.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4860000000000003
+    },
+    "model.layers.24.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.24.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.420999999999992
+    },
+    "model.layers.24.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.24.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.24.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.05399999999993
+    },
+    "model.layers.24.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.40599999999999
+    },
+    "model.layers.24.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.24.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.24": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.24.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4529999999999916
+    },
+    "model.layers.24.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.931000000000012
+    },
+    "model.layers.24.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33400000000000024
+    },
+    "model.layers.24.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.81799999999999
+    },
+    "model.layers.24.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.174000000000003
+    },
+    "model.layers.25.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.532999999999992
+    },
+    "model.layers.25.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.394999999999996
+    },
+    "model.layers.25.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.25.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.25.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.405999999999992
+    },
+    "model.layers.25.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.25.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.25.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.401999999999992
+    },
+    "model.layers.25.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4850000000000004
+    },
+    "model.layers.25.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.25.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.068999999999932
+    },
+    "model.layers.25.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.4999999999999964
+    },
+    "model.layers.25.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.25.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.25": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32700000000000023
+    },
+    "model.layers.25.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4319999999999926
+    },
+    "model.layers.25.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.844999999999995
+    },
+    "model.layers.25.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.25.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.929000000000013
+    },
+    "model.layers.25.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.136000000000003
+    },
+    "model.layers.26.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.48399999999999
+    },
+    "model.layers.26.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.479999999999994
+    },
+    "model.layers.26.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.26.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.26.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.449999999999991
+    },
+    "model.layers.26.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4870000000000003
+    },
+    "model.layers.26.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.26.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.353999999999993
+    },
+    "model.layers.26.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4870000000000003
+    },
+    "model.layers.26.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.26.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.105999999999929
+    },
+    "model.layers.26.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.466999999999994
+    },
+    "model.layers.26.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4920000000000003
+    },
+    "model.layers.26.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.26": {
+      "kernel_count": 164,
+      "kernel_ms": 0.34700000000000025
+    },
+    "model.layers.26.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4559999999999913
+    },
+    "model.layers.26.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.845999999999995
+    },
+    "model.layers.26.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32900000000000024
+    },
+    "model.layers.26.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.941000000000013
+    },
+    "model.layers.26.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.049000000000007
+    },
+    "model.layers.27.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.5359999999999914
+    },
+    "model.layers.27.self_attn.q_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.332999999999996
+    },
+    "model.layers.27.self_attn.q_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4870000000000003
+    },
+    "model.layers.27.self_attn.q_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.27.self_attn.k_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.396999999999994
+    },
+    "model.layers.27.self_attn.k_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.4870000000000003
+    },
+    "model.layers.27.self_attn.k_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.27.self_attn.v_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.399999999999997
+    },
+    "model.layers.27.self_attn.v_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5010000000000003
+    },
+    "model.layers.27.self_attn.v_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.27.self_attn": {
+      "kernel_count": 1640,
+      "kernel_ms": 8.089999999999932
+    },
+    "model.layers.27.self_attn.o_proj": {
+      "kernel_count": 328,
+      "kernel_ms": 4.469999999999994
+    },
+    "model.layers.27.self_attn.o_proj.lora_A.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.5020000000000003
+    },
+    "model.layers.27.self_attn.o_proj.lora_B.default": {
+      "kernel_count": 82,
+      "kernel_ms": 0.41000000000000025
+    },
+    "model.layers.27": {
+      "kernel_count": 164,
+      "kernel_ms": 0.32800000000000024
+    },
+    "model.layers.27.post_attention_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4349999999999918
+    },
+    "model.layers.27.mlp.gate_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.895000000000005
+    },
+    "model.layers.27.mlp": {
+      "kernel_count": 164,
+      "kernel_ms": 0.33000000000000024
+    },
+    "model.layers.27.mlp.up_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.916000000000015
+    },
+    "model.layers.27.mlp.down_proj": {
+      "kernel_count": 82,
+      "kernel_ms": 9.093000000000002
+    },
+    "model.layers.28.input_layernorm": {
+      "kernel_count": 656,
+      "kernel_ms": 1.4789999999999897
+    }
+  },
+  "decode_layers": {
+    "28": {
+      "kernel_ms": 62.032999999999895,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7564999999999987
+    },
+    "29": {
+      "kernel_ms": 61.84799999999991,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7542439024390233
+    },
+    "30": {
+      "kernel_ms": 62.10699999999992,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7574024390243893
+    },
+    "31": {
+      "kernel_ms": 61.85499999999993,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7543292682926821
+    },
+    "0": {
+      "kernel_ms": 61.825999999999894,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7539756097560962
+    },
+    "1": {
+      "kernel_ms": 62.059999999999924,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.756829268292682
+    },
+    "2": {
+      "kernel_ms": 62.04899999999992,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7566951219512186
+    },
+    "3": {
+      "kernel_ms": 62.16099999999991,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7580609756097549
+    },
+    "4": {
+      "kernel_ms": 61.874999999999886,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7545731707317059
+    },
+    "5": {
+      "kernel_ms": 61.9339999999999,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.755292682926828
+    },
+    "6": {
+      "kernel_ms": 61.986999999999895,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7559390243902426
+    },
+    "7": {
+      "kernel_ms": 62.011999999999915,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7562439024390234
+    },
+    "8": {
+      "kernel_ms": 61.965999999999894,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.755682926829267
+    },
+    "9": {
+      "kernel_ms": 61.69199999999991,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.752341463414633
+    },
+    "10": {
+      "kernel_ms": 61.96199999999991,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7556341463414623
+    },
+    "11": {
+      "kernel_ms": 61.813999999999915,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7538292682926819
+    },
+    "12": {
+      "kernel_ms": 62.2899999999999,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7596341463414622
+    },
+    "13": {
+      "kernel_ms": 61.807999999999915,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7537560975609746
+    },
+    "14": {
+      "kernel_ms": 61.81999999999989,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7539024390243889
+    },
+    "15": {
+      "kernel_ms": 61.956999999999915,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7555731707317063
+    },
+    "16": {
+      "kernel_ms": 61.86699999999989,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7544756097560962
+    },
+    "17": {
+      "kernel_ms": 61.87599999999992,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7545853658536575
+    },
+    "18": {
+      "kernel_ms": 62.07899999999991,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7570609756097549
+    },
+    "19": {
+      "kernel_ms": 61.726999999999904,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7527682926829257
+    },
+    "20": {
+      "kernel_ms": 62.156999999999904,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7580121951219501
+    },
+    "21": {
+      "kernel_ms": 61.97199999999992,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7557560975609747
+    },
+    "22": {
+      "kernel_ms": 62.11499999999991,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.757499999999999
+    },
+    "23": {
+      "kernel_ms": 62.257999999999925,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7592439024390235
+    },
+    "24": {
+      "kernel_ms": 61.85799999999989,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7543658536585353
+    },
+    "25": {
+      "kernel_ms": 61.90299999999991,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7549146341463404
+    },
+    "26": {
+      "kernel_ms": 61.90699999999991,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7549634146341453
+    },
+    "27": {
+      "kernel_ms": 61.83999999999992,
+      "kernel_count": 5494,
+      "per_decode_token_kernel_ms": 0.7541463414634136
+    }
+  },
+  "decode_top_kernel_duration_ms": {
+    "ampere_fp16_s16816gemm_fp16_64x64_sliced1x2_ldg8_f2f_stages_64x5_tn": 774.8830000000738,
+    "ampere_fp16_s16816gemm_fp16_64x64_ldg8_f2f_stages_64x5_tn": 633.9539999999862,
+    "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 128, 1>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 128, 1>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)": 85.0010000000011,
+    "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, float, float, float, float, false, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)": 63.0050000000023,
+    "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)": 54.29299999999683,
+    "void gemv2T_kernel_val<int, int, float, float, float, float, 128, 16, 2, 2, false, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>, float, float)": 52.66600000000844,
+    "void at::native::unrolled_elementwise_kernel<at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1>)": 31.687000000001145,
+    "void cutlass::Kernel<cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x64_32x4_tn_align8>(cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x64_32x4_tn_align8::Params)": 28.08599999999999,
+    "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, __half, __half, __half, float, false, true, false, false, 9, false, cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float>)": 27.20900000000016,
+    "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})": 26.82899999999922,
+    "std::enable_if<true, void>::type internal::gemvx::kernel<int, int, __half, __half, __half, float, true, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float>)": 25.961999999999225,
+    "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)": 23.960000000000765,
+    "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 64, 64>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 64, 64>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)": 22.5790000000007,
+    "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::MeanOps<float, float>, unsigned int, float, 4> >(at::native::ReduceOp<float, at::native::MeanOps<float, float>, unsigned int, float, 4>)": 19.68600000000011,
+    "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<c10::Half>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<c10::Half>, at::detail::Array<char*, 3>)": 16.206000000000408,
+    "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3> >(int, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3>)": 15.991000000001995,
+    "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1} const&)::{lambda(int)#1})": 13.338000000000648,
+    "void at::native::index_elementwise_kernel<128, 4, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1} const&)::{lambda(int)#1})": 13.324000000000654,
+    "void at::native::vectorized_elementwise_kernel<4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2> >(int, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2>)": 12.395999999999338,
+    "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})": 10.712000000000241
+  },
+  "decode_cpu_allocation_copy_and_cat_ops": {
+    "aten::empty": {
+      "calls": 126690,
+      "inclusive_cpu_ms": 38.94800000000006
+    },
+    "aten::empty_strided": {
+      "calls": 24026,
+      "inclusive_cpu_ms": 43.11700000000331
+    },
+    "aten::copy_": {
+      "calls": 24108,
+      "inclusive_cpu_ms": 99.65100000002221
+    },
+    "aten::rsub": {
+      "calls": 82,
+      "inclusive_cpu_ms": 0.7600000000000005
+    },
+    "aten::masked_fill": {
+      "calls": 82,
+      "inclusive_cpu_ms": 1.541999999999999
+    },
+    "aten::clone": {
+      "calls": 82,
+      "inclusive_cpu_ms": 0.8890000000000006
+    },
+    "aten::add": {
+      "calls": 18450,
+      "inclusive_cpu_ms": 90.92999999999743
+    },
+    "aten::cat": {
+      "calls": 10496,
+      "inclusive_cpu_ms": 58.67000000000326
+    }
+  },
+  "cpu_op_note": "Inclusive CPU scopes, not additional GPU kernel time; cat includes RoPE as well as KV growth",
+  "cpu_cuda_synchronize_ms": 0.773,
+  "cpu_cuda_allocation_api_ms": 0.0,
+  "gpu_copy_ms": {
+    "HtoD": 2.712,
+    "DtoH": 1.988,
+    "DtoD": 0.743
+  },
+  "launch_gap_attribution_ms": null,
+  "note": "Kernel sums and active unions are distinguished; profiler runs are excluded from E2E tables",
+  "m1_worker_gpu_kernel_overlap_lower_ms": 193.909,
+  "clock_alignment_uncertainty_us": 5,
+  "m1_worker": {
+    "submitted_s": 1592678.616735002,
+    "main_thread": 139799628063808,
+    "clock_sync_s": 1592678.616764149,
+    "worker_thread": 139794038388288,
+    "worker_start_s": 1592678.616914642,
+    "queue_delay_ms": 0.1796400174498558,
+    "worker_native_thread": 871423,
+    "worker_end_s": 1592678.812209135,
+    "worker_ms": 195.29452291317284,
+    "join_wait_ms": 147.32137694954872,
+    "joined_s": 1592678.812232164
+  }
+}
