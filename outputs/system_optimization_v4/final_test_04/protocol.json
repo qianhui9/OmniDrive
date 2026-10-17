@@ -1,0 +1,73 @@
+{
+  "scenes": [
+    {
+      "scene": "21a7ba093614493b83838b9656b3558d",
+      "indices": [
+        2428,
+        2429,
+        2430,
+        2431,
+        2432,
+        2433,
+        2434,
+        2435
+      ],
+      "split": "final_test",
+      "tokens": [
+        "5a3a15f4ebdb4e6b83eb58628dc8e83f",
+        "68e298ebeeb148f7888ea88da004f27f",
+        "e6e8246bd341467aa059457737cdfa7a",
+        "317fba7a6afb4dac8974af0d61afe325",
+        "e3ca1a55038c406fab27d3b533831636",
+        "f10350b3e5fc46c2affd08a0cf8265c6",
+        "72349c046e7e4b44bcfea744adb2adc0",
+        "fe9cfc601c664e8683af8a03e183e533"
+      ],
+      "timestamps_s": [
+        1535657569.048387,
+        1535657569.548801,
+        1535657569.949148,
+        1535657570.450128,
+        1535657570.950001,
+        1535657571.450984,
+        1535657571.951446,
+        1535657572.450735
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v4/final_test_04",
+    "workload": "single",
+    "scene_start": 17,
+    "scenes": 1,
+    "frames": 8,
+    "modes": [
+      "original",
+      "m1",
+      "overlap",
+      "unified_auto"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false,
+    "scene_splits": {
+      "21a7ba093614493b83838b9656b3558d": "final_test"
+    }
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

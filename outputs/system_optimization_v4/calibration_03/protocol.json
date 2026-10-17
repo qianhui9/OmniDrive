@@ -1,0 +1,71 @@
+{
+  "scenes": [
+    {
+      "scene": "04219bfdc9004ba2af16d3079ecc4353",
+      "indices": [
+        5015,
+        5016,
+        5017,
+        5018,
+        5019,
+        5020,
+        5021,
+        5022
+      ],
+      "split": "calibration",
+      "tokens": [
+        "73c335a2a207457ea36cc855b2417bd9",
+        "9d67cdab13e84fd1856e3c998dee2ece",
+        "2452249a6b6b4befbb05c4a9e15af974",
+        "5986a2bd42ec4cd4bacd1ff986a36882",
+        "54d0e0386745460bb8400db7afc17fe0",
+        "2fb8e56b3c6947729e8f85818f7f78e9",
+        "1102a6f0591d4af0bc6fd1a9bc873945",
+        "013857a44c6543bf9a78e68e52e81536"
+      ],
+      "timestamps_s": [
+        1538984560.547586,
+        1538984561.047992,
+        1538984561.547312,
+        1538984562.04775,
+        1538984562.54762,
+        1538984563.04695,
+        1538984563.547388,
+        1538984564.047273
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v4/calibration_03",
+    "workload": "single",
+    "scene_start": 3,
+    "scenes": 1,
+    "frames": 8,
+    "modes": [
+      "overlap",
+      "m1"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false,
+    "scene_splits": {
+      "04219bfdc9004ba2af16d3079ecc4353": "calibration"
+    }
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

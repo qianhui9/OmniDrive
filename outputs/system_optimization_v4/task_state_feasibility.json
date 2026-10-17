@@ -1,0 +1,533 @@
+{
+  "status": "completed_offline_audit",
+  "annotation": "data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl",
+  "annotation_sha256": "f432aa166d0f6c0ffe9dd22fb92352ec02d02709f87d7c28dd7095351b1bfba7",
+  "question_corpus_sha256": "925baeba700acc2ee03ec98fbdb838838fde91fe7c31ddbf038bf4747e8c6572",
+  "frames": 6019,
+  "independent_scenes": 150,
+  "counts_by_source": {
+    "default_planning": {
+      "global_planning": 6019
+    },
+    "short_action": {
+      "global_safety_scene": 6019
+    },
+    "conv": {
+      "other_visual_semantics": 9452,
+      "count_absence_existence": 14580,
+      "global_safety_scene": 19195,
+      "local_spatial_relation": 1551,
+      "local_map_candidate": 2717,
+      "local_motion": 404,
+      "local_distance_position": 209
+    },
+    "vqa": {
+      "global_safety_scene": 24044,
+      "other_visual_semantics": 37
+    }
+  },
+  "categories": {
+    "global_planning": 6019,
+    "global_safety_scene": 49258,
+    "other_visual_semantics": 9489,
+    "count_absence_existence": 14580,
+    "local_spatial_relation": 1551,
+    "local_map_candidate": 2717,
+    "local_motion": 404,
+    "local_distance_position": 209
+  },
+  "audited_question_occurrences": 84227,
+  "missing_question_files": {},
+  "default_planning": {
+    "total": 6019,
+    "potential_direct_query_fraction": 0.0,
+    "potential_compact_input_fraction": 0.0,
+    "full_visual_fallback_fraction": 1.0,
+    "reason": "global planning depends on complete current scene and policy, not a local object fact"
+  },
+  "vqa_screening": {
+    "total": 72189,
+    "semantic_candidates": 4881,
+    "established_input_complete_tasks": 0,
+    "potential_coverage_certified": 0.0,
+    "unresolved_candidate_scope": "Lexical screening includes appearance questions and ego-motion questions; not all are local-object opportunities"
+  },
+  "all_sources_semantic_candidate_count": 4881,
+  "manually_reviewed_conditional_metric_opportunities": [
+    {
+      "sample_token": "d8866c75f88a4dbaa461260b81409544",
+      "scene_token": "fcc020250f884397965ba00c1d9ad9e6",
+      "source": "conv",
+      "question": "What is the approximate distance between the vehicle and the car in front?",
+      "category": "local_distance_position",
+      "semantic_candidate": true,
+      "input_complete": false,
+      "direct_query_eligible": false,
+      "compact_input_eligible": false,
+      "reason": "referent/domain and requested semantics not certified by current state; candidate requires manual grounding and independent quality evidence",
+      "classification_scope": "lexical screening; not semantic proof or online admission"
+    },
+    {
+      "sample_token": "c4389c26256946beab9f17c1afb13591",
+      "scene_token": "3a2d9bf6115f40898005d1c1df2b7282",
+      "source": "conv",
+      "question": "What is the approximate distance between the vehicle and the delivery truck?",
+      "category": "local_distance_position",
+      "semantic_candidate": true,
+      "input_complete": false,
+      "direct_query_eligible": false,
+      "compact_input_eligible": false,
+      "reason": "referent/domain and requested semantics not certified by current state; candidate requires manual grounding and independent quality evidence",
+      "classification_scope": "lexical screening; not semantic proof or online admission"
+    }
+  ],
+  "semantic_screening_upper_fraction": 0.05795053842592043,
+  "potential_direct_query_fraction_established": 0.0,
+  "potential_compact_input_fraction_established": 0.0,
+  "certified_full_visual_fallback_fraction": 1.0,
+  "executed_v3_workload": {
+    "unique_run_question_occurrences": 200,
+    "categories": {
+      "global_planning": 168,
+      "global_safety_scene": 15,
+      "other_visual_semantics": 8,
+      "local_spatial_relation": 2,
+      "local_map_candidate": 3,
+      "count_absence_existence": 4
+    },
+    "input_complete_established": 0,
+    "note": "Run-level occurrences; overlapping frames across runs not independent samples"
+  },
+  "requirements": {
+    "global_planning": {
+      "complete_scene": "yes",
+      "partial_history_allowed": "no",
+      "facts": "complete current agents, free space, signals, route, ego dynamics",
+      "freshness": "current request; dynamic agents need current motion",
+      "precision": "trajectory quality unchanged; no local surrogate",
+      "current_head_can_verify": "prediction agreement only; no independent truth/error bounds",
+      "reduce_llm_input": "not supported",
+      "direct_query": "not currently justified",
+      "examples": [
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "source": "default_planning",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "source": "default_planning",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        },
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "source": "default_planning",
+          "sample_token": "b10f0cd792b64d16a1a5e8349b20504c"
+        },
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "source": "default_planning",
+          "sample_token": "163b70e627854893b88575caf85a56ea"
+        },
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "source": "default_planning",
+          "sample_token": "f56a544064a548a39a81f18cc8f633c5"
+        },
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "source": "default_planning",
+          "sample_token": "f286cdaef36648cba3b6a24d2178dc8a"
+        },
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "source": "default_planning",
+          "sample_token": "877f55a6d8324fefb5e0f5e0bac3d7c1"
+        },
+        {
+          "question": "Please provide the planning trajectory for the ego car without reasons.",
+          "source": "default_planning",
+          "sample_token": "49f8376cd6b34f07b20ed6d5b5b42acd"
+        }
+      ]
+    },
+    "global_safety_scene": {
+      "complete_scene": "yes",
+      "partial_history_allowed": "no",
+      "facts": "all relevant hazards, scene semantics, signs, lighting, intent",
+      "freshness": "current request",
+      "precision": "complete safety/semantic evidence absent from local anchors",
+      "current_head_can_verify": "prediction agreement only; no independent truth/error bounds",
+      "reduce_llm_input": "not supported",
+      "direct_query": "not currently justified",
+      "examples": [
+        {
+          "question": "Please shortly describe your driving action.",
+          "source": "short_action",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "Can you describe the parking scenario visible from the vehicle?",
+          "source": "conv",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "Given the current scene, what should the driver be cautious about when starting the vehicle and proceeding?",
+          "source": "conv",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "Are there any traffic elements that might influence your driving?",
+          "source": "vqa",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "What should be your next move and why?",
+          "source": "vqa",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "If you follow the trajectory [PT, (+6.12, +0.72), (+14.11, +1.30), (+23.30, +1.10), (+28.27, +1.00), (+30.48, +1.60), (+31.69, +1.76)], what would happen?",
+          "source": "vqa",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "If you follow the trajectory [PT, (+4.47, -0.11), (+8.99, -0.41), (+13.53, -0.89), (+18.04, -1.53), (+22.52, -2.31), (+26.90, -3.19)], what would happen?",
+          "source": "vqa",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "Please shortly describe your driving action.",
+          "source": "short_action",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        }
+      ]
+    },
+    "count_absence_existence": {
+      "complete_scene": "yes (for arbitrary yes/no and exact counts)",
+      "partial_history_allowed": "no",
+      "facts": "complete requested spatial domain and identity deduplication",
+      "freshness": "current request",
+      "precision": "no false negatives; partial history cannot prove absence",
+      "current_head_can_verify": "prediction agreement only; no independent truth/error bounds",
+      "reduce_llm_input": "not supported",
+      "direct_query": "not currently justified",
+      "examples": [
+        {
+          "question": "Is the vehicle at an intersection, and are there any traffic signals visible?",
+          "source": "conv",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "Is the vehicle approaching any traffic control devices?",
+          "source": "conv",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        },
+        {
+          "question": "Can you count the number of pedestrians visible in the area?",
+          "source": "conv",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        },
+        {
+          "question": "How many vehicles can you see in the parking lot?",
+          "source": "conv",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        },
+        {
+          "question": "Are there any visible traffic signs or directions?",
+          "source": "conv",
+          "sample_token": "b10f0cd792b64d16a1a5e8349b20504c"
+        },
+        {
+          "question": "Can you see any pedestrians or cyclists in the vicinity?",
+          "source": "conv",
+          "sample_token": "b10f0cd792b64d16a1a5e8349b20504c"
+        },
+        {
+          "question": "Is there a directory or a map sign visible nearby?",
+          "source": "conv",
+          "sample_token": "163b70e627854893b88575caf85a56ea"
+        },
+        {
+          "question": "Are there any indications of a security checkpoint?",
+          "source": "conv",
+          "sample_token": "163b70e627854893b88575caf85a56ea"
+        }
+      ]
+    },
+    "local_spatial_relation": {
+      "complete_scene": "object grounding required; full global scene not intrinsically required",
+      "partial_history_allowed": "conditional",
+      "facts": "unique referent, identities and signed relative direction interval",
+      "freshness": "verify at request time; age plus motion error bounded",
+      "precision": "signed interval must exclude zero",
+      "current_head_can_verify": "prediction agreement only; no independent truth/error bounds",
+      "reduce_llm_input": "conditional research possibility",
+      "direct_query": "not currently justified",
+      "examples": [
+        {
+          "question": "What actions can you infer about the vehicle entering from behind?",
+          "source": "conv",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        },
+        {
+          "question": "What type of vehicles are predominantly parked in the area behind the car?",
+          "source": "conv",
+          "sample_token": "f56a544064a548a39a81f18cc8f633c5"
+        },
+        {
+          "question": "What is the function of the structure directly in front of us?",
+          "source": "conv",
+          "sample_token": "f286cdaef36648cba3b6a24d2178dc8a"
+        },
+        {
+          "question": "What are the characteristics of the parking area behind the vehicle?",
+          "source": "conv",
+          "sample_token": "a0edf6edd121431785948038c54e036e"
+        },
+        {
+          "question": "Can you comment on the traffic situation directly behind the vehicle?",
+          "source": "conv",
+          "sample_token": "e4df3ac5874d49b7a3553035cd735902"
+        },
+        {
+          "question": "How busy is the traffic in the area behind the vehicle?",
+          "source": "conv",
+          "sample_token": "dc878ebb5b1e43eb9442d9361854613e"
+        },
+        {
+          "question": "Describe the vehicle directly in front of you.",
+          "source": "conv",
+          "sample_token": "37b3d16060b442d5b6175cbebefd09a7"
+        },
+        {
+          "question": "What do the traffic cones in front of the vehicle imply?",
+          "source": "conv",
+          "sample_token": "23dc1b528c734082b8b3bfd9757f0eb3"
+        }
+      ]
+    },
+    "local_distance_position": {
+      "complete_scene": "object grounding required; nearest selection needs domain coverage",
+      "partial_history_allowed": "conditional",
+      "facts": "unique referent, independent metric localization error bound, ego pose",
+      "freshness": "verify at request time",
+      "precision": "frozen prior direct numeric error <= 0.5 m; detector score is insufficient",
+      "current_head_can_verify": "prediction agreement only; no independent truth/error bounds",
+      "reduce_llm_input": "conditional research possibility",
+      "direct_query": "not currently justified",
+      "examples": [
+        {
+          "question": "Is the vehicle in an appropriate position to proceed through the access control point?",
+          "source": "conv",
+          "sample_token": "2f5de0aeca704127925cf8490ff5a21d"
+        },
+        {
+          "question": "Is the bus ahead in a position that suggests it is actively picking up or dropping off passengers?",
+          "source": "conv",
+          "sample_token": "8a6f3826e95840b096096fb07cf3d22d"
+        },
+        {
+          "question": "Given the bus's position and our possible actions, what does this say about our potential driving strategy?",
+          "source": "conv",
+          "sample_token": "37f843af00b54e36b5f57c9c93943c8d"
+        },
+        {
+          "question": "What road signs are visible from your current position?",
+          "source": "conv",
+          "sample_token": "1efe6efdec394a219cfda8e18e297242"
+        },
+        {
+          "question": "Based on the shadowing and the position of the sun, what time of day could it be?",
+          "source": "conv",
+          "sample_token": "a3d2c3ca40b3455396e7ae776f523ea0"
+        },
+        {
+          "question": "Is the vehicle currently in a position to safely change lanes if needed?",
+          "source": "conv",
+          "sample_token": "ba5d4c21f9d1441a80355fb2b2bd5908"
+        },
+        {
+          "question": "What kind of construction is visible from your position?",
+          "source": "conv",
+          "sample_token": "ed8368b711934a1b86f5a4ce354c39b0"
+        },
+        {
+          "question": "Is the orange van in a position that requires your immediate attention?",
+          "source": "conv",
+          "sample_token": "59e6f43c31be472393ee5c8dcc45f9cf"
+        }
+      ]
+    },
+    "local_motion": {
+      "complete_scene": "unique object grounding and temporal evidence required",
+      "partial_history_allowed": "conditional",
+      "facts": "unique referent, time baseline, independently supported object motion and ego motion",
+      "freshness": "current velocity relation with bounded lag",
+      "precision": "independent velocity interval excludes decision boundary; no new tolerance frozen",
+      "current_head_can_verify": "prediction agreement only; no independent truth/error bounds",
+      "reduce_llm_input": "conditional research possibility",
+      "direct_query": "not currently justified",
+      "examples": [
+        {
+          "question": "Based on the scene, what driving behavior is appropriate when approaching the security checkpoint?",
+          "source": "conv",
+          "sample_token": "cd908fdce67249f3a8a14b987f00592e"
+        },
+        {
+          "question": "Can we determine the speed of the vehicle from the images?",
+          "source": "conv",
+          "sample_token": "a6261bd83c5e4e1985012b6c6c51fce0"
+        },
+        {
+          "question": "Given the empty road, what could be a reason for the driver to adjust speed?",
+          "source": "conv",
+          "sample_token": "56a8812e2fae4b13960c853cebe58374"
+        },
+        {
+          "question": "What can be said about the vehicle's speed and movement?",
+          "source": "conv",
+          "sample_token": "feedde26563b4303ad0faa7ef7684940"
+        },
+        {
+          "question": "Is the truck to the front-right of our vehicle in motion?",
+          "source": "conv",
+          "sample_token": "4de7963785f34de7afb9e5aae3ce6f9f"
+        },
+        {
+          "question": "What can we infer about the bus approaching ahead?",
+          "source": "conv",
+          "sample_token": "b3ba77a696634442a5f5a5dbcf906a39"
+        },
+        {
+          "question": "What's the speed limit here?",
+          "source": "conv",
+          "sample_token": "2c1f8867c60b44f09ee37b5df1d1ad24"
+        },
+        {
+          "question": "What type of vehicle is approaching in the opposite lane?",
+          "source": "conv",
+          "sample_token": "2c1f8867c60b44f09ee37b5df1d1ad24"
+        }
+      ]
+    },
+    "local_map_candidate": {
+      "complete_scene": "local domain and map semantic type required",
+      "partial_history_allowed": "conditional",
+      "facts": "local lane geometry, topology/marking semantics when requested",
+      "freshness": "static map plus current ego pose and current closure observations",
+      "precision": "lane_control_points alone do not certify topology, markings or traffic rules",
+      "current_head_can_verify": "prediction agreement only; no independent truth/error bounds",
+      "reduce_llm_input": "conditional research possibility",
+      "direct_query": "not currently justified",
+      "examples": [
+        {
+          "question": "What type of road is the vehicle on?",
+          "source": "conv",
+          "sample_token": "b10f0cd792b64d16a1a5e8349b20504c"
+        },
+        {
+          "question": "What is the condition of the road surface in this area?",
+          "source": "conv",
+          "sample_token": "f56a544064a548a39a81f18cc8f633c5"
+        },
+        {
+          "question": "Based on the setting, what type of buildings are flanking the road?",
+          "source": "conv",
+          "sample_token": "cc50000970584ba5aaf14760b1ced696"
+        },
+        {
+          "question": "Can you describe the nature of the buildings lining the road?",
+          "source": "conv",
+          "sample_token": "21b99febc5c14f7385e787fe81e96670"
+        },
+        {
+          "question": "What is the function of the booth by the road?",
+          "source": "conv",
+          "sample_token": "9281ea172d9e43528e65fca81e2006d4"
+        },
+        {
+          "question": "What can be said about the road traffic following the vehicle?",
+          "source": "conv",
+          "sample_token": "6180726fc8744ea2b129ebaad6f79cee"
+        },
+        {
+          "question": "What does the road ahead look like?",
+          "source": "conv",
+          "sample_token": "e617edf72860495abd928aaf57dfa5fa"
+        },
+        {
+          "question": "What is the current state of the barrier that controls vehicle access to the road?",
+          "source": "conv",
+          "sample_token": "c1ab33c3994041ceae32b0fe1b51e611"
+        }
+      ]
+    },
+    "other_visual_semantics": {
+      "complete_scene": "question specific; unresolved",
+      "partial_history_allowed": "no established substitution",
+      "facts": "appearance, text, buildings, weather or unconstrained language semantics",
+      "freshness": "current request",
+      "precision": "not represented in current state interface",
+      "current_head_can_verify": "prediction agreement only; no independent truth/error bounds",
+      "reduce_llm_input": "not supported",
+      "direct_query": "not currently justified",
+      "examples": [
+        {
+          "question": "What is the setting in which the vehicle is located?",
+          "source": "conv",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "What does the presence of a barrier arm suggest about this location?",
+          "source": "conv",
+          "sample_token": "fd8420396768425eabec9bdddf7e64b6"
+        },
+        {
+          "question": "What type of area is the vehicle currently in?",
+          "source": "conv",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        },
+        {
+          "question": "What is the weather like in this driving scene?",
+          "source": "conv",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        },
+        {
+          "question": "Discuss the likely protocol when the car reaches the security checkpoint.",
+          "source": "conv",
+          "sample_token": "6eb8a3ff0abf4f3a9380a48f2a0b87ef"
+        },
+        {
+          "question": "What buildings are visible around the vehicle?",
+          "source": "conv",
+          "sample_token": "b10f0cd792b64d16a1a5e8349b20504c"
+        },
+        {
+          "question": "What is the approximate time of day based on the lighting and shadows in the scene?",
+          "source": "conv",
+          "sample_token": "b10f0cd792b64d16a1a5e8349b20504c"
+        },
+        {
+          "question": "Can you speculate on the purpose of the various parked cars?",
+          "source": "conv",
+          "sample_token": "163b70e627854893b88575caf85a56ea"
+        }
+      ]
+    }
+  },
+  "gate_a": {
+    "decision": "No-Go for original Planning historical substitution; unresolved VQA candidates remain research-only",
+    "online_bc_allowed": false,
+    "reason": "No grounded input-complete original task with independent fact and task quality evidence; do not equate lexical bins with opportunities",
+    "offline_b_allowed": true,
+    "offline_b_reason": "Two manually reviewed original metric questions have conditional local-fact dependencies; test available evidence offline before any consumption",
+    "continue_d_e": true
+  },
+  "limitations": [
+    "No semantic parser or manual labeling of 72k unconstrained QA; candidate counts are screening only",
+    "Zero established coverage is not a proof that every original VQA task is impossible",
+    "Local controlled probes cannot replace the Planning/VQA workload",
+    "conv random summary template excluded from full corpus denominator; actual frozen run templates included separately"
+  ]
+}

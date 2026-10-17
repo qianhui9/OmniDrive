@@ -74,11 +74,19 @@ class UnifiedRuntime:
         key=self._request_key or self.workload_key(model,data)
         # Content-keyed, bounded lookup only. Re-run admission with actual
         # overhead; model/CPU/strategy/provenance changes produce another key.
-        cache_key=json.dumps((key,self.costs,self.quality),sort_keys=True,allow_nan=False)
+        # A frame gap is a measured interval lookup, not a separate cache entry
+        # for every floating-point timestamp. Certificate CONTENT remains in
+        # the key, including in-place edits. Recheck the actual interval and
+        # current overhead for every request below.
+        domain_key=dict(key);domain_key.pop('frame_gap_s',None)
+        cache_key=json.dumps((domain_key,self.costs,self.quality),sort_keys=True,allow_nan=False)
         candidates=self._admission_matches.get(cache_key)
         if candidates is None:
+            def same_domain(row):
+                evidence=dict(row.get('key',{}));evidence.pop('frame_gap_s',None)
+                return evidence==domain_key
             candidates=[(c,q) for c in self.costs['records'] for q in self.quality['records']
-                if self.admit(key,c,q,overhead_ms=0)[0]]
+                if same_domain(c) and same_domain(q)]
             if len(self._admission_matches)>=64:self._admission_matches.clear()
             self._admission_matches[cache_key]=candidates
         for costs,quality in candidates:

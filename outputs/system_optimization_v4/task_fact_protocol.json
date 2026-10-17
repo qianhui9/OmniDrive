@@ -1,0 +1,19 @@
+{
+  "frozen_before_v4_fact_oracle": true,
+  "online_consumption_allowed": false,
+  "physical_risk": {
+    "far_upper95_max": 0.05,
+    "min_support_scenes": 3,
+    "min_accepted_scorable": 59
+  },
+  "metric_distance_error_m_max": 0.5,
+  "motion_vector_error_mps_max": 0.5,
+  "direction": "exact longitudinal/lateral signs in current ego; unknown zero or boundary-spanning interval never certifies",
+  "persistence": "same independent instance with current sensor support and visibility=4",
+  "offline_identity": "same-class source nearest within 2m; reject if multiple eligible same-class GT or competing predicted source within 2m",
+  "splits": "same frozen v4 scene split; all old 29 exploratory scenes excluded",
+  "extractor": "missing independent identity, foreground, metric and motion bounds => Unknown; never detector score as localization bound",
+  "source_gate": "two manually reviewed original metric questions; Planning remains No-Go",
+  "thresholds": "new Fact score tolerances frozen independently; old M1 physical protocol remains unchanged",
+  "gt_scope": "offline scoring only AFTER all annotation-free extractions persisted; not online inputs, certificates or scheduling"
+}

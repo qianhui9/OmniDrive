@@ -1,0 +1,73 @@
+{
+  "scenes": [
+    {
+      "scene": "19d97841d6f64eba9f6eb9b6e8c257dc",
+      "indices": [
+        3558,
+        3559,
+        3560,
+        3561,
+        3562,
+        3563,
+        3564,
+        3565
+      ],
+      "split": "final_test",
+      "tokens": [
+        "3ac231a1ef4c481c9c15921cafa87307",
+        "c6dd19098c9143a1849e1ea7e972ff6b",
+        "75b0b5c13a214183961af9189f1c72f0",
+        "9a8b4a5cc0ae4a198e88435b9f5b4b57",
+        "925af658789c478eabee8e04ed1a04b9",
+        "f3501361c9814d4ba99bfb741c012f28",
+        "e0e6b174d7294e6088c6ba8ebb6fcc18",
+        "0733caf02ebc44e7adf20c704821ea6b"
+      ],
+      "timestamps_s": [
+        1537296115.948908,
+        1537296116.44934,
+        1537296116.949227,
+        1537296117.449642,
+        1537296117.94952,
+        1537296118.449392,
+        1537296118.949853,
+        1537296119.449712
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v4/final_test_01",
+    "workload": "single",
+    "scene_start": 13,
+    "scenes": 1,
+    "frames": 8,
+    "modes": [
+      "original",
+      "m1",
+      "overlap",
+      "unified_auto"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false,
+    "scene_splits": {
+      "19d97841d6f64eba9f6eb9b6e8c257dc": "final_test"
+    }
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

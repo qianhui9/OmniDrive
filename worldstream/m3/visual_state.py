@@ -85,15 +85,23 @@ def deployment_key(lm_head):
     base = base_model(lm_head)
     device = base.get_input_embeddings().weight.device
     hardware = torch.cuda.get_device_name(device) if device.type == 'cuda' else 'cpu'
+    # Many decoder layers share the exact same Python forward implementation.
+    # Deduplicate its content encoding within THIS inspection only. Nothing is
+    # retained across requests: changed defaults, wrappers, modules, adapters or
+    # backend flags are still inspected on the next call.
+    inspected = {}
     def forward_implementation(module):
         # Keep the entire wrapper chain: unwrap alone would hide the FP32 LoRA
         # probe, and class names alone miss instance-level backend replacements.
         fn=module.forward;chain=[];seen=set()
         while fn is not None and id(fn) not in seen:
             seen.add(id(fn));actual=getattr(fn,'__func__',fn);code=getattr(actual,'__code__',None)
-            chain.append((getattr(actual,'__module__',type(actual).__module__),
-                getattr(actual,'__qualname__',type(actual).__qualname__),
-                stable_function_hash(actual) if code is not None else str(type(actual))))
+            key=id(actual)
+            if key not in inspected:
+                inspected[key]=(getattr(actual,'__module__',type(actual).__module__),
+                    getattr(actual,'__qualname__',type(actual).__qualname__),
+                    stable_function_hash(actual) if code is not None else str(type(actual)))
+            chain.append(inspected[key])
             fn=getattr(fn,'__wrapped__',None)
         return tuple(chain)
     adapters=[(n,repr(m.active_adapters),repr(m.disable_adapters),

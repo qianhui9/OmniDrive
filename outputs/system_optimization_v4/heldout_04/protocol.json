@@ -1,0 +1,71 @@
+{
+  "scenes": [
+    {
+      "scene": "16e50a63b809463099cb4c378fe0641e",
+      "indices": [
+        1982,
+        1983,
+        1984,
+        1985,
+        1986,
+        1987,
+        1988,
+        1989
+      ],
+      "split": "heldout",
+      "tokens": [
+        "5b90526901414d2aa5db2b9fdaf858eb",
+        "aa9848eff6fd40a88148dadfa611b10b",
+        "5a2d3dfe7075436fb5826dfc45e53495",
+        "f56b256d74d5484fbb1be4ac42546a7c",
+        "509430f5472a4a47bde26cf3bee935fb",
+        "fb51300f4f894631bbf2a1c0970e0701",
+        "bca4a3f7ae0748c3b7b2f6e537c1518c",
+        "9e597bf087df4d7fae593e7793e87e4e"
+      ],
+      "timestamps_s": [
+        1535489136.047705,
+        1535489136.547616,
+        1535489136.947474,
+        1535489137.447801,
+        1535489137.947703,
+        1535489138.447589,
+        1535489138.947987,
+        1535489139.447877
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v4/heldout_04",
+    "workload": "single",
+    "scene_start": 11,
+    "scenes": 1,
+    "frames": 8,
+    "modes": [
+      "m1",
+      "overlap"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false,
+    "scene_splits": {
+      "16e50a63b809463099cb4c378fe0641e": "heldout"
+    }
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

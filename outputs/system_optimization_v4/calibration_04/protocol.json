@@ -1,0 +1,71 @@
+{
+  "scenes": [
+    {
+      "scene": "07aed9dae37340a997535ad99138e243",
+      "indices": [
+        4729,
+        4730,
+        4731,
+        4732,
+        4733,
+        4734,
+        4735,
+        4736
+      ],
+      "split": "calibration",
+      "tokens": [
+        "94cd383effba4e688570233a060a13f4",
+        "2a86b2b0a481470a83c81f4d2b514276",
+        "2da362aa50914fb69f1206e4161c2b49",
+        "9019e415f3864cee8db416c9b6154fec",
+        "b4a22db7d3a2450f936d22248f139efb",
+        "fa4978c3e74f4d288f1daed5909dc6ee",
+        "dcdbd1100ef14eb0b00e272bc01b8b21",
+        "fee2ac7d0102464a94b6bc788be71be4"
+      ],
+      "timestamps_s": [
+        1538448844.146362,
+        1538448844.646822,
+        1538448845.146688,
+        1538448845.647102,
+        1538448846.147014,
+        1538448846.647433,
+        1538448847.147828,
+        1538448847.647717
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v4/calibration_04",
+    "workload": "single",
+    "scene_start": 4,
+    "scenes": 1,
+    "frames": 8,
+    "modes": [
+      "m1",
+      "overlap"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false,
+    "scene_splits": {
+      "07aed9dae37340a997535ad99138e243": "calibration"
+    }
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

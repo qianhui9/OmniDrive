@@ -1,0 +1,71 @@
+{
+  "scenes": [
+    {
+      "scene": "080a52cb8f59489b9cddc7b721808088",
+      "indices": [
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165
+      ],
+      "split": "heldout",
+      "tokens": [
+        "e261f474caa34797b0759aa2ca8a576d",
+        "3947c3c1848e46c3849a1e178e2e728b",
+        "c0e18beded2d45d29662c2129503d4f7",
+        "c3286d413f524369ac040fbcd0b0e9b6",
+        "e7683144f74449309873faf2cb7e76c8",
+        "a4fa9d49433944d893b977da960fc458",
+        "d55a20a3225b4e258cbba4dd9e1b597f",
+        "1a0f8e5b0cc248cd832716486455a257"
+      ],
+      "timestamps_s": [
+        1531281633.697755,
+        1531281634.198156,
+        1531281634.69805,
+        1531281635.199031,
+        1531281635.700031,
+        1531281636.199912,
+        1531281636.699781,
+        1531281637.150421
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v4/heldout_00",
+    "workload": "single",
+    "scene_start": 5,
+    "scenes": 1,
+    "frames": 8,
+    "modes": [
+      "m1",
+      "overlap"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": true,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false,
+    "scene_splits": {
+      "080a52cb8f59489b9cddc7b721808088": "heldout"
+    }
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

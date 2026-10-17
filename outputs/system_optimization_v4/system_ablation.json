@@ -1,0 +1,187 @@
+{
+  "ablations": [
+    {
+      "name": "Original OmniDrive / M3 Full Carrier",
+      "mode": "original",
+      "status": "measured",
+      "service": "current_output"
+    },
+    {
+      "name": "Persistent Serial / M1 Original State",
+      "mode": "m1",
+      "status": "measured",
+      "service": "persistent_state"
+    },
+    {
+      "name": "Persistent Overlap",
+      "mode": "overlap",
+      "status": "measured",
+      "service": "persistent_state"
+    },
+    {
+      "name": "Unified Auto",
+      "mode": "unified_auto",
+      "status": "measured",
+      "service": "persistent_state"
+    },
+    {
+      "name": "M1 Task Fact",
+      "status": "measured_offline_only",
+      "evidence": "task_fact_results.json",
+      "online_consumption": false
+    },
+    {
+      "name": "M3 Task Context",
+      "status": "not_run_gate_b",
+      "reason": "Offline fact diagnostic has zero certified acceptance; preserve staged stop"
+    },
+    {
+      "name": "M3 Direct Query",
+      "status": "not_run_gate_b",
+      "reason": "Offline fact diagnostic has zero certified acceptance; preserve staged stop"
+    },
+    {
+      "name": "M1 + M3 historical consumption",
+      "status": "not_run_gate_b",
+      "reason": "Offline fact diagnostic has zero certified acceptance; preserve staged stop"
+    },
+    {
+      "name": "M1 + M2 + M3 task-state execution",
+      "status": "not_run_gate_b",
+      "reason": "Offline fact diagnostic has zero certified acceptance; preserve staged stop"
+    }
+  ],
+  "measured_methods": {
+    "m1": {
+      "frames": 48,
+      "service": "persistent_state",
+      "e2e_wall_ms": {
+        "count": 48,
+        "p50": 3302.2242945153266,
+        "p95": 3431.9920671288855,
+        "maximum": 3460.7617962174118
+      },
+      "cost_lookup_wall_ms": {
+        "count": 48,
+        "p50": 0.00199698843061924,
+        "p95": 0.002452812623232603,
+        "maximum": 0.0051620882004499435
+      },
+      "actual_overlap_frames": 0,
+      "m1_verification_wall_ms": {
+        "count": 48,
+        "p50": 168.32524654455483,
+        "p95": 237.06694461870939,
+        "maximum": 251.81009504012764
+      },
+      "m1_total_including_adapters_ms": {
+        "count": 48,
+        "p50": 208.6850538617,
+        "p95": 324.96499102562666,
+        "maximum": 340.33605991862714
+      },
+      "exact_tokens": true
+    },
+    "original": {
+      "frames": 48,
+      "service": "current_output",
+      "e2e_wall_ms": {
+        "count": 48,
+        "p50": 3065.0730825727805,
+        "p95": 3095.696610037703,
+        "maximum": 3120.0553621165454
+      },
+      "cost_lookup_wall_ms": {
+        "count": 48,
+        "p50": 0.0020900042727589607,
+        "p95": 0.0024302280507981777,
+        "maximum": 0.0025909394025802612
+      },
+      "actual_overlap_frames": 0,
+      "m1_verification_wall_ms": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "maximum": null
+      },
+      "m1_total_including_adapters_ms": {
+        "count": 0,
+        "p50": null,
+        "p95": null,
+        "maximum": null
+      },
+      "exact_tokens": true
+    },
+    "overlap": {
+      "frames": 48,
+      "service": "persistent_state",
+      "e2e_wall_ms": {
+        "count": 48,
+        "p50": 3139.0435096109286,
+        "p95": 3213.4183839079924,
+        "maximum": 3258.200837066397
+      },
+      "cost_lookup_wall_ms": {
+        "count": 48,
+        "p50": 6.755204522050917,
+        "p95": 7.421982160303742,
+        "maximum": 8.01457604393363
+      },
+      "actual_overlap_frames": 48,
+      "m1_verification_wall_ms": {
+        "count": 48,
+        "p50": 176.31508805789053,
+        "p95": 247.9718812275678,
+        "maximum": 287.7506578806788
+      },
+      "m1_total_including_adapters_ms": {
+        "count": 48,
+        "p50": 223.26240595430136,
+        "p95": 327.3128248518333,
+        "maximum": 340.7600107602775
+      },
+      "exact_tokens": true
+    },
+    "unified_auto": {
+      "frames": 48,
+      "service": "persistent_state",
+      "e2e_wall_ms": {
+        "count": 48,
+        "p50": 3146.2005601497367,
+        "p95": 3401.581511530094,
+        "maximum": 3445.5821379087865
+      },
+      "cost_lookup_wall_ms": {
+        "count": 48,
+        "p50": 6.873275036923587,
+        "p95": 7.381301687564701,
+        "maximum": 8.752004010602832
+      },
+      "actual_overlap_frames": 29,
+      "m1_verification_wall_ms": {
+        "count": 48,
+        "p50": 177.66735004261136,
+        "p95": 247.42895965464413,
+        "maximum": 300.7819219492376
+      },
+      "m1_total_including_adapters_ms": {
+        "count": 48,
+        "p50": 217.10063249338418,
+        "p95": 326.73518707742915,
+        "maximum": 351.63374594412744
+      },
+      "exact_tokens": true
+    }
+  },
+  "previous_module_ablations_source": "outputs/system_optimization_v3/experiment_report.md",
+  "prior_only_not_new": {
+    "m12": "v3 main",
+    "m123": "v3 main",
+    "task_full": "v3 main/multi",
+    "task_compact": "v3 main/multi"
+  },
+  "controlled_task_state_probe": {
+    "status": "not_run",
+    "original_workload_replaced": false
+  }
+}
