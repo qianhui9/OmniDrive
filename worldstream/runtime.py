@@ -55,6 +55,8 @@ class UnifiedRuntime:
         self._m1_signature_cache = None
         self._request_key = None
         self._admission_matches = {}
+        self._identity_witness = None
+        self._identity_signature = None
         from pathlib import Path
         self.costs = json.loads(Path(self.config.cost_table).read_text()) if self.config.cost_table else {}
         self.quality = json.loads(Path(self.config.quality_certificate).read_text()) if self.config.quality_certificate else {}
@@ -112,7 +114,7 @@ class UnifiedRuntime:
             return cfg
         from .code_signature import stable_function_hash
         from .overlap import M1Worker
-        functions=[type(self).execute,type(self).admit,type(self).workload_key,type(self).identity,type(self).m1_signature_suffix,M1Worker.submit,M1Worker.join,model.simple_test]
+        functions=[type(self).execute,type(self).admit,type(self).optimization_admission,type(self).workload_key,type(self).identity,type(self).m1_signature_suffix,M1Worker.submit,M1Worker.join,model.simple_test]
         if hasattr(model,"simple_test_pts"):functions.append(model.simple_test_pts)
         manager=getattr(model,'m1_manager',None)
         if manager is not None:functions.extend([manager.precheck,manager.commit])
@@ -224,7 +226,14 @@ class UnifiedRuntime:
                  torch.are_deterministic_algorithms_enabled(),
                  getattr(getattr(model,'lm_head',None),'_worldstream_decode_policy','native'))
         # This version witness is runtime-local, never a portable quality key.
-        signature = hashlib.sha256(repr((parameters, buffers, flags)).encode()).hexdigest()
+        # Reinspect every tensor/version and backend flag on EVERY request.
+        # Only avoid repeated string construction/hashing when the complete
+        # witness is equal. No persistent shortcut over live tensor inspection.
+        witness = (tuple(parameters), tuple(buffers), flags)
+        if witness != self._identity_witness:
+            self._identity_signature = hashlib.sha256(repr((parameters, buffers, flags)).encode()).hexdigest()
+            self._identity_witness = witness
+        signature = self._identity_signature
         return FrameIdentity(str(meta['scene_token']), str(meta['sample_idx']), timestamp,
             cameras, self.config.model_version, self.config.lora_version, signature)
 

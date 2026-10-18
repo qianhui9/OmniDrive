@@ -1,0 +1,59 @@
+{
+  "scenes": [
+    {
+      "scene": "265f002f02d447ad9074813292eef75e",
+      "indices": [
+        475,
+        476,
+        477,
+        478
+      ],
+      "split": "calibration",
+      "tokens": [
+        "88a090c54cc844cc878f00d08274a683",
+        "5ee110d014374ae093565bba2e81a3fd",
+        "a6261bd83c5e4e1985012b6c6c51fce0",
+        "684acda1d78c4a959762df565cba29f5"
+      ],
+      "timestamps_s": [
+        1531885320.049418,
+        1531885320.548742,
+        1531885321.048634,
+        1531885321.448423
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v5/calibration_02",
+    "workload": "single",
+    "scene_start": 19,
+    "scenes": 1,
+    "frames": 4,
+    "modes": [
+      "m1",
+      "overlap"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": false,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false,
+    "scene_splits": {
+      "265f002f02d447ad9074813292eef75e": "calibration"
+    }
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

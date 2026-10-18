@@ -1,0 +1,61 @@
+{
+  "scenes": [
+    {
+      "scene": "36f27b26ef4c423c9b79ac984dc33bae",
+      "indices": [
+        4529,
+        4530,
+        4531,
+        4532
+      ],
+      "split": "final_test",
+      "tokens": [
+        "f8e8dd98088d458abb0a664330403168",
+        "87f534b317ce4fde9bb338b6a5304e3e",
+        "02e76c32670c42bb9787e74d3b35ceb1",
+        "891c9abec36b4750b8023fe34f483943"
+      ],
+      "timestamps_s": [
+        1538448724.147906,
+        1538448724.647767,
+        1538448725.147087,
+        1538448725.697856
+      ]
+    }
+  ],
+  "args": {
+    "output": "outputs/system_optimization_v5/final_test_01",
+    "workload": "single",
+    "scene_start": 31,
+    "scenes": 1,
+    "frames": 4,
+    "modes": [
+      "original",
+      "m1",
+      "overlap",
+      "unified_auto"
+    ],
+    "warmup": 0,
+    "repeats": 1,
+    "frame_stride": 1,
+    "cache_budget_mb": 512,
+    "refresh_interval": 10,
+    "profile_stages": false,
+    "trace": false,
+    "decode_probe": false,
+    "lifecycle_probe": false,
+    "scene_splits": {
+      "36f27b26ef4c423c9b79ac984dc33bae": "final_test"
+    }
+  },
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1
+  },
+  "timing": "Preprocess/disk/collate/scatter plus synchronized VLM inference; generated-ID CPU capture and native/runtime I/O included; post-timer bulk tensor audits, digests/snapshots and reference I/O excluded",
+  "quality": "Frozen complete token equality; perception and temporal tensors compared with original dtype; no thresholds relaxed",
+  "independence": "Scene indices 96+ selected from sorted local val scenes, not official hidden test; no global certificate emitted"
+}

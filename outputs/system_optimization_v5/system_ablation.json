@@ -1,0 +1,60 @@
+{
+  "methods": [
+    {
+      "method": "Original OmniDrive",
+      "status": "Run",
+      "evidence": "auto_admission_results.json"
+    },
+    {
+      "method": "Persistent Serial",
+      "status": "Run",
+      "evidence": "auto_admission_results.json"
+    },
+    {
+      "method": "Persistent Overlap",
+      "status": "Run",
+      "evidence": "auto_admission_results.json"
+    },
+    {
+      "method": "Unified Auto",
+      "status": "Run",
+      "evidence": "auto_admission_results.json"
+    },
+    {
+      "method": "Original Task Fact Candidate",
+      "status": "Run offline",
+      "evidence": "relative_direction_candidate_results.json"
+    },
+    {
+      "method": "Calibrated Relative Direction Fact",
+      "status": "Offline calibration diagnostic / No-Go",
+      "evidence": "relative_direction_risk_coverage.json",
+      "reason": "No finite qualified interval or identity/foreground producer; no deployed calibration"
+    },
+    {
+      "method": "Full Carrier",
+      "status": "Run offline",
+      "evidence": "compact_llm_latency.json"
+    },
+    {
+      "method": "Current-Perception Compact",
+      "status": "Run offline",
+      "evidence": "compact_llm_latency.json"
+    },
+    {
+      "method": "Current Compact + Full Carrier",
+      "status": "Run offline",
+      "evidence": "compact_llm_latency.json"
+    },
+    {
+      "method": "Historical Fact + Compact",
+      "status": "Not Run / No-Go",
+      "reason": "No independent identity/foreground-supported facts or grounded input-complete original tasks; no runtime retrieval/heuristic prompt insertion developed"
+    },
+    {
+      "method": "Verified Direct Query",
+      "status": "Not Run / No-Go",
+      "reason": "No independent identity/foreground-supported facts or grounded input-complete original tasks; no runtime retrieval/heuristic prompt insertion developed"
+    }
+  ]
+}

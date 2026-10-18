@@ -1,0 +1,24 @@
+{
+  "frozen_before_v4_fact_oracle": true,
+  "online_consumption_allowed": false,
+  "physical_risk": {
+    "far_upper95_max": 0.05,
+    "min_support_scenes": 3,
+    "min_accepted_scorable": 59
+  },
+  "metric_distance_error_m_max": 0.5,
+  "motion_vector_error_mps_max": 0.5,
+  "direction": "Both current ego x/y signs match unique source/current offline instance, current sensor support and visibility=4; zero boundaries cannot certify",
+  "persistence": "same independent instance with current sensor support and visibility=4",
+  "offline_identity": "same-class source nearest within 2m; reject if multiple eligible same-class GT or competing predicted source within 2m",
+  "splits": "v5 experiment_protocol.json disjoint scenes",
+  "extractor": "missing independent identity, foreground, metric and motion bounds => Unknown; never detector score as localization bound",
+  "source_gate": "two manually reviewed original metric questions; Planning remains No-Go",
+  "thresholds": "new Fact score tolerances frozen independently; old M1 physical protocol remains unchanged",
+  "gt_scope": "offline scoring only AFTER all annotation-free extractions persisted; not online inputs, certificates or scheduling",
+  "frozen_before_v5_fact_oracle": true,
+  "source_protocol_sha256": "8ee9127d3fb62998616d7e6f60c0e8c0b00a4426789004db983484342a20fb20",
+  "certification": "Persist annotation-free candidate and certification BEFORE importing/loading any Oracle; fit scene-max calibration before independent Oracle score",
+  "interval": "Joint xy square radius from max absolute xy residual per scene; 95% split-conformal rank ceil((n+1)*.95); unbounded if rank>n",
+  "population_limitation": "Unique 2m source association censors errors; calibration is diagnostic, never deployed for unqualified targets"
+}
