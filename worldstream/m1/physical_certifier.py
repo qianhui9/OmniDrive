@@ -48,12 +48,13 @@ class EvidenceIssuer:
         except (TypeError,ValueError):return False
         return isinstance(tag,str) and hmac.compare_digest(tag,expected)
 
-    def qualification_reasons(self, evidence, frame, protocol_digest):
+    def qualification_reasons(self, evidence, frame, protocol_digest,
+                              claim=CONTINUITY_CLAIM, population='measured_box_contrast_candidates'):
         if self._qualification_json is None:return ['independent_producer_qualification_missing']
         q=json.loads(self._qualification_json);reasons=[]
-        if q.get('producer_id')!=evidence.producer_id or q.get('claim')!=CONTINUITY_CLAIM:
+        if q.get('producer_id')!=evidence.producer_id or q.get('claim')!=claim:
             reasons.append('qualification_claim_or_producer_mismatch')
-        if q.get('protocol_digest')!=protocol_digest or q.get('population')!='measured_box_contrast_candidates':
+        if q.get('protocol_digest')!=protocol_digest or q.get('population')!=population:
             reasons.append('qualification_population_or_protocol_mismatch')
         units=q.get('validation_scene_units',[]);scenes=[u.get('scene_id') for u in units]
         logs=[u.get('log_token') for u in units]
@@ -82,6 +83,9 @@ class EvidenceIssuer:
 def certify_physical_evidence(anchor, current_anchor, frame, evidence=None, issuer=None,
                               source_frame_digest=None, protocol_digest=None, claim=CONTINUITY_CLAIM):
     """Validate the named limited claim; centre/distance/velocity stay unapproved."""
+    from .identity_continuity import IDENTITY_CLAIM, certify_identity_evidence
+    if claim==IDENTITY_CLAIM:
+        return certify_identity_evidence(anchor,current_anchor,frame,evidence,issuer,source_frame_digest,protocol_digest)
     reasons=[];provenance=dict(same_sensor_RGB=True,independent_sensor=False,
                                geometry_attributes_certified=False,motion_attributes_certified=False)
     if claim!=CONTINUITY_CLAIM:reasons.append('unsupported_claim_requires_calibrated_metric_or_motion_bounds')
@@ -144,7 +148,7 @@ def certify_physical_evidence(anchor, current_anchor, frame, evidence=None, issu
     return PhysicalCertificationResult(not reasons,claim if not reasons else None,tuple(sorted(set(reasons))),provenance,
         evidence.source_state_version if isinstance(evidence,PhysicalEvidence) else None,
         evidence.current_state_version if isinstance(evidence,PhysicalEvidence) else None,
-        anchor.source_frame_id,frame.frame_id)
+        anchor.source_frame_id,frame.frame_id,anchor.anchor_id,frame.scene_id,frame.timestamp,anchor.source_state_epoch)
 
 
 def certify_available_state(anchor, frame, observation_supported, evidence=None, issuer=None,

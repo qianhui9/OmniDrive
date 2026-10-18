@@ -18,7 +18,7 @@ from .novelty_detector import unexplained_regions
 from .observation_validator import ObservationValidator
 from .provenance import export_provenance
 from .state_store import StateStore
-from .state_types import AnchorObservation, M1Result, WorldAnchor
+from .state_types import AnchorObservation, M1Result, WorldAnchor, M1CommitCertification
 
 STATIC_CLASSES = {"barrier", "traffic_cone"}
 
@@ -45,6 +45,7 @@ class WorldStateManager:
         self._recovery_required = False
         self._previous_frame_id = None
         self._previous_frame_digest = None
+        self._surface_history = {}
         qualification=None
         if self.config.physical_qualification_path:
             import json
@@ -64,6 +65,7 @@ class WorldStateManager:
         self._recovery_required = False
         self._previous_frame_id = None
         self._previous_frame_digest = None
+        self._surface_history = {}
 
     def _prepare(self, frame):
         s = self.store
@@ -200,7 +202,7 @@ class WorldStateManager:
                             region = swept_dynamic_region(anchor, camera, p, self.config)
                         excluded[region_slices(region,camera.image.shape)] = True
                 evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config,
-                                          dense_exclusion=excluded)
+                                          dense_exclusion=excluded,surface_history=self._surface_history.get(cid))
                 return evidence, excluded, anchor_excluded
             items = list(frame.cameras.items())
             if self.config.temporal_workers > 1 and len(items) > 1:
@@ -394,6 +396,7 @@ class WorldStateManager:
         self._previous_cameras = worker._previous_cameras
         self._previous_frame_id = worker._previous_frame_id
         self._previous_frame_digest = worker._previous_frame_digest
+        self._surface_history = worker._surface_history
         self.last_commit_diagnostics = worker.last_commit_diagnostics
         self._pending = None
         self._pending_store = None
@@ -470,7 +473,12 @@ class WorldStateManager:
         committed = []
         physical_results=[]
         foreground_results=[]
+        identity_results=[]
         certification_ms=0.
+        identity_protocol=None
+        if self.config.identity_continuity:
+            from .identity_continuity import identity_protocol_digest
+            identity_protocol=identity_protocol_digest(self.config,frame)
         validated_cameras = {cid: valid_projection_camera(cam) for cid, cam in frame.cameras.items()}
         for j, pred in enumerate(predictions):
             aid = matched.get(j) or self.store.new_anchor_id()
@@ -513,12 +521,28 @@ class WorldStateManager:
                 certificate=certify_physical_evidence(prior,a,frame,proposal['evidence'],self._physical_issuer,
                     self._previous_frame_digest,proposal['protocol_digest'])
                 certification_ms+=(perf_counter()-certification_start)*1000
-                physical_results.append(dict(anchor_id=aid,**asdict(certificate)))
+                physical_results.append(asdict(certificate))
                 foreground_results.append(dict(anchor_id=aid,source_frame_id=prior.source_frame_id,
                     current_frame_id=frame.frame_id,**{k:v for k,v in proposal.items() if k!='evidence'}))
                 if certificate.certified:
                     a.physical_certification=certificate
                     a.last_certified_timestamp=frame.timestamp
+                    a.certified_observation_count+=1
+            if prior is not None and self.config.identity_continuity:
+                from .identity_continuity import propose_identity_continuity, IDENTITY_CLAIM
+                i=next(i for i,old in enumerate(anchors) if old.anchor_id==aid)
+                competing=np.r_[np.delete(costs[i],j),np.delete(costs[:,j],i)]
+                identity=propose_identity_continuity(prior,a,frame,self.last_evidence,self.config,self.validator,
+                    self._physical_issuer,self._previous_frame_digest,self._previous_frame_id,competing)
+                certification_start=perf_counter()
+                certificate=certify_physical_evidence(prior,a,frame,identity['evidence'],self._physical_issuer,
+                    self._previous_frame_digest,identity_protocol,claim=IDENTITY_CLAIM)
+                certification_ms+=(perf_counter()-certification_start)*1000
+                identity_results.append(dict(anchor_id=aid,source_frame_id=prior.source_frame_id,current_frame_id=frame.frame_id,
+                    **{k:v for k,v in identity.items() if k!='evidence'},protocol_digest=identity_protocol))
+                physical_results.append(asdict(certificate))
+                if certificate.certified:
+                    a.physical_certification=certificate;a.last_certified_timestamp=frame.timestamp
                     a.certified_observation_count+=1
             # New support always comes from an actually computed frame, never chained crops.
             for cid, camera in frame.cameras.items():
@@ -571,6 +595,12 @@ class WorldStateManager:
         self.store.last_timestamp = frame.timestamp
         self.store.execution_signature = frame.execution_signature
         self.store.commit_count += 1
+        self._surface_history = {}
+        if self.config.dense_region_policy=='surface_visibility':
+            for cid,e in self.last_evidence.items():
+                old=self._previous_cameras.get(cid)
+                if old is not None and e.dense_source_map is not None:
+                    self._surface_history[cid]=(copy.copy(old),frame.cameras[cid].timestamp,immutable_array(e.dense_source_map))
         if self.config.temporal_visibility or self.config.local_support:
             # Own only one bounded grayscale frame per camera, from actual computation.
             # precheck never replaces this source with an uncomputed/verified frame.
@@ -595,6 +625,7 @@ class WorldStateManager:
             "association_is_identity_certification": False,
             "post_perception_physical_certifications": physical_results,
             "foreground_correspondence_proposals": foreground_results,
+            "identity_continuity_proposals": identity_results,
             "physical_certification_phase": "post_perception_commit_only",
             "physical_certification_ms": certification_ms,
             "association_ms": assoc_ms, "state_update_ms": (perf_counter() - start) * 1000 - assoc_ms,
@@ -612,6 +643,30 @@ class WorldStateManager:
         if self.last_result is None or self.last_result.diagnostics.get('transaction_status') == 'aborted':
             raise RuntimeError("Call precheck first")
         return copy.deepcopy(self.last_result)
+
+    def get_current_certifications(self):
+        """Read the last atomically committed state, never pending detections.
+
+        The frozen bundle and defensive certificate copies cannot mutate Store.
+        Identity continuity does not authorize pixels or metric-state consumers.
+        """
+        from .physical_certifier import CONTINUITY_CLAIM
+        from .identity_continuity import IDENTITY_CLAIM
+        certificates=[]
+        for a in self.store.anchors.values():
+            c=a.physical_certification
+            if (c is None or not c.certified or c.certified_claim not in (CONTINUITY_CLAIM,IDENTITY_CLAIM)
+                    or c.anchor_id!=a.anchor_id or c.scene_id!=self.store.scene_id
+                    or c.current_frame_id!=self._previous_frame_id or a.source_frame_id!=self._previous_frame_id
+                    or c.timestamp!=self.store.last_timestamp or a.source_timestamp!=self.store.last_timestamp
+                    or c.state_epoch!=self.store.generation or a.source_state_epoch!=self.store.generation
+                    or c.current_state_version!=state_geometry_version(a) or a.state_version!=c.current_state_version):
+                continue
+            certificates.append(copy.deepcopy(c))
+        rejected=tuple(copy.deepcopy(r) for r in self.last_commit_diagnostics.get('post_perception_physical_certifications',[])
+            if not r['certified'] and r.get('current_frame_id')==self._previous_frame_id)
+        return M1CommitCertification(self.store.scene_id,self._previous_frame_id,self.store.last_timestamp,
+            tuple(c.anchor_id for c in certificates),tuple(certificates),rejected,self.store.generation)
 
     def get_candidate_feature(self, feature_id, computation_version):
         """Read before commit; a replaced slot cannot masquerade as an older version."""

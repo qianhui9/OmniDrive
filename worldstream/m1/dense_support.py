@@ -42,7 +42,7 @@ def ray_geometry(previous, current, source, target, tolerance=.5):
     return conditioned & (z0>.5)&(z0<200)&(z1>.5)&(z1<200)&(e0<=tolerance)&(e1<=tolerance)
 
 
-def dense_support(previous,current,config,exclusion=None):
+def dense_support(previous,current,config,exclusion=None,surface_history=None):
     start=perf_counter();h,w=current.image.shape[:2]
     empty=np.zeros((h,w),bool)
     diag=dict(dense_flow_ms=0.,dense_validation_ms=0.,dense_support_area_ratio=0.)
@@ -109,6 +109,12 @@ def dense_support(previous,current,config,exclusion=None):
         stable &= ~rejected
         diag.update(local_diag)
         diag['_local_rejection_mask']=rejected  # consumed before JSON diagnostics
+    if config.dense_region_policy.startswith('surface_'):
+        from .surface_visibility import surface_visibility_support
+        visible,surface_diag=surface_visibility_support(previous,current,source,stable,surface_history,
+            two_view_only=config.dense_region_policy=='surface_observable_ablation')
+        stable &= visible
+        diag.update(surface_diag)
     diag.update(dense_validation_ms=(perf_counter()-t)*1000,dense_support_area_ratio=float(stable.mean()),
                 dense_fb_area_ratio=float((boundary&finite&(fb<=.35)).mean()),
                 dense_geometry_photo_area_ratio=float(good.mean()),dense_source='bidirectional_DIS_per_pixel_ray_photo_texture_neighbourhood')

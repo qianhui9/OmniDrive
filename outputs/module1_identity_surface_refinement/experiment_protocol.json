@@ -1,0 +1,68 @@
+{
+  "phase": "Pre-implementation hypothesis and quality protocol",
+  "development": "Prior 20 Calibration scenes, all exposed",
+  "data_selection_sha256": "3ef6938675cf951323dc447bdb43400f69169c4a5dad020d220778a1280bb4fe",
+  "identity": {
+    "claim": "object_identity_continuity",
+    "strategy": "Isolated mutual legal assignment; displacement<=0.5m; actual common-camera tracks and crop support",
+    "rule_population": "isolated_observed_identity_pairs",
+    "thresholds": "Existing RGB/temporal support gates, fixed new displacement limit .5m",
+    "qualification": "Independent scene/log any-error event CP one-sided95<=.05; unscorable accepted not a success",
+    "selection": "Choose B only if Calibration has nonzero independently scorable correct candidates and conditional FAR<=5%; this is feasibility only unless all accepted can be scored and scene risk qualifies"
+  },
+  "surface": {
+    "strategy": "Three-view reciprocal correspondence and ray closure",
+    "min_angle_deg": 0.5,
+    "reprojection_px": 0.5,
+    "loop_px": 0.5,
+    "methods": [
+      "conservative",
+      "dense_original",
+      "local_r12",
+      "surface_observable_ablation",
+      "surface_visibility",
+      "full_refresh"
+    ],
+    "radius_search": false,
+    "selection": "surface_visibility only if Calibration event/point recall>=.998, sparse FAR+descriptive upper<=.05, >=3 accepted scenes, nonzero effective area >= conservative"
+  },
+  "quality": {
+    "critical_event_recall_min": 0.998,
+    "critical_point_recall_min": 0.998,
+    "sparse_annotated_FAR_max": 0.05,
+    "descriptive_upper95_max": 0.05,
+    "accepted_scene_min": 3,
+    "unlabelled_pixels_are_negatives": false,
+    "scene_cluster_uncertainty": true,
+    "oracle": "Unchanged annotation-owned LiDAR reference: >2px source correspondence OR annotated motion errors; ROI event refresh>=90%"
+  },
+  "no_final_reselection": true,
+  "independent_unit": "scene/log, never frame/object/pixel",
+  "minimum_independent_zero_error_units": 59,
+  "model_weights_or_processing_changed": false,
+  "online_oracle": false,
+  "baseline_code_sha256": {
+    "worldstream/m1/association.py": "a5b8c0936a39d1465ac72b860dfb240efaf6ed42dc62b3a726a3356e6996c070",
+    "worldstream/m1/temporal_visibility.py": "cff7f8dad3fd6f1adff2d678399733572032ceef7e0b6d617e4f881d5b51deca",
+    "worldstream/m1/config.py": "f7035fd7647f6c71ef85e4046b84a3ca55238056a31691520d875fe44a24b045",
+    "worldstream/m1/geometry.py": "a4ad1d094093059b673348a1710fbefd3e8341ef22c1b7f15a6ebbd3ed639533",
+    "worldstream/m1/bidirectional_geometry.py": "71b4dae6d46b04a859ff513b232511ec2897583ee3b84213348ca61545f7661d",
+    "worldstream/m1/task_facts.py": "a4e2746a789ff84a018ab555d7c1a48c7bb415ef9b55cbfa5a37730920f4e0c5",
+    "worldstream/m1/physical_certifier.py": "e15d51f8cf4d97fe87869ae0a73c8522819e0e8b9e859c09b08e7a6598377c03",
+    "worldstream/m1/state_store.py": "76270f128c444215690f3fbe172119986f99375546d9c8ccbe37ea9833e8e120",
+    "worldstream/m1/novelty_detector.py": "161eac492e29f06bd95f64ee4cce25597dc597f61b3ef18dfb4a7db80f95f67c",
+    "worldstream/m1/mask_codec.py": "f0d8a5cf9ea54ca8146ac8de5ff508e1953ffa6c58705109f08a8091fff6b594",
+    "worldstream/m1/input_contract.py": "8762db983fdd7074d8d098d59c7576e5bf221a3c69de801a25442c1cca90bdf0",
+    "worldstream/m1/omnidrive_adapter.py": "0b492a3f7701dad9ea7f70322cb79c16c59513af7f5747ead2be300318d379ae",
+    "worldstream/m1/state_types.py": "f2a828a58c5ffc5cd53d38f9f130694e4ac6d4bf8c150666e93dd17d8757577b",
+    "worldstream/m1/dense_support.py": "5f8c42f676d8634ae7a9b0c426f866581ac409fabbaa3701e4f48a7362d17f39",
+    "worldstream/m1/foreground_correspondence.py": "9dd3bc83180e5afc28833457b5fbcca5dfd9aaaff7dbce8ca49dd42d5809c62f",
+    "worldstream/m1/geometry_support.py": "8d8c15207c3c77353e6fd5aa2c60706c53b562ff6d51232e18958a9ec5e2560a",
+    "worldstream/m1/provenance.py": "deda92a585608e47f3288ac965d4497532ecc40b183e96ffedb775f57ce858f0",
+    "worldstream/m1/state_manager.py": "94459e9db1361ee7f697a8e4612137df2e522823d37c61ce2c2e654760b39673",
+    "worldstream/m1/observation_validator.py": "4c2b52462fed5e07db99939059cdc27118b2920a5b69d233a139d14517740cb7",
+    "worldstream/m1/__init__.py": "ffd00bcc40942e11711ecb696d933c356263b8fb059284fb6716844090a91de0",
+    "worldstream/m1/fact_certifier.py": "212448b64c35c1512575d16ab0fff8ebc2705ae9d39e32dbdfeec1641aa39b65"
+  },
+  "git_commit": "103a679f495121dca8e487f6dd8abe015cdf133b"
+}

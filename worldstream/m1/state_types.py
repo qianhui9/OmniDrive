@@ -194,6 +194,28 @@ class PhysicalCertificationResult:
     current_state_version: Optional[str] = None
     source_frame_id: Optional[str] = None
     current_frame_id: Optional[str] = None
+    anchor_id: Optional[str] = None
+    scene_id: Optional[str] = None
+    timestamp: Optional[float] = None
+    state_epoch: Optional[int] = None
+
+
+@dataclass(frozen=True)
+class M1CommitCertification:
+    """Published-state snapshot; nested provenance is defensively copied.
+
+    This is a separate time boundary from M1Result. It never grants pixel reuse.
+    """
+    scene_id: Optional[str]
+    frame_id: Optional[str]
+    timestamp: Optional[float]
+    certified_anchor_ids: Tuple[str, ...]
+    certifications: Tuple[PhysicalCertificationResult, ...]
+    rejected: Tuple[dict, ...]
+    state_epoch: int
+
+    def to_dict(self):
+        return json_value(asdict(self))
 
 
 @dataclass
@@ -212,6 +234,8 @@ class M1Result:
     # Historical projection candidates at precheck; current detections arrive only at commit.
     association_candidate_ids: List[str] = field(default_factory=list)
     observation_supported_anchor_ids: List[str] = field(default_factory=list)
+    # Precheck-time historical validation only; never backfilled by Commit.
+    # Current post-perception certificates use get_current_certifications().
     physically_certified_anchor_ids: List[str] = field(default_factory=list)
     anchor_provenance: Dict[str, dict] = field(default_factory=dict)
 

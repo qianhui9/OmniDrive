@@ -1,0 +1,10 @@
+{
+  "runtime_forbidden_imports": [],
+  "precheck_call": "m.precheck(frame)",
+  "commit_call": "m.commit(frame,current_outputs,precheck)",
+  "input_constructor": "tools/worldstream_m1/dataset.py: frame_from_info builds only RGB, cameras/ego poses, time and fixed observation metadata",
+  "reference_constructors": "identity_population/load_oracle/prepare_pair only called from tools; not passed to runtime",
+  "actual_model_test_pipeline": "test_mode=True; no annotation-loading model transforms",
+  "rejection_tests": "Signed forbidden GT identity receipt rejects; qualification fixtures only test contracts",
+  "scope": "AST/API and explicit call-argument audit; not a formal Python sandbox/taint proof"
+}

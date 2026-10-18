@@ -73,6 +73,7 @@ class M1Config:
     association_history_limit: int = 16
     pending_timeout_s: float = 60.0  # wall clock, no source time extension
     foreground_correspondence: bool = False  # experimental, post-perception only
+    identity_continuity: bool = False  # independent claim, experimental Commit only
     foreground_depth_gap_m: float = 1.0
     physical_qualification_path: Optional[str] = None
     physical_qualification_sha256: Optional[str] = None
@@ -83,12 +84,16 @@ class M1Config:
     def __post_init__(self):
         import math
         if (not math.isfinite(self.foreground_depth_gap_m) or self.foreground_depth_gap_m<=0
-                or self.dense_region_policy not in ('uniform','local_visibility')
+                or self.dense_region_policy not in ('uniform','local_visibility','surface_visibility','surface_observable_ablation')
                 or not isinstance(self.local_boundary_radius_px,int) or self.local_boundary_radius_px<1
                 or not math.isfinite(self.local_parallax_jump_px) or self.local_parallax_jump_px<=0):
             raise ValueError('Invalid experimental evidence/local visibility parameters')
         if self.foreground_correspondence and not self.temporal_visibility:
             raise ValueError('Foreground correspondence requires actual temporal measurements')
+        if self.identity_continuity and not self.temporal_visibility:
+            raise ValueError('Identity continuity requires actual temporal measurements')
+        if self.dense_region_policy.startswith('surface_') and not self.dense_local_support:
+            raise ValueError('Surface visibility requires dense measured correspondence')
         if bool(self.physical_qualification_path)!=bool(self.physical_qualification_sha256):
             raise ValueError('Physical qualification needs a pinned audited artifact digest')
         if (not math.isfinite(self.association_ambiguity_margin_m) or self.association_ambiguity_margin_m < 0

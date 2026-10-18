@@ -9,7 +9,7 @@ import numpy as np
 from .io_utils import write_json
 
 
-def main():
+def main(root=None):
     import torch
     from mmcv import Config
     from mmcv.parallel import collate,scatter
@@ -20,7 +20,7 @@ def main():
     from worldstream.m1 import M1Config
     from worldstream.m1.omnidrive_adapter import outputs_from_model
     from .dataset import frame_from_info
-    root=Path('outputs/module1_evidence_optimization');target=root/'model_observations.pkl'
+    root=Path(root or 'outputs/module1_evidence_optimization');target=root/'model_observations.pkl'
     if target.exists():raise RuntimeError('Preserve existing model observations; refusing overwrite')
     selection=json.loads((root/'data_selection.json').read_text())
     if not torch.cuda.is_available():raise RuntimeError('Host GPU access required')

@@ -1,0 +1,42 @@
+{
+  "population": {
+    "development": {
+      "independently_scorable_unique_2m": 3760,
+      "identity_competition": 2369,
+      "outside_2m_gate": 1387,
+      "no_supported_GT_same_class": 53
+    },
+    "calibration": {
+      "identity_competition": 247,
+      "independently_scorable_unique_2m": 417,
+      "outside_2m_gate": 296,
+      "no_supported_GT_same_class": 1
+    },
+    "heldout": {
+      "independently_scorable_unique_2m": 545,
+      "identity_competition": 446,
+      "outside_2m_gate": 191
+    },
+    "final_test": {
+      "independently_scorable_unique_2m": 583,
+      "identity_competition": 644,
+      "outside_2m_gate": 359,
+      "no_supported_GT_same_class": 10
+    }
+  },
+  "fragmentation": {
+    "development": 301,
+    "calibration": 22,
+    "heldout": 76,
+    "final_test": 93
+  },
+  "missing_observation_reappearance": {
+    "development": 134,
+    "calibration": 21,
+    "heldout": 14,
+    "final_test": 50
+  },
+  "scope": "All selected object detections; unique GT identity gate2m/margin.25 is censored; no-supported-GT/outside/competition remain distinct",
+  "raw_candidate_records": "traces/<stage>/<scene>/identity.jsonl",
+  "raw_population_records": "traces/<stage>/<scene>/population.json"
+}
