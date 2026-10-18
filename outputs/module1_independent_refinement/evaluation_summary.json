@@ -1,0 +1,744 @@
+{
+  "calibration": {
+    "association": {
+      "proposed": 816,
+      "continued": 718,
+      "scorable": 421,
+      "unscorable": 297,
+      "correct": 419,
+      "precision": 0.995249406175772,
+      "conditional_recall": 0.8346613545816733,
+      "id_switches": 2,
+      "ambiguity_or_missing_rejection_rate": 0.12009803921568628,
+      "correctly_rejected_false_links": 1,
+      "conditional_track_fragmentation": 97,
+      "source_localization_error_m": {
+        "count": 620,
+        "p50": 0.6267435038358856,
+        "p95": 1.6197547460373605,
+        "maximum": 1.983623501703793
+      },
+      "identity_certified_coverage": 0.0,
+      "scope": "Conditional on unique offline same-class <=2m labels; unscorable excluded, not successes"
+    },
+    "region": {
+      "stable": 0.03303872693222737,
+      "changed": 1.8054349922839508e-05,
+      "unknown": 0.9669432187178498,
+      "refresh": 0.9699881044238683,
+      "effective_stable": 0.03001189557613171,
+      "scorable_lidar_points": 16083,
+      "accepted_lidar_points": 0,
+      "wrongly_accepted_lidar_points": 0,
+      "annotated_sample_far": null,
+      "critical_events": 648,
+      "critical_change_recall": 1.0,
+      "critical_lidar_points": 66929,
+      "missed_critical_lidar_points": 558,
+      "reference_scope": "Annotation-owned independent LiDAR points only; unannotated background remains unscorable; no dense pixel truth",
+      "by_event": {
+        "newly_visible": {
+          "events": 225,
+          "recall": 1.0
+        },
+        "moving_object": {
+          "events": 366,
+          "recall": 1.0
+        },
+        "visibility_drop": {
+          "events": 116,
+          "recall": 1.0
+        }
+      },
+      "per_camera": {
+        "CAM_BACK": {
+          "stable": 0.030274522569444445,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_BACK_LEFT": {
+          "stable": 0.02848662953317901,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_BACK_RIGHT": {
+          "stable": 0.031796875,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_FRONT": {
+          "stable": 0.042189790702160494,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_FRONT_LEFT": {
+          "stable": 0.033386381172839506,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_FRONT_RIGHT": {
+          "stable": 0.03209816261574075,
+          "accepted": 0,
+          "false": 0
+        }
+      }
+    },
+    "physical": {
+      "trials": 1215,
+      "scorable": 626,
+      "accepted_all": 0,
+      "accepted_labeled": 0,
+      "physical_errors": 0,
+      "oracle_valid": 267,
+      "valid_candidate_rate": 0.0,
+      "physical_false_acceptance_rate": null,
+      "false_acceptance_95ci_trial_descriptive": null,
+      "valid_state_recovery_rate": 0.0,
+      "scorable_coverage": 0.5152263374485597,
+      "unknown_rate": 0.48477366255144033,
+      "far_upper95": null,
+      "independent_accepted_scene_count": 0,
+      "physical_quality_pass": false,
+      "reason": "Independent foreground/identity, calibrated localization and motion producers unavailable"
+    },
+    "observation_support": {
+      "trials": 1215,
+      "scorable": 626,
+      "accepted_all": 1,
+      "accepted_labeled": 0,
+      "physical_errors": 0,
+      "oracle_valid": 267,
+      "valid_candidate_rate": 0.0008230452674897119,
+      "physical_false_acceptance_rate": null,
+      "false_acceptance_95ci_trial_descriptive": null,
+      "valid_state_recovery_rate": 0.0,
+      "scorable_coverage": 0.5152263374485597,
+      "unknown_rate": 0.48477366255144033
+    },
+    "costs": {
+      "precheck_ms": {
+        "count": 72,
+        "p50": 106.09110305085778,
+        "p95": 141.78070066263902,
+        "maximum": 170.280922902748
+      },
+      "commit_ms": {
+        "count": 72,
+        "p50": 6.160383461974561,
+        "p95": 13.315209758002311,
+        "maximum": 18.284870078787208
+      },
+      "prediction_adapter_ms": {
+        "count": 72,
+        "p50": 1.4984364388510585,
+        "p95": 4.399336955975742,
+        "maximum": 7.801939966157079
+      },
+      "total_cpu_ms": {
+        "count": 72,
+        "p50": 115.4520477866754,
+        "p95": 151.87346511520445,
+        "maximum": 184.61860693059862
+      },
+      "projection": {
+        "count": 72,
+        "p50": 1.6963760135695338,
+        "p95": 4.492939030751587,
+        "maximum": 5.244201980531216
+      },
+      "association_ms": {
+        "count": 72,
+        "p50": 0.3181169740855694,
+        "p95": 1.1074537062086165,
+        "maximum": 1.7052118200808764
+      },
+      "observation_validation": {
+        "count": 72,
+        "p50": 1.525467960163951,
+        "p95": 8.575364283751696,
+        "maximum": 11.159947142004967
+      },
+      "unexplained_regions": {
+        "count": 72,
+        "p50": 3.704616450704634,
+        "p95": 8.155779645312581,
+        "maximum": 11.775176972150803
+      },
+      "transaction_and_frame_binding": {
+        "count": 72,
+        "p50": 2.4740759981796145,
+        "p95": 4.568385251332075,
+        "maximum": 6.674180971458554
+      }
+    },
+    "checks": {
+      "precheck_isolation_checks": 72,
+      "precheck_isolation_failures": 0,
+      "camera_mask_checks": 432,
+      "mask_partition_failures": 0,
+      "mask_encoding_failures": 0,
+      "refresh_ratio_failures": 0,
+      "tile_envelope_failures": 0,
+      "source_checks": 1645,
+      "source_failures": 0
+    }
+  },
+  "heldout": {
+    "association": {
+      "proposed": 1651,
+      "continued": 1523,
+      "scorable": 680,
+      "unscorable": 843,
+      "correct": 673,
+      "precision": 0.9897058823529412,
+      "conditional_recall": 0.8573248407643312,
+      "id_switches": 7,
+      "ambiguity_or_missing_rejection_rate": 0.07752877044215627,
+      "correctly_rejected_false_links": 1,
+      "conditional_track_fragmentation": 131,
+      "source_localization_error_m": {
+        "count": 965,
+        "p50": 0.5685637564444809,
+        "p95": 1.6114176556929816,
+        "maximum": 1.9947125139178468
+      },
+      "identity_certified_coverage": 0.0,
+      "scope": "Conditional on unique offline same-class <=2m labels; unscorable excluded, not successes"
+    },
+    "region": {
+      "stable": 0.04674292293595679,
+      "changed": 6.1286329732510285e-06,
+      "unknown": 0.9532509484310699,
+      "refresh": 0.9568110612782922,
+      "effective_stable": 0.043188938721707815,
+      "scorable_lidar_points": 45732,
+      "accepted_lidar_points": 108,
+      "wrongly_accepted_lidar_points": 0,
+      "annotated_sample_far": 0.0,
+      "critical_events": 721,
+      "critical_change_recall": 0.9972260748959778,
+      "critical_lidar_points": 62184,
+      "missed_critical_lidar_points": 97,
+      "reference_scope": "Annotation-owned independent LiDAR points only; unannotated background remains unscorable; no dense pixel truth",
+      "by_event": {
+        "newly_visible": {
+          "events": 152,
+          "recall": 0.993421052631579
+        },
+        "moving_object": {
+          "events": 511,
+          "recall": 1.0
+        },
+        "visibility_drop": {
+          "events": 119,
+          "recall": 0.9915966386554622
+        }
+      },
+      "per_camera": {
+        "CAM_BACK": {
+          "stable": 0.03020399305555556,
+          "accepted": 34,
+          "false": 0
+        },
+        "CAM_BACK_LEFT": {
+          "stable": 0.1314106505594136,
+          "accepted": 5,
+          "false": 0
+        },
+        "CAM_BACK_RIGHT": {
+          "stable": 0.01598023967978395,
+          "accepted": 31,
+          "false": 0
+        },
+        "CAM_FRONT": {
+          "stable": 0.03065797405478395,
+          "accepted": 4,
+          "false": 0
+        },
+        "CAM_FRONT_LEFT": {
+          "stable": 0.06624318817515433,
+          "accepted": 34,
+          "false": 0
+        },
+        "CAM_FRONT_RIGHT": {
+          "stable": 0.005961492091049383,
+          "accepted": 0,
+          "false": 0
+        }
+      }
+    },
+    "physical": {
+      "trials": 2132,
+      "scorable": 948,
+      "accepted_all": 0,
+      "accepted_labeled": 0,
+      "physical_errors": 0,
+      "oracle_valid": 407,
+      "valid_candidate_rate": 0.0,
+      "physical_false_acceptance_rate": null,
+      "false_acceptance_95ci_trial_descriptive": null,
+      "valid_state_recovery_rate": 0.0,
+      "scorable_coverage": 0.4446529080675422,
+      "unknown_rate": 0.5553470919324578,
+      "far_upper95": null,
+      "independent_accepted_scene_count": 0,
+      "physical_quality_pass": false,
+      "reason": "Independent foreground/identity, calibrated localization and motion producers unavailable"
+    },
+    "observation_support": {
+      "trials": 2132,
+      "scorable": 948,
+      "accepted_all": 57,
+      "accepted_labeled": 28,
+      "physical_errors": 16,
+      "oracle_valid": 407,
+      "valid_candidate_rate": 0.02673545966228893,
+      "physical_false_acceptance_rate": 0.5714285714285714,
+      "false_acceptance_95ci_trial_descriptive": [
+        0.3717936286120959,
+        0.7553760636978534
+      ],
+      "valid_state_recovery_rate": 0.029484029484029485,
+      "scorable_coverage": 0.4446529080675422,
+      "unknown_rate": 0.5553470919324578
+    },
+    "costs": {
+      "precheck_ms": {
+        "count": 72,
+        "p50": 106.58747551497072,
+        "p95": 132.31985645834357,
+        "maximum": 185.64847903326154
+      },
+      "commit_ms": {
+        "count": 72,
+        "p50": 7.773680961690843,
+        "p95": 19.55013966653496,
+        "maximum": 20.585668040439487
+      },
+      "prediction_adapter_ms": {
+        "count": 72,
+        "p50": 2.062510931864381,
+        "p95": 6.65235600899905,
+        "maximum": 7.537181954830885
+      },
+      "total_cpu_ms": {
+        "count": 72,
+        "p50": 120.85313850548118,
+        "p95": 156.21751708677039,
+        "maximum": 193.34723823703825
+      },
+      "projection": {
+        "count": 72,
+        "p50": 2.0714779384434223,
+        "p95": 6.241473613772541,
+        "maximum": 7.337128976359963
+      },
+      "association_ms": {
+        "count": 72,
+        "p50": 0.45446096919476986,
+        "p95": 1.6723362263292074,
+        "maximum": 2.1822068374603987
+      },
+      "observation_validation": {
+        "count": 72,
+        "p50": 1.8908093916252255,
+        "p95": 27.431531122419987,
+        "maximum": 43.398428009822965
+      },
+      "unexplained_regions": {
+        "count": 72,
+        "p50": 3.6854634527117014,
+        "p95": 6.601321417838335,
+        "maximum": 9.276274126023054
+      },
+      "transaction_and_frame_binding": {
+        "count": 72,
+        "p50": 3.1842036405578256,
+        "p95": 5.488885939121246,
+        "maximum": 6.249075988307595
+      }
+    },
+    "checks": {
+      "precheck_isolation_checks": 72,
+      "precheck_isolation_failures": 0,
+      "camera_mask_checks": 432,
+      "mask_partition_failures": 0,
+      "mask_encoding_failures": 0,
+      "refresh_ratio_failures": 0,
+      "tile_envelope_failures": 0,
+      "source_checks": 2725,
+      "source_failures": 0
+    }
+  },
+  "final_test": {
+    "association": {
+      "proposed": 2383,
+      "continued": 2107,
+      "scorable": 1028,
+      "unscorable": 1079,
+      "correct": 1025,
+      "precision": 0.9970817120622568,
+      "conditional_recall": 0.7427536231884058,
+      "id_switches": 3,
+      "ambiguity_or_missing_rejection_rate": 0.11582039446076374,
+      "correctly_rejected_false_links": 3,
+      "conditional_track_fragmentation": 430,
+      "source_localization_error_m": {
+        "count": 1811,
+        "p50": 0.48610394535491924,
+        "p95": 1.603867979528276,
+        "maximum": 1.996216877011496
+      },
+      "identity_certified_coverage": 0.0,
+      "scope": "Conditional on unique offline same-class <=2m labels; unscorable excluded, not successes"
+    },
+    "region": {
+      "stable": 0.003554340880594136,
+      "changed": 3.114551183127572e-06,
+      "unknown": 0.9964425445682228,
+      "refresh": 0.9969378938400206,
+      "effective_stable": 0.003062106159979372,
+      "scorable_lidar_points": 48458,
+      "accepted_lidar_points": 12,
+      "wrongly_accepted_lidar_points": 0,
+      "annotated_sample_far": 0.0,
+      "critical_events": 2265,
+      "critical_change_recall": 1.0,
+      "critical_lidar_points": 205440,
+      "missed_critical_lidar_points": 52,
+      "reference_scope": "Annotation-owned independent LiDAR points only; unannotated background remains unscorable; no dense pixel truth",
+      "by_event": {
+        "newly_visible": {
+          "events": 617,
+          "recall": 1.0
+        },
+        "moving_object": {
+          "events": 1466,
+          "recall": 1.0
+        },
+        "visibility_drop": {
+          "events": 552,
+          "recall": 1.0
+        }
+      },
+      "per_camera": {
+        "CAM_BACK": {
+          "stable": 0.008051185136959878,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_BACK_LEFT": {
+          "stable": 0.004036006221064815,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_BACK_RIGHT": {
+          "stable": 0.005970082224151235,
+          "accepted": 12,
+          "false": 0
+        },
+        "CAM_FRONT": {
+          "stable": 0.0005844605999228395,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_FRONT_LEFT": {
+          "stable": 0.0018716845100308643,
+          "accepted": 0,
+          "false": 0
+        },
+        "CAM_FRONT_RIGHT": {
+          "stable": 0.0008126265914351852,
+          "accepted": 0,
+          "false": 0
+        }
+      }
+    },
+    "physical": {
+      "trials": 3786,
+      "scorable": 1901,
+      "accepted_all": 0,
+      "accepted_labeled": 0,
+      "physical_errors": 0,
+      "oracle_valid": 626,
+      "valid_candidate_rate": 0.0,
+      "physical_false_acceptance_rate": null,
+      "false_acceptance_95ci_trial_descriptive": null,
+      "valid_state_recovery_rate": 0.0,
+      "scorable_coverage": 0.5021130480718436,
+      "unknown_rate": 0.49788695192815635,
+      "far_upper95": null,
+      "independent_accepted_scene_count": 0,
+      "physical_quality_pass": false,
+      "reason": "Independent foreground/identity, calibrated localization and motion producers unavailable"
+    },
+    "observation_support": {
+      "trials": 3786,
+      "scorable": 1901,
+      "accepted_all": 8,
+      "accepted_labeled": 0,
+      "physical_errors": 0,
+      "oracle_valid": 626,
+      "valid_candidate_rate": 0.0021130480718436345,
+      "physical_false_acceptance_rate": null,
+      "false_acceptance_95ci_trial_descriptive": null,
+      "valid_state_recovery_rate": 0.0,
+      "scorable_coverage": 0.5021130480718436,
+      "unknown_rate": 0.49788695192815635
+    },
+    "costs": {
+      "precheck_ms": {
+        "count": 144,
+        "p50": 98.28015603125095,
+        "p95": 142.75772671680895,
+        "maximum": 162.25748392753303
+      },
+      "commit_ms": {
+        "count": 144,
+        "p50": 6.9879526272416115,
+        "p95": 21.601209451910105,
+        "maximum": 24.18149821460247
+      },
+      "prediction_adapter_ms": {
+        "count": 144,
+        "p50": 1.8921825103461742,
+        "p95": 7.564221764914691,
+        "maximum": 8.59547290019691
+      },
+      "total_cpu_ms": {
+        "count": 144,
+        "p50": 107.85901302006096,
+        "p95": 167.99579333746806,
+        "maximum": 193.6038436833769
+      },
+      "projection": {
+        "count": 144,
+        "p50": 2.0153424702584743,
+        "p95": 7.3610597755759954,
+        "maximum": 10.63723093830049
+      },
+      "association_ms": {
+        "count": 144,
+        "p50": 0.40614104364067316,
+        "p95": 2.190426923334598,
+        "maximum": 3.1264610588550568
+      },
+      "observation_validation": {
+        "count": 144,
+        "p50": 1.5403995057567954,
+        "p95": 19.133672304451466,
+        "maximum": 29.732563998550177
+      },
+      "unexplained_regions": {
+        "count": 144,
+        "p50": 3.482086001895368,
+        "p95": 5.622301052790135,
+        "maximum": 8.185971062630415
+      },
+      "transaction_and_frame_binding": {
+        "count": 144,
+        "p50": 2.8114488814026117,
+        "p95": 5.90123909059912,
+        "maximum": 7.656284840777516
+      }
+    },
+    "checks": {
+      "precheck_isolation_checks": 144,
+      "precheck_isolation_failures": 0,
+      "camera_mask_checks": 864,
+      "mask_partition_failures": 0,
+      "mask_encoding_failures": 0,
+      "refresh_ratio_failures": 0,
+      "tile_envelope_failures": 0,
+      "source_checks": 5246,
+      "source_failures": 0
+    }
+  },
+  "development_long": {
+    "association": {
+      "proposed": 3923,
+      "continued": 3408,
+      "scorable": 1215,
+      "unscorable": 2193,
+      "correct": 1210,
+      "precision": 0.9958847736625515,
+      "conditional_recall": 0.8551236749116607,
+      "id_switches": 5,
+      "ambiguity_or_missing_rejection_rate": 0.1312770838643895,
+      "correctly_rejected_false_links": 4,
+      "conditional_track_fragmentation": 284,
+      "source_localization_error_m": {
+        "count": 1683,
+        "p50": 0.48751526045639826,
+        "p95": 1.46105743784746,
+        "maximum": 1.9782845867473127
+      },
+      "identity_certified_coverage": 0.0,
+      "scope": "Conditional on unique offline same-class <=2m labels; unscorable excluded, not successes"
+    },
+    "region": {
+      "stable": 0.08373997214988425,
+      "changed": 6.022135416666667e-06,
+      "unknown": 0.9162540057146991,
+      "refresh": 0.921541332103588,
+      "effective_stable": 0.07845866789641198,
+      "scorable_lidar_points": 113509,
+      "accepted_lidar_points": 1942,
+      "wrongly_accepted_lidar_points": 15,
+      "annotated_sample_far": 0.007723995880535531,
+      "critical_events": 1551,
+      "critical_change_recall": 0.9993552546744036,
+      "critical_lidar_points": 74752,
+      "missed_critical_lidar_points": 367,
+      "reference_scope": "Annotation-owned independent LiDAR points only; unannotated background remains unscorable; no dense pixel truth",
+      "by_event": {
+        "newly_visible": {
+          "events": 372,
+          "recall": 0.9973118279569892
+        },
+        "moving_object": {
+          "events": 1205,
+          "recall": 1.0
+        },
+        "visibility_drop": {
+          "events": 237,
+          "recall": 1.0
+        }
+      },
+      "per_camera": {
+        "CAM_BACK": {
+          "stable": 0.018618326822916666,
+          "accepted": 13,
+          "false": 0
+        },
+        "CAM_BACK_LEFT": {
+          "stable": 0.03388812934027778,
+          "accepted": 2,
+          "false": 0
+        },
+        "CAM_BACK_RIGHT": {
+          "stable": 0.09871316189236111,
+          "accepted": 15,
+          "false": 0
+        },
+        "CAM_FRONT": {
+          "stable": 0.13685791015625,
+          "accepted": 512,
+          "false": 0
+        },
+        "CAM_FRONT_LEFT": {
+          "stable": 0.08829313151041666,
+          "accepted": 1152,
+          "false": 15
+        },
+        "CAM_FRONT_RIGHT": {
+          "stable": 0.12606917317708333,
+          "accepted": 248,
+          "false": 0
+        }
+      }
+    },
+    "physical": {
+      "trials": 5215,
+      "scorable": 1813,
+      "accepted_all": 0,
+      "accepted_labeled": 0,
+      "physical_errors": 0,
+      "oracle_valid": 957,
+      "valid_candidate_rate": 0.0,
+      "physical_false_acceptance_rate": null,
+      "false_acceptance_95ci_trial_descriptive": null,
+      "valid_state_recovery_rate": 0.0,
+      "scorable_coverage": 0.3476510067114094,
+      "unknown_rate": 0.6523489932885906,
+      "far_upper95": null,
+      "independent_accepted_scene_count": 0,
+      "physical_quality_pass": false,
+      "reason": "Independent foreground/identity, calibrated localization and motion producers unavailable"
+    },
+    "observation_support": {
+      "trials": 5215,
+      "scorable": 1813,
+      "accepted_all": 191,
+      "accepted_labeled": 91,
+      "physical_errors": 9,
+      "oracle_valid": 957,
+      "valid_candidate_rate": 0.03662511984659636,
+      "physical_false_acceptance_rate": 0.0989010989010989,
+      "false_acceptance_95ci_trial_descriptive": [
+        0.04622985989391295,
+        0.1794585301958546
+      ],
+      "valid_state_recovery_rate": 0.08568443051201671,
+      "scorable_coverage": 0.3476510067114094,
+      "unknown_rate": 0.6523489932885906
+    },
+    "costs": {
+      "precheck_ms": {
+        "count": 80,
+        "p50": 125.41349895764142,
+        "p95": 166.06131466105577,
+        "maximum": 193.52311384864151
+      },
+      "commit_ms": {
+        "count": 80,
+        "p50": 17.787778517231345,
+        "p95": 27.43885078234598,
+        "maximum": 29.418767895549536
+      },
+      "prediction_adapter_ms": {
+        "count": 80,
+        "p50": 5.647865938954055,
+        "p95": 9.32475294684991,
+        "maximum": 10.64642216078937
+      },
+      "total_cpu_ms": {
+        "count": 80,
+        "p50": 149.04479251708835,
+        "p95": 203.00789573229846,
+        "maximum": 226.38422274030745
+      },
+      "projection": {
+        "count": 80,
+        "p50": 5.829063476994634,
+        "p95": 10.889155569020657,
+        "maximum": 12.040670029819012
+      },
+      "association_ms": {
+        "count": 80,
+        "p50": 1.5087355859577656,
+        "p95": 3.269582334905863,
+        "maximum": 3.638942027464509
+      },
+      "observation_validation": {
+        "count": 80,
+        "p50": 20.2616200549528,
+        "p95": 41.329872386995696,
+        "maximum": 49.58654288202524
+      },
+      "unexplained_regions": {
+        "count": 80,
+        "p50": 5.025955033488572,
+        "p95": 5.759747640695423,
+        "maximum": 9.10070794634521
+      },
+      "transaction_and_frame_binding": {
+        "count": 80,
+        "p50": 5.064078490249813,
+        "p95": 7.090511918067931,
+        "maximum": 8.05293908342719
+      }
+    },
+    "checks": {
+      "precheck_isolation_checks": 80,
+      "precheck_isolation_failures": 0,
+      "camera_mask_checks": 480,
+      "mask_partition_failures": 0,
+      "mask_encoding_failures": 0,
+      "refresh_ratio_failures": 0,
+      "tile_envelope_failures": 0,
+      "source_checks": 6488,
+      "source_failures": 0
+    }
+  }
+}

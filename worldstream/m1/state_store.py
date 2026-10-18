@@ -1,5 +1,6 @@
 """Bounded scene-local state; owned tensors are detached copies, never temporal Memory."""
 from dataclasses import fields
+import copy
 import numpy as np
 from .state_types import ComputedFeature, FeatureRecord
 from .provenance import provenance_for
@@ -26,6 +27,24 @@ class StateStore:
     def new_anchor_id(self):
         self.next_anchor_id += 1
         return "{}:g{}:a{}".format(self.scene_id, self.generation, self.next_anchor_id)
+
+    def fork(self):
+        """Private transaction metadata; immutable owned tensors/geometry are shared.
+
+        Writers replace features/geometry rather than mutating their arrays. Copy
+        mutable anchor metadata so failed verification/commit cannot leak writes.
+        """
+        staged = copy.copy(self)
+        staged.anchors = {}
+        for key, anchor in self.anchors.items():
+            value = copy.copy(anchor)
+            value.observation_support = dict(anchor.observation_support)
+            value.associated_feature_ids = list(anchor.associated_feature_ids)
+            value.association_history = copy.deepcopy(anchor.association_history)
+            staged.anchors[key] = value
+        staged.features = {key: copy.copy(value) for key, value in self.features.items()}
+        staged.provenance = copy.deepcopy(self.provenance)
+        return staged
 
     @staticmethod
     def _nbytes(tensor):

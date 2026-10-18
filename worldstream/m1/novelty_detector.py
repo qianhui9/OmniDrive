@@ -1,4 +1,4 @@
-"""Only certified local geometry explains pixels. Everything else stays invalidated."""
+"""Observed stable/changed/unknown partition; refresh is a separate policy output."""
 import numpy as np
 from .geometry import region_slices
 from .mask_codec import encode_mask
@@ -20,10 +20,15 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
         explained[:] = False
     changed = np.zeros((h, w), dtype=bool)
     if config.local_support:
-        # Independently certified local patches can survive a failed whole-anchor check.
+        # Same-RGB local correspondence can survive a failed whole-anchor check.
         # No rectangle is used to mark stable pixels.
         explained[:] = False
         if temporal_evidence is not None:
+            if (temporal_evidence.camera_id != camera.camera_id
+                    or temporal_evidence.timestamp != camera.timestamp
+                    or temporal_evidence.stable_mask.shape != (h, w)
+                    or temporal_evidence.changed_mask.shape != (h, w)):
+                raise ValueError('Temporal evidence frame/camera/mask mismatch')
             explained |= temporal_evidence.stable_mask
             changed |= temporal_evidence.changed_mask
     else:
@@ -32,7 +37,7 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
     explained &= ~changed
     unknown = ~(explained | changed)
     invalid = changed | unknown
-    ratio = float(invalid.mean())
+    observation_refresh_ratio = float(invalid.mean())
     if force_refresh:
         invalid[:] = True
     # Grid is a conservative compact representation, with exact mask available separately.
@@ -50,7 +55,8 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
         "raw_to_image": None if camera.raw_to_image is None else camera.raw_to_image.tolist(),
         "image_shape": [h, w], "regions": regions,
         "changed_regions": changed_regions,
-        "unknown_uncovered_area_ratio": ratio,
+        "unknown_uncovered_area_ratio": observation_refresh_ratio,  # legacy changed|unknown
+        "observation_refresh_area_ratio": observation_refresh_ratio,
         "verified_stable_area_ratio": float(explained.mean()),
         "changed_area_ratio": float(changed.mean()),
         "unknown_area_ratio": float(unknown.mean()),
@@ -58,7 +64,13 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
         "refresh_override": bool(force_refresh),
         "evidence_source": temporal_evidence.source if temporal_evidence is not None else "external_or_missing",
         "transformer_dependency_certified": False,
-        "exact_invalidation_mask": encode_mask(invalid) if config.local_support else None,
+        "observation_stable_mask": encode_mask(explained),
+        "observed_changed_mask": encode_mask(changed),
+        "unknown_mask": encode_mask(unknown),
+        "refresh_required_mask": encode_mask(invalid),
+        "exact_invalidation_mask": encode_mask(invalid),
+        "effective_stable_area_ratio": float((~invalid).mean()),
+        "stable_semantics": "local_observation_correspondence_not_physical_object_truth",
         "regions_are_conservative_tile_envelope": True,
         "reason": "periodic_or_reset_refresh" if force_refresh else "uncovered_or_changed",
         "feature_mapping": "unknown; no Transformer token indices",

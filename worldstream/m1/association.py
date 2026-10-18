@@ -4,26 +4,41 @@ from .geometry import predict_geometry, sample_polyline
 
 
 def legal_assignment(costs):
-    """Maximum-cardinality legal assignment, then minimum distance; deterministic fallback."""
+    """Maximum-cardinality legal assignment, then minimum distance.
+
+    SciPy is required. A greedy fallback silently changes the cardinality objective.
+    """
     costs = np.asarray(costs, dtype=float)
+    if costs.ndim != 2 or np.isnan(costs).any() or (costs < 0).any():
+        raise ValueError('Expected a nonnegative 2D distance matrix with +inf forbidden edges')
     if costs.size == 0:
         return []
     finite = np.isfinite(costs)
     if not finite.any():
         return []
-    try:
-        from scipy.optimize import linear_sum_assignment
-        # Dominates any sum of legitimate costs, so forbidden edges cannot steal a legal match.
-        penalty = (max(costs.shape) + 1) * (1 + costs[finite].max())
-        rows, cols = linear_sum_assignment(np.where(finite, costs, penalty))
-        return [(int(i), int(j)) for i, j in zip(rows, cols) if finite[i, j]]
-    except ImportError:
-        edges = sorted((costs[i, j], i, j) for i, j in zip(*np.where(finite)))
-        rows, cols, result = set(), set(), []
-        for _, i, j in edges:
-            if i not in rows and j not in cols:
-                result.append((i, j)); rows.add(i); cols.add(j)
-        return result
+    from scipy.optimize import linear_sum_assignment
+    # Normalize to avoid overflow; forbidden cost dominates the sum of legal costs.
+    scale = max(1., float(costs[finite].max()))
+    rows, cols = linear_sum_assignment(np.where(finite, costs / scale, max(costs.shape) + 1.))
+    return [(int(i), int(j)) for i, j in zip(rows, cols) if finite[i, j]]
+
+
+def association_ambiguities(pairs, costs, margin=0.):
+    """Reject competing edges in either direction, without inventing identity proof.
+
+    This is a rejection gate, not a probability or a calibrated error guarantee.
+    An assignment forced away from either endpoint's best edge also rejects.
+    """
+    result = {}
+    for i, j in pairs:
+        row = np.delete(costs[i], j)
+        col = np.delete(costs[:, j], i)
+        alternative = min(float(row.min()) if row.size else float('inf'),
+                          float(col.min()) if col.size else float('inf'))
+        gap = alternative - costs[i, j]
+        result[(i, j)] = dict(ambiguous=bool(gap <= margin + 1e-12),
+                              margin_m=float(gap), threshold_m=margin)
+    return result
 
 
 def associate(anchors, predictions, timestamp, config):

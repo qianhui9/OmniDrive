@@ -82,7 +82,8 @@ def run_scene(root, frames, predictions, oracle, config, method, split):
             association['proposed']+=1
             if identities.get(aid) is not None and assignments.get(j) is not None:
                 association['scorable']+=1; association['correct']+=int(identities[aid]==assignments[j])
-        for j,aid in enumerate(manager.last_commit_diagnostics['committed_anchor_ids']):
+        indices = manager.last_commit_diagnostics.get('selected_prediction_indices', range(len(current)))
+        for j,aid in zip(indices, manager.last_commit_diagnostics['committed_anchor_ids']):
             identities[aid]=assignments.get(j); source_anns[aid]=by_id.get(assignments.get(j))
         timings.append(dict(result.diagnostics['timings_ms'],**manager.last_commit_diagnostics,
             m1_overall_wall_ms=result.diagnostics['timings_ms']['precheck_total']+manager.last_commit_diagnostics['commit_total_ms']))

@@ -69,9 +69,16 @@ class M1Config:
     bidirectional_geometry: bool = False  # rejection-only, not a task certificate
     depth_padding_m: float = .25
     min_triangulation_angle_deg: float = .5
+    association_ambiguity_margin_m: float = 0.0  # exact ties rejected; positive margin needs scene calibration
+    association_history_limit: int = 16
+    pending_timeout_s: float = 60.0  # wall clock, no source time extension
 
     def __post_init__(self):
         import math
+        if (not math.isfinite(self.association_ambiguity_margin_m) or self.association_ambiguity_margin_m < 0
+                or not isinstance(self.association_history_limit, int) or self.association_history_limit < 1
+                or not math.isfinite(self.pending_timeout_s) or self.pending_timeout_s <= 0):
+            raise ValueError('Invalid association history/transaction bounds')
         if (not math.isfinite(self.depth_padding_m) or self.depth_padding_m < 0
                 or not math.isfinite(self.min_triangulation_angle_deg) or not 0 < self.min_triangulation_angle_deg < 90):
             raise ValueError('Invalid bidirectional geometry bounds')

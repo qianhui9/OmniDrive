@@ -203,7 +203,8 @@ def main():
         manager.commit(frame, outputs, result)
         by_index = oracle_assignment(current, current_anns)
         committed = manager.last_commit_diagnostics['committed_anchor_ids']
-        for j, aid in enumerate(committed):
+        indices = manager.last_commit_diagnostics.get('selected_prediction_indices', range(len(current)))
+        for j, aid in zip(indices, committed):
             identities[aid] = by_index.get(j)
         total_ms = result.diagnostics['timings_ms']['precheck_total'] + manager.last_commit_diagnostics['commit_total_ms']
         timing = dict(result.diagnostics['timings_ms'], **manager.last_commit_diagnostics)

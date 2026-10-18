@@ -93,6 +93,14 @@ class WorldAnchor:
     source_state_epoch: Optional[int] = None
     source_execution_signature: Optional[str] = None
     evidence_origin: Optional[str] = None
+    track_birth_timestamp: Optional[float] = None
+    last_actual_observation_timestamp: Optional[float] = None
+    last_certified_timestamp: Optional[float] = None
+    association_count: int = 0  # geometric candidate updates, never identity proofs
+    certified_observation_count: int = 0
+    association_history: List[dict] = field(default_factory=list)
+    geometry_uncertainty_calibrated: bool = False
+    last_verified_source_frame: Optional[str] = None
 
 
 @dataclass
@@ -166,6 +174,11 @@ class M1Result:
     feature_versions: Dict[str, dict] = field(default_factory=dict)
     full_refresh_hint: bool = False
     diagnostics: Dict[str, Any] = field(default_factory=dict)
+    # Historical projection candidates at precheck; current detections arrive only at commit.
+    association_candidate_ids: List[str] = field(default_factory=list)
+    observation_supported_anchor_ids: List[str] = field(default_factory=list)
+    physically_certified_anchor_ids: List[str] = field(default_factory=list)
+    anchor_provenance: Dict[str, dict] = field(default_factory=dict)
 
     def to_dict(self):
         return json_value(asdict(self))

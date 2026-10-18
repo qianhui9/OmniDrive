@@ -6,7 +6,7 @@ This is same-sensor evidence, never independent foreground or task truth.
 """
 import cv2
 import numpy as np
-from .geometry import valid_projection_camera,predict_geometry
+from .geometry import valid_projection_camera,predict_geometry,oriented_box_membership
 
 
 def occlusion_table(projections,camera_ids,config):
@@ -64,13 +64,13 @@ def verify_anchor_geometry(anchor,previous,current,evidence,projection,config):
         errors.append(np.linalg.norm(uv-observed,axis=1));front&=c[:,2]>.5
     geom=predict_geometry(anchor,current.timestamp)
     padding=config.depth_padding_m
-    src=anchor.geometry_world.points;dst=geom.points
-    source_inside=((xyz>=src.min(0)-padding)&(xyz<=src.max(0)+padding)).all(1)
-    target_inside=((xyz>=dst.min(0)-padding)&(xyz<=dst.max(0)+padding)).all(1)
+    source_inside=oriented_box_membership(xyz,anchor.geometry_world,padding)
+    target_inside=oriented_box_membership(xyz,geom,padding)
     valid=finite&front&(angles>=config.min_triangulation_angle_deg)&(np.maximum(*errors)<=config.flow_epipolar_max_px)
     supported=valid&source_inside&target_inside
     count=int(supported.sum());fraction=count/len(chosen)
     d.update(supported_points=count,support_fraction=fraction,observable_points=int(valid.sum()),
+        membership='validated_oriented_cuboid_local_frame',
         passed=count>=config.support_min_points and fraction>=config.support_point_fraction,
         reason='ok' if count>=config.support_min_points and fraction>=config.support_point_fraction else
             'depth_unobservable' if not valid.any() else 'historical_3d_correspondence_mismatch',

@@ -88,7 +88,8 @@ def main():
             current = [WorldAnchor(str(j), frame.scene_id, p.anchor_type, p.semantic_class, p.geometry_world, frame.timestamp) for j,p in enumerate(outputs.anchors)]
             assignments = oracle_assignment(current, anns)
             manager.commit(frame, outputs, result)
-            for j, aid in enumerate(manager.last_commit_diagnostics['committed_anchor_ids']):
+            indices = manager.last_commit_diagnostics.get('selected_prediction_indices', range(len(current)))
+            for j, aid in zip(indices, manager.last_commit_diagnostics['committed_anchor_ids']):
                 identities[aid] = assignments.get(j); source_anns[aid] = by_id.get(assignments.get(j))
         print('diagnosed', run, flush=True)
     write_json(ROOT/'motion_diagnosis.json', records)

@@ -1,6 +1,6 @@
 """Column-vector SE(3), metres; projections use each camera's own timestamp."""
 from dataclasses import dataclass
-from itertools import product
+from itertools import product, combinations
 from typing import Optional
 import numpy as np
 from .state_types import Geometry, Region
@@ -51,6 +51,41 @@ def box_geometry(center, size, yaw=0.0, to_world=None):
     points = points @ rotation.T + center
     matrix = np.eye(4) if to_world is None else to_world
     return Geometry(transform_points(points, matrix), transform_points(center, matrix), size.copy())
+
+
+def oriented_box_membership(points, geometry, padding=0.):
+    """Strict local-frame membership for eight cuboid corners in any ordering.
+
+    Reconstruct and validate three orthogonal edges from one corner. An AABB
+    fallback would admit background around rotated objects, so malformed corner
+    sets fail closed. Membership is a geometric gate, never foreground ownership.
+    """
+    query = np.asarray(points, dtype=float)
+    corners = np.asarray(geometry.points, dtype=float)
+    rejected = np.zeros(len(query), dtype=bool)
+    if (query.ndim != 2 or query.shape[1] != 3 or corners.shape != (8, 3)
+            or not np.isfinite(corners).all() or not np.isfinite(padding) or padding < 0
+            or not np.allclose(corners.mean(0), geometry.center, atol=1e-4)):
+        return rejected
+    origin = corners[0]
+    delta = corners[1:] - origin
+    for indices in combinations(range(7), 3):
+        edges = delta[list(indices)]
+        lengths = np.linalg.norm(edges, axis=1)
+        if np.any(lengths < 1e-6):
+            continue
+        axes = edges / lengths[:, None]
+        if not np.allclose(axes @ axes.T, np.eye(3), atol=1e-5):
+            continue
+        local_corners = (corners - origin) @ axes.T / lengths
+        bits = np.rint(local_corners)
+        if (not np.allclose(local_corners, bits, atol=1e-4) or np.any((bits < 0) | (bits > 1))
+                or len(np.unique(bits, axis=0)) != 8):
+            continue
+        local = (query - origin) @ axes.T
+        return (np.isfinite(local).all(1) & (local >= -padding - 1e-8).all(1)
+                & (local <= lengths + padding + 1e-8).all(1))
+    return rejected
 
 
 def predict_geometry(anchor, timestamp):

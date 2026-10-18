@@ -63,6 +63,8 @@ def frame_from_model(img_metas, data, config):
     ids = list(cam_infos) if cam_infos else [Path(f).parent.name for f in filenames]
     if len(ids) != len(images) or len(set(ids)) != len(ids):
         raise ValueError("Cannot establish the actual unique camera order from metadata")
+    if cam_infos and filenames and [Path(f).parent.name for f in filenames] != ids:
+        raise ValueError('Camera metadata order disagrees with image filenames')
     if not (len(intrinsics) == len(extrinsics) == len(image_times) == len(ids)):
         raise ValueError("Camera/timestamp/calibration counts do not agree")
     cameras = {}
@@ -126,7 +128,7 @@ def outputs_from_model(frame, bbox_results, lane_results, features, config):
             if values.shape[1] >= 9 and np.isfinite(values[i, 7:9]).all():
                 velocity = pose[:3, :3] @ np.r_[values[i, 7:9], 0.]
             anchors.append(PerceptionAnchor('object', CLASS_NAMES[int(labels[i])], g, velocity,
-                           bool(config.trust_detection_velocity and velocity is not None), source_score=float(scores[i])))
+                           False, source_score=float(scores[i])))  # head velocity remains a prediction
     if lane_results:
         lines, scores = lane_results[0]
         for line, score in zip(lines, scores):

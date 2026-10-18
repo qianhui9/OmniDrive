@@ -54,6 +54,7 @@ def test_multi_camera_all_supported_views_must_agree(config, make_frame, make_pr
     manager = WorldStateManager(config); manager.initialize(initial, FullOutputs([make_prediction()]))
     current = make_frame(100.5)
     current.cameras['side'] = make_frame(100.5, change=True).cameras['front']
+    current.cameras['side'].camera_id = 'side'
     assert manager.precheck(current).invalid_anchor_ids
 
 

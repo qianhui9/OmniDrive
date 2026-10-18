@@ -65,7 +65,8 @@ def run_scene(path,frames,infos,predictions,oracle,configs):
             current=[WorldAnchor(str(j),frame.scene_id,p.anchor_type,p.semantic_class,p.geometry_world,frame.timestamp) for j,p in enumerate(outputs.anchors)]
             assignments=oracle_assignment(current,annotations)
             start=perf_counter();m.commit(frame,outputs,result);elapsed=(perf_counter()-start)*1000
-            for j,aid in enumerate(m.last_commit_diagnostics['committed_anchor_ids']):
+            indices = m.last_commit_diagnostics.get('selected_prediction_indices', range(len(current)))
+            for j,aid in zip(indices, m.last_commit_diagnostics['committed_anchor_ids']):
                 identities[name][aid]=assignments.get(j);source_anns[name][aid]=by_id.get(assignments.get(j))
             rows['timings'].append(dict(frame_id=frame.frame_id,precheck_ms=runtime[name],commit_ms=elapsed,
                 overall_ms=runtime[name]+elapsed,**result.diagnostics['timings_ms'],

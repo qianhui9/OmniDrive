@@ -1,0 +1,38 @@
+{
+  "status": "Uncalibrated / No-Go",
+  "finite_population_error_bound_m": null,
+  "independent_calibration_scenes": 6,
+  "exchangeability_unit": "scene; assumption not established for censored unique-2m matched population",
+  "localization_error": {
+    "calibration": {
+      "count": 620,
+      "p50": 0.6267435038358856,
+      "p95": 1.6197547460373605,
+      "maximum": 1.983623501703793
+    },
+    "heldout": {
+      "count": 965,
+      "p50": 0.5685637564444809,
+      "p95": 1.6114176556929816,
+      "maximum": 1.9947125139178468
+    },
+    "final_test": {
+      "count": 1811,
+      "p50": 0.48610394535491924,
+      "p95": 1.603867979528276,
+      "maximum": 1.996216877011496
+    },
+    "development_long": {
+      "count": 1683,
+      "p50": 0.48751526045639826,
+      "p95": 1.46105743784746,
+      "maximum": 1.9782845867473127
+    }
+  },
+  "missing": [
+    "uncensored source identity",
+    "independent ego/camera pose error reference",
+    "independent object motion bounds"
+  ],
+  "warning": "Residuals are censored by offline 2m source assignment; no all-target error guarantee"
+}

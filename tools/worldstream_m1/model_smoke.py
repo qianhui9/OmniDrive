@@ -30,6 +30,8 @@ def main():
     p.add_argument('--frames', type=int, default=3)
     p.add_argument('--scene')
     p.add_argument('--compare', action='store_true')
+    p.add_argument('--perception-only', action='store_true',
+                   help='Validate original EVA/detection/map outputs without LLM execution or M2/M3')
     p.add_argument('--output', default='outputs/module1/model_smoke')
     args = p.parse_args()
     import torch
@@ -62,8 +64,12 @@ def main():
     stat = Path(args.checkpoint).stat()
     identity = (str(Path(args.checkpoint).resolve())+':'+str(stat.st_size)+':'+str(stat.st_mtime_ns)
                 +':config='+hashlib.sha256(cfg.pretty_text.encode()).hexdigest())
-    settings = replace(settings, model_id=identity, log_path=str(root/'m1_state.jsonl'))
+    settings = replace(settings, model_id=identity, logging=True, log_path=str(root/'m1_state.jsonl'))
     cfg.model.m1_enable = False
+    if args.perception_only:
+        cfg.model.lm_head = None
+        cfg.model.m2_enable = False
+        cfg.model.m3_enable = False
     cfg.model.train_cfg = None
     cfg.model.pretrained = None
     cfg.data.test.test_mode = True
@@ -80,6 +86,7 @@ def main():
     if cfg.get('fp16'): wrap_fp16_model(model)
     load_checkpoint(model, args.checkpoint, map_location='cpu')
     model.cuda().eval()
+    run_metadata['perception_only'] = args.perception_only
     all_results = {}
     for mode in (['baseline', 'observe_only'] if args.compare else ['observe_only']):
         random.seed(0); np.random.seed(0); torch.manual_seed(0); torch.cuda.manual_seed_all(0)

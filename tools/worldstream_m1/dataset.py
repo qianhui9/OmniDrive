@@ -66,7 +66,7 @@ def prediction_outputs(predictions, config):
         size = np.asarray(p['size'])[[1, 0, 2]]
         g = box_geometry(np.zeros(3), size, to_world=matrix)
         velocity = np.r_[p.get('velocity', [np.nan, np.nan]), 0.]
-        reliable = bool(config.trust_detection_velocity and np.isfinite(velocity).all())
+        reliable = False  # finite detector velocity is not independently verified motion
         anchors.append(PerceptionAnchor('object', p['detection_name'], g,
                                         velocity if np.isfinite(velocity).all() else None, reliable,
                                         source_score=float(p['detection_score'])))

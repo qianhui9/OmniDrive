@@ -22,6 +22,9 @@ velocity_uncertainty_mps: 2.0 # assumed uncertainty, metres/second
 max_camera_skew_s: 0.01       # tolerated skew without camera-time pose
 require_visibility_evidence: true # unknown occlusion => Invalid by default
 trust_detection_velocity: false   # finite network velocity alone is not reliability evidence
+association_ambiguity_margin_m: 0.0 # reject exact ties; positive margin needs independent scene calibration
+association_history_limit: 16
+pending_timeout_s: 60.0
 min_detection_score: 0.3      # sigmoid detection acceptance for commit, provisional
 min_map_score: 0.3            # sigmoid map acceptance for commit, provisional
 occlusion_overlap_fraction: 0.1 # projected overlap fraction triggering conservative rejection

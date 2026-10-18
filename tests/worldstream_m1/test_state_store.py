@@ -14,7 +14,9 @@ def test_versions_only_advance_after_actual_compute(config, make_frame, make_pre
     for key, value in manager.store.feature_versions().items():
         assert value['computation_version'] == versions[key]['computation_version']
         assert value['computation_timestamp'] == f0.timestamp
-        assert value['last_verified_timestamp'] == 100.5
+        # Verification is pending until an actual frame commit succeeds.
+        assert value['last_verified_timestamp'] == versions[key]['last_verified_timestamp']
+        assert result.feature_versions[key]['last_verified_timestamp'] == 100.5
     manager.commit(make_frame(100.5), FullOutputs([make_prediction()]), result)
     for key, value in manager.store.feature_versions().items():
         assert value['computation_version'] == 2
@@ -115,10 +117,12 @@ def test_candidate_tensor_must_be_acquired_before_commit(config, make_frame, mak
 def test_feature_from_unobserved_camera_not_certified(config, make_frame, make_prediction):
     import copy
     frame = make_frame(); frame.cameras['side'] = copy.deepcopy(frame.cameras['front'])
+    frame.cameras['side'].camera_id = 'side'
     manager = WorldStateManager(config); manager.initialize(frame, FullOutputs([make_prediction()]))
     next_frame = make_frame(100.5)
     result = manager.precheck(next_frame)
-    assert result.valid_anchor_ids
+    assert not result.valid_anchor_ids and result.full_refresh_hint
+    assert result.diagnostics['reset_reason'] == 'camera_layout_changed'
     assert all('side' not in c['feature_id'] for c in result.valid_feature_candidates)
 
 
