@@ -72,9 +72,25 @@ class M1Config:
     association_ambiguity_margin_m: float = 0.0  # exact ties rejected; positive margin needs scene calibration
     association_history_limit: int = 16
     pending_timeout_s: float = 60.0  # wall clock, no source time extension
+    foreground_correspondence: bool = False  # experimental, post-perception only
+    foreground_depth_gap_m: float = 1.0
+    physical_qualification_path: Optional[str] = None
+    physical_qualification_sha256: Optional[str] = None
+    dense_region_policy: str = 'uniform'  # experimental local boundary rejection
+    local_boundary_radius_px: int = 12
+    local_parallax_jump_px: float = 1.0
 
     def __post_init__(self):
         import math
+        if (not math.isfinite(self.foreground_depth_gap_m) or self.foreground_depth_gap_m<=0
+                or self.dense_region_policy not in ('uniform','local_visibility')
+                or not isinstance(self.local_boundary_radius_px,int) or self.local_boundary_radius_px<1
+                or not math.isfinite(self.local_parallax_jump_px) or self.local_parallax_jump_px<=0):
+            raise ValueError('Invalid experimental evidence/local visibility parameters')
+        if self.foreground_correspondence and not self.temporal_visibility:
+            raise ValueError('Foreground correspondence requires actual temporal measurements')
+        if bool(self.physical_qualification_path)!=bool(self.physical_qualification_sha256):
+            raise ValueError('Physical qualification needs a pinned audited artifact digest')
         if (not math.isfinite(self.association_ambiguity_margin_m) or self.association_ambiguity_margin_m < 0
                 or not isinstance(self.association_history_limit, int) or self.association_history_limit < 1
                 or not math.isfinite(self.pending_timeout_s) or self.pending_timeout_s <= 0):

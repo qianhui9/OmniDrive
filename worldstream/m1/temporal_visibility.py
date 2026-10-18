@@ -57,9 +57,14 @@ def build_evidence(previous, current, config, dense_exclusion=None):
     evidence.source_points=source; evidence.current_points=target; evidence.fb_error_px=fb
     evidence.correspondence_valid=good; evidence.geometry_valid=geom; evidence.supported=supported
     evidence.patch_residual=residual; evidence.stable_mask=stable; evidence.changed_mask=changed
+    if config.foreground_correspondence:
+        # Preserve measured proposal points separately from rejection masks.
+        # They cannot grant ordinary observation/pixel support to dynamic ROIs.
+        evidence.raw_correspondence_supported=supported.copy()
     if config.dense_local_support:
         from .dense_support import dense_support
         dense,source_map,diagnostics=dense_support(previous,current,config,exclusion=dense_exclusion)
+        evidence.local_rejection_mask=diagnostics.pop('_local_rejection_mask',None)
         evidence.stable_mask=dense & ~changed
         evidence.dense_source_map=source_map
         evidence.source='same_rgb_dense_bidirectional_ray_photo_neighbourhood'

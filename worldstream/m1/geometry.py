@@ -6,6 +6,33 @@ import numpy as np
 from .state_types import Geometry, Region
 
 
+def immutable_array(value):
+    """Owned bytes-backed ndarray: setflags(write=True) cannot mutate it."""
+    if value is None:return None
+    array = np.ascontiguousarray(value)
+    return np.frombuffer(array.tobytes(), dtype=array.dtype).reshape(array.shape)
+
+
+def immutable_geometry(geometry):
+    return Geometry(immutable_array(geometry.points), immutable_array(geometry.center),
+                    immutable_array(geometry.size))
+
+
+def state_geometry_version(anchor):
+    """Bind a claim to exact source geometry, class, size and motion."""
+    import hashlib
+    h = hashlib.sha256(repr((anchor.anchor_id, anchor.scene_id, anchor.source_frame_id,
+        anchor.source_timestamp, anchor.source_state_epoch, anchor.source_execution_signature,
+        anchor.anchor_type, anchor.semantic_class, anchor.velocity_reliable)).encode())
+    for array in (anchor.geometry_world.points, anchor.geometry_world.center,
+                  anchor.geometry_world.size, anchor.velocity_world):
+        if array is None:h.update(b'None;')
+        else:
+            a = np.ascontiguousarray(array)
+            h.update(str((a.shape, a.dtype)).encode());h.update(a.tobytes())
+    return h.hexdigest()
+
+
 def valid_transform(matrix):
     if matrix is None:
         return False

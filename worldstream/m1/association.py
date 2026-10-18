@@ -41,6 +41,24 @@ def association_ambiguities(pairs, costs, margin=0.):
     return result
 
 
+def assignment_edge_alternatives(pairs, costs):
+    """OFFLINE diagnostic: remove each chosen edge and re-solve the full problem.
+
+    Losing cardinality is distinct from a distance margin. Local competing
+    nearest neighbours can be globally forced; no online gate is changed here.
+    """
+    costs=np.asarray(costs,float);base=len(pairs)
+    total=float(sum(costs[i,j] for i,j in pairs));result={}
+    for i,j in pairs:
+        counterfactual=costs.copy();counterfactual[i,j]=np.inf
+        alternative=legal_assignment(counterfactual)
+        cardinality=len(alternative)
+        result[i,j]=dict(alternative_cardinality=cardinality,cardinality_lost=base-cardinality,
+            global_cost_margin_m=(float(sum(costs[a,b] for a,b in alternative))-total) if cardinality==base else None,
+            alternative_pairs=alternative)
+    return result
+
+
 def associate(anchors, predictions, timestamp, config):
     """Same legal gates as scalar matching, with curves sampled once per input."""
     costs = np.full((len(anchors), len(predictions)), np.inf)

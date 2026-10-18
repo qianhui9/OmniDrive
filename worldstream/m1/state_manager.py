@@ -10,6 +10,8 @@ import numpy as np
 from .association import associate, association_ambiguities
 from .input_contract import frame_digest, camera_layout
 from .physical_certifier import certify_available_state
+from .geometry import immutable_array, immutable_geometry, state_geometry_version
+from .physical_certifier import EvidenceIssuer, certify_physical_evidence
 from .config import M1Config
 from .geometry import intersect_area, region_area, region_slices, project_anchor, valid_transform, valid_projection_camera, predict_geometry
 from .novelty_detector import unexplained_regions
@@ -41,6 +43,13 @@ class WorldStateManager:
         self._pending_store = None
         self._camera_layout = None
         self._recovery_required = False
+        self._previous_frame_id = None
+        self._previous_frame_digest = None
+        qualification=None
+        if self.config.physical_qualification_path:
+            import json
+            with open(self.config.physical_qualification_path) as handle:qualification=json.load(handle)
+        self._physical_issuer=EvidenceIssuer(qualification,self.config.physical_qualification_sha256)
 
     def reset(self, scene_id=None):
         self.store.reset(scene_id)
@@ -53,6 +62,8 @@ class WorldStateManager:
         self.last_evidence = {}
         self._camera_layout = None
         self._recovery_required = False
+        self._previous_frame_id = None
+        self._previous_frame_digest = None
 
     def _prepare(self, frame):
         s = self.store
@@ -113,6 +124,7 @@ class WorldStateManager:
         self._pending_digest = digest
         self._pending_started = perf_counter()
         self._pending_generation = self.store.generation
+        self._pending_source_digest = self.store.source_digest()
         self._recovery_required = False
         timings = result.diagnostics.get('timings_ms', {})
         core_ms = timings.get('precheck_total', 0.)
@@ -364,6 +376,8 @@ class WorldStateManager:
                     or perf_counter() - self._pending_started > self.config.pending_timeout_s
                     or frame_digest(frame) != self._pending_digest):
                 raise ValueError('Pending transaction expired or frame/calibration changed')
+            if self.store.source_digest()!=self._pending_source_digest:
+                raise ValueError('Committed source state changed during pending transaction')
             if full_outputs.source not in ('actual_perception', 'historical_full_model_detection_replay',
                                            'invalid_pose_no_state_committed'):
                 raise ValueError('Unsupported online computation source')
@@ -378,6 +392,8 @@ class WorldStateManager:
         # One publication point: no partially written store is ever exposed.
         self.store = worker.store
         self._previous_cameras = worker._previous_cameras
+        self._previous_frame_id = worker._previous_frame_id
+        self._previous_frame_digest = worker._previous_frame_digest
         self.last_commit_diagnostics = worker.last_commit_diagnostics
         self._pending = None
         self._pending_store = None
@@ -452,6 +468,9 @@ class WorldStateManager:
         assoc_ms = (perf_counter() - assoc_start) * 1000
         matched = {j: anchors[i].anchor_id for i, j in accepted_pairs}
         committed = []
+        physical_results=[]
+        foreground_results=[]
+        certification_ms=0.
         validated_cameras = {cid: valid_projection_camera(cam) for cid, cam in frame.cameras.items()}
         for j, pred in enumerate(predictions):
             aid = matched.get(j) or self.store.new_anchor_id()
@@ -459,9 +478,9 @@ class WorldStateManager:
             velocity_ok = (pred.velocity_world is not None and np.asarray(pred.velocity_world).shape == (3,)
                            and np.isfinite(pred.velocity_world).all())
             a = WorldAnchor(aid, frame.scene_id, pred.anchor_type, pred.semantic_class,
-                            copy.deepcopy(pred.geometry_world), frame.timestamp,
+                            immutable_geometry(pred.geometry_world), frame.timestamp,
                             prior.last_verified_timestamp if prior else None,
-                            np.asarray(pred.velocity_world).copy() if velocity_ok else None,
+                            immutable_array(pred.velocity_world) if velocity_ok else None,
                             bool(pred.velocity_reliable and velocity_ok), pred.geometry_uncertainty)
             a.source_score = pred.source_score
             a.source_frame_id = frame.frame_id
@@ -471,7 +490,9 @@ class WorldStateManager:
             a.history_observations = prior.history_observations + 1 if prior else 1
             a.track_birth_timestamp = prior.track_birth_timestamp if prior else frame.timestamp
             a.last_actual_observation_timestamp = frame.timestamp
-            a.last_certified_timestamp = prior.last_certified_timestamp if prior else None
+            # A new detection is a new concrete state version. A historical
+            # certificate cannot attach to replacement geometry automatically.
+            a.last_certified_timestamp = None
             a.last_verified_source_frame = prior.last_verified_source_frame if prior else None
             a.certified_observation_count = prior.certified_observation_count if prior else 0
             a.association_count = prior.association_count + 1 if prior else 0
@@ -482,13 +503,30 @@ class WorldStateManager:
             a.last_innovation_m = (float(np.linalg.norm(
                 pred.geometry_world.center - predict_geometry(prior, frame.timestamp).center))
                 if prior else None)
+            a.state_version=state_geometry_version(a)
+            if prior is not None and self.config.foreground_correspondence:
+                from .foreground_correspondence import propose_foreground_correspondence
+                proposal=propose_foreground_correspondence(prior,a,frame,self._previous_cameras,
+                    self.last_evidence,self.config,self._physical_issuer,self._previous_frame_digest,
+                    self._previous_frame_id)
+                certification_start=perf_counter()
+                certificate=certify_physical_evidence(prior,a,frame,proposal['evidence'],self._physical_issuer,
+                    self._previous_frame_digest,proposal['protocol_digest'])
+                certification_ms+=(perf_counter()-certification_start)*1000
+                physical_results.append(dict(anchor_id=aid,**asdict(certificate)))
+                foreground_results.append(dict(anchor_id=aid,source_frame_id=prior.source_frame_id,
+                    current_frame_id=frame.frame_id,**{k:v for k,v in proposal.items() if k!='evidence'}))
+                if certificate.certified:
+                    a.physical_certification=certificate
+                    a.last_certified_timestamp=frame.timestamp
+                    a.certified_observation_count+=1
             # New support always comes from an actually computed frame, never chained crops.
             for cid, camera in frame.cameras.items():
                 p = project_anchor(a, camera, self.config, validated_cameras[cid])
                 if p.valid:
                     descriptor = self.validator.descriptor(camera.image, p.region)
                     if descriptor is not None:
-                        a.observation_support[cid] = AnchorObservation(cid, p.region, descriptor,
+                        a.observation_support[cid] = AnchorObservation(cid, p.region, immutable_array(descriptor),
                                                                       camera.timestamp, p.coverage)
             self.store.anchors[aid] = a
             committed.append(aid)
@@ -540,11 +578,13 @@ class WorldStateManager:
             self._previous_cameras = {}
             for cid, camera in frame.cameras.items():
                 saved = copy.copy(camera)
-                saved.image = gray_image(camera)
-                saved.intrinsic = np.array(camera.intrinsic,copy=True)
-                saved.world_to_camera = None if camera.world_to_camera is None else np.array(camera.world_to_camera,copy=True)
+                saved.image = immutable_array(gray_image(camera))
+                saved.intrinsic = immutable_array(camera.intrinsic)
+                saved.world_to_camera = immutable_array(camera.world_to_camera)
                 saved.visibility_mask = None; saved.geometry_support_mask = None
                 self._previous_cameras[cid] = saved
+        self._previous_frame_id=frame.frame_id
+        self._previous_frame_digest=self._pending_digest
         self.last_commit_diagnostics = {"source": full_outputs.source, "committed_anchor_ids": committed,
             "association_pairs": [[anchors[i].anchor_id, selected[j][0]] for i, j in accepted_pairs],
             "geometric_candidate_pairs": [[anchors[i].anchor_id, selected[j][0]] for i, j in pairs],
@@ -553,6 +593,10 @@ class WorldStateManager:
             "excluded_prediction_count": len(candidates) - len(selected),
             "malformed_prediction_count": malformed,
             "association_is_identity_certification": False,
+            "post_perception_physical_certifications": physical_results,
+            "foreground_correspondence_proposals": foreground_results,
+            "physical_certification_phase": "post_perception_commit_only",
+            "physical_certification_ms": certification_ms,
             "association_ms": assoc_ms, "state_update_ms": (perf_counter() - start) * 1000 - assoc_ms,
             "commit_total_ms": (perf_counter() - start) * 1000,
             "anchor_count": len(self.store.anchors), "feature_count": len(self.store.features),
@@ -577,4 +621,4 @@ class WorldStateManager:
         record = self.store.features.get(feature_id)
         if record is None or record.computation_version != computation_version:
             raise KeyError('Historical feature version has been replaced; acquire before commit')
-        return record
+        return self.store.feature_snapshot(record)

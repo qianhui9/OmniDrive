@@ -1,0 +1,32 @@
+{
+  "command": [
+    "rg",
+    "--files-with-matches",
+    "--fixed-strings",
+    "--file",
+    "/tmp/m1_evidence_selected_samples.txt",
+    "-g",
+    "*.json",
+    "-g",
+    "*.jsonl",
+    "-g",
+    "*.md",
+    "-g",
+    "!**/source/**",
+    "-g",
+    "!**/baseline_source/**",
+    "outputs/module1_refinement",
+    "outputs/system_optimization_v5",
+    "outputs/system_optimization_v2",
+    "outputs/module1",
+    "outputs/module1_independent_refinement",
+    "outputs/module1_optimization",
+    "outputs/system_optimization_v4",
+    "outputs/system_optimization_v3",
+    "outputs/system_optimization"
+  ],
+  "returncode": 1,
+  "matched_prior_files": [],
+  "stderr": "",
+  "guarantee": "Local artifact sample-token audit; excludes model-training logs by design"
+}

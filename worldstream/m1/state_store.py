@@ -4,6 +4,7 @@ import copy
 import numpy as np
 from .state_types import ComputedFeature, FeatureRecord
 from .provenance import provenance_for
+from .geometry import immutable_array
 
 
 class StateStore:
@@ -38,13 +39,43 @@ class StateStore:
         staged.anchors = {}
         for key, anchor in self.anchors.items():
             value = copy.copy(anchor)
-            value.observation_support = dict(anchor.observation_support)
+            value.geometry_world = copy.copy(anchor.geometry_world)
+            value.observation_support = {cid:copy.copy(obs) for cid,obs in anchor.observation_support.items()}
             value.associated_feature_ids = list(anchor.associated_feature_ids)
             value.association_history = copy.deepcopy(anchor.association_history)
+            value.physical_certification = copy.deepcopy(anchor.physical_certification)
             staged.anchors[key] = value
-        staged.features = {key: copy.copy(value) for key, value in self.features.items()}
+        staged.features = {key:self.feature_snapshot(value) for key,value in self.features.items()}
         staged.provenance = copy.deepcopy(self.provenance)
         return staged
+
+    @staticmethod
+    def feature_snapshot(record):
+        """Protect internal allocations and mutable metadata at read/fork boundaries."""
+        result=copy.copy(record)
+        for name in ('source_anchor_ids','source_camera_ids','source_region','computation_sources'):
+            setattr(result,name,copy.deepcopy(getattr(record,name)))
+        if isinstance(record.tensor,np.ndarray):result.tensor=immutable_array(record.tensor)
+        elif record.tensor is not None:result.tensor=record.tensor.detach().clone()
+        return result
+
+    def source_digest(self):
+        """Detect public state replacement while a frame transaction is pending."""
+        import hashlib
+        import json
+        from .geometry import state_geometry_version
+        from .state_types import json_value
+        anchors=[]
+        for aid,a in self.anchors.items():
+            anchors.append((aid,state_geometry_version(a),a.source_score,a.history_observations,
+                a.last_verified_timestamp,a.last_certified_timestamp,a.association_history,
+                repr(a.physical_certification),
+                [(cid,obs.timestamp,obs.region,hashlib.sha256(np.ascontiguousarray(obs.descriptor).tobytes()).hexdigest())
+                 for cid,obs in a.observation_support.items()]))
+        features=[(fid,r.computation_version,r.computation_timestamp,r.source_anchor_ids,r.source_camera_ids,
+                   r.source_region,getattr(r.tensor,'_version',None),self._nbytes(r.tensor)) for fid,r in self.features.items()]
+        value=(self.generation,self.last_timestamp,self.commit_count,anchors,features)
+        return hashlib.sha256(json.dumps(json_value(value),sort_keys=True,allow_nan=False).encode()).hexdigest()
 
     @staticmethod
     def _nbytes(tensor):
@@ -62,7 +93,7 @@ class StateStore:
         capture = self.config.capture_tensors and (self.config.capture_backbone or feature.feature_kind != "backbone")
         if capture and count + self.tensor_bytes <= self.config.max_tensor_bytes and tensor is not None:
             if isinstance(tensor, np.ndarray):
-                tensor = tensor.copy()
+                tensor = immutable_array(tensor)
             else:
                 tensor = tensor.detach().to(self.config.storage_device).clone()
         else:

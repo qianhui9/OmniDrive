@@ -29,6 +29,8 @@ class OnlineVisibilityEvidence:
     dense_source_map: Optional[np.ndarray] = None  # measured current-to-history coordinates
     source: str = "same_rgb_bidirectional_lk_calibrated_geometry_local_patch"
     transformer_dependency_certified: bool = False
+    local_rejection_mask: Optional[np.ndarray] = None
+    raw_correspondence_supported: Optional[np.ndarray] = None
 
 
 @dataclass
@@ -101,6 +103,8 @@ class WorldAnchor:
     association_history: List[dict] = field(default_factory=list)
     geometry_uncertainty_calibrated: bool = False
     last_verified_source_frame: Optional[str] = None
+    state_version: str = ""
+    physical_certification: Optional['PhysicalCertificationResult'] = None
 
 
 @dataclass
@@ -159,6 +163,37 @@ class FullOutputs:
     anchors: List[PerceptionAnchor]
     features: List[ComputedFeature] = field(default_factory=list)
     source: str = "actual_perception"
+
+
+@dataclass(frozen=True)
+class PhysicalEvidence:
+    """Canonical measured producer receipt, not identity/foreground booleans."""
+    anchor_id: str
+    source_frame_id: str
+    current_frame_id: str
+    scene_id: str
+    source_epoch: int
+    source_state_version: str
+    current_state_version: str
+    source_frame_digest: str
+    current_frame_digest: str
+    execution_signature: str
+    evidence_timestamp: float
+    producer_id: str
+    measurements_json: str
+    authentication_tag: str = ""
+
+
+@dataclass(frozen=True)
+class PhysicalCertificationResult:
+    certified: bool
+    certified_claim: Optional[str]
+    rejection_reasons: Tuple[str, ...]
+    evidence_provenance: Dict[str, Any]
+    source_state_version: Optional[str] = None
+    current_state_version: Optional[str] = None
+    source_frame_id: Optional[str] = None
+    current_frame_id: Optional[str] = None
 
 
 @dataclass

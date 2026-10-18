@@ -101,10 +101,51 @@ def dense_support(previous,current,config,exclusion=None):
     rad=config.dense_guard_radius_px
     stable=cv2.erode(good.astype(np.uint8),np.ones((2*rad+1,2*rad+1),np.uint8),
                      borderType=cv2.BORDER_CONSTANT,borderValue=0).astype(bool)
+    if config.dense_region_policy=='local_visibility':
+        # Reject locally around measured visibility/depth-motion discontinuities.
+        # The dynamic swept footprint supplied by the manager is still applied.
+        rejected,local_diag=local_visibility_rejection(previous,current,source,forward,reverse,fb,
+                                                       jacobian,difference,textured,config)
+        stable &= ~rejected
+        diag.update(local_diag)
+        diag['_local_rejection_mask']=rejected  # consumed before JSON diagnostics
     diag.update(dense_validation_ms=(perf_counter()-t)*1000,dense_support_area_ratio=float(stable.mean()),
                 dense_fb_area_ratio=float((boundary&finite&(fb<=.35)).mean()),
                 dense_geometry_photo_area_ratio=float(good.mean()),dense_source='bidirectional_DIS_per_pixel_ray_photo_texture_neighbourhood')
     return stable,source.astype(np.float32),diag
+
+
+def local_visibility_rejection(previous,current,source,forward,reverse,fb,jacobian,difference,textured,config):
+    """Reject uncertainty near measured boundaries; no GT or full-image guard.
+
+    Rotation-compensated parallax gradients expose depth/motion discontinuities.
+    These are uncertainty seeds, NOT evidence of foreground ownership or semantic
+    change. A local dilation of rejection cannot create stable pixels.
+    """
+    h,w=source.shape[:2]
+    yy,xx=np.mgrid[:h,:w]
+    relative=current.world_to_camera@np.linalg.inv(previous.world_to_camera)
+    rays=np.c_[source.reshape(-1,2),np.ones(h*w)]@np.linalg.inv(previous.intrinsic).T
+    rotated=rays@relative[:3,:3].T
+    uvh=rotated@current.intrinsic.T
+    with np.errstate(invalid='ignore',divide='ignore'):
+        rotation_uv=(uvh[:,:2]/uvh[:,2:]).reshape(h,w,2)
+    parallax=np.stack((xx,yy),axis=-1)-rotation_uv
+    finite=np.isfinite(parallax).all(2)&np.isfinite(fb)
+    parallax=np.nan_to_num(parallax,nan=0.,posinf=0.,neginf=0.)
+    jump=np.maximum(np.linalg.norm(np.gradient(parallax,axis=0),axis=2),
+                    np.linalg.norm(np.gradient(parallax,axis=1),axis=2))
+    depth_boundary=finite&(jump>config.local_parallax_jump_px)
+    fold=finite&((jacobian<.5)|(jacobian>2.))
+    ambiguous_flow=finite&(fb>config.flow_fb_max_px)
+    strong_residual=finite&textured&(difference>max(.08,config.support_residual_max*2))
+    seeds=depth_boundary|fold|ambiguous_flow|strong_residual|~finite
+    radius=config.local_boundary_radius_px
+    rejected=cv2.dilate(seeds.astype(np.uint8),np.ones((2*radius+1,2*radius+1),np.uint8)).astype(bool)
+    return rejected,dict(local_boundary_seed_area=float(seeds.mean()),
+        local_depth_motion_boundary_area=float(depth_boundary.mean()),
+        local_visibility_rejection_area=float(rejected.mean()),
+        local_policy='measured_parallax_fb_fold_photo_boundary_rejection_only')
 
 
 def swept_dynamic_region(anchor, camera, projection, config):
