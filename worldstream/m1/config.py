@@ -96,9 +96,15 @@ class M1Config:
     dense_region_policy: str = 'uniform'  # experimental local boundary rejection
     local_boundary_radius_px: int = 12
     local_parallax_jump_px: float = 1.0
+    patch_geometry_model: str = 'frontoparallel'
+    joint_observation_disambiguation: bool = False
 
     def __post_init__(self):
         import math
+        if self.patch_geometry_model not in ('frontoparallel', 'local_inverse_depth'):
+            raise ValueError('Unknown conditional patch geometry model')
+        if type(self.joint_observation_disambiguation) is not bool:
+            raise ValueError('Joint observation switch must be boolean')
         if (not math.isfinite(self.foreground_depth_gap_m) or self.foreground_depth_gap_m<=0
                 or self.dense_region_policy not in ('uniform','local_visibility','surface_visibility','surface_observable_ablation','surface_local_plane','surface_consensus','surface_constraints')
                 or not isinstance(self.local_boundary_radius_px,int) or self.local_boundary_radius_px<1

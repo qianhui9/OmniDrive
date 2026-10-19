@@ -1,0 +1,15 @@
+# M1-only correctness configuration. No new quality thresholds selected on test data.
+execution_mode: observe_only
+temporal_visibility: true
+local_support: true
+dense_motion_guard: true
+dense_local_support: true
+dense_guard_radius_px: 8
+temporal_workers: 6
+association_ambiguity_margin_m: 0.0
+association_history_limit: 16
+pending_timeout_s: 60.0
+trust_detection_velocity: false
+logging: false
+visualization: false
+profiling: true

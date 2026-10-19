@@ -59,12 +59,17 @@ class PatchObservation:
         yy,xx=np.mgrid[-radius:radius+1,-radius:radius+1]
         self.offsets=np.c_[xx.ravel(),yy.ravel()];self.side=2*radius+1
 
-    def compare(self,other,uv,world):
+    def compare(self,other,uv,world,inverse_depth_slopes=None):
         uv=np.asarray(uv,float);world=np.asarray(world,float);n=len(uv)
         grid=uv[:,None,:]+self.offsets
         rays=np.concatenate((grid,np.ones((*grid.shape[:2],1))),axis=2)@np.linalg.inv(self.camera.intrinsic).T
         _,depth=project(world,self.camera)
-        cam_points=rays*depth[:,None,None]
+        if inverse_depth_slopes is None:
+            cam_points=rays*depth[:,None,None]
+        else:
+            with np.errstate(divide='ignore', invalid='ignore'):
+                inverse_depth=1/depth[:,None]+np.asarray(inverse_depth_slopes)@self.offsets.T
+                cam_points=rays/inverse_depth[...,None]
         patch_world=(cam_points-self.camera.world_to_camera[:3,3])@self.camera.world_to_camera[:3,:3]
         projected,z=project(patch_world,other.camera)
         def sample(observation,points):
