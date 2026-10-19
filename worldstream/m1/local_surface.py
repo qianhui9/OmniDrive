@@ -47,6 +47,7 @@ def _history_tracks(previous,current,source,history,target):
 
 def local_surface_support(previous,current,source,candidate,config,history=None):
     tick=perf_counter();h,w=candidate.shape;result=np.zeros_like(candidate)
+    initial_candidate=candidate;units=[]
     diag=dict(surface_claim='local_plane_RGB_observation_support_not_ownership',surface_plane_units_accepted=0,
         surface_two_view_pixels=0,surface_long_baseline_pixels=0,surface_candidate_pixels=int(candidate.sum()))
     if (previous.camera_id!=current.camera_id or previous.coordinate_space!=current.coordinate_space
@@ -97,24 +98,34 @@ def local_surface_support(previous,current,source,candidate,config,history=None)
         for x in range(0,w,unit):
             region=np.s_[y:min(y+unit,h),x:min(x+unit,w)]
             eligible=candidate[region]&~boundary[region]
+            record=dict(bounds=[x,y,min(x+unit,w),min(y+unit,h)],candidate_pixels=int(initial_candidate[region].sum()),
+                eligible_pixels=int(eligible.sum()),attempts=[],primary_reason='candidate_support_missing')
+            if config.surface_diagnostics and record['candidate_pixels']:units.append(record)
             if int(eligible.sum())<8:continue
             accepted=False
             for mode,mask,points in [('two_view',key_ok,key_world),('long_baseline',long_ok,long_world)]:
+                route=dict(mode=mode);record['attempts'].append(route)
+                def reject(reason):
+                    route['reason']=reason;record['primary_reason']=reason
                 sy,sx=np.nonzero(mask[region]&eligible);sy=sy+y;sx=sx+x
-                if len(sx)<8:failures['key_support_missing']+=1;continue
+                route['key_count']=len(sx)
+                if len(sx)<8:reject('key_support_missing');failures['key_support_missing']+=1;continue
                 quadrants=np.unique(np.c_[(sx-x)>=unit/2,(sy-y)>=unit/2],axis=0)
-                if len(quadrants)<3:failures['key_spatial_support']+=1;continue
+                if len(quadrants)<3:reject('key_spatial_support');failures['key_spatial_support']+=1;continue
                 ids=sy*w+sx;world=points[ids];cam=world@current.world_to_camera[:3,:3].T+current.world_to_camera[:3,3]
                 # Spatial checkerboard partition: withheld points never fit n.
                 train=((sx//3+sy//3)%2)==0
-                if train.sum()<4 or (~train).sum()<4:failures['withheld_support_missing']+=1;continue
+                if train.sum()<4 or (~train).sum()<4:reject('withheld_support_missing');failures['withheld_support_missing']+=1;continue
                 design=rays[ids];rho=1/cam[:,2]
                 normal,_,rank,_=np.linalg.lstsq(design[train],rho[train],rcond=None)
-                if rank<3 or not np.isfinite(normal).all():failures['degenerate_plane']+=1;continue
+                if config.surface_diagnostics:
+                    route.update(normal=normal.tolist(),key_current_uv=np.c_[sx,sy].tolist(),
+                        key_source_uv=source[sy,sx].tolist(),key_world=world.tolist(),train=train.tolist())
+                if rank<3 or not np.isfinite(normal).all():reject('degenerate_plane');failures['degenerate_plane']+=1;continue
                 all_y,all_x=np.nonzero(eligible);all_y+=y;all_x+=x;all_ids=all_y*w+all_x
                 inverse=rays[all_ids]@normal
                 if not np.isfinite(inverse).all() or (inverse<=1/200).any() or (inverse>=2).any():
-                    failures['plane_depth_invalid']+=1;continue
+                    reject('plane_depth_invalid');failures['plane_depth_invalid']+=1;continue
                 cc=rays[all_ids]/inverse[:,None]
                 ww=(cc-current.world_to_camera[:3,3])@current.world_to_camera[:3,:3]
                 predicted,z=_project(ww,previous)
@@ -125,25 +136,36 @@ def local_surface_support(previous,current,source,candidate,config,history=None)
                 key_cc=design/(design@normal)[:,None]
                 key_ww=(key_cc-current.world_to_camera[:3,3])@current.world_to_camera[:3,:3]
                 key_pred,kz=_project(key_ww,previous)
+                if config.surface_diagnostics:
+                    route['key_reprojection_errors']=np.linalg.norm(key_pred-source[sy,sx],axis=1).tolist()
                 if ((kz<=.5).any() or not np.isfinite(key_pred).all() or (np.linalg.norm(key_pred-source[sy,sx],axis=1)>.5).any()):
-                    failures['withheld_reprojection_conflict']+=1;continue
+                    reject('withheld_reprojection_conflict');failures['withheld_reprojection_conflict']+=1;continue
                 if mode=='long_baseline':
                     old_pred,oz=_project(key_ww,long[0])
                     if (oz<=.5).any() or (np.linalg.norm(old_pred-long[1][sy,sx],axis=1)>.5).any():
-                        failures['third_view_plane_conflict']+=1;continue
+                        reject('third_view_plane_conflict');failures['third_view_plane_conflict']+=1;continue
                 hull=cv2.convexHull(np.c_[sx-x,sy-y].astype(np.int32));inside=np.zeros(eligible.shape,np.uint8)
                 cv2.fillConvexPoly(inside,hull,1)
                 support&=inside[all_y-y,all_x-x].astype(bool)
                 # A final small erosion confines the evidence to the hull's
                 # interior. It never bridges an unsupported pixel or boundary.
                 local=np.zeros(eligible.shape,np.uint8);local[all_y-y,all_x-x]=support
+                route['before_erosion_pixels']=int(local.sum())
                 local=cv2.erode(local,np.ones((3,3),np.uint8),borderType=cv2.BORDER_CONSTANT,borderValue=0).astype(bool)
-                if not local.any():failures['no_supported_hull_interior']+=1;continue
+                if not local.any():reject('no_supported_hull_interior');failures['no_supported_hull_interior']+=1;continue
+                route['reason']='accepted';record['primary_reason']='accepted';record['accepted_pixels']=int(local.sum())
                 result[region]|=local;diag['surface_'+('two_view_pixels' if mode=='two_view' else 'long_baseline_pixels')]+=int(local.sum())
                 diag['surface_plane_units_accepted']+=1;accepted=True;break
-            if not accepted:failures['unit_unknown']+=1
+            if not accepted:
+                failures['unit_unknown']+=1
+                order=['key_support_missing','key_spatial_support','withheld_support_missing','degenerate_plane',
+                       'plane_depth_invalid','withheld_reprojection_conflict','third_view_plane_conflict','no_supported_hull_interior']
+                if record['attempts']:
+                    record['primary_reason']=max(record['attempts'],key=lambda a:order.index(a['reason']))['reason']
     diag.update(surface_supported_pixels=int(result.sum()),surface_boundary_rejected_pixels=int((candidate&boundary).sum()),
         surface_plane_failure_counts=dict(failures),surface_reason='measured_local_plane_hull',
         surface_history_available=long is not None,surface_temporal_conflict_pixels=int(long[3].sum()) if long is not None else 0,
         surface_ms=(perf_counter()-tick)*1000)
+    if config.surface_diagnostics:
+        diag['_surface_unit_trace']=units;diag['_surface_boundary_mask']=boundary
     return result,diag

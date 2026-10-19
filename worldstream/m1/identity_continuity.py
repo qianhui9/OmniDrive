@@ -25,10 +25,10 @@ def identity_protocol_digest(config, frame):
     # Bind transitive measurement/selection implementations, not just a version label.
     files=['identity_continuity.py','association.py','geometry.py','temporal_visibility.py','geometry_support.py',
            'observation_validator.py','physical_certifier.py','state_manager.py','identity_temporal.py','config.py','state_types.py',
-           'input_contract.py','state_store.py','dense_support.py','foreground_correspondence.py']
+           'input_contract.py','state_store.py','dense_support.py','foreground_correspondence.py','identity_object.py','surface_consensus.py']
     code={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in files}
     from .identity_temporal import PRODUCER
-    value=dict(producer=PRODUCER if config.identity_method=='temporal' else IDENTITY_PRODUCER,code=code,max_displacement_m=MAX_DISPLACEMENT_M,
+    value=dict(producer=(__import__(__package__+'.identity_object',fromlist=['PRODUCER']).PRODUCER if config.identity_method=='temporal_object' else PRODUCER) if config.identity_method.startswith('temporal') else IDENTITY_PRODUCER,code=code,max_displacement_m=MAX_DISPLACEMENT_M,
         config={k:v for k,v in config.to_dict().items() if k not in excluded},
         cameras={cid:[c.coordinate_space,list(c.image.shape)] for cid,c in frame.cameras.items()})
     return hashlib.sha256(json.dumps(value,sort_keys=True).encode()).hexdigest()
@@ -100,7 +100,8 @@ def propose_identity_continuity(anchor,current_anchor,frame,evidence_by_camera,c
 
 def certify_identity_evidence(anchor,current_anchor,frame,evidence,issuer,source_digest,protocol_digest):
     from .identity_temporal import PRODUCER,certify_temporal_identity
-    if isinstance(evidence,PhysicalEvidence) and evidence.producer_id==PRODUCER:
+    from .identity_object import PRODUCER as OBJECT_PRODUCER
+    if isinstance(evidence,PhysicalEvidence) and evidence.producer_id in (PRODUCER,OBJECT_PRODUCER):
         return certify_temporal_identity(anchor,current_anchor,frame,evidence,issuer,source_digest,protocol_digest)
     reasons=[];provenance=dict(identity_only=True,stationarity_certified=False,geometry_attributes_certified=False,
         motion_attributes_certified=False,foreground_ownership_certified=False,same_sensor_RGB=True,independent_sensor=False,

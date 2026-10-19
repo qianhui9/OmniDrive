@@ -65,6 +65,9 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
         from .dense_support import dense_support
         dense,source_map,diagnostics=dense_support(previous,current,config,exclusion=dense_exclusion,surface_history=surface_history)
         evidence.local_rejection_mask=diagnostics.pop('_local_rejection_mask',None)
+        evidence.surface_units=diagnostics.pop('_surface_unit_trace',None)
+        evidence.surface_boundary_mask=diagnostics.pop('_surface_boundary_mask',None)
+        evidence.dense_measurements=diagnostics.pop('_dense_measurements',None)
         evidence.stable_mask=dense & ~changed
         evidence.dense_source_map=source_map
         evidence.source='same_rgb_dense_bidirectional_ray_photo_neighbourhood'

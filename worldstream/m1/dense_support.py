@@ -115,7 +115,12 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
     rad=config.dense_guard_radius_px
     stable=cv2.erode(good.astype(np.uint8),np.ones((2*rad+1,2*rad+1),np.uint8),
                      borderType=cv2.BORDER_CONSTANT,borderValue=0).astype(bool)
-    gate('complete_neighbourhood',stable)
+    if config.dense_region_policy=='surface_consensus':
+        funnel['complete_neighbourhood_baseline_diagnostic']=dict(total_pixels=h*w,
+            standalone_population=int(good.sum()),alone_rejected=int((good&~stable).sum()),
+            incremental_rejected=0,retained=int(good.sum()),baseline_retained=int(stable.sum()),
+            applied=False)
+    else:gate('complete_neighbourhood',stable)
     if config.dense_region_policy=='local_visibility':
         # Reject locally around measured visibility/depth-motion discontinuities.
         # The dynamic swept footprint supplied by the manager is still applied.
@@ -124,7 +129,15 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
         stable &= ~rejected
         diag.update(local_diag)
         diag['_local_rejection_mask']=rejected  # consumed before JSON diagnostics
-    if config.dense_region_policy=='surface_local_plane':
+    if config.dense_region_policy=='surface_consensus':
+        from .surface_consensus import visible_surface_support
+        visible,surface_diag=visible_surface_support(previous,current,source,good,config,surface_history)
+        # Each pixel retains its own measured support; a missing neighbour does
+        # not invalidate an otherwise observed surface. Never fill the hull.
+        stable=good&visible
+        gate('visible_surface_consensus',stable,good.copy())
+        diag.update(surface_diag)
+    elif config.dense_region_policy=='surface_local_plane':
         from .local_surface import local_surface_support
         visible,surface_diag=local_surface_support(previous,current,source,stable,config,surface_history)
         gate('local_plane_surface',visible,stable.copy())
@@ -140,6 +153,10 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
                 dense_fb_area_ratio=float((boundary&finite&(fb<=.35)).mean()),
                 dense_geometry_photo_area_ratio=float(good.mean()),dense_source='bidirectional_DIS_per_pixel_ray_photo_texture_neighbourhood',
                 acceptance_funnel=funnel)
+    if config.surface_diagnostics:
+        diag['_dense_measurements']=dict(forward=forward,reverse=reverse,fb=fb,photo=difference,
+            gradient=grad,texture=np.minimum(sample(eigen0),eigen1),jacobian=jacobian,
+            per_pixel_candidate=good,geometry=geometry)
     return stable,source.astype(np.float32),diag
 
 

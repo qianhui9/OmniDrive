@@ -31,6 +31,9 @@ class OnlineVisibilityEvidence:
     transformer_dependency_certified: bool = False
     local_rejection_mask: Optional[np.ndarray] = None
     raw_correspondence_supported: Optional[np.ndarray] = None
+    surface_units: Optional[List[dict]] = None  # opt-in measured diagnostics, no labels
+    surface_boundary_mask: Optional[np.ndarray] = None
+    dense_measurements: Optional[Dict[str, Any]] = None
 
 
 @dataclass
@@ -105,6 +108,8 @@ class WorldAnchor:
     last_verified_source_frame: Optional[str] = None
     state_version: str = ""
     physical_certification: Optional['PhysicalCertificationResult'] = None
+    association_basis: str = 'unqualified_geometric_track'
+    identity_link_qualified: bool = False
 
 
 @dataclass

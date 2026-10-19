@@ -75,12 +75,21 @@ class M1Config:
     foreground_correspondence: bool = False  # experimental, post-perception only
     identity_continuity: bool = False  # independent claim, experimental Commit only
     identity_method: str = 'selective'  # temporal is an opt-in measured population
+    identity_tracking_policy: str = 'shadow'  # shadow, certified_only, experimental
     identity_history_frames: int = 3
     identity_use_history: bool = True
     identity_resolve_competition: bool = True
     surface_unit_px: int = 16
     surface_use_history: bool = True
     surface_boundary_guard: bool = True
+    surface_consensus_split: bool = True
+    surface_consensus_components: bool = True
+    surface_consensus_withheld: bool = True
+    surface_consensus_expand: bool = True
+    identity_object_support: bool = True
+    identity_object_required: bool = False
+    surface_diagnostics: bool = False
+    identity_diagnostics: bool = False
     foreground_depth_gap_m: float = 1.0
     physical_qualification_path: Optional[str] = None
     physical_qualification_sha256: Optional[str] = None
@@ -91,11 +100,12 @@ class M1Config:
     def __post_init__(self):
         import math
         if (not math.isfinite(self.foreground_depth_gap_m) or self.foreground_depth_gap_m<=0
-                or self.dense_region_policy not in ('uniform','local_visibility','surface_visibility','surface_observable_ablation','surface_local_plane')
+                or self.dense_region_policy not in ('uniform','local_visibility','surface_visibility','surface_observable_ablation','surface_local_plane','surface_consensus')
                 or not isinstance(self.local_boundary_radius_px,int) or self.local_boundary_radius_px<1
                 or not math.isfinite(self.local_parallax_jump_px) or self.local_parallax_jump_px<=0):
             raise ValueError('Invalid experimental evidence/local visibility parameters')
-        if (self.identity_method not in ('selective','temporal')
+        if (self.identity_method not in ('selective','temporal','temporal_object')
+                or self.identity_tracking_policy not in ('shadow','certified_only','experimental')
                 or type(self.identity_history_frames) is not int or not 1<=self.identity_history_frames<=8
                 or type(self.surface_unit_px) is not int or not 8<=self.surface_unit_px<=32):
             raise ValueError('Invalid finite identity history/local surface unit')

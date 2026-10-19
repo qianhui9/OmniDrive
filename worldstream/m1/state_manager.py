@@ -47,6 +47,7 @@ class WorldStateManager:
         self._previous_frame_digest = None
         self._surface_history = {}
         self._identity_history = ()
+        self._identity_hypotheses = ()
         qualification=None
         if self.config.physical_qualification_path:
             import json
@@ -68,6 +69,7 @@ class WorldStateManager:
         self._previous_frame_digest = None
         self._surface_history = {}
         self._identity_history = ()
+        self._identity_hypotheses = ()
 
     def _prepare(self, frame):
         s = self.store
@@ -345,7 +347,7 @@ class WorldStateManager:
             'evidence_origin', 'track_birth_timestamp', 'last_actual_observation_timestamp',
             'last_verified_timestamp', 'last_verified_source_frame', 'last_certified_timestamp',
             'association_count', 'history_observations', 'certified_observation_count',
-            'association_history', 'geometry_uncertainty_calibrated')}
+            'association_history', 'geometry_uncertainty_calibrated', 'association_basis', 'identity_link_qualified')}
             for aid, a in self.store.anchors.items()}
         result.diagnostics = {"reset_reason": reset_reason, "anchors": checks,
             "expired_anchor_ids": expired_ids, "state_epoch": self.store.generation,
@@ -410,6 +412,7 @@ class WorldStateManager:
         self._previous_frame_digest = worker._previous_frame_digest
         self._surface_history = worker._surface_history
         self._identity_history = worker._identity_history
+        self._identity_hypotheses = worker._identity_hypotheses
         self.last_commit_diagnostics = worker.last_commit_diagnostics
         self._pending = None
         self._pending_store = None
@@ -481,14 +484,41 @@ class WorldStateManager:
                     reasons=reasons, certified=False)])[-self.config.association_history_limit:]
             else:
                 accepted_pairs.append((i, j))
-        temporal_proposals={}
-        if self.config.identity_continuity and self.config.identity_method=='temporal':
+        geometric_pairs=list(accepted_pairs)
+        temporal_proposals={};proposal_certificates={}
+        identity_protocol=None
+        if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
             from .identity_temporal import temporal_identity_pairs
+            from .identity_continuity import identity_protocol_digest,IDENTITY_CLAIM
+            identity_protocol=identity_protocol_digest(self.config,frame)
             temporal_proposals=temporal_identity_pairs(anchors,predictions,costs,frame,self._identity_history,
                 self.config,self.validator,self._physical_issuer,self.last_evidence,self._previous_frame_id,self._previous_frame_digest)
-            measured=[edge for edge,p in temporal_proposals.items() if p['status']=='candidate']
+            # A proposal is a relation between actual observations. Check its
+            # named claim before deciding whether it may affect ordinary IDs.
+            for (i,j),proposal in temporal_proposals.items():
+                pred=predictions[j];old=anchors[i]
+                velocity_ok=(pred.velocity_world is not None and np.asarray(pred.velocity_world).shape==(3,)
+                             and np.isfinite(pred.velocity_world).all())
+                target=WorldAnchor(old.anchor_id,frame.scene_id,pred.anchor_type,pred.semantic_class,
+                    immutable_geometry(pred.geometry_world),frame.timestamp,
+                    velocity_world=immutable_array(pred.velocity_world) if velocity_ok else None,
+                    velocity_reliable=bool(pred.velocity_reliable and velocity_ok),geometry_uncertainty=pred.geometry_uncertainty,
+                    source_frame_id=frame.frame_id,source_state_epoch=old.source_state_epoch,
+                    source_execution_signature=frame.execution_signature)
+                proposal_certificates[i,j]=certify_physical_evidence(old,target,frame,proposal['evidence'],self._physical_issuer,
+                    proposal.get('source_frame_digest',self._previous_frame_digest),identity_protocol,claim=IDENTITY_CLAIM)
+            allowed=np.full_like(costs,np.inf)
+            for edge,p in temporal_proposals.items():
+                if p['status']=='candidate' and (self.config.identity_tracking_policy=='experimental'
+                        or (self.config.identity_tracking_policy=='certified_only' and proposal_certificates[edge].certified)):
+                    allowed[edge]=costs[edge]
+            from .association import legal_assignment
+            measured=legal_assignment(allowed)
             measured_rows={i for i,j in measured};measured_cols={j for i,j in measured}
             accepted_pairs=measured+[(i,j) for i,j in accepted_pairs if i not in measured_rows and j not in measured_cols]
+        if (len({i for i,j in accepted_pairs})!=len(accepted_pairs)
+                or len({j for i,j in accepted_pairs})!=len(accepted_pairs)):
+            raise ValueError('Association must be one-to-one before updating state')
         assoc_ms = (perf_counter() - assoc_start) * 1000
         matched = {j: anchors[i].anchor_id for i, j in accepted_pairs}
         committed = []
@@ -498,9 +528,14 @@ class WorldStateManager:
         for (i,j),proposal in temporal_proposals.items():
             identity_results.append(dict(anchor_id=anchors[i].anchor_id,prediction_index=selected[j][0],
                 source_frame_id=anchors[i].source_frame_id,current_frame_id=frame.frame_id,
+                source_state_version=state_geometry_version(anchors[i]),source_epoch=anchors[i].source_state_epoch,
+                tracking_policy=self.config.identity_tracking_policy,
+                applied_to_tracking=(i,j) in accepted_pairs and (i,j) not in geometric_pairs,
+                certified=proposal_certificates[i,j].certified,
+                qualification_reasons=list(proposal_certificates[i,j].rejection_reasons),
+                protocol_digest=identity_protocol,
                 **{k:v for k,v in proposal.items() if k!='evidence'}))
         certification_ms=0.
-        identity_protocol=None
         if self.config.identity_continuity:
             from .identity_continuity import identity_protocol_digest
             identity_protocol=identity_protocol_digest(self.config,frame)
@@ -528,11 +563,21 @@ class WorldStateManager:
             a.last_certified_timestamp = None
             a.last_verified_source_frame = prior.last_verified_source_frame if prior else None
             a.certified_observation_count = prior.certified_observation_count if prior else 0
+            if prior is not None:
+                edge=(next(i for i,old in enumerate(anchors) if old.anchor_id==aid),j)
+                certificate=proposal_certificates.get(edge)
+                a.association_basis=('qualified_identity' if certificate is not None and certificate.certified else
+                    'experimental_identity_hypothesis' if edge not in geometric_pairs else 'unqualified_geometric_track')
+                a.identity_link_qualified=bool(certificate is not None and certificate.certified)
+                if a.association_basis=='experimental_identity_hypothesis':
+                    a.last_verified_timestamp=None;a.last_verified_source_frame=None
+                    a.certified_observation_count=0;a.history_observations=1
             a.association_count = prior.association_count + 1 if prior else 0
             a.association_history = ((prior.association_history if prior else []) + [dict(
                 frame_id=frame.frame_id, timestamp=frame.timestamp, source_epoch=self.store.generation,
-                prediction_index=selected[j][0], status='geometric_candidate' if prior else 'new_observation',
-                certified=False)])[-self.config.association_history_limit:]
+                prediction_index=selected[j][0], status=a.association_basis if prior else 'new_observation',
+                certified=a.identity_link_qualified,
+                source_state_version=state_geometry_version(prior) if prior else None)])[-self.config.association_history_limit:]
             a.last_innovation_m = (float(np.linalg.norm(
                 pred.geometry_world.center - predict_geometry(prior, frame.timestamp).center))
                 if prior else None)
@@ -554,19 +599,20 @@ class WorldStateManager:
                     a.last_certified_timestamp=frame.timestamp
                     a.certified_observation_count+=1
             if (prior is not None and self.config.identity_continuity
-                    and (self.config.identity_method!='temporal' or prior.anchor_type=='object')):
+                    and (not self.config.identity_method.startswith('temporal') or prior.anchor_type=='object')):
                 from .identity_continuity import propose_identity_continuity, IDENTITY_CLAIM
                 i=next(i for i,old in enumerate(anchors) if old.anchor_id==aid)
                 competing=np.r_[np.delete(costs[i],j),np.delete(costs[:,j],i)]
-                identity=(temporal_proposals[i,j] if self.config.identity_method=='temporal' else
+                identity=(temporal_proposals[i,j] if self.config.identity_method.startswith('temporal') else
                     propose_identity_continuity(prior,a,frame,self.last_evidence,self.config,self.validator,
                     self._physical_issuer,self._previous_frame_digest,self._previous_frame_id,competing))
                 source_digest=identity.get('source_frame_digest',self._previous_frame_digest)
                 certification_start=perf_counter()
-                certificate=certify_physical_evidence(prior,a,frame,identity['evidence'],self._physical_issuer,
-                    source_digest,identity_protocol,claim=IDENTITY_CLAIM)
+                certificate=(proposal_certificates[i,j] if self.config.identity_method.startswith('temporal') else
+                    certify_physical_evidence(prior,a,frame,identity['evidence'],self._physical_issuer,
+                    source_digest,identity_protocol,claim=IDENTITY_CLAIM))
                 certification_ms+=(perf_counter()-certification_start)*1000
-                if self.config.identity_method=='temporal':
+                if self.config.identity_method.startswith('temporal'):
                     row=next(r for r in identity_results if r['anchor_id']==aid and r['prediction_index']==selected[j][0])
                     row.update(protocol_digest=identity_protocol,qualification_reasons=list(certificate.rejection_reasons))
                 else:
@@ -576,6 +622,8 @@ class WorldStateManager:
                 if certificate.certified:
                     a.physical_certification=certificate;a.last_certified_timestamp=frame.timestamp
                     a.certified_observation_count+=1
+                    a.identity_link_qualified=True;a.association_basis='qualified_identity'
+                    a.association_history[-1].update(status='qualified_identity',certified=True)
             # New support always comes from an actually computed frame, never chained crops.
             for cid, camera in frame.cameras.items():
                 p = project_anchor(a, camera, self.config, validated_cameras[cid])
@@ -586,6 +634,11 @@ class WorldStateManager:
                                                                       camera.timestamp, p.coverage)
             self.store.anchors[aid] = a
             committed.append(aid)
+        for row in identity_results:
+            if 'prediction_index' in row:
+                j=next(j for j,(raw,_) in enumerate(selected) if raw==row['prediction_index'])
+                row['target_anchor_id']=committed[j]
+                row['target_state_version']=state_geometry_version(self.store.anchors[committed[j]])
         self.store.prune(frame.timestamp)
         # Per-anchor observation records have known crop provenance; branch records remain
         # conservative. Only computed feature slots advance their own versions.
@@ -628,7 +681,7 @@ class WorldStateManager:
         self.store.execution_signature = frame.execution_signature
         self.store.commit_count += 1
         self._surface_history = {}
-        if self.config.dense_region_policy in ('surface_visibility','surface_local_plane'):
+        if self.config.dense_region_policy in ('surface_visibility','surface_local_plane','surface_consensus'):
             for cid,e in self.last_evidence.items():
                 old=self._previous_cameras.get(cid)
                 if old is not None and e.dense_source_map is not None:
@@ -645,7 +698,7 @@ class WorldStateManager:
                 saved.world_to_camera = immutable_array(camera.world_to_camera)
                 saved.visibility_mask = None; saved.geometry_support_mask = None
                 self._previous_cameras[cid] = saved
-        if self.config.identity_continuity and self.config.identity_method=='temporal':
+        if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
             # Only actual successful commits enter this bounded tuple. A failed
             # transaction cannot append an image or advance a source timestamp.
             from .identity_temporal import camera_snapshot_digest
@@ -659,6 +712,7 @@ class WorldStateManager:
             self._identity_history=self._identity_history[-self.config.identity_history_frames:]
         self._previous_frame_id=frame.frame_id
         self._previous_frame_digest=self._pending_digest
+        self._identity_hypotheses=tuple(copy.deepcopy(identity_results))
         self.last_commit_diagnostics = {"source": full_outputs.source, "committed_anchor_ids": committed,
             "association_pairs": [[anchors[i].anchor_id, selected[j][0]] for i, j in accepted_pairs],
             "geometric_candidate_pairs": [[anchors[i].anchor_id, selected[j][0]] for i, j in pairs],
@@ -667,6 +721,8 @@ class WorldStateManager:
             "excluded_prediction_count": len(candidates) - len(selected),
             "malformed_prediction_count": malformed,
             "association_is_identity_certification": False,
+            "geometric_tracking_pairs": [[anchors[i].anchor_id,selected[j][0]] for i,j in geometric_pairs],
+            "identity_tracking_policy": self.config.identity_tracking_policy,
             "post_perception_physical_certifications": physical_results,
             "foreground_correspondence_proposals": foreground_results,
             "identity_continuity_proposals": identity_results,
@@ -687,6 +743,10 @@ class WorldStateManager:
         if self.last_result is None or self.last_result.diagnostics.get('transaction_status') == 'aborted':
             raise RuntimeError("Call precheck first")
         return copy.deepcopy(self.last_result)
+
+    def get_identity_hypotheses(self):
+        """Audit relations from the last atomic commit; ordinary IDs are not proof."""
+        return copy.deepcopy(self._identity_hypotheses)
 
     def get_current_certifications(self):
         """Read the last atomically committed state, never pending detections.

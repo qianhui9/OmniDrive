@@ -69,7 +69,7 @@ class StateStore:
         for aid,a in self.anchors.items():
             anchors.append((aid,state_geometry_version(a),a.source_score,a.history_observations,
                 a.last_verified_timestamp,a.last_certified_timestamp,a.association_history,
-                repr(a.physical_certification),
+                repr(a.physical_certification),a.association_basis,a.identity_link_qualified,
                 [(cid,obs.timestamp,obs.region,hashlib.sha256(np.ascontiguousarray(obs.descriptor).tobytes()).hexdigest())
                  for cid,obs in a.observation_support.items()]))
         features=[(fid,r.computation_version,r.computation_timestamp,r.source_anchor_ids,r.source_camera_ids,

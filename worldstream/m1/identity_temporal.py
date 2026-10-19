@@ -86,6 +86,11 @@ def _measure_view(anchor,target,old,cam,validator,config):
     v.update(total_tracks=total,measured_tracks=int(measured.sum()),tracks=n,
         source_region=list(obs.region),current_region=list(projection.region),source_timestamp=old.timestamp,current_timestamp=cam.timestamp,
         source_coordinate_space=old.coordinate_space,current_coordinate_space=cam.coordinate_space)
+    if config.identity_diagnostics:
+        from .state_types import json_value
+        v['track_diagnostics']=json_value(dict(source_points=p.tolist(),current_points=q.tolist(),
+            fb_error_px=fb.tolist(),correspondence_valid=valid.tolist(),patch_supported=photo.tolist(),
+            patch_residual=residual.tolist(),inside_current=inside.tolist(),selected=selected.tolist()))
     if n<4 or n/total<.8 or quadrants(p[selected],obs.region)<3 or quadrants(q[selected],projection.region)<3:
         contradictory=(int(measured.sum())>=4 and float((measured&~inside).sum())/total>=.8)
         return dict(v,status='contradicted' if contradictory else 'unknown',reason='tracks_exclude_target' if contradictory else 'crop_track_or_spatial_support_insufficient',
@@ -139,6 +144,9 @@ def measure_pair(anchor,target,frame,history,config,validator):
     m=dict(source_class=anchor.semantic_class,current_class=target.semantic_class,
         source_center=anchor.geometry_world.center.tolist(),current_center=target.geometry_world.center.tolist(),
         displacement_m=float(np.linalg.norm(target.geometry_world.center-anchor.geometry_world.center)),views=[],dependency=DEPENDENCY)
+    if config.identity_method=='temporal_object':
+        from .identity_object import DEPENDENCY as OBJECT_DEPENDENCY
+        m['dependency']=OBJECT_DEPENDENCY
     m['descriptor_config']={k:getattr(config,k) for k in ('descriptor','descriptor_size','min_texture_std','min_region_area_px')}
     m['producer_config']=config.to_dict()
     if (record is None or record['scene_id']!=frame.scene_id or record['epoch']!=anchor.source_state_epoch
@@ -159,7 +167,14 @@ def measure_pair(anchor,target,frame,history,config,validator):
     if not reasons:
         for cid,cam in frame.cameras.items():
             old=record['cameras'].get(cid)
-            if old is not None:m['views'].append(_measure_view(anchor,target,old,cam,validator,config))
+            if old is not None:
+                view=_measure_view(anchor,target,old,cam,validator,config)
+                if (config.identity_method=='temporal_object' and config.identity_object_support
+                        and ((config.identity_object_required and view['status']=='supported') or (view['status']=='unknown'
+                            and view['reason'] in ('crop_track_or_spatial_support_insufficient','incoherent_local_motion','folded_or_compressed_motion')))):
+                    from .identity_object import measure_object_view
+                    view=measure_object_view(anchor,target,old,cam,validator,config,view)
+                m['views'].append(view)
         if not any(v['status']=='supported' for v in m['views']):reasons.append('measured_motion_identity_observation_missing')
         if any(v['status']=='contradicted' for v in m['views']):reasons.append('observable_camera_conflict')
     return dict(status='candidate' if not reasons else 'unknown',rejection_reasons=reasons,measurements=m),record
@@ -184,7 +199,7 @@ def temporal_identity_pairs(anchors,predictions,costs,frame,history,config,valid
         if (proposal['status']=='unknown' and proposal['rejection_reasons']==['measured_motion_identity_observation_missing']
                 and not any(v['reason'] in binding_failures for v in proposal['measurements']['views'])
                 and not np.isfinite(np.delete(costs[i],j)).any() and not np.isfinite(np.delete(costs[:,j],i)).any()
-                and legacy_evidence is not None):
+                and legacy_evidence is not None and not config.identity_object_required):
             from .identity_continuity import propose_identity_continuity
             fallback=propose_identity_continuity(anchor,target,frame,legacy_evidence,config,validator,issuer,
                 legacy_digest,legacy_frame_id)
@@ -219,9 +234,12 @@ def temporal_identity_pairs(anchors,predictions,costs,frame,history,config,valid
         proposal['measurements']['resolved_competition']=proposal['resolved_competition']
         if reasons:proposal['status']='unknown';continue
         if proposal['acceptance_path']=='selective_two_view_retained':continue
+        producer=PRODUCER
+        if config.identity_method=='temporal_object':
+            from .identity_object import PRODUCER as producer
         evidence=PhysicalEvidence(anchors[i].anchor_id,anchors[i].source_frame_id,frame.frame_id,frame.scene_id,
             anchors[i].source_state_epoch,state_geometry_version(anchors[i]),state_geometry_version(target),
-            record['frame_digest'],frame_digest(frame),frame.execution_signature,frame.timestamp,PRODUCER,
+            record['frame_digest'],frame_digest(frame),frame.execution_signature,frame.timestamp,producer,
             json.dumps(proposal['measurements'],sort_keys=True,allow_nan=False))
         proposal['evidence']=issuer._mint_measured(evidence)
     elapsed=(perf_counter()-tick)*1000
@@ -238,7 +256,11 @@ def certify_temporal_identity(anchor,current,frame,evidence,issuer,source_digest
     else:
         try:
             m=json.loads(evidence.measurements_json);reject_oracle_metadata(m)
-            if (evidence.producer_id!=PRODUCER or m['dependency']!=DEPENDENCY):reasons.append('identity_producer_or_dependency_mismatch')
+            from .identity_object import PRODUCER as OBJECT_PRODUCER,DEPENDENCY as OBJECT_DEPENDENCY,POPULATION as OBJECT_POPULATION
+            object_method=evidence.producer_id==OBJECT_PRODUCER
+            if (evidence.producer_id not in (PRODUCER,OBJECT_PRODUCER)
+                    or m['dependency']!=(OBJECT_DEPENDENCY if object_method else DEPENDENCY)):
+                reasons.append('identity_producer_or_dependency_mismatch')
             if (anchor.anchor_id!=current.anchor_id or evidence.anchor_id!=anchor.anchor_id
                     or anchor.scene_id!=frame.scene_id or current.scene_id!=frame.scene_id or evidence.scene_id!=frame.scene_id):
                 reasons.append('anchor_or_scene_binding_mismatch')
@@ -276,13 +298,14 @@ def certify_temporal_identity(anchor,current,frame,evidence,issuer,source_digest
                 if v['status']!='supported':continue
                 cid=v['camera'];cam=frame.cameras[cid];obs=anchor.observation_support[cid]
                 p=np.asarray(v['source_points'],float);q=np.asarray(v['current_points'],float);n=len(p)
-                fb=np.asarray(v['fb_error_px'],float);photo=np.asarray(v['patch_residual'],float);matrix=np.asarray(v['motion_matrix'],float)
+                fb=np.asarray(v['fb_error_px'],float);photo=np.asarray(v['patch_residual'],float);matrix=np.asarray(v.get('motion_matrix',np.eye(2,3)),float)
+                object_view=v.get('observation_model')=='translation_compensated_box_surface_ring'
                 r=np.asarray(v['source_region'],float);s=np.asarray(v['current_region'],float)
                 if (p.shape!=(n,2) or q.shape!=p.shape or n<4 or fb.shape!=(n,) or photo.shape!=(n,) or matrix.shape!=(2,3)
                         or r.shape!=(4,) or s.shape!=(4,) or not all(np.isfinite(a).all() for a in (p,q,fb,photo,matrix,r,s))
                         or (fb<0).any() or (fb>.75).any() or (photo<0).any() or (photo>.04).any()
                         or len(np.unique(p,axis=0))!=n or len(np.unique(q,axis=0))!=n
-                        or type(v['total_tracks']) is not int or v['total_tracks']<n or n/v['total_tracks']<.8):
+                        or type(v['total_tracks']) is not int or v['total_tracks']<n or (not object_view and n/v['total_tracks']<.8)):
                     reasons.append('invalid_measured_motion_tracks');continue
                 if (not np.array_equal(r,obs.region) or not np.array_equal(v['source_descriptor'],obs.descriptor)
                         or obs.camera_id!=cid or cam.camera_id!=cid or v['source_timestamp']!=obs.timestamp
@@ -293,6 +316,12 @@ def certify_temporal_identity(anchor,current,frame,evidence,issuer,source_digest
                     reasons.append('camera_crop_or_spatial_binding_mismatch')
                 projection=project_anchor(current,cam,producer_config)
                 if not projection.valid or not np.array_equal(s,projection.region):reasons.append('current_crop_geometry_binding_mismatch')
+                if object_view:
+                    from .identity_object import validate_object_view
+                    if (not object_method or producer_config.identity_method!='temporal_object'
+                            or not validate_object_view(anchor,current,cam,v,producer_config,m)):
+                        reasons.append('object_surface_ring_measurements_invalid')
+                    supported.append(v);continue
                 if (not .5<=np.linalg.det(matrix[:,:2])<=2 or (np.linalg.norm(np.c_[p,np.ones(n)]@matrix.T-q,axis=1)>.75).any()):
                     reasons.append('motion_model_not_supported')
                 from .temporal_visibility import gray_image
@@ -332,8 +361,8 @@ def certify_temporal_identity(anchor,current,frame,evidence,issuer,source_digest
                             or not 0<view['current_timestamp']-c['older_timestamp']<=1 or not c['older_frame_digest'] or not bound
                             or len(np.unique(p,axis=0))!=n or not np.allclose(arrays[0],np.linalg.norm(long-q,axis=1),atol=1e-5)):
                         reasons.append('temporal_loop_measurements_invalid')
-            reasons.extend(issuer.qualification_reasons(evidence,frame,protocol_digest,IDENTITY_CLAIM,POPULATION))
-            provenance.update(producer=PRODUCER,protocol_digest=protocol_digest,receipt=evidence.authentication_tag,
+            reasons.extend(issuer.qualification_reasons(evidence,frame,protocol_digest,IDENTITY_CLAIM,OBJECT_POPULATION if object_method else POPULATION))
+            provenance.update(producer=evidence.producer_id,protocol_digest=protocol_digest,receipt=evidence.authentication_tag,
                 source_frame_digest=evidence.source_frame_digest,current_frame_digest=evidence.current_frame_digest,
                 execution_signature=evidence.execution_signature,risk_qualification_sha256=issuer.qualification_sha256,
                 supported_views=len(supported),same_sensor_RGB=True,independent_sensor=False)
