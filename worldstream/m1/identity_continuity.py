@@ -53,7 +53,9 @@ def propose_identity_continuity(anchor,current_anchor,frame,evidence_by_camera,c
             projection=project_anchor(current_anchor,cam,config)
             if not projection.valid:continue
             view=dict(camera=cid,reason='temporal_source_mismatch');views.append(view)
-            if (e.camera_id!=cid or abs(e.source_timestamp-old.timestamp)>1e-5
+            if (e.camera_id!=cid or old.camera_id!=cid
+                    or not np.isfinite([e.source_timestamp,old.timestamp,e.timestamp,cam.timestamp]).all()
+                    or abs(e.source_timestamp-old.timestamp)>1e-5
                     or e.timestamp!=cam.timestamp or not cam.timing_reliable):continue
             p=e.source_points;q=e.current_points;r=np.asarray(old.region);s=np.asarray(projection.region)
             inside=(p[:,0]>=r[0])&(p[:,0]<r[2])&(p[:,1]>=r[1])&(p[:,1]<r[3])
@@ -96,7 +98,8 @@ def propose_identity_continuity(anchor,current_anchor,frame,evidence_by_camera,c
 
 def certify_identity_evidence(anchor,current_anchor,frame,evidence,issuer,source_digest,protocol_digest):
     reasons=[];provenance=dict(identity_only=True,stationarity_certified=False,geometry_attributes_certified=False,
-        motion_attributes_certified=False,foreground_ownership_certified=False,same_sensor_RGB=True,independent_sensor=False)
+        motion_attributes_certified=False,foreground_ownership_certified=False,same_sensor_RGB=True,independent_sensor=False,
+        claim_scope='Same physical entity between source and current observations only')
     if not isinstance(evidence,PhysicalEvidence) or issuer is None or not issuer.authentic(evidence):
         reasons.append('trusted_measured_identity_evidence_missing')
     else:
@@ -133,14 +136,32 @@ def certify_identity_evidence(anchor,current_anchor,frame,evidence,issuer,source
                 p=np.asarray(v['source_points'],float);q=np.asarray(v['current_points'],float);fb=np.asarray(v['fb_error_px'],float)
                 a=np.asarray(v['source_descriptor'],float);b=np.asarray(v['current_descriptor'],float)
                 if (p.ndim!=2 or p.shape[1:]!=(2,) or q.shape!=p.shape or len(p)<4 or fb.shape!=(len(p),)
-                        or not np.isfinite(p).all() or not np.isfinite(q).all() or not np.isfinite(fb).all() or (fb>.75).any()
+                        or not np.isfinite(p).all() or not np.isfinite(q).all() or not np.isfinite(fb).all()
+                        or (fb<0).any() or (fb>.75).any()
                         or a.shape!=b.shape or not a.size or not np.isfinite(a).all() or not np.isfinite(b).all()
                         or np.mean(np.abs(a-b))>.18 or v['quadrants']<3):
                     reasons.append('measured_identity_tracks_or_crop_insufficient');continue
                 cid=v['camera'];cam=frame.cameras[cid];old=anchor.observation_support[cid]
                 if (v['source_timestamp']!=old.timestamp or v['current_timestamp']!=cam.timestamp or not cam.timing_reliable
-                        or not np.array_equal(a,old.descriptor)):
+                        or not np.isfinite([old.timestamp,cam.timestamp]).all()
+                        or old.camera_id!=cid or cam.camera_id!=cid or not np.array_equal(a,old.descriptor)):
                     reasons.append('camera_or_source_observation_mismatch');continue
+                source_region=np.asarray(v['source_region'],float)
+                current_region=np.asarray(v['current_region'],float)
+                if (source_region.shape!=(4,) or current_region.shape!=(4,)
+                        or not np.isfinite(source_region).all() or not np.isfinite(current_region).all()
+                        or not np.array_equal(source_region,old.region)
+                        or (source_region[2:]<=source_region[:2]).any()
+                        or (current_region[2:]<=current_region[:2]).any()):
+                    reasons.append('observation_region_binding_mismatch');continue
+                # Count spatial support from the measurements, never a producer's
+                # asserted quadrant count or repeated copies of a single track.
+                quadrants=len(np.unique(np.clip(((p-source_region[:2])/
+                    (source_region[2:]-source_region[:2])*2).astype(int),0,1),axis=0))
+                if (quadrants<3 or quadrants!=v['quadrants']
+                        or len(np.unique(p,axis=0))!=len(p) or len(np.unique(q,axis=0))!=len(q)
+                        or v.get('reason')!='measured_identity_population_candidate'):
+                    reasons.append('measured_identity_spatial_support_invalid')
                 for pts,region in ((p,v['source_region']),(q,v['current_region'])):
                     if not ((pts[:,0]>=region[0])&(pts[:,0]<region[2])&(pts[:,1]>=region[1])&(pts[:,1]<region[3])).all():
                         reasons.append('tracks_outside_claimed_crop')
@@ -148,6 +169,8 @@ def certify_identity_evidence(anchor,current_anchor,frame,evidence,issuer,source
             if not supported:reasons.append('identity_observation_missing')
             reasons.extend(issuer.qualification_reasons(evidence,frame,protocol_digest,IDENTITY_CLAIM,IDENTITY_POPULATION))
             provenance.update(producer=IDENTITY_PRODUCER,protocol_digest=protocol_digest,receipt=evidence.authentication_tag,
+                source_frame_digest=evidence.source_frame_digest,current_frame_digest=evidence.current_frame_digest,
+                execution_signature=evidence.execution_signature,risk_qualification_sha256=issuer.qualification_sha256,
                 qualification='Pinned independently audited scene/log risk artifact required',supported_views=supported)
         except (ValueError,TypeError,KeyError,IndexError,OverflowError):reasons.append('malformed_or_forbidden_identity_evidence')
     return PhysicalCertificationResult(not reasons,IDENTITY_CLAIM if not reasons else None,tuple(sorted(set(reasons))),provenance,

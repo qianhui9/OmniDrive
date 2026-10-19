@@ -660,6 +660,7 @@ class WorldStateManager:
                     or c.current_frame_id!=self._previous_frame_id or a.source_frame_id!=self._previous_frame_id
                     or c.timestamp!=self.store.last_timestamp or a.source_timestamp!=self.store.last_timestamp
                     or c.state_epoch!=self.store.generation or a.source_state_epoch!=self.store.generation
+                    or a.source_execution_signature!=self.store.execution_signature
                     or c.current_state_version!=state_geometry_version(a) or a.state_version!=c.current_state_version):
                 continue
             certificates.append(copy.deepcopy(c))

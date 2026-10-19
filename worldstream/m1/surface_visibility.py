@@ -10,6 +10,7 @@ from types import SimpleNamespace
 import cv2
 import numpy as np
 from .foreground_correspondence import triangulate_correspondences
+from .geometry import valid_projection_camera
 
 
 def surface_visibility_support(previous,current,source,candidate,history=None,two_view_only=False):
@@ -18,6 +19,10 @@ def surface_visibility_support(previous,current,source,candidate,history=None,tw
               surface_claim='three_view_RGB_ray_and_correspondence_closure_not_pixel_ownership',surface_reason='missing_history')
     idx=np.flatnonzero(candidate)
     if not len(idx):return result,dict(diag,surface_ms=(perf_counter()-start)*1000)
+    if (previous.camera_id!=current.camera_id or previous.coordinate_space!=current.coordinate_space
+            or previous.image.shape[:2]!=(h,w) or source.shape!=(h,w,2)
+            or not all(valid_projection_camera(c) and c.timing_reliable for c in (previous,current))):
+        return result,dict(diag,surface_reason='camera_contract_mismatch',surface_ms=(perf_counter()-start)*1000)
     yy,xx=np.mgrid[:h,:w];target=np.stack((xx,yy),-1).astype(np.float32)
     p=source.reshape(-1,2)[idx];q=target.reshape(-1,2)[idx]
     xyz,angle,error,_,valid=triangulate_correspondences(previous,current,SimpleNamespace(source_points=p,current_points=q))
@@ -28,6 +33,9 @@ def surface_visibility_support(previous,current,source,candidate,history=None,tw
         return result,dict(diag,surface_supported_pixels=int(valid.sum()),surface_reason='two_view_observability_ablation',surface_ms=(perf_counter()-start)*1000)
     if history is None:return result,dict(diag,surface_ms=(perf_counter()-start)*1000)
     older,history_current_timestamp,previous_source=history
+    if (older.camera_id!=current.camera_id or older.coordinate_space!=current.coordinate_space
+            or not valid_projection_camera(older) or not older.timing_reliable):
+        return result,dict(diag,surface_reason='history_camera_contract_mismatch',surface_ms=(perf_counter()-start)*1000)
     if (history_current_timestamp!=previous.timestamp or older.image.shape[:2]!=(h,w)
             or previous_source is None or previous_source.shape!=(h,w,2)
             or not 0<previous.timestamp-older.timestamp<=1 or not 0<current.timestamp-previous.timestamp<=1):

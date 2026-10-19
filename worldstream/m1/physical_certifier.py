@@ -48,26 +48,40 @@ class EvidenceIssuer:
         except (TypeError,ValueError):return False
         return isinstance(tag,str) and hmac.compare_digest(tag,expected)
 
+    @property
+    def qualification_sha256(self):
+        """Reference the audited artifact without exposing mutable qualification."""
+        if self._qualification_json is None:return None
+        return hashlib.sha256(self._qualification_json.encode()).hexdigest()
+
     def qualification_reasons(self, evidence, frame, protocol_digest,
                               claim=CONTINUITY_CLAIM, population='measured_box_contrast_candidates'):
         if self._qualification_json is None:return ['independent_producer_qualification_missing']
         q=json.loads(self._qualification_json);reasons=[]
+        if not isinstance(q,dict):return ['independent_validation_units_invalid']
         if q.get('producer_id')!=evidence.producer_id or q.get('claim')!=claim:
             reasons.append('qualification_claim_or_producer_mismatch')
         if q.get('protocol_digest')!=protocol_digest or q.get('population')!=population:
             reasons.append('qualification_population_or_protocol_mismatch')
-        units=q.get('validation_scene_units',[]);scenes=[u.get('scene_id') for u in units]
+        units=q.get('validation_scene_units',[])
+        if (not isinstance(units,list) or not units or any(not isinstance(u,dict) for u in units)):
+            return reasons+['independent_validation_units_invalid']
+        scenes=[u.get('scene_id') for u in units]
         logs=[u.get('log_token') for u in units]
-        if (not units or len(set(scenes))!=len(scenes) or any(not s for s in scenes)
-                or any(u.get('accepted_entities',0)<1 or u.get('unscorable_accepted',1)!=0
-                       or not isinstance(u.get('false_acceptances'),int) or u['false_acceptances']<0
+        if (any(not isinstance(s,str) or not s for s in scenes+logs)
+                or any(type(u.get('accepted_entities')) is not int or u['accepted_entities']<1
+                       or type(u.get('unscorable_accepted')) is not int or u['unscorable_accepted']!=0
+                       or type(u.get('false_acceptances')) is not int or u['false_acceptances']<0
                        or u['false_acceptances']>u['accepted_entities'] for u in units)):
             reasons.append('independent_validation_units_invalid');return reasons
-        if (len(set(logs))!=len(logs) or any(not log for log in logs)
-                or set(scenes)&set(q.get('calibration_scenes',[]))
-                or set(logs)&set(q.get('calibration_logs',[]))):
+        calibration_scenes=q.get('calibration_scenes',[]);calibration_logs=q.get('calibration_logs',[])
+        if (not isinstance(calibration_scenes,list) or not isinstance(calibration_logs,list)
+                or any(not isinstance(s,str) or not s for s in calibration_scenes+calibration_logs)):
+            return reasons+['independent_validation_units_invalid']
+        if (len(set(scenes))!=len(scenes) or len(set(logs))!=len(logs)
+                or set(scenes)&set(calibration_scenes) or set(logs)&set(calibration_logs)):
             reasons.append('validation_scene_or_log_independence_invalid')
-        if frame.scene_id in set(scenes)|set(q.get('calibration_scenes',[])):
+        if frame.scene_id in set(scenes)|set(calibration_scenes):
             reasons.append('qualification_scene_reused_for_evaluation')
         from scipy.stats import beta
         # Conservative scene event: any wrong accepted entity in that scene.
@@ -142,6 +156,8 @@ def certify_physical_evidence(anchor, current_anchor, frame, evidence=None, issu
                 reasons.append('self_asserted_or_circular_evidence_dependency')
             reasons.extend(issuer.qualification_reasons(evidence,frame,protocol_digest))
             provenance.update(producer=evidence.producer_id,source_frame_digest=evidence.source_frame_digest,
+                current_frame_digest=evidence.current_frame_digest,execution_signature=evidence.execution_signature,
+                risk_qualification_sha256=issuer.qualification_sha256,
                 receipt_digest=evidence.authentication_tag,measurement_count=n,protocol_digest=protocol_digest,
                 claim_scope='Qualified identity continuity and local ray consistency; no metric centre or speed guarantee')
         except (ValueError,TypeError,KeyError,OverflowError):reasons.append('malformed_or_forbidden_online_evidence')

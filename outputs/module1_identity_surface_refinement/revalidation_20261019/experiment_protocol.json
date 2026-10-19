@@ -1,0 +1,26 @@
+{
+  "phase": "supplemental engineering validation",
+  "frozen_before_code_changes": true,
+  "parent_commit": "0e78092",
+  "new_quality_selection": false,
+  "datasets": "Previously exposed development/calibration samples only; reproduction, not independent qualification",
+  "methods": [
+    "conservative",
+    "dense_original",
+    "local_r12",
+    "surface_observable_ablation",
+    "surface_visibility",
+    "full_refresh"
+  ],
+  "threshold_changes": false,
+  "new_online_qualification": null,
+  "risk_unit": "scene/log",
+  "far_one_sided95_max": 0.05,
+  "critical_event_recall_min": 0.998,
+  "critical_point_recall_min": 0.998,
+  "oracle_scope": "offline-only unique annotation identity and annotation-owned sparse LiDAR; no full image truth",
+  "cpu_affinity": "0-3,6-31",
+  "python": "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+  "gpu_preflight": "nvidia-smi unable to communicate with driver",
+  "archive_overwrite": false
+}
