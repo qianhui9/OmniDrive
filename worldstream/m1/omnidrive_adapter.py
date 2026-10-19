@@ -17,7 +17,7 @@ _transfer_stats = ContextVar('m1_transfer_stats', default=None)
 
 @contextmanager
 def measure_transfers():
-    stats = {'gpu_to_cpu_transfer_ms': 0., 'gpu_to_cpu_transfer_calls': 0}
+    stats = {'gpu_to_cpu_transfer_ms': 0., 'gpu_to_cpu_transfer_calls': 0,'gpu_to_cpu_transfer_bytes':0}
     token = _transfer_stats.set(stats)
     try:
         yield stats
@@ -28,11 +28,16 @@ def measure_transfers():
 def numpy_copy(value):
     if hasattr(value, "detach"):
         start = perf_counter()
-        result = value.detach().cpu().numpy().copy()
+        # A CUDA .cpu() already owns fresh host storage; ndarray keeps that
+        # tensor alive. CPU inputs still need a defensive independent copy.
+        cuda = getattr(value, 'is_cuda', False)
+        host = value.detach().cpu().numpy()
+        result = host if cuda else host.copy()
         stats = _transfer_stats.get()
         if stats is not None and getattr(value, 'is_cuda', False):
             stats['gpu_to_cpu_transfer_ms'] += (perf_counter()-start)*1000
             stats['gpu_to_cpu_transfer_calls'] += 1
+            stats['gpu_to_cpu_transfer_bytes'] += value.numel()*value.element_size()
         return result
     return np.array(value, copy=True)
 

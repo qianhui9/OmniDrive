@@ -34,6 +34,8 @@ class OnlineVisibilityEvidence:
     surface_units: Optional[List[dict]] = None  # opt-in measured diagnostics, no labels
     surface_boundary_mask: Optional[np.ndarray] = None
     dense_measurements: Optional[Dict[str, Any]] = None
+    observation_exclusion_mask: Optional[np.ndarray] = None
+    measured_change_risk_mask: Optional[np.ndarray] = None
     # Opt-in conditional surface evidence. None preserves the legacy contract.
     observation_supported_mask: Optional[np.ndarray] = None
     visibility_consistent_mask: Optional[np.ndarray] = None

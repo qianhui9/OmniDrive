@@ -1,0 +1,831 @@
+{
+  "population": "exploratory_reused_population",
+  "methods": {
+    "strict_surface": {
+      "frames": 96,
+      "cameras": 576,
+      "observation_stable_area": 4.843393961588542e-05,
+      "effective_stable_area": 4.843393961588542e-05,
+      "refresh_area": 0.9999515660603842,
+      "changed_area": 3.4035576714409723e-06,
+      "unknown_area": 0.9999481625027127,
+      "scorable_lidar_points": 11060,
+      "accepted_scorable_points": 0,
+      "false_stable_points": 0,
+      "sparse_reference_far": null,
+      "far_upper95_iid_descriptive": null,
+      "accepted_scene_support": 0,
+      "critical_events": 921,
+      "recalled_events": 921,
+      "critical_change_recall": 1.0,
+      "critical_lidar_points": 81031,
+      "missed_critical_points": 4,
+      "critical_point_recall": 0.9999506361762782,
+      "scene_units": {
+        "9f1f69646d644e35be4fe0122a8b91ef": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3699,
+          "missed": 0
+        },
+        "a04daf2d0f194b2ab2ff2a47dfebc1d7": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3005,
+          "missed": 0
+        },
+        "a178a1b5415f45c08d179bd2cacdf284": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 22611,
+          "missed": 0
+        },
+        "a2b005c4dd654af48194ada18662c8ca": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 4295,
+          "missed": 0
+        },
+        "a499ee875da34e2b9655afb999edb8a9": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3742,
+          "missed": 0
+        },
+        "a7d073bc435b4356a0a9a5ebfb61f229": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 20135,
+          "missed": 0
+        },
+        "aacd6706a091407fb1b0e5343d27da7e": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 11618,
+          "missed": 4
+        },
+        "acc29386502047339e1ec6b9c7e512d2": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 11926,
+          "missed": 0
+        }
+      },
+      "scoring_scope": "Annotation-owned sparse LiDAR support; unannotated background unscorable, no dense instance mask truth",
+      "by_event": {
+        "newly_visible": {
+          "count": 260,
+          "recalled": 260
+        },
+        "moving_object": {
+          "count": 568,
+          "recalled": 568
+        },
+        "visibility_drop": {
+          "count": 177,
+          "recalled": 177
+        }
+      },
+      "minimum_critical_ROI_refresh": 0.9987012987012988,
+      "strict_observation_area": 4.843393961588542e-05,
+      "candidate_dense_correct_false_unscorable_area": null
+    },
+    "dense_observation": {
+      "frames": 96,
+      "cameras": 576,
+      "observation_stable_area": 0.08820066240098741,
+      "effective_stable_area": 0.08820066240098741,
+      "refresh_area": 0.9117993375990125,
+      "changed_area": 3.9927164713541665e-06,
+      "unknown_area": 0.9117953448825412,
+      "scorable_lidar_points": 11060,
+      "accepted_scorable_points": 176,
+      "false_stable_points": 12,
+      "sparse_reference_far": 0.06818181818181818,
+      "far_upper95_iid_descriptive": 0.10812946002278327,
+      "accepted_scene_support": 3,
+      "critical_events": 921,
+      "recalled_events": 907,
+      "critical_change_recall": 0.9847991313789359,
+      "critical_lidar_points": 81031,
+      "missed_critical_points": 2872,
+      "critical_point_recall": 0.964556774567758,
+      "scene_units": {
+        "9f1f69646d644e35be4fe0122a8b91ef": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3699,
+          "missed": 1
+        },
+        "a04daf2d0f194b2ab2ff2a47dfebc1d7": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3005,
+          "missed": 11
+        },
+        "a178a1b5415f45c08d179bd2cacdf284": {
+          "accepted": 13,
+          "false": 2,
+          "critical": 22611,
+          "missed": 29
+        },
+        "a2b005c4dd654af48194ada18662c8ca": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 4295,
+          "missed": 0
+        },
+        "a499ee875da34e2b9655afb999edb8a9": {
+          "accepted": 105,
+          "false": 0,
+          "critical": 3742,
+          "missed": 2479
+        },
+        "a7d073bc435b4356a0a9a5ebfb61f229": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 20135,
+          "missed": 0
+        },
+        "aacd6706a091407fb1b0e5343d27da7e": {
+          "accepted": 58,
+          "false": 10,
+          "critical": 11618,
+          "missed": 336
+        },
+        "acc29386502047339e1ec6b9c7e512d2": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 11926,
+          "missed": 16
+        }
+      },
+      "scoring_scope": "Annotation-owned sparse LiDAR support; unannotated background unscorable, no dense instance mask truth",
+      "by_event": {
+        "newly_visible": {
+          "count": 260,
+          "recalled": 255
+        },
+        "moving_object": {
+          "count": 568,
+          "recalled": 560
+        },
+        "visibility_drop": {
+          "count": 177,
+          "recalled": 176
+        }
+      },
+      "minimum_critical_ROI_refresh": 0.10707692307692308,
+      "strict_observation_area": 0.08820066240098741,
+      "candidate_dense_correct_false_unscorable_area": null
+    },
+    "source_linked": {
+      "frames": 96,
+      "cameras": 576,
+      "observation_stable_area": 0.08487081315782335,
+      "effective_stable_area": 0.08487081315782335,
+      "refresh_area": 0.9151291868421767,
+      "changed_area": 3.4035576714409723e-06,
+      "unknown_area": 0.9151257832845052,
+      "scorable_lidar_points": 11060,
+      "accepted_scorable_points": 43,
+      "false_stable_points": 2,
+      "sparse_reference_far": 0.046511627906976744,
+      "far_upper95_iid_descriptive": 0.13926861490117434,
+      "accepted_scene_support": 2,
+      "critical_events": 921,
+      "recalled_events": 907,
+      "critical_change_recall": 0.9847991313789359,
+      "critical_lidar_points": 81031,
+      "missed_critical_points": 2720,
+      "critical_point_recall": 0.9664325998691858,
+      "scene_units": {
+        "9f1f69646d644e35be4fe0122a8b91ef": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3699,
+          "missed": 1
+        },
+        "a04daf2d0f194b2ab2ff2a47dfebc1d7": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3005,
+          "missed": 11
+        },
+        "a178a1b5415f45c08d179bd2cacdf284": {
+          "accepted": 11,
+          "false": 2,
+          "critical": 22611,
+          "missed": 17
+        },
+        "a2b005c4dd654af48194ada18662c8ca": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 4295,
+          "missed": 0
+        },
+        "a499ee875da34e2b9655afb999edb8a9": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3742,
+          "missed": 2432
+        },
+        "a7d073bc435b4356a0a9a5ebfb61f229": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 20135,
+          "missed": 0
+        },
+        "aacd6706a091407fb1b0e5343d27da7e": {
+          "accepted": 32,
+          "false": 0,
+          "critical": 11618,
+          "missed": 257
+        },
+        "acc29386502047339e1ec6b9c7e512d2": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 11926,
+          "missed": 2
+        }
+      },
+      "scoring_scope": "Annotation-owned sparse LiDAR support; unannotated background unscorable, no dense instance mask truth",
+      "by_event": {
+        "newly_visible": {
+          "count": 260,
+          "recalled": 255
+        },
+        "moving_object": {
+          "count": 568,
+          "recalled": 560
+        },
+        "visibility_drop": {
+          "count": 177,
+          "recalled": 176
+        }
+      },
+      "minimum_critical_ROI_refresh": 0.2914285714285714,
+      "strict_observation_area": 0.0,
+      "candidate_dense_correct_false_unscorable_area": null
+    },
+    "scope_validity": {
+      "frames": 96,
+      "cameras": 576,
+      "observation_stable_area": 0.08487081315782335,
+      "effective_stable_area": 0.08487081315782335,
+      "refresh_area": 0.9151291868421767,
+      "changed_area": 3.4035576714409723e-06,
+      "unknown_area": 0.9151257832845052,
+      "scorable_lidar_points": 11060,
+      "accepted_scorable_points": 43,
+      "false_stable_points": 2,
+      "sparse_reference_far": 0.046511627906976744,
+      "far_upper95_iid_descriptive": 0.13926861490117434,
+      "accepted_scene_support": 2,
+      "critical_events": 921,
+      "recalled_events": 907,
+      "critical_change_recall": 0.9847991313789359,
+      "critical_lidar_points": 81031,
+      "missed_critical_points": 2720,
+      "critical_point_recall": 0.9664325998691858,
+      "scene_units": {
+        "9f1f69646d644e35be4fe0122a8b91ef": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3699,
+          "missed": 1
+        },
+        "a04daf2d0f194b2ab2ff2a47dfebc1d7": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3005,
+          "missed": 11
+        },
+        "a178a1b5415f45c08d179bd2cacdf284": {
+          "accepted": 11,
+          "false": 2,
+          "critical": 22611,
+          "missed": 17
+        },
+        "a2b005c4dd654af48194ada18662c8ca": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 4295,
+          "missed": 0
+        },
+        "a499ee875da34e2b9655afb999edb8a9": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3742,
+          "missed": 2432
+        },
+        "a7d073bc435b4356a0a9a5ebfb61f229": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 20135,
+          "missed": 0
+        },
+        "aacd6706a091407fb1b0e5343d27da7e": {
+          "accepted": 32,
+          "false": 0,
+          "critical": 11618,
+          "missed": 257
+        },
+        "acc29386502047339e1ec6b9c7e512d2": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 11926,
+          "missed": 2
+        }
+      },
+      "scoring_scope": "Annotation-owned sparse LiDAR support; unannotated background unscorable, no dense instance mask truth",
+      "by_event": {
+        "newly_visible": {
+          "count": 260,
+          "recalled": 255
+        },
+        "moving_object": {
+          "count": 568,
+          "recalled": 560
+        },
+        "visibility_drop": {
+          "count": 177,
+          "recalled": 176
+        }
+      },
+      "minimum_critical_ROI_refresh": 0.2914285714285714,
+      "strict_observation_area": 0.0,
+      "candidate_dense_correct_false_unscorable_area": null
+    },
+    "link_recovery": {
+      "frames": 96,
+      "cameras": 576,
+      "observation_stable_area": 0.08508597056070964,
+      "effective_stable_area": 0.08508597056070964,
+      "refresh_area": 0.9149140294392903,
+      "changed_area": 3.4035576714409723e-06,
+      "unknown_area": 0.914910625881619,
+      "scorable_lidar_points": 11060,
+      "accepted_scorable_points": 42,
+      "false_stable_points": 1,
+      "sparse_reference_far": 0.023809523809523808,
+      "far_upper95_iid_descriptive": 0.10803769616121207,
+      "accepted_scene_support": 2,
+      "critical_events": 921,
+      "recalled_events": 907,
+      "critical_change_recall": 0.9847991313789359,
+      "critical_lidar_points": 81031,
+      "missed_critical_points": 2724,
+      "critical_point_recall": 0.9663832360454641,
+      "scene_units": {
+        "9f1f69646d644e35be4fe0122a8b91ef": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3699,
+          "missed": 1
+        },
+        "a04daf2d0f194b2ab2ff2a47dfebc1d7": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3005,
+          "missed": 11
+        },
+        "a178a1b5415f45c08d179bd2cacdf284": {
+          "accepted": 10,
+          "false": 1,
+          "critical": 22611,
+          "missed": 16
+        },
+        "a2b005c4dd654af48194ada18662c8ca": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 4295,
+          "missed": 0
+        },
+        "a499ee875da34e2b9655afb999edb8a9": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3742,
+          "missed": 2437
+        },
+        "a7d073bc435b4356a0a9a5ebfb61f229": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 20135,
+          "missed": 0
+        },
+        "aacd6706a091407fb1b0e5343d27da7e": {
+          "accepted": 32,
+          "false": 0,
+          "critical": 11618,
+          "missed": 258
+        },
+        "acc29386502047339e1ec6b9c7e512d2": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 11926,
+          "missed": 1
+        }
+      },
+      "scoring_scope": "Annotation-owned sparse LiDAR support; unannotated background unscorable, no dense instance mask truth",
+      "by_event": {
+        "newly_visible": {
+          "count": 260,
+          "recalled": 255
+        },
+        "moving_object": {
+          "count": 568,
+          "recalled": 560
+        },
+        "visibility_drop": {
+          "count": 177,
+          "recalled": 176
+        }
+      },
+      "minimum_critical_ROI_refresh": 0.28816326530612246,
+      "strict_observation_area": 0.0,
+      "candidate_dense_correct_false_unscorable_area": null
+    },
+    "change_first": {
+      "frames": 96,
+      "cameras": 576,
+      "observation_stable_area": 0.08506407419840495,
+      "effective_stable_area": 0.08506407419840495,
+      "refresh_area": 0.914935925801595,
+      "changed_area": 0.04444430033365886,
+      "unknown_area": 0.8704916254679362,
+      "scorable_lidar_points": 11060,
+      "accepted_scorable_points": 42,
+      "false_stable_points": 1,
+      "sparse_reference_far": 0.023809523809523808,
+      "far_upper95_iid_descriptive": 0.10803769616121207,
+      "accepted_scene_support": 2,
+      "critical_events": 921,
+      "recalled_events": 907,
+      "critical_change_recall": 0.9847991313789359,
+      "critical_lidar_points": 81031,
+      "missed_critical_points": 2723,
+      "critical_point_recall": 0.9663955770013946,
+      "scene_units": {
+        "9f1f69646d644e35be4fe0122a8b91ef": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3699,
+          "missed": 1
+        },
+        "a04daf2d0f194b2ab2ff2a47dfebc1d7": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3005,
+          "missed": 11
+        },
+        "a178a1b5415f45c08d179bd2cacdf284": {
+          "accepted": 10,
+          "false": 1,
+          "critical": 22611,
+          "missed": 16
+        },
+        "a2b005c4dd654af48194ada18662c8ca": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 4295,
+          "missed": 0
+        },
+        "a499ee875da34e2b9655afb999edb8a9": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3742,
+          "missed": 2436
+        },
+        "a7d073bc435b4356a0a9a5ebfb61f229": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 20135,
+          "missed": 0
+        },
+        "aacd6706a091407fb1b0e5343d27da7e": {
+          "accepted": 32,
+          "false": 0,
+          "critical": 11618,
+          "missed": 258
+        },
+        "acc29386502047339e1ec6b9c7e512d2": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 11926,
+          "missed": 1
+        }
+      },
+      "scoring_scope": "Annotation-owned sparse LiDAR support; unannotated background unscorable, no dense instance mask truth",
+      "by_event": {
+        "newly_visible": {
+          "count": 260,
+          "recalled": 255
+        },
+        "moving_object": {
+          "count": 568,
+          "recalled": 560
+        },
+        "visibility_drop": {
+          "count": 177,
+          "recalled": 176
+        }
+      },
+      "minimum_critical_ROI_refresh": 0.2889795918367347,
+      "strict_observation_area": 0.0,
+      "candidate_dense_correct_false_unscorable_area": null
+    },
+    "optimized": {
+      "frames": 96,
+      "cameras": 576,
+      "observation_stable_area": 0.08506407419840495,
+      "effective_stable_area": 0.08506407419840495,
+      "refresh_area": 0.914935925801595,
+      "changed_area": 0.04444430033365886,
+      "unknown_area": 0.8704916254679362,
+      "scorable_lidar_points": 11060,
+      "accepted_scorable_points": 42,
+      "false_stable_points": 1,
+      "sparse_reference_far": 0.023809523809523808,
+      "far_upper95_iid_descriptive": 0.10803769616121207,
+      "accepted_scene_support": 2,
+      "critical_events": 921,
+      "recalled_events": 907,
+      "critical_change_recall": 0.9847991313789359,
+      "critical_lidar_points": 81031,
+      "missed_critical_points": 2723,
+      "critical_point_recall": 0.9663955770013946,
+      "scene_units": {
+        "9f1f69646d644e35be4fe0122a8b91ef": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3699,
+          "missed": 1
+        },
+        "a04daf2d0f194b2ab2ff2a47dfebc1d7": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3005,
+          "missed": 11
+        },
+        "a178a1b5415f45c08d179bd2cacdf284": {
+          "accepted": 10,
+          "false": 1,
+          "critical": 22611,
+          "missed": 16
+        },
+        "a2b005c4dd654af48194ada18662c8ca": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 4295,
+          "missed": 0
+        },
+        "a499ee875da34e2b9655afb999edb8a9": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 3742,
+          "missed": 2436
+        },
+        "a7d073bc435b4356a0a9a5ebfb61f229": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 20135,
+          "missed": 0
+        },
+        "aacd6706a091407fb1b0e5343d27da7e": {
+          "accepted": 32,
+          "false": 0,
+          "critical": 11618,
+          "missed": 258
+        },
+        "acc29386502047339e1ec6b9c7e512d2": {
+          "accepted": 0,
+          "false": 0,
+          "critical": 11926,
+          "missed": 1
+        }
+      },
+      "scoring_scope": "Annotation-owned sparse LiDAR support; unannotated background unscorable, no dense instance mask truth",
+      "by_event": {
+        "newly_visible": {
+          "count": 260,
+          "recalled": 255
+        },
+        "moving_object": {
+          "count": 568,
+          "recalled": 560
+        },
+        "visibility_drop": {
+          "count": 177,
+          "recalled": 176
+        }
+      },
+      "minimum_critical_ROI_refresh": 0.2889795918367347,
+      "strict_observation_area": 0.0,
+      "candidate_dense_correct_false_unscorable_area": null
+    }
+  },
+  "completion": {
+    "status": "completed",
+    "frames": 96,
+    "camera_observations": 576,
+    "rss_high_water_kib": 4001724,
+    "CUDA_execution": false,
+    "source_sha256": {
+      "worldstream/m1/association.py": "a5b8c0936a39d1465ac72b860dfb240efaf6ed42dc62b3a726a3356e6996c070",
+      "worldstream/m1/temporal_visibility.py": "72c19513b73d6aa4b9dffdab62517ac2f17661818749e137186ca3827184c87a",
+      "worldstream/m1/config.py": "d199fb8ce32ead519b9aab71eb3bcf8e43c79995de8932709ecdc2e12b4ea139",
+      "worldstream/m1/geometry.py": "b22d06fe0efb541feae0340e87cda0d8dd674eb53941a73d48ab692040c382f5",
+      "worldstream/m1/identity_temporal.py": "2a7451ca0dde5346425eec691acac2ce4b92bb08ab695f3506a9957eda9a5932",
+      "worldstream/m1/identity_continuity.py": "fce74566e734900c3e74befa6388592fbf6adeeac26187ea358c1f9d2da9699d",
+      "worldstream/m1/bidirectional_geometry.py": "71b4dae6d46b04a859ff513b232511ec2897583ee3b84213348ca61545f7661d",
+      "worldstream/m1/task_facts.py": "a4e2746a789ff84a018ab555d7c1a48c7bb415ef9b55cbfa5a37730920f4e0c5",
+      "worldstream/m1/physical_certifier.py": "29994ed5fc026d51618acc13ea73a7e0ab2b3e1392854db6ab9c69792606b89d",
+      "worldstream/m1/state_store.py": "0b9d0bbd7570be312f88a9f584cae356364a132e611b971b94b65b3f42fe3862",
+      "worldstream/m1/novelty_detector.py": "fe1cfc9ae9b3c7d5d19e696832f69cbd36fa92f19d144c4356ce6736b9387299",
+      "worldstream/m1/mask_codec.py": "f0d8a5cf9ea54ca8146ac8de5ff508e1953ffa6c58705109f08a8091fff6b594",
+      "worldstream/m1/geometry_adaptive_patch.py": "f1859951afcd861fa9ff7242dada82bdc422a31508b88e9a85a64c20c06e2061",
+      "worldstream/m1/surface_visibility.py": "9508920cc4b23b9f16dd3fc0d7d3216675a1bc4417411239e57130b3f1733005",
+      "worldstream/m1/input_contract.py": "8762db983fdd7074d8d098d59c7576e5bf221a3c69de801a25442c1cca90bdf0",
+      "worldstream/m1/omnidrive_adapter.py": "c1776d9e29da2af5b38deaef72da81e50d918a12e85a10e1a9f2c05bb47c0336",
+      "worldstream/m1/surface_visibility_constraints.py": "5db767c0a602dcbfb535feba44611273f9cb2ecdd1eaf0fb72b0fcaf6cadd56e",
+      "worldstream/m1/state_types.py": "ab957ed465f4d3f501ca175dacf982b49aab67cd21d0aa5640fba2a337e62860",
+      "worldstream/m1/dense_support.py": "caa1021c9c687e1789e678f215ae864eafcf058cac463fcb40fb7b05fb647a01",
+      "worldstream/m1/local_surface.py": "d1ebc6ce625e9c26fc09ba30d0afb3178abc928ecdc357f29d98ec7318753c14",
+      "worldstream/m1/foreground_correspondence.py": "9dd3bc83180e5afc28833457b5fbcca5dfd9aaaff7dbce8ca49dd42d5809c62f",
+      "worldstream/m1/observation_refinement.py": "0765a4126fc666543890f4fe1310aaeea287ef99008bbf8532b9926100e65c86",
+      "worldstream/m1/geometry_support.py": "8d8c15207c3c77353e6fd5aa2c60706c53b562ff6d51232e18958a9ec5e2560a",
+      "worldstream/m1/measurement_cache.py": "3b32d83a206546214c8bbe50dd6df8513196b2df3db68addff63e389a665c820",
+      "worldstream/m1/computation_state.py": "b719acd522583fce12f06e42ffcf33c88d5afc52814398cd434ef0d4993281dc",
+      "worldstream/m1/provenance.py": "deda92a585608e47f3288ac965d4497532ecc40b183e96ffedb775f57ce858f0",
+      "worldstream/m1/surface_consensus.py": "7c63acdeafb5f45ac1f4f3dfda3b3208b7c251299f1bdd8670f1fdada192509c",
+      "worldstream/m1/state_manager.py": "59e398e6818fa954ac4b0b12d710c58f1ed3f2b49c0fb36b5e53a3afb1f92b6c",
+      "worldstream/m1/observation_validator.py": "4c2b52462fed5e07db99939059cdc27118b2920a5b69d233a139d14517740cb7",
+      "worldstream/m1/identity_object.py": "855cb13c021d54456f9a15c039bb1b1738192bde7328047089c1d32aecee0a3b",
+      "worldstream/m1/__init__.py": "1b8a50942f7c861820b2c325025a0274fed2a00c7e4b96ae10e9d398e1eb69ce",
+      "worldstream/m1/fact_certifier.py": "212448b64c35c1512575d16ab0fff8ebc2705ae9d39e32dbdfeec1641aa39b65",
+      "worldstream/m1/surface_observability.py": "3d700e6d5487ea72ffbc0cc2af7d08204c61b96aa8cc25b2409b58b726659318",
+      "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m1/source_state_refinement_replay.py": "c8dc834a23a4a38f5534ea5a4ac1e66e205c631bdced9c21826ad99ad0cd5c55",
+      "configs/worldstream_m1_source_state_refined.yaml": "3b06b5c869f0471eee41a36e245a95c76975d50d07a4c60294f0620d15042ee0"
+    }
+  },
+  "baseline": {
+    "HEAD": "a4d27405842a6a7de0e839dd830ef2960fc9a937",
+    "files": {
+      "worldstream/runtime.py": "3a650822cb461009ca9be5f7d1a44bc32c21318df6f84733f95d2e557ba7b84e",
+      "worldstream/overlap.py": "ab6d102b2027d7a1afb1521ca5091f6317657379eea725871c92657cdf443d12",
+      "worldstream/code_signature.py": "929196947aed1629afed217b46c2c8987fce432c5bbc7a67df4b3fce8ab25c45",
+      "worldstream/execution.py": "c6e68f46182d4fc4b7b0dda563d3d54239a0235337f105181bee7b14b646ec6f",
+      "worldstream/__init__.py": "45a73c30c0d8642c65f727ed8d380a8bebe363f83f7fa3efa71b034b79eb57c2",
+      "worldstream/m2/camera_feature_cache.py": "af564a2a8529ce367ac395f6c067cf567370b38b4ea0f3ba5fba22614bba69d6",
+      "worldstream/m2/config.py": "4a0aeb4d11b145182c383a68104eea1294557fc4d299b8517615fe7fa5ea4e5e",
+      "worldstream/m2/window_executor.py": "b450aff152bfc26cc33a343b59dd58e3f1ddeaebad82cc25e6e2d8238c7691c1",
+      "worldstream/m2/cost_model.py": "6c51eaafe89325f3ef5d8ef96223b52814edd779aa04372e5298decb17c9a15d",
+      "worldstream/m2/packing.py": "38ca01bfc43ea3978099202ed0defdb41c1ed74d8c3becd181728c2dc6e1c45a",
+      "worldstream/m2/runtime.py": "4f280d166e935d0a3668ff61ba23fc7ad2334a0fc4dd10a0e2b2e672ff5a6609",
+      "worldstream/m2/cheap_admission.py": "46d306e1c4cce6b0fce520a4118825f3e25821b2f473566f49e4538ecbc9391d",
+      "worldstream/m2/execution_policy.py": "d86c9f0bd1714885f6b971ccf8d397322c267450fe83399feca70ed17cf8d8cd",
+      "worldstream/m2/scheduler.py": "672c1b91618fb299c01ecd1661d8b41c8e182dcc291983b220e38e1960b024a8",
+      "worldstream/m2/state_cache.py": "6e64cc1b3b1c51d282b662914f34a3bee27f902ac97e2be927ca9d5bc10d0ac5",
+      "worldstream/m2/m1_adapter.py": "9fb1c0c359a77ca655c43c1d0a95ab7046046b0518931838e5aae0839fadbd24",
+      "worldstream/m2/profiler.py": "e765e3f3e780e1c94164e81b4259ba5b89dc4b65ff2e47a893a7a0e8f0694db2",
+      "worldstream/m2/approximate_probe.py": "18903842704464fa1d67ff87bfc0309315ce40dbc8e376a4b312db8f700f3e43",
+      "worldstream/m2/camera_executor.py": "3589d9f2087cdd217e3503ca7985291d47f2ae10788596e0837c7620fe348bbd",
+      "worldstream/m2/dependency_planner.py": "6f7f95ed0a1cb4a58546ab08641439409085a3e64a595bed8be05aa604dbc5c1",
+      "worldstream/m2/__init__.py": "12c762498afcba80f9639f0bff8086944e699fd16e1d965c4e460077becbdf43",
+      "worldstream/m3/config.py": "17dd63a6c362189003dd7f70448061f745e15570fa6cbc6872a5fa9e1eb5545f",
+      "worldstream/m3/numerics.py": "92cdfea13e2174a39e505ec34577be3203c6353b8a6d942ede9fe1d168797092",
+      "worldstream/m3/task_conditioner.py": "3a85eb00cb67509fcbb16ed2043fa0e8cb9a15b501ea2609aea3ad098117e985",
+      "worldstream/m3/prefix_kv_cache.py": "37f920315660f15353ce98c0981f99fd510bf5dc6f19260d9381476fd30bf413",
+      "worldstream/m3/runtime.py": "97ed411da99079bd86ce0866ce260c0365818dfe9aecbddcf95c1c72e7385121",
+      "worldstream/m3/post_perception.py": "de8b872f7ba84bf45d6554c5f71bc186e48d42992c1efed8532e353fd69019f6",
+      "worldstream/m3/batched_executor.py": "2b8324be10fdd9bbbae95f58d0009ec8f9d80ad8009609ecc415fedcd07b73e2",
+      "worldstream/m3/scheduler.py": "5cd5d2b010b806ec41014daa089a02db475537a7d1ae2a6b7e8a3300975add33",
+      "worldstream/m3/prefill_executor.py": "4f5ac8e50423af8bfea15bf4719035e037017034583f51debd3b674de2133973",
+      "worldstream/m3/world_state.py": "d2d10ba7126da12cb4048965083c3486770d41ed2e5edcbd86c469a78d20f4fe",
+      "worldstream/m3/carrier_selector.py": "2838aa074fc814d3287e5b31e9334d4f74f67b38f173d19faf2ef09eb4d15471",
+      "worldstream/m3/native_decode.py": "9f61a9d1af82e5e00ebe4502c76075dd6f347c0103539465f853529c843b1a8c",
+      "worldstream/m3/projection_precision.py": "56a3e3e99cb4eb661f154e685446d2a3f5c7653fb460209ea5087e9b2122f1d3",
+      "worldstream/m3/__init__.py": "385a5078d3a883d874ff8573614e4c3664f2ad0e2ac212839b28bc356df55570",
+      "worldstream/m3/visual_state.py": "375c13ffdbae430c6cb36ef9a5e2ee73fd2791480274885765af7e1c5330372d",
+      "worldstream/m3/prefix_matcher.py": "8e818025cc1dbb06fc1d666e1050e27d3a049cf41c021608d0abd67f0333ecc7",
+      "worldstream/m1/association.py": "a5b8c0936a39d1465ac72b860dfb240efaf6ed42dc62b3a726a3356e6996c070",
+      "worldstream/m1/temporal_visibility.py": "ce7a5afadc045b800488de79bc77c7befed52216188a9332f2680c0265648baf",
+      "worldstream/m1/config.py": "3afbb88a545b6be7903330742de7eef88bda81b86c3623022541247a18d24d58",
+      "worldstream/m1/geometry.py": "a4ad1d094093059b673348a1710fbefd3e8341ef22c1b7f15a6ebbd3ed639533",
+      "worldstream/m1/identity_temporal.py": "2a7451ca0dde5346425eec691acac2ce4b92bb08ab695f3506a9957eda9a5932",
+      "worldstream/m1/identity_continuity.py": "fce74566e734900c3e74befa6388592fbf6adeeac26187ea358c1f9d2da9699d",
+      "worldstream/m1/bidirectional_geometry.py": "71b4dae6d46b04a859ff513b232511ec2897583ee3b84213348ca61545f7661d",
+      "worldstream/m1/task_facts.py": "a4e2746a789ff84a018ab555d7c1a48c7bb415ef9b55cbfa5a37730920f4e0c5",
+      "worldstream/m1/physical_certifier.py": "29994ed5fc026d51618acc13ea73a7e0ab2b3e1392854db6ab9c69792606b89d",
+      "worldstream/m1/state_store.py": "0b9d0bbd7570be312f88a9f584cae356364a132e611b971b94b65b3f42fe3862",
+      "worldstream/m1/novelty_detector.py": "fe1cfc9ae9b3c7d5d19e696832f69cbd36fa92f19d144c4356ce6736b9387299",
+      "worldstream/m1/mask_codec.py": "f0d8a5cf9ea54ca8146ac8de5ff508e1953ffa6c58705109f08a8091fff6b594",
+      "worldstream/m1/geometry_adaptive_patch.py": "f1859951afcd861fa9ff7242dada82bdc422a31508b88e9a85a64c20c06e2061",
+      "worldstream/m1/surface_visibility.py": "9508920cc4b23b9f16dd3fc0d7d3216675a1bc4417411239e57130b3f1733005",
+      "worldstream/m1/input_contract.py": "8762db983fdd7074d8d098d59c7576e5bf221a3c69de801a25442c1cca90bdf0",
+      "worldstream/m1/omnidrive_adapter.py": "0b492a3f7701dad9ea7f70322cb79c16c59513af7f5747ead2be300318d379ae",
+      "worldstream/m1/surface_visibility_constraints.py": "5db767c0a602dcbfb535feba44611273f9cb2ecdd1eaf0fb72b0fcaf6cadd56e",
+      "worldstream/m1/state_types.py": "5c0d08e24257748ecfd73129a99cd3c6d184a7eb58972e8e546445fe8f9399a1",
+      "worldstream/m1/dense_support.py": "263d84ad155d70e6b740401e425ac2e534f2d6e85aea1f9a7d916a1e1481f26d",
+      "worldstream/m1/local_surface.py": "d1ebc6ce625e9c26fc09ba30d0afb3178abc928ecdc357f29d98ec7318753c14",
+      "worldstream/m1/foreground_correspondence.py": "9dd3bc83180e5afc28833457b5fbcca5dfd9aaaff7dbce8ca49dd42d5809c62f",
+      "worldstream/m1/geometry_support.py": "8d8c15207c3c77353e6fd5aa2c60706c53b562ff6d51232e18958a9ec5e2560a",
+      "worldstream/m1/computation_state.py": "b870f63ee43a88105732d7a4e6a5721d1c54f093a795ba42b598741f12d7ad02",
+      "worldstream/m1/provenance.py": "deda92a585608e47f3288ac965d4497532ecc40b183e96ffedb775f57ce858f0",
+      "worldstream/m1/surface_consensus.py": "7c63acdeafb5f45ac1f4f3dfda3b3208b7c251299f1bdd8670f1fdada192509c",
+      "worldstream/m1/state_manager.py": "2bd2cb558c0ebbd225ebdd59496c62e5bc069546a1a752723d46f12f9e961bfd",
+      "worldstream/m1/observation_validator.py": "4c2b52462fed5e07db99939059cdc27118b2920a5b69d233a139d14517740cb7",
+      "worldstream/m1/identity_object.py": "855cb13c021d54456f9a15c039bb1b1738192bde7328047089c1d32aecee0a3b",
+      "worldstream/m1/__init__.py": "1b8a50942f7c861820b2c325025a0274fed2a00c7e4b96ae10e9d398e1eb69ce",
+      "worldstream/m1/fact_certifier.py": "212448b64c35c1512575d16ab0fff8ebc2705ae9d39e32dbdfeec1641aa39b65",
+      "worldstream/m1/surface_observability.py": "3d700e6d5487ea72ffbc0cc2af7d08204c61b96aa8cc25b2409b58b726659318"
+    }
+  },
+  "state_lifecycle": {
+    "strict_surface": {
+      "records": 0,
+      "valid": 0,
+      "revocations": {}
+    },
+    "dense_observation": {
+      "records": 0,
+      "valid": 0,
+      "revocations": {}
+    },
+    "source_linked": {
+      "records": 576,
+      "valid": 528,
+      "revocations": {
+        "source_incompatible": 48
+      }
+    },
+    "scope_validity": {
+      "records": 576,
+      "valid": 528,
+      "revocations": {
+        "source_incompatible": 48
+      }
+    },
+    "link_recovery": {
+      "records": 576,
+      "valid": 528,
+      "revocations": {
+        "source_incompatible": 48
+      }
+    },
+    "change_first": {
+      "records": 576,
+      "valid": 528,
+      "revocations": {
+        "source_incompatible": 48
+      }
+    },
+    "optimized": {
+      "records": 576,
+      "valid": 528,
+      "revocations": {
+        "source_incompatible": 48
+      }
+    }
+  },
+  "source_traceability": {
+    "strict_surface": {
+      "records": 0,
+      "computation_available": 0,
+      "observation_source_known": 0
+    },
+    "dense_observation": {
+      "records": 0,
+      "computation_available": 0,
+      "observation_source_known": 0
+    },
+    "source_linked": {
+      "records": 1777,
+      "computation_available": 0,
+      "observation_source_known": 1729
+    },
+    "scope_validity": {
+      "records": 1777,
+      "computation_available": 0,
+      "observation_source_known": 1729
+    },
+    "link_recovery": {
+      "records": 1777,
+      "computation_available": 0,
+      "observation_source_known": 1729
+    },
+    "change_first": {
+      "records": 1777,
+      "computation_available": 0,
+      "observation_source_known": 1729
+    },
+    "optimized": {
+      "records": 1777,
+      "computation_available": 0,
+      "observation_source_known": 1729
+    }
+  },
+  "shadow_identity_sequences_equal": true,
+  "identity_frames": 96
+}

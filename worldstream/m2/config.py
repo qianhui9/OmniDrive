@@ -14,8 +14,13 @@ class M2Config:
     reuse_boundary: str = 'window'  # window / camera
     camera_cost_table: str = ''
     state_interface: str = 'legacy'  # legacy / source_linked
+    camera_selective_invalidation: bool = True
+    experimental_exact_lease_separation: bool = False
 
     def __post_init__(self):
+        if self.experimental_exact_lease_separation and (
+                self.reuse_boundary != 'camera' or self.state_interface != 'source_linked'):
+            raise ValueError('Experimental lease separation requires source-linked camera boundary')
         if self.state_interface not in ('legacy', 'source_linked'):
             raise ValueError('Unknown M1 state interface')
         if self.mode not in ('auto', 'exact'):

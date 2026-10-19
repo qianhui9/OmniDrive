@@ -7,6 +7,7 @@ from dataclasses import asdict
 import copy
 import cv2
 import numpy as np
+from time import perf_counter
 from .geometry import valid_projection_camera
 from .mask_codec import encode_mask
 from .state_types import ComputationStateBundle, ValidityLease
@@ -58,8 +59,12 @@ def build_bundle(manager, frame, result, validate_observation=True):
         source = np.empty((0, 2), np.float32)
         target = np.empty((0, 2), np.float32)
         residual = np.empty(0, np.float32)
+        origins=None;link_diagnostics={};guard_diagnostics={}
         if evidence is not None:
             dirty |= evidence.changed_mask
+            if manager.config.change_first_guard:
+                from .observation_refinement import change_guard
+                dirty,guard_diagnostics=change_guard(dirty,evidence,manager.config)
             if validate_observation and lease.source_valid and not result.full_refresh_hint:
                 # The basic dense path checks every admitted pixel. Sparse LK
                 # support is restricted to the pixels actually sampled by its patch.
@@ -81,7 +86,13 @@ def build_bundle(manager, frame, result, validate_observation=True):
                     keep = ~dirty[xy[:,1],xy[:,0]]
                     source, target, xy = source[keep], target[keep], xy[keep]
                     candidate[xy[:,1],xy[:,0]] = True
-                if len(source):
+                if manager.config.recover_sparse_links:
+                    from .observation_refinement import measured_links
+                    candidate,source,target,residual,origins,link_diagnostics,conflict=measured_links(
+                        old,camera,evidence,candidate,dirty,manager.config)
+                    if manager.config.change_first_guard and conflict.any():
+                        dirty |= conflict;candidate &= ~dirty
+                elif len(source):
                     # Residual of the actual RGB samples, independent of GT.
                     values = []
                     from .temporal_visibility import gray_image
@@ -102,6 +113,7 @@ def build_bundle(manager, frame, result, validate_observation=True):
             candidate[:] = False
         unknown = ~(dirty | candidate)
         strict = result.invalidation_regions[cid]
+        encode_start=perf_counter()
         contract = dict(coordinate_space=camera.coordinate_space, image_shape=list(shape),
             dirty_hint_mask=encode_mask(dirty), reuse_candidate_mask=encode_mask(candidate),
             unknown_mask=encode_mask(unknown), refresh_required_mask=copy.deepcopy(strict["refresh_required_mask"]),
@@ -109,6 +121,8 @@ def build_bundle(manager, frame, result, validate_observation=True):
             full_refresh_hint=result.full_refresh_hint,
             dirty_area_ratio=float(dirty.mean()), candidate_area_ratio=float(candidate.mean()),
             unknown_area_ratio=float(unknown.mean()))
+        bundle.diagnostics.setdefault('mask_encoding_copy_ms',0.)
+        bundle.diagnostics['mask_encoding_copy_ms']+=(perf_counter()-encode_start)*1000
         bundle.refresh_contract[cid] = contract
         bundle.observation_links[cid] = dict(source_frame_id=manager._previous_frame_id,
             source_camera_id=cid, source_timestamp=old.timestamp if old else None,
@@ -118,11 +132,19 @@ def build_bundle(manager, frame, result, validate_observation=True):
             validity_lease=asdict(lease), local_support_only=True,
             ambiguity="two_view_RGB_alternatives_not_exhaustively_resolved",
             unsupported_area="unknown", transformer_dependency_certified=False)
+        bundle.observation_links[cid].update(measurement_origins=origins,
+            link_recovery=link_diagnostics,change_first_guard=guard_diagnostics)
         # Computation sources are M2-owned receipts or committed M1 features.
         # An RGB-only candidate has no invented computation frame/version.
         records = [(fid, r) for fid,r in manager.store.features.items() if cid in r.source_camera_ids]
         if not records:
             records = [(None, None)]
+        camera_scope=None
+        source_integrals=None
+        if manager.config.scope_validity:
+            from .observation_refinement import scope_support,source_centre_integrals
+            camera_scope=scope_support(candidate,dirty)
+            source_integrals=source_centre_integrals(source,evidence,dirty)
         for fid, record in records:
             sources = record.computation_sources if record is not None else []
             # Available means a retained tensor or a real, matching M2 cache;
@@ -159,6 +181,58 @@ def build_bundle(manager, frame, result, validate_observation=True):
                 observation_timestamp=camera.timestamp, observation_valid=bool(candidate.any()),
                 observed_conflict=bool(dirty.any()), computation_available=available,
                 computation_sources=copy.deepcopy(sources), transformer_dependency_certified=False))
+            if manager.config.scope_validity:
+                from .observation_refinement import scope_support
+                refined=bundle.source_records[-1]
+                refined.update(camera_scope)
+                if fid!='backbone':
+                    refined.update(observation_valid=False,complete_dependency_observation=False,
+                        partial_observation_only=bool(camera_scope['observation_support_count']))
+                refined.update(dependency_scope='full_camera' if fid=='backbone' else 'unknown/conservative_multi_camera',
+                    source_region=[[0,0,shape[1],shape[0]]],current_region=[[0,0,shape[1],shape[0]]],
+                    scope_fragment=bool(fid!='backbone'))
+                if record is not None and record.feature_kind=='observation_descriptor' and len(record.source_region.get(cid,[]))==1:
+                    from .observation_refinement import descriptor_scope_support
+                    refined.update(descriptor_scope_support(record.source_region[cid][0],source_integrals,shape,
+                        direct_reference=record.source_frame_id==manager._previous_frame_id))
+                    refined.update(scope_fragment=False,feature_kind=record.feature_kind,
+                        dependency_coordinate_frame_id=record.source_frame_id,
+                        current_region=dict(reference='observation_links/'+str(cid),
+                            source_region_filter=refined['source_region'],scope='measured_correspondence_centres_only'))
+                elif fid!='backbone':
+                    refined.update(camera_fragment_support_count=refined['observation_support_count'],
+                        camera_fragment_support_ratio=refined['observation_support_ratio'],
+                        observation_support_count=None,observation_support_ratio=None,
+                        observed_conflict_count=None,unobserved_dependency_ratio=None,dependency_pixel_count=None,
+                        dependency_scope='unknown/conservative_multi_camera_or_temporal',scope_unavailable=True)
+        # M1 feature-slot expiry cannot erase a still-retained M2 computation.
+        # Availability comes from the committed producer receipt, not a newly
+        # fabricated M1 FeatureRecord or an extended physical observation lease.
+        receipt_only_camera = (not any(fid=='backbone' for fid,_ in records)
+            and receipt.get('cache_saved') and receipt.get('cache_boundary')=='camera'
+            and cache.get('frame_id')==manager._previous_frame_id
+            and cache.get('execution_signature')==frame.execution_signature)
+        if receipt_only_camera:
+            actual=next((s for s in receipt.get('output_camera_provenance',[]) if s.get('camera_id')==cid),{})
+            timestamp=actual.get('computation_timestamp');producer=actual.get('computation_version')
+            available=bool(actual.get('computation_frame') and actual.get('computation_frame')!=frame.frame_id
+                and isinstance(timestamp,(int,float)) and np.isfinite(timestamp) and timestamp<frame.timestamp
+                and type(producer) is int and 0<producer<=receipt['cache_version'])
+            if available:
+                unit=dict(feature_id='backbone',producer_layer=actual.get('producer_layer','eva_backbone'),
+                    source_frame_id=manager._previous_frame_id,source_camera_id=cid,
+                    source_timestamp=old.timestamp if old else None,
+                    computation_frame_id=actual['computation_frame'],computation_timestamp=timestamp,
+                    computation_version=producer,computation_version_namespace='m2_camera_execution',
+                    feature_record_version=None,source_cache_version=receipt['cache_version'],
+                    execution_signature=frame.execution_signature,dependency_scope='full_camera',
+                    source_region=[[0,0,shape[1],shape[0]]],current_region=[[0,0,shape[1],shape[0]]],
+                    observation_timestamp=camera.timestamp,observation_valid=bool(candidate.any()),
+                    observed_conflict=bool(dirty.any()),computation_available=True,
+                    computation_sources=copy.deepcopy([actual]),transformer_dependency_certified=False,
+                    source_representation='committed_M2_receipt_without_M1_feature_slot')
+                if camera_scope is not None:unit.update(camera_scope)
+                bundle.source_records.append(unit)
         # A window cache retains prefix outputs, not the final global backbone.
         # Export its real units rather than pretending that a final feature slot
         # exists just because some other cache boundary is populated.
@@ -192,4 +266,18 @@ def build_bundle(manager, frame, result, validate_observation=True):
                         observation_valid=bool(candidate[y:region[3],x:region[2]].any()),
                         observed_conflict=bool(dirty[y:region[3],x:region[2]].any()),
                         computation_available=available,transformer_dependency_certified=False))
+                    if manager.config.scope_validity:
+                        from .observation_refinement import scope_support
+                        footprints=receipt.get('prefix_dependency_footprints',{}).get(block,
+                            receipt.get('prefix_dependency_footprints',{}).get(str(block),[]))
+                        if not footprints:
+                            bundle.source_records[-1].update(observation_valid=False,
+                                partial_observation_only=True,scope_unavailable=True,
+                                observation_support_count=None,observation_support_ratio=None,
+                                observed_conflict_count=None,unobserved_dependency_ratio=None)
+                            continue
+                        footprint=footprints[index%len(footprints)]
+                        bundle.source_records[-1].update(scope_support(candidate,dirty,footprint))
+                        bundle.source_records[-1].update(input_dependency_footprint=copy.deepcopy(footprint),
+                            source_region=[footprint['input_region']],current_region=[footprint['input_region']])
     return bundle

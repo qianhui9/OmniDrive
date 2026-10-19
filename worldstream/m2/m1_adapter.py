@@ -73,7 +73,8 @@ def cpu_window_opportunity(invalid, projection, window_size):
     return ~padded.reshape(b,hp//window_size,window_size,wp//window_size,window_size).any(axis=(2,4))
 
 
-def computation_admission(bundle, context, images, cache, force_refresh=False):
+def computation_admission(bundle, context, images, cache, force_refresh=False,
+                          selective_camera=False, separate_computation_age=False, details=None):
     """Validate metadata; return dirty hints only, NEVER an equality mask.
 
     Unknown is eligible for full independent Exact comparison. Candidate pixels
@@ -111,11 +112,15 @@ def computation_admission(bundle, context, images, cache, force_refresh=False):
     if not horizons or any(not isinstance(v,(float,int)) or not np.isfinite(v) or v < 0 for v in horizons):
         return None, 'm1_invalid_lease'
     horizon = min(horizons)
+    camera_reasons = {}
     for source in camera_sources:
         timestamp = source.get('computation_timestamp')
         if (not isinstance(timestamp,(int,float)) or not np.isfinite(timestamp)
-                or not 0 < bundle.timestamp-timestamp <= horizon):
+                or not 0 < bundle.timestamp-timestamp):
             return None, 'm1_computation_source_expired'
+        if bundle.timestamp-timestamp > horizon and not separate_computation_age:
+            if not selective_camera:return None, 'm1_computation_source_expired'
+            camera_reasons[source.get('camera_id')] = 'm1_computation_source_expired'
     masks = []
     if set(bundle.refresh_contract) != set(context.get("camera_ids", [])):
         return None, "m1_camera_order_mismatch"
@@ -124,25 +129,40 @@ def computation_admission(bundle, context, images, cache, force_refresh=False):
         link = bundle.observation_links.get(cid, {})
         lease = link.get("validity_lease", {})
         if (link.get("source_frame_id") != cache.context["frame_id"]
-                or link.get("source_camera_id") != cid
-                or not lease.get("source_valid")):
+                or link.get("source_camera_id") != cid):
             return None, "m1_invalid_lease"
+        if not lease.get('source_valid'):
+            if not selective_camera:return None, 'm1_invalid_lease'
+            camera_reasons[cid] = 'm1_invalid_lease'
         source_time = link.get('source_timestamp')
         horizon = lease.get('max_observation_age')
         if (not isinstance(source_time,(int,float)) or not np.isfinite(source_time)
                 or not isinstance(horizon,(int,float)) or not np.isfinite(horizon) or horizon < 0
-                or not 0 < bundle.timestamp-source_time <= horizon):
+                or not 0 < bundle.timestamp-source_time):
             return None, 'm1_invalid_lease'
+        if bundle.timestamp-source_time > horizon:
+            if not selective_camera:return None, 'm1_invalid_lease'
+            camera_reasons[cid] = 'm1_invalid_lease'
         for record in bundle.source_records:
             if record.get('source_camera_id') != cid or not record.get('computation_available'):
                 continue
             computed_time = record.get('computation_timestamp')
+            if isinstance(cache.sources,list) and record.get('feature_id')=='backbone':
+                producer=next((s for s in cache.sources if s.get('camera_id')==cid),{})
+                if (record.get('computation_version_namespace')!='m2_camera_execution'
+                        or record.get('computation_frame_id')!=producer.get('computation_frame')
+                        or record.get('computation_version')!=producer.get('computation_version')
+                        or computed_time!=producer.get('computation_timestamp')):
+                    return None, 'm1_computation_source_mismatch'
             if (record.get('execution_signature') != bundle.execution_signature
                     or record.get('computation_frame_id') == bundle.frame_id
                     or not isinstance(computed_time,(int,float)) or not np.isfinite(computed_time)
-                    or not 0 < bundle.timestamp-computed_time <= horizon
+                    or not 0 < bundle.timestamp-computed_time
                     or record.get('source_cache_version') not in (None,cache.version)):
                 return None, 'm1_computation_source_mismatch'
+            if bundle.timestamp-computed_time > horizon and not separate_computation_age:
+                if not selective_camera:return None, 'm1_computation_source_mismatch'
+                camera_reasons[cid] = 'm1_computation_source_expired'
         if contract.get("full_refresh_hint"):
             return None, "m1_full_refresh"
         if contract.get("coordinate_space") != "preprocessed_image":
@@ -154,5 +174,13 @@ def computation_admission(bundle, context, images, cache, force_refresh=False):
             return None, "invalid_refresh_contract"
         if dirty.shape != tuple(images.shape[-2:]) or not validate_refresh_partition(dirty, candidate, unknown):
             return None, "invalid_refresh_contract"
+        if selective_camera and cid in camera_reasons:
+            dirty = np.ones_like(dirty)
+        elif selective_camera and dirty.any():
+            camera_reasons[cid] = 'm1_dirty_camera_observation'
         masks.append(dirty)
+    if details is not None:
+        details.update(camera_reasons=camera_reasons,
+            force_recompute_cameras=[bool(m.any()) for m in masks],
+            observation_lease_separated=separate_computation_age)
     return np.stack(masks), None

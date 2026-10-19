@@ -100,6 +100,10 @@ class M1Config:
     joint_observation_disambiguation: bool = False
     source_linked_state: bool = False
     validity_lease: bool = True
+    scope_validity: bool = False
+    recover_sparse_links: bool = False
+    change_first_guard: bool = False
+    efficient_state: bool = False
 
     def __post_init__(self):
         import math

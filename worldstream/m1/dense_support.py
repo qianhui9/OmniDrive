@@ -42,7 +42,7 @@ def ray_geometry(previous, current, source, target, tolerance=.5):
     return conditioned & (z0>.5)&(z0<200)&(z1>.5)&(z1<200)&(e0<=tolerance)&(e1<=tolerance)
 
 
-def dense_support(previous,current,config,exclusion=None,surface_history=None):
+def dense_support(previous,current,config,exclusion=None,surface_history=None,gray_pair=None):
     start=perf_counter();h,w=current.image.shape[:2]
     empty=np.zeros((h,w),bool)
     diag=dict(dense_flow_ms=0.,dense_validation_ms=0.,dense_support_area_ratio=0.)
@@ -65,7 +65,7 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
                       np.ones((2*rad+1,2*rad+1),np.uint8)).astype(bool)
     def gray(c):
         return cv2.cvtColor(c.image,cv2.COLOR_RGB2GRAY) if c.image.ndim==3 else c.image
-    old,new=gray(previous),gray(current)
+    old,new=gray_pair if gray_pair is not None else (gray(previous),gray(current))
     forward=cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_FAST).calc(old,new,None)
     reverse=cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_FAST).calc(new,old,None)
     yy,xx=np.mgrid[:h,:w].astype(np.float32);target=np.stack((xx,yy),axis=-1)
@@ -157,6 +157,11 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
         diag['_dense_measurements']=dict(forward=forward,reverse=reverse,fb=fb,photo=difference,
             gradient=grad,texture=np.minimum(sample(eigen0),eigen1),jacobian=jacobian,
             per_pixel_candidate=good,geometry=geometry)
+    if config.change_first_guard:
+        # Risk from measured, locally trackable photometric disagreement. This
+        # rejects candidates; it asserts neither foreground ownership nor truth.
+        diag['_measured_change_risk_mask'] = (boundary & finite & (fb<=config.flow_fb_max_px)
+            & textured & (difference>max(.08,config.support_residual_max*2)))
     return stable,source.astype(np.float32),diag
 
 

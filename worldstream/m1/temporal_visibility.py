@@ -7,8 +7,15 @@ from .geometry_support import calibrated_correspondence, measured_patch_support
 
 
 def gray_image(camera):
+    from .measurement_cache import MEASUREMENTS
+    cache = MEASUREMENTS.get()
+    if cache is not None and id(camera) in cache['gray']:
+        owner, gray = cache['gray'][id(camera)]
+        if owner is camera:return gray
     image = camera.image
-    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) if image.ndim == 3 else image.copy()
+    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) if image.ndim == 3 else image.copy()
+    if cache is not None:cache['gray'][id(camera)] = (camera,gray)
+    return gray
 
 
 def build_evidence(previous, current, config, dense_exclusion=None, surface_history=None,
@@ -64,11 +71,13 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
         evidence.raw_correspondence_supported=supported.copy()
     if config.dense_local_support and validate_dense:
         from .dense_support import dense_support
-        dense,source_map,diagnostics=dense_support(previous,current,config,exclusion=dense_exclusion,surface_history=surface_history)
+        dense,source_map,diagnostics=dense_support(previous,current,config,exclusion=dense_exclusion,surface_history=surface_history,
+            gray_pair=(old_gray,gray) if config.efficient_state else None)
         evidence.local_rejection_mask=diagnostics.pop('_local_rejection_mask',None)
         evidence.surface_units=diagnostics.pop('_surface_unit_trace',None)
         evidence.surface_boundary_mask=diagnostics.pop('_surface_boundary_mask',None)
         evidence.dense_measurements=diagnostics.pop('_dense_measurements',None)
+        evidence.measured_change_risk_mask=diagnostics.pop('_measured_change_risk_mask',None)
         evidence.stable_mask=dense & ~changed
         evidence.dense_source_map=source_map
         evidence.source='same_rgb_dense_bidirectional_ray_photo_neighbourhood'

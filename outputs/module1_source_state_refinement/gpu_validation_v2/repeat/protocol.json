@@ -1,0 +1,75 @@
+{
+  "args": {
+    "frames": 16,
+    "scenes": 2,
+    "repeats": 1,
+    "warmup": 1,
+    "case": "repeat",
+    "replay_protocol": "outputs/module1_source_state_refinement/replay/protocol.json",
+    "camera_cost_table": "outputs/module1_state_interface_rearchitecture/gpu_validation_zero_cost/repeat/camera_costs.json",
+    "lease_experiment": true,
+    "selective_probe": true,
+    "qualify_zero_camera_cost": false,
+    "output": "outputs/module1_source_state_refinement/gpu_validation_v2/repeat"
+  },
+  "groups": {
+    "9f1f69646d644e35be4fe0122a8b91ef": [
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54
+    ],
+    "a04daf2d0f194b2ab2ff2a47dfebc1d7": [
+      5337,
+      5338,
+      5339,
+      5340,
+      5341,
+      5342,
+      5343,
+      5344,
+      5345,
+      5346,
+      5347,
+      5348,
+      5349,
+      5350,
+      5351,
+      5352
+    ]
+  },
+  "modes": [
+    "original",
+    "full_maintain",
+    "old_source_exact",
+    "optimized_exact",
+    "optimized_on_demand",
+    "optimized_uncoupled",
+    "optimized_dirty_front"
+  ],
+  "matched_comparison": {
+    "boundary": "camera",
+    "cost_table": "outputs/module1_state_interface_rearchitecture/gpu_validation_zero_cost/repeat/camera_costs.json",
+    "cost_table_sha256": "a3505e9c1f9b66b75b3b83c30980e1fb3ad7c8ff51c02b9d4f518efa0ad0f655",
+    "old_source": "Legacy M1 flags and coupled/global-invalidating contract on the shared instrumented runtime",
+    "new_source": "Refined scope/links/guard/cache and selective camera contract",
+    "partial_updates": "Auto remains restricted to existing signature-specific task/cost qualifications"
+  },
+  "population": "exploratory_reused_population",
+  "service": "persistent_state for all M1 arms; original=current_output",
+  "quality_thresholds": "existing frozen module2_rearchitecture targets; unchanged",
+  "language": "original greedy generation, seed 0",
+  "timing": "scatter outside wall; M1/M2/cache/heads/memory/LLM and diagnostic CPU feature copies inside"
+}

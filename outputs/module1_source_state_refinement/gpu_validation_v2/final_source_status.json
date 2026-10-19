@@ -1,0 +1,37 @@
+{
+  "status": "completed",
+  "steps": [
+    {
+      "name": "regression_current",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-m",
+        "pytest",
+        "tests/worldstream_m1",
+        "tests/worldstream_m2",
+        "tests/worldstream_m3",
+        "-q",
+        "-o",
+        "junit_family=legacy",
+        "--junitxml=outputs/module1_source_state_refinement/gpu_validation_v2/regression_current_cuda.xml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "current_full_task",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-u",
+        "-m",
+        "tools.worldstream_m2.source_state_refinement_current_recheck"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

@@ -37,10 +37,17 @@ def valid_transform(matrix):
     if matrix is None:
         return False
     a = np.asarray(matrix)
-    return (a.shape == (4, 4) and np.isfinite(a).all()
+    from .measurement_cache import MEASUREMENTS
+    cache = MEASUREMENTS.get()
+    key = (a.shape,a.dtype.str,a.tobytes()) if cache is not None else None
+    if cache is not None and key in cache['transforms']:
+        return cache['transforms'][key]
+    valid = (a.shape == (4, 4) and np.isfinite(a).all()
             and np.allclose(a[3], [0, 0, 0, 1], atol=1e-4)
             and np.allclose(a[:3, :3].T @ a[:3, :3], np.eye(3), atol=1e-3)
             and abs(np.linalg.det(a[:3, :3]) - 1) < 1e-3)
+    if cache is not None:cache['transforms'][key] = valid
+    return valid
 
 
 def rigid_transform(rotation, translation):

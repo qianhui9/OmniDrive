@@ -602,6 +602,7 @@ class Petr3D(MVXTwoStageDetector):
                     self._m2_context['state_epoch'] = precheck.diagnostics.get('state_epoch')
                 precheck.diagnostics['timings_ms']['input_adapter_including_transfers']=adapter_ms
                 precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer']=input_transfers['gpu_to_cpu_transfer_ms']
+                precheck.diagnostics['input_gpu_to_cpu_transfer_bytes']=input_transfers.get('gpu_to_cpu_transfer_bytes')
             if not pending_precheck:publish_precheck()
 
             def m1_observer(boxes, lanes, features):
@@ -620,6 +621,7 @@ class Petr3D(MVXTwoStageDetector):
                 self.m1_manager.commit(frame, outputs, precheck)
                 self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
                 self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_ms'] = output_transfers['gpu_to_cpu_transfer_ms']
+                self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_bytes'] = output_transfers.get('gpu_to_cpu_transfer_bytes')
                 self.m1_manager.last_commit_diagnostics['m1_total_including_adapters_ms'] = (
                     adapter_ms + output_ms + precheck.diagnostics['timings_ms']['precheck_total']
                     + self.m1_manager.last_commit_diagnostics['commit_total_ms']

@@ -1,6 +1,7 @@
 """Exact-input camera boundary. Downstream perception and temporal state still run."""
 import json
 import math
+from time import perf_counter
 import torch
 from .camera_feature_cache import CameraFeatureCache,layout_copy
 from .cost_model import block_fingerprint
@@ -66,8 +67,25 @@ class CameraExecutor:
             return False
         return True
 
-    def forward(self,images,context,signature):
+    def forward(self,images,context,signature,force_recompute_cameras=None):
         cache=self.cache;n=len(images)
+        validation_start=perf_counter()
+        forced = ([False]*n if force_recompute_cameras is None else list(force_recompute_cameras))
+        if len(forced)!=n or any(type(v) is not bool for v in forced):
+            raise ValueError('force_recompute_cameras must contain one bool per camera')
+        base_diag=dict(force_recompute_cameras=forced,
+            forced_camera_ids=[context.get('camera_ids',list(range(n)))[i] for i,v in enumerate(forced) if v])
+        def full(reason, clear=True):
+            if clear:self.reset()
+            validate_ms=(perf_counter()-validation_start)*1000
+            tick=perf_counter();out=self.model(images)
+            execute_ms=(perf_counter()-tick)*1000
+            saved=self._save(images,out[0],context,signature,[True]*n) if valid_context and supported else False
+            return out,dict(base_diag,mode='full',fallback_reason=reason,actual_reused_cameras=0,
+                global_cache_reset_reason=reason if clear else None,
+                recomputed_cameras=n,verified_exact_cameras=0,cache_saved=saved,cache_version=cache.version,
+                cache_bytes=cache.bytes,M2_validation_ms=validate_ms,M2_execution_ms=execute_ms,
+                execution_timing_scope='host enqueue wall; no added CUDA synchronization')
         if self.config.cache_capture=='never':
             self.reset()
             return self.model(images),dict(mode='full',fallback_reason='capture_disabled',
@@ -87,10 +105,7 @@ class CameraExecutor:
         if now is not None and (not math.isfinite(now) or (previous is not None and now<=previous)):
             mismatch='camera_timestamp_not_increasing'
         if mismatch:
-            self.reset();out=self.model(images)
-            saved=self._save(images,out[0],context,signature,[True]*n)
-            return out,dict(mode='full',fallback_reason=mismatch,actual_reused_cameras=0,cache_saved=saved,
-                            cache_version=cache.version,cache_bytes=cache.bytes)
+            return full(mismatch)
         # A fast rejection per camera avoids reading every pixel on moving images.
         sample=images[:,:,::128,::128];old=cache.images[:,:,::128,::128]
         possible=((sample==old)&torch.isfinite(sample)).flatten(1).all(1)
@@ -100,7 +115,10 @@ class CameraExecutor:
             current=images.index_select(0,possible_ids);previous=cache.images.index_select(0,possible_ids)
             equal=((current==previous)&torch.isfinite(current)).flatten(1).all(1)
             changed[possible_ids]=~equal
-        ids=changed.nonzero(as_tuple=False).flatten();count=len(ids)
+        exact_equal=(~changed).cpu().tolist()
+        requested_updates=[not same or force for same,force in zip(exact_equal,forced)]
+        update_ids=[i for i,v in enumerate(requested_updates) if v]
+        ids=torch.as_tensor(update_ids,device=images.device,dtype=torch.long);count=len(update_ids)
         reason=None
         if count==n:reason='no_exact_camera'
         elif self.config.mode=='auto':
@@ -113,6 +131,8 @@ class CameraExecutor:
             elif record['full_wall_ms']-record['reuse_wall_ms']<=context.get('necessary_validation_ms',0.):
                 reason='camera_validation_cost_not_beneficial'
         source_version=cache.version;source_frames=[s['computation_frame'] for s in cache.sources]
+        validation_ms=(perf_counter()-validation_start)*1000
+        execution_start=perf_counter()
         if reason:
             out=self.model(images);computed=[True]*n
         else:
@@ -120,12 +140,25 @@ class CameraExecutor:
             if count:
                 fresh=self.model(images.index_select(0,ids))[0]
                 result.index_copy_(0,ids,fresh)
-            out=[result];computed=changed.cpu().tolist()
+            out=[result];computed=requested_updates
+        execution_ms=(perf_counter()-execution_start)*1000
         # Output lineage must survive an OOM/eviction while saving the NEXT
         # cache. The returned features still have these actual computation sources.
         output_sources=cache.output_sources(context,computed)
         saved=self._save(images,out[0],context,signature,computed)
-        return out,dict(mode='full' if reason else 'camera_reuse',fallback_reason=reason,
+        if not saved:
+            # A failed NEXT publication cannot appear as an existing cache.
+            # Reused outputs still name the real cache publication they read;
+            # freshly computed outputs have not been published anywhere.
+            for source,fresh in zip(output_sources,computed):
+                source['cache_publication_version']=None if fresh else source_version
+                if fresh:source['source_cache_version']=None
+        return out,dict(base_diag,mode='full' if reason else 'camera_reuse',fallback_reason=reason,
+            exact_equal_cameras=exact_equal,verified_exact_cameras=sum(exact_equal),
+            eligible_exact_cameras=sum(v and not f for v,f in zip(exact_equal,forced)),
+            input_changed_cameras=[not v for v in exact_equal],
+            M2_validation_ms=validation_ms,M2_execution_ms=execution_ms,
+            execution_timing_scope='host enqueue wall; no added CUDA synchronization',
             actual_reused_cameras=0 if reason else n-count,recomputed_cameras=n if reason else count,
             camera_ids=list(context['camera_ids']),source_version=source_version,
             source_computation_frames=source_frames,cache_version=cache.version,cache_bytes=cache.bytes,

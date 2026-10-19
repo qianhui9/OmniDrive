@@ -147,6 +147,7 @@ class IncrementalVisionRuntime:
                 p = self.model.patch_embed.proj
                 diagnostics['prefix_window_geometry'] = {i:[p.kernel_size[0]*self.model.blocks[i].window_size,
                     p.kernel_size[1]*self.model.blocks[i].window_size] for i in self.prefix}
+                diagnostics['prefix_dependency_footprints'] = self.planner.input_footprints(*current_images.shape[-2:])
         diagnostics['recomputed_windows'] = sum(s.get('executed_windows',0) for s in diagnostics.get('stages',[]))
         diagnostics['cache_hits'] = diagnostics.get('actual_skipped_windows',0) + diagnostics.get('actual_reused_cameras',0)
         diagnostics['source_mismatch'] = bool('mismatch' in (diagnostics.get('fallback_reason') or ''))
@@ -162,6 +163,7 @@ class IncrementalVisionRuntime:
             try:
                 masks = np.stack([decode_mask(bundle.refresh_contract[cid]['reuse_candidate_mask'])
                     for cid in context['camera_ids']])
+                diagnostics['candidate_cameras'] = int(masks.any(axis=(1,2)).sum())
                 p = self.model.patch_embed.proj
                 window = self.model.blocks[0].window_size
                 diagnostics['candidate_windows'] = int((~cpu_window_opportunity(masks,p,window)).sum())
@@ -189,16 +191,28 @@ class IncrementalVisionRuntime:
             if self.config.enabled and self.config.reuse_boundary=='camera':
                 context=dict(context,necessary_validation_ms=validation_budget(context,m1_result,m1_state))
                 admission_reason = None
+                admission_details = {}
+                force_cameras = None
                 if self.config.state_interface == 'source_linked':
+                    adapter_start=perf_counter()
                     dirty, admission_reason = computation_admission(
                         getattr(m1_result,'computation_state',None),context,current_images,self.camera_executor.cache,
-                        getattr(m1_result,'full_refresh_hint',False))
+                        getattr(m1_result,'full_refresh_hint',False),
+                        selective_camera=self.config.camera_selective_invalidation,
+                        separate_computation_age=self.config.experimental_exact_lease_separation,
+                        details=admission_details)
+                    admission_details['M1_M2_adapter_ms']=(perf_counter()-adapter_start)*1000
                     if dirty is not None and dirty.any():
-                        admission_reason = 'm1_dirty_camera_observation'
+                        if self.config.camera_selective_invalidation:
+                            force_cameras = dirty.any(axis=(1,2)).tolist()
+                        else:admission_reason = 'm1_dirty_camera_observation'
                     if admission_reason:
                         self.camera_executor.reset()
                 value,self.last_diagnostics=self.camera_executor.forward(current_images,
-                    context,self.signature(context))
+                    context,self.signature(context),force_recompute_cameras=force_cameras)
+                self.last_diagnostics.update(admission_details)
+                self.last_diagnostics['global_cache_reset_reason'] = (admission_reason or
+                    self.last_diagnostics.get('global_cache_reset_reason'))
                 if admission_reason:self.last_diagnostics['fallback_reason'] = admission_reason
                 return value,self.last_diagnostics
             return self._forward(current_images,m1_result,m1_state,execution_context)

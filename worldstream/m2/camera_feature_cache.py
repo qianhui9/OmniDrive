@@ -20,7 +20,8 @@ class CameraFeatureCache(StateCache):
                 computation_timestamp=context.get('timestamp'),computation_version=self.version+1,
                 producer_layer='eva_backbone',dependency_scope='full_camera',source_cache_version=self.version+1)
                 if computed else dict(self.sources[i]))
-            source.update(verification_frame=context['frame_id'],verification_timestamp=context.get('timestamp'))
+            source.update(verification_frame=context['frame_id'],verification_timestamp=context.get('timestamp'),
+                cache_publication_version=self.version+1)
             sources.append(source)
         return sources
 

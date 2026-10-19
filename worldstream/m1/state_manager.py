@@ -118,9 +118,13 @@ class WorldStateManager:
         # releases the GIL. A private worker owns all provisional metadata.
         worker = copy.copy(self)
         worker._validate_observation = validate_observation
+        fork_start=perf_counter()
         worker.store = self.store.fork()
+        fork_ms=(perf_counter()-fork_start)*1000
         try:
-            result = worker._precheck(frame, reset_reason, recovery)
+            from .measurement_cache import measurement_cache
+            with measurement_cache(self.config.efficient_state):
+                result = worker._precheck(frame, reset_reason, recovery)
         except Exception:
             self.last_result = None
             self.last_masks = {}
@@ -142,6 +146,7 @@ class WorldStateManager:
         core_ms = timings.get('precheck_total', 0.)
         timings['precheck_total'] = (perf_counter() - wall_start) * 1000
         timings['transaction_and_frame_binding'] = max(0., timings['precheck_total'] - core_ms)
+        timings['snapshot_fork'] = fork_ms
         return result
 
     def abort_pending(self):
@@ -227,6 +232,7 @@ class WorldStateManager:
             else:
                 evidence_list = [camera_evidence(item) for item in items]
             for (cid, camera), (evidence, excluded, anchor_excluded) in zip(items, evidence_list):
+                evidence.observation_exclusion_mask = excluded
                 before=int(evidence.stable_mask.sum())
                 evidence.stable_mask &= ~excluded
                 evidence.changed_mask &= ~excluded
@@ -385,9 +391,14 @@ class WorldStateManager:
             full_refresh_reasons=refresh_reasons)
         if self.config.source_linked_state:
             from .computation_state import build_bundle
+            state_start=perf_counter()
             result.computation_state = build_bundle(self, frame, result,
                 getattr(self, '_validate_observation', True))
+            result.diagnostics['timings_ms']['computation_state_build']=(perf_counter()-state_start)*1000
             result.diagnostics['timings_ms']['precheck_total'] = (perf_counter()-start)*1000
+        result.diagnostics['timings_ms'].update(
+            dense_flow=sum(e.diagnostics.get('dense_flow_ms',0.) for e in self.last_evidence.values()),
+            dense_validation=sum(e.diagnostics.get('dense_validation_ms',0.) for e in self.last_evidence.values()))
         if not self.config.profiling:
             result.diagnostics['timings_ms'] = {'precheck_total': result.diagnostics['timings_ms']['precheck_total']}
         self.last_result = result
@@ -418,12 +429,18 @@ class WorldStateManager:
             if full_outputs.source not in ('actual_perception', 'historical_full_model_detection_replay',
                                            'invalid_pose_no_state_committed'):
                 raise ValueError('Unsupported online computation source')
+            receipt_start=perf_counter()
             receipt = copy.deepcopy(full_outputs.execution_receipt)
+            receipt_ms=(perf_counter()-receipt_start)*1000
             worker = copy.copy(self)
+            fork_start=perf_counter()
             worker.store = self._pending_store.fork()
+            fork_ms=(perf_counter()-fork_start)*1000
             from .provenance import feature_source_snapshot, preserve_camera_computation_source
             previous_backbone = feature_source_snapshot(self.store.features.get('backbone'))
-            result = worker._commit(frame, full_outputs, precheck_result)
+            from .measurement_cache import measurement_cache
+            with measurement_cache(self.config.efficient_state):
+                result = worker._commit(frame, full_outputs, precheck_result)
             if full_outputs.execution_receipt and full_outputs.execution_receipt.get('actual_reused_cameras'):
                 worker.last_commit_diagnostics['backbone_computation_source'] = preserve_camera_computation_source(
                     worker.store, frame, full_outputs.execution_receipt, previous_backbone)
@@ -441,6 +458,7 @@ class WorldStateManager:
         self._identity_history = worker._identity_history
         self._identity_hypotheses = worker._identity_hypotheses
         self.last_commit_diagnostics = worker.last_commit_diagnostics
+        self.last_commit_diagnostics.update(snapshot_fork_ms=fork_ms,cache_provenance_receipt_ms=receipt_ms)
         self._computation_receipt = receipt
         self._pending = None
         self._pending_store = None
@@ -710,6 +728,7 @@ class WorldStateManager:
         self.store.last_timestamp = frame.timestamp
         self.store.execution_signature = frame.execution_signature
         self.store.commit_count += 1
+        history_start=perf_counter()
         self._surface_history = {}
         if self.config.dense_region_policy in ('surface_visibility','surface_local_plane','surface_consensus','surface_constraints'):
             for cid,e in self.last_evidence.items():
@@ -759,6 +778,7 @@ class WorldStateManager:
             "physical_certification_phase": "post_perception_commit_only",
             "physical_certification_ms": certification_ms,
             "association_ms": assoc_ms, "state_update_ms": (perf_counter() - start) * 1000 - assoc_ms,
+            "commit_history_copy_ms": (perf_counter()-history_start)*1000,
             "commit_total_ms": (perf_counter() - start) * 1000,
             "anchor_count": len(self.store.anchors), "feature_count": len(self.store.features),
             "tensor_bytes": self.store.tensor_bytes}
