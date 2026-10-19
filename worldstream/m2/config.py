@@ -13,8 +13,11 @@ class M2Config:
     m1_service: str = 'maintain'  # maintain / reset_on_reject / output_only
     reuse_boundary: str = 'window'  # window / camera
     camera_cost_table: str = ''
+    state_interface: str = 'legacy'  # legacy / source_linked
 
     def __post_init__(self):
+        if self.state_interface not in ('legacy', 'source_linked'):
+            raise ValueError('Unknown M1 state interface')
         if self.mode not in ('auto', 'exact'):
             raise ValueError('M2 mode must be auto or exact')
         if self.memory_budget_mb < 0:

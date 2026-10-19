@@ -34,6 +34,11 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
     else:
         for region in changed_regions:
             changed[region_slices(region, camera.image.shape)] = True
+    # Source-linked ordinary measurements do not satisfy the optional strict
+    # surface protocol. Preserve conservative legacy invalidation rather than
+    # silently turning the new candidate population into legacy Stable pixels.
+    if config.source_linked_state and config.dense_region_policy != 'surface_constraints':
+        explained[:] = False
     explained &= ~changed
     unknown = ~(explained | changed)
     invalid = changed | unknown
@@ -77,3 +82,10 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
         "reason": "periodic_or_reset_refresh" if force_refresh else "uncovered_or_changed",
         "feature_mapping": "unknown; no Transformer token indices",
     }, invalid
+
+
+def validate_refresh_partition(dirty, candidate, unknown):
+    """Shared invariant for source-linked adapters and replay audits."""
+    return bool(dirty.shape == candidate.shape == unknown.shape
+        and not (dirty & candidate).any() and not (unknown & (dirty | candidate)).any()
+        and (dirty | candidate | unknown).all())

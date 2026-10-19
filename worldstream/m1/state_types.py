@@ -175,6 +175,7 @@ class FullOutputs:
     anchors: List[PerceptionAnchor]
     features: List[ComputedFeature] = field(default_factory=list)
     source: str = "actual_perception"
+    execution_receipt: Optional[dict] = None  # M2 metadata only, no tensors
 
 
 @dataclass(frozen=True)
@@ -250,6 +251,33 @@ class M1Result:
     # Current post-perception certificates use get_current_certifications().
     physically_certified_anchor_ids: List[str] = field(default_factory=list)
     anchor_provenance: Dict[str, dict] = field(default_factory=dict)
+    computation_state: Optional['ComputationStateBundle'] = None
+
+    def to_dict(self):
+        return json_value(asdict(self))
+
+
+@dataclass(frozen=True)
+class ValidityLease:
+    last_observed_timestamp: Optional[float]
+    last_verified_timestamp: Optional[float]
+    max_observation_age: float
+    source_valid: bool
+    revoked_reason: Optional[str] = None
+
+
+@dataclass
+class ComputationStateBundle:
+    """Observation opportunities, never permission to skip a network operation."""
+    scene_id: str
+    frame_id: str
+    timestamp: float
+    state_epoch: int
+    execution_signature: str
+    source_records: List[dict] = field(default_factory=list)
+    observation_links: Dict[str, dict] = field(default_factory=dict)
+    refresh_contract: Dict[str, dict] = field(default_factory=dict)
+    diagnostics: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self):
         return json_value(asdict(self))

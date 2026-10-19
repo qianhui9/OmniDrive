@@ -17,7 +17,9 @@ class CameraFeatureCache(StateCache):
         sources=[]
         for i,computed in enumerate(changed):
             source=(dict(camera_id=context['camera_ids'][i],computation_frame=context['frame_id'],
-                computation_timestamp=context.get('timestamp')) if computed else dict(self.sources[i]))
+                computation_timestamp=context.get('timestamp'),computation_version=self.version+1,
+                producer_layer='eva_backbone',dependency_scope='full_camera',source_cache_version=self.version+1)
+                if computed else dict(self.sources[i]))
             source.update(verification_frame=context['frame_id'],verification_timestamp=context.get('timestamp'))
             sources.append(source)
         return sources

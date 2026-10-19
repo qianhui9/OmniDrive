@@ -98,9 +98,13 @@ class M1Config:
     local_parallax_jump_px: float = 1.0
     patch_geometry_model: str = 'frontoparallel'
     joint_observation_disambiguation: bool = False
+    source_linked_state: bool = False
+    validity_lease: bool = True
 
     def __post_init__(self):
         import math
+        if self.source_linked_state and not (self.temporal_visibility and self.local_support):
+            raise ValueError('Source-linked state requires actual temporal observations')
         if self.patch_geometry_model not in ('frontoparallel', 'local_inverse_depth'):
             raise ValueError('Unknown conditional patch geometry model')
         if type(self.joint_observation_disambiguation) is not bool:

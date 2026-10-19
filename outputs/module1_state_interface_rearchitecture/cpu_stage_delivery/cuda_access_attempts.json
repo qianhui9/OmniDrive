@@ -1,0 +1,46 @@
+{
+  "inside_sandbox": {
+    "torch_cuda_available": false,
+    "nvidia_smi": "could not communicate with NVIDIA driver"
+  },
+  "outside_sandbox": {
+    "attempts": 2,
+    "executed": false,
+    "result": "automatic permission approval review timed out twice",
+    "host_GPU_state": "Unknown"
+  },
+  "CUDA_full_model": "Not Run",
+  "user_requested_followup": {
+    "status": "blocked_before_GPU_execution",
+    "host_GPU": "reported available by user via nvitop",
+    "inside_sandbox": {
+      "device_nodes": [],
+      "torch_cuda_available": false,
+      "torch_cuda_device_count": 0,
+      "kernel_driver_version": "580.173.02"
+    },
+    "outside_attempts": [
+      {
+        "action": "nvitop --once",
+        "executed": false,
+        "reason": "automatic permission approval review timed out"
+      },
+      {
+        "action": "CUDA batch launch",
+        "executed": false,
+        "reason": "automatic permission approval review timed out"
+      },
+      {
+        "action": "CUDA batch retry after safety tests",
+        "executed": false,
+        "reason": "automatic permission approval review timed out"
+      }
+    ],
+    "GPU_program_execution": "Not Run",
+    "CPU_gpu_tools_tests": {
+      "passed": 4,
+      "source": "logs/gpu_tools_unit.log"
+    },
+    "entry": "tools/worldstream_m2/state_interface_cuda_batch.py"
+  }
+}

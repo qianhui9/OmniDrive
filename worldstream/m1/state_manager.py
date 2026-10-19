@@ -48,6 +48,7 @@ class WorldStateManager:
         self._surface_history = {}
         self._identity_history = ()
         self._identity_hypotheses = ()
+        self._computation_receipt = None
         qualification=None
         if self.config.physical_qualification_path:
             import json
@@ -70,6 +71,7 @@ class WorldStateManager:
         self._surface_history = {}
         self._identity_history = ()
         self._identity_hypotheses = ()
+        self._computation_receipt = None
 
     def _prepare(self, frame):
         s = self.store
@@ -99,6 +101,9 @@ class WorldStateManager:
         return reason
 
     def precheck(self, frame):
+        return self.precheck_with_observation(frame)
+
+    def precheck_with_observation(self, frame, validate_observation=True):
         """Compute on private metadata; abandonment cannot verify or expire history."""
         wall_start = perf_counter()
         recovery = self._pending is not None or self._recovery_required
@@ -112,6 +117,7 @@ class WorldStateManager:
         # The public store remains the last committed snapshot even while cv2
         # releases the GIL. A private worker owns all provisional metadata.
         worker = copy.copy(self)
+        worker._validate_observation = validate_observation
         worker.store = self.store.fork()
         try:
             result = worker._precheck(frame, reset_reason, recovery)
@@ -142,6 +148,8 @@ class WorldStateManager:
         """Explicit recovery when model execution fails after precheck."""
         if self._pending is not None and self.last_result is not None:
             self.last_result.diagnostics['transaction_status'] = 'aborted'
+            if self.last_result.computation_state is not None:
+                self.last_result.computation_state.diagnostics['transaction_status'] = 'aborted'
             self._recovery_required = True
         self._pending = None
         self._pending_store = None
@@ -161,6 +169,8 @@ class WorldStateManager:
         no_history = not self.store.anchors and not (self.config.local_support and self._previous_cameras)
         result = M1Result(frame.scene_id, frame.frame_id, frame.timestamp,
                           full_refresh_hint=bool(reset_reason or periodic or no_history or recovery))
+        if self.config.source_linked_state and result.full_refresh_hint:
+            self._validate_observation = False
         refresh_reasons = ([reset_reason] if reset_reason else [])
         refresh_reasons += [name for name, yes in [('periodic', periodic), ('no_history', no_history),
                                                    ('aborted_frame_recovery', recovery)] if yes]
@@ -206,7 +216,8 @@ class WorldStateManager:
                             region = swept_dynamic_region(anchor, camera, p, self.config)
                         excluded[region_slices(region,camera.image.shape)] = True
                 evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config,
-                                          dense_exclusion=excluded,surface_history=self._surface_history.get(cid))
+                                          dense_exclusion=excluded,surface_history=self._surface_history.get(cid),
+                                          validate_dense=getattr(self, '_validate_observation', True))
                 return evidence, excluded, anchor_excluded
             items = list(frame.cameras.items())
             if self.config.temporal_workers > 1 and len(items) > 1:
@@ -230,7 +241,7 @@ class WorldStateManager:
                     incremental_rejected=before-int(evidence.stable_mask.sum()),retained=int(evidence.stable_mask.sum()))
                 self.last_evidence[cid] = evidence
                 for k in temporal_times: temporal_times[k] += evidence.diagnostics.get(k+'_ms',0.)
-        if self.config.dense_region_policy=='surface_constraints':
+        if self.config.dense_region_policy=='surface_constraints' and getattr(self, '_validate_observation', True):
             from .surface_visibility_constraints import apply_surface_constraints
             for cid, evidence in self.last_evidence.items():
                 apply_surface_constraints(self._previous_cameras.get(cid), frame.cameras[cid],
@@ -372,6 +383,11 @@ class WorldStateManager:
             valid_anchor_ids_semantics='observation_support_only_not_physical_identity',
             association_candidate_semantics='historical_projection_only_current_detection_unavailable_until_commit',
             full_refresh_reasons=refresh_reasons)
+        if self.config.source_linked_state:
+            from .computation_state import build_bundle
+            result.computation_state = build_bundle(self, frame, result,
+                getattr(self, '_validate_observation', True))
+            result.diagnostics['timings_ms']['precheck_total'] = (perf_counter()-start)*1000
         if not self.config.profiling:
             result.diagnostics['timings_ms'] = {'precheck_total': result.diagnostics['timings_ms']['precheck_total']}
         self.last_result = result
@@ -402,9 +418,15 @@ class WorldStateManager:
             if full_outputs.source not in ('actual_perception', 'historical_full_model_detection_replay',
                                            'invalid_pose_no_state_committed'):
                 raise ValueError('Unsupported online computation source')
+            receipt = copy.deepcopy(full_outputs.execution_receipt)
             worker = copy.copy(self)
             worker.store = self._pending_store.fork()
+            from .provenance import feature_source_snapshot, preserve_camera_computation_source
+            previous_backbone = feature_source_snapshot(self.store.features.get('backbone'))
             result = worker._commit(frame, full_outputs, precheck_result)
+            if full_outputs.execution_receipt and full_outputs.execution_receipt.get('actual_reused_cameras'):
+                worker.last_commit_diagnostics['backbone_computation_source'] = preserve_camera_computation_source(
+                    worker.store, frame, full_outputs.execution_receipt, previous_backbone)
         except Exception:
             self.abort_pending()
             self._recovery_required = True
@@ -419,10 +441,13 @@ class WorldStateManager:
         self._identity_history = worker._identity_history
         self._identity_hypotheses = worker._identity_hypotheses
         self.last_commit_diagnostics = worker.last_commit_diagnostics
+        self._computation_receipt = receipt
         self._pending = None
         self._pending_store = None
         self._camera_layout = camera_layout(frame)
         precheck_result.diagnostics['transaction_status'] = 'committed'
+        if precheck_result.computation_state is not None:
+            precheck_result.computation_state.diagnostics['transaction_status'] = 'committed'
         core_ms = self.last_commit_diagnostics.get('commit_total_ms', 0.)
         self.last_commit_diagnostics['commit_total_ms'] = (perf_counter() - wall_start) * 1000
         self.last_commit_diagnostics['transaction_and_frame_binding_ms'] = max(

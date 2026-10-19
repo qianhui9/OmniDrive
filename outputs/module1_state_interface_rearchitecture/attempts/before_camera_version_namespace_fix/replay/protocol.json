@@ -1,0 +1,145 @@
+{
+  "population": "exploratory_reused_population",
+  "scenes": [
+    {
+      "scene_index": 96,
+      "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+      "samples": [
+        "adce54dcf6404d37bd170ffc4c2a7836",
+        "3613b5ea52bc46d0966fede34be89d38",
+        "c0f6cef97fa44973afe8ed8e18e652c3",
+        "895d801ecf3e40019e43a0d5b80bb453",
+        "18f10858b2b1410f8485ffa35253033d",
+        "2d72c60d65f84eae91bb4e5b2486b366",
+        "3d2ce1b79d1c45e5b7db4f26f411bb86",
+        "9a7a58e327f04340ae8f9ec098a58418",
+        "575d8e57b2de436b805fd6befde3edd7",
+        "14d8b49233574552ae43c6f49172ea16",
+        "5973a055a6ac40e9934cfce8afa82fbe",
+        "1220f9a205ae44418fcce91722e1e601"
+      ],
+      "original_split": "calibration",
+      "split": "development"
+    },
+    {
+      "scene_index": 97,
+      "scene_id": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "samples": [
+        "e57fa7124f6741e697b1841bc023a90f",
+        "9f6df3e551884233bb31cd0d1aa864b4",
+        "ee81134b6b24406995723630e2cee714",
+        "770e9c5da527420594a50b6ea1408f42",
+        "36648b9ce44d4266a9c1987eafb2bed6",
+        "08e65feb66274af8bd1a429919e2b192",
+        "09b85d87b18b4d7db466997161867f09",
+        "138c534bff82424ca226d8cbb283c9e1",
+        "670da6f8a8064f10afb05bf44436fe6b",
+        "1770f47cde1b4849a6d7dab152bf09cc",
+        "d1c43c499cf0486a814077f1b22d9121",
+        "0e9f5667298748c4af70e09079465060"
+      ],
+      "original_split": "calibration",
+      "split": "development"
+    }
+  ],
+  "frames_per_scene": 12,
+  "coordinate_space": "preprocessed_image",
+  "pipeline": [
+    {
+      "type": "LoadMultiViewImageFromFiles",
+      "to_float32": true
+    },
+    {
+      "type": "ResizeCropFlipRotImage",
+      "training": false,
+      "data_aug_conf": {
+        "resize_lim": [
+          0.37,
+          0.45
+        ],
+        "final_dim": [
+          320,
+          640
+        ],
+        "bot_pct_lim": [
+          0.0,
+          0.0
+        ],
+        "rot_lim": [
+          0.0,
+          0.0
+        ],
+        "H": 900,
+        "W": 1600,
+        "rand_flip": false
+      }
+    },
+    {
+      "type": "ResizeMultiview3D",
+      "img_scale": [
+        640,
+        640
+      ],
+      "keep_ratio": false,
+      "multiscale_mode": "value"
+    },
+    {
+      "type": "NormalizeMultiviewImage",
+      "mean": [
+        123.675,
+        116.28,
+        103.53
+      ],
+      "std": [
+        58.395,
+        57.12,
+        57.375
+      ],
+      "to_rgb": true
+    },
+    {
+      "type": "PadMultiViewImage",
+      "size_divisor": 32
+    }
+  ],
+  "source_sha256": {
+    "worldstream/m1/association.py": "a5b8c0936a39d1465ac72b860dfb240efaf6ed42dc62b3a726a3356e6996c070",
+    "worldstream/m1/temporal_visibility.py": "ce7a5afadc045b800488de79bc77c7befed52216188a9332f2680c0265648baf",
+    "worldstream/m1/config.py": "3afbb88a545b6be7903330742de7eef88bda81b86c3623022541247a18d24d58",
+    "worldstream/m1/geometry.py": "a4ad1d094093059b673348a1710fbefd3e8341ef22c1b7f15a6ebbd3ed639533",
+    "worldstream/m1/identity_temporal.py": "2a7451ca0dde5346425eec691acac2ce4b92bb08ab695f3506a9957eda9a5932",
+    "worldstream/m1/identity_continuity.py": "fce74566e734900c3e74befa6388592fbf6adeeac26187ea358c1f9d2da9699d",
+    "worldstream/m1/bidirectional_geometry.py": "71b4dae6d46b04a859ff513b232511ec2897583ee3b84213348ca61545f7661d",
+    "worldstream/m1/task_facts.py": "a4e2746a789ff84a018ab555d7c1a48c7bb415ef9b55cbfa5a37730920f4e0c5",
+    "worldstream/m1/physical_certifier.py": "29994ed5fc026d51618acc13ea73a7e0ab2b3e1392854db6ab9c69792606b89d",
+    "worldstream/m1/state_store.py": "0b9d0bbd7570be312f88a9f584cae356364a132e611b971b94b65b3f42fe3862",
+    "worldstream/m1/novelty_detector.py": "fe1cfc9ae9b3c7d5d19e696832f69cbd36fa92f19d144c4356ce6736b9387299",
+    "worldstream/m1/mask_codec.py": "f0d8a5cf9ea54ca8146ac8de5ff508e1953ffa6c58705109f08a8091fff6b594",
+    "worldstream/m1/geometry_adaptive_patch.py": "f1859951afcd861fa9ff7242dada82bdc422a31508b88e9a85a64c20c06e2061",
+    "worldstream/m1/surface_visibility.py": "9508920cc4b23b9f16dd3fc0d7d3216675a1bc4417411239e57130b3f1733005",
+    "worldstream/m1/input_contract.py": "8762db983fdd7074d8d098d59c7576e5bf221a3c69de801a25442c1cca90bdf0",
+    "worldstream/m1/omnidrive_adapter.py": "0b492a3f7701dad9ea7f70322cb79c16c59513af7f5747ead2be300318d379ae",
+    "worldstream/m1/surface_visibility_constraints.py": "5db767c0a602dcbfb535feba44611273f9cb2ecdd1eaf0fb72b0fcaf6cadd56e",
+    "worldstream/m1/state_types.py": "5c0d08e24257748ecfd73129a99cd3c6d184a7eb58972e8e546445fe8f9399a1",
+    "worldstream/m1/dense_support.py": "263d84ad155d70e6b740401e425ac2e534f2d6e85aea1f9a7d916a1e1481f26d",
+    "worldstream/m1/local_surface.py": "d1ebc6ce625e9c26fc09ba30d0afb3178abc928ecdc357f29d98ec7318753c14",
+    "worldstream/m1/foreground_correspondence.py": "9dd3bc83180e5afc28833457b5fbcca5dfd9aaaff7dbce8ca49dd42d5809c62f",
+    "worldstream/m1/geometry_support.py": "8d8c15207c3c77353e6fd5aa2c60706c53b562ff6d51232e18958a9ec5e2560a",
+    "worldstream/m1/computation_state.py": "bd47a4f63b71c34dd79aedda7b9b57ede44901d2e654cee91e82b3915ff52384",
+    "worldstream/m1/provenance.py": "deda92a585608e47f3288ac965d4497532ecc40b183e96ffedb775f57ce858f0",
+    "worldstream/m1/surface_consensus.py": "7c63acdeafb5f45ac1f4f3dfda3b3208b7c251299f1bdd8670f1fdada192509c",
+    "worldstream/m1/state_manager.py": "2bd2cb558c0ebbd225ebdd59496c62e5bc069546a1a752723d46f12f9e961bfd",
+    "worldstream/m1/observation_validator.py": "4c2b52462fed5e07db99939059cdc27118b2920a5b69d233a139d14517740cb7",
+    "worldstream/m1/identity_object.py": "855cb13c021d54456f9a15c039bb1b1738192bde7328047089c1d32aecee0a3b",
+    "worldstream/m1/__init__.py": "1b8a50942f7c861820b2c325025a0274fed2a00c7e4b96ae10e9d398e1eb69ce",
+    "worldstream/m1/fact_certifier.py": "212448b64c35c1512575d16ab0fff8ebc2705ae9d39e32dbdfeec1641aa39b65",
+    "worldstream/m1/surface_observability.py": "3d700e6d5487ea72ffbc0cc2af7d08204c61b96aa8cc25b2409b58b726659318",
+    "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m1/state_interface_replay.py": "b8440c3a7d13b107f20ddd42412f8d58422086e31e23c2e446ce7625eb8e1a47",
+    "configs/worldstream_m1_source_linked_state.yaml": "dc79aa1512302637b9e0be4c08b4bc30e9386ee6119672ac873448ee975ec08b"
+  },
+  "original_perception": "historical_full_model_detection_replay",
+  "online_GT": false,
+  "CUDA_execution": false,
+  "lease_ablation": "hard maximum history age remains mandatory in every arm; optional lease export only",
+  "refresh_ablation": "candidate population unchanged; refresh contract exports policy independently"
+}

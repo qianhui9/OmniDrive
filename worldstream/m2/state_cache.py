@@ -1,4 +1,6 @@
 """Only the immediately preceding frame and early independent block outputs live here."""
+import copy
+import math
 class StateCache:
     def __init__(self, budget_bytes):
         self.budget_bytes = budget_bytes
@@ -12,13 +14,21 @@ class StateCache:
         self.signature = None
         self.output_stride = None
         self.input_stride = None
+        self.sources = {}
 
-    def commit(self, images, outputs, context, signature, output_stride=None):
+    def commit(self, images, outputs, context, signature, output_stride=None, sources=None):
         """Publish a single completed forward atomically; retained outputs are immutable."""
-        self.images = images.detach().clone()
+        owned_images = images.detach().clone()
+        owned_context = copy.deepcopy(context)
+        owned_sources = copy.deepcopy(sources) if sources is not None else {
+            i: [dict(computation_frame_id=context['frame_id'], computation_timestamp=context.get('timestamp'),
+                computation_version=self.version+1, camera_id=context['camera_ids'][j//(len(values)//len(images))],
+                producer_layer=i, dependency_scope='closed_window_prefix') for j in range(len(values))]
+            for i,values in outputs.items()}
+        self.images = owned_images
         self.outputs = outputs
-        self.context = dict(context)
-        self.context['camera_ids'] = list(context['camera_ids'])
+        self.context = owned_context
+        self.sources = owned_sources
         self.signature = signature
         self.input_stride = tuple(images.stride())
         if output_stride is not None:self.output_stride = tuple(output_stride)
@@ -47,5 +57,8 @@ class StateCache:
         if context.get('source_version', self.version) != self.version:
             return 'cache_version_mismatch'
         if context['frame_id'] == self.context['frame_id']:
+            return 'frame_order_mismatch'
+        now, old = context.get('timestamp'), self.context.get('timestamp')
+        if now is not None and (not math.isfinite(now) or old is not None and now <= old):
             return 'frame_order_mismatch'
         return None

@@ -1,0 +1,53 @@
+{
+  "args": {
+    "frames": 12,
+    "scenes": 2,
+    "repeats": 2,
+    "warmup": 1,
+    "case": "natural",
+    "replay_protocol": "outputs/module1_state_interface_rearchitecture/replay/protocol.json",
+    "output": "outputs/module1_state_interface_rearchitecture/gpu_validation/natural"
+  },
+  "groups": {
+    "9f1f69646d644e35be4fe0122a8b91ef": [
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50
+    ],
+    "a04daf2d0f194b2ab2ff2a47dfebc1d7": [
+      5337,
+      5338,
+      5339,
+      5340,
+      5341,
+      5342,
+      5343,
+      5344,
+      5345,
+      5346,
+      5347,
+      5348
+    ]
+  },
+  "modes": [
+    "original",
+    "strict_exact",
+    "source_linked_exact",
+    "source_linked_on_demand",
+    "full_maintain"
+  ],
+  "population": "exploratory_reused_population",
+  "service": "persistent_state for all M1 arms; original=current_output",
+  "quality_thresholds": "existing frozen module2_rearchitecture targets; unchanged",
+  "language": "original greedy generation, seed 0",
+  "timing": "scatter outside wall; M1/M2/cache/heads/memory/LLM and diagnostic CPU feature copies inside"
+}

@@ -11,7 +11,8 @@ def gray_image(camera):
     return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY) if image.ndim == 3 else image.copy()
 
 
-def build_evidence(previous, current, config, dense_exclusion=None, surface_history=None):
+def build_evidence(previous, current, config, dense_exclusion=None, surface_history=None,
+                   validate_dense=True):
     start = perf_counter(); gray = gray_image(current)
     h,w = gray.shape
     points = np.empty((0,2), np.float32)
@@ -61,7 +62,7 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
         # Preserve measured proposal points separately from rejection masks.
         # They cannot grant ordinary observation/pixel support to dynamic ROIs.
         evidence.raw_correspondence_supported=supported.copy()
-    if config.dense_local_support:
+    if config.dense_local_support and validate_dense:
         from .dense_support import dense_support
         dense,source_map,diagnostics=dense_support(previous,current,config,exclusion=dense_exclusion,surface_history=surface_history)
         evidence.local_rejection_mask=diagnostics.pop('_local_rejection_mask',None)

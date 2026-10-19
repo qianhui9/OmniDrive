@@ -543,7 +543,8 @@ class Petr3D(MVXTwoStageDetector):
                 camera_ids=list(meta.get('cam_infos', {})) or
                     [os.path.basename(os.path.dirname(f)) for f in meta['filename']],
                 coordinate_space='preprocessed_image')
-            if getattr(self.m2_runtime.config, 'reuse_boundary', 'window') == 'camera':
+            if (getattr(self.m2_runtime.config, 'reuse_boundary', 'window') == 'camera'
+                    or getattr(self.m2_runtime.config, 'state_interface', 'legacy') == 'source_linked'):
                 self._m2_context['timestamp'] = float(data['timestamp'].reshape(-1)[0])
         self.m3_verified_state = None
         run_m1 = self.m1_manager is not None
@@ -586,13 +587,19 @@ class Petr3D(MVXTwoStageDetector):
                 if getattr(self,'m2_runtime',None) is not None:raise RuntimeError('Overlap cannot depend on unverified M2 state')
                 runtime.precheck_async(self.m1_manager,frame)
                 precheck=None
-            else:precheck=self.m1_manager.precheck(frame)
+            else:
+                validate_observation = not (settings.source_linked_state
+                    and getattr(self, 'm1_admission_diagnostics', {}).get('reject', False))
+                precheck=(self.m1_manager.precheck_with_observation(frame, validate_observation)
+                    if settings.source_linked_state else self.m1_manager.precheck(frame))
             def publish_precheck():
                 if (getattr(self,'m3_runtime',None) is not None
                         and getattr(getattr(self.m3_runtime,'config',None),'state_context','none')!='none'):
                     from worldstream.m3.world_state import freeze_verified_state
                     self.m3_verified_state=freeze_verified_state(self.m1_manager,frame)
                 if getattr(self,'m2_runtime',None) is not None:self._m2_context.update(execution_signature=frame.execution_signature)
+                if getattr(getattr(self,'m2_runtime',None),'config',None) is not None:
+                    self._m2_context['state_epoch'] = precheck.diagnostics.get('state_epoch')
                 precheck.diagnostics['timings_ms']['input_adapter_including_transfers']=adapter_ms
                 precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer']=input_transfers['gpu_to_cpu_transfer_ms']
             if not pending_precheck:publish_precheck()
@@ -601,6 +608,8 @@ class Petr3D(MVXTwoStageDetector):
                 output_start = time.perf_counter()
                 with measure_transfers() as output_transfers:
                     outputs = outputs_from_model(frame, boxes, lanes, features, settings)
+                if getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck:
+                    outputs.execution_receipt = self.m2_diagnostics
                 output_ms = (time.perf_counter() - output_start) * 1000
                 if getattr(getattr(getattr(self,'m3_runtime',None),'config',None),'post_perception',False):
                     from worldstream.m3.post_perception import post_verify
@@ -608,18 +617,7 @@ class Petr3D(MVXTwoStageDetector):
                     with torch.autograd.profiler.record_function('stream/post_perception_task_verification'):
                         self.m3_verified_state=post_verify(self.m3_verified_state,frame,outputs)
                     self.m3_post_verification_ms=(time.perf_counter()-task_start)*1000
-                reused = (getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck and
-                    getattr(self, 'm2_diagnostics', {}).get('actual_reused_cameras', 0))
-                if reused:
-                    from worldstream.m1.provenance import feature_source_snapshot, preserve_camera_computation_source
-                    source_start = time.perf_counter()
-                    previous_backbone = feature_source_snapshot(self.m1_manager.store.features.get('backbone'))
                 self.m1_manager.commit(frame, outputs, precheck)
-                if reused:
-                    self.m1_manager.last_commit_diagnostics['backbone_computation_source'] = preserve_camera_computation_source(
-                        self.m1_manager.store, frame, self.m2_diagnostics, previous_backbone)
-                    self.m1_manager.last_commit_diagnostics['computation_source_metadata_ms'] = max(0.,
-                        (time.perf_counter() - source_start)*1000 - self.m1_manager.last_commit_diagnostics['commit_total_ms'])
                 self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
                 self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_ms'] = output_transfers['gpu_to_cpu_transfer_ms']
                 self.m1_manager.last_commit_diagnostics['m1_total_including_adapters_ms'] = (
