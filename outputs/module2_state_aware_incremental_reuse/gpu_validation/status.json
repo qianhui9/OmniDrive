@@ -1,0 +1,99 @@
+{
+  "status": "completed",
+  "started": "2026-10-19T15:54:43.159544+00:00",
+  "steps": [
+    {
+      "name": "regression",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-m",
+        "pytest",
+        "tests/worldstream_m1",
+        "tests/worldstream_m2",
+        "tests/worldstream_m3",
+        "-q",
+        "-o",
+        "junit_family=legacy",
+        "--junitxml=outputs/module2_state_aware_incremental_reuse/gpu_validation/regression_cuda.xml"
+      ],
+      "started": "2026-10-19T15:54:43.282152+00:00",
+      "exit_code": 0,
+      "finished": "2026-10-19T15:56:33.828219+00:00"
+    },
+    {
+      "name": "integration",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-u",
+        "-m",
+        "tools.worldstream_m2.state_aware_integration"
+      ],
+      "started": "2026-10-19T15:56:33.872481+00:00",
+      "exit_code": 0,
+      "finished": "2026-10-19T16:23:32.484070+00:00"
+    },
+    {
+      "name": "execution_profile",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-u",
+        "-m",
+        "tools.worldstream_m2.state_aware_execution_profile"
+      ],
+      "started": "2026-10-19T16:23:32.549579+00:00",
+      "exit_code": 0,
+      "finished": "2026-10-19T16:25:47.212229+00:00"
+    }
+  ],
+  "python": "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "gpu": {
+    "index": 0,
+    "uuid": "GPU-f12a6660-9855-a3dc-ebc9-436b7b112669",
+    "name": "NVIDIA GeForce RTX 3090",
+    "used_mb": 15,
+    "total_mb": 24576,
+    "utilization": 0
+  },
+  "finished": "2026-10-19T16:25:47.212562+00:00"
+}

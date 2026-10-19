@@ -16,8 +16,17 @@ class M2Config:
     state_interface: str = 'legacy'  # legacy / source_linked
     camera_selective_invalidation: bool = True
     experimental_exact_lease_separation: bool = False
+    experimental_conditional_reuse: bool = False
+    conditional_max_patch_error: float = 0.0
+    conditional_cost_table: str = ''
+    conditional_packing_optimization: bool = False
 
     def __post_init__(self):
+        import math
+        if not math.isfinite(self.conditional_max_patch_error) or self.conditional_max_patch_error<0:
+            raise ValueError('Invalid conditional feature residual threshold')
+        if self.experimental_conditional_reuse and (self.reuse_boundary!='window' or self.state_interface!='source_linked'):
+            raise ValueError('Conditional research path requires source-linked window boundary')
         if self.experimental_exact_lease_separation and (
                 self.reuse_boundary != 'camera' or self.state_interface != 'source_linked'):
             raise ValueError('Experimental lease separation requires source-linked camera boundary')

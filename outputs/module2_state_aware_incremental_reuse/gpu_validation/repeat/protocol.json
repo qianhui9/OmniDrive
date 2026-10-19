@@ -1,0 +1,31 @@
+{
+  "case": "repeat",
+  "groups": {
+    "9f1f69646d644e35be4fe0122a8b91ef": [
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46
+    ]
+  },
+  "modes": [
+    "original",
+    "full_maintain",
+    "existing_exact",
+    "source_probe",
+    "conditional",
+    "conditional_optimized"
+  ],
+  "warmup": 1,
+  "repeats": 1,
+  "M1": "configs/worldstream_m1_engineering_frozen.yaml",
+  "cost_table": "outputs/module2_refinement/break_even_results.json",
+  "quality": "unchanged 1cm detection/map, parsed planning and text equality; raw + matched memory retained",
+  "population": "exploratory_reused_population",
+  "local_control": "base RGB or top two 256x256 windows swapped; full prefix refresh at ordinals 0/6/11",
+  "source_control": "Layout-intervention source map is explicit input-permutation oracle, not M1 evidence; it cannot qualify production."
+}

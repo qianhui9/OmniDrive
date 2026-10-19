@@ -29,11 +29,16 @@ class IncrementalVisionRuntime:
         self.cheap_admission=CheapAdmission()
         self.last_admission={}
         self.camera_executor=CameraExecutor(model,self.config)
+        self.conditional_executor=None
+        if self.config.experimental_conditional_reuse:
+            from .conditional_prefix import ConditionalPrefixExecutor
+            self.conditional_executor=ConditionalPrefixExecutor(model,self.config)
 
     def reset(self):
         self.cache.clear();self.executor.clear()
         self.cheap_admission.clear()
         self.camera_executor.reset()
+        if self.conditional_executor is not None:self.conditional_executor.reset()
 
     def pre_m1_admission(self, images, context):
         """Reject before M1 only; the selected service owns any explicit reset."""
@@ -128,7 +133,8 @@ class IncrementalVisionRuntime:
                 diagnostics=dict(transaction_status=computation_state.diagnostics.get('transaction_status'),
                     execution_signature=computation_state.execution_signature))
         start = perf_counter()
-        active_cache = self.camera_executor.cache if self.config.reuse_boundary == 'camera' else self.cache
+        active_cache = (self.conditional_executor.cache if self.conditional_executor is not None else
+            self.camera_executor.cache if self.config.reuse_boundary == 'camera' else self.cache)
         previous_context = dict(active_cache.context or {})
         lineage = (active_cache.sources if isinstance(active_cache.sources,list) else
             [s for values in active_cache.sources.values() for s in values])
@@ -150,6 +156,7 @@ class IncrementalVisionRuntime:
                 diagnostics['prefix_dependency_footprints'] = self.planner.input_footprints(*current_images.shape[-2:])
         diagnostics['recomputed_windows'] = sum(s.get('executed_windows',0) for s in diagnostics.get('stages',[]))
         diagnostics['cache_hits'] = diagnostics.get('actual_skipped_windows',0) + diagnostics.get('actual_reused_cameras',0)
+        diagnostics.setdefault('reuse_mode','exact' if diagnostics['cache_hits'] else 'full')
         diagnostics['source_mismatch'] = bool('mismatch' in (diagnostics.get('fallback_reason') or ''))
         now,old = context.get('timestamp'),previous_context.get('timestamp')
         diagnostics['cache_verification_age'] = now-old if now is not None and old is not None else None
@@ -182,6 +189,11 @@ class IncrementalVisionRuntime:
                     and getattr(m1_result,'diagnostics',{}).get('transaction_status') == 'aborted'):
                 self.reset()
                 return self._dense(current_images,'m1_aborted_transaction')
+            if self.config.enabled and self.conditional_executor is not None:
+                value,self.last_diagnostics=self.conditional_executor.forward(current_images,
+                    getattr(m1_result,'computation_state',None),context,self.signature(context),
+                    getattr(m1_result,'full_refresh_hint',False),self.stage_observer)
+                return value,self.last_diagnostics
             if (self.config.enabled and self.config.cheap_gate and self.config.reuse_boundary=='window'
                     and self.last_admission.get('reject') and
                     self.last_admission.get('frame_id')==context.get('frame_id') and
