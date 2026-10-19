@@ -91,12 +91,13 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None,gr
     good&=(jacobian>=.5)&(jacobian<=2.)
     gate('unique_unfolded_warp',(jacobian>=.5)&(jacobian<=2.))
     diag['dense_flow_ms']=(perf_counter()-start)*1000;t=perf_counter()
-    oldf=old.astype(np.float32)/255.;newf=new.astype(np.float32)/255.;warped=sample(oldf)
+    from .measurement_cache import gray_measurement
+    oldf=gray_measurement(old);newf=gray_measurement(new);warped=sample(oldf)
     difference=np.abs(warped-newf)
     grad=np.zeros_like(newf)
     for axis in (0,1):
-        g0=cv2.Sobel(oldf,cv2.CV_32F,int(axis==0),int(axis==1),ksize=3)/8
-        g1=cv2.Sobel(newf,cv2.CV_32F,int(axis==0),int(axis==1),ksize=3)/8
+        g0=gray_measurement(old,axis)
+        g1=gray_measurement(new,axis)
         grad+=np.abs(sample(g0)-g1)
     photo=(difference<=min(config.support_residual_max,.02))&(grad<=min(config.support_gradient_max,.04))
     # Both images must have locally observable 2-D texture; no flat background fills.

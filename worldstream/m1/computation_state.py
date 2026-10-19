@@ -111,6 +111,19 @@ def build_bundle(manager, frame, result, validate_observation=True):
             candidate[:] = False
         if result.full_refresh_hint:
             candidate[:] = False
+        # Keep measured physical links intact while independently revoking
+        # their eligibility as computation-refresh candidates.
+        motion_diagnostics={}
+        link_candidate=candidate.copy() if manager.config.motion_risk_revocation else candidate
+        if manager.config.motion_risk_revocation and evidence is not None:
+            risk=evidence.motion_risk_dirty_mask
+            uncertain=evidence.motion_risk_unknown_mask
+            if risk is not None:dirty |= risk
+            if uncertain is not None:candidate &= ~uncertain
+            candidate &= ~dirty
+            motion_diagnostics=dict(evidence.diagnostics.get('motion_risk',{}),
+                revoked_candidate_pixels=int((link_candidate&~candidate).sum()),
+                retained_observation_links=len(source))
         unknown = ~(dirty | candidate)
         strict = result.invalidation_regions[cid]
         encode_start=perf_counter()
@@ -134,6 +147,10 @@ def build_bundle(manager, frame, result, validate_observation=True):
             unsupported_area="unknown", transformer_dependency_certified=False)
         bundle.observation_links[cid].update(measurement_origins=origins,
             link_recovery=link_diagnostics,change_first_guard=guard_diagnostics)
+        if manager.config.motion_risk_revocation:
+            xy=np.rint(target).astype(int)
+            bundle.observation_links[cid].update(observation_link_valid=np.ones(len(target),bool),
+                reuse_candidate_eligible=candidate[xy[:,1],xy[:,0]],motion_risk=motion_diagnostics)
         # Computation sources are M2-owned receipts or committed M1 features.
         # An RGB-only candidate has no invented computation frame/version.
         records = [(fid, r) for fid,r in manager.store.features.items() if cid in r.source_camera_ids]

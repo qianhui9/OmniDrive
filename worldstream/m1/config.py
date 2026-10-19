@@ -104,6 +104,8 @@ class M1Config:
     recover_sparse_links: bool = False
     change_first_guard: bool = False
     efficient_state: bool = False
+    motion_risk_revocation: bool = False
+    measurement_reuse: bool = False
 
     def __post_init__(self):
         import math

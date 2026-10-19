@@ -1,0 +1,80 @@
+{
+  "status": "completed",
+  "steps": [
+    {
+      "name": "regression",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-m",
+        "pytest",
+        "tests/worldstream_m1",
+        "tests/worldstream_m2",
+        "tests/worldstream_m3",
+        "-q",
+        "-o",
+        "junit_family=legacy",
+        "--junitxml=outputs/module1_final_validation_refinement/gpu_validation/regression_cuda.xml"
+      ],
+      "start": "2026-10-19T14:32:34.936532+00:00",
+      "exit_code": 0
+    },
+    {
+      "name": "complete_model",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-u",
+        "-m",
+        "tools.worldstream_m2.final_validation_cuda",
+        "--integration"
+      ],
+      "start": "2026-10-19T14:34:25.267810+00:00",
+      "exit_code": 0
+    }
+  ],
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "gpu": {
+    "index": 0,
+    "uuid": "GPU-f12a6660-9855-a3dc-ebc9-436b7b112669",
+    "name": "NVIDIA GeForce RTX 3090",
+    "used_mb": 15,
+    "total_mb": 24576,
+    "utilization": 0
+  }
+}

@@ -123,7 +123,7 @@ class WorldStateManager:
         fork_ms=(perf_counter()-fork_start)*1000
         try:
             from .measurement_cache import measurement_cache
-            with measurement_cache(self.config.efficient_state):
+            with measurement_cache(self.config.efficient_state, self.config.measurement_reuse):
                 result = worker._precheck(frame, reset_reason, recovery)
         except Exception:
             self.last_result = None
@@ -220,9 +220,20 @@ class WorldStateManager:
                             from .dense_support import swept_dynamic_region
                             region = swept_dynamic_region(anchor, camera, p, self.config)
                         excluded[region_slices(region,camera.image.shape)] = True
-                evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config,
-                                          dense_exclusion=excluded,surface_history=self._surface_history.get(cid),
-                                          validate_dense=getattr(self, '_validate_observation', True))
+                from .measurement_cache import measurement_cache
+                # ContextVars do not propagate to thread-pool workers. Each
+                # camera owns a bounded readonly measurement scope.
+                with measurement_cache(self.config.efficient_state, self.config.measurement_reuse):
+                    evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config,
+                                              dense_exclusion=excluded,surface_history=self._surface_history.get(cid),
+                                              validate_dense=getattr(self, '_validate_observation', True))
+                if self.config.motion_risk_revocation:
+                    from .observation_refinement import motion_risk_masks
+                    risk,uncertain,details=motion_risk_masks(self.store.anchors.values(),
+                        self._previous_cameras.get(cid),camera,evidence,self.config,frame.scene_id,frame.execution_signature)
+                    evidence.motion_risk_dirty_mask=risk
+                    evidence.motion_risk_unknown_mask=uncertain
+                    evidence.diagnostics['motion_risk']=details
                 return evidence, excluded, anchor_excluded
             items = list(frame.cameras.items())
             if self.config.temporal_workers > 1 and len(items) > 1:
@@ -242,6 +253,8 @@ class WorldStateManager:
                     xy[:,1] = np.clip(xy[:,1],0,excluded.shape[0]-1)
                     evidence.supported &= ~anchor_excluded[xy[:,1],xy[:,0]]
                 evidence.diagnostics['excluded_motion_or_occlusion_area_ratio'] = float(excluded.mean())
+                # Exclusion is an acceptance gate. Preserve measured rejection
+                # evidence separately, without changing legacy identity inputs.
                 evidence.diagnostics.setdefault('acceptance_funnel',{})['dynamic_and_occlusion']=dict(
                     total_pixels=excluded.size,standalone_population=excluded.size,alone_rejected=int(excluded.sum()),
                     incremental_rejected=before-int(evidence.stable_mask.sum()),retained=int(evidence.stable_mask.sum()))
@@ -439,7 +452,7 @@ class WorldStateManager:
             from .provenance import feature_source_snapshot, preserve_camera_computation_source
             previous_backbone = feature_source_snapshot(self.store.features.get('backbone'))
             from .measurement_cache import measurement_cache
-            with measurement_cache(self.config.efficient_state):
+            with measurement_cache(self.config.efficient_state, self.config.measurement_reuse):
                 result = worker._commit(frame, full_outputs, precheck_result)
             if full_outputs.execution_receipt and full_outputs.execution_receipt.get('actual_reused_cameras'):
                 worker.last_commit_diagnostics['backbone_computation_source'] = preserve_camera_computation_source(

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "seed": 1907,
+  "max_samples_per_stratum": 32,
+  "selection": "Fixed-seed uniform without replacement within actual-link origin x offline ROI-context strata",
+  "strata": [
+    "background_context",
+    "vehicle_ROI_context",
+    "pedestrian_other_ROI_context",
+    "boundary_ROI_context",
+    "visibility_ROI_context"
+  ],
+  "denominator": "All actual emitted links, including revoked computation candidates. ROI context does not assert foreground ownership.",
+  "truth": "Exact rounded current LiDAR pixel, annotated instance-local rigid source projection, depth-visible at both sensor times. No proximity labels.",
+  "assumptions": "Annotated object treated as rigid between sample LiDAR times; residual camera/LiDAR skew remains a limitation.",
+  "background": "No independently certified background identity: Unscorable",
+  "no_multisweep": true,
+  "GT_online": false,
+  "weight": "stratum_population / selected_count",
+  "paired": "Same physical link is compared across ablation methods by exact source/current coordinate bytes; retention recorded separately"
+}

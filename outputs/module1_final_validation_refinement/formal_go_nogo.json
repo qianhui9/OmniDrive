@@ -1,0 +1,431 @@
+{
+  "engineering_interface_freeze": "Go",
+  "candidate_quality_freeze": "No-Go",
+  "engineering_configuration": "configs/worldstream_m1_engineering_frozen.yaml",
+  "experimental_motion_default": false,
+  "conditional_reuse_authorization": "No-Go",
+  "formal_physical_certification": "No-Go",
+  "handoff_to_M2": "Go",
+  "remaining_M1_blockers": [
+    "Critical refresh targets unmet on exposed development population.",
+    "Sparse-only centres largely have no exact independent physical reference.",
+    "Missing historical anchors cannot provide motion envelopes for new/small objects.",
+    "Scope-aware engineering configuration still has higher M1 P50 than old Source-Linked; no natural vision speedup."
+  ],
+  "gates": {
+    "G1": {
+      "source_audit_natural": "passed",
+      "source_audit_repeat": "passed"
+    },
+    "G2": {
+      "research_targets_pass": false,
+      "fixed_old_events": 0,
+      "remaining_old_events": 14,
+      "new_failures": 0
+    },
+    "G3": {
+      "new_link_quality": {
+        "samples": 8925,
+        "scorable": 0,
+        "unscorable": 8925,
+        "scorable_fraction": 0.0,
+        "correct": 0,
+        "false": 0,
+        "error_rate": null,
+        "descriptive_iid_upper95": null,
+        "error_types": {},
+        "unscorable_reasons": {
+          "no_LiDAR_at_exact_candidate_pixel": 8869,
+          "depth_identity_or_visibility_reference_unavailable": 56
+        },
+        "scenes": [],
+        "logs": [],
+        "independence": "Descriptive interval only. Pixels/frames/objects from one log are correlated; no qualification."
+      }
+    },
+    "G4": {
+      "runtime": {
+        "old_source": {
+          "precheck_ms": {
+            "p50": 173.34189696703106,
+            "p95": 216.35251393308863,
+            "samples": 96
+          },
+          "commit_ms": {
+            "p50": 223.92263310030103,
+            "p95": 1106.2323384685442,
+            "samples": 96
+          },
+          "total_ms": {
+            "p50": 383.2470014458522,
+            "p95": 1280.798377643805,
+            "samples": 96
+          },
+          "association_ms": {
+            "p50": 197.2743704682216,
+            "p95": 1069.157145509962,
+            "samples": 96
+          },
+          "precheck_stages": {
+            "temporal_correspondence": {
+              "p50": 308.2326874136925,
+              "p95": 406.62571287248284,
+              "samples": 96
+            },
+            "dense_flow": {
+              "p50": 172.9026158573106,
+              "p95": 197.04852410359308,
+              "samples": 96
+            },
+            "dense_validation": {
+              "p50": 102.7294957311824,
+              "p95": 276.36095514753833,
+              "samples": 96
+            },
+            "projection": {
+              "p50": 1.8417449900880456,
+              "p95": 3.8729177322238684,
+              "samples": 96
+            },
+            "computation_state_build": {
+              "p50": 13.625967083498836,
+              "p95": 61.769179825205356,
+              "samples": 96
+            },
+            "snapshot_fork": {
+              "p50": 0.6547040538862348,
+              "p95": 1.5848230104893446,
+              "samples": 96
+            }
+          },
+          "commit_stages": {
+            "commit_history_copy_ms": {
+              "p50": 8.973968564532697,
+              "p95": 15.296192490495741,
+              "samples": 96
+            },
+            "snapshot_fork_ms": {
+              "p50": 0.4693020600825548,
+              "p95": 1.3142609968781471,
+              "samples": 96
+            },
+            "cache_provenance_receipt_ms": {
+              "p50": 0.0016365665942430496,
+              "p95": 0.0024305772967636585,
+              "samples": 96
+            }
+          }
+        },
+        "current_optimized": {
+          "precheck_ms": {
+            "p50": 190.32696506474167,
+            "p95": 330.12769860215485,
+            "samples": 96
+          },
+          "commit_ms": {
+            "p50": 197.15259841177613,
+            "p95": 950.5952549516223,
+            "samples": 96
+          },
+          "total_ms": {
+            "p50": 412.12866897694767,
+            "p95": 1122.0348665956408,
+            "samples": 96
+          },
+          "association_ms": {
+            "p50": 174.5106636080891,
+            "p95": 913.6425101314671,
+            "samples": 96
+          },
+          "precheck_stages": {
+            "temporal_correspondence": {
+              "p50": 298.74976992141455,
+              "p95": 417.1081315143965,
+              "samples": 96
+            },
+            "dense_flow": {
+              "p50": 164.71690603066236,
+              "p95": 188.62844031536952,
+              "samples": 96
+            },
+            "dense_validation": {
+              "p50": 100.98062490578741,
+              "p95": 279.2613319470547,
+              "samples": 96
+            },
+            "projection": {
+              "p50": 1.913963002152741,
+              "p95": 4.041330539621413,
+              "samples": 96
+            },
+            "computation_state_build": {
+              "p50": 31.60566953010857,
+              "p95": 174.1549667203799,
+              "samples": 96
+            },
+            "snapshot_fork": {
+              "p50": 0.6610190030187368,
+              "p95": 1.626490498892963,
+              "samples": 96
+            }
+          },
+          "commit_stages": {
+            "commit_history_copy_ms": {
+              "p50": 6.78924738895148,
+              "p95": 10.930751566775143,
+              "samples": 96
+            },
+            "snapshot_fork_ms": {
+              "p50": 0.4716354887932539,
+              "p95": 1.2941117747686803,
+              "samples": 96
+            },
+            "cache_provenance_receipt_ms": {
+              "p50": 0.0019050203263759613,
+              "p95": 0.0025335466489195824,
+              "samples": 96
+            }
+          }
+        },
+        "motion_only": {
+          "precheck_ms": {
+            "p50": 193.2350000133738,
+            "p95": 342.7035855129361,
+            "samples": 96
+          },
+          "commit_ms": {
+            "p50": 197.47480342630297,
+            "p95": 932.8869986347854,
+            "samples": 96
+          },
+          "total_ms": {
+            "p50": 420.9349296288565,
+            "p95": 1130.17630163813,
+            "samples": 96
+          },
+          "association_ms": {
+            "p50": 174.52679260168225,
+            "p95": 900.9517102385871,
+            "samples": 96
+          },
+          "precheck_stages": {
+            "temporal_correspondence": {
+              "p50": 305.1006292225793,
+              "p95": 405.3108759690076,
+              "samples": 96
+            },
+            "dense_flow": {
+              "p50": 168.89400139916688,
+              "p95": 192.67087895423174,
+              "samples": 96
+            },
+            "dense_validation": {
+              "p50": 105.86935188621283,
+              "p95": 274.8701049131341,
+              "samples": 96
+            },
+            "projection": {
+              "p50": 1.9358496647328138,
+              "p95": 3.9383089169859886,
+              "samples": 96
+            },
+            "computation_state_build": {
+              "p50": 33.22228300385177,
+              "p95": 181.34000763529912,
+              "samples": 96
+            },
+            "snapshot_fork": {
+              "p50": 0.6560953333973885,
+              "p95": 1.5411857166327536,
+              "samples": 96
+            }
+          },
+          "commit_stages": {
+            "commit_history_copy_ms": {
+              "p50": 6.792941479943693,
+              "p95": 10.64917811891064,
+              "samples": 96
+            },
+            "snapshot_fork_ms": {
+              "p50": 0.4886174574494362,
+              "p95": 1.2505442136898637,
+              "samples": 96
+            },
+            "cache_provenance_receipt_ms": {
+              "p50": 0.0018989667296409607,
+              "p95": 0.00304332934319973,
+              "samples": 96
+            }
+          }
+        },
+        "measurement_only": {
+          "precheck_ms": {
+            "p50": 186.86887645162642,
+            "p95": 328.6652886890806,
+            "samples": 96
+          },
+          "commit_ms": {
+            "p50": 182.00102599803358,
+            "p95": 842.3649690230377,
+            "samples": 96
+          },
+          "total_ms": {
+            "p50": 404.0342333028093,
+            "p95": 1024.2936342256144,
+            "samples": 96
+          },
+          "association_ms": {
+            "p50": 158.64455001428723,
+            "p95": 807.8712170245126,
+            "samples": 96
+          },
+          "precheck_stages": {
+            "temporal_correspondence": {
+              "p50": 308.60391014721245,
+              "p95": 407.1400782559067,
+              "samples": 96
+            },
+            "dense_flow": {
+              "p50": 167.38077031914145,
+              "p95": 186.13867979729548,
+              "samples": 96
+            },
+            "dense_validation": {
+              "p50": 95.55597032885998,
+              "p95": 263.3400025079027,
+              "samples": 96
+            },
+            "projection": {
+              "p50": 1.9317584810778499,
+              "p95": 3.9146672934293747,
+              "samples": 96
+            },
+            "computation_state_build": {
+              "p50": 31.46837360691279,
+              "p95": 174.76834659464657,
+              "samples": 96
+            },
+            "snapshot_fork": {
+              "p50": 0.6601985078305006,
+              "p95": 1.537663338240236,
+              "samples": 96
+            }
+          },
+          "commit_stages": {
+            "commit_history_copy_ms": {
+              "p50": 6.829556077718735,
+              "p95": 11.408691701944917,
+              "samples": 96
+            },
+            "snapshot_fork_ms": {
+              "p50": 0.4726675106212497,
+              "p95": 1.3059189659543335,
+              "samples": 96
+            },
+            "cache_provenance_receipt_ms": {
+              "p50": 0.0016598496586084366,
+              "p95": 0.0024665496312081814,
+              "samples": 96
+            }
+          }
+        },
+        "final": {
+          "precheck_ms": {
+            "p50": 192.5993940094486,
+            "p95": 337.3655781033449,
+            "samples": 96
+          },
+          "commit_ms": {
+            "p50": 185.8677250565961,
+            "p95": 847.3281597835012,
+            "samples": 96
+          },
+          "total_ms": {
+            "p50": 413.8518839608878,
+            "p95": 1042.9229580331594,
+            "samples": 96
+          },
+          "association_ms": {
+            "p50": 160.21512157749385,
+            "p95": 811.0213115578517,
+            "samples": 96
+          },
+          "precheck_stages": {
+            "temporal_correspondence": {
+              "p50": 300.02846161369234,
+              "p95": 420.4281538259238,
+              "samples": 96
+            },
+            "dense_flow": {
+              "p50": 166.51600680779666,
+              "p95": 191.11455127131194,
+              "samples": 96
+            },
+            "dense_validation": {
+              "p50": 98.98184845224023,
+              "p95": 268.7842957675457,
+              "samples": 96
+            },
+            "projection": {
+              "p50": 1.9130054861307144,
+              "p95": 3.974318446125835,
+              "samples": 96
+            },
+            "computation_state_build": {
+              "p50": 32.66941453330219,
+              "p95": 182.67135747009888,
+              "samples": 96
+            },
+            "snapshot_fork": {
+              "p50": 0.6664696848019958,
+              "p95": 1.5886265318840742,
+              "samples": 96
+            }
+          },
+          "commit_stages": {
+            "commit_history_copy_ms": {
+              "p50": 6.844083429314196,
+              "p95": 11.179985827766359,
+              "samples": 96
+            },
+            "snapshot_fork_ms": {
+              "p50": 0.46103447675704956,
+              "p95": 1.3368013314902782,
+              "samples": 96
+            },
+            "cache_provenance_receipt_ms": {
+              "p50": 0.0017815036699175835,
+              "p95": 0.0027533387765288353,
+              "samples": 96
+            }
+          }
+        }
+      },
+      "measurement_only_vs_current": {
+        "p50_improved": true,
+        "p95_improved": true
+      },
+      "engineering_vs_old_source": {
+        "p50_improved": false,
+        "p95_improved": true
+      }
+    },
+    "G5": {
+      "exact_gates_changed": false,
+      "natural_camera_reuse": 0
+    },
+    "G6": {
+      "CUDA": "passed",
+      "state_equivalence": true
+    },
+    "G7": "No-Go"
+  },
+  "qualification": {
+    "Calibration": "Not Run",
+    "Heldout": "Not Run",
+    "Final_Test": "Not Run",
+    "Qualified_Certification": 0,
+    "Qualified_FAR": null
+  },
+  "stop": "Freeze verified engineering interface; keep candidates research-only and stop stacking physical certification methods."
+}

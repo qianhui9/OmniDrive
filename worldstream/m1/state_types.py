@@ -43,6 +43,8 @@ class OnlineVisibilityEvidence:
     stable_candidate_mask: Optional[np.ndarray] = None
     refresh_required_mask: Optional[np.ndarray] = None
     constraint_measurements: Optional[Dict[str, Any]] = None
+    motion_risk_dirty_mask: Optional[np.ndarray] = None
+    motion_risk_unknown_mask: Optional[np.ndarray] = None
 
 
 @dataclass
