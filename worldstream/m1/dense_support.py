@@ -75,10 +75,21 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
     boundary=((source[...,0]>=4)&(source[...,0]<w-4)&(source[...,1]>=4)&(source[...,1]<h-4))
     finite=np.isfinite(source).all(2)&np.isfinite(fb)
     good=boundary&finite&(fb<=.35)
+    funnel={}
+    live=np.ones((h,w),bool)
+    def gate(name,condition,population=None):
+        nonlocal live
+        before=int(live.sum());live=live&condition
+        pop=np.ones_like(live) if population is None else population
+        funnel[name]=dict(total_pixels=h*w,standalone_population=int(pop.sum()),
+            alone_rejected=int((pop&~condition).sum()),incremental_rejected=before-int(live.sum()),retained=int(live.sum()))
+    gate('valid_flow',boundary&finite)
+    gate('fb_consistency',fb<=.35)
     # A folding/compressing warp is not evidence for a visible, unique surface.
     dx=np.gradient(source,axis=1);dy=np.gradient(source,axis=0)
     jacobian=dx[...,0]*dy[...,1]-dx[...,1]*dy[...,0]
     good&=(jacobian>=.5)&(jacobian<=2.)
+    gate('unique_unfolded_warp',(jacobian>=.5)&(jacobian<=2.))
     diag['dense_flow_ms']=(perf_counter()-start)*1000;t=perf_counter()
     oldf=old.astype(np.float32)/255.;newf=new.astype(np.float32)/255.;warped=sample(oldf)
     difference=np.abs(warped-newf)
@@ -92,15 +103,19 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
     eigen0=cv2.cornerMinEigenVal(oldf,7,ksize=3);eigen1=cv2.cornerMinEigenVal(newf,7,ksize=3)
     textured=(sample(eigen0)>=1e-5)&(eigen1>=1e-5)
     good&=photo&textured
+    gate('photo_and_texture',photo&textured)
     if roi is not None:good &= roi
+    if roi is not None:gate('scheduled_exclusion_halo',roi)
     geometry=np.zeros_like(good);idx=np.flatnonzero(good)
     if len(idx):
         geometry.flat[idx]=ray_geometry(previous,current,source.reshape(-1,2)[idx],target.reshape(-1,2)[idx],.5)
+    gate('ray_geometry',geometry,good.copy())
     good&=geometry
     # Require complete local evidence; erosion only removes unverified neighbourhoods.
     rad=config.dense_guard_radius_px
     stable=cv2.erode(good.astype(np.uint8),np.ones((2*rad+1,2*rad+1),np.uint8),
                      borderType=cv2.BORDER_CONSTANT,borderValue=0).astype(bool)
+    gate('complete_neighbourhood',stable)
     if config.dense_region_policy=='local_visibility':
         # Reject locally around measured visibility/depth-motion discontinuities.
         # The dynamic swept footprint supplied by the manager is still applied.
@@ -109,7 +124,13 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
         stable &= ~rejected
         diag.update(local_diag)
         diag['_local_rejection_mask']=rejected  # consumed before JSON diagnostics
-    if config.dense_region_policy.startswith('surface_'):
+    if config.dense_region_policy=='surface_local_plane':
+        from .local_surface import local_surface_support
+        visible,surface_diag=local_surface_support(previous,current,source,stable,config,surface_history)
+        gate('local_plane_surface',visible,stable.copy())
+        stable &= visible
+        diag.update(surface_diag)
+    elif config.dense_region_policy.startswith('surface_'):
         from .surface_visibility import surface_visibility_support
         visible,surface_diag=surface_visibility_support(previous,current,source,stable,surface_history,
             two_view_only=config.dense_region_policy=='surface_observable_ablation')
@@ -117,7 +138,8 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
         diag.update(surface_diag)
     diag.update(dense_validation_ms=(perf_counter()-t)*1000,dense_support_area_ratio=float(stable.mean()),
                 dense_fb_area_ratio=float((boundary&finite&(fb<=.35)).mean()),
-                dense_geometry_photo_area_ratio=float(good.mean()),dense_source='bidirectional_DIS_per_pixel_ray_photo_texture_neighbourhood')
+                dense_geometry_photo_area_ratio=float(good.mean()),dense_source='bidirectional_DIS_per_pixel_ray_photo_texture_neighbourhood',
+                acceptance_funnel=funnel)
     return stable,source.astype(np.float32),diag
 
 

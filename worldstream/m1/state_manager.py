@@ -46,6 +46,7 @@ class WorldStateManager:
         self._previous_frame_id = None
         self._previous_frame_digest = None
         self._surface_history = {}
+        self._identity_history = ()
         qualification=None
         if self.config.physical_qualification_path:
             import json
@@ -66,6 +67,7 @@ class WorldStateManager:
         self._previous_frame_id = None
         self._previous_frame_digest = None
         self._surface_history = {}
+        self._identity_history = ()
 
     def _prepare(self, frame):
         s = self.store
@@ -212,6 +214,7 @@ class WorldStateManager:
             else:
                 evidence_list = [camera_evidence(item) for item in items]
             for (cid, camera), (evidence, excluded, anchor_excluded) in zip(items, evidence_list):
+                before=int(evidence.stable_mask.sum())
                 evidence.stable_mask &= ~excluded
                 evidence.changed_mask &= ~excluded
                 if len(evidence.current_points):
@@ -220,6 +223,9 @@ class WorldStateManager:
                     xy[:,1] = np.clip(xy[:,1],0,excluded.shape[0]-1)
                     evidence.supported &= ~anchor_excluded[xy[:,1],xy[:,0]]
                 evidence.diagnostics['excluded_motion_or_occlusion_area_ratio'] = float(excluded.mean())
+                evidence.diagnostics.setdefault('acceptance_funnel',{})['dynamic_and_occlusion']=dict(
+                    total_pixels=excluded.size,standalone_population=excluded.size,alone_rejected=int(excluded.sum()),
+                    incremental_rejected=before-int(evidence.stable_mask.sum()),retained=int(evidence.stable_mask.sum()))
                 self.last_evidence[cid] = evidence
                 for k in temporal_times: temporal_times[k] += evidence.diagnostics.get(k+'_ms',0.)
         validation_start = perf_counter()
@@ -325,6 +331,12 @@ class WorldStateManager:
                                                  result.full_refresh_hint, self.last_evidence.get(cid))
             regions['full_refresh_reasons'] = list(refresh_reasons)
             result.invalidation_regions[cid], self.last_masks[cid] = regions, mask
+            if cid in self.last_evidence:
+                observation=regions['verified_stable_area_ratio']*mask.size
+                self.last_evidence[cid].diagnostics.setdefault('acceptance_funnel',{})['effective_after_refresh']=dict(
+                    total_pixels=mask.size,standalone_population=int(round(observation)),
+                    alone_rejected=int(round(observation)) if result.full_refresh_hint else 0,
+                    incremental_rejected=int(round(observation))-int((~mask).sum()),retained=int((~mask).sum()))
         novelty_ms = (perf_counter() - novelty_start) * 1000
         result.feature_versions = self.store.feature_versions()
         result.provenance = export_provenance(self.store)
@@ -397,6 +409,7 @@ class WorldStateManager:
         self._previous_frame_id = worker._previous_frame_id
         self._previous_frame_digest = worker._previous_frame_digest
         self._surface_history = worker._surface_history
+        self._identity_history = worker._identity_history
         self.last_commit_diagnostics = worker.last_commit_diagnostics
         self._pending = None
         self._pending_store = None
@@ -468,12 +481,24 @@ class WorldStateManager:
                     reasons=reasons, certified=False)])[-self.config.association_history_limit:]
             else:
                 accepted_pairs.append((i, j))
+        temporal_proposals={}
+        if self.config.identity_continuity and self.config.identity_method=='temporal':
+            from .identity_temporal import temporal_identity_pairs
+            temporal_proposals=temporal_identity_pairs(anchors,predictions,costs,frame,self._identity_history,
+                self.config,self.validator,self._physical_issuer,self.last_evidence,self._previous_frame_id,self._previous_frame_digest)
+            measured=[edge for edge,p in temporal_proposals.items() if p['status']=='candidate']
+            measured_rows={i for i,j in measured};measured_cols={j for i,j in measured}
+            accepted_pairs=measured+[(i,j) for i,j in accepted_pairs if i not in measured_rows and j not in measured_cols]
         assoc_ms = (perf_counter() - assoc_start) * 1000
         matched = {j: anchors[i].anchor_id for i, j in accepted_pairs}
         committed = []
         physical_results=[]
         foreground_results=[]
         identity_results=[]
+        for (i,j),proposal in temporal_proposals.items():
+            identity_results.append(dict(anchor_id=anchors[i].anchor_id,prediction_index=selected[j][0],
+                source_frame_id=anchors[i].source_frame_id,current_frame_id=frame.frame_id,
+                **{k:v for k,v in proposal.items() if k!='evidence'}))
         certification_ms=0.
         identity_protocol=None
         if self.config.identity_continuity:
@@ -528,18 +553,25 @@ class WorldStateManager:
                     a.physical_certification=certificate
                     a.last_certified_timestamp=frame.timestamp
                     a.certified_observation_count+=1
-            if prior is not None and self.config.identity_continuity:
+            if (prior is not None and self.config.identity_continuity
+                    and (self.config.identity_method!='temporal' or prior.anchor_type=='object')):
                 from .identity_continuity import propose_identity_continuity, IDENTITY_CLAIM
                 i=next(i for i,old in enumerate(anchors) if old.anchor_id==aid)
                 competing=np.r_[np.delete(costs[i],j),np.delete(costs[:,j],i)]
-                identity=propose_identity_continuity(prior,a,frame,self.last_evidence,self.config,self.validator,
-                    self._physical_issuer,self._previous_frame_digest,self._previous_frame_id,competing)
+                identity=(temporal_proposals[i,j] if self.config.identity_method=='temporal' else
+                    propose_identity_continuity(prior,a,frame,self.last_evidence,self.config,self.validator,
+                    self._physical_issuer,self._previous_frame_digest,self._previous_frame_id,competing))
+                source_digest=identity.get('source_frame_digest',self._previous_frame_digest)
                 certification_start=perf_counter()
                 certificate=certify_physical_evidence(prior,a,frame,identity['evidence'],self._physical_issuer,
-                    self._previous_frame_digest,identity_protocol,claim=IDENTITY_CLAIM)
+                    source_digest,identity_protocol,claim=IDENTITY_CLAIM)
                 certification_ms+=(perf_counter()-certification_start)*1000
-                identity_results.append(dict(anchor_id=aid,source_frame_id=prior.source_frame_id,current_frame_id=frame.frame_id,
-                    **{k:v for k,v in identity.items() if k!='evidence'},protocol_digest=identity_protocol))
+                if self.config.identity_method=='temporal':
+                    row=next(r for r in identity_results if r['anchor_id']==aid and r['prediction_index']==selected[j][0])
+                    row.update(protocol_digest=identity_protocol,qualification_reasons=list(certificate.rejection_reasons))
+                else:
+                    identity_results.append(dict(anchor_id=aid,source_frame_id=prior.source_frame_id,current_frame_id=frame.frame_id,
+                        **{k:v for k,v in identity.items() if k!='evidence'},protocol_digest=identity_protocol))
                 physical_results.append(asdict(certificate))
                 if certificate.certified:
                     a.physical_certification=certificate;a.last_certified_timestamp=frame.timestamp
@@ -596,7 +628,7 @@ class WorldStateManager:
         self.store.execution_signature = frame.execution_signature
         self.store.commit_count += 1
         self._surface_history = {}
-        if self.config.dense_region_policy=='surface_visibility':
+        if self.config.dense_region_policy in ('surface_visibility','surface_local_plane'):
             for cid,e in self.last_evidence.items():
                 old=self._previous_cameras.get(cid)
                 if old is not None and e.dense_source_map is not None:
@@ -613,6 +645,18 @@ class WorldStateManager:
                 saved.world_to_camera = immutable_array(camera.world_to_camera)
                 saved.visibility_mask = None; saved.geometry_support_mask = None
                 self._previous_cameras[cid] = saved
+        if self.config.identity_continuity and self.config.identity_method=='temporal':
+            # Only actual successful commits enter this bounded tuple. A failed
+            # transaction cannot append an image or advance a source timestamp.
+            from .identity_temporal import camera_snapshot_digest
+            record=dict(frame_id=frame.frame_id,frame_digest=self._pending_digest,scene_id=frame.scene_id,
+                timestamp=frame.timestamp,epoch=self.store.generation,execution_signature=frame.execution_signature,
+                cameras={cid:copy.copy(c) for cid,c in self._previous_cameras.items()},
+                camera_sha256={cid:camera_snapshot_digest(c) for cid,c in self._previous_cameras.items()},
+                anchors={aid:copy.deepcopy(self.store.anchors[aid]) for aid in committed if aid in self.store.anchors})
+            self._identity_history=tuple(r for r in self._identity_history
+                if 0<frame.timestamp-r['timestamp']<=min(self.config.max_state_age_s,1.))+(record,)
+            self._identity_history=self._identity_history[-self.config.identity_history_frames:]
         self._previous_frame_id=frame.frame_id
         self._previous_frame_digest=self._pending_digest
         self.last_commit_diagnostics = {"source": full_outputs.source, "committed_anchor_ids": committed,

@@ -24,9 +24,11 @@ def identity_protocol_digest(config, frame):
               'visualization','capture_tensors','capture_backbone','storage_device','max_tensor_bytes','temporal_workers'}
     # Bind transitive measurement/selection implementations, not just a version label.
     files=['identity_continuity.py','association.py','geometry.py','temporal_visibility.py','geometry_support.py',
-           'observation_validator.py','physical_certifier.py','state_manager.py']
+           'observation_validator.py','physical_certifier.py','state_manager.py','identity_temporal.py','config.py','state_types.py',
+           'input_contract.py','state_store.py','dense_support.py','foreground_correspondence.py']
     code={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in files}
-    value=dict(producer=IDENTITY_PRODUCER,code=code,max_displacement_m=MAX_DISPLACEMENT_M,
+    from .identity_temporal import PRODUCER
+    value=dict(producer=PRODUCER if config.identity_method=='temporal' else IDENTITY_PRODUCER,code=code,max_displacement_m=MAX_DISPLACEMENT_M,
         config={k:v for k,v in config.to_dict().items() if k not in excluded},
         cameras={cid:[c.coordinate_space,list(c.image.shape)] for cid,c in frame.cameras.items()})
     return hashlib.sha256(json.dumps(value,sort_keys=True).encode()).hexdigest()
@@ -97,6 +99,9 @@ def propose_identity_continuity(anchor,current_anchor,frame,evidence_by_camera,c
 
 
 def certify_identity_evidence(anchor,current_anchor,frame,evidence,issuer,source_digest,protocol_digest):
+    from .identity_temporal import PRODUCER,certify_temporal_identity
+    if isinstance(evidence,PhysicalEvidence) and evidence.producer_id==PRODUCER:
+        return certify_temporal_identity(anchor,current_anchor,frame,evidence,issuer,source_digest,protocol_digest)
     reasons=[];provenance=dict(identity_only=True,stationarity_certified=False,geometry_attributes_certified=False,
         motion_attributes_certified=False,foreground_ownership_certified=False,same_sensor_RGB=True,independent_sensor=False,
         claim_scope='Same physical entity between source and current observations only')

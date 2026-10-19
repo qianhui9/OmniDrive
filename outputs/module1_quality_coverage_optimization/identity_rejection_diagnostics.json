@@ -1,0 +1,175 @@
+{
+  "baseline_population": {
+    "objects": 5798,
+    "scenes": 20,
+    "correct": 2655,
+    "wrong": 20,
+    "unscorable": 3123
+  },
+  "multilabel": {
+    "measured_identity_observation_missing": {
+      "objects": 2091,
+      "scenes": 19,
+      "correct": 1559,
+      "wrong": 7,
+      "unscorable": 525
+    },
+    "outside_selective_displacement_population": {
+      "objects": 377,
+      "scenes": 19,
+      "correct": 196,
+      "wrong": 2,
+      "unscorable": 179
+    },
+    "common_view_observation_conflict_or_unknown": {
+      "objects": 1660,
+      "scenes": 19,
+      "correct": 1184,
+      "wrong": 7,
+      "unscorable": 469
+    },
+    "unresolved_geometric_identity_competition": {
+      "objects": 2618,
+      "scenes": 20,
+      "correct": 740,
+      "wrong": 2,
+      "unscorable": 1876
+    },
+    "geometric_assignment_ambiguity_or_history_gate": {
+      "objects": 670,
+      "scenes": 19,
+      "correct": 36,
+      "wrong": 9,
+      "unscorable": 625
+    },
+    "proposal": {
+      "objects": 175,
+      "scenes": 4,
+      "correct": 144,
+      "wrong": 0,
+      "unscorable": 31
+    }
+  },
+  "mutually_exclusive_primary": {
+    "measured_identity_observation_missing": {
+      "objects": 2091,
+      "scenes": 19,
+      "correct": 1559,
+      "wrong": 7,
+      "unscorable": 525
+    },
+    "outside_selective_displacement_population": {
+      "objects": 377,
+      "scenes": 19,
+      "correct": 196,
+      "wrong": 2,
+      "unscorable": 179
+    },
+    "geometric_assignment_ambiguity_or_history_gate": {
+      "objects": 670,
+      "scenes": 19,
+      "correct": 36,
+      "wrong": 9,
+      "unscorable": 625
+    },
+    "unresolved_geometric_identity_competition": {
+      "objects": 2477,
+      "scenes": 20,
+      "correct": 715,
+      "wrong": 2,
+      "unscorable": 1760
+    },
+    "common_view_observation_conflict_or_unknown": {
+      "objects": 8,
+      "scenes": 2,
+      "correct": 5,
+      "wrong": 0,
+      "unscorable": 3
+    },
+    "proposal": {
+      "objects": 175,
+      "scenes": 4,
+      "correct": 144,
+      "wrong": 0,
+      "unscorable": 31
+    }
+  },
+  "primary_rule": "First necessary failure in archived online producer order; overlapping counts never summed",
+  "measurement_censoring": "Old producer skipped RGB measurements after displacement/competition rejection. These are not proven evidence failures.",
+  "raw_records": "outputs/module1_identity_surface_refinement/traces/development/*/identity.jsonl",
+  "uncensored_RGB_probe": {
+    "population": {
+      "objects": 5798,
+      "scenes": 20,
+      "correct": 2655,
+      "wrong": 20,
+      "unscorable": 3123
+    },
+    "outside_half_metre": {
+      "objects": 645,
+      "scenes": 19,
+      "correct": 219,
+      "wrong": 11,
+      "unscorable": 415
+    },
+    "observable_outside_half_metre": {
+      "objects": 1,
+      "scenes": 1,
+      "correct": 1,
+      "wrong": 0,
+      "unscorable": 0
+    },
+    "observable_with_competition": {
+      "objects": 196,
+      "scenes": 5,
+      "correct": 76,
+      "wrong": 0,
+      "unscorable": 120
+    },
+    "measured_reasons": {
+      "source_time_mismatch": {
+        "objects": 107,
+        "scenes": 16,
+        "correct": 13,
+        "wrong": 2,
+        "unscorable": 92
+      },
+      "RGB_tracks_missing": {
+        "objects": 3560,
+        "scenes": 20,
+        "correct": 1470,
+        "wrong": 16,
+        "unscorable": 2074
+      },
+      "crop_track_fraction": {
+        "objects": 3919,
+        "scenes": 20,
+        "correct": 1721,
+        "wrong": 13,
+        "unscorable": 2185
+      },
+      "spatial_quadrants": {
+        "objects": 3699,
+        "scenes": 20,
+        "correct": 1550,
+        "wrong": 16,
+        "unscorable": 2133
+      },
+      "appearance_descriptor": {
+        "objects": 4274,
+        "scenes": 20,
+        "correct": 1840,
+        "wrong": 18,
+        "unscorable": 2416
+      }
+    },
+    "no_common_view": {
+      "objects": 1037,
+      "scenes": 20,
+      "correct": 519,
+      "wrong": 2,
+      "unscorable": 516
+    },
+    "note": "Observable crop tracks are feasibility evidence, not foreground ownership or true identity"
+  }
+}
