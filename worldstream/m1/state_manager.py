@@ -230,6 +230,11 @@ class WorldStateManager:
                     incremental_rejected=before-int(evidence.stable_mask.sum()),retained=int(evidence.stable_mask.sum()))
                 self.last_evidence[cid] = evidence
                 for k in temporal_times: temporal_times[k] += evidence.diagnostics.get(k+'_ms',0.)
+        if self.config.dense_region_policy=='surface_constraints':
+            from .surface_visibility_constraints import apply_surface_constraints
+            for cid, evidence in self.last_evidence.items():
+                apply_surface_constraints(self._previous_cameras.get(cid), frame.cameras[cid],
+                    evidence, frame.cameras, self._surface_history.get(cid), self.config)
         validation_start = perf_counter()
         certified = {cid: [] for cid in frame.cameras}
         changed = {cid: [] for cid in frame.cameras}
@@ -681,7 +686,7 @@ class WorldStateManager:
         self.store.execution_signature = frame.execution_signature
         self.store.commit_count += 1
         self._surface_history = {}
-        if self.config.dense_region_policy in ('surface_visibility','surface_local_plane','surface_consensus'):
+        if self.config.dense_region_policy in ('surface_visibility','surface_local_plane','surface_consensus','surface_constraints'):
             for cid,e in self.last_evidence.items():
                 old=self._previous_cameras.get(cid)
                 if old is not None and e.dense_source_map is not None:

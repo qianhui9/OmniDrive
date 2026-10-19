@@ -1,0 +1,178 @@
+{
+  "pixel_funnel": {
+    "dynamic_and_occlusion": {
+      "total_pixels": 331776000,
+      "standalone_population": 331776000,
+      "alone_rejected": 111413378,
+      "incremental_rejected": 0,
+      "retained": 5130222
+    },
+    "projective_source_observation": {
+      "total_pixels": 331776000,
+      "standalone_population": 5130222,
+      "alone_rejected": 5023048,
+      "incremental_rejected": 5023048,
+      "retained": 107174
+    },
+    "actual_additional_acquisition": {
+      "total_pixels": 331776000,
+      "standalone_population": 5130222,
+      "alone_rejected": 5094936,
+      "incremental_rejected": 71888,
+      "retained": 35286
+    },
+    "observed_alternative_rejection": {
+      "total_pixels": 331776000,
+      "standalone_population": 5130222,
+      "alone_rejected": 50244,
+      "incremental_rejected": 22359,
+      "retained": 12927
+    },
+    "measured_source_depth_order": {
+      "total_pixels": 331776000,
+      "standalone_population": 5130222,
+      "alone_rejected": 46,
+      "incremental_rejected": 24,
+      "retained": 12903
+    },
+    "effective_after_refresh": {
+      "total_pixels": 331776000,
+      "standalone_population": 12903,
+      "alone_rejected": 780,
+      "incremental_rejected": 780,
+      "retained": 12123
+    },
+    "valid_flow": {
+      "total_pixels": 261734400,
+      "standalone_population": 261734400,
+      "alone_rejected": 18281751,
+      "incremental_rejected": 18281751,
+      "retained": 243452649
+    },
+    "fb_consistency": {
+      "total_pixels": 261734400,
+      "standalone_population": 261734400,
+      "alone_rejected": 215165194,
+      "incremental_rejected": 197966957,
+      "retained": 45485692
+    },
+    "unique_unfolded_warp": {
+      "total_pixels": 261734400,
+      "standalone_population": 261734400,
+      "alone_rejected": 23717358,
+      "incremental_rejected": 93746,
+      "retained": 45391946
+    },
+    "photo_and_texture": {
+      "total_pixels": 261734400,
+      "standalone_population": 261734400,
+      "alone_rejected": 164567554,
+      "incremental_rejected": 13516433,
+      "retained": 31875513
+    },
+    "scheduled_exclusion_halo": {
+      "total_pixels": 261734400,
+      "standalone_population": 261734400,
+      "alone_rejected": 67424492,
+      "incremental_rejected": 13860147,
+      "retained": 18015366
+    },
+    "ray_geometry": {
+      "total_pixels": 261734400,
+      "standalone_population": 18015366,
+      "alone_rejected": 7655696,
+      "incremental_rejected": 7655696,
+      "retained": 10359670
+    },
+    "complete_neighbourhood": {
+      "total_pixels": 261734400,
+      "standalone_population": 261734400,
+      "alone_rejected": 256604178,
+      "incremental_rejected": 5229448,
+      "retained": 5130222
+    }
+  },
+  "mask_totals": {
+    "source_consistent": 107174,
+    "temporal_supported": 35001,
+    "camera_supported": 570,
+    "ambiguous": 50244,
+    "order_conflict": 46,
+    "observation_base": 5130222
+  },
+  "sparse_sequential_funnel": [
+    {
+      "gate": "actual_source_patch",
+      "before": {
+        "correct": 1314,
+        "false": 230,
+        "total": 1544
+      },
+      "after": {
+        "correct": 177,
+        "false": 80,
+        "total": 257
+      },
+      "incrementally_rejected": {
+        "correct": 1137,
+        "false": 150,
+        "total": 1287
+      }
+    },
+    {
+      "gate": "actual_additional_acquisition",
+      "before": {
+        "correct": 177,
+        "false": 80,
+        "total": 257
+      },
+      "after": {
+        "correct": 51,
+        "false": 14,
+        "total": 65
+      },
+      "incrementally_rejected": {
+        "correct": 126,
+        "false": 66,
+        "total": 192
+      }
+    },
+    {
+      "gate": "observed_alternatives",
+      "before": {
+        "correct": 51,
+        "false": 14,
+        "total": 65
+      },
+      "after": {
+        "correct": 5,
+        "false": 0,
+        "total": 5
+      },
+      "incrementally_rejected": {
+        "correct": 46,
+        "false": 14,
+        "total": 60
+      }
+    },
+    {
+      "gate": "conditional_depth_order",
+      "before": {
+        "correct": 5,
+        "false": 0,
+        "total": 5
+      },
+      "after": {
+        "correct": 5,
+        "false": 0,
+        "total": 5
+      },
+      "incrementally_rejected": {
+        "correct": 0,
+        "false": 0,
+        "total": 0
+      }
+    }
+  ],
+  "counting_scope": "All camera pixels including startup/forced refresh; gates after dynamic exclusion; sparse scores after final refresh override"
+}

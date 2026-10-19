@@ -1,0 +1,22 @@
+{
+  "tests": 517,
+  "passed": 517,
+  "failed": 0,
+  "skipped": 0,
+  "CUDA": true,
+  "command": "taskset -c 0-3,6-31 env MPLCONFIGDIR=/tmp/m1_observability_mpl OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 /home/qh/miniconda3/envs/OmniDrive/bin/python -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q",
+  "xml": "regression_cuda.xml",
+  "historical_artifact_checks": {
+    "outputs/module1_quality_coverage_refinement/experiment_report.md": true,
+    "outputs/module1_quality_coverage_refinement/formal_go_nogo.json": true,
+    "outputs/module1_quality_coverage_refinement/region_method_comparison.json": true,
+    "outputs/module1_quality_coverage_refinement/identity_method_comparison.json": true,
+    "outputs/module1_quality_coverage_refinement/surface_old_new_paired_support.json": true,
+    "outputs/module1_quality_coverage_refinement/surface_false_stable_analysis.json": true,
+    "outputs/module1_quality_coverage_refinement/surface_true_false_comparison.json": true,
+    "outputs/module1_quality_coverage_refinement/independent_data_availability.json": true,
+    "outputs/module1_quality_coverage_refinement/data_manifest.json": true
+  },
+  "baseline_tests": 506,
+  "new_observation_contract_tests": 11
+}

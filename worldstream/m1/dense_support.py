@@ -143,7 +143,7 @@ def dense_support(previous,current,config,exclusion=None,surface_history=None):
         gate('local_plane_surface',visible,stable.copy())
         stable &= visible
         diag.update(surface_diag)
-    elif config.dense_region_policy.startswith('surface_'):
+    elif config.dense_region_policy.startswith('surface_') and config.dense_region_policy!='surface_constraints':
         from .surface_visibility import surface_visibility_support
         visible,surface_diag=surface_visibility_support(previous,current,source,stable,surface_history,
             two_view_only=config.dense_region_policy=='surface_observable_ablation')

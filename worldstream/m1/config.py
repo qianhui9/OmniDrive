@@ -100,7 +100,7 @@ class M1Config:
     def __post_init__(self):
         import math
         if (not math.isfinite(self.foreground_depth_gap_m) or self.foreground_depth_gap_m<=0
-                or self.dense_region_policy not in ('uniform','local_visibility','surface_visibility','surface_observable_ablation','surface_local_plane','surface_consensus')
+                or self.dense_region_policy not in ('uniform','local_visibility','surface_visibility','surface_observable_ablation','surface_local_plane','surface_consensus','surface_constraints')
                 or not isinstance(self.local_boundary_radius_px,int) or self.local_boundary_radius_px<1
                 or not math.isfinite(self.local_parallax_jump_px) or self.local_parallax_jump_px<=0):
             raise ValueError('Invalid experimental evidence/local visibility parameters')

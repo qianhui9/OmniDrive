@@ -1,0 +1,59 @@
+{
+  "dataset": "nuScenes + OmniDrive + M1",
+  "population": "exploratory_reused_population",
+  "decision": "No-Go",
+  "qualified_certifications": 0,
+  "qualified_FAR": null,
+  "identity_selection": null,
+  "region_selection": null,
+  "calibration": "Not Run",
+  "heldout": "Not Run",
+  "final_test": "Not Run",
+  "gates": {
+    "engineering": {
+      "pass_gate": true,
+      "tests": 517,
+      "actual_commits": 240,
+      "duplicate_history_id_commits": 0
+    },
+    "surface_physical_observability": {
+      "pass_gate": "partial",
+      "ambiguity_marginal": {
+        "correct": 46,
+        "false": 14,
+        "total": 60
+      },
+      "limitation": "Different acquisition evidence rejects real errors, but costs many correct observations and does not prove physical ownership"
+    },
+    "region_feasibility": {
+      "pass_gate": false,
+      "nonzero": true,
+      "four_descriptive_point_constraints_passed": true,
+      "all_original_risk_gates_passed": false,
+      "sparse_iid_upper95": 0.45071972834694096,
+      "accepted_scenes": 1,
+      "accepted_logs": 1,
+      "effective_stable_area_ratio": 3.653971354166667e-05,
+      "conservative_area_ratio": 0.0033156195746527777
+    },
+    "identity_feasibility": {
+      "pass_gate": false,
+      "retained": "temporal_object",
+      "correct_links": 217,
+      "unique_instances": 45,
+      "new_producer": false,
+      "reason": "No measured evidence supporting a beneficial extra identity producer; population analysis does not create new certifications"
+    },
+    "independent_quality": {
+      "pass_gate": false,
+      "new_labeled_logs": 0,
+      "fully_scorable_accepted_identity_logs": 1,
+      "identity_log_upper95": 0.95,
+      "minimum_zero_error_logs": 59
+    },
+    "scientific_feasibility": {
+      "pass_gate": "boundary_identified",
+      "conclusion": "Some measured alternatives can be rejected; present camera evidence leaves large unobserved/ambiguous populations. Independent data shortage is a separate limitation."
+    }
+  }
+}

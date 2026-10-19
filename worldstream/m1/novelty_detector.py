@@ -40,6 +40,8 @@ def unexplained_regions(camera, certified_regions, changed_regions, config, forc
     observation_refresh_ratio = float(invalid.mean())
     if force_refresh:
         invalid[:] = True
+    if temporal_evidence is not None and temporal_evidence.stable_candidate_mask is not None:
+        temporal_evidence.refresh_required_mask = invalid.copy()
     # Grid is a conservative compact representation, with exact mask available separately.
     regions = []
     step = config.novelty_cell_px
