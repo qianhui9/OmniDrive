@@ -59,6 +59,7 @@ class WorldStateManager:
         self.store.reset(scene_id)
         self.last_result = None
         self.last_masks = {}
+        self.last_commit_diagnostics = {}
         self._pending = None
         self._pending_store = None
         self._last_precheck_timestamp = None
@@ -78,6 +79,8 @@ class WorldStateManager:
         reason = None
         if s.scene_id != frame.scene_id:
             reason = "scene_change"
+        elif frame.frame_id in s.committed_frame_ids:
+            reason = "duplicate_frame_id"
         elif s.execution_signature is not None and s.execution_signature != frame.execution_signature:
             reason = "execution_conditions_changed"
         elif self._camera_layout is not None and self._camera_layout != camera_layout(frame):
@@ -93,9 +96,20 @@ class WorldStateManager:
             reason = "invalid_timestamp_or_pose"
         if not frame.cameras or any(cid != c.camera_id for cid, c in frame.cameras.items()):
             reason = "missing_or_misidentified_cameras"
+        if any(not valid_projection_camera(c) or not np.isfinite(c.timestamp)
+               or not c.timing_reliable for c in frame.cameras.values()):
+            reason = "invalid_camera_calibration_or_timing"
+        if not all(isinstance(v, str) and v.strip() for v in
+                   (frame.scene_id, frame.frame_id, frame.execution_signature)):
+            reason = "missing_frame_identity_or_execution_signature"
+        self._input_rejection = reason if reason in {
+            "invalid_timestamp_or_pose", "missing_or_misidentified_cameras",
+            "invalid_camera_calibration_or_timing", "missing_frame_identity_or_execution_signature",
+            "duplicate_frame_id"} else None
         if self.calibration and (not self.calibration.get('observation_protocol')
                 or self.calibration['observation_protocol'] != frame.metadata.get('observation_protocol')):
             reason = "calibration_protocol_incompatible"
+        self._rejected_anchor_ids = list(s.anchors) if self._input_rejection else []
         if reason:
             self.reset(frame.scene_id)
         return reason
@@ -141,6 +155,7 @@ class WorldStateManager:
         self._pending_started = perf_counter()
         self._pending_generation = self.store.generation
         self._pending_source_digest = self.store.source_digest()
+        self._pending_history_digest = self._history_digest()
         self._recovery_required = False
         timings = result.diagnostics.get('timings_ms', {})
         core_ms = timings.get('precheck_total', 0.)
@@ -148,6 +163,14 @@ class WorldStateManager:
         timings['transaction_and_frame_binding'] = max(0., timings['precheck_total'] - core_ms)
         timings['snapshot_fork'] = fork_ms
         return result
+
+    def _history_digest(self):
+        """Bind actual committed camera snapshots used to produce measurements."""
+        import hashlib
+        from .identity_temporal import camera_snapshot_digest
+        value=(self._previous_frame_id,self._previous_frame_digest,
+               tuple((cid,camera_snapshot_digest(c)) for cid,c in self._previous_cameras.items()))
+        return hashlib.sha256(repr(value).encode()).hexdigest()
 
     def abort_pending(self):
         """Explicit recovery when model execution fails after precheck."""
@@ -164,6 +187,17 @@ class WorldStateManager:
         if not self.config.enabled:
             result = M1Result(frame.scene_id, frame.frame_id, frame.timestamp,
                               diagnostics={"disabled": True})
+            self.last_result = result
+            return result
+        if self._input_rejection:
+            result = M1Result(frame.scene_id, frame.frame_id, frame.timestamp, full_refresh_hint=True,
+                diagnostics=dict(reset_reason=reset_reason, input_rejection=self._input_rejection,
+                    transaction_status='pending', state_epoch=self.store.generation,
+                    timings_ms={'precheck_total': (perf_counter()-start)*1000},
+                    no_gpu_computation_skipped=True))
+            result.invalid_anchor_ids = list(self._rejected_anchor_ids)
+            self.last_masks = {cid:np.ones(c.image.shape[:2],bool) for cid,c in frame.cameras.items()}
+            self._pending = (frame.scene_id, frame.frame_id, frame.timestamp, frame.execution_signature)
             self.last_result = result
             return result
         self._last_precheck_timestamp = frame.timestamp
@@ -378,7 +412,7 @@ class WorldStateManager:
         result.feature_versions = self.store.feature_versions()
         result.provenance = export_provenance(self.store)
         result.anchor_provenance = {aid: {name: copy.deepcopy(getattr(a, name)) for name in (
-            'source_frame_id', 'source_timestamp', 'source_state_epoch', 'source_execution_signature',
+            'source_frame_id', 'source_timestamp', 'source_state_epoch', 'source_execution_signature', 'state_version',
             'evidence_origin', 'track_birth_timestamp', 'last_actual_observation_timestamp',
             'last_verified_timestamp', 'last_verified_source_frame', 'last_certified_timestamp',
             'association_count', 'history_observations', 'certified_observation_count',
@@ -432,13 +466,19 @@ class WorldStateManager:
         if (self._pending != identity or precheck_result is not self.last_result
                 or self._pending_store is None):
             raise ValueError("commit requires this frame's pending precheck; repeated/stale commits rejected")
+        source_validation_in_progress = False
         try:
-            if (self.store.generation != self._pending_generation
-                    or perf_counter() - self._pending_started > self.config.pending_timeout_s
+            if self.store.generation != self._pending_generation:
+                source_validation_in_progress = True
+                raise ValueError('Pending transaction epoch changed')
+            if (perf_counter() - self._pending_started > self.config.pending_timeout_s
                     or frame_digest(frame) != self._pending_digest):
                 raise ValueError('Pending transaction expired or frame/calibration changed')
-            if self.store.source_digest()!=self._pending_source_digest:
+            source_validation_in_progress = True
+            if (self.store.source_digest()!=self._pending_source_digest
+                    or self._history_digest()!=self._pending_history_digest):
                 raise ValueError('Committed source state changed during pending transaction')
+            source_validation_in_progress = False
             if full_outputs.source not in ('actual_perception', 'historical_full_model_detection_replay',
                                            'invalid_pose_no_state_committed'):
                 raise ValueError('Unsupported online computation source')
@@ -459,6 +499,14 @@ class WorldStateManager:
                     worker.store, frame, full_outputs.execution_receipt, previous_backbone)
         except Exception:
             self.abort_pending()
+            if source_validation_in_progress:
+                # The public snapshot was modified externally; it is no longer
+                # a trusted rollback target. Discard it and every image source.
+                self.reset(frame.scene_id)
+                precheck_result.diagnostics['source_state_discarded'] = True
+                self.last_result = precheck_result
+                self.last_commit_diagnostics = dict(transaction_status='aborted',
+                    rejection_reason='committed_source_changed', source_state_discarded=True)
             self._recovery_required = True
             precheck_result.diagnostics['transaction_status'] = 'aborted'
             raise
@@ -476,7 +524,7 @@ class WorldStateManager:
         self._pending = None
         self._pending_store = None
         self._camera_layout = camera_layout(frame)
-        precheck_result.diagnostics['transaction_status'] = 'committed'
+        precheck_result.diagnostics['transaction_status'] = ('rejected' if self._input_rejection else 'committed')
         if precheck_result.computation_state is not None:
             precheck_result.computation_state.diagnostics['transaction_status'] = 'committed'
         core_ms = self.last_commit_diagnostics.get('commit_total_ms', 0.)
@@ -493,10 +541,12 @@ class WorldStateManager:
         if (getattr(self, "_pending", None) != identity or precheck_result is not self.last_result):
             raise ValueError("commit requires this frame's pending precheck; repeated/stale commits rejected")
         self._pending = None
-        if (not np.isfinite(frame.timestamp) or not valid_transform(frame.ego_to_world)
-                or not frame.cameras or any(cid != c.camera_id for cid, c in frame.cameras.items())):
+        if self._input_rejection:
             self.reset(frame.scene_id)
             self.last_result = precheck_result
+            self.last_commit_diagnostics = dict(transaction_status='rejected',
+                input_rejection=self._input_rejection, committed_anchor_ids=[],
+                post_perception_physical_certifications=[], commit_total_ms=(perf_counter()-start)*1000)
             return precheck_result
         anchors = list(self.store.anchors.values())
         candidates = []
@@ -647,7 +697,9 @@ class WorldStateManager:
                 from .foreground_correspondence import propose_foreground_correspondence
                 proposal=propose_foreground_correspondence(prior,a,frame,self._previous_cameras,
                     self.last_evidence,self.config,self._physical_issuer,self._previous_frame_digest,
-                    self._previous_frame_id)
+                    self._previous_frame_id, association_alternatives=int(np.isfinite(np.r_[
+                        np.delete(costs[next(i for i,old in enumerate(anchors) if old.anchor_id==aid)],j),
+                        np.delete(costs[:,j],next(i for i,old in enumerate(anchors) if old.anchor_id==aid))]).sum()))
                 certification_start=perf_counter()
                 certificate=certify_physical_evidence(prior,a,frame,proposal['evidence'],self._physical_issuer,
                     self._previous_frame_digest,proposal['protocol_digest'])
@@ -741,6 +793,7 @@ class WorldStateManager:
         self.store.last_timestamp = frame.timestamp
         self.store.execution_signature = frame.execution_signature
         self.store.commit_count += 1
+        self.store.committed_frame_ids = self.store.committed_frame_ids | {frame.frame_id}
         history_start=perf_counter()
         self._surface_history = {}
         if self.config.dense_region_policy in ('surface_visibility','surface_local_plane','surface_consensus','surface_constraints'):
@@ -806,6 +859,11 @@ class WorldStateManager:
         if self.last_result is None or self.last_result.diagnostics.get('transaction_status') == 'aborted':
             raise RuntimeError("Call precheck first")
         return copy.deepcopy(self.last_result)
+
+    def export_state_audit(self):
+        """Current committed lifecycle; precheck observations remain separately scoped."""
+        from .provenance import export_state_audit
+        return export_state_audit(self)
 
     def get_identity_hypotheses(self):
         """Audit relations from the last atomic commit; ordinary IDs are not proof."""

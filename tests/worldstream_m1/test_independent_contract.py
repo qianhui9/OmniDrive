@@ -102,7 +102,11 @@ def test_commit_is_bound_to_exact_verified_frame(config, make_frame, mutation):
     if mutation == 'epoch': m.store.generation += 1
     before = snapshot(m)
     with pytest.raises(ValueError): m.commit(f, FullOutputs([]), r)
-    assert snapshot(m) == before and m._pending_store is None
+    if mutation == 'epoch':
+        assert not m.store.anchors and r.diagnostics['source_state_discarded']
+    else:
+        assert snapshot(m) == before
+    assert m._pending_store is None
 
 
 def test_camera_reorder_and_missing_reset(config, make_frame, make_prediction):

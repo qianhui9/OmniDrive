@@ -1,5 +1,6 @@
 """Frame binding and GT isolation at the online API, without model imports."""
 import hashlib
+import json
 import numpy as np
 
 
@@ -24,7 +25,9 @@ def camera_layout(frame):
 def frame_digest(frame):
     """Bind commit to the exact observations/calibration verified at precheck."""
     reject_oracle_metadata(frame.metadata)
+    from .state_types import json_value
     digest = hashlib.sha256()
+    digest.update(json.dumps(json_value(frame.metadata),sort_keys=True,allow_nan=False).encode())
     def add(value):
         if value is None:
             digest.update(b'None;')

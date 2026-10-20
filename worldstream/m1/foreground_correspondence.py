@@ -27,6 +27,8 @@ def producer_protocol_digest(config, frame):
         'logging','log_path','profiling','visualization','capture_tensors',
         'capture_backbone','max_tensor_bytes','storage_device','temporal_workers'}
     protocol=dict(producer=PRODUCER_ID,producer_code_sha256=_PRODUCER_CODE_SHA256,
+        measurement_code={p.name:hashlib.sha256(p.read_bytes()).hexdigest()
+                          for p in sorted(Path(__file__).parent.glob('*.py'))},
         evidence_config={k:v for k,v in config.to_dict().items() if k not in excluded},
         gap_m=config.foreground_depth_gap_m,
         min_points=config.support_min_points, angle_deg=config.min_triangulation_angle_deg,
@@ -87,6 +89,17 @@ def propose_foreground_correspondence(anchor, current_anchor, frame, previous_ca
         if projection.region is None:view['reason']='target_outside_view';continue
         p=np.asarray(e.source_points);q=np.asarray(e.current_points)
         if not len(p):view['reason']='no_tracks_or_low_texture';continue
+        if (p.ndim!=2 or p.shape[1:]!=(2,) or q.shape!=p.shape
+                or not np.isfinite(p).all() or not np.isfinite(q).all()
+                or len(np.unique(p,axis=0))!=len(p) or len(np.unique(q,axis=0))!=len(q)):
+            view['reason']='nonunique_or_invalid_measured_tracks'
+            conflicts+=1
+            continue
+        if (old.camera_id!=cid or cam.camera_id!=cid or obs.camera_id!=cid
+                or old.coordinate_space!=cam.coordinate_space or not old.timing_reliable or not cam.timing_reliable):
+            view['reason']='source_coordinate_or_timing_mismatch'
+            conflicts+=1
+            continue
         xyz,angles,error,depths,valid=triangulate_correspondences(old,cam,e)
         raw=e.raw_correspondence_supported if e.raw_correspondence_supported is not None else e.supported
         measured=e.correspondence_valid&e.geometry_valid&raw
@@ -136,6 +149,7 @@ def propose_foreground_correspondence(anchor, current_anchor, frame, previous_ca
             fb_error_px=[r['fb_error_px'] for r in selected_records],parallax_deg=[r['parallax_deg'] for r in selected_records],
             reprojection_error_px=[r['reprojection_error_px'] for r in selected_records],
             foreground_background_depth_gap_m=[r['depth_gap_m'] for r in selected_records],
+            measured_tracks=selected_records,
             spatial_quadrants=max(v['spatial_quadrants'] for v in supported_views),
             association_alternatives=association_alternatives,conflicting_camera_count=conflicts,
             static_ray_contradictions=contradictions,dependency='RGB_correspondence_with_predicted_box_proposal')

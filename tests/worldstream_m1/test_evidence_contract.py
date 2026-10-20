@@ -49,10 +49,11 @@ def measured_pair(depth_separation=True):
 
 def qualified_fixture():
     config,old,new,frame,source,e,_,_=measured_pair()
+    frame.metadata['log_token']='evaluation-log'
     # 60 controlled independent-scene fixtures, not claimed as real experiment.
     q=dict(producer_id=PRODUCER_ID,claim=CONTINUITY_CLAIM,protocol_digest=producer_protocol_digest(config,frame),
         population='measured_box_contrast_candidates',independence_basis='disjoint_new_M1_scenes_and_logs',
-        calibration_scenes=['calibration'],validation_scene_units=[dict(scene_id=f'validation-{i}',log_token=f'log-{i}',accepted_entities=1,
+        calibration_scenes=['calibration'],calibration_logs=['calibration-log'],validation_scene_units=[dict(scene_id=f'validation-{i}',log_token=f'log-{i}',accepted_entities=1,
             unscorable_accepted=0,false_acceptances=0) for i in range(60)])
     issuer=EvidenceIssuer(q,hashlib.sha256(_canonical(q).encode()).hexdigest())
     proposal=propose_foreground_correspondence(old,new,frame,{'front':source},{'front':e},config,

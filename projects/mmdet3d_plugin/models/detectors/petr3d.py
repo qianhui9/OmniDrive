@@ -627,18 +627,29 @@ class Petr3D(MVXTwoStageDetector):
                     + self.m1_manager.last_commit_diagnostics['commit_total_ms']
                     + self.m1_manager.last_commit_diagnostics.get('computation_source_metadata_ms', 0.))
                 if settings.logging and settings.log_path:
-                    append_result(settings.log_path, precheck, self.m1_manager.last_commit_diagnostics)
+                    append_result(settings.log_path, precheck, self.m1_manager.last_commit_diagnostics,
+                                  self.m1_manager.export_state_audit())
 
-        data['img_feats'] = self.extract_img_feat(data['img'])
-        if pending_precheck:
-            precheck=runtime.join_precheck()
-            publish_precheck()
-        bbox_list = [dict() for i in range(len(img_metas))]
-        if m1_observer is None:
-            bbox_pts, generated_text, lane_results = self.simple_test_pts(img_metas, **data)
-        else:
-            bbox_pts, generated_text, lane_results = self.simple_test_pts(
-                img_metas, _m1_observer=m1_observer, **data)
+        try:
+            data['img_feats'] = self.extract_img_feat(data['img'])
+            if pending_precheck:
+                precheck=runtime.join_precheck()
+                publish_precheck()
+            bbox_list = [dict() for i in range(len(img_metas))]
+            if m1_observer is None:
+                bbox_pts, generated_text, lane_results = self.simple_test_pts(img_metas, **data)
+            else:
+                bbox_pts, generated_text, lane_results = self.simple_test_pts(
+                    img_metas, _m1_observer=m1_observer, **data)
+        except Exception:
+            if run_m1:
+                if pending_precheck:
+                    try:
+                        runtime.join_precheck()
+                    except Exception:
+                        pass
+                self.m1_manager.abort_pending()
+            raise
         for result_dict, pts_bbox in zip(bbox_list, bbox_pts):
             result_dict['pts_bbox'] = pts_bbox
         bbox_list[0]['text_out'] = generated_text

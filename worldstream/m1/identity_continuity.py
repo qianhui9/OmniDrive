@@ -26,7 +26,7 @@ def identity_protocol_digest(config, frame):
     files=['identity_continuity.py','association.py','geometry.py','temporal_visibility.py','geometry_support.py',
            'observation_validator.py','physical_certifier.py','state_manager.py','identity_temporal.py','config.py','state_types.py',
            'input_contract.py','state_store.py','dense_support.py','foreground_correspondence.py','identity_object.py','surface_consensus.py']
-    code={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in files}
+    code={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(Path(__file__).parent.glob('*.py'))}
     from .identity_temporal import PRODUCER
     value=dict(producer=(__import__(__package__+'.identity_object',fromlist=['PRODUCER']).PRODUCER if config.identity_method=='temporal_object' else PRODUCER) if config.identity_method.startswith('temporal') else IDENTITY_PRODUCER,code=code,max_displacement_m=MAX_DISPLACEMENT_M,
         config={k:v for k,v in config.to_dict().items() if k not in excluded},
@@ -75,7 +75,8 @@ def propose_identity_continuity(anchor,current_anchor,frame,evidence_by_camera,c
                 source_timestamp=old.timestamp,current_timestamp=cam.timestamp,
                 source_descriptor=np.asarray(old.descriptor).tolist(),current_descriptor=None if descriptor is None else descriptor.tolist(),
                 descriptor_residual=residual,tracks=count,total_tracks=total,quadrants=quadrants)
-            passed=(count>=config.support_min_points and total>0 and count/total>=config.support_point_fraction
+            unique=(len(np.unique(p[selected],axis=0))==count and len(np.unique(q[selected],axis=0))==count)
+            passed=(unique and count>=config.support_min_points and total>0 and count/total>=config.support_point_fraction
                     and quadrants/4>=config.support_quadrant_fraction and residual<=config.residual_threshold)
             view['reason']='measured_identity_population_candidate' if passed else 'observable_crop_or_tracks_insufficient'
         if not any(v['reason']=='measured_identity_population_candidate' for v in views):
@@ -176,7 +177,7 @@ def certify_identity_evidence(anchor,current_anchor,frame,evidence,issuer,source
             reasons.extend(issuer.qualification_reasons(evidence,frame,protocol_digest,IDENTITY_CLAIM,IDENTITY_POPULATION))
             provenance.update(producer=IDENTITY_PRODUCER,protocol_digest=protocol_digest,receipt=evidence.authentication_tag,
                 source_frame_digest=evidence.source_frame_digest,current_frame_digest=evidence.current_frame_digest,
-                execution_signature=evidence.execution_signature,risk_qualification_sha256=issuer.qualification_sha256,
+                execution_signature=evidence.execution_signature,risk_qualification_sha256=issuer.qualification_sha256,scene_level_risk=issuer.qualification_risk(),
                 qualification='Pinned independently audited scene/log risk artifact required',supported_views=supported)
         except (ValueError,TypeError,KeyError,IndexError,OverflowError):reasons.append('malformed_or_forbidden_identity_evidence')
     return PhysicalCertificationResult(not reasons,IDENTITY_CLAIM if not reasons else None,tuple(sorted(set(reasons))),provenance,

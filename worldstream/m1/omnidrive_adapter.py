@@ -153,10 +153,11 @@ def outputs_from_model(frame, bbox_results, lane_results, features, config):
     return FullOutputs(anchors, records)
 
 
-def append_result(path, result, commit_diagnostics):
+def append_result(path, result, commit_diagnostics, committed_state=None):
     from .state_types import json_value
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open('a') as handle:
-        handle.write(json.dumps(json_value({'precheck': result.to_dict(), 'commit': commit_diagnostics}),
+        handle.write(json.dumps(json_value({'precheck': result.to_dict(), 'commit': commit_diagnostics,
+                                              'committed_state': committed_state}),
                                 allow_nan=False) + '\n')

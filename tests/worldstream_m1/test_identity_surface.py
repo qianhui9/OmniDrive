@@ -22,6 +22,7 @@ def identity_manager(config,make_frame,make_prediction,qualified=True):
     m=WorldStateManager(cfg);p=make_prediction(semantic='car')
     p.geometry_world=box_geometry([0,0,10],[8,6,2]);f=make_frame(support=False)
     m.initialize(f,FullOutputs([p]));current=make_frame(100.5,support=False)
+    current.metadata['log_token']='evaluation-log'
     q=dict(producer_id=IDENTITY_PRODUCER,claim=IDENTITY_CLAIM,population=IDENTITY_POPULATION,
         protocol_digest=identity_protocol_digest(cfg,current),independence_basis='disjoint_new_M1_scenes_and_logs',
         calibration_scenes=['cal'],calibration_logs=['cal-log'],
@@ -120,7 +121,11 @@ def test_identity_necessary_conditions_never_replaced_by_score(config,make_frame
     elif mutation=='competing':out.append(copy.deepcopy(p))
     elif mutation=='jump':p.geometry_world=box_geometry([.8,0,10],[8,6,2])
     elif mutation=='wrong_source':m._previous_frame_id='not-actual-source'
-    m.commit(f,FullOutputs(out),r)
+    if mutation=='wrong_source':
+        with pytest.raises(ValueError,match='source state'):m.commit(f,FullOutputs(out),r)
+        assert r.diagnostics['transaction_status']=='aborted'
+    else:
+        m.commit(f,FullOutputs(out),r)
     assert not m.get_current_certifications().certified_anchor_ids
 
 

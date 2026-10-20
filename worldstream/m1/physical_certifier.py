@@ -54,6 +54,23 @@ class EvidenceIssuer:
         if self._qualification_json is None:return None
         return hashlib.sha256(self._qualification_json.encode()).hexdigest()
 
+    def qualification_risk(self):
+        """Recompute scene-event statistics; a missing artifact has unknown risk."""
+        if self._qualification_json is None:
+            return dict(status='missing', independent_units=0, false_acceptance_scene_events=None,
+                        confidence_upper_95=None, risk_limit=.05)
+        q=json.loads(self._qualification_json)
+        units=q.get('validation_scene_units',[]) if isinstance(q,dict) else []
+        if not units or any(not isinstance(u,dict) or type(u.get('false_acceptances')) is not int for u in units):
+            return dict(status='invalid', confidence_upper_95=None, risk_limit=.05)
+        from scipy.stats import beta
+        n=len(units);errors=sum(u['false_acceptances']>0 for u in units)
+        return dict(status='evaluated', independent_units=n, false_acceptance_scene_events=errors,
+                    accepted_entities=sum(u.get('accepted_entities',0) for u in units),
+                    unscorable_accepted=sum(u.get('unscorable_accepted',0) for u in units),
+                    confidence_upper_95=float(beta.ppf(.95,errors+1,n-errors)) if errors<n else 1.,
+                    risk_limit=.05)
+
     def qualification_reasons(self, evidence, frame, protocol_digest,
                               claim=CONTINUITY_CLAIM, population='measured_box_contrast_candidates'):
         if self._qualification_json is None:return ['independent_producer_qualification_missing']
@@ -78,6 +95,13 @@ class EvidenceIssuer:
         if (not isinstance(calibration_scenes,list) or not isinstance(calibration_logs,list)
                 or any(not isinstance(s,str) or not s for s in calibration_scenes+calibration_logs)):
             return reasons+['independent_validation_units_invalid']
+        if not calibration_scenes or not calibration_logs:
+            reasons.append('calibration_scene_or_log_provenance_missing')
+        evaluation_log=frame.metadata.get('log_token')
+        if not isinstance(evaluation_log,str) or not evaluation_log:
+            reasons.append('evaluation_log_provenance_missing')
+        elif evaluation_log in set(logs)|set(calibration_logs):
+            reasons.append('qualification_log_reused_for_evaluation')
         if (len(set(scenes))!=len(scenes) or len(set(logs))!=len(logs)
                 or set(scenes)&set(calibration_scenes) or set(logs)&set(calibration_logs)):
             reasons.append('validation_scene_or_log_independence_invalid')
@@ -141,6 +165,7 @@ def certify_physical_evidence(anchor, current_anchor, frame, evidence=None, issu
             n=len(points)
             if (points.ndim!=2 or points.shape!=(n,3) or n<4 or not np.isfinite(points).all()
                     or any(x.shape!=(n,) or not np.isfinite(x).all() for x in (fb,angles,reproj))
+                    or (fb<0).any() or (reproj<0).any() or len(np.unique(points,axis=0))!=n
                     or (fb>.75).any() or (angles<.5).any() or (reproj>1.).any()):
                 reasons.append('measured_correspondence_or_observability_insufficient')
             elif not (oriented_box_membership(points,anchor.geometry_world).all()
@@ -149,6 +174,27 @@ def certify_physical_evidence(anchor, current_anchor, frame, evidence=None, issu
             if (contrast.ndim!=1 or len(contrast)<4 or not np.isfinite(contrast).all()
                     or np.median(contrast)<=0 or m.get('spatial_quadrants',0)<3):
                 reasons.append('foreground_background_not_distinguished')
+            tracks=m.get('measured_tracks',[])
+            if len(tracks)!=n:
+                reasons.append('measured_track_provenance_missing')
+            else:
+                views={}
+                for i,t in enumerate(tracks):
+                    cid=t['camera'];obs=anchor.observation_support[cid];cam=frame.cameras[cid]
+                    p=np.asarray(t['source_uv'],float);q=np.asarray(t['current_uv'],float)
+                    if (p.shape!=(2,) or q.shape!=(2,) or not np.isfinite([p,q]).all()
+                            or not np.array_equal(t['world_xyz'],points[i])
+                            or obs.camera_id!=cid or cam.camera_id!=cid or not cam.timing_reliable
+                            or not 0<cam.timestamp-obs.timestamp<=1.):
+                        reasons.append('measured_track_camera_binding_mismatch')
+                    views.setdefault(cid,[]).append((p,q))
+                for cid,uv in views.items():
+                    p=np.asarray([v[0] for v in uv]);q=np.asarray([v[1] for v in uv])
+                    r=np.asarray(anchor.observation_support[cid].region)
+                    quadrants=len(np.unique(np.clip(((p-r[:2])/(r[2:]-r[:2])*2).astype(int),0,1),axis=0))
+                    if (len(p)<4 or quadrants<3 or len(np.unique(p,axis=0))!=len(p)
+                            or len(np.unique(q,axis=0))!=len(q)):
+                        reasons.append('measured_track_spatial_support_invalid')
             if m.get('association_alternatives',1)!=0:reasons.append('identity_ambiguous')
             if m.get('conflicting_camera_count',1)!=0:reasons.append('multi_camera_evidence_conflict')
             if m.get('static_ray_contradictions',1)!=0:reasons.append('static_hypothesis_contradicted')
@@ -158,9 +204,10 @@ def certify_physical_evidence(anchor, current_anchor, frame, evidence=None, issu
             provenance.update(producer=evidence.producer_id,source_frame_digest=evidence.source_frame_digest,
                 current_frame_digest=evidence.current_frame_digest,execution_signature=evidence.execution_signature,
                 risk_qualification_sha256=issuer.qualification_sha256,
+                scene_level_risk=issuer.qualification_risk(),
                 receipt_digest=evidence.authentication_tag,measurement_count=n,protocol_digest=protocol_digest,
                 claim_scope='Qualified identity continuity and local ray consistency; no metric centre or speed guarantee')
-        except (ValueError,TypeError,KeyError,OverflowError):reasons.append('malformed_or_forbidden_online_evidence')
+        except (ValueError,TypeError,KeyError,IndexError,OverflowError):reasons.append('malformed_or_forbidden_online_evidence')
     return PhysicalCertificationResult(not reasons,claim if not reasons else None,tuple(sorted(set(reasons))),provenance,
         evidence.source_state_version if isinstance(evidence,PhysicalEvidence) else None,
         evidence.current_state_version if isinstance(evidence,PhysicalEvidence) else None,

@@ -1,0 +1,35 @@
+{
+  "Gate_A": {
+    "status": "PASS",
+    "scope": "Operational only, sampled exploratory continuous streams",
+    "runtime_call_and_atomic_commit": true,
+    "source_lifecycle_and_failure_tests": true,
+    "raw_measured_observations_reproduced": true,
+    "anchor_observation_supported_events": 0,
+    "limitations": "Nonzero Anchor observation support was not established; measured correspondences and 15 stable pixels are not identity proof or useful task coverage"
+  },
+  "Gate_B": {
+    "status": "BLOCKED",
+    "qualified_identity_accepted": 0,
+    "physical_or_geometry_accepted": 0,
+    "reasons": [
+      "No pinned independent qualification for current producer/protocol",
+      "Only 18 validation logs; feasibility split leaves 15 independent validation logs, below minimum 59 even with zero errors",
+      "Sampled real identity/foreground proposals remain Unknown; no accepted independently scored population",
+      "Qualification additionally requires genuine evaluation log metadata; missing provenance is rejected"
+    ],
+    "false_acceptance_risk": null,
+    "confidence_upper_95": null
+  },
+  "Gate_C": {
+    "status": "PASS",
+    "scope": "State/provenance interface and lifecycle only",
+    "state_version_and_invalidation_export": true,
+    "uncaptured_neural_tensors": "unavailable",
+    "network_reuse_authorized": false,
+    "actual_network_skips": 0
+  },
+  "m1_prerequisites_for_m2": false,
+  "enter_m2": false,
+  "production_qualified": false
+}

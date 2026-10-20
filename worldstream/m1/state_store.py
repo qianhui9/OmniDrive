@@ -24,6 +24,7 @@ class StateStore:
         self.execution_signature = None
         self.commit_count = 0
         self.next_anchor_id = 0
+        self.committed_frame_ids = frozenset()
 
     def new_anchor_id(self):
         self.next_anchor_id += 1
@@ -74,7 +75,17 @@ class StateStore:
                  for cid,obs in a.observation_support.items()]))
         features=[(fid,r.computation_version,r.computation_timestamp,r.source_anchor_ids,r.source_camera_ids,
                    r.source_region,getattr(r.tensor,'_version',None),self._nbytes(r.tensor)) for fid,r in self.features.items()]
-        value=(self.generation,self.last_timestamp,self.commit_count,anchors,features)
+        from dataclasses import asdict
+        # Bind all mutable metadata, not only geometry and tensor allocation size.
+        metadata = {aid:asdict(a) for aid,a in self.anchors.items()}
+        feature_metadata = {}
+        for fid,r in self.features.items():
+            feature_metadata[fid] = {f.name:getattr(r,f.name) for f in fields(r) if f.name!='tensor'}
+            if isinstance(r.tensor,np.ndarray):
+                feature_metadata[fid]['tensor_sha256'] = hashlib.sha256(r.tensor.tobytes()).hexdigest()
+        value=(self.generation,self.scene_id,self.execution_signature,self.next_anchor_id,sorted(self.committed_frame_ids),
+               self.last_timestamp,self.commit_count,anchors,features,metadata,feature_metadata,
+               {k:asdict(v) for k,v in self.provenance.items()})
         return hashlib.sha256(json.dumps(json_value(value),sort_keys=True,allow_nan=False).encode()).hexdigest()
 
     @staticmethod
@@ -136,6 +147,8 @@ class StateStore:
                     "shape": list(r.shape), "dtype": r.dtype, "source_device": r.device,
                     "storage_device": str(r.tensor.device) if hasattr(r.tensor, "device") else "cpu",
                     "tensor_captured": r.tensor is not None,
+                    "tensor_availability": "captured" if r.tensor is not None else "unavailable",
+                    "network_reuse_authorized": False,
                     "execution_signature": r.execution_signature,
                     "source_frame_id": r.source_frame_id, "source_state_epoch": r.source_state_epoch,
                     "computation_sources": [dict(s) for s in r.computation_sources]}

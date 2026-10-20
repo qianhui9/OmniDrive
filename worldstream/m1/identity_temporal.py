@@ -364,7 +364,7 @@ def certify_temporal_identity(anchor,current,frame,evidence,issuer,source_digest
             reasons.extend(issuer.qualification_reasons(evidence,frame,protocol_digest,IDENTITY_CLAIM,OBJECT_POPULATION if object_method else POPULATION))
             provenance.update(producer=evidence.producer_id,protocol_digest=protocol_digest,receipt=evidence.authentication_tag,
                 source_frame_digest=evidence.source_frame_digest,current_frame_digest=evidence.current_frame_digest,
-                execution_signature=evidence.execution_signature,risk_qualification_sha256=issuer.qualification_sha256,
+                execution_signature=evidence.execution_signature,risk_qualification_sha256=issuer.qualification_sha256,scene_level_risk=issuer.qualification_risk(),
                 supported_views=len(supported),same_sensor_RGB=True,independent_sensor=False)
         except (KeyError,ValueError,TypeError,IndexError,OverflowError,np.linalg.LinAlgError,cv2.error):
             reasons.append('malformed_or_forbidden_identity_evidence')
