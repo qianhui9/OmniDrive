@@ -11,9 +11,9 @@ import json
 from pathlib import Path
 
 
-def diagnose_scene(trace,output):
+def diagnose_scene(trace,output,config_path='configs/worldstream_m11_diagnostics.yaml'):
     from worldstream.m1 import M1Config
-    config=M1Config.load('configs/worldstream_m11_diagnostics.yaml')
+    config=M1Config.load(config_path)
     projection_failures={}
     rows=[json.loads(x) for x in Path(trace).read_text().splitlines()];funnel={};all_reasons=Counter();subgroups={};flat=[];frames=[]
     for row in rows:
@@ -52,6 +52,10 @@ def diagnose_scene(trace,output):
                         c['passed' if value is True else 'rejected' if value is False else 'unknown']+=1
                     for key in ('selected_points','supported_points','support_fraction','quadrant_fraction'):
                         item['actual_visibility_'+key]=e.get(key)
+                item['prediction_kind']=e.get('prediction_kind')
+                item['prediction_valid_points']=e.get('prediction_valid_points')
+                item['visibility_status']=e.get('visibility_status')
+                item['raw_projection_reason']=v.get('reason')
                 measurements=e.get('observation_measurements',{})
                 item['local_support_fraction']=measurements.get('local_support_fraction');item['quadrants']=measurements.get('quadrants')
                 flat.append(item)
@@ -74,9 +78,10 @@ def diagnose_scene(trace,output):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
+    p.add_argument('--config',default='configs/worldstream_m11_diagnostics.yaml')
     a=p.parse_args();out=Path(a.output);out.mkdir(parents=True,exist_ok=False)
     root=Path(a.root);traces=sorted((root/'scenes').glob('*/repeat_0.jsonl')) or sorted((root/'scenes').glob('*/m1_state.jsonl'))
-    summaries=[diagnose_scene(path,out/path.parent.name) for path in traces]
+    summaries=[diagnose_scene(path,out/path.parent.name,a.config) for path in traces]
     (out/'summary.json').write_text(json.dumps(summaries,indent=2)+'\n')
 
 

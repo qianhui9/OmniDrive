@@ -38,10 +38,12 @@ def prepare_pair(previous,current,previous_points,current_points,previous_anns,c
     prior={a['instance_id']:a for a in previous_anns}
     source=current_points.copy();known=np.ones(len(source),bool);moving=np.zeros(len(source),bool)
     annotation_seen=np.zeros(len(source),bool)
+    semantic=np.full(len(source),"unannotated_background",dtype=object)
     for ann in current_anns:
         g=ann['geometry'];basis=box_basis(g);local=(current_points-g.center)@basis
         inside=(np.abs(local)<=g.size/2+.05).all(1)
         annotation_seen|=inside
+        semantic[inside]=ann["class"]
         old=prior.get(ann['instance_id'])
         if old is None:
             known[inside]=False;moving[inside]=True
@@ -78,7 +80,8 @@ def prepare_pair(previous,current,previous_points,current_points,previous_anns,c
             if old is not None and int(ann['visibility'])<int(old['visibility']):reasons.append('visibility_drop')
             if reasons:events.append(dict(instance=ann['instance_id'],semantic_class=ann['class'],region=p.region,reasons=reasons))
         cameras[cid]=dict(xy=xy,source_uv=olduv,scorable=scorable,critical=critical,moving=moving,
-            known=known,events=events,annotated=annotation_seen)
+            known=known,events=events,annotated=annotation_seen,depth_m=z,semantic_class=semantic,
+            target_uv=uv,visibility_supported=vis,previous_visibility_supported=visible_old)
     return cameras
 
 

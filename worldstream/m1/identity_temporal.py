@@ -22,7 +22,7 @@ DEPENDENCY='Actual_source_images_crop_LK_affine_and_optional_temporal_loop_not_i
 
 def camera_snapshot_digest(camera):
     digest=hashlib.sha256(repr((camera.camera_id,camera.coordinate_space,camera.timestamp,camera.timing_reliable)).encode())
-    for value in (camera.image,camera.intrinsic,camera.world_to_camera,camera.raw_to_image):
+    for value in (camera.image,camera.intrinsic,camera.world_to_camera,camera.raw_to_image,camera.raw_intrinsic):
         if value is None:digest.update(b'None;');continue
         a=np.ascontiguousarray(value);digest.update(repr((a.shape,str(a.dtype))).encode());digest.update(a.tobytes())
     return digest.hexdigest()
@@ -58,7 +58,7 @@ def _aligned_descriptor(image,matrix,region,validator):
     return validator.descriptor(aligned,region)
 
 
-def _measure_view(anchor,target,old,cam,validator,config):
+def _measure_view(anchor,target,old,cam,validator,config,depth_history=None):
     from .temporal_visibility import gray_image
     from .geometry_support import measured_patch_support
     cid=cam.camera_id;obs=anchor.observation_support.get(cid)
@@ -78,7 +78,13 @@ def _measure_view(anchor,target,old,cam,validator,config):
     a,b=gray_image(old),gray_image(cam);mask=np.zeros(a.shape,np.uint8);mask[region_slices(obs.region,a.shape)]=255
     p=cv2.goodFeaturesToTrack(a,maxCorners=96,qualityLevel=.01,minDistance=4,mask=mask,blockSize=5)
     if p is None:return dict(v,reason='RGB_tracks_missing')
-    p=p[:,0];p=p[_inside(p,obs.region)];q,fb,valid=_lk(a,b,p)
+    p=p[:,0];p=p[_inside(p,obs.region)]
+    motion=None
+    if config.ego_motion_mode != 'off':
+        from .ego_motion import track_with_prediction
+        q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history)
+        valid&=(q[:,0]>=3)&(q[:,0]<b.shape[1]-3)&(q[:,1]>=3)&(q[:,1]<b.shape[0]-3)
+    else:q,fb,valid=_lk(a,b,p)
     if not len(p):return dict(v,reason='RGB_tracks_missing')
     _,_,photo,residual=measured_patch_support(a,b,p,q,valid,config)
     inside=_inside(q,projection.region);measured=photo&valid&(residual<=.04);selected=measured&inside
@@ -86,6 +92,9 @@ def _measure_view(anchor,target,old,cam,validator,config):
     v.update(total_tracks=total,measured_tracks=int(measured.sum()),tracks=n,
         source_region=list(obs.region),current_region=list(projection.region),source_timestamp=old.timestamp,current_timestamp=cam.timestamp,
         source_coordinate_space=old.coordinate_space,current_coordinate_space=cam.coordinate_space)
+    if motion is not None:
+        from .state_types import json_value
+        v['ego_motion']=json_value(motion)
     if config.identity_diagnostics:
         from .state_types import json_value
         v['track_diagnostics']=json_value(dict(source_points=p.tolist(),current_points=q.tolist(),
@@ -168,7 +177,11 @@ def measure_pair(anchor,target,frame,history,config,validator):
         for cid,cam in frame.cameras.items():
             old=record['cameras'].get(cid)
             if old is not None:
-                view=_measure_view(anchor,target,old,cam,validator,config)
+                depth=record.get('depth_history',{}).get(cid)
+                if depth is not None and any(depth.get(k)!=record.get(k) for k in
+                        ('scene_id','frame_id','frame_digest','epoch','execution_signature','commit_version')):
+                    reasons.append('actual_depth_history_binding_mismatch');continue
+                view=_measure_view(anchor,target,old,cam,validator,config,depth)
                 if (config.identity_method=='temporal_object' and config.identity_object_support
                         and ((config.identity_object_required and view['status']=='supported') or (view['status']=='unknown'
                             and view['reason'] in ('crop_track_or_spatial_support_insufficient','incoherent_local_motion','folded_or_compressed_motion')))):

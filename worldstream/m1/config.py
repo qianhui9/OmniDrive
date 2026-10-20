@@ -108,7 +108,16 @@ class M1Config:
     measurement_reuse: bool = False
     observation_diagnostics: bool = False  # read-only, never relaxes validation
 
+    ego_motion_mode: str = "off"  # off, rotation, depth (conditional prior RGB depth)
+    dynamic_motion_prediction: bool = False  # only qualified identity history
+
     def __post_init__(self):
+        if self.ego_motion_mode not in ("off", "rotation", "depth"):
+            raise ValueError("Invalid ego motion mode")
+        if self.ego_motion_mode != "off" and not self.temporal_visibility:
+            raise ValueError("Ego prediction requires measured temporal observations")
+        if self.dynamic_motion_prediction and not self.identity_continuity:
+            raise ValueError("World motion requires qualified identity observations")
         import math
         if self.source_linked_state and not (self.temporal_visibility and self.local_support):
             raise ValueError('Source-linked state requires actual temporal observations')

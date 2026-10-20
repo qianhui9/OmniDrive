@@ -60,7 +60,7 @@ def frame_from_info(info, root, max_width=640, signature='raw-replay',source_con
         c2w = (quaternion_transform(cam['ego2global_rotation'], cam['ego2global_translation'])
                @ quaternion_transform(cam['sensor2ego_rotation'], cam['sensor2ego_translation']))
         cameras[cid] = CameraFrame(cid, image, affine @ cam['cam_intrinsic'], inverse_transform(c2w),
-                                   cam['timestamp'] / 1e6, 'resized_raw_image', affine)
+                                   cam['timestamp'] / 1e6, 'resized_raw_image', affine, raw_intrinsic=np.array(cam['cam_intrinsic'],copy=True))
     from worldstream.m1.source_context import metadata_log_source
     context=source_context
     if context is None and (Path(root)/'v1.0-trainval/scene.json').is_file():

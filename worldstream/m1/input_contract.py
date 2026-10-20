@@ -46,6 +46,6 @@ def frame_digest(frame):
         digest.update(repr((cid, camera.camera_id, camera.timestamp, camera.coordinate_space,
                             camera.timing_reliable)).encode())
         for value in (image, camera.intrinsic, camera.world_to_camera, camera.raw_to_image,
-                      camera.visibility_mask, camera.geometry_support_mask):
+                      camera.visibility_mask, camera.geometry_support_mask, camera.raw_intrinsic):
             add(value)
     return digest.hexdigest()

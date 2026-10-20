@@ -48,7 +48,7 @@ class ObservationValidator:
             return float("inf")
         return float(np.mean(np.abs(a - b)))
 
-    def validate(self, old, camera, projection, occluded=False, temporal_evidence=None):
+    def validate(self, old, camera, projection, occluded=False, temporal_evidence=None, anchor=None, previous_camera=None):
         region = projection.region
         if region is None:
             return Validation(False, float("inf"), (), False, False, projection.reason)
@@ -76,7 +76,7 @@ class ObservationValidator:
             ys, xs = region_slices(best_region, camera.image.shape)
             if self.config.temporal_visibility:
                 from .temporal_visibility import anchor_visibility
-                supported, why, evidence = anchor_visibility(temporal_evidence, old, projection, self.config)
+                supported, why, evidence = anchor_visibility(temporal_evidence, old, projection, self.config, anchor, previous_camera, camera)
                 visible = visible and supported
                 visibility_reason = "projected_occlusion" if occluded else why
             elif mask is None or mask.shape != camera.image.shape[:2] or mask[ys, xs].size == 0:

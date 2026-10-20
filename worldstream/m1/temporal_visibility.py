@@ -19,7 +19,7 @@ def gray_image(camera):
 
 
 def build_evidence(previous, current, config, dense_exclusion=None, surface_history=None,
-                   validate_dense=True):
+                   validate_dense=True, depth_history=None):
     start = perf_counter(); gray = gray_image(current)
     h,w = gray.shape
     points = np.empty((0,2), np.float32)
@@ -37,24 +37,33 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
     p0 = cv2.goodFeaturesToTrack(old_gray, maxCorners=config.flow_max_points, qualityLevel=.01,
                                  minDistance=config.flow_min_distance_px, blockSize=5)
     if p0 is None: d['reason']='insufficient_texture'; return evidence
-    p1, s1, error = cv2.calcOpticalFlowPyrLK(old_gray, gray, p0, None, winSize=(21,21), maxLevel=3,
-                            criteria=(cv2.TERM_CRITERIA_EPS|cv2.TERM_CRITERIA_COUNT,30,.01))
-    if p1 is None: d['reason']='forward_failed'; return evidence
-    # Sanitize failed coordinates before the reverse OpenCV call.
-    p1 = np.where(np.isfinite(p1),p1,p0)
-    back, s0, _ = cv2.calcOpticalFlowPyrLK(gray, old_gray, p1, None, winSize=(21,21), maxLevel=3,
-                            criteria=(cv2.TERM_CRITERIA_EPS|cv2.TERM_CRITERIA_COUNT,30,.01))
-    if back is None: d['reason']='backward_failed'; return evidence
-    source, target = p0[:,0], p1[:,0]
-    fb = np.linalg.norm(back[:,0]-source,axis=1)
-    good = s1[:,0].astype(bool) & s0[:,0].astype(bool) & (fb <= config.flow_fb_max_px)
-    good &= np.isfinite(target).all(1) & (error[:,0] <= config.flow_lk_max_error)
-    good &= (target[:,0] >= 0)&(target[:,0]<w)&(target[:,1]>=0)&(target[:,1]<h)
-    # Many-to-one correspondences are possible occlusion, never affirmative evidence.
-    cells = np.rint(target/2).astype(np.int64)
-    _, inverse, counts = np.unique(cells,axis=0,return_inverse=True,return_counts=True)
-    collision = counts[inverse] > 1
-    good &= ~collision
+    if config.ego_motion_mode != 'off':
+        from .ego_motion import track_with_prediction
+        source = p0[:,0]
+        target,fb,good,motion = track_with_prediction(previous,current,source,config,depth_history)
+        evidence.motion_measurements = motion
+        d['ego_motion'] = dict(motion['info'], raw_valid=int(motion['raw_valid'].sum()),
+            recovered=int(motion['seed_recovered'].sum()), conflicts=int(motion['initialization_conflict'].sum()))
+        collision = np.zeros(len(source),bool)  # uniqueness already checked after merge
+    else:
+        p1, s1, error = cv2.calcOpticalFlowPyrLK(old_gray, gray, p0, None, winSize=(21,21), maxLevel=3,
+                                criteria=(cv2.TERM_CRITERIA_EPS|cv2.TERM_CRITERIA_COUNT,30,.01))
+        if p1 is None: d['reason']='forward_failed'; return evidence
+        # Sanitize failed coordinates before the reverse OpenCV call.
+        p1 = np.where(np.isfinite(p1),p1,p0)
+        back, s0, _ = cv2.calcOpticalFlowPyrLK(gray, old_gray, p1, None, winSize=(21,21), maxLevel=3,
+                                criteria=(cv2.TERM_CRITERIA_EPS|cv2.TERM_CRITERIA_COUNT,30,.01))
+        if back is None: d['reason']='backward_failed'; return evidence
+        source, target = p0[:,0], p1[:,0]
+        fb = np.linalg.norm(back[:,0]-source,axis=1)
+        good = s1[:,0].astype(bool) & s0[:,0].astype(bool) & (fb <= config.flow_fb_max_px)
+        good &= np.isfinite(target).all(1) & (error[:,0] <= config.flow_lk_max_error)
+        good &= (target[:,0] >= 0)&(target[:,0]<w)&(target[:,1]>=0)&(target[:,1]<h)
+        # Many-to-one correspondences are possible occlusion, never affirmative evidence.
+        cells = np.rint(target/2).astype(np.int64)
+        _, inverse, counts = np.unique(cells,axis=0,return_inverse=True,return_counts=True)
+        collision = counts[inverse] > 1
+        good &= ~collision
     d['temporal_correspondence_ms']=(perf_counter()-start)*1000
     t=perf_counter()
     geom = calibrated_correspondence(previous,current,source,target,config.flow_epipolar_max_px)
@@ -65,6 +74,12 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
     evidence.source_points=source; evidence.current_points=target; evidence.fb_error_px=fb
     evidence.correspondence_valid=good; evidence.geometry_valid=geom; evidence.supported=supported
     evidence.patch_residual=residual; evidence.stable_mask=stable; evidence.changed_mask=changed
+    if config.observation_diagnostics:
+        from .state_types import json_value
+        m=evidence.motion_measurements or {}
+        d['point_measurements']=json_value(dict(source_points=source,current_points=target,
+            fb_error_px=fb,correspondence_valid=good,geometry_valid=geom,patch_supported=supported,
+            patch_residual=residual,**{k:v for k,v in m.items() if k!='source_points'}))
     if config.foreground_correspondence or config.identity_continuity:
         # Preserve measured proposal points separately from rejection masks.
         # They cannot grant ordinary observation/pixel support to dynamic ROIs.
@@ -88,7 +103,7 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
     return evidence
 
 
-def anchor_visibility(evidence, old, projection, config):
+def anchor_visibility(evidence, old, projection, config, anchor=None, previous=None, current=None):
     """Certify the observed crop support, not foreground ownership or full box surface."""
     if evidence is None or old is None or abs(evidence.source_timestamp-old.timestamp)>1e-5:
         return False, 'temporal_source_missing', {}
@@ -98,7 +113,31 @@ def anchor_visibility(evidence, old, projection, config):
     # A static/rationally predicted box provides a bounded per-point affine prediction.
     size = np.maximum(np.array(r[2:])-r[:2],1)
     expected = (p-np.array(r[:2]))/size*(np.array(s[2:])-s[:2])+np.array(s[:2])
-    bounded = np.linalg.norm(q-expected,axis=1) <= projection.search_radius_px
+    prediction_kind='legacy_box_affine'
+    prediction_valid=np.ones(len(p),bool)
+    residual=np.linalg.norm(q-expected,axis=1)
+    if config.ego_motion_mode != 'off':
+        from .ego_motion import point_predictions,static_box_predictions,segment_residual
+        prediction_kind='pose_rotation_depth_unknown'
+        if previous is None or current is None:
+            prediction_valid[:]=False
+        else:
+            expected,prediction_valid,spread,_,_=point_predictions(previous,current,p,config)
+            residual=np.linalg.norm(q-expected,axis=1)+spread
+            prediction_valid&=np.isfinite(spread)
+            m=evidence.motion_measurements
+            if config.ego_motion_mode=='depth' and m is not None:
+                depth_valid=np.isfinite(m['source_depth_m'])&m['prediction_valid']&np.isfinite(m['prediction_spread_px'])
+                prior_residual=np.linalg.norm(q-m['predicted_points'],axis=1)+m['prediction_spread_px']
+                residual=np.where(depth_valid,prior_residual,residual)
+                prediction_valid|=depth_valid
+                prediction_kind='prior_measured_per_point_conditional_static_depth'
+            if config.ego_motion_mode=='depth' and anchor is not None:
+                a,b,box_valid=static_box_predictions(anchor,previous,current,p,config)
+                residual=np.where(box_valid,segment_residual(q,a,b),residual)
+                prediction_valid|=box_valid
+                prediction_kind='per_ray_box_depth_interval_conditional_static'
+    bounded = prediction_valid & (residual <= projection.search_radius_px)
     in_current = (q[:,0]>=s[0])&(q[:,0]<s[2])&(q[:,1]>=s[1])&(q[:,1]<s[3])
     accepted=inside & evidence.supported & bounded & in_current
     total=int(inside.sum()); count=int(accepted.sum())
@@ -106,6 +145,9 @@ def anchor_visibility(evidence, old, projection, config):
     coverage=len(np.unique(quadrants,axis=0))/4 if count else 0.
     fraction=count/total if total else 0.
     d=dict(selected_points=total,supported_points=count,support_fraction=fraction,quadrant_fraction=coverage,
-           source=evidence.source,foreground_ownership_certified=False)
+           source=evidence.source,foreground_ownership_certified=False,
+           prediction_kind=prediction_kind,metric_geometry_certified=False,
+           prediction_valid_points=int((inside&prediction_valid).sum()),
+           prediction_residual_px=residual[inside].tolist())
     ok=(count>=config.support_min_points and fraction>=config.support_point_fraction and coverage>=config.support_quadrant_fraction)
     return bool(ok), 'ok' if ok else 'temporal_support_insufficient', d

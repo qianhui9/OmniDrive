@@ -46,6 +46,7 @@ class WorldStateManager:
         self._previous_frame_id = None
         self._previous_frame_digest = None
         self._surface_history = {}
+        self._depth_history = {}
         self._identity_history = ()
         self._identity_hypotheses = ()
         self._computation_receipt = None
@@ -71,6 +72,7 @@ class WorldStateManager:
         self._previous_frame_id = None
         self._previous_frame_digest = None
         self._surface_history = {}
+        self._depth_history = {}
         self._identity_history = ()
         self._identity_hypotheses = ()
         self._computation_receipt = None
@@ -177,9 +179,30 @@ class WorldStateManager:
         """Bind actual committed camera snapshots used to produce measurements."""
         import hashlib
         from .identity_temporal import camera_snapshot_digest
+        import json
+        from .state_types import json_value
+        identities=[]
+        for r in self._identity_history:
+            identities.append((r['frame_id'],r['frame_digest'],r['scene_id'],r['timestamp'],r['epoch'],r['execution_signature'],
+                r.get('commit_version'),r['camera_sha256'],
+                [(cid,camera_snapshot_digest(c)) for cid,c in r['cameras'].items()],
+                [(aid,state_geometry_version(a),[(cid,o.timestamp,o.region,hashlib.sha256(o.descriptor.tobytes()).hexdigest())
+                    for cid,o in a.observation_support.items()]) for aid,a in r['anchors'].items()],
+                r.get('depth_history',{})))
         value=(self._previous_frame_id,self._previous_frame_digest,
-               tuple((cid,camera_snapshot_digest(c)) for cid,c in self._previous_cameras.items()))
+               tuple((cid,camera_snapshot_digest(c)) for cid,c in self._previous_cameras.items()),
+               json.dumps(json_value((self._depth_history,identities)),sort_keys=True,allow_nan=False))
         return hashlib.sha256(repr(value).encode()).hexdigest()
+
+    def _bound_depth_history(self, cid, frame):
+        h=self._depth_history.get(cid)
+        if h is None:return None
+        if (h['scene_id']!=frame.scene_id or h['epoch']!=self.store.generation
+                or h['execution_signature']!=frame.execution_signature
+                or h['frame_id']!=self._previous_frame_id or h['frame_digest']!=self._previous_frame_digest
+                or h['commit_version']!=self.store.commit_count):
+            raise ValueError('Historical depth source binding mismatch')
+        return h
 
     def abort_pending(self):
         """Explicit recovery when model execution fails after precheck."""
@@ -270,7 +293,8 @@ class WorldStateManager:
                 with measurement_cache(self.config.efficient_state, self.config.measurement_reuse):
                     evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config,
                                               dense_exclusion=excluded,surface_history=self._surface_history.get(cid),
-                                              validate_dense=getattr(self, '_validate_observation', True))
+                                              validate_dense=getattr(self, '_validate_observation', True),
+                                              depth_history=self._bound_depth_history(cid, frame))
                 if self.config.motion_risk_revocation:
                     from .observation_refinement import motion_risk_masks
                     risk,uncertain,details=motion_risk_masks(self.store.anchors.values(),
@@ -297,6 +321,8 @@ class WorldStateManager:
                     xy[:,1] = np.clip(xy[:,1],0,excluded.shape[0]-1)
                     evidence.supported &= ~anchor_excluded[xy[:,1],xy[:,0]]
                 evidence.diagnostics['supported_points_after_exclusion'] = int(evidence.supported.sum())
+                if 'point_measurements' in evidence.diagnostics:
+                    evidence.diagnostics['point_measurements']['observation_supported_after_exclusion']=evidence.supported.tolist()
                 evidence.diagnostics['excluded_motion_or_occlusion_area_ratio'] = float(excluded.mean())
                 # Exclusion is an acceptance gate. Preserve measured rejection
                 # evidence separately, without changing legacy identity inputs.
@@ -317,7 +343,7 @@ class WorldStateManager:
             age = frame.timestamp - anchor.source_timestamp
             horizon = 0 <= age <= self.config.max_state_age_s
             motion_known = (anchor.anchor_type != "object" or anchor.semantic_class in STATIC_CLASSES
-                            or anchor.velocity_reliable)
+                            or anchor.velocity_reliable or anchor.motion_prediction.get("reliable",False))
             camera_checks = {}
             # Every geometrically eligible view must agree; do not select one passing camera
             # while another camera observes a changed/occluded object.
@@ -334,7 +360,8 @@ class WorldStateManager:
                                 and intersect_area(p.region, q.region) > self.config.occlusion_overlap_fraction * region_area(p.region)):
                             occluded = True; break
                 validation = self.validator.validate(anchor.observation_support.get(cid), camera, p, occluded,
-                                                     self.last_evidence.get(cid))
+                                                     self.last_evidence.get(cid), anchor=anchor,
+                                                     previous_camera=self._previous_cameras.get(cid))
                 if validation.valid and self.config.bidirectional_geometry:
                     from .bidirectional_geometry import verify_anchor_geometry
                     proof=verify_anchor_geometry(anchor,self._previous_cameras.get(cid),camera,self.last_evidence.get(cid),p,self.config)
@@ -344,6 +371,15 @@ class WorldStateManager:
                 if self.config.observation_diagnostics:
                     from .observation_diagnostics import attach_observation_funnel
                     attach_observation_funnel(self,anchor,camera,p,occluded,validation)
+                if p.region is None:
+                    visibility_status='unknown_depth_or_near_plane' if p.reason=='incomplete_depth' else 'unknown_projection'
+                elif p.coverage==0:visibility_status='outside_field_of_view'
+                elif p.coverage<self.config.min_coverage:visibility_status='partially_outside_field_of_view'
+                elif occluded:visibility_status='occluded_hypothesis'
+                elif validation.valid:visibility_status='observed_supported'
+                else:visibility_status='unknown_observation'
+                validation.evidence['visibility_status']=visibility_status
+                validation.evidence['absence_proves_disappearance']=False
                 camera_checks[cid] = dict(asdict(validation), geometry_valid=p.valid,
                                           projected_points=p.uv,
                                           predicted_region=p.region, coverage=p.coverage,
@@ -530,6 +566,7 @@ class WorldStateManager:
         self._previous_frame_id = worker._previous_frame_id
         self._previous_frame_digest = worker._previous_frame_digest
         self._surface_history = worker._surface_history
+        self._depth_history = worker._depth_history
         self._identity_history = worker._identity_history
         self._identity_hypotheses = worker._identity_hypotheses
         self.last_commit_diagnostics = worker.last_commit_diagnostics
@@ -675,8 +712,9 @@ class WorldStateManager:
                             immutable_geometry(pred.geometry_world), frame.timestamp,
                             prior.last_verified_timestamp if prior else None,
                             immutable_array(pred.velocity_world) if velocity_ok else None,
-                            bool(pred.velocity_reliable and velocity_ok), pred.geometry_uncertainty)
+                            bool(pred.velocity_reliable and velocity_ok and not self.config.dynamic_motion_prediction), pred.geometry_uncertainty)
             a.source_score = pred.source_score
+            a.geometry_uncertainty_calibrated = pred.geometry_uncertainty_calibrated
             a.source_frame_id = frame.frame_id
             a.source_state_epoch = self.store.generation
             a.source_execution_signature = frame.execution_signature
@@ -752,6 +790,9 @@ class WorldStateManager:
                     a.certified_observation_count+=1
                     a.identity_link_qualified=True;a.association_basis='qualified_identity'
                     a.association_history[-1].update(status='qualified_identity',certified=True)
+            if self.config.dynamic_motion_prediction:
+                from .world_motion import update_world_motion
+                update_world_motion(prior,a,self.config)
             # New support always comes from an actually computed frame, never chained crops.
             for cid, camera in frame.cameras.items():
                 p = project_anchor(a, camera, self.config, validated_cameras[cid])
@@ -817,6 +858,7 @@ class WorldStateManager:
                 old=self._previous_cameras.get(cid)
                 if old is not None and e.dense_source_map is not None:
                     self._surface_history[cid]=(copy.copy(old),frame.cameras[cid].timestamp,immutable_array(e.dense_source_map))
+        old_cameras=self._previous_cameras
         if self.config.temporal_visibility or self.config.local_support:
             # Own only one bounded grayscale frame per camera, from actual computation.
             # precheck never replaces this source with an uncomputed/verified frame.
@@ -826,9 +868,29 @@ class WorldStateManager:
                 saved = copy.copy(camera)
                 saved.image = immutable_array(gray_image(camera))
                 saved.intrinsic = immutable_array(camera.intrinsic)
+                saved.raw_intrinsic = immutable_array(camera.raw_intrinsic)
+                saved.raw_to_image = immutable_array(camera.raw_to_image)
                 saved.world_to_camera = immutable_array(camera.world_to_camera)
                 saved.visibility_mask = None; saved.geometry_support_mask = None
                 self._previous_cameras[cid] = saved
+        self._depth_history = {}
+        if self.config.ego_motion_mode == 'depth':
+            from .ego_motion import measured_depth_history
+            for cid,e in self.last_evidence.items():
+                # Current actual detections are available only at Commit. Newly
+                # visible moving objects must not enter NEXT frame's static-ray
+                # search depth, even when absent from historical projections.
+                dynamic_mask=np.zeros(frame.cameras[cid].image.shape[:2],bool)
+                for aid in committed:
+                    anchor=self.store.anchors.get(aid)
+                    if anchor is None or anchor.anchor_type!='object' or anchor.semantic_class in STATIC_CLASSES:continue
+                    projection=project_anchor(anchor,frame.cameras[cid],self.config)
+                    if projection.region is not None:
+                        dynamic_mask[region_slices(projection.region,dynamic_mask.shape)]=True
+                self._depth_history[cid]=measured_depth_history(old_cameras.get(cid),self._previous_cameras[cid],e,
+                    self.config,dict(scene_id=frame.scene_id,frame_id=frame.frame_id,frame_digest=self._pending_digest,
+                        epoch=self.store.generation,execution_signature=frame.execution_signature,
+                        commit_version=self.store.commit_count),additional_exclusion=dynamic_mask)
         if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
             # Only actual successful commits enter this bounded tuple. A failed
             # transaction cannot append an image or advance a source timestamp.
@@ -837,6 +899,7 @@ class WorldStateManager:
                 timestamp=frame.timestamp,epoch=self.store.generation,execution_signature=frame.execution_signature,
                 cameras={cid:copy.copy(c) for cid,c in self._previous_cameras.items()},
                 camera_sha256={cid:camera_snapshot_digest(c) for cid,c in self._previous_cameras.items()},
+                commit_version=self.store.commit_count,depth_history=copy.deepcopy(self._depth_history),
                 anchors={aid:copy.deepcopy(self.store.anchors[aid]) for aid in committed if aid in self.store.anchors})
             self._identity_history=tuple(r for r in self._identity_history
                 if 0<frame.timestamp-r['timestamp']<=min(self.config.max_state_age_s,1.))+(record,)

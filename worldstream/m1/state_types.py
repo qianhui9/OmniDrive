@@ -45,6 +45,7 @@ class OnlineVisibilityEvidence:
     constraint_measurements: Optional[Dict[str, Any]] = None
     motion_risk_dirty_mask: Optional[np.ndarray] = None
     motion_risk_unknown_mask: Optional[np.ndarray] = None
+    motion_measurements: Optional[Dict[str, Any]] = None  # raw and initialized LK, conditional predictions
 
 
 @dataclass
@@ -59,6 +60,7 @@ class CameraFrame:
     timing_reliable: bool = True
     visibility_mask: Optional[np.ndarray] = None  # independently supported foreground visibility
     geometry_support_mask: Optional[np.ndarray] = None  # reliable dense surface support, not box interiors
+    raw_intrinsic: Optional[np.ndarray] = None  # when known, verify preprocessing ray mapping
 
 
 @dataclass
@@ -121,6 +123,8 @@ class WorldAnchor:
     physical_certification: Optional['PhysicalCertificationResult'] = None
     association_basis: str = 'unqualified_geometric_track'
     identity_link_qualified: bool = False
+    motion_history: List[dict] = field(default_factory=list)
+    motion_prediction: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -133,6 +137,7 @@ class PerceptionAnchor:
     velocity_reliable: bool = False
     geometry_uncertainty: float = 0.0
     source_score: Optional[float] = None
+    geometry_uncertainty_calibrated: bool = False
 
 
 @dataclass

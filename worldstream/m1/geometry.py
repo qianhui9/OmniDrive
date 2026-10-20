@@ -133,6 +133,10 @@ def predict_geometry(anchor, timestamp):
             raise ValueError("Invalid velocity")
         delta = velocity * dt
     g = anchor.geometry_world
+    if anchor.motion_prediction:
+        from .world_motion import prediction
+        motion=prediction(anchor,timestamp)
+        if motion is not None:delta=motion[0]-g.center
     return Geometry(g.points + delta, g.center + delta, g.size)
 
 
@@ -160,6 +164,13 @@ def region_slices(region, shape):
 
 def valid_projection_camera(camera):
     k = np.asarray(camera.intrinsic)
+    if camera.raw_intrinsic is not None:
+        raw=np.asarray(camera.raw_intrinsic);mapping=np.asarray(camera.raw_to_image)
+        if (raw.shape!=(3,3) or mapping.shape!=(3,3) or not np.isfinite(raw).all()
+                or not np.isfinite(mapping).all() or abs(np.linalg.det(raw))<1e-9
+                or abs(np.linalg.det(mapping))<1e-9 or k.shape!=(3,3)
+                or not np.allclose(k,mapping@raw,atol=1e-4,rtol=1e-5)):
+            return False
     return (valid_transform(camera.world_to_camera) and k.shape == (3, 3)
             and np.isfinite(k).all() and abs(np.linalg.det(k)) >= 1e-9
             and np.allclose(k[2], [0, 0, 1], atol=1e-5))

@@ -23,7 +23,7 @@ def sha(path):
     return h.hexdigest()
 
 
-def replay(output,frames=12,scenes=2,config='configs/worldstream_m1_effective.yaml',repeats=2):
+def replay(output,frames=12,scenes=2,config='configs/worldstream_m1_effective.yaml',repeats=2,scene_ids=None):
     from time import perf_counter, process_time
     from .scene_protocol import select_scenes,aggregate
     from .dataset import log_context_from_root
@@ -34,7 +34,14 @@ def replay(output,frames=12,scenes=2,config='configs/worldstream_m1_effective.ya
     with predictions.open('rb') as f:outputs=pickle.load(f)
     with infos_path.open('rb') as f:infos=pickle.load(f)['infos']
     context=log_context_from_root('data/nuscenes')
-    sequences,protocol=select_scenes(infos,set(outputs),scenes,frames,context)
+    sequences,protocol=select_scenes(infos,set(outputs),0 if scene_ids else scenes,frames,context)
+    if scene_ids:
+        if len(set(scene_ids))!=len(scene_ids) or set(scene_ids)-set(sequences):raise ValueError('Invalid fixed scene IDs')
+        sequences={s:sequences[s] for s in scene_ids}
+        for spec in protocol['scenes']:
+            spec.update(scheduled=spec['scene_id'] in sequences,status='Scheduled' if spec['scene_id'] in sequences else 'Not Run')
+        protocol.update(sampling_rule='Explicit frozen scene IDs; chronological available keyframe prefix',
+            scheduled_scene_count=len(sequences),unexecuted_scene_ids=[s['scene_id'] for s in protocol['scenes'] if s['scene_id'] not in sequences])
     protocol.update(population='Exploratory previously exposed scenes; no qualification',
         coordinates='resized_raw_image 640px; not full-model preprocessed_image',
         detection_source=str(predictions),detection_sha256=sha(predictions),
@@ -201,10 +208,11 @@ def main():
     parser.add_argument('--frames',type=int,default=12)
     parser.add_argument('--scenes',type=int,default=2,help='0: all available target scenes')
     parser.add_argument('--repeats',type=int,default=2)
+    parser.add_argument('--scene-ids',help='Comma-separated fixed target IDs')
     parser.add_argument('--config',default='configs/worldstream_m1_effective.yaml')
     parser.add_argument('--replay-output');parser.add_argument('--log');parser.add_argument('--summary')
     a=parser.parse_args()
-    if a.replay_output:replay(a.replay_output,a.frames,a.scenes,a.config,a.repeats)
+    if a.replay_output:replay(a.replay_output,a.frames,a.scenes,a.config,a.repeats,a.scene_ids.split(',') if a.scene_ids else None)
     if a.log:
         out=Path(a.summary)
         if out.exists():raise ValueError('Choose fresh summary')

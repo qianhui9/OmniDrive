@@ -75,12 +75,16 @@ def propose_foreground_correspondence(anchor, current_anchor, frame, previous_ca
     if (anchor.anchor_type!='object' or current_anchor.anchor_type!='object'
             or anchor.source_frame_id!=actual_source_frame_id or not source_frame_digest):
         reasons.append('actual_source_frame_unavailable')
+    if anchor.semantic_class not in {'barrier','traffic_cone'} or current_anchor.semantic_class not in {'barrier','traffic_cone'}:
+        reasons.append('dynamic_geometry_requires_independent_motion')
     if association_alternatives:reasons.append('identity_ambiguous')
     conflicts=0;contradictions=0
     for cid,cam in frame.cameras.items():
         old=previous_cameras.get(cid);e=evidence_by_camera.get(cid);obs=anchor.observation_support.get(cid)
         view=dict(camera=cid,reason='source_or_correspondence_missing',candidate_points=0,ring_points=0)
         views.append(view)
+        if 'dynamic_geometry_requires_independent_motion' in reasons:
+            view['reason']='dynamic_geometry_requires_independent_motion';continue
         if old is None or e is None or obs is None:continue
         if (abs(old.timestamp-obs.timestamp)>1e-5 or abs(e.source_timestamp-old.timestamp)>1e-5
                 or e.timestamp!=cam.timestamp or e.camera_id!=cid):

@@ -1,0 +1,45 @@
+{
+  "final_suite": {
+    "passed": 809,
+    "failed": 0,
+    "skipped": 0,
+    "artifact": "regression_delivery.xml"
+  },
+  "stages": [
+    {
+      "kind": "initial_new_synthetic_test",
+      "passed": 30,
+      "failed": 1,
+      "reason": "White-noise image resampling violated the existing LK intensity-error condition; test_real_image_rotation_tracking_and_low_texture found 0 valid tracks",
+      "fix": "Use a band-limited textured synthetic image with the same known geometric warp; no acceptance thresholds were changed",
+      "qualification_population": false
+    },
+    {
+      "kind": "interrupted_broad_M1_test_run",
+      "status": "Interrupted by task owner",
+      "complete_result_count": null,
+      "used_for_acceptance": false
+    },
+    {
+      "kind": "early_sandbox_regression",
+      "passed": 794,
+      "skipped": 1,
+      "failed": 0,
+      "skip_details": [
+        {
+          "test": "tests.worldstream_m2.test_execution.test_cuda_real_eva",
+          "reason": "CUDA unavailable"
+        }
+      ],
+      "used_for_final_pass_count": false
+    },
+    {
+      "kind": "earlier_complete_regression",
+      "passed": 803,
+      "failed": 0,
+      "skipped": 0,
+      "used_for_final_pass_count": false
+    }
+  ],
+  "interpretation": "Earlier failures/skips are retained and not erased or summed into the final unique pass population"
+}

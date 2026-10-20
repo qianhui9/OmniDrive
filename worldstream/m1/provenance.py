@@ -99,11 +99,13 @@ def export_state_audit(manager):
             identity_certified=certificate is not None, physical_or_geometry_certified=False,
             certified_claim=certificate.certified_claim if certificate else None,
             status='identity_certified' if certificate else ('observed' if a.observation_support else 'unknown'),
-            association_basis=a.association_basis))
+            association_basis=a.association_basis, motion_prediction=a.motion_prediction,
+            motion_history=a.motion_history))
     return copy.deepcopy(dict(scene_id=store.scene_id,log_token=manager._committed_log_token,frame_id=manager._previous_frame_id,
         timestamp=store.last_timestamp,state_epoch=store.generation,source_digest=store.source_digest(),
         execution_signature=store.execution_signature,transaction_status='committed' if store.last_timestamp is not None else 'empty',
-        anchors=rows, features=store.feature_versions(), certifications=certificates.to_dict(),
+        anchors=rows, depth_history={cid:{k:v for k,v in h.items() if k not in ('pixels','depths','uncertainty_m')} | {'points':len(h['pixels'])} for cid,h in manager._depth_history.items() if h is not None},
+        features=store.feature_versions(), certifications=certificates.to_dict(),
         last_transaction=manager.last_commit_diagnostics,
         invalidations={} if result is None else {k:result.diagnostics.get(k) for k in
             ('reset_reason','expired_anchor_ids','input_rejection','transaction_status')},

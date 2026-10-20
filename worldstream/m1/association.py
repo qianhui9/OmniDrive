@@ -89,6 +89,17 @@ def associate(anchors, predictions, timestamp, config):
             centers = np.asarray([predictions[j].geometry_world.center for j in indices])
             ratios = np.maximum(g.size / sizes, sizes / g.size)
             distances = np.linalg.norm(g.center - centers, axis=1)
+            if config.dynamic_motion_prediction:
+                from .world_motion import prediction
+                motion=prediction(old,timestamp)
+                if motion is not None:
+                    center,covariance=motion
+                    residuals=centers-center
+                    distances=np.linalg.norm(residuals,axis=1)
+                    # Fixed 2m gate still applies around the predicted centre;
+                    # uncertainty additionally consumes that gate's budget.
+                    uncertainty=3*np.sqrt(np.linalg.eigvalsh(covariance).max())
+                    distances=np.where(distances+uncertainty<=config.association_gate_m,distances,np.inf)
             legal = (~np.any(ratios > config.box_size_ratio, axis=1)
                      & (distances <= config.association_gate_m))
             costs[i, np.asarray(indices)[legal]] = distances[legal]

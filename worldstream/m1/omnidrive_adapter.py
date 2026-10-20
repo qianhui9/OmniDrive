@@ -80,14 +80,15 @@ def frame_from_model(img_metas, data, config, source_context=None):
             image = image[..., ::-1]
         image = np.clip(image, 0, 255).astype(np.uint8)
         k = intrinsics[i][:3, :3]
-        mapping, exact_pose = None, False
+        mapping, exact_pose, raw_intrinsic = None, False, None
         try:
             if cid in cam_infos:
                 info = cam_infos[cid]
                 camera_world = (quaternion_transform(info['ego2global_rotation'], info['ego2global_translation'])
                                 @ quaternion_transform(info['sensor2ego_rotation'], info['sensor2ego_translation']))
                 world_to_camera = inverse_transform(camera_world)
-                mapping = k @ np.linalg.inv(np.asarray(info['cam_intrinsic']))
+                raw_intrinsic = np.asarray(info['cam_intrinsic']).copy()
+                mapping = k @ np.linalg.inv(raw_intrinsic)
                 exact_pose = abs(info['timestamp'] / 1e6 - image_times[i]) < 1e-5
             else:
                 world_to_camera = extrinsics[i] @ inverse_transform(pose)
@@ -95,7 +96,7 @@ def frame_from_model(img_metas, data, config, source_context=None):
             world_to_camera = None
         timing = bool(exact_pose or abs(image_times[i] - timestamp) <= config.max_camera_skew_s)
         cameras[cid] = CameraFrame(cid, image, k, world_to_camera, float(image_times[i]),
-                                   "preprocessed_image", mapping, timing)
+                                   "preprocessed_image", mapping, timing, raw_intrinsic=raw_intrinsic)
     signature_info = {'model': config.model_id, 'normalization': {k: numpy_copy(v).tolist() for k, v in norm.items()},
                       'camera_order': ids, 'intrinsics': intrinsics.tolist(), 'extrinsics': extrinsics.tolist(),
                       'shapes': {k: list(c.image.shape) for k, c in cameras.items()},

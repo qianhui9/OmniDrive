@@ -44,6 +44,8 @@ class StateStore:
             value.observation_support = {cid:copy.copy(obs) for cid,obs in anchor.observation_support.items()}
             value.associated_feature_ids = list(anchor.associated_feature_ids)
             value.association_history = copy.deepcopy(anchor.association_history)
+            value.motion_history = copy.deepcopy(anchor.motion_history)
+            value.motion_prediction = copy.deepcopy(anchor.motion_prediction)
             value.physical_certification = copy.deepcopy(anchor.physical_certification)
             staged.anchors[key] = value
         staged.features = {key:self.feature_snapshot(value) for key,value in self.features.items()}
