@@ -1,0 +1,2014 @@
+{
+  "role": "Previously exposed evidence, not new experiments",
+  "sources": [
+    {
+      "path": "outputs/module1_final_validation_refinement/formal_go_nogo.json",
+      "status": "Available",
+      "sha256": "5469f0869c276cd2fba7d7f42546b882daeef988cf52e04992df9986ca71463d",
+      "value": {
+        "engineering_interface_freeze": "Go",
+        "candidate_quality_freeze": "No-Go",
+        "engineering_configuration": "configs/worldstream_m1_engineering_frozen.yaml",
+        "experimental_motion_default": false,
+        "conditional_reuse_authorization": "No-Go",
+        "formal_physical_certification": "No-Go",
+        "handoff_to_M2": "Go",
+        "remaining_M1_blockers": [
+          "Critical refresh targets unmet on exposed development population.",
+          "Sparse-only centres largely have no exact independent physical reference.",
+          "Missing historical anchors cannot provide motion envelopes for new/small objects.",
+          "Scope-aware engineering configuration still has higher M1 P50 than old Source-Linked; no natural vision speedup."
+        ],
+        "gates": {
+          "G1": {
+            "source_audit_natural": "passed",
+            "source_audit_repeat": "passed"
+          },
+          "G2": {
+            "research_targets_pass": false,
+            "fixed_old_events": 0,
+            "remaining_old_events": 14,
+            "new_failures": 0
+          },
+          "G3": {
+            "new_link_quality": {
+              "samples": 8925,
+              "scorable": 0,
+              "unscorable": 8925,
+              "scorable_fraction": 0.0,
+              "correct": 0,
+              "false": 0,
+              "error_rate": null,
+              "descriptive_iid_upper95": null,
+              "error_types": {},
+              "unscorable_reasons": {
+                "no_LiDAR_at_exact_candidate_pixel": 8869,
+                "depth_identity_or_visibility_reference_unavailable": 56
+              },
+              "scenes": [],
+              "logs": [],
+              "independence": "Descriptive interval only. Pixels/frames/objects from one log are correlated; no qualification."
+            }
+          },
+          "G4": {
+            "runtime": {
+              "old_source": {
+                "precheck_ms": {
+                  "p50": 173.34189696703106,
+                  "p95": 216.35251393308863,
+                  "samples": 96
+                },
+                "commit_ms": {
+                  "p50": 223.92263310030103,
+                  "p95": 1106.2323384685442,
+                  "samples": 96
+                },
+                "total_ms": {
+                  "p50": 383.2470014458522,
+                  "p95": 1280.798377643805,
+                  "samples": 96
+                },
+                "association_ms": {
+                  "p50": 197.2743704682216,
+                  "p95": 1069.157145509962,
+                  "samples": 96
+                },
+                "precheck_stages": {
+                  "temporal_correspondence": {
+                    "p50": 308.2326874136925,
+                    "p95": 406.62571287248284,
+                    "samples": 96
+                  },
+                  "dense_flow": {
+                    "p50": 172.9026158573106,
+                    "p95": 197.04852410359308,
+                    "samples": 96
+                  },
+                  "dense_validation": {
+                    "p50": 102.7294957311824,
+                    "p95": 276.36095514753833,
+                    "samples": 96
+                  },
+                  "projection": {
+                    "p50": 1.8417449900880456,
+                    "p95": 3.8729177322238684,
+                    "samples": 96
+                  },
+                  "computation_state_build": {
+                    "p50": 13.625967083498836,
+                    "p95": 61.769179825205356,
+                    "samples": 96
+                  },
+                  "snapshot_fork": {
+                    "p50": 0.6547040538862348,
+                    "p95": 1.5848230104893446,
+                    "samples": 96
+                  }
+                },
+                "commit_stages": {
+                  "commit_history_copy_ms": {
+                    "p50": 8.973968564532697,
+                    "p95": 15.296192490495741,
+                    "samples": 96
+                  },
+                  "snapshot_fork_ms": {
+                    "p50": 0.4693020600825548,
+                    "p95": 1.3142609968781471,
+                    "samples": 96
+                  },
+                  "cache_provenance_receipt_ms": {
+                    "p50": 0.0016365665942430496,
+                    "p95": 0.0024305772967636585,
+                    "samples": 96
+                  }
+                }
+              },
+              "current_optimized": {
+                "precheck_ms": {
+                  "p50": 190.32696506474167,
+                  "p95": 330.12769860215485,
+                  "samples": 96
+                },
+                "commit_ms": {
+                  "p50": 197.15259841177613,
+                  "p95": 950.5952549516223,
+                  "samples": 96
+                },
+                "total_ms": {
+                  "p50": 412.12866897694767,
+                  "p95": 1122.0348665956408,
+                  "samples": 96
+                },
+                "association_ms": {
+                  "p50": 174.5106636080891,
+                  "p95": 913.6425101314671,
+                  "samples": 96
+                },
+                "precheck_stages": {
+                  "temporal_correspondence": {
+                    "p50": 298.74976992141455,
+                    "p95": 417.1081315143965,
+                    "samples": 96
+                  },
+                  "dense_flow": {
+                    "p50": 164.71690603066236,
+                    "p95": 188.62844031536952,
+                    "samples": 96
+                  },
+                  "dense_validation": {
+                    "p50": 100.98062490578741,
+                    "p95": 279.2613319470547,
+                    "samples": 96
+                  },
+                  "projection": {
+                    "p50": 1.913963002152741,
+                    "p95": 4.041330539621413,
+                    "samples": 96
+                  },
+                  "computation_state_build": {
+                    "p50": 31.60566953010857,
+                    "p95": 174.1549667203799,
+                    "samples": 96
+                  },
+                  "snapshot_fork": {
+                    "p50": 0.6610190030187368,
+                    "p95": 1.626490498892963,
+                    "samples": 96
+                  }
+                },
+                "commit_stages": {
+                  "commit_history_copy_ms": {
+                    "p50": 6.78924738895148,
+                    "p95": 10.930751566775143,
+                    "samples": 96
+                  },
+                  "snapshot_fork_ms": {
+                    "p50": 0.4716354887932539,
+                    "p95": 1.2941117747686803,
+                    "samples": 96
+                  },
+                  "cache_provenance_receipt_ms": {
+                    "p50": 0.0019050203263759613,
+                    "p95": 0.0025335466489195824,
+                    "samples": 96
+                  }
+                }
+              },
+              "motion_only": {
+                "precheck_ms": {
+                  "p50": 193.2350000133738,
+                  "p95": 342.7035855129361,
+                  "samples": 96
+                },
+                "commit_ms": {
+                  "p50": 197.47480342630297,
+                  "p95": 932.8869986347854,
+                  "samples": 96
+                },
+                "total_ms": {
+                  "p50": 420.9349296288565,
+                  "p95": 1130.17630163813,
+                  "samples": 96
+                },
+                "association_ms": {
+                  "p50": 174.52679260168225,
+                  "p95": 900.9517102385871,
+                  "samples": 96
+                },
+                "precheck_stages": {
+                  "temporal_correspondence": {
+                    "p50": 305.1006292225793,
+                    "p95": 405.3108759690076,
+                    "samples": 96
+                  },
+                  "dense_flow": {
+                    "p50": 168.89400139916688,
+                    "p95": 192.67087895423174,
+                    "samples": 96
+                  },
+                  "dense_validation": {
+                    "p50": 105.86935188621283,
+                    "p95": 274.8701049131341,
+                    "samples": 96
+                  },
+                  "projection": {
+                    "p50": 1.9358496647328138,
+                    "p95": 3.9383089169859886,
+                    "samples": 96
+                  },
+                  "computation_state_build": {
+                    "p50": 33.22228300385177,
+                    "p95": 181.34000763529912,
+                    "samples": 96
+                  },
+                  "snapshot_fork": {
+                    "p50": 0.6560953333973885,
+                    "p95": 1.5411857166327536,
+                    "samples": 96
+                  }
+                },
+                "commit_stages": {
+                  "commit_history_copy_ms": {
+                    "p50": 6.792941479943693,
+                    "p95": 10.64917811891064,
+                    "samples": 96
+                  },
+                  "snapshot_fork_ms": {
+                    "p50": 0.4886174574494362,
+                    "p95": 1.2505442136898637,
+                    "samples": 96
+                  },
+                  "cache_provenance_receipt_ms": {
+                    "p50": 0.0018989667296409607,
+                    "p95": 0.00304332934319973,
+                    "samples": 96
+                  }
+                }
+              },
+              "measurement_only": {
+                "precheck_ms": {
+                  "p50": 186.86887645162642,
+                  "p95": 328.6652886890806,
+                  "samples": 96
+                },
+                "commit_ms": {
+                  "p50": 182.00102599803358,
+                  "p95": 842.3649690230377,
+                  "samples": 96
+                },
+                "total_ms": {
+                  "p50": 404.0342333028093,
+                  "p95": 1024.2936342256144,
+                  "samples": 96
+                },
+                "association_ms": {
+                  "p50": 158.64455001428723,
+                  "p95": 807.8712170245126,
+                  "samples": 96
+                },
+                "precheck_stages": {
+                  "temporal_correspondence": {
+                    "p50": 308.60391014721245,
+                    "p95": 407.1400782559067,
+                    "samples": 96
+                  },
+                  "dense_flow": {
+                    "p50": 167.38077031914145,
+                    "p95": 186.13867979729548,
+                    "samples": 96
+                  },
+                  "dense_validation": {
+                    "p50": 95.55597032885998,
+                    "p95": 263.3400025079027,
+                    "samples": 96
+                  },
+                  "projection": {
+                    "p50": 1.9317584810778499,
+                    "p95": 3.9146672934293747,
+                    "samples": 96
+                  },
+                  "computation_state_build": {
+                    "p50": 31.46837360691279,
+                    "p95": 174.76834659464657,
+                    "samples": 96
+                  },
+                  "snapshot_fork": {
+                    "p50": 0.6601985078305006,
+                    "p95": 1.537663338240236,
+                    "samples": 96
+                  }
+                },
+                "commit_stages": {
+                  "commit_history_copy_ms": {
+                    "p50": 6.829556077718735,
+                    "p95": 11.408691701944917,
+                    "samples": 96
+                  },
+                  "snapshot_fork_ms": {
+                    "p50": 0.4726675106212497,
+                    "p95": 1.3059189659543335,
+                    "samples": 96
+                  },
+                  "cache_provenance_receipt_ms": {
+                    "p50": 0.0016598496586084366,
+                    "p95": 0.0024665496312081814,
+                    "samples": 96
+                  }
+                }
+              },
+              "final": {
+                "precheck_ms": {
+                  "p50": 192.5993940094486,
+                  "p95": 337.3655781033449,
+                  "samples": 96
+                },
+                "commit_ms": {
+                  "p50": 185.8677250565961,
+                  "p95": 847.3281597835012,
+                  "samples": 96
+                },
+                "total_ms": {
+                  "p50": 413.8518839608878,
+                  "p95": 1042.9229580331594,
+                  "samples": 96
+                },
+                "association_ms": {
+                  "p50": 160.21512157749385,
+                  "p95": 811.0213115578517,
+                  "samples": 96
+                },
+                "precheck_stages": {
+                  "temporal_correspondence": {
+                    "p50": 300.02846161369234,
+                    "p95": 420.4281538259238,
+                    "samples": 96
+                  },
+                  "dense_flow": {
+                    "p50": 166.51600680779666,
+                    "p95": 191.11455127131194,
+                    "samples": 96
+                  },
+                  "dense_validation": {
+                    "p50": 98.98184845224023,
+                    "p95": 268.7842957675457,
+                    "samples": 96
+                  },
+                  "projection": {
+                    "p50": 1.9130054861307144,
+                    "p95": 3.974318446125835,
+                    "samples": 96
+                  },
+                  "computation_state_build": {
+                    "p50": 32.66941453330219,
+                    "p95": 182.67135747009888,
+                    "samples": 96
+                  },
+                  "snapshot_fork": {
+                    "p50": 0.6664696848019958,
+                    "p95": 1.5886265318840742,
+                    "samples": 96
+                  }
+                },
+                "commit_stages": {
+                  "commit_history_copy_ms": {
+                    "p50": 6.844083429314196,
+                    "p95": 11.179985827766359,
+                    "samples": 96
+                  },
+                  "snapshot_fork_ms": {
+                    "p50": 0.46103447675704956,
+                    "p95": 1.3368013314902782,
+                    "samples": 96
+                  },
+                  "cache_provenance_receipt_ms": {
+                    "p50": 0.0017815036699175835,
+                    "p95": 0.0027533387765288353,
+                    "samples": 96
+                  }
+                }
+              }
+            },
+            "measurement_only_vs_current": {
+              "p50_improved": true,
+              "p95_improved": true
+            },
+            "engineering_vs_old_source": {
+              "p50_improved": false,
+              "p95_improved": true
+            }
+          },
+          "G5": {
+            "exact_gates_changed": false,
+            "natural_camera_reuse": 0
+          },
+          "G6": {
+            "CUDA": "passed",
+            "state_equivalence": true
+          },
+          "G7": "No-Go"
+        },
+        "qualification": {
+          "Calibration": "Not Run",
+          "Heldout": "Not Run",
+          "Final_Test": "Not Run",
+          "Qualified_Certification": 0,
+          "Qualified_FAR": null
+        },
+        "stop": "Freeze verified engineering interface; keep candidates research-only and stop stacking physical certification methods."
+      }
+    },
+    {
+      "path": "outputs/module2_state_aware_incremental_reuse/formal_go_nogo.json",
+      "status": "Available",
+      "sha256": "e7c977c1bf6ad2bc996513dfe1ddf15ffa8a62b6c07128773da3d216c1cd5518",
+      "value": {
+        "m1_interface_freeze": "Go",
+        "exact_m2_preserved": "Yes",
+        "conditional_reuse_feasible": "No",
+        "conditional_reuse_quality_pass": "No",
+        "conditional_reuse_profitable": "No",
+        "production_conditional_reuse": "Disabled",
+        "remaining_m2_bottleneck": "No complete M1 source-supported natural windows; historical ABS/RoPE contextual outputs cannot be exactly relocated; validation/cache/M1 overhead exceeds zero natural allowed saving.",
+        "next_module_priority": "转向 M3",
+        "reason": {
+          "natural_complete_windows": 0,
+          "oracle_prefix_upper_ms": 43.63175400067121,
+          "unqualified_control": {
+            "checks": 12,
+            "includes_warmup_requests": true,
+            "frozen_target_pass": 1,
+            "feature_max_abs": 62.28582763671875,
+            "memory_max_abs": 114.69903564453125,
+            "output_max_abs": 99.51887512207031,
+            "text_equal": 10,
+            "planning_equal": 10,
+            "executed_intermediate_max_abs": 0.0,
+            "max_detection_center_m": 78.94449615478516,
+            "max_detection_unmatched": 4,
+            "max_map_coordinate_m": 8.408851623535156,
+            "max_matched_map_score_error": 0.024900510907173157,
+            "max_matched_memory_point_m": 85.08914184570312,
+            "max_matched_memory_embedding": 4.310250639915466,
+            "max_matched_memory_timestamp_error": 0.0,
+            "memory_matching_shape_failures": 0,
+            "parsed_planning": 12,
+            "layers": {
+              "patch": {
+                "max_abs": 0.0,
+                "relative_l2_max": 0.0,
+                "token_error_p95_max": 0.0
+              },
+              "0": {
+                "max_abs": 2.4631824493408203,
+                "relative_l2_max": 0.05642549321055412,
+                "token_error_p95_max": 4.032948756217956
+              },
+              "1": {
+                "max_abs": 2.4556148052215576,
+                "relative_l2_max": 0.06264928728342056,
+                "token_error_p95_max": 3.6255979418754567
+              },
+              "2": {
+                "max_abs": 2.3438940048217773,
+                "relative_l2_max": 0.05728422850370407,
+                "token_error_p95_max": 3.121253967285156
+              },
+              "23": {
+                "max_abs": 62.28582763671875,
+                "relative_l2_max": 0.1201806589961052,
+                "token_error_p95_max": 3.8291476130485536
+              }
+            }
+          },
+          "conditional_quality": "No M1-admitted displaced natural-window population. Safe full fallback does not certify approximate reuse."
+        },
+        "population": "exploratory_reused_population",
+        "Qualified_Certification": 0,
+        "Qualified_FAR": null,
+        "independent_qualification": {
+          "Calibration": "Not Run",
+          "Heldout": "Not Run",
+          "Final_Test": "Not Run"
+        },
+        "G1": "Pass",
+        "G2": "Measured No-Go",
+        "G3": "Measured diagnostic errors, no equivalence claim",
+        "G4": "Whole windows only; exact and conditional separated",
+        "G5": "Actual skipped work and CUDA kernel traces archived",
+        "G6": "Conditional unqualified/failed; existing frozen criteria unchanged",
+        "G7": "No-Go natural profitability",
+        "G8": "passed"
+      }
+    },
+    {
+      "path": "outputs/module2_state_aware_incremental_reuse/population_census.json",
+      "status": "Available",
+      "sha256": "db9368cec68b978a279cd133c9e6cdf8acb58c4a3524fc519615487a3da9ced5",
+      "value": {
+        "population": "exploratory_reused_population",
+        "scenes": [
+          {
+            "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+            "name": "scene-0269",
+            "description": "Parked bicycles, peds sitting outside the restaurant, parked scooter",
+            "frames": 12,
+            "cameras": [
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT",
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "gaps_s": [
+              0.399799108505249,
+              0.5999369621276855,
+              0.4998738765716553,
+              0.4998941421508789,
+              0.4998898506164551,
+              0.4998459815979004,
+              0.4993250370025635,
+              0.4998750686645508,
+              0.5004429817199707,
+              0.49930596351623535,
+              0.500432014465332
+            ],
+            "ego_yaw_range_degrees": 46.299523289009464,
+            "traveled_distance_m": 33.670725531484884,
+            "camera_timestamp_skew_s": {
+              "p50": -0.02512645721435547,
+              "p95": -0.0014902234077453606,
+              "samples": 72
+            },
+            "low_texture_patch_gray_std": {
+              "p50": 1.573406232713558,
+              "p95": 2.5767905217819624,
+              "samples": 72
+            },
+            "first_frame_exact_repeated_RGB_patches": 9
+          },
+          {
+            "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+            "name": "scene-0930",
+            "description": "Intersection, ped on sidewalk, motorcycle, parked cars, bushes",
+            "frames": 12,
+            "cameras": [
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT",
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "gaps_s": [
+              0.49985194206237793,
+              0.5004351139068604,
+              0.4998738765716553,
+              0.4998891353607178,
+              0.49985504150390625,
+              0.4994039535522461,
+              0.4997990131378174,
+              0.49989986419677734,
+              0.5004072189331055,
+              0.5004608631134033,
+              0.49983811378479004
+            ],
+            "ego_yaw_range_degrees": 20.96765963865823,
+            "traveled_distance_m": 28.30232429970947,
+            "camera_timestamp_skew_s": {
+              "p50": -0.023602008819580078,
+              "p95": -0.00022952556610107336,
+              "samples": 72
+            },
+            "low_texture_patch_gray_std": {
+              "p50": 2.2626856792126677,
+              "p95": 4.331010057139708,
+              "samples": 72
+            },
+            "first_frame_exact_repeated_RGB_patches": 14
+          },
+          {
+            "scene": "a178a1b5415f45c08d179bd2cacdf284",
+            "name": "scene-0108",
+            "description": "Construction zone, waiting for car to pass, turn right",
+            "frames": 12,
+            "cameras": [
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT",
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "gaps_s": [
+              0.5033001899719238,
+              0.44721293449401855,
+              0.3997979164123535,
+              0.5004279613494873,
+              0.5006411075592041,
+              0.49910688400268555,
+              0.4998781681060791,
+              0.49985694885253906,
+              0.5999610424041748,
+              0.500438928604126,
+              0.4998779296875
+            ],
+            "ego_yaw_range_degrees": 9.504324343288634,
+            "traveled_distance_m": 9.759894803095072,
+            "camera_timestamp_skew_s": {
+              "p50": -0.024581551551818848,
+              "p95": -0.0001647114753723143,
+              "samples": 72
+            },
+            "low_texture_patch_gray_std": {
+              "p50": 1.4160825433945994,
+              "p95": 2.329762275887967,
+              "samples": 72
+            },
+            "first_frame_exact_repeated_RGB_patches": 4
+          },
+          {
+            "scene": "a2b005c4dd654af48194ada18662c8ca",
+            "name": "scene-0914",
+            "description": "Rain, parking lot, bicycle rack, buses, jaywalker, parked scooter, arrive at intersection",
+            "frames": 12,
+            "cameras": [
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT",
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "gaps_s": [
+              0.5004022121429443,
+              0.49987292289733887,
+              0.5004110336303711,
+              0.4501378536224365,
+              0.4998960494995117,
+              0.5003831386566162,
+              0.49989795684814453,
+              0.4993019104003906,
+              0.39979004859924316,
+              0.4993479251861572,
+              0.5004210472106934
+            ],
+            "ego_yaw_range_degrees": 14.43571409384867,
+            "traveled_distance_m": 39.102565411513766,
+            "camera_timestamp_skew_s": {
+              "p50": -0.025478482246398926,
+              "p95": -0.002292072772979736,
+              "samples": 72
+            },
+            "low_texture_patch_gray_std": {
+              "p50": 1.3652643506569773,
+              "p95": 1.8989342479680893,
+              "samples": 72
+            },
+            "first_frame_exact_repeated_RGB_patches": 11
+          },
+          {
+            "scene": "a499ee875da34e2b9655afb999edb8a9",
+            "name": "scene-0346",
+            "description": "Cross intersection, scooter, nature, peds crossing",
+            "frames": 12,
+            "cameras": [
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT",
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "gaps_s": [
+              0.49965500831604004,
+              0.5004348754882812,
+              0.5004129409790039,
+              0.5010340213775635,
+              0.4992811679840088,
+              0.4998660087585449,
+              0.49932384490966797,
+              0.5004410743713379,
+              0.4998738765716553,
+              0.4998941421508789,
+              0.49987101554870605
+            ],
+            "ego_yaw_range_degrees": 0.009079028954239449,
+            "traveled_distance_m": 0.0,
+            "camera_timestamp_skew_s": {
+              "p50": -0.025711417198181152,
+              "p95": -0.0019172191619873046,
+              "samples": 72
+            },
+            "low_texture_patch_gray_std": {
+              "p50": 1.9539599363315991,
+              "p95": 2.80044529760674,
+              "samples": 72
+            },
+            "first_frame_exact_repeated_RGB_patches": 35
+          },
+          {
+            "scene": "a7d073bc435b4356a0a9a5ebfb61f229",
+            "name": "scene-0910",
+            "description": "Rain, parked cars, sign trailer, construction, construction vehicle, crane, cones, truck, ped with umbrella, cross intersection, bicycle, peds crossing crosswalk, bicyclist, potential jaywalkers",
+            "frames": 12,
+            "cameras": [
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT",
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "gaps_s": [
+              0.49986696243286133,
+              0.4993278980255127,
+              0.49932312965393066,
+              0.499906063079834,
+              0.4998459815979004,
+              0.6000139713287354,
+              0.4998290538787842,
+              0.49987292289733887,
+              0.5004448890686035,
+              0.49990010261535645,
+              0.499845027923584
+            ],
+            "ego_yaw_range_degrees": 1.2934875646386748,
+            "traveled_distance_m": 28.393276151959608,
+            "camera_timestamp_skew_s": {
+              "p50": -0.025112509727478027,
+              "p95": -0.0012897133827209472,
+              "samples": 72
+            },
+            "low_texture_patch_gray_std": {
+              "p50": 1.3981830156976094,
+              "p95": 2.0060776031693477,
+              "samples": 72
+            },
+            "first_frame_exact_repeated_RGB_patches": 0
+          },
+          {
+            "scene": "aacd6706a091407fb1b0e5343d27da7e",
+            "name": "scene-0969",
+            "description": "Cones, cars, many peds, changing lane, parking lot, parked cars, parked motorcycles",
+            "frames": 12,
+            "cameras": [
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT",
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "gaps_s": [
+              0.49987220764160156,
+              0.5004518032073975,
+              0.5014121532440186,
+              0.49887704849243164,
+              0.4998819828033447,
+              0.5004289150238037,
+              0.49988603591918945,
+              0.4999239444732666,
+              0.4495260715484619,
+              0.49985384941101074,
+              0.5004630088806152
+            ],
+            "ego_yaw_range_degrees": 2.365554056763876,
+            "traveled_distance_m": 9.123654590798678,
+            "camera_timestamp_skew_s": {
+              "p50": -0.024468064308166504,
+              "p95": -0.0006138086318969727,
+              "samples": 72
+            },
+            "low_texture_patch_gray_std": {
+              "p50": 1.3937311255074123,
+              "p95": 2.9652346378273577,
+              "samples": 72
+            },
+            "first_frame_exact_repeated_RGB_patches": 16
+          },
+          {
+            "scene": "acc29386502047339e1ec6b9c7e512d2",
+            "name": "scene-0221",
+            "description": "Pedestrian crossing, stopped vehicle",
+            "frames": 12,
+            "cameras": [
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT",
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "gaps_s": [
+              0.5999429225921631,
+              0.5004849433898926,
+              0.5003650188446045,
+              0.5004570484161377,
+              0.49984312057495117,
+              0.49986696243286133,
+              0.4998970031738281,
+              0.550163984298706,
+              0.49986886978149414,
+              0.4998781681060791,
+              0.4998748302459717
+            ],
+            "ego_yaw_range_degrees": 34.82807714400048,
+            "traveled_distance_m": 14.632851242330407,
+            "camera_timestamp_skew_s": {
+              "p50": -0.02518153190612793,
+              "p95": -0.0019880771636962887,
+              "samples": 72
+            },
+            "low_texture_patch_gray_std": {
+              "p50": 2.5373960978805306,
+              "p95": 4.795799480365974,
+              "samples": 72
+            },
+            "first_frame_exact_repeated_RGB_patches": 65
+          }
+        ],
+        "semantics": "Scene descriptions and measured ego yaw/texture are descriptive coverage evidence, not independent event/physical certification. No annotation identity or motion label enters admission."
+      }
+    },
+    {
+      "path": "outputs/module2_state_aware_incremental_reuse/source_aligned_feature_analysis.json",
+      "status": "Available",
+      "sha256": "eb5ae7b4acca1c758de4d4bc7ce7750636a3dc362c5b1945d0feb3d6392f43cf",
+      "value": {
+        "population": "exploratory_reused_population",
+        "frames": 96,
+        "camera_observations": 576,
+        "scenes": 8,
+        "observed_tokens": 129110,
+        "complete_source_tokens": 30306,
+        "complete_source_windows": 0,
+        "conflicting_tokens": 612,
+        "mapping_host_ms": {
+          "p50": 1.3901414349675179,
+          "p95": 141.44486701115966,
+          "samples": 576
+        },
+        "M1_M2_adapter_ms": {
+          "p50": 1.9849169766530395,
+          "p95": 3.2254481920972466,
+          "samples": 96
+        },
+        "probe_wall_ms": {
+          "p50": 15.37090609781444,
+          "p95": 18.468818673864007,
+          "samples": 528
+        },
+        "layers": {
+          "patch": {
+            "camera_frames": 349,
+            "tokens": 123332,
+            "maximum_max_abs": 26.036937713623047,
+            "maximum_relative_l2": 0.8528817296028137,
+            "max_abs": {
+              "p50": 6.431216239929199,
+              "p95": 13.89153251647949,
+              "samples": 349
+            },
+            "relative_l2": {
+              "p50": 0.4550812840461731,
+              "p95": 0.6434324979782104,
+              "samples": 349
+            },
+            "token_error_p50": {
+              "p50": 5.02247953414917,
+              "p95": 8.502953720092773,
+              "samples": 349
+            },
+            "token_error_p95": {
+              "p50": 11.050650596618652,
+              "p95": 17.998895263671876,
+              "samples": 349
+            },
+            "wrong_source_relative_l2": {
+              "p50": 0.5978294014930725,
+              "p95": 0.7687277436256406,
+              "samples": 349
+            },
+            "wrong_source_control": "Roll previous features one token horizontally before measured alignment; diagnostic intervention only"
+          },
+          "block_0": {
+            "camera_frames": 349,
+            "tokens": 123332,
+            "maximum_max_abs": 14.870973587036133,
+            "maximum_relative_l2": 0.5744006633758545,
+            "max_abs": {
+              "p50": 5.252052307128906,
+              "p95": 9.087025642395014,
+              "samples": 349
+            },
+            "relative_l2": {
+              "p50": 0.4354245662689209,
+              "p95": 0.5287091970443726,
+              "samples": 349
+            },
+            "token_error_p50": {
+              "p50": 8.665669441223145,
+              "p95": 11.287393188476562,
+              "samples": 349
+            },
+            "token_error_p95": {
+              "p50": 12.93798828125,
+              "p95": 16.370980072021485,
+              "samples": 349
+            },
+            "wrong_source_relative_l2": {
+              "p50": 0.5533787608146667,
+              "p95": 0.6303450107574462,
+              "samples": 349
+            },
+            "wrong_source_control": "Roll previous features one token horizontally before measured alignment; diagnostic intervention only"
+          },
+          "block_1": {
+            "camera_frames": 349,
+            "tokens": 123332,
+            "maximum_max_abs": 7.0221052169799805,
+            "maximum_relative_l2": 0.7026601433753967,
+            "max_abs": {
+              "p50": 3.3639793395996094,
+              "p95": 5.161490440368651,
+              "samples": 349
+            },
+            "relative_l2": {
+              "p50": 0.5576490759849548,
+              "p95": 0.6343497991561889,
+              "samples": 349
+            },
+            "token_error_p50": {
+              "p50": 9.15101146697998,
+              "p95": 10.693905448913574,
+              "samples": 349
+            },
+            "token_error_p95": {
+              "p50": 11.828710556030273,
+              "p95": 14.170482063293449,
+              "samples": 349
+            },
+            "wrong_source_relative_l2": {
+              "p50": 0.7283187508583069,
+              "p95": 0.8157901525497436,
+              "samples": 349
+            },
+            "wrong_source_control": "Roll previous features one token horizontally before measured alignment; diagnostic intervention only"
+          },
+          "block_2": {
+            "camera_frames": 349,
+            "tokens": 123332,
+            "maximum_max_abs": 6.276235103607178,
+            "maximum_relative_l2": 0.7913140654563904,
+            "max_abs": {
+              "p50": 2.724895477294922,
+              "p95": 3.9326927661895743,
+              "samples": 349
+            },
+            "relative_l2": {
+              "p50": 0.6077229380607605,
+              "p95": 0.6859550714492798,
+              "samples": 349
+            },
+            "token_error_p50": {
+              "p50": 9.721335411071777,
+              "p95": 11.386543083190917,
+              "samples": 349
+            },
+            "token_error_p95": {
+              "p50": 12.255316734313965,
+              "p95": 14.606929969787597,
+              "samples": 349
+            },
+            "wrong_source_relative_l2": {
+              "p50": 0.8125080466270447,
+              "p95": 0.9000706672668457,
+              "samples": 349
+            },
+            "wrong_source_control": "Roll previous features one token horizontally before measured alignment; diagnostic intervention only"
+          },
+          "block_23": {
+            "camera_frames": 349,
+            "tokens": 123332,
+            "maximum_max_abs": 77.50374603271484,
+            "maximum_relative_l2": 1.145735502243042,
+            "max_abs": {
+              "p50": 56.76524353027344,
+              "p95": 66.80341491699218,
+              "samples": 349
+            },
+            "relative_l2": {
+              "p50": 0.6973786354064941,
+              "p95": 0.8710801124572752,
+              "samples": 349
+            },
+            "token_error_p50": {
+              "p50": 16.512290954589844,
+              "p95": 22.5221996307373,
+              "samples": 349
+            },
+            "token_error_p95": {
+              "p50": 46.63047790527344,
+              "p95": 56.61733932495117,
+              "samples": 349
+            },
+            "wrong_source_relative_l2": {
+              "p50": 0.865428626537323,
+              "p95": 1.041874647140503,
+              "samples": 349
+            },
+            "wrong_source_control": "Roll previous features one token horizontally before measured alignment; diagnostic intervention only"
+          }
+        },
+        "raw": "aligned_probe_raw.json",
+        "different_interval_probe": {
+          "source": "temporal_gap_probe/aligned_probe_raw.json",
+          "frames": 48,
+          "frame_stride": 2,
+          "camera_observations": 288,
+          "complete_source_windows": 0,
+          "observed_tokens": 24890,
+          "complete_tokens": 6500,
+          "source_age_s": {
+            "p50": 0.9997100830078125,
+            "p95": 0.999809980392456,
+            "samples": 1836
+          }
+        },
+        "population_census": "population_census.json",
+        "source_identity": "M1 measured observation association; no independent physical certification",
+        "gate": "Whole window, all measured pixels, consistent source displacement, no dirty/unknown/conflicts, valid source lease and producer version",
+        "diagnostic_only": "All features actually computed. Partial-token interpolation never authorizes prefix skip.",
+        "legacy_probe": "legacy_probe_raw.json"
+      }
+    },
+    {
+      "path": "outputs/module2_state_aware_incremental_reuse/reuse_feasibility_upper_bound.json",
+      "status": "Available",
+      "sha256": "db4eb0cb3838be906a47f79cb019dadfcc69baaca967a69b5d2c1f9d71e94772",
+      "value": {
+        "full_EVA": {
+          "gpu_ms": 466.32896423339844,
+          "wall_ms": 466.3638749625534,
+          "gpu_p95_ms": 467.68116455078126,
+          "wall_p95_ms": 467.7070666453801,
+          "gpu_samples_ms": [
+            465.0751953125,
+            464.6686706542969,
+            465.3025207519531,
+            465.88287353515625,
+            466.7750549316406,
+            465.8779296875,
+            467.37689208984375,
+            467.1272888183594,
+            466.9154968261719,
+            467.93011474609375
+          ],
+          "wall_samples_ms": [
+            465.10308398865163,
+            464.6923108957708,
+            465.32358205877244,
+            465.90471221134067,
+            466.8086979072541,
+            465.91905201785266,
+            467.4080030526966,
+            467.18664304353297,
+            466.9362590648234,
+            467.9517550393939
+          ]
+        },
+        "ideal_tail_after_block1": {
+          "gpu_ms": 422.7010040283203,
+          "wall_ms": 422.7321209618822,
+          "gpu_p95_ms": 423.55342559814454,
+          "wall_p95_ms": 423.5723830293864,
+          "gpu_samples_ms": [
+            422.1214599609375,
+            422.656005859375,
+            422.7460021972656,
+            422.513671875,
+            421.3514099121094,
+            423.04510498046875,
+            422.4593811035156,
+            423.5016784667969,
+            423.5581359863281,
+            423.54766845703125
+          ],
+          "wall_samples_ms": [
+            422.14836715720594,
+            422.68348298966885,
+            422.7807589340955,
+            422.5483131594956,
+            421.3790697976947,
+            423.07267477735877,
+            422.48442699201405,
+            423.5205890145153,
+            423.5784360207617,
+            423.56498492881656
+          ]
+        },
+        "ideal_saving_wall_ms": 43.63175400067121,
+        "patch": {
+          "gpu_ms": 1.197424054145813,
+          "wall_ms": 1.2048525968566537,
+          "gpu_p95_ms": 1.2229344069957733,
+          "wall_p95_ms": 1.2335203122347593,
+          "gpu_samples_ms": [
+            1.2257280349731445,
+            1.2195199728012085,
+            1.2177280187606812,
+            1.2001279592514038,
+            1.1960320472717285,
+            1.1960320472717285,
+            1.1970560550689697,
+            1.1977920532226562,
+            1.1970560550689697,
+            1.1970560550689697
+          ],
+          "wall_samples_ms": [
+            1.238370081409812,
+            1.2275928165763617,
+            1.2254819739609957,
+            1.2073791585862637,
+            1.2040019501000643,
+            1.203151885420084,
+            1.2042720336467028,
+            1.2044960167258978,
+            1.2047190684825182,
+            1.2049861252307892
+          ]
+        },
+        "component_GPU_intervals_ms": {
+          "patch": [
+            1.1991039514541626,
+            1.1970560550689697,
+            1.18886399269104,
+            1.1980799436569214,
+            1.1878399848937988,
+            1.18886399269104,
+            1.1929600238800049,
+            1.2113920450210571,
+            1.201151967048645,
+            1.1980799436569214
+          ],
+          "block_0": [
+            19.914751052856445,
+            19.81337547302246,
+            19.710752487182617,
+            19.560447692871094,
+            19.504127502441406,
+            20.098047256469727,
+            19.741695404052734,
+            19.86969566345215,
+            19.586048126220703,
+            19.949567794799805
+          ],
+          "block_1": [
+            19.379199981689453,
+            19.42527961730957,
+            19.49286460876465,
+            19.629056930541992,
+            19.3832950592041,
+            19.525632858276367,
+            19.301376342773438,
+            19.570688247680664,
+            19.579999923706055,
+            19.44576072692871
+          ],
+          "block_2": [
+            17.587200164794922,
+            17.40287971496582,
+            17.513471603393555,
+            17.63737678527832,
+            17.495040893554688,
+            17.499135971069336,
+            17.51353645324707,
+            17.518592834472656,
+            17.62508773803711,
+            17.4335994720459
+          ],
+          "block_3": [
+            20.06528091430664,
+            19.67308807373047,
+            19.721216201782227,
+            19.755008697509766,
+            19.79596710205078,
+            19.68230438232422,
+            19.787776947021484,
+            19.713024139404297,
+            19.807231903076172,
+            19.85843276977539
+          ],
+          "block_4": [
+            20.083711624145508,
+            19.65977668762207,
+            19.822847366333008,
+            19.678207397460938,
+            19.800064086914062,
+            19.67616081237793,
+            19.808256149291992,
+            19.808256149291992,
+            19.794944763183594,
+            19.961856842041016
+          ],
+          "block_5": [
+            17.772544860839844,
+            17.486848831176758,
+            17.64352035522461,
+            17.506303787231445,
+            17.703935623168945,
+            17.61382484436035,
+            17.62816047668457,
+            17.62713623046875,
+            17.638399124145508,
+            17.692672729492188
+          ],
+          "block_6": [
+            19.949567794799805,
+            19.794944763183594,
+            19.947519302368164,
+            19.66796875,
+            19.941375732421875,
+            19.80415916442871,
+            19.80415916442871,
+            19.809280395507812,
+            19.82054328918457,
+            19.825664520263672
+          ],
+          "block_7": [
+            19.947519302368164,
+            19.801088333129883,
+            19.950592041015625,
+            19.701759338378906,
+            19.945472717285156,
+            19.80441665649414,
+            19.807231903076172,
+            19.811328887939453,
+            19.826751708984375,
+            19.82361602783203
+          ],
+          "block_8": [
+            17.763328552246094,
+            17.62508773803711,
+            17.752063751220703,
+            17.64454460144043,
+            17.759296417236328,
+            17.62611198425293,
+            17.655807495117188,
+            17.62928009033203,
+            17.64454460144043,
+            17.64249610900879
+          ],
+          "block_9": [
+            19.952640533447266,
+            19.81439971923828,
+            19.938304901123047,
+            19.82259178161621,
+            19.926111221313477,
+            19.801088333129883,
+            19.916799545288086,
+            19.807231903076172,
+            19.82464027404785,
+            19.818496704101562
+          ],
+          "block_10": [
+            19.85740852355957,
+            19.702783584594727,
+            19.946495056152344,
+            19.82156753540039,
+            19.819520950317383,
+            19.80415916442871,
+            19.972095489501953,
+            19.80518341064453,
+            19.818496704101562,
+            19.819520950317383
+          ],
+          "block_11": [
+            17.64044761657715,
+            17.515520095825195,
+            17.771520614624023,
+            17.645631790161133,
+            17.638399124145508,
+            17.63225555419922,
+            17.888416290283203,
+            17.62713623046875,
+            17.65171241760254,
+            17.661951065063477
+          ],
+          "block_12": [
+            19.807231903076172,
+            19.782655715942383,
+            19.8287353515625,
+            19.82054328918457,
+            19.82361602783203,
+            19.803136825561523,
+            20.350976943969727,
+            19.809280395507812,
+            19.958784103393555,
+            19.780607223510742
+          ],
+          "block_13": [
+            19.793920516967773,
+            19.81235122680664,
+            19.81439971923828,
+            19.82156753540039,
+            19.808256149291992,
+            19.807231903076172,
+            20.07961654663086,
+            19.80415916442871,
+            19.960832595825195,
+            19.671039581298828
+          ],
+          "block_14": [
+            17.62099266052246,
+            17.64249610900879,
+            17.64044761657715,
+            17.646591186523438,
+            17.639423370361328,
+            17.62816047668457,
+            17.700864791870117,
+            17.63532829284668,
+            17.778688430786133,
+            17.508352279663086
+          ],
+          "block_15": [
+            19.80518341064453,
+            19.8154239654541,
+            19.909631729125977,
+            19.82464027404785,
+            20.06425666809082,
+            19.800064086914062,
+            19.834880828857422,
+            20.001792907714844,
+            19.956735610961914,
+            19.67616081237793
+          ],
+          "block_16": [
+            19.86662483215332,
+            19.87481689453125,
+            19.904512405395508,
+            19.892223358154297,
+            20.000768661499023,
+            19.894271850585938,
+            19.88915252685547,
+            20.04070472717285,
+            20.30284881591797,
+            19.761152267456055
+          ],
+          "block_17": [
+            17.6363525390625,
+            17.689599990844727,
+            17.67340850830078,
+            17.692672729492188,
+            17.673215866088867,
+            17.707008361816406,
+            17.709056854248047,
+            17.81452751159668,
+            17.711103439331055,
+            17.562623977661133
+          ],
+          "block_18": [
+            19.727359771728516,
+            19.816448211669922,
+            19.86252784729004,
+            19.876863479614258,
+            19.875839233398438,
+            19.90656089782715,
+            19.85331153869629,
+            19.935232162475586,
+            19.894271850585938,
+            19.903488159179688
+          ],
+          "block_19": [
+            19.65465545654297,
+            19.6628475189209,
+            19.803136825561523,
+            19.80415916442871,
+            19.80518341064453,
+            19.8154239654541,
+            19.65875244140625,
+            19.799039840698242,
+            19.818496704101562,
+            19.810304641723633
+          ],
+          "block_20": [
+            17.517568588256836,
+            17.484800338745117,
+            17.62816047668457,
+            17.630207061767578,
+            17.740800857543945,
+            17.64556884765625,
+            17.501184463500977,
+            17.746944427490234,
+            17.65171241760254,
+            17.630207061767578
+          ],
+          "block_21": [
+            19.817472457885742,
+            19.689472198486328,
+            19.84511947631836,
+            19.799039840698242,
+            19.952640533447266,
+            19.962879180908203,
+            19.746912002563477,
+            20.100095748901367,
+            20.123647689819336,
+            20.206592559814453
+          ],
+          "block_22": [
+            20.074495315551758,
+            19.92508888244629,
+            20.06937599182129,
+            19.931135177612305,
+            20.077728271484375,
+            20.08576011657715,
+            20.220928192138672,
+            20.16579246520996,
+            20.295679092407227,
+            20.374528884887695
+          ],
+          "block_23": [
+            17.771583557128906,
+            17.62099266052246,
+            17.759231567382812,
+            17.617919921875,
+            17.65990447998047,
+            17.656831741333008,
+            17.900543212890625,
+            17.769472122192383,
+            17.784832000732422,
+            17.778688430786133
+          ]
+        },
+        "interpretation": "Impossible current-input oracle excludes M1, validation, alignment, packing and cache. Not actual reuse or permission.",
+        "oracle_scope_clarification": "Full EVA minus cached block-1 tail also removes PE/ABS, so this is a deliberately loose entire-frontend oracle. Conditional runtime still computes PE.",
+        "separate_original_block0_block1_measurement": {
+          "timing": {
+            "gpu_ms": 39.371774673461914,
+            "wall_ms": 39.50514446478337,
+            "gpu_p95_ms": 41.180670738220215,
+            "wall_p95_ms": 41.19851686991751,
+            "gpu_samples_ms": [
+              39.15865707397461,
+              39.27040100097656,
+              39.8284797668457,
+              39.66387176513672,
+              39.61548614501953,
+              39.61433410644531,
+              39.6124153137207,
+              39.36761474609375,
+              39.36665725708008,
+              39.365440368652344,
+              39.372798919677734,
+              39.37062454223633,
+              39.3625602722168,
+              39.36336135864258,
+              39.370750427246094,
+              39.35820770263672,
+              40.277984619140625,
+              42.241024017333984,
+              41.12486267089844,
+              40.16128158569336
+            ],
+            "wall_samples_ms": [
+              40.57237901724875,
+              39.282168028876185,
+              39.84015993773937,
+              39.675524923950434,
+              39.625367149710655,
+              39.625067031010985,
+              39.623034885153174,
+              39.378208108246326,
+              39.37792987562716,
+              39.376706816256046,
+              39.38725404441357,
+              39.38255715183914,
+              39.37531216070056,
+              39.37376500107348,
+              39.38185586594045,
+              39.36768602579832,
+              40.28838500380516,
+              42.2565289773047,
+              41.14283202216029,
+              40.17214197665453
+            ]
+          },
+          "input_shape": [
+            6,
+            40,
+            40,
+            1024
+          ],
+          "input_stride": [
+            1638400,
+            40960,
+            1024,
+            1
+          ],
+          "dtype": "torch.float32",
+          "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+          "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+          "GPU": "NVIDIA GeForce RTX 3090",
+          "torch": "1.13.1+cu117",
+          "cuda": "11.7",
+          "scope": "Only original block 0 + block 1, excludes PE and ABS addition. Actual execution, not reuse qualification."
+        }
+      }
+    },
+    {
+      "path": "outputs/module3_refinement/state_feasibility.json",
+      "status": "Available",
+      "sha256": "6bcced313444cfe1845c3d4a71c2b662e24f2be30056998495cedcbec4019cf6",
+      "value": {
+        "activated_questions": 0,
+        "verified_history_records": 28,
+        "unique_frame_anchor_pairs": 7,
+        "observed_verified_classes": {
+          "traffic_cone": 20,
+          "barrier": 8
+        },
+        "reasons": {
+          "full_scene_task_requires_visual": 232,
+          "no_task_relevant_verified_history": 68,
+          "partial_history_cannot_establish_count_or_absence": 20
+        },
+        "decision": "Feasibility No-Go: no usable verified historical task input",
+        "provenance_rule": "M1 precheck snapshot before current perception commit; stale/same-frame new predictions rejected",
+        "source_frame_ids": "Unknown: current M1 anchors retain timestamps/cameras but not source frame IDs",
+        "source": "outputs/module3_refinement/multi_20261017_005514/frames.jsonl",
+        "extended_history": {
+          "summary": {
+            "complete": true,
+            "frames": 48,
+            "scenes": 3,
+            "frames_per_scene": 16,
+            "verified_history_records": 0,
+            "task_queries_with_valid_context": 0,
+            "controlled_context_frames": 0,
+            "controlled_qa_rows": 0,
+            "weights_versions_unchanged": true,
+            "decision": "Feasibility No-Go on this longer history workload"
+          },
+          "source": "outputs/module3_refinement/state_sweep_02",
+          "coverage_sha256": "dd3c1a958f990b36585578f200bbaf7aee5ddf63ce4dd667e3aaf47df7057724",
+          "source_sha256_matches_current": {
+            "worldstream/m3/config.py": true,
+            "worldstream/m3/numerics.py": true,
+            "worldstream/m3/task_conditioner.py": true,
+            "worldstream/m3/prefix_kv_cache.py": true,
+            "worldstream/m3/runtime.py": true,
+            "worldstream/m3/batched_executor.py": true,
+            "worldstream/m3/scheduler.py": true,
+            "worldstream/m3/prefill_executor.py": true,
+            "worldstream/m3/world_state.py": true,
+            "worldstream/m3/carrier_selector.py": true,
+            "worldstream/m3/projection_precision.py": true,
+            "worldstream/m3/__init__.py": true,
+            "worldstream/m3/visual_state.py": true,
+            "worldstream/m3/prefix_matcher.py": true,
+            "projects/mmdet3d_plugin/models/detectors/petr3d.py": true
+          },
+          "verification_rejections": {
+            "motion_unknown": 405,
+            "no_reliable_view": 971,
+            "observation_mismatch": 516,
+            "no_historical_observation": 209,
+            "projected_occlusion": 140,
+            "temporal_support_insufficient": 10,
+            "temporal_source_missing": 1
+          },
+          "note": "Perception/M1 feasibility only; no synthetic QA and no VLM latency claim",
+          "additional_cache_controls": {
+            "persistent_capture": {
+              "wall_ms": {
+                "p50": 0.9220514912158251,
+                "p95": 0.9300245903432369,
+                "count": 10
+              },
+              "gpu_interval_ms": {
+                "p50": 0.9150559902191162,
+                "p95": 0.9230063855648041,
+                "count": 10
+              },
+              "cache_bytes": 307383385,
+              "samples": 10,
+              "warmup": 2,
+              "scope": "Owned persistent full-prompt KV+expanded input+last logits capture; warm CUDA allocator, cold cache slot"
+            },
+            "batch_cache_immutable": {
+              "verified_all_elements": true,
+              "layers": 32,
+              "prefix_tokens": 558,
+              "token_counts": [
+                88,
+                35,
+                125,
+                15,
+                29
+              ],
+              "max_new_tokens": 320,
+              "diagnostics": {
+                "mode": "batched",
+                "requests": [
+                  {
+                    "input_tokens": 577,
+                    "reused_tokens": 0,
+                    "effective_prefill_tokens": 577,
+                    "shared_prefix_tokens": 558,
+                    "visual_tokens": 513,
+                    "mode": "batched"
+                  },
+                  {
+                    "input_tokens": 570,
+                    "reused_tokens": 558,
+                    "effective_prefill_tokens": 12,
+                    "shared_prefix_tokens": 558,
+                    "visual_tokens": 513,
+                    "mode": "batched"
+                  },
+                  {
+                    "input_tokens": 576,
+                    "reused_tokens": 558,
+                    "effective_prefill_tokens": 18,
+                    "shared_prefix_tokens": 558,
+                    "visual_tokens": 513,
+                    "mode": "batched"
+                  },
+                  {
+                    "input_tokens": 575,
+                    "reused_tokens": 558,
+                    "effective_prefill_tokens": 17,
+                    "shared_prefix_tokens": 558,
+                    "visual_tokens": 513,
+                    "mode": "batched"
+                  },
+                  {
+                    "input_tokens": 579,
+                    "reused_tokens": 558,
+                    "effective_prefill_tokens": 21,
+                    "shared_prefix_tokens": 558,
+                    "visual_tokens": 513,
+                    "mode": "batched"
+                  }
+                ],
+                "batch": {
+                  "admitted": true,
+                  "reason": "offline_shared_prefix_greedy_batch",
+                  "batch_size": 5,
+                  "shared_prefix_tokens": 558,
+                  "actual_reused_tokens": 2232,
+                  "suffix_lengths": [
+                    19,
+                    12,
+                    18,
+                    17,
+                    21
+                  ],
+                  "suffix_padding_tokens": 18,
+                  "decode_padding_tokens": 333,
+                  "effective_prefill_tokens": 645,
+                  "physical_prefill_tokens": 663,
+                  "estimated_workspace_bytes": 4726789120,
+                  "persistent_bytes": 297265790,
+                  "shared_prefix_is_readonly": true,
+                  "full_sequence_equality_guaranteed": false,
+                  "llm_cpu_enqueue_ms": 4214.781656162813,
+                  "requests": [
+                    {
+                      "input_tokens": 577,
+                      "reused_tokens": 0,
+                      "effective_prefill_tokens": 577,
+                      "shared_prefix_tokens": 558,
+                      "visual_tokens": 513,
+                      "mode": "batched"
+                    },
+                    {
+                      "input_tokens": 570,
+                      "reused_tokens": 558,
+                      "effective_prefill_tokens": 12,
+                      "shared_prefix_tokens": 558,
+                      "visual_tokens": 513,
+                      "mode": "batched"
+                    },
+                    {
+                      "input_tokens": 576,
+                      "reused_tokens": 558,
+                      "effective_prefill_tokens": 18,
+                      "shared_prefix_tokens": 558,
+                      "visual_tokens": 513,
+                      "mode": "batched"
+                    },
+                    {
+                      "input_tokens": 575,
+                      "reused_tokens": 558,
+                      "effective_prefill_tokens": 17,
+                      "shared_prefix_tokens": 558,
+                      "visual_tokens": 513,
+                      "mode": "batched"
+                    },
+                    {
+                      "input_tokens": 579,
+                      "reused_tokens": 558,
+                      "effective_prefill_tokens": 21,
+                      "shared_prefix_tokens": 558,
+                      "visual_tokens": 513,
+                      "mode": "batched"
+                    }
+                  ]
+                },
+                "cache_bytes": 297265790,
+                "signature_cpu_ms": 5.582011071965098,
+                "m2_required": false
+              }
+            },
+            "numerical_path_source": "outputs/module3_refinement/state_sweep_02/final_probes/numerical_paths.json"
+          }
+        }
+      }
+    },
+    {
+      "path": "outputs/module3_refinement/numerical_summary.json",
+      "status": "Available",
+      "sha256": "1115da0d3863d708ecb8ebaec8ad62130e598a3450d4b740eadf20b39c5d98e5",
+      "value": {
+        "native": {
+          "frames": 12,
+          "questions": 60,
+          "token_equal": 59,
+          "wall_ms": {
+            "p50": 7109.119017026387,
+            "p95": 8086.667209328152,
+            "count": 12
+          },
+          "prefill_gpu_ms": {
+            "p50": 290.4512014389038,
+            "p95": 294.89449701309206,
+            "count": 12
+          },
+          "decode_gpu_ms": {
+            "p50": 6759.055247306824,
+            "p95": 7732.706081104278,
+            "count": 12
+          },
+          "peak_allocated_gib": {
+            "p50": 15.530996084213257,
+            "p95": 15.58100073337555,
+            "count": 12
+          },
+          "limitation": "One real-carrier replay per observed frame; separate from continuous VLM E2E. Original numerical_02 unfiltered decode max includes different histories after divergence.",
+          "first_divergent_generated_tokens": [
+            28
+          ],
+          "prefill_logits_max_abs": 0.0390625,
+          "layer0_prefix_kv_max_abs": 0.005859375,
+          "all_layers_prefix_kv_max_abs": 0.03125,
+          "controlled_failed_frame_two_question_same_history": {
+            "questions": 2,
+            "prefill_logits_max_abs": 0.02734375,
+            "decode_logits_max_abs": 0.03125,
+            "source": "outputs/module3_refinement/multi_20261017_005514/controlled_probes/same_history_logits.json",
+            "source_sha256": "8818b8d1a5faf13cdcc25ff24b8f5259346127ddaf5f6b727a83f3aeb64c9927"
+          }
+        },
+        "deterministic": {
+          "frames": 12,
+          "questions": 60,
+          "token_equal": 59,
+          "wall_ms": {
+            "p50": 7117.80556011945,
+            "p95": 8129.411060444545,
+            "count": 12
+          },
+          "prefill_gpu_ms": {
+            "p50": 292.4882049560547,
+            "p95": 295.6245090484619,
+            "count": 12
+          },
+          "decode_gpu_ms": {
+            "p50": 6764.11834526062,
+            "p95": 7770.181251049042,
+            "count": 12
+          },
+          "peak_allocated_gib": {
+            "p50": 15.541782140731812,
+            "p95": 15.581586003303528,
+            "count": 12
+          },
+          "limitation": "One real-carrier replay per observed frame; separate from continuous VLM E2E. Original numerical_02 unfiltered decode max includes different histories after divergence.",
+          "first_divergent_generated_tokens": [
+            28
+          ],
+          "prefill_logits_max_abs": 0.0390625,
+          "layer0_prefix_kv_max_abs": 0.005859375,
+          "all_layers_prefix_kv_max_abs": 0.03125,
+          "controlled_failed_frame_two_question_same_history": {
+            "questions": 2,
+            "prefill_logits_max_abs": 0.02734375,
+            "decode_logits_max_abs": 0.03125,
+            "source": "outputs/module3_refinement/multi_20261017_005514/controlled_probes/same_history_logits.json",
+            "source_sha256": "8818b8d1a5faf13cdcc25ff24b8f5259346127ddaf5f6b727a83f3aeb64c9927"
+          }
+        },
+        "no_fp16_reduction": {
+          "frames": 12,
+          "questions": 60,
+          "token_equal": 52,
+          "wall_ms": {
+            "p50": 6860.482929972932,
+            "p95": 7851.275726198219,
+            "count": 12
+          },
+          "prefill_gpu_ms": {
+            "p50": 292.9085922241211,
+            "p95": 296.26683807373047,
+            "count": 12
+          },
+          "decode_gpu_ms": {
+            "p50": 6507.982254981995,
+            "p95": 7486.5760014534,
+            "count": 12
+          },
+          "peak_allocated_gib": {
+            "p50": 15.541766881942749,
+            "p95": 15.580683827400208,
+            "count": 12
+          },
+          "limitation": "One real-carrier replay per observed frame; separate from continuous VLM E2E. Original numerical_02 unfiltered decode max includes different histories after divergence.",
+          "first_divergent_generated_tokens": [
+            18,
+            32,
+            70,
+            74,
+            20,
+            85,
+            28,
+            15
+          ],
+          "prefill_logits_max_abs": 0.05078125,
+          "layer0_prefix_kv_max_abs": 0.0,
+          "all_layers_prefix_kv_max_abs": 0.03125,
+          "controlled_failed_frame_two_question_same_history": {
+            "questions": 2,
+            "prefill_logits_max_abs": 0.02734375,
+            "decode_logits_max_abs": 0.046875,
+            "source": "outputs/module3_refinement/multi_20261017_005514/controlled_probes/same_history_logits.json",
+            "source_sha256": "8818b8d1a5faf13cdcc25ff24b8f5259346127ddaf5f6b727a83f3aeb64c9927"
+          }
+        },
+        "fp32_lora": {
+          "frames": 12,
+          "questions": 60,
+          "token_equal": 59,
+          "wall_ms": {
+            "p50": 7123.252304038033,
+            "p95": 8132.304359215777,
+            "count": 12
+          },
+          "prefill_gpu_ms": {
+            "p50": 292.78584003448486,
+            "p95": 295.7878276824951,
+            "count": 12
+          },
+          "decode_gpu_ms": {
+            "p50": 6770.124717712402,
+            "p95": 7773.202978229522,
+            "count": 12
+          },
+          "peak_allocated_gib": {
+            "p50": 15.541766881942749,
+            "p95": 15.580683827400208,
+            "count": 12
+          },
+          "limitation": "One real-carrier replay per observed frame; separate from continuous VLM E2E. Original numerical_02 unfiltered decode max includes different histories after divergence.",
+          "first_divergent_generated_tokens": [
+            28
+          ],
+          "prefill_logits_max_abs": 0.0390625,
+          "layer0_prefix_kv_max_abs": 0.005859375,
+          "all_layers_prefix_kv_max_abs": 0.03125,
+          "controlled_failed_frame_two_question_same_history": {
+            "questions": 2,
+            "prefill_logits_max_abs": 0.02734375,
+            "decode_logits_max_abs": 0.03125,
+            "source": "outputs/module3_refinement/multi_20261017_005514/controlled_probes/same_history_logits.json",
+            "source_sha256": "8818b8d1a5faf13cdcc25ff24b8f5259346127ddaf5f6b727a83f3aeb64c9927"
+          }
+        },
+        "independent_common_prefix": {
+          "frames": 12,
+          "questions": 60,
+          "token_equal": 52,
+          "wall_ms": {
+            "p50": 7125.32090197783,
+            "p95": 8080.948977638036,
+            "count": 12
+          },
+          "prefill_gpu_ms": {
+            "p50": 324.59190368652344,
+            "p95": 327.80456647872927,
+            "count": 12
+          },
+          "decode_gpu_ms": {
+            "p50": 6746.290845870972,
+            "p95": 7701.432156848908,
+            "count": 12
+          },
+          "peak_allocated_gib": {
+            "p50": 15.807542324066162,
+            "p95": 15.856245589256286,
+            "count": 12
+          },
+          "limitation": "One real-carrier replay per observed frame; separate from continuous VLM E2E. Original numerical_02 unfiltered decode max includes different histories after divergence.",
+          "first_divergent_generated_tokens": [
+            18,
+            45,
+            128,
+            26,
+            20,
+            85,
+            28,
+            15
+          ],
+          "prefill_logits_max_abs": 0.052734375,
+          "full_replay_same_history_decode_logits_max_abs": 0.0806884765625
+        }
+      }
+    },
+    {
+      "path": "outputs/module3_refinement/cost_table.json",
+      "status": "Available",
+      "sha256": "d80a9199717199907817e514d037d4f3414b3ec282ae4fd79a17a6494fb221e2",
+      "value": {
+        "approved": [],
+        "reason": "No automatically published per-workload production calibration",
+        "evidence": "outputs/module3_refinement/performance_results.json"
+      }
+    },
+    {
+      "path": "outputs/module3_refinement/quality_certificate.json",
+      "status": "Available",
+      "sha256": "ad85bae8b3ab0b493ab93599601fe026a5e00981f84b2fbd3d4cde4710611cb8",
+      "value": {
+        "approved": [],
+        "reason": "Frozen failures and/or missing independent task/generation coverage; no threshold relaxation",
+        "evidence": "outputs/module3_refinement/quality_results.json"
+      }
+    },
+    {
+      "path": "outputs/system_optimization_v5/go_nogo_decisions.json",
+      "status": "Available",
+      "sha256": "e639d9db6802270bbdcd97a86c8eda95bc2d628c166af7d113caa8d12aa25228",
+      "value": {
+        "H1": {
+          "decision": "No-Go under current evidence interface",
+          "certified": 0,
+          "independent_quality_pass": false,
+          "reason": "No independent identity/foreground producer; finite 95% scene-calibrated bound unsupported"
+        },
+        "B": {
+          "decision": "Conditional text dependencies found, grounding unresolved; no online consumption",
+          "lexical": 4881,
+          "reviewed": 48,
+          "input_complete": 0
+        },
+        "H2": {
+          "decision": "No-Go for tested frozen compact representation",
+          "quality_and_net_compute_pass": false,
+          "not_a_proof_against_all_possible_formats": true
+        },
+        "D": {
+          "decision": "Not Run / No-Go",
+          "reason": "No independent identity/foreground-supported facts or grounded input-complete original tasks; no runtime retrieval/heuristic prompt insertion developed"
+        },
+        "E": {
+          "decision": "Go within measured audited contract with stage timers off",
+          "strict_quality": true
+        },
+        "research_direction": "Dependency-Safe VLM Runtime",
+        "stop_unvalidated_state_and_feature_cache_stacking": true,
+        "online_new_fact_or_compact_enabled": false
+      }
+    }
+  ]
+}
