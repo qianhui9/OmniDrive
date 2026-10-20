@@ -1,0 +1,79 @@
+{
+  "mathematical_closure": false,
+  "state_evidence_qualified": false,
+  "performance_opportunity_go": false,
+  "state_evidence_go": false,
+  "dependency_closure_go": false,
+  "actual_cross_frame_reuse_go": false,
+  "numerical_correctness_go": false,
+  "frozen_task_quality_go": false,
+  "gpu_net_savings_go": false,
+  "e2e_speedup_go": false,
+  "production_go": false,
+  "active_numerical_status": "Not Run",
+  "active_quality_status": "Not Run",
+  "active_e2e_status": "Not Run",
+  "P0": "Refined; historical results preserved",
+  "P1": "Coarse boundary audit completed / No-Go",
+  "P2": "Not Implemented / No-Go",
+  "stop_reason": "No whole-subgraph dependency closure or sufficient state evidence. Large oracle time alone does not authorize reuse.",
+  "four_mode_protocol": {
+    "status": "Retained / Not Run",
+    "modes": [
+      "Native Original",
+      "Persistent Full",
+      "State Shadow",
+      "Stateful Active"
+    ],
+    "primary": "Persistent Full vs Stateful Active",
+    "ablation": "Disable historical reuse, retain identical other engineering"
+  },
+  "population": {
+    "original_task": "planning",
+    "task_classifier_label": "global_safety",
+    "population": "Exploratory",
+    "native_multi_cross_frame_requalification": "Not Run",
+    "scenes": 8,
+    "unique_frames": 96,
+    "service_requests": 192,
+    "measured_requests_per_mode": 88,
+    "profile_requests": 2,
+    "witness_requests": 8,
+    "independent_heldout_scenes": 0
+  },
+  "provenance": {
+    "raw_run": "outputs/stateful_cross_frame_boundary/gpu_run01",
+    "head": "57ddef9c28c69a8ad32f3e78d38aaaca00331b92",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "checkpoint_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+    "dataset": {
+      "path": "./data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl",
+      "sha256": "f432aa166d0f6c0ffe9dd22fb92352ec02d02709f87d7c28dd7095351b1bfba7"
+    },
+    "seed": 0,
+    "sampling": {
+      "do_sample": true,
+      "temperature": 0.1,
+      "top_p": 0.75,
+      "max_new_tokens": 320,
+      "num_beams": 1,
+      "use_cache": true
+    },
+    "population": {
+      "original_task": "planning",
+      "task_classifier_label": "global_safety",
+      "population": "Exploratory",
+      "native_multi_cross_frame_requalification": "Not Run",
+      "scenes": 8,
+      "unique_frames": 96,
+      "service_requests": 192,
+      "measured_requests_per_mode": 88,
+      "profile_requests": 2,
+      "witness_requests": 8,
+      "independent_heldout_scenes": 0
+    },
+    "environment_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/environment.json",
+    "effective_generation_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/effective_generation.json",
+    "executed_source_manifest_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/source_manifest.json"
+  }
+}

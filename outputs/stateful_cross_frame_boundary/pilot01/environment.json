@@ -1,0 +1,61 @@
+{
+  "commit": "57ddef9c28c69a8ad32f3e78d38aaaca00331b92",
+  "python": "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+  "torch": "1.13.1+cu117",
+  "cuda": "11.7",
+  "transformers": "4.31.0",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "cpu_affinity": [
+    0,
+    1,
+    2,
+    3,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "seed": 0,
+  "checkpoint_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+  "tokenizer": {
+    "ckpts/pretrain_qformer/tokenizer.model": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347",
+    "ckpts/pretrain_qformer/tokenizer_config.json": "1289035338093b74b983fa6292da44b3b9692ffb965442aacb6926d96826a2e2"
+  },
+  "sampling": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "max_new_tokens": 320,
+    "num_beams": 1,
+    "use_cache": true
+  },
+  "tf32_matmul": false,
+  "tf32_cudnn": true,
+  "argv": {
+    "output": "outputs/stateful_cross_frame_boundary/pilot01",
+    "scenes": 2,
+    "frames": 4
+  }
+}

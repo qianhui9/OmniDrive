@@ -2,6 +2,7 @@
 import argparse
 from collections import Counter
 import json
+import math
 from pathlib import Path
 
 from .common import counts, manifest, protected_files, sha256, source_evidence, stats, write
@@ -76,18 +77,49 @@ def candidate_profitability(temporal, kv, questions, frames):
         interpretation='Diagnostic serial CPU wall. CUDA event intervals include launch gaps, are not kernel sums. Summed layer deltas describe the same candidate plan, not additive E2E speedup. No production qualification.')
 
 
+def opportunity_gate(evidence):
+    """Research admission, never a production certificate or a local cost vote.
+
+    Unknown/missing evidence is a rejection. State evidence must match the
+    candidate's claim (tensor computation provenance is distinct from physical
+    object identity). A positive microbenchmark alone cannot admit research.
+    """
+    required = ('historical_sources_legal', 'mathematical_closure',
+        'state_evidence_qualified', 'avoids_native_repeated_work',
+        'net_cost_probe_positive', 'whole_service_upper_bound_worthwhile',
+        'validation_plan_executable')
+    missing = [name for name in required if evidence.get(name) is not True]
+    values = [evidence.get(name) for name in
+              ('optimistic_gpu_savings_upper_ms','minimum_required_savings_ms')]
+    valid = all(isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(v) and v>=0 for v in values)
+    scope_positive = valid and values[0] > values[1]
+    if not scope_positive:
+        missing.append('insufficient_compute_scope_or_unmeasured_service_cost')
+    return dict(mathematical_closure=evidence.get('mathematical_closure') is True,
+        state_evidence_qualified=evidence.get('state_evidence_qualified') is True,
+        performance_opportunity_go=bool(scope_positive and evidence.get('net_cost_probe_positive') is True
+            and evidence.get('whole_service_upper_bound_worthwhile') is True),
+        research_go=not missing, production_go=False, stop_reasons=missing,
+        active_task_quality='Not Run', active_e2e='Not Run', sampling_distribution='Not Certified')
+
+
 def build(root, output, regression=None):
+    if output.resolve() == root.resolve() or output.resolve() == root.parent.resolve():
+        raise ValueError('Preserve historical experiments: choose a new analysis output directory')
     protocol, frames, states, questions = validate_run(root)
     output.mkdir(parents=True, exist_ok=True)
     temporal_rows = read(root, 'temporal_rows.json')
     temporal = read(root, 'temporal_cost_probes.json')
     kv = read(root, 'kv_cost_probes.json')
     profit = candidate_profitability(temporal, kv, questions, frames)
-    # This tool deliberately refuses to invent a No-Go when the measurements
-    # instead require the next user-authorized implementation phase.
-    p0_go = profit['any_profitable_candidate']
-    stage_reason = ('P0 has a profitable mathematical candidate; P1/correctness remains required.' if p0_go else
-        'P0 No-Go: no measured candidate has positive net cost across measured scene units; no new execution mechanism authorized.')
+    # Local positive timing is only a cost diagnostic. Previous evidence has
+    # neither qualified execution nor a complete-service opportunity contract.
+    admission = opportunity_gate(dict(mathematical_closure=bool(temporal or kv),
+        historical_sources_legal=bool(temporal or kv), state_evidence_qualified=False,
+        avoids_native_repeated_work=False, net_cost_probe_positive=profit['any_profitable_candidate']))
+    p0_go = admission['research_go']
+    stage_reason = ('P0 research prerequisites passed; numerical/task qualification remains required.' if p0_go else
+        'P0 No-Go: qualified state, dependency-safe work avoidance and complete-service opportunity contract are required; local timings alone do not admit execution.')
     archived_paths = [
         'outputs/module1_final_validation_refinement/formal_go_nogo.json',
         'outputs/module2_state_aware_incremental_reuse/formal_go_nogo.json',
@@ -116,13 +148,13 @@ def build(root, output, regression=None):
         'temporal_full_head_or_attention': dict(status='No-Go',
             counts=counts(transitions*2, transitions*2), unit='frame transition × head',
             reason='Current query, current visual features, pose/time-dependent key positions, and updated FIFO memory change the computation closure. Native temporal memory is already part of the baseline.'),
-        'temporal_value_projection': dict(status='Candidate only; '+('P0 Go' if any(profit['temporal_positive_in_all_measured_scenes'].values()) else 'No-Go on measured net cost'),
+        'temporal_value_projection': dict(status='Local cost candidate only' if any(profit['temporal_positive_in_all_measured_scenes'].values()) else 'No-Go on measured net cost',
             counts=counts(len(temporal_rows), len(temporal_rows)), unit='head layer invocation',
             potential_retained_rows=sum(r['identical_value_input_rows'] for r in temporal_rows),
             complete_v_input_rows=sum(r['retained_source_rows'] for r in temporal_rows),
             equal_k_input_rows=sum(r['identical_key_input_rows'] for r in temporal_rows),
             reason='Only Wv(value) has a row-local closure; its source equality, gather and concatenation cost is measured. No Q/K/attention/head skipped.'),
-        'cross_frame_prefix_kv': dict(status='Candidate only; '+('P0 Go' if profit['prefix_positive_in_all_measured_scenes'] else 'No-Go on measured net cost'),
+        'cross_frame_prefix_kv': dict(status='Local cost candidate only' if profit['prefix_positive_in_all_measured_scenes'] else 'No-Go on measured net cost',
             counts=counts(len(questions), len(cross)), unit='native question',
             nonzero_cross_frame_matches=sum(q['actual_exact_lcp'] > 0 for q in cross),
             minimum32_matches=sum(q['actual_exact_lcp'] >= 32 for q in cross),
@@ -135,6 +167,8 @@ def build(root, output, regression=None):
             unit='native question', historical_text_candidates=sum(q['state_query']['admitted'] for q in questions),
             task_complete_inputs=0, reason='Partial M1 history is not complete planning/scene evidence; physical validity cannot replace full multimodal input.')}
     census = dict(schema_version=1, stage='P0', status='completed', population='Exploratory',
+        original_task='planning', task_classifier_label='global_safety',
+        native_multi_cross_frame_requalification='Not Run',
         provenance=str(root), scenes=nscenes, frames=nframes, transitions=transitions,
         camera_observations=6*nframes, questions=len(questions), tasks=dict(Counter(q['task'] for q in questions)),
         m1=dict(anchor_observations=sum(len(s['anchors']) for s in states),
@@ -191,6 +225,8 @@ def build(root, output, regression=None):
         prefix_prefill_diagnostics=dict(probes=len(kv), last_logits_bitwise_equal=sum(p['last_logits_bitwise_equal'] for p in kv),
             max_abs=max((p['last_logits_max_abs'] for p in kv), default=None),
             original_sampling_distribution_certified=False),
+        sampling_distribution_status='Not Certified', active_task_quality_status='Not Run',
+        active_e2e_status='Not Run', numerical_local_differences_measured=True,
         active_mechanism_tests=dict(status='Not Run', reason='No new execution mechanism implemented before P0 gate.'),
         note='Equal diagnostic rows or passed existing regression do not certify an active strategy.'))
     write(output/'downstream_task_quality.json', dict(status='Not Run', reason=stage_reason,
@@ -214,6 +250,11 @@ def build(root, output, regression=None):
         P2='Not Run', P3='Not Run', reason=stage_reason,
         scope='state_evidence_go refers to formally certified M1 task/physical state. dependency_closure_go is limited to mathematical V-linear/text-prefix boundaries; never a full head or sampling guarantee.',
         production_status='Disabled', research_qualification='Exploratory only')
+    formal.update(admission=admission, mathematical_closure=admission['mathematical_closure'],
+        state_evidence_qualified=admission['state_evidence_qualified'],
+        performance_opportunity_go=admission['performance_opportunity_go'],
+        active_task_quality_status='Not Run', active_e2e_status='Not Run',
+        numerical_qualification_status='Not Certified; local differences measured')
     write(output/'formal_go_nogo.json', formal)
     write(output/'delivery_manifest.json', dict(raw_artifacts=manifest(root.glob('*.json')),
         protected_current_matches_run=manifest(protected_files()) == read(root,'protected_before.json'),
@@ -273,7 +314,7 @@ P0 成本探针保留 Native 全量执行。V-only 候选和前缀候选均有�
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run', type=Path, required=True)
-    parser.add_argument('--output', type=Path, default=Path('outputs/stateful_cross_frame_opportunity'))
+    parser.add_argument('--output', type=Path, required=True, help='Fresh analysis directory; historical output is protected')
     parser.add_argument('--regression', type=Path)
     args = parser.parse_args()
     formal = build(args.run, args.output, args.regression)

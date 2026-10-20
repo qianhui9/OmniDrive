@@ -1,0 +1,4796 @@
+[
+  {
+    "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+    "frame": "3613b5ea52bc46d0966fede34be89d38",
+    "ordinal": 1,
+    "profiled_model_wall_ms": 3787.2821160126477,
+    "profiler_teardown_wall_ms": 32678.23355202563,
+    "trace": "outputs/stateful_cross_frame_boundary/pilot01/traces/0_1.json",
+    "summary": {
+      "attribution_valid": false,
+      "device_activity_ms": 2776.7359999997952,
+      "device_compute_kernel_ms": 2772.3199999997387,
+      "device_activity_count": 198628,
+      "attached_activity_ms": 3163.0940000010332,
+      "attached_activity_count": 228040,
+      "stages": {
+        "input_adapter": {
+          "kernel_ms": 0.0,
+          "transfer_ms": 1.9659999999999995,
+          "kernel_count": 0,
+          "activity_count": 7
+        },
+        "eva": {
+          "kernel_ms": 536.9609999999996,
+          "transfer_ms": 0.18700000000000014,
+          "kernel_count": 1282,
+          "activity_count": 1386
+        },
+        "other_model": {
+          "kernel_ms": 0.8530000000000004,
+          "transfer_ms": 0.03300000000000001,
+          "kernel_count": 92,
+          "activity_count": 107
+        },
+        "perception_position": {
+          "kernel_ms": 2.1449999999999996,
+          "transfer_ms": 0.004,
+          "kernel_count": 66,
+          "activity_count": 73
+        },
+        "detection": {
+          "kernel_ms": 25.82099999999992,
+          "transfer_ms": 0.403,
+          "kernel_count": 820,
+          "activity_count": 885
+        },
+        "map": {
+          "kernel_ms": 32.69899999999999,
+          "transfer_ms": 0.5680000000000001,
+          "kernel_count": 805,
+          "activity_count": 876
+        },
+        "llm_sampling_and_preparation": {
+          "kernel_ms": 30.044999999999884,
+          "transfer_ms": 1.0449999999999968,
+          "kernel_count": 6388,
+          "activity_count": 7814
+        },
+        "llm_prefill": {
+          "kernel_ms": 187.0460000000004,
+          "transfer_ms": 0.007,
+          "kernel_count": 3137,
+          "activity_count": 3157
+        },
+        "llm_decode": {
+          "kernel_ms": 2342.8859999983383,
+          "transfer_ms": 0.4250000000000003,
+          "kernel_count": 207336,
+          "activity_count": 213735
+        }
+      },
+      "inclusive_scope_kernel_ms": {
+        "eva|request": 536.9609999999996,
+        "eva|eva": 536.9609999999996,
+        "eva|eva/block_0": 25.218,
+        "eva|eva/attention_0": 9.958,
+        "eva|eva/ffn_0": 11.057000000000004,
+        "eva|eva/block_1": 27.471999999999998,
+        "eva|eva/attention_1": 14.477000000000002,
+        "eva|eva/ffn_1": 11.421000000000001,
+        "eva|eva/block_2": 20.843999999999994,
+        "eva|eva/attention_2": 7.696,
+        "eva|eva/ffn_2": 10.671,
+        "eva|eva/block_3": 22.592999999999993,
+        "eva|eva/attention_3": 10.5,
+        "eva|eva/ffn_3": 10.317,
+        "eva|eva/block_4": 21.451999999999995,
+        "eva|eva/attention_4": 9.121999999999998,
+        "eva|eva/ffn_4": 10.831000000000003,
+        "eva|eva/block_5": 21.687,
+        "eva|eva/attention_5": 7.409999999999999,
+        "eva|eva/ffn_5": 13.31,
+        "eva|eva/block_6": 23.421,
+        "eva|eva/attention_6": 10.84,
+        "eva|eva/ffn_6": 10.252,
+        "eva|eva/block_7": 26.909,
+        "eva|eva/attention_7": 11.805,
+        "eva|eva/ffn_7": 13.428,
+        "eva|eva/block_8": 25.305999999999997,
+        "eva|eva/attention_8": 9.870999999999999,
+        "eva|eva/ffn_8": 14.373000000000001,
+        "eva|eva/block_9": 25.083,
+        "eva|eva/attention_9": 12.653000000000002,
+        "eva|eva/ffn_9": 10.524999999999999,
+        "eva|eva/block_10": 25.757,
+        "eva|eva/attention_10": 10.02,
+        "eva|eva/ffn_10": 11.932000000000002,
+        "eva|eva/block_11": 20.206999999999994,
+        "eva|eva/attention_11": 8.567,
+        "eva|eva/ffn_11": 10.523000000000001,
+        "eva|eva/block_12": 21.110999999999997,
+        "eva|eva/attention_12": 9.353,
+        "eva|eva/ffn_12": 10.247000000000002,
+        "eva|eva/block_13": 20.619999999999997,
+        "eva|eva/attention_13": 8.877,
+        "eva|eva/ffn_13": 10.226999999999999,
+        "eva|eva/block_14": 18.392999999999997,
+        "eva|eva/attention_14": 7.173999999999998,
+        "eva|eva/ffn_14": 10.248000000000001,
+        "eva|eva/block_15": 20.674,
+        "eva|eva/attention_15": 8.826999999999998,
+        "eva|eva/ffn_15": 10.334999999999999,
+        "eva|eva/block_16": 20.752999999999993,
+        "eva|eva/attention_16": 8.915999999999999,
+        "eva|eva/ffn_16": 10.301,
+        "eva|eva/block_17": 18.556999999999995,
+        "eva|eva/attention_17": 7.251999999999999,
+        "eva|eva/ffn_17": 10.260000000000002,
+        "eva|eva/block_18": 20.656999999999996,
+        "eva|eva/attention_18": 8.945999999999998,
+        "eva|eva/ffn_18": 10.204,
+        "eva|eva/block_19": 20.950999999999986,
+        "eva|eva/attention_19": 9.213,
+        "eva|eva/ffn_19": 10.225000000000007,
+        "eva|eva/block_20": 18.430999999999994,
+        "eva|eva/attention_20": 7.239999999999997,
+        "eva|eva/ffn_20": 10.218000000000002,
+        "eva|eva/block_21": 21.937,
+        "eva|eva/attention_21": 9.054,
+        "eva|eva/ffn_21": 11.369,
+        "eva|eva/block_22": 22.452999999999996,
+        "eva|eva/attention_22": 9.228999999999997,
+        "eva|eva/ffn_22": 11.703000000000001,
+        "eva|eva/block_23": 19.158999999999995,
+        "eva|eva/attention_23": 7.893,
+        "eva|eva/ffn_23": 10.258000000000004,
+        "other_model|request": 0.8530000000000004,
+        "perception_position|request": 2.1449999999999996,
+        "perception_position|perception_position": 2.1449999999999996,
+        "detection|request": 25.82099999999992,
+        "detection|detection/pre_update_memory": 0.08800000000000005,
+        "detection|detection": 25.82099999999992,
+        "detection|detection/input_projection": 0.37,
+        "detection|head_shared/query_pos": 0.147,
+        "detection|detection/temporal_alignment": 1.3819999999999986,
+        "detection|head_shared/ego_pose_pe": 0.19,
+        "detection|head_shared/time_embedding": 0.054,
+        "detection|detection/self_attention_0": 1.1359999999999997,
+        "detection|detection/cross_attention_0": 0.7870000000000001,
+        "detection|detection/ffn_0": 0.236,
+        "detection|detection/self_attention_1": 0.9530000000000001,
+        "detection|detection/cross_attention_1": 1.6720000000000002,
+        "detection|detection/ffn_1": 0.20900000000000002,
+        "detection|detection/self_attention_2": 0.9860000000000001,
+        "detection|detection/cross_attention_2": 1.2469999999999999,
+        "detection|detection/ffn_2": 0.21400000000000002,
+        "detection|detection/self_attention_3": 2.2559999999999993,
+        "detection|detection/cross_attention_3": 0.756,
+        "detection|detection/ffn_3": 0.508,
+        "detection|detection/self_attention_4": 2.3860000000000006,
+        "detection|detection/cross_attention_4": 0.796,
+        "detection|detection/ffn_4": 0.228,
+        "detection|detection/self_attention_5": 0.9980000000000001,
+        "detection|detection/cross_attention_5": 1.0030000000000001,
+        "detection|detection/ffn_5": 1.133,
+        "detection|detection/output_projection": 0.043,
+        "detection|detection/post_update_memory": 0.5380000000000001,
+        "map|request": 32.69899999999999,
+        "map|map": 32.69899999999999,
+        "map|map/pre_update_memory": 0.11400000000000002,
+        "map|map/input_projection": 0.359,
+        "map|head_shared/query_pos": 0.48800000000000004,
+        "map|map/temporal_alignment": 2.2119999999999984,
+        "map|head_shared/ego_pose_pe": 0.15800000000000003,
+        "map|head_shared/time_embedding": 0.377,
+        "map|map/self_attention_0": 2.9659999999999997,
+        "map|map/cross_attention_0": 3.0349999999999993,
+        "map|map/ffn_0": 0.334,
+        "map|map/self_attention_1": 2.7849999999999984,
+        "map|map/cross_attention_1": 0.919,
+        "map|map/ffn_1": 0.387,
+        "map|map/self_attention_2": 2.6479999999999992,
+        "map|map/cross_attention_2": 0.8680000000000001,
+        "map|map/ffn_2": 0.317,
+        "map|map/self_attention_3": 2.6829999999999994,
+        "map|map/cross_attention_3": 0.8590000000000001,
+        "map|map/ffn_3": 0.322,
+        "map|map/self_attention_4": 2.670999999999999,
+        "map|map/cross_attention_4": 0.856,
+        "map|map/ffn_4": 0.33,
+        "map|map/self_attention_5": 2.557999999999999,
+        "map|map/cross_attention_5": 0.8780000000000001,
+        "map|map/ffn_5": 0.357,
+        "map|map/post_update_memory": 0.2890000000000001,
+        "map|map/output_projection": 0.043000000000000003,
+        "llm_sampling_and_preparation|request": 30.044999999999884,
+        "llm_sampling_and_preparation|llm_generation": 30.044999999999884,
+        "llm_prefill|request": 187.0460000000004,
+        "llm_prefill|llm_prefill": 187.0460000000004,
+        "llm_prefill|llm_generation": 187.0460000000004,
+        "llm_prefill|llm/attention_0": 2.5659999999999985,
+        "llm_prefill|llm/ffn_0": 2.535,
+        "llm_prefill|llm/attention_1": 2.6529999999999982,
+        "llm_prefill|llm/ffn_1": 2.582,
+        "llm_prefill|llm/attention_2": 2.7549999999999986,
+        "llm_prefill|llm/ffn_2": 2.534,
+        "llm_prefill|llm/attention_3": 2.770999999999998,
+        "llm_prefill|llm/ffn_3": 2.588,
+        "llm_prefill|llm/attention_4": 2.566999999999998,
+        "llm_prefill|llm/ffn_4": 2.537,
+        "llm_prefill|llm/attention_5": 2.8459999999999996,
+        "llm_prefill|llm/ffn_5": 2.732,
+        "llm_prefill|llm/attention_6": 2.8239999999999994,
+        "llm_prefill|llm/ffn_6": 2.745,
+        "llm_prefill|llm/attention_7": 2.8029999999999986,
+        "llm_prefill|llm/ffn_7": 2.7070000000000003,
+        "llm_prefill|llm/attention_8": 2.705999999999999,
+        "llm_prefill|llm/ffn_8": 2.7510000000000003,
+        "llm_prefill|llm/attention_9": 2.9799999999999986,
+        "llm_prefill|llm/ffn_9": 2.715,
+        "llm_prefill|llm/attention_10": 2.8099999999999996,
+        "llm_prefill|llm/ffn_10": 2.725,
+        "llm_prefill|llm/attention_11": 2.8349999999999995,
+        "llm_prefill|llm/ffn_11": 2.7039999999999997,
+        "llm_prefill|llm/attention_12": 2.7009999999999987,
+        "llm_prefill|llm/ffn_12": 2.6910000000000003,
+        "llm_prefill|llm/attention_13": 2.6739999999999995,
+        "llm_prefill|llm/ffn_13": 2.695,
+        "llm_prefill|llm/attention_14": 2.7659999999999987,
+        "llm_prefill|llm/ffn_14": 2.715,
+        "llm_prefill|llm/attention_15": 2.868999999999999,
+        "llm_prefill|llm/ffn_15": 2.6950000000000003,
+        "llm_prefill|llm/attention_16": 2.71,
+        "llm_prefill|llm/ffn_16": 2.709,
+        "llm_prefill|llm/attention_17": 2.761999999999999,
+        "llm_prefill|llm/ffn_17": 2.7540000000000004,
+        "llm_prefill|llm/attention_18": 2.5959999999999988,
+        "llm_prefill|llm/ffn_18": 2.713,
+        "llm_prefill|llm/attention_19": 2.6899999999999995,
+        "llm_prefill|llm/ffn_19": 2.7159999999999997,
+        "llm_prefill|llm/attention_20": 2.999999999999998,
+        "llm_prefill|llm/ffn_20": 2.7110000000000003,
+        "llm_prefill|llm/attention_21": 2.713999999999998,
+        "llm_prefill|llm/ffn_21": 2.7180000000000004,
+        "llm_prefill|llm/attention_22": 2.7019999999999995,
+        "llm_prefill|llm/ffn_22": 2.7169999999999996,
+        "llm_prefill|llm/attention_23": 2.7199999999999998,
+        "llm_prefill|llm/ffn_23": 2.711,
+        "llm_prefill|llm/attention_24": 2.729999999999999,
+        "llm_prefill|llm/ffn_24": 2.755,
+        "llm_prefill|llm/attention_25": 2.792999999999999,
+        "llm_prefill|llm/ffn_25": 2.701,
+        "llm_prefill|llm/attention_26": 2.7789999999999995,
+        "llm_prefill|llm/ffn_26": 2.713,
+        "llm_prefill|llm/attention_27": 2.6469999999999994,
+        "llm_prefill|llm/ffn_27": 2.8310000000000004,
+        "llm_prefill|llm/attention_28": 2.787999999999999,
+        "llm_prefill|llm/ffn_28": 2.754,
+        "llm_prefill|llm/attention_29": 2.8589999999999995,
+        "llm_prefill|llm/ffn_29": 2.705,
+        "llm_prefill|llm/attention_30": 2.7259999999999995,
+        "llm_prefill|llm/ffn_30": 2.706,
+        "llm_prefill|llm/attention_31": 2.694,
+        "llm_prefill|llm/ffn_31": 2.942,
+        "llm_prefill|llm/output_projection": 2.418,
+        "llm_decode|request": 2342.8859999983383,
+        "llm_decode|llm_decode": 2342.8859999983383,
+        "llm_decode|llm_generation": 2342.8859999983383,
+        "llm_decode|llm/attention_0": 34.866000000000334,
+        "llm_decode|llm/ffn_0": 31.751999999999875,
+        "llm_decode|llm/attention_1": 35.73900000000033,
+        "llm_decode|llm/ffn_1": 31.930999999999862,
+        "llm_decode|llm/attention_2": 35.77900000000038,
+        "llm_decode|llm/ffn_2": 32.04899999999985,
+        "llm_decode|llm/attention_3": 35.65500000000054,
+        "llm_decode|llm/ffn_3": 31.57399999999993,
+        "llm_decode|llm/attention_4": 35.71600000000036,
+        "llm_decode|llm/ffn_4": 31.62099999999987,
+        "llm_decode|llm/attention_5": 35.129000000000396,
+        "llm_decode|llm/ffn_5": 32.18699999999989,
+        "llm_decode|llm/attention_6": 35.221000000000316,
+        "llm_decode|llm/ffn_6": 31.655999999999903,
+        "llm_decode|llm/attention_7": 36.199000000000375,
+        "llm_decode|llm/ffn_7": 31.566999999999915,
+        "llm_decode|llm/attention_8": 35.04600000000044,
+        "llm_decode|llm/ffn_8": 31.67899999999985,
+        "llm_decode|llm/attention_9": 35.76000000000037,
+        "llm_decode|llm/ffn_9": 31.2959999999999,
+        "llm_decode|llm/attention_10": 35.62800000000045,
+        "llm_decode|llm/ffn_10": 31.460999999999878,
+        "llm_decode|llm/attention_11": 35.750000000000384,
+        "llm_decode|llm/ffn_11": 31.98999999999987,
+        "llm_decode|llm/attention_12": 35.610000000000404,
+        "llm_decode|llm/ffn_12": 31.694999999999865,
+        "llm_decode|llm/attention_13": 35.93800000000039,
+        "llm_decode|llm/ffn_13": 31.47499999999984,
+        "llm_decode|llm/attention_14": 35.09500000000051,
+        "llm_decode|llm/ffn_14": 31.689999999999916,
+        "llm_decode|llm/attention_15": 35.56200000000042,
+        "llm_decode|llm/ffn_15": 31.971999999999817,
+        "llm_decode|llm/attention_16": 35.65500000000043,
+        "llm_decode|llm/ffn_16": 32.02399999999987,
+        "llm_decode|llm/attention_17": 35.88900000000035,
+        "llm_decode|llm/ffn_17": 32.03399999999984,
+        "llm_decode|llm/attention_18": 35.79900000000032,
+        "llm_decode|llm/ffn_18": 31.6429999999999,
+        "llm_decode|llm/attention_19": 34.29300000000048,
+        "llm_decode|llm/ffn_19": 31.501999999999896,
+        "llm_decode|llm/attention_20": 36.6380000000004,
+        "llm_decode|llm/ffn_20": 31.79899999999991,
+        "llm_decode|llm/attention_21": 34.59100000000047,
+        "llm_decode|llm/ffn_21": 31.954999999999863,
+        "llm_decode|llm/attention_22": 34.85500000000038,
+        "llm_decode|llm/ffn_22": 32.15099999999985,
+        "llm_decode|llm/attention_23": 37.03300000000048,
+        "llm_decode|llm/ffn_23": 32.029999999999895,
+        "llm_decode|llm/attention_24": 34.97600000000047,
+        "llm_decode|llm/ffn_24": 31.722999999999885,
+        "llm_decode|llm/attention_25": 35.775000000000524,
+        "llm_decode|llm/ffn_25": 31.80299999999982,
+        "llm_decode|llm/attention_26": 35.15600000000037,
+        "llm_decode|llm/ffn_26": 32.212999999999845,
+        "llm_decode|llm/attention_27": 34.94600000000033,
+        "llm_decode|llm/ffn_27": 31.357999999999922,
+        "llm_decode|llm/attention_28": 35.905000000000264,
+        "llm_decode|llm/ffn_28": 31.44499999999986,
+        "llm_decode|llm/attention_29": 34.42400000000039,
+        "llm_decode|llm/ffn_29": 31.79699999999984,
+        "llm_decode|llm/attention_30": 35.65500000000047,
+        "llm_decode|llm/ffn_30": 31.35299999999988,
+        "llm_decode|llm/attention_31": 35.6250000000003,
+        "llm_decode|llm/ffn_31": 31.58899999999985,
+        "llm_decode|llm/output_projection": 30.18900000000001
+      },
+      "top_kernels": [
+        {
+          "name": "ampere_fp16_s16816gemm_fp16_64x64_sliced1x2_ldg8_f2f_stages_64x5_tn",
+          "kernel_ms": 908.0570000000279,
+          "calls": 15461
+        },
+        {
+          "name": "ampere_fp16_s16816gemm_fp16_64x64_ldg8_f2f_stages_64x5_tn",
+          "kernel_ms": 746.0559999999609,
+          "calls": 6165
+        },
+        {
+          "name": "ampere_sgemm_128x64_tn",
+          "kernel_ms": 352.11800000000187,
+          "calls": 359
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 128, 1>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 128, 1>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "kernel_ms": 100.62600000000769,
+          "calls": 6102
+        },
+        {
+          "name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, float, float, float, float, false, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)",
+          "kernel_ms": 74.33800000000261,
+          "calls": 12361
+        },
+        {
+          "name": "ampere_fp16_s1688gemm_fp16_128x128_ldg8_f2f_stages_32x1_tn",
+          "kernel_ms": 71.41699999999994,
+          "calls": 180
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "kernel_ms": 68.86999999999895,
+          "calls": 19012
+        },
+        {
+          "name": "void cutlass::Kernel<cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x128_32x3_tn_align8>(cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x128_32x3_tn_align8::Params)",
+          "kernel_ms": 65.41999999999992,
+          "calls": 71
+        },
+        {
+          "name": "void gemv2T_kernel_val<int, int, float, float, float, float, 128, 16, 2, 2, false, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>, float, float)",
+          "kernel_ms": 62.032000000013205,
+          "calls": 12379
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1>)",
+          "kernel_ms": 40.925000000001376,
+          "calls": 12509
+        },
+        {
+          "name": "ampere_sgemm_128x128_tn",
+          "kernel_ms": 40.3110000000002,
+          "calls": 179
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "kernel_ms": 39.29400000000092,
+          "calls": 9722
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "kernel_ms": 35.63600000000004,
+          "calls": 303
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "kernel_ms": 34.848999999999585,
+          "calls": 12533
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "kernel_ms": 34.719999999999985,
+          "calls": 201
+        },
+        {
+          "name": "void cutlass::Kernel<cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x64_32x4_tn_align8>(cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x64_32x4_tn_align8::Params)",
+          "kernel_ms": 32.44399999999999,
+          "calls": 95
+        },
+        {
+          "name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, __half, __half, __half, float, false, true, false, false, 9, false, cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float>)",
+          "kernel_ms": 32.25800000000033,
+          "calls": 2726
+        },
+        {
+          "name": "std::enable_if<true, void>::type internal::gemvx::kernel<int, int, __half, __half, __half, float, true, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float>)",
+          "kernel_ms": 30.950999999999667,
+          "calls": 2720
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 64, 64>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 64, 64>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "kernel_ms": 28.360000000002763,
+          "calls": 6319
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "kernel_ms": 27.666999999993923,
+          "calls": 6566
+        },
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::MeanOps<float, float>, unsigned int, float, 4> >(at::native::ReduceOp<float, at::native::MeanOps<float, float>, unsigned int, float, 4>)",
+          "kernel_ms": 23.479000000001005,
+          "calls": 6373
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3> >(int, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3>)",
+          "kernel_ms": 20.68199999999943,
+          "calls": 9388
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<c10::Half>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<c10::Half>, at::detail::Array<char*, 3>)",
+          "kernel_ms": 20.201000000000338,
+          "calls": 12450
+        },
+        {
+          "name": "void flash_fwd_kernel<Flash_fwd_kernel_traits<64, 128, 128, 4, false, false, cutlass::half_t, Flash_kernel_traits<64, 128, 128, 4, cutlass::half_t> >, false, false, false, false, false, true, false>(Flash_fwd_params)",
+          "kernel_ms": 16.737000000000005,
+          "calls": 27
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2> >(int, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2>)",
+          "kernel_ms": 16.47799999999785,
+          "calls": 12471
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1} const&)::{lambda(int)#1})",
+          "kernel_ms": 16.280000000001014,
+          "calls": 6248
+        },
+        {
+          "name": "void at::native::index_elementwise_kernel<128, 4, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1} const&)::{lambda(int)#1})",
+          "kernel_ms": 16.016000000001046,
+          "calls": 6249
+        },
+        {
+          "name": "void (anonymous namespace)::softmax_warp_forward<c10::Half, float, float, 10, false, false>(float*, c10::Half const*, int, int, int, bool const*, int, bool)",
+          "kernel_ms": 15.311999999998806,
+          "calls": 3137
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<c10::Half> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<c10::Half> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<c10::Half> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<c10::Half> const&)::{lambda(int)#1})",
+          "kernel_ms": 12.739000000000349,
+          "calls": 3193
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::rsqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#4}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2> >(int, at::native::rsqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#4}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>)",
+          "kernel_ms": 12.71600000000089,
+          "calls": 6375
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctorOnSelf_add<float>, at::detail::Array<char*, 2> >(int, at::native::CUDAFunctorOnSelf_add<float>, at::detail::Array<char*, 2>)",
+          "kernel_ms": 9.764999999999983,
+          "calls": 6324
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::cunn_SoftMaxForward<4, float, float, float, at::native::(anonymous namespace)::SoftMaxForwardEpilogue>(float*, float*, int)",
+          "kernel_ms": 9.43599999999997,
+          "calls": 211
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3> >(int, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3>)",
+          "kernel_ms": 9.317,
+          "calls": 27
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::pow_tensor_scalar_kernel_impl<float, float>(at::TensorIteratorBase&, float)::{lambda(float)#1}, at::detail::Array<char*, 2> >(int, at::native::(anonymous namespace)::pow_tensor_scalar_kernel_impl<float, float>(at::TensorIteratorBase&, float)::{lambda(float)#1}, at::detail::Array<char*, 2>)",
+          "kernel_ms": 8.278000000000844,
+          "calls": 6330
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BUnaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2> >(int, at::native::BUnaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2>)",
+          "kernel_ms": 8.05099999999936,
+          "calls": 3126
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<float, unsigned int, 4, 128, 1>(float*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<float, unsigned int, 128, 1>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "kernel_ms": 7.938999999999998,
+          "calls": 51
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::vectorized_layer_norm_kernel<float, float>(int, float, float const*, float const*, float const*, float*, float*, float*)",
+          "kernel_ms": 7.308999999999996,
+          "calls": 129
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::silu_kernel(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2> >(int, at::native::(anonymous namespace)::silu_kernel(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>)",
+          "kernel_ms": 7.227999999999429,
+          "calls": 3126
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+          "kernel_ms": 6.811999999999999,
+          "calls": 27
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::RowwiseMomentsCUDAKernel<float, float>(long, float, float const*, float*, float*)",
+          "kernel_ms": 6.7170000000000005,
+          "calls": 27
+        }
+      ],
+      "interpretation": "Stage kernel sums are disjoint. Inclusive scopes overlap; CUDA event intervals include host launch gaps and are reported separately."
+    },
+    "peak_allocated_bytes": 16451769344,
+    "scopes": {
+      "inclusive_module_intervals": {
+        "input_adapter": {
+          "cuda_event_interval_ms": 9.71622371673584,
+          "cpu_enqueue_wall_ms": 9.717239066958427,
+          "calls": 1
+        },
+        "m1_precheck": {
+          "cuda_event_interval_ms": 208.17724609375,
+          "cpu_enqueue_wall_ms": 208.17831996828318,
+          "calls": 1
+        },
+        "eva/attention_0": {
+          "cuda_event_interval_ms": 8.066271781921387,
+          "cpu_enqueue_wall_ms": 1.035128952935338,
+          "calls": 1
+        },
+        "eva/ffn_0": {
+          "cuda_event_interval_ms": 9.438176155090332,
+          "cpu_enqueue_wall_ms": 0.15935604460537434,
+          "calls": 1
+        },
+        "eva/block_0": {
+          "cuda_event_interval_ms": 18.90070343017578,
+          "cpu_enqueue_wall_ms": 1.6842000186443329,
+          "calls": 1
+        },
+        "eva/attention_1": {
+          "cuda_event_interval_ms": 8.054816246032715,
+          "cpu_enqueue_wall_ms": 0.4409961402416229,
+          "calls": 1
+        },
+        "eva/ffn_1": {
+          "cuda_event_interval_ms": 10.155455589294434,
+          "cpu_enqueue_wall_ms": 0.13285689055919647,
+          "calls": 1
+        },
+        "eva/block_1": {
+          "cuda_event_interval_ms": 19.69910430908203,
+          "cpu_enqueue_wall_ms": 0.7489388808608055,
+          "calls": 1
+        },
+        "eva/attention_2": {
+          "cuda_event_interval_ms": 7.1814398765563965,
+          "cpu_enqueue_wall_ms": 0.5275870207697153,
+          "calls": 1
+        },
+        "eva/ffn_2": {
+          "cuda_event_interval_ms": 10.231231689453125,
+          "cpu_enqueue_wall_ms": 0.17205392941832542,
+          "calls": 1
+        },
+        "eva/block_2": {
+          "cuda_event_interval_ms": 18.39094352722168,
+          "cpu_enqueue_wall_ms": 0.8332149591296911,
+          "calls": 1
+        },
+        "eva/attention_3": {
+          "cuda_event_interval_ms": 8.896479606628418,
+          "cpu_enqueue_wall_ms": 0.43969391845166683,
+          "calls": 1
+        },
+        "eva/ffn_3": {
+          "cuda_event_interval_ms": 10.159711837768555,
+          "cpu_enqueue_wall_ms": 0.12928503565490246,
+          "calls": 1
+        },
+        "eva/block_3": {
+          "cuda_event_interval_ms": 20.577951431274414,
+          "cpu_enqueue_wall_ms": 0.7471560966223478,
+          "calls": 1
+        },
+        "eva/attention_4": {
+          "cuda_event_interval_ms": 8.821503639221191,
+          "cpu_enqueue_wall_ms": 0.40075904689729214,
+          "calls": 1
+        },
+        "eva/ffn_4": {
+          "cuda_event_interval_ms": 10.155808448791504,
+          "cpu_enqueue_wall_ms": 0.12968992814421654,
+          "calls": 1
+        },
+        "eva/block_4": {
+          "cuda_event_interval_ms": 20.496639251708984,
+          "cpu_enqueue_wall_ms": 0.7008400280028582,
+          "calls": 1
+        },
+        "eva/attention_5": {
+          "cuda_event_interval_ms": 7.179327964782715,
+          "cpu_enqueue_wall_ms": 0.3976349253207445,
+          "calls": 1
+        },
+        "eva/ffn_5": {
+          "cuda_event_interval_ms": 10.243904113769531,
+          "cpu_enqueue_wall_ms": 0.12345705181360245,
+          "calls": 1
+        },
+        "eva/block_5": {
+          "cuda_event_interval_ms": 18.403839111328125,
+          "cpu_enqueue_wall_ms": 0.6277579814195633,
+          "calls": 1
+        },
+        "eva/attention_6": {
+          "cuda_event_interval_ms": 8.890111923217773,
+          "cpu_enqueue_wall_ms": 0.40278397500514984,
+          "calls": 1
+        },
+        "eva/ffn_6": {
+          "cuda_event_interval_ms": 10.171456336975098,
+          "cpu_enqueue_wall_ms": 0.13171113096177578,
+          "calls": 1
+        },
+        "eva/block_6": {
+          "cuda_event_interval_ms": 20.591392517089844,
+          "cpu_enqueue_wall_ms": 0.706943916156888,
+          "calls": 1
+        },
+        "eva/attention_7": {
+          "cuda_event_interval_ms": 8.821087837219238,
+          "cpu_enqueue_wall_ms": 0.39472104981541634,
+          "calls": 1
+        },
+        "eva/ffn_7": {
+          "cuda_event_interval_ms": 10.156736373901367,
+          "cpu_enqueue_wall_ms": 0.1243480946868658,
+          "calls": 1
+        },
+        "eva/block_7": {
+          "cuda_event_interval_ms": 20.49782371520996,
+          "cpu_enqueue_wall_ms": 0.6901989690959454,
+          "calls": 1
+        },
+        "eva/attention_8": {
+          "cuda_event_interval_ms": 7.179679870605469,
+          "cpu_enqueue_wall_ms": 0.39139483124017715,
+          "calls": 1
+        },
+        "eva/ffn_8": {
+          "cuda_event_interval_ms": 10.157471656799316,
+          "cpu_enqueue_wall_ms": 0.12860889546573162,
+          "calls": 1
+        },
+        "eva/block_8": {
+          "cuda_event_interval_ms": 18.317184448242188,
+          "cpu_enqueue_wall_ms": 0.6250659935176373,
+          "calls": 1
+        },
+        "eva/attention_9": {
+          "cuda_event_interval_ms": 9.0250883102417,
+          "cpu_enqueue_wall_ms": 0.3966230433434248,
+          "calls": 1
+        },
+        "eva/ffn_9": {
+          "cuda_event_interval_ms": 10.356415748596191,
+          "cpu_enqueue_wall_ms": 0.12318091467022896,
+          "calls": 1
+        },
+        "eva/block_9": {
+          "cuda_event_interval_ms": 20.921279907226562,
+          "cpu_enqueue_wall_ms": 0.6869181524962187,
+          "calls": 1
+        },
+        "eva/attention_10": {
+          "cuda_event_interval_ms": 8.95359992980957,
+          "cpu_enqueue_wall_ms": 0.38746511563658714,
+          "calls": 1
+        },
+        "eva/ffn_10": {
+          "cuda_event_interval_ms": 10.295136451721191,
+          "cpu_enqueue_wall_ms": 0.13307412154972553,
+          "calls": 1
+        },
+        "eva/block_10": {
+          "cuda_event_interval_ms": 20.780960083007812,
+          "cpu_enqueue_wall_ms": 0.6860988214612007,
+          "calls": 1
+        },
+        "eva/attention_11": {
+          "cuda_event_interval_ms": 7.257887840270996,
+          "cpu_enqueue_wall_ms": 0.3841270226985216,
+          "calls": 1
+        },
+        "eva/ffn_11": {
+          "cuda_event_interval_ms": 10.294112205505371,
+          "cpu_enqueue_wall_ms": 0.12232991866767406,
+          "calls": 1
+        },
+        "eva/block_11": {
+          "cuda_event_interval_ms": 18.54150390625,
+          "cpu_enqueue_wall_ms": 0.6078160367906094,
+          "calls": 1
+        },
+        "eva/attention_12": {
+          "cuda_event_interval_ms": 8.962207794189453,
+          "cpu_enqueue_wall_ms": 0.39669591933488846,
+          "calls": 1
+        },
+        "eva/ffn_12": {
+          "cuda_event_interval_ms": 10.258015632629395,
+          "cpu_enqueue_wall_ms": 0.12183398939669132,
+          "calls": 1
+        },
+        "eva/block_12": {
+          "cuda_event_interval_ms": 20.75049591064453,
+          "cpu_enqueue_wall_ms": 0.6840620189905167,
+          "calls": 1
+        },
+        "eva/attention_13": {
+          "cuda_event_interval_ms": 8.900768280029297,
+          "cpu_enqueue_wall_ms": 0.39088306948542595,
+          "calls": 1
+        },
+        "eva/ffn_13": {
+          "cuda_event_interval_ms": 10.215071678161621,
+          "cpu_enqueue_wall_ms": 0.12951483950018883,
+          "calls": 1
+        },
+        "eva/block_13": {
+          "cuda_event_interval_ms": 20.64009666442871,
+          "cpu_enqueue_wall_ms": 0.6883849855512381,
+          "calls": 1
+        },
+        "eva/attention_14": {
+          "cuda_event_interval_ms": 7.203519821166992,
+          "cpu_enqueue_wall_ms": 0.3805088344961405,
+          "calls": 1
+        },
+        "eva/ffn_14": {
+          "cuda_event_interval_ms": 10.2107515335083,
+          "cpu_enqueue_wall_ms": 0.12023700401186943,
+          "calls": 1
+        },
+        "eva/block_14": {
+          "cuda_event_interval_ms": 18.397727966308594,
+          "cpu_enqueue_wall_ms": 0.6003540474921465,
+          "calls": 1
+        },
+        "eva/attention_15": {
+          "cuda_event_interval_ms": 8.862048149108887,
+          "cpu_enqueue_wall_ms": 0.39493292570114136,
+          "calls": 1
+        },
+        "eva/ffn_15": {
+          "cuda_event_interval_ms": 10.21945571899414,
+          "cpu_enqueue_wall_ms": 0.1238510012626648,
+          "calls": 1
+        },
+        "eva/block_15": {
+          "cuda_event_interval_ms": 20.605695724487305,
+          "cpu_enqueue_wall_ms": 0.6858829874545336,
+          "calls": 1
+        },
+        "eva/attention_16": {
+          "cuda_event_interval_ms": 8.865823745727539,
+          "cpu_enqueue_wall_ms": 0.37558702751994133,
+          "calls": 1
+        },
+        "eva/ffn_16": {
+          "cuda_event_interval_ms": 10.224575996398926,
+          "cpu_enqueue_wall_ms": 0.1209720503538847,
+          "calls": 1
+        },
+        "eva/block_16": {
+          "cuda_event_interval_ms": 20.616863250732422,
+          "cpu_enqueue_wall_ms": 0.6611188873648643,
+          "calls": 1
+        },
+        "eva/attention_17": {
+          "cuda_event_interval_ms": 7.2491841316223145,
+          "cpu_enqueue_wall_ms": 0.37983618676662445,
+          "calls": 1
+        },
+        "eva/ffn_17": {
+          "cuda_event_interval_ms": 10.22054386138916,
+          "cpu_enqueue_wall_ms": 0.1241881400346756,
+          "calls": 1
+        },
+        "eva/block_17": {
+          "cuda_event_interval_ms": 18.451520919799805,
+          "cpu_enqueue_wall_ms": 0.6050129886716604,
+          "calls": 1
+        },
+        "eva/attention_18": {
+          "cuda_event_interval_ms": 8.908672332763672,
+          "cpu_enqueue_wall_ms": 0.3973799757659435,
+          "calls": 1
+        },
+        "eva/ffn_18": {
+          "cuda_event_interval_ms": 10.217503547668457,
+          "cpu_enqueue_wall_ms": 0.1281679142266512,
+          "calls": 1
+        },
+        "eva/block_18": {
+          "cuda_event_interval_ms": 20.653024673461914,
+          "cpu_enqueue_wall_ms": 0.7011201232671738,
+          "calls": 1
+        },
+        "eva/attention_19": {
+          "cuda_event_interval_ms": 8.875807762145996,
+          "cpu_enqueue_wall_ms": 0.4111682064831257,
+          "calls": 1
+        },
+        "eva/ffn_19": {
+          "cuda_event_interval_ms": 10.221759796142578,
+          "cpu_enqueue_wall_ms": 0.13246783055365086,
+          "calls": 1
+        },
+        "eva/block_19": {
+          "cuda_event_interval_ms": 20.624736785888672,
+          "cpu_enqueue_wall_ms": 0.7142091635614634,
+          "calls": 1
+        },
+        "eva/attention_20": {
+          "cuda_event_interval_ms": 7.247935771942139,
+          "cpu_enqueue_wall_ms": 3.932726103812456,
+          "calls": 1
+        },
+        "eva/ffn_20": {
+          "cuda_event_interval_ms": 10.223456382751465,
+          "cpu_enqueue_wall_ms": 3.44070210121572,
+          "calls": 1
+        },
+        "eva/block_20": {
+          "cuda_event_interval_ms": 18.45644760131836,
+          "cpu_enqueue_wall_ms": 9.618858806788921,
+          "calls": 1
+        },
+        "eva/attention_21": {
+          "cuda_event_interval_ms": 8.871583938598633,
+          "cpu_enqueue_wall_ms": 10.120450053364038,
+          "calls": 1
+        },
+        "eva/ffn_21": {
+          "cuda_event_interval_ms": 10.217184066772461,
+          "cpu_enqueue_wall_ms": 5.476962076500058,
+          "calls": 1
+        },
+        "eva/block_21": {
+          "cuda_event_interval_ms": 20.613727569580078,
+          "cpu_enqueue_wall_ms": 20.037493901327252,
+          "calls": 1
+        },
+        "eva/attention_22": {
+          "cuda_event_interval_ms": 8.870816230773926,
+          "cpu_enqueue_wall_ms": 13.83062987588346,
+          "calls": 1
+        },
+        "eva/ffn_22": {
+          "cuda_event_interval_ms": 10.2192964553833,
+          "cpu_enqueue_wall_ms": 5.295959999784827,
+          "calls": 1
+        },
+        "eva/block_22": {
+          "cuda_event_interval_ms": 20.62099266052246,
+          "cpu_enqueue_wall_ms": 20.468778908252716,
+          "calls": 1
+        },
+        "eva/attention_23": {
+          "cuda_event_interval_ms": 7.2863359451293945,
+          "cpu_enqueue_wall_ms": 10.313563048839569,
+          "calls": 1
+        },
+        "eva/ffn_23": {
+          "cuda_event_interval_ms": 10.218815803527832,
+          "cpu_enqueue_wall_ms": 3.6724999081343412,
+          "calls": 1
+        },
+        "eva/block_23": {
+          "cuda_event_interval_ms": 18.488576889038086,
+          "cpu_enqueue_wall_ms": 16.837371047586203,
+          "calls": 1
+        },
+        "eva": {
+          "cuda_event_interval_ms": 480.61517333984375,
+          "cpu_enqueue_wall_ms": 86.77220717072487,
+          "calls": 1
+        },
+        "perception_position": {
+          "cuda_event_interval_ms": 2.140160083770752,
+          "cpu_enqueue_wall_ms": 391.8379920069128,
+          "calls": 1
+        },
+        "detection/pre_update_memory": {
+          "cuda_event_interval_ms": 0.11561600118875504,
+          "cpu_enqueue_wall_ms": 0.444530975073576,
+          "calls": 1
+        },
+        "detection/input_projection": {
+          "cuda_event_interval_ms": 0.3760640025138855,
+          "cpu_enqueue_wall_ms": 0.048074871301651,
+          "calls": 1
+        },
+        "head_shared/query_pos": {
+          "cuda_event_interval_ms": 0.46076799929142,
+          "cpu_enqueue_wall_ms": 0.3602581564337015,
+          "calls": 4
+        },
+        "head_shared/ego_pose_pe": {
+          "cuda_event_interval_ms": 0.4290879964828491,
+          "cpu_enqueue_wall_ms": 0.4284079186618328,
+          "calls": 2
+        },
+        "head_shared/time_embedding": {
+          "cuda_event_interval_ms": 0.27504000067710876,
+          "cpu_enqueue_wall_ms": 0.2484489232301712,
+          "calls": 4
+        },
+        "detection/temporal_alignment": {
+          "cuda_event_interval_ms": 1.7242560386657715,
+          "cpu_enqueue_wall_ms": 1.7265339847654104,
+          "calls": 1
+        },
+        "detection/self_attention_0": {
+          "cuda_event_interval_ms": 0.9777600169181824,
+          "cpu_enqueue_wall_ms": 0.2978718839585781,
+          "calls": 1
+        },
+        "detection/cross_attention_0": {
+          "cuda_event_interval_ms": 0.7138879895210266,
+          "cpu_enqueue_wall_ms": 0.38596405647695065,
+          "calls": 1
+        },
+        "detection/ffn_0": {
+          "cuda_event_interval_ms": 0.22323200106620789,
+          "cpu_enqueue_wall_ms": 0.09032012894749641,
+          "calls": 1
+        },
+        "detection/self_attention_1": {
+          "cuda_event_interval_ms": 0.906175971031189,
+          "cpu_enqueue_wall_ms": 0.24060788564383984,
+          "calls": 1
+        },
+        "detection/cross_attention_1": {
+          "cuda_event_interval_ms": 0.7133439779281616,
+          "cpu_enqueue_wall_ms": 0.29562111012637615,
+          "calls": 1
+        },
+        "detection/ffn_1": {
+          "cuda_event_interval_ms": 0.21907199919223785,
+          "cpu_enqueue_wall_ms": 0.0827079638838768,
+          "calls": 1
+        },
+        "detection/self_attention_2": {
+          "cuda_event_interval_ms": 0.9058240056037903,
+          "cpu_enqueue_wall_ms": 0.23125484585762024,
+          "calls": 1
+        },
+        "detection/cross_attention_2": {
+          "cuda_event_interval_ms": 0.7206400036811829,
+          "cpu_enqueue_wall_ms": 0.284713925793767,
+          "calls": 1
+        },
+        "detection/ffn_2": {
+          "cuda_event_interval_ms": 0.2210559993982315,
+          "cpu_enqueue_wall_ms": 0.07646693848073483,
+          "calls": 1
+        },
+        "detection/self_attention_3": {
+          "cuda_event_interval_ms": 0.9120320081710815,
+          "cpu_enqueue_wall_ms": 0.23101991973817348,
+          "calls": 1
+        },
+        "detection/cross_attention_3": {
+          "cuda_event_interval_ms": 0.7138879895210266,
+          "cpu_enqueue_wall_ms": 0.2962090075016022,
+          "calls": 1
+        },
+        "detection/ffn_3": {
+          "cuda_event_interval_ms": 0.21475200355052948,
+          "cpu_enqueue_wall_ms": 0.0779151450842619,
+          "calls": 1
+        },
+        "detection/self_attention_4": {
+          "cuda_event_interval_ms": 0.895039975643158,
+          "cpu_enqueue_wall_ms": 0.23099896498024464,
+          "calls": 1
+        },
+        "detection/cross_attention_4": {
+          "cuda_event_interval_ms": 0.6981120109558105,
+          "cpu_enqueue_wall_ms": 0.2868019510060549,
+          "calls": 1
+        },
+        "detection/ffn_4": {
+          "cuda_event_interval_ms": 0.21356800198554993,
+          "cpu_enqueue_wall_ms": 0.07732887752354145,
+          "calls": 1
+        },
+        "detection/self_attention_5": {
+          "cuda_event_interval_ms": 0.8908159732818604,
+          "cpu_enqueue_wall_ms": 0.23323995992541313,
+          "calls": 1
+        },
+        "detection/cross_attention_5": {
+          "cuda_event_interval_ms": 0.6991680264472961,
+          "cpu_enqueue_wall_ms": 0.3213889431208372,
+          "calls": 1
+        },
+        "detection/ffn_5": {
+          "cuda_event_interval_ms": 0.2194879949092865,
+          "cpu_enqueue_wall_ms": 0.08072610944509506,
+          "calls": 1
+        },
+        "detection/output_projection": {
+          "cuda_event_interval_ms": 0.04601600021123886,
+          "cpu_enqueue_wall_ms": 0.041310908272862434,
+          "calls": 1
+        },
+        "detection/post_update_memory": {
+          "cuda_event_interval_ms": 0.17059199512004852,
+          "cpu_enqueue_wall_ms": 0.5114809609949589,
+          "calls": 1
+        },
+        "detection": {
+          "cuda_event_interval_ms": 16.234464645385742,
+          "cpu_enqueue_wall_ms": 11.51378289796412,
+          "calls": 1
+        },
+        "map/pre_update_memory": {
+          "cuda_event_interval_ms": 0.23081600666046143,
+          "cpu_enqueue_wall_ms": 0.23044785484671593,
+          "calls": 1
+        },
+        "map/input_projection": {
+          "cuda_event_interval_ms": 0.3645760118961334,
+          "cpu_enqueue_wall_ms": 0.09081093594431877,
+          "calls": 1
+        },
+        "map/temporal_alignment": {
+          "cuda_event_interval_ms": 1.4869760274887085,
+          "cpu_enqueue_wall_ms": 1.4861950185149908,
+          "calls": 1
+        },
+        "map/self_attention_0": {
+          "cuda_event_interval_ms": 2.6814401149749756,
+          "cpu_enqueue_wall_ms": 0.28195884078741074,
+          "calls": 1
+        },
+        "map/cross_attention_0": {
+          "cuda_event_interval_ms": 0.9307839870452881,
+          "cpu_enqueue_wall_ms": 0.3649389836937189,
+          "calls": 1
+        },
+        "map/ffn_0": {
+          "cuda_event_interval_ms": 0.34326401352882385,
+          "cpu_enqueue_wall_ms": 0.08389912545681,
+          "calls": 1
+        },
+        "map/self_attention_1": {
+          "cuda_event_interval_ms": 2.629983901977539,
+          "cpu_enqueue_wall_ms": 0.24909991770982742,
+          "calls": 1
+        },
+        "map/cross_attention_1": {
+          "cuda_event_interval_ms": 0.9308159947395325,
+          "cpu_enqueue_wall_ms": 0.2969841007143259,
+          "calls": 1
+        },
+        "map/ffn_1": {
+          "cuda_event_interval_ms": 0.3492479920387268,
+          "cpu_enqueue_wall_ms": 0.07779314182698727,
+          "calls": 1
+        },
+        "map/self_attention_2": {
+          "cuda_event_interval_ms": 2.557152032852173,
+          "cpu_enqueue_wall_ms": 0.22742804139852524,
+          "calls": 1
+        },
+        "map/cross_attention_2": {
+          "cuda_event_interval_ms": 0.8700479865074158,
+          "cpu_enqueue_wall_ms": 0.2899498213082552,
+          "calls": 1
+        },
+        "map/ffn_2": {
+          "cuda_event_interval_ms": 0.3230400085449219,
+          "cpu_enqueue_wall_ms": 0.07568905130028725,
+          "calls": 1
+        },
+        "map/self_attention_3": {
+          "cuda_event_interval_ms": 2.5318078994750977,
+          "cpu_enqueue_wall_ms": 0.22960081696510315,
+          "calls": 1
+        },
+        "map/cross_attention_3": {
+          "cuda_event_interval_ms": 0.868511974811554,
+          "cpu_enqueue_wall_ms": 0.29200897552073,
+          "calls": 1
+        },
+        "map/ffn_3": {
+          "cuda_event_interval_ms": 0.3264960050582886,
+          "cpu_enqueue_wall_ms": 0.08134008385241032,
+          "calls": 1
+        },
+        "map/self_attention_4": {
+          "cuda_event_interval_ms": 2.5302720069885254,
+          "cpu_enqueue_wall_ms": 0.23187999613583088,
+          "calls": 1
+        },
+        "map/cross_attention_4": {
+          "cuda_event_interval_ms": 0.8691840171813965,
+          "cpu_enqueue_wall_ms": 0.28379098512232304,
+          "calls": 1
+        },
+        "map/ffn_4": {
+          "cuda_event_interval_ms": 0.32784000039100647,
+          "cpu_enqueue_wall_ms": 0.07955520413815975,
+          "calls": 1
+        },
+        "map/self_attention_5": {
+          "cuda_event_interval_ms": 2.5292160511016846,
+          "cpu_enqueue_wall_ms": 0.2273621503263712,
+          "calls": 1
+        },
+        "map/cross_attention_5": {
+          "cuda_event_interval_ms": 0.86844801902771,
+          "cpu_enqueue_wall_ms": 0.2933789510279894,
+          "calls": 1
+        },
+        "map/ffn_5": {
+          "cuda_event_interval_ms": 0.3208639919757843,
+          "cpu_enqueue_wall_ms": 0.08010608144104481,
+          "calls": 1
+        },
+        "map/post_update_memory": {
+          "cuda_event_interval_ms": 0.14480000734329224,
+          "cpu_enqueue_wall_ms": 0.35907584242522717,
+          "calls": 1
+        },
+        "map/output_projection": {
+          "cuda_event_interval_ms": 0.04416000097990036,
+          "cpu_enqueue_wall_ms": 0.040112994611263275,
+          "calls": 1
+        },
+        "map": {
+          "cuda_event_interval_ms": 31.256736755371094,
+          "cpu_enqueue_wall_ms": 12.605187017470598,
+          "calls": 1
+        },
+        "output_adapter": {
+          "cuda_event_interval_ms": 4.753312110900879,
+          "cpu_enqueue_wall_ms": 4.753939108923078,
+          "calls": 1
+        },
+        "m1_commit": {
+          "cuda_event_interval_ms": 347.37628173828125,
+          "cpu_enqueue_wall_ms": 347.37806813791394,
+          "calls": 1
+        },
+        "llm/attention_0": {
+          "cuda_event_interval_ms": 52.28051221370697,
+          "cpu_enqueue_wall_ms": 50.565616227686405,
+          "calls": 85
+        },
+        "llm/ffn_0": {
+          "cuda_event_interval_ms": 37.150752037763596,
+          "cpu_enqueue_wall_ms": 9.143437258899212,
+          "calls": 85
+        },
+        "llm/attention_1": {
+          "cuda_event_interval_ms": 37.48323181271553,
+          "cpu_enqueue_wall_ms": 44.49518141336739,
+          "calls": 85
+        },
+        "llm/ffn_1": {
+          "cuda_event_interval_ms": 33.82140791416168,
+          "cpu_enqueue_wall_ms": 7.989543490111828,
+          "calls": 85
+        },
+        "llm/attention_2": {
+          "cuda_event_interval_ms": 37.11148804426193,
+          "cpu_enqueue_wall_ms": 40.84557085298002,
+          "calls": 85
+        },
+        "llm/ffn_2": {
+          "cuda_event_interval_ms": 33.623263984918594,
+          "cpu_enqueue_wall_ms": 7.729602977633476,
+          "calls": 85
+        },
+        "llm/attention_3": {
+          "cuda_event_interval_ms": 37.01190385222435,
+          "cpu_enqueue_wall_ms": 40.60674854554236,
+          "calls": 85
+        },
+        "llm/ffn_3": {
+          "cuda_event_interval_ms": 33.6141439974308,
+          "cpu_enqueue_wall_ms": 7.79917067848146,
+          "calls": 85
+        },
+        "llm/attention_4": {
+          "cuda_event_interval_ms": 37.09728020429611,
+          "cpu_enqueue_wall_ms": 40.721363155171275,
+          "calls": 85
+        },
+        "llm/ffn_4": {
+          "cuda_event_interval_ms": 33.59689608216286,
+          "cpu_enqueue_wall_ms": 7.71758914925158,
+          "calls": 85
+        },
+        "llm/attention_5": {
+          "cuda_event_interval_ms": 37.21024003624916,
+          "cpu_enqueue_wall_ms": 40.40637006983161,
+          "calls": 85
+        },
+        "llm/ffn_5": {
+          "cuda_event_interval_ms": 33.83625587821007,
+          "cpu_enqueue_wall_ms": 7.530561648309231,
+          "calls": 85
+        },
+        "llm/attention_6": {
+          "cuda_event_interval_ms": 37.31539210677147,
+          "cpu_enqueue_wall_ms": 39.82268599793315,
+          "calls": 85
+        },
+        "llm/ffn_6": {
+          "cuda_event_interval_ms": 33.87731221318245,
+          "cpu_enqueue_wall_ms": 7.700085174292326,
+          "calls": 85
+        },
+        "llm/attention_7": {
+          "cuda_event_interval_ms": 37.21532794833183,
+          "cpu_enqueue_wall_ms": 40.33693461678922,
+          "calls": 85
+        },
+        "llm/ffn_7": {
+          "cuda_event_interval_ms": 33.85737606883049,
+          "cpu_enqueue_wall_ms": 7.767305942252278,
+          "calls": 85
+        },
+        "llm/attention_8": {
+          "cuda_event_interval_ms": 37.30083209276199,
+          "cpu_enqueue_wall_ms": 40.25844088755548,
+          "calls": 85
+        },
+        "llm/ffn_8": {
+          "cuda_event_interval_ms": 33.782784193754196,
+          "cpu_enqueue_wall_ms": 7.501601241528988,
+          "calls": 85
+        },
+        "llm/attention_9": {
+          "cuda_event_interval_ms": 37.23318409919739,
+          "cpu_enqueue_wall_ms": 39.7613849490881,
+          "calls": 85
+        },
+        "llm/ffn_9": {
+          "cuda_event_interval_ms": 33.70352002978325,
+          "cpu_enqueue_wall_ms": 7.528059184551239,
+          "calls": 85
+        },
+        "llm/attention_10": {
+          "cuda_event_interval_ms": 36.997952073812485,
+          "cpu_enqueue_wall_ms": 40.189926978200674,
+          "calls": 85
+        },
+        "llm/ffn_10": {
+          "cuda_event_interval_ms": 33.844351798295975,
+          "cpu_enqueue_wall_ms": 7.707291282713413,
+          "calls": 85
+        },
+        "llm/attention_11": {
+          "cuda_event_interval_ms": 37.22092804312706,
+          "cpu_enqueue_wall_ms": 40.57553061284125,
+          "calls": 85
+        },
+        "llm/ffn_11": {
+          "cuda_event_interval_ms": 33.784384191036224,
+          "cpu_enqueue_wall_ms": 7.5857138726860285,
+          "calls": 85
+        },
+        "llm/attention_12": {
+          "cuda_event_interval_ms": 37.10793596506119,
+          "cpu_enqueue_wall_ms": 39.81189290061593,
+          "calls": 85
+        },
+        "llm/ffn_12": {
+          "cuda_event_interval_ms": 33.74163192510605,
+          "cpu_enqueue_wall_ms": 7.5076541397720575,
+          "calls": 85
+        },
+        "llm/attention_13": {
+          "cuda_event_interval_ms": 37.39776000380516,
+          "cpu_enqueue_wall_ms": 40.3769644908607,
+          "calls": 85
+        },
+        "llm/ffn_13": {
+          "cuda_event_interval_ms": 33.83846405148506,
+          "cpu_enqueue_wall_ms": 7.526804693043232,
+          "calls": 85
+        },
+        "llm/attention_14": {
+          "cuda_event_interval_ms": 37.03238391876221,
+          "cpu_enqueue_wall_ms": 40.27936025522649,
+          "calls": 85
+        },
+        "llm/ffn_14": {
+          "cuda_event_interval_ms": 33.636223912239075,
+          "cpu_enqueue_wall_ms": 7.58185563609004,
+          "calls": 85
+        },
+        "llm/attention_15": {
+          "cuda_event_interval_ms": 37.15152004361153,
+          "cpu_enqueue_wall_ms": 39.679645793512464,
+          "calls": 85
+        },
+        "llm/ffn_15": {
+          "cuda_event_interval_ms": 33.862239986658096,
+          "cpu_enqueue_wall_ms": 7.553868228569627,
+          "calls": 85
+        },
+        "llm/attention_16": {
+          "cuda_event_interval_ms": 37.11836817860603,
+          "cpu_enqueue_wall_ms": 41.390529135242105,
+          "calls": 85
+        },
+        "llm/ffn_16": {
+          "cuda_event_interval_ms": 33.85804808139801,
+          "cpu_enqueue_wall_ms": 7.767910603433847,
+          "calls": 85
+        },
+        "llm/attention_17": {
+          "cuda_event_interval_ms": 37.27574422955513,
+          "cpu_enqueue_wall_ms": 43.011590372771025,
+          "calls": 85
+        },
+        "llm/ffn_17": {
+          "cuda_event_interval_ms": 33.924224108457565,
+          "cpu_enqueue_wall_ms": 7.9234500881284475,
+          "calls": 85
+        },
+        "llm/attention_18": {
+          "cuda_event_interval_ms": 37.1531520485878,
+          "cpu_enqueue_wall_ms": 42.91982087306678,
+          "calls": 85
+        },
+        "llm/ffn_18": {
+          "cuda_event_interval_ms": 33.664416044950485,
+          "cpu_enqueue_wall_ms": 7.757055573165417,
+          "calls": 85
+        },
+        "llm/attention_19": {
+          "cuda_event_interval_ms": 37.189152121543884,
+          "cpu_enqueue_wall_ms": 42.63078817166388,
+          "calls": 85
+        },
+        "llm/ffn_19": {
+          "cuda_event_interval_ms": 33.71539205312729,
+          "cpu_enqueue_wall_ms": 7.699540117755532,
+          "calls": 85
+        },
+        "llm/attention_20": {
+          "cuda_event_interval_ms": 37.21417599916458,
+          "cpu_enqueue_wall_ms": 43.36246591992676,
+          "calls": 85
+        },
+        "llm/ffn_20": {
+          "cuda_event_interval_ms": 33.7466559112072,
+          "cpu_enqueue_wall_ms": 8.005640702322125,
+          "calls": 85
+        },
+        "llm/attention_21": {
+          "cuda_event_interval_ms": 36.97654411196709,
+          "cpu_enqueue_wall_ms": 43.39177114889026,
+          "calls": 85
+        },
+        "llm/ffn_21": {
+          "cuda_event_interval_ms": 34.05996808409691,
+          "cpu_enqueue_wall_ms": 8.007805794477463,
+          "calls": 85
+        },
+        "llm/attention_22": {
+          "cuda_event_interval_ms": 37.3462398648262,
+          "cpu_enqueue_wall_ms": 42.624494060873985,
+          "calls": 85
+        },
+        "llm/ffn_22": {
+          "cuda_event_interval_ms": 33.92028805613518,
+          "cpu_enqueue_wall_ms": 7.744582602754235,
+          "calls": 85
+        },
+        "llm/attention_23": {
+          "cuda_event_interval_ms": 37.1804478764534,
+          "cpu_enqueue_wall_ms": 43.080699164420366,
+          "calls": 85
+        },
+        "llm/ffn_23": {
+          "cuda_event_interval_ms": 33.7975358068943,
+          "cpu_enqueue_wall_ms": 7.884133141487837,
+          "calls": 85
+        },
+        "llm/attention_24": {
+          "cuda_event_interval_ms": 37.0679677426815,
+          "cpu_enqueue_wall_ms": 43.54164679534733,
+          "calls": 85
+        },
+        "llm/ffn_24": {
+          "cuda_event_interval_ms": 33.85724774003029,
+          "cpu_enqueue_wall_ms": 7.895379327237606,
+          "calls": 85
+        },
+        "llm/attention_25": {
+          "cuda_event_interval_ms": 37.07199987769127,
+          "cpu_enqueue_wall_ms": 42.59769315831363,
+          "calls": 85
+        },
+        "llm/ffn_25": {
+          "cuda_event_interval_ms": 33.88025611639023,
+          "cpu_enqueue_wall_ms": 7.799165090546012,
+          "calls": 85
+        },
+        "llm/attention_26": {
+          "cuda_event_interval_ms": 37.23497599363327,
+          "cpu_enqueue_wall_ms": 42.66631091013551,
+          "calls": 85
+        },
+        "llm/ffn_26": {
+          "cuda_event_interval_ms": 33.83900788426399,
+          "cpu_enqueue_wall_ms": 7.782425964251161,
+          "calls": 85
+        },
+        "llm/attention_27": {
+          "cuda_event_interval_ms": 37.27907183766365,
+          "cpu_enqueue_wall_ms": 43.45193039625883,
+          "calls": 85
+        },
+        "llm/ffn_27": {
+          "cuda_event_interval_ms": 33.75257596373558,
+          "cpu_enqueue_wall_ms": 7.817844394594431,
+          "calls": 85
+        },
+        "llm/attention_28": {
+          "cuda_event_interval_ms": 37.0803200006485,
+          "cpu_enqueue_wall_ms": 43.05050102993846,
+          "calls": 85
+        },
+        "llm/ffn_28": {
+          "cuda_event_interval_ms": 33.78403204679489,
+          "cpu_enqueue_wall_ms": 7.807502057403326,
+          "calls": 85
+        },
+        "llm/attention_29": {
+          "cuda_event_interval_ms": 37.2539838552475,
+          "cpu_enqueue_wall_ms": 42.469781357795,
+          "calls": 85
+        },
+        "llm/ffn_29": {
+          "cuda_event_interval_ms": 33.765375941991806,
+          "cpu_enqueue_wall_ms": 7.761062355712056,
+          "calls": 85
+        },
+        "llm/attention_30": {
+          "cuda_event_interval_ms": 37.132479786872864,
+          "cpu_enqueue_wall_ms": 43.04005531594157,
+          "calls": 85
+        },
+        "llm/ffn_30": {
+          "cuda_event_interval_ms": 33.7767039835453,
+          "cpu_enqueue_wall_ms": 7.919889409095049,
+          "calls": 85
+        },
+        "llm/attention_31": {
+          "cuda_event_interval_ms": 37.403424113988876,
+          "cpu_enqueue_wall_ms": 44.71239470876753,
+          "calls": 85
+        },
+        "llm/ffn_31": {
+          "cuda_event_interval_ms": 33.68166393041611,
+          "cpu_enqueue_wall_ms": 7.857815595343709,
+          "calls": 85
+        },
+        "llm/output_projection": {
+          "cuda_event_interval_ms": 31.92399987578392,
+          "cpu_enqueue_wall_ms": 3.893478773534298,
+          "calls": 85
+        },
+        "llm_prefill": {
+          "cuda_event_interval_ms": 181.32797241210938,
+          "cpu_enqueue_wall_ms": 101.3530739583075,
+          "calls": 1
+        },
+        "llm_decode": {
+          "cuda_event_interval_ms": 2339.4875774383545,
+          "cpu_enqueue_wall_ms": 1943.9569788519293,
+          "calls": 84
+        },
+        "llm_generation": {
+          "cuda_event_interval_ms": 2571.41455078125,
+          "cpu_enqueue_wall_ms": 2571.4177440386266,
+          "calls": 1
+        }
+      },
+      "llm_forward_steps": [
+        {
+          "stage": "llm_prefill",
+          "input_shape": [
+            1,
+            577,
+            4096
+          ],
+          "past_tokens": 0,
+          "cpu_enqueue_ms": 101.3530739583075,
+          "cuda_event_interval_ms": 181.32797241210938
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 577,
+          "cpu_enqueue_ms": 23.347216192632914,
+          "cuda_event_interval_ms": 29.056255340576172
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 578,
+          "cpu_enqueue_ms": 23.06419820524752,
+          "cuda_event_interval_ms": 27.96905517578125
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 579,
+          "cpu_enqueue_ms": 23.002432892099023,
+          "cuda_event_interval_ms": 27.97385597229004
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 580,
+          "cpu_enqueue_ms": 23.700166027992964,
+          "cuda_event_interval_ms": 27.906047821044922
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 581,
+          "cpu_enqueue_ms": 23.123622871935368,
+          "cuda_event_interval_ms": 27.808351516723633
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 582,
+          "cpu_enqueue_ms": 23.172181099653244,
+          "cuda_event_interval_ms": 27.636703491210938
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 583,
+          "cpu_enqueue_ms": 22.990032099187374,
+          "cuda_event_interval_ms": 27.745567321777344
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 584,
+          "cpu_enqueue_ms": 23.593123070895672,
+          "cuda_event_interval_ms": 27.72447967529297
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 585,
+          "cpu_enqueue_ms": 23.12876982614398,
+          "cuda_event_interval_ms": 27.8319034576416
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 586,
+          "cpu_enqueue_ms": 23.0080580804497,
+          "cuda_event_interval_ms": 27.73263931274414
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 587,
+          "cpu_enqueue_ms": 23.22424901649356,
+          "cuda_event_interval_ms": 27.846752166748047
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 588,
+          "cpu_enqueue_ms": 22.947076009586453,
+          "cuda_event_interval_ms": 27.72380828857422
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 589,
+          "cpu_enqueue_ms": 23.230501916259527,
+          "cuda_event_interval_ms": 27.9683837890625
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 590,
+          "cpu_enqueue_ms": 22.928636986762285,
+          "cuda_event_interval_ms": 27.711904525756836
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 591,
+          "cpu_enqueue_ms": 23.16723600961268,
+          "cuda_event_interval_ms": 27.72559928894043
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 592,
+          "cpu_enqueue_ms": 22.926880978047848,
+          "cuda_event_interval_ms": 27.680255889892578
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 593,
+          "cpu_enqueue_ms": 23.024933878332376,
+          "cuda_event_interval_ms": 27.884960174560547
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 594,
+          "cpu_enqueue_ms": 23.05010100826621,
+          "cuda_event_interval_ms": 27.716896057128906
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 595,
+          "cpu_enqueue_ms": 22.986512864008546,
+          "cuda_event_interval_ms": 27.838592529296875
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 596,
+          "cpu_enqueue_ms": 22.71013706922531,
+          "cuda_event_interval_ms": 27.687551498413086
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 597,
+          "cpu_enqueue_ms": 22.761831060051918,
+          "cuda_event_interval_ms": 27.80022430419922
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 598,
+          "cpu_enqueue_ms": 23.10590399429202,
+          "cuda_event_interval_ms": 27.828096389770508
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 599,
+          "cpu_enqueue_ms": 23.842999013140798,
+          "cuda_event_interval_ms": 27.769760131835938
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 600,
+          "cpu_enqueue_ms": 22.908956045284867,
+          "cuda_event_interval_ms": 27.729055404663086
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 601,
+          "cpu_enqueue_ms": 22.796869976446033,
+          "cuda_event_interval_ms": 27.82918357849121
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 602,
+          "cpu_enqueue_ms": 22.906217025592923,
+          "cuda_event_interval_ms": 27.745248794555664
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 603,
+          "cpu_enqueue_ms": 22.755070822313428,
+          "cuda_event_interval_ms": 27.844703674316406
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 604,
+          "cpu_enqueue_ms": 22.960843052715063,
+          "cuda_event_interval_ms": 27.6646728515625
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 605,
+          "cpu_enqueue_ms": 23.632531985640526,
+          "cuda_event_interval_ms": 27.82099151611328
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 606,
+          "cpu_enqueue_ms": 22.930284030735493,
+          "cuda_event_interval_ms": 27.70844841003418
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 607,
+          "cpu_enqueue_ms": 23.305841023102403,
+          "cuda_event_interval_ms": 27.92780876159668
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 608,
+          "cpu_enqueue_ms": 22.824132116511464,
+          "cuda_event_interval_ms": 27.682111740112305
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 609,
+          "cpu_enqueue_ms": 22.857632022351027,
+          "cuda_event_interval_ms": 27.809120178222656
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 610,
+          "cpu_enqueue_ms": 22.96667406335473,
+          "cuda_event_interval_ms": 27.694656372070312
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 611,
+          "cpu_enqueue_ms": 22.774965967983007,
+          "cuda_event_interval_ms": 27.82102394104004
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 612,
+          "cpu_enqueue_ms": 22.857567062601447,
+          "cuda_event_interval_ms": 27.71855926513672
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 613,
+          "cpu_enqueue_ms": 23.091009119525552,
+          "cuda_event_interval_ms": 27.942527770996094
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 614,
+          "cpu_enqueue_ms": 22.820583079010248,
+          "cuda_event_interval_ms": 27.74515151977539
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 615,
+          "cpu_enqueue_ms": 23.06689089164138,
+          "cuda_event_interval_ms": 27.813312530517578
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 616,
+          "cpu_enqueue_ms": 22.99794997088611,
+          "cuda_event_interval_ms": 27.904672622680664
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 617,
+          "cpu_enqueue_ms": 22.84490712918341,
+          "cuda_event_interval_ms": 27.885696411132812
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 618,
+          "cpu_enqueue_ms": 22.83924608491361,
+          "cuda_event_interval_ms": 27.721759796142578
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 619,
+          "cpu_enqueue_ms": 23.127809166908264,
+          "cuda_event_interval_ms": 27.865440368652344
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 620,
+          "cpu_enqueue_ms": 23.52919685654342,
+          "cuda_event_interval_ms": 27.8023681640625
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 621,
+          "cpu_enqueue_ms": 23.373811971396208,
+          "cuda_event_interval_ms": 27.906816482543945
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 622,
+          "cpu_enqueue_ms": 23.195581045001745,
+          "cuda_event_interval_ms": 27.759679794311523
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 623,
+          "cpu_enqueue_ms": 23.136325180530548,
+          "cuda_event_interval_ms": 27.88172721862793
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 624,
+          "cpu_enqueue_ms": 22.83466001972556,
+          "cuda_event_interval_ms": 27.787519454956055
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 625,
+          "cpu_enqueue_ms": 23.006442934274673,
+          "cuda_event_interval_ms": 27.990976333618164
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 626,
+          "cpu_enqueue_ms": 22.887600818648934,
+          "cuda_event_interval_ms": 27.77952003479004
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 627,
+          "cpu_enqueue_ms": 23.44775595702231,
+          "cuda_event_interval_ms": 27.94483184814453
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 628,
+          "cpu_enqueue_ms": 22.857706993818283,
+          "cuda_event_interval_ms": 27.74732780456543
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 629,
+          "cpu_enqueue_ms": 22.925504948943853,
+          "cuda_event_interval_ms": 27.849760055541992
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 630,
+          "cpu_enqueue_ms": 22.89226301945746,
+          "cuda_event_interval_ms": 27.81177520751953
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 631,
+          "cpu_enqueue_ms": 22.877857089042664,
+          "cuda_event_interval_ms": 27.896575927734375
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 632,
+          "cpu_enqueue_ms": 22.586737060919404,
+          "cuda_event_interval_ms": 27.723360061645508
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 633,
+          "cpu_enqueue_ms": 22.770416922867298,
+          "cuda_event_interval_ms": 27.871967315673828
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 634,
+          "cpu_enqueue_ms": 23.750673048198223,
+          "cuda_event_interval_ms": 27.98793601989746
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 635,
+          "cpu_enqueue_ms": 22.81835488975048,
+          "cuda_event_interval_ms": 27.870655059814453
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 636,
+          "cpu_enqueue_ms": 23.20091798901558,
+          "cuda_event_interval_ms": 27.743263244628906
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 637,
+          "cpu_enqueue_ms": 22.90714788250625,
+          "cuda_event_interval_ms": 27.866336822509766
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 638,
+          "cpu_enqueue_ms": 22.80527399852872,
+          "cuda_event_interval_ms": 27.813695907592773
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 639,
+          "cpu_enqueue_ms": 22.988922894001007,
+          "cuda_event_interval_ms": 27.787839889526367
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 640,
+          "cpu_enqueue_ms": 22.950961021706462,
+          "cuda_event_interval_ms": 27.78495979309082
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 641,
+          "cpu_enqueue_ms": 22.970136953517795,
+          "cuda_event_interval_ms": 27.839487075805664
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 642,
+          "cpu_enqueue_ms": 22.987142903730273,
+          "cuda_event_interval_ms": 27.745920181274414
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 643,
+          "cpu_enqueue_ms": 23.043151944875717,
+          "cuda_event_interval_ms": 28.1364803314209
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 644,
+          "cpu_enqueue_ms": 22.985038813203573,
+          "cuda_event_interval_ms": 27.808448791503906
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 645,
+          "cpu_enqueue_ms": 22.89004111662507,
+          "cuda_event_interval_ms": 27.93619155883789
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 646,
+          "cpu_enqueue_ms": 22.916894173249602,
+          "cuda_event_interval_ms": 27.718751907348633
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 647,
+          "cpu_enqueue_ms": 22.978084860369563,
+          "cuda_event_interval_ms": 27.80681610107422
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 648,
+          "cpu_enqueue_ms": 23.089060792699456,
+          "cuda_event_interval_ms": 27.78825569152832
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 649,
+          "cpu_enqueue_ms": 22.92350702919066,
+          "cuda_event_interval_ms": 27.956928253173828
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 650,
+          "cpu_enqueue_ms": 23.910914082080126,
+          "cuda_event_interval_ms": 27.92905616760254
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 651,
+          "cpu_enqueue_ms": 25.674439035356045,
+          "cuda_event_interval_ms": 28.451007843017578
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 652,
+          "cpu_enqueue_ms": 24.72604811191559,
+          "cuda_event_interval_ms": 28.008159637451172
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 653,
+          "cpu_enqueue_ms": 24.883243953809142,
+          "cuda_event_interval_ms": 28.06671905517578
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 654,
+          "cpu_enqueue_ms": 23.88749597594142,
+          "cuda_event_interval_ms": 27.90732765197754
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 655,
+          "cpu_enqueue_ms": 23.113019997254014,
+          "cuda_event_interval_ms": 27.833120346069336
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 656,
+          "cpu_enqueue_ms": 23.31796381622553,
+          "cuda_event_interval_ms": 27.83344078063965
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 657,
+          "cpu_enqueue_ms": 23.119030985981226,
+          "cuda_event_interval_ms": 28.018207550048828
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 658,
+          "cpu_enqueue_ms": 23.75065698288381,
+          "cuda_event_interval_ms": 27.869279861450195
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 659,
+          "cpu_enqueue_ms": 22.89431099779904,
+          "cuda_event_interval_ms": 27.988256454467773
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 660,
+          "cpu_enqueue_ms": 22.849902976304293,
+          "cuda_event_interval_ms": 27.795040130615234
+        }
+      ],
+      "additivity": "Nested intervals overlap; never sum module P50s or CPU enqueue time with GPU intervals."
+    }
+  },
+  {
+    "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+    "frame": "770e9c5da527420594a50b6ea1408f42",
+    "ordinal": 3,
+    "profiled_model_wall_ms": 3414.723593974486,
+    "profiler_teardown_wall_ms": 37863.26285707764,
+    "trace": "outputs/stateful_cross_frame_boundary/pilot01/traces/1_3.json",
+    "summary": {
+      "attribution_valid": false,
+      "device_activity_ms": 2799.6569999999024,
+      "device_compute_kernel_ms": 2795.1679999998446,
+      "device_activity_count": 200933,
+      "attached_activity_ms": 2799.3899999999003,
+      "attached_activity_count": 200844,
+      "stages": {
+        "input_adapter": {
+          "kernel_ms": 0.0,
+          "transfer_ms": 1.9859999999999998,
+          "kernel_count": 0,
+          "activity_count": 6
+        },
+        "eva": {
+          "kernel_ms": 474.9149999999997,
+          "transfer_ms": 0.16100000000000012,
+          "kernel_count": 1021,
+          "activity_count": 1101
+        },
+        "other_model": {
+          "kernel_ms": 0.28900000000000015,
+          "transfer_ms": 0.03600000000000001,
+          "kernel_count": 65,
+          "activity_count": 78
+        },
+        "perception_position": {
+          "kernel_ms": 1.9659999999999997,
+          "transfer_ms": 0.004,
+          "kernel_count": 53,
+          "activity_count": 56
+        },
+        "detection": {
+          "kernel_ms": 13.24000000000002,
+          "transfer_ms": 0.40900000000000003,
+          "kernel_count": 630,
+          "activity_count": 695
+        },
+        "map": {
+          "kernel_ms": 25.50499999999998,
+          "transfer_ms": 0.559,
+          "kernel_count": 586,
+          "activity_count": 651
+        },
+        "llm_sampling_and_preparation": {
+          "kernel_ms": 19.649000000000072,
+          "transfer_ms": 1.0199999999999994,
+          "kernel_count": 5473,
+          "activity_count": 6873
+        },
+        "llm_prefill": {
+          "kernel_ms": 176.96900000000153,
+          "transfer_ms": 0.002,
+          "kernel_count": 2261,
+          "activity_count": 2262
+        },
+        "llm_decode": {
+          "kernel_ms": 2082.3679999976016,
+          "transfer_ms": 0.3120000000000002,
+          "kernel_count": 183597,
+          "activity_count": 189122
+        }
+      },
+      "inclusive_scope_kernel_ms": {
+        "eva|request": 474.9149999999997,
+        "eva|eva": 474.9149999999997,
+        "eva|eva/block_0": 18.783000000000005,
+        "eva|eva/attention_0": 8.002000000000002,
+        "eva|eva/ffn_0": 9.399000000000001,
+        "eva|eva/block_1": 19.531999999999993,
+        "eva|eva/attention_1": 8.176,
+        "eva|eva/ffn_1": 9.905000000000003,
+        "eva|eva/block_2": 18.083,
+        "eva|eva/attention_2": 6.996,
+        "eva|eva/ffn_2": 10.134,
+        "eva|eva/block_3": 20.409999999999997,
+        "eva|eva/attention_3": 8.781,
+        "eva|eva/ffn_3": 10.136000000000001,
+        "eva|eva/block_4": 20.415,
+        "eva|eva/attention_4": 8.774999999999999,
+        "eva|eva/ffn_4": 10.141000000000002,
+        "eva|eva/block_5": 18.234,
+        "eva|eva/attention_5": 7.14,
+        "eva|eva/ffn_5": 10.137,
+        "eva|eva/block_6": 20.406999999999996,
+        "eva|eva/attention_6": 8.777999999999999,
+        "eva|eva/ffn_6": 10.129,
+        "eva|eva/block_7": 20.408,
+        "eva|eva/attention_7": 8.771999999999998,
+        "eva|eva/ffn_7": 10.136,
+        "eva|eva/block_8": 18.293,
+        "eva|eva/attention_8": 7.141,
+        "eva|eva/ffn_8": 10.182,
+        "eva|eva/block_9": 20.715,
+        "eva|eva/attention_9": 8.966,
+        "eva|eva/ffn_9": 10.234000000000002,
+        "eva|eva/block_10": 20.535999999999998,
+        "eva|eva/attention_10": 8.841,
+        "eva|eva/ffn_10": 10.188999999999998,
+        "eva|eva/block_11": 18.328999999999997,
+        "eva|eva/attention_11": 7.169999999999998,
+        "eva|eva/ffn_11": 10.191,
+        "eva|eva/block_12": 20.569,
+        "eva|eva/attention_12": 8.865999999999998,
+        "eva|eva/ffn_12": 10.192,
+        "eva|eva/block_13": 20.573999999999998,
+        "eva|eva/attention_13": 8.847,
+        "eva|eva/ffn_13": 10.217,
+        "eva|eva/block_14": 18.404999999999998,
+        "eva|eva/attention_14": 7.223999999999998,
+        "eva|eva/ffn_14": 10.205,
+        "eva|eva/block_15": 20.454,
+        "eva|eva/attention_15": 8.821,
+        "eva|eva/ffn_15": 10.129,
+        "eva|eva/block_16": 20.369000000000003,
+        "eva|eva/attention_16": 8.759,
+        "eva|eva/ffn_16": 10.109,
+        "eva|eva/block_17": 18.217999999999996,
+        "eva|eva/attention_17": 7.154,
+        "eva|eva/ffn_17": 10.108,
+        "eva|eva/block_18": 20.404999999999998,
+        "eva|eva/attention_18": 8.793999999999999,
+        "eva|eva/ffn_18": 10.109,
+        "eva|eva/block_19": 20.364,
+        "eva|eva/attention_19": 8.762,
+        "eva|eva/ffn_19": 10.104000000000001,
+        "eva|eva/block_20": 18.230999999999995,
+        "eva|eva/attention_20": 7.154999999999998,
+        "eva|eva/ffn_20": 10.112,
+        "eva|eva/block_21": 20.355999999999998,
+        "eva|eva/attention_21": 8.756999999999998,
+        "eva|eva/ffn_21": 10.106,
+        "eva|eva/block_22": 20.374,
+        "eva|eva/attention_22": 8.76,
+        "eva|eva/ffn_22": 10.103,
+        "eva|eva/block_23": 18.259999999999998,
+        "eva|eva/attention_23": 7.186,
+        "eva|eva/ffn_23": 10.107,
+        "other_model|request": 0.28900000000000015,
+        "perception_position|request": 1.9659999999999997,
+        "perception_position|perception_position": 1.9659999999999997,
+        "detection|request": 13.24000000000002,
+        "detection|detection/pre_update_memory": 0.07300000000000004,
+        "detection|detection": 13.24000000000002,
+        "detection|detection/input_projection": 0.367,
+        "detection|head_shared/query_pos": 0.101,
+        "detection|detection/temporal_alignment": 0.4870000000000004,
+        "detection|head_shared/ego_pose_pe": 0.064,
+        "detection|head_shared/time_embedding": 0.055,
+        "detection|detection/self_attention_0": 0.8790000000000001,
+        "detection|detection/cross_attention_0": 0.6880000000000001,
+        "detection|detection/ffn_0": 0.211,
+        "detection|detection/self_attention_1": 0.8710000000000001,
+        "detection|detection/cross_attention_1": 0.694,
+        "detection|detection/ffn_1": 0.20700000000000002,
+        "detection|detection/self_attention_2": 0.8710000000000001,
+        "detection|detection/cross_attention_2": 0.688,
+        "detection|detection/ffn_2": 0.20600000000000002,
+        "detection|detection/self_attention_3": 0.8720000000000001,
+        "detection|detection/cross_attention_3": 0.6960000000000001,
+        "detection|detection/ffn_3": 0.20600000000000002,
+        "detection|detection/self_attention_4": 0.861,
+        "detection|detection/cross_attention_4": 0.674,
+        "detection|detection/ffn_4": 0.202,
+        "detection|detection/self_attention_5": 0.8600000000000001,
+        "detection|detection/cross_attention_5": 0.6739999999999999,
+        "detection|detection/ffn_5": 0.20700000000000002,
+        "detection|detection/output_projection": 0.043,
+        "detection|detection/post_update_memory": 0.13000000000000006,
+        "map|request": 25.50499999999998,
+        "map|map": 25.50499999999998,
+        "map|map/pre_update_memory": 0.07600000000000001,
+        "map|map/input_projection": 0.356,
+        "map|head_shared/query_pos": 0.14,
+        "map|map/temporal_alignment": 0.5040000000000002,
+        "map|head_shared/ego_pose_pe": 0.061000000000000006,
+        "map|head_shared/time_embedding": 0.07300000000000001,
+        "map|map/self_attention_0": 2.6039999999999996,
+        "map|map/cross_attention_0": 0.905,
+        "map|map/ffn_0": 0.332,
+        "map|map/self_attention_1": 2.592,
+        "map|map/cross_attention_1": 0.904,
+        "map|map/ffn_1": 0.338,
+        "map|map/self_attention_2": 2.514,
+        "map|map/cross_attention_2": 0.8490000000000001,
+        "map|map/ffn_2": 0.314,
+        "map|map/self_attention_3": 2.4989999999999997,
+        "map|map/cross_attention_3": 0.8500000000000001,
+        "map|map/ffn_3": 0.318,
+        "map|map/self_attention_4": 2.5029999999999997,
+        "map|map/cross_attention_4": 0.8490000000000001,
+        "map|map/ffn_4": 0.319,
+        "map|map/self_attention_5": 2.5029999999999997,
+        "map|map/cross_attention_5": 0.8500000000000001,
+        "map|map/ffn_5": 0.313,
+        "map|map/post_update_memory": 0.10200000000000004,
+        "map|map/output_projection": 0.041,
+        "llm_sampling_and_preparation|request": 19.649000000000072,
+        "llm_sampling_and_preparation|llm_generation": 19.649000000000072,
+        "llm_prefill|request": 176.96900000000153,
+        "llm_prefill|llm_prefill": 176.96900000000153,
+        "llm_prefill|llm_generation": 176.96900000000153,
+        "llm_prefill|llm/attention_0": 2.439999999999999,
+        "llm_prefill|llm/ffn_0": 2.537,
+        "llm_prefill|llm/attention_1": 2.4399999999999995,
+        "llm_prefill|llm/ffn_1": 2.5380000000000003,
+        "llm_prefill|llm/attention_2": 2.438999999999999,
+        "llm_prefill|llm/ffn_2": 2.538,
+        "llm_prefill|llm/attention_3": 2.4209999999999994,
+        "llm_prefill|llm/ffn_3": 2.539,
+        "llm_prefill|llm/attention_4": 2.434999999999999,
+        "llm_prefill|llm/ffn_4": 2.5540000000000003,
+        "llm_prefill|llm/attention_5": 2.435999999999999,
+        "llm_prefill|llm/ffn_5": 2.556,
+        "llm_prefill|llm/attention_6": 2.434999999999999,
+        "llm_prefill|llm/ffn_6": 2.556,
+        "llm_prefill|llm/attention_7": 2.4359999999999995,
+        "llm_prefill|llm/ffn_7": 2.638,
+        "llm_prefill|llm/attention_8": 2.5449999999999995,
+        "llm_prefill|llm/ffn_8": 2.6950000000000003,
+        "llm_prefill|llm/attention_9": 2.5459999999999994,
+        "llm_prefill|llm/ffn_9": 2.694,
+        "llm_prefill|llm/attention_10": 2.5429999999999997,
+        "llm_prefill|llm/ffn_10": 2.6950000000000003,
+        "llm_prefill|llm/attention_11": 2.542,
+        "llm_prefill|llm/ffn_11": 2.6950000000000003,
+        "llm_prefill|llm/attention_12": 2.5439999999999996,
+        "llm_prefill|llm/ffn_12": 2.697,
+        "llm_prefill|llm/attention_13": 2.542,
+        "llm_prefill|llm/ffn_13": 2.694,
+        "llm_prefill|llm/attention_14": 2.5429999999999997,
+        "llm_prefill|llm/ffn_14": 2.6950000000000003,
+        "llm_prefill|llm/attention_15": 2.5429999999999997,
+        "llm_prefill|llm/ffn_15": 2.6950000000000003,
+        "llm_prefill|llm/attention_16": 2.5449999999999995,
+        "llm_prefill|llm/ffn_16": 2.696,
+        "llm_prefill|llm/attention_17": 2.548,
+        "llm_prefill|llm/ffn_17": 2.696,
+        "llm_prefill|llm/attention_18": 2.544,
+        "llm_prefill|llm/ffn_18": 2.696,
+        "llm_prefill|llm/attention_19": 2.541,
+        "llm_prefill|llm/ffn_19": 2.6950000000000003,
+        "llm_prefill|llm/attention_20": 2.5449999999999995,
+        "llm_prefill|llm/ffn_20": 2.693,
+        "llm_prefill|llm/attention_21": 2.544,
+        "llm_prefill|llm/ffn_21": 2.693,
+        "llm_prefill|llm/attention_22": 2.527,
+        "llm_prefill|llm/ffn_22": 2.6710000000000003,
+        "llm_prefill|llm/attention_23": 2.529,
+        "llm_prefill|llm/ffn_23": 2.6740000000000004,
+        "llm_prefill|llm/attention_24": 2.541,
+        "llm_prefill|llm/ffn_24": 2.672,
+        "llm_prefill|llm/attention_25": 2.5269999999999997,
+        "llm_prefill|llm/ffn_25": 2.673,
+        "llm_prefill|llm/attention_26": 2.525,
+        "llm_prefill|llm/ffn_26": 2.672,
+        "llm_prefill|llm/attention_27": 2.5269999999999992,
+        "llm_prefill|llm/ffn_27": 2.6740000000000004,
+        "llm_prefill|llm/attention_28": 2.5279999999999996,
+        "llm_prefill|llm/ffn_28": 2.6740000000000004,
+        "llm_prefill|llm/attention_29": 2.524,
+        "llm_prefill|llm/ffn_29": 2.673,
+        "llm_prefill|llm/attention_30": 2.5309999999999997,
+        "llm_prefill|llm/ffn_30": 2.674,
+        "llm_prefill|llm/attention_31": 2.5269999999999997,
+        "llm_prefill|llm/ffn_31": 2.673,
+        "llm_prefill|llm/output_projection": 2.393,
+        "llm_decode|request": 2082.3679999976016,
+        "llm_decode|llm_decode": 2082.3679999976016,
+        "llm_decode|llm_generation": 2082.3679999976016,
+        "llm_decode|llm/attention_0": 30.425000000000253,
+        "llm_decode|llm/ffn_0": 30.4829999999999,
+        "llm_decode|llm/attention_1": 30.6760000000003,
+        "llm_decode|llm/ffn_1": 30.40399999999985,
+        "llm_decode|llm/attention_2": 30.412000000000294,
+        "llm_decode|llm/ffn_2": 30.38099999999989,
+        "llm_decode|llm/attention_3": 30.24200000000042,
+        "llm_decode|llm/ffn_3": 30.297999999999927,
+        "llm_decode|llm/attention_4": 30.299000000000312,
+        "llm_decode|llm/ffn_4": 30.378999999999888,
+        "llm_decode|llm/attention_5": 30.393000000000352,
+        "llm_decode|llm/ffn_5": 30.377999999999876,
+        "llm_decode|llm/attention_6": 30.355000000000203,
+        "llm_decode|llm/ffn_6": 30.487999999999897,
+        "llm_decode|llm/attention_7": 30.427000000000305,
+        "llm_decode|llm/ffn_7": 30.384999999999895,
+        "llm_decode|llm/attention_8": 30.319000000000347,
+        "llm_decode|llm/ffn_8": 30.418999999999865,
+        "llm_decode|llm/attention_9": 30.406000000000354,
+        "llm_decode|llm/ffn_9": 30.282999999999916,
+        "llm_decode|llm/attention_10": 30.087000000000344,
+        "llm_decode|llm/ffn_10": 30.40799999999988,
+        "llm_decode|llm/attention_11": 30.39100000000036,
+        "llm_decode|llm/ffn_11": 30.393999999999867,
+        "llm_decode|llm/attention_12": 30.185000000000333,
+        "llm_decode|llm/ffn_12": 30.357999999999873,
+        "llm_decode|llm/attention_13": 30.490000000000308,
+        "llm_decode|llm/ffn_13": 30.42199999999985,
+        "llm_decode|llm/attention_14": 30.149000000000374,
+        "llm_decode|llm/ffn_14": 30.180999999999905,
+        "llm_decode|llm/attention_15": 30.318000000000335,
+        "llm_decode|llm/ffn_15": 30.428999999999835,
+        "llm_decode|llm/attention_16": 30.239000000000303,
+        "llm_decode|llm/ffn_16": 30.468999999999873,
+        "llm_decode|llm/attention_17": 30.482000000000287,
+        "llm_decode|llm/ffn_17": 30.503999999999845,
+        "llm_decode|llm/attention_18": 30.32900000000021,
+        "llm_decode|llm/ffn_18": 30.25599999999991,
+        "llm_decode|llm/attention_19": 30.431000000000367,
+        "llm_decode|llm/ffn_19": 30.250999999999934,
+        "llm_decode|llm/attention_20": 30.573000000000306,
+        "llm_decode|llm/ffn_20": 30.399999999999903,
+        "llm_decode|llm/attention_21": 30.13100000000043,
+        "llm_decode|llm/ffn_21": 30.625999999999863,
+        "llm_decode|llm/attention_22": 30.51200000000026,
+        "llm_decode|llm/ffn_22": 30.49299999999983,
+        "llm_decode|llm/attention_23": 30.370000000000356,
+        "llm_decode|llm/ffn_23": 30.372999999999887,
+        "llm_decode|llm/attention_24": 30.24200000000035,
+        "llm_decode|llm/ffn_24": 30.436999999999877,
+        "llm_decode|llm/attention_25": 30.26500000000042,
+        "llm_decode|llm/ffn_25": 30.469999999999835,
+        "llm_decode|llm/attention_26": 30.297000000000267,
+        "llm_decode|llm/ffn_26": 30.441999999999855,
+        "llm_decode|llm/attention_27": 30.583000000000272,
+        "llm_decode|llm/ffn_27": 30.37099999999989,
+        "llm_decode|llm/attention_28": 30.16900000000029,
+        "llm_decode|llm/ffn_28": 30.371999999999865,
+        "llm_decode|llm/attention_29": 30.363000000000337,
+        "llm_decode|llm/ffn_29": 30.363999999999866,
+        "llm_decode|llm/attention_30": 30.222000000000257,
+        "llm_decode|llm/ffn_30": 30.384999999999867,
+        "llm_decode|llm/attention_31": 30.583000000000283,
+        "llm_decode|llm/ffn_31": 30.275999999999865,
+        "llm_decode|llm/output_projection": 29.516
+      },
+      "top_kernels": [
+        {
+          "name": "ampere_fp16_s16816gemm_fp16_64x64_sliced1x2_ldg8_f2f_stages_64x5_tn",
+          "kernel_ms": 799.5080000000164,
+          "calls": 13600
+        },
+        {
+          "name": "ampere_fp16_s16816gemm_fp16_64x64_ldg8_f2f_stages_64x5_tn",
+          "kernel_ms": 658.1519999999728,
+          "calls": 5440
+        },
+        {
+          "name": "ampere_sgemm_128x64_tn",
+          "kernel_ms": 319.243000000002,
+          "calls": 328
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 128, 1>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 128, 1>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "kernel_ms": 88.78700000000663,
+          "calls": 5376
+        },
+        {
+          "name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, float, float, float, float, false, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)",
+          "kernel_ms": 65.54100000000227,
+          "calls": 10880
+        },
+        {
+          "name": "ampere_fp16_s1688gemm_fp16_128x128_ldg8_f2f_stages_32x1_tn",
+          "kernel_ms": 63.27399999999986,
+          "calls": 160
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "kernel_ms": 60.346999999998,
+          "calls": 16726
+        },
+        {
+          "name": "void cutlass::Kernel<cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x128_32x3_tn_align8>(cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x128_32x3_tn_align8::Params)",
+          "kernel_ms": 59.558000000000035,
+          "calls": 65
+        },
+        {
+          "name": "void gemv2T_kernel_val<int, int, float, float, float, float, 128, 16, 2, 2, false, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>, float, float)",
+          "kernel_ms": 54.69400000000945,
+          "calls": 10886
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1>)",
+          "kernel_ms": 36.12900000000124,
+          "calls": 11008
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "kernel_ms": 34.768000000000306,
+          "calls": 8501
+        },
+        {
+          "name": "ampere_sgemm_128x128_tn",
+          "kernel_ms": 33.37199999999995,
+          "calls": 156
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<float> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<float> const&)::{lambda(int)#1})",
+          "kernel_ms": 32.07799999999998,
+          "calls": 185
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}>(at::TensorIteratorBase&, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1} const&)::{lambda(int)#1})",
+          "kernel_ms": 31.24099999999995,
+          "calls": 271
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "kernel_ms": 30.86099999999849,
+          "calls": 11073
+        },
+        {
+          "name": "void cutlass::Kernel<cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x64_32x4_tn_align8>(cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x64_32x4_tn_align8::Params)",
+          "kernel_ms": 29.005999999999982,
+          "calls": 85
+        },
+        {
+          "name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, __half, __half, __half, float, false, true, false, false, 9, false, cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float>)",
+          "kernel_ms": 28.469000000000264,
+          "calls": 2400
+        },
+        {
+          "name": "std::enable_if<true, void>::type internal::gemvx::kernel<int, int, __half, __half, __half, float, true, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float>)",
+          "kernel_ms": 27.204999999999625,
+          "calls": 2400
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 64, 64>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 64, 64>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "kernel_ms": 24.822000000001623,
+          "calls": 5568
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "kernel_ms": 24.710999999996076,
+          "calls": 5796
+        },
+        {
+          "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::MeanOps<float, float>, unsigned int, float, 4> >(at::native::ReduceOp<float, at::native::MeanOps<float, float>, unsigned int, float, 4>)",
+          "kernel_ms": 20.557000000000404,
+          "calls": 5590
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3> >(int, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3>)",
+          "kernel_ms": 18.07500000000087,
+          "calls": 8277
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<c10::Half>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<c10::Half>, at::detail::Array<char*, 3>)",
+          "kernel_ms": 17.948000000000363,
+          "calls": 10944
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2> >(int, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2>)",
+          "kernel_ms": 15.886999999998595,
+          "calls": 11016
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1} const&)::{lambda(int)#1})",
+          "kernel_ms": 14.495000000000816,
+          "calls": 5504
+        },
+        {
+          "name": "void at::native::index_elementwise_kernel<128, 4, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1} const&)::{lambda(int)#1})",
+          "kernel_ms": 14.23800000000077,
+          "calls": 5504
+        },
+        {
+          "name": "void flash_fwd_kernel<Flash_fwd_kernel_traits<64, 128, 128, 4, false, false, cutlass::half_t, Flash_kernel_traits<64, 128, 128, 4, cutlass::half_t> >, false, false, false, false, false, true, false>(Flash_fwd_params)",
+          "kernel_ms": 13.99,
+          "calls": 24
+        },
+        {
+          "name": "void (anonymous namespace)::softmax_warp_forward<c10::Half, float, float, 10, false, false>(float*, c10::Half const*, int, int, int, bool const*, int, bool)",
+          "kernel_ms": 13.559999999998993,
+          "calls": 2752
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<c10::Half> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<c10::Half> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<c10::Half> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<c10::Half> const&)::{lambda(int)#1})",
+          "kernel_ms": 11.317000000000306,
+          "calls": 2816
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::rsqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#4}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2> >(int, at::native::rsqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#4}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>)",
+          "kernel_ms": 11.175000000000388,
+          "calls": 5590
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3> >(int, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3>)",
+          "kernel_ms": 8.932999999999998,
+          "calls": 26
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctorOnSelf_add<float>, at::detail::Array<char*, 2> >(int, at::native::CUDAFunctorOnSelf_add<float>, at::detail::Array<char*, 2>)",
+          "kernel_ms": 8.708999999999907,
+          "calls": 5590
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::cunn_SoftMaxForward<4, float, float, float, at::native::(anonymous namespace)::SoftMaxForwardEpilogue>(float*, float*, int)",
+          "kernel_ms": 7.905000000000017,
+          "calls": 184
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::pow_tensor_scalar_kernel_impl<float, float>(at::TensorIteratorBase&, float)::{lambda(float)#1}, at::detail::Array<char*, 2> >(int, at::native::(anonymous namespace)::pow_tensor_scalar_kernel_impl<float, float>(at::TensorIteratorBase&, float)::{lambda(float)#1}, at::detail::Array<char*, 2>)",
+          "kernel_ms": 7.512000000000746,
+          "calls": 5590
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<float, unsigned int, 4, 128, 1>(float*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<float, unsigned int, 128, 1>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "kernel_ms": 7.193,
+          "calls": 45
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BUnaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2> >(int, at::native::BUnaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2>)",
+          "kernel_ms": 7.177999999999437,
+          "calls": 2752
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::silu_kernel(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2> >(int, at::native::(anonymous namespace)::silu_kernel(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>)",
+          "kernel_ms": 6.500999999999517,
+          "calls": 2752
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::vectorized_layer_norm_kernel<float, float>(int, float, float const*, float const*, float const*, float*, float*, float*)",
+          "kernel_ms": 6.462999999999997,
+          "calls": 114
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::LayerNormForwardCUDAKernel<float, float>(long, float const*, float const*, float const*, float const*, float const*, float*)",
+          "kernel_ms": 6.057999999999999,
+          "calls": 24
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::silu_kernel(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2> >(int, at::native::(anonymous namespace)::silu_kernel(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>)",
+          "kernel_ms": 6.022000000000001,
+          "calls": 24
+        }
+      ],
+      "interpretation": "Stage kernel sums are disjoint. Inclusive scopes overlap; CUDA event intervals include host launch gaps and are reported separately."
+    },
+    "peak_allocated_bytes": 16452453376,
+    "scopes": {
+      "inclusive_module_intervals": {
+        "input_adapter": {
+          "cuda_event_interval_ms": 9.462719917297363,
+          "cpu_enqueue_wall_ms": 9.463689988479018,
+          "calls": 1
+        },
+        "m1_precheck": {
+          "cuda_event_interval_ms": 204.67800903320312,
+          "cpu_enqueue_wall_ms": 204.67870379798114,
+          "calls": 1
+        },
+        "eva/attention_0": {
+          "cuda_event_interval_ms": 8.040287971496582,
+          "cpu_enqueue_wall_ms": 0.6587898824363947,
+          "calls": 1
+        },
+        "eva/ffn_0": {
+          "cuda_event_interval_ms": 9.41327953338623,
+          "cpu_enqueue_wall_ms": 0.15882309526205063,
+          "calls": 1
+        },
+        "eva/block_0": {
+          "cuda_event_interval_ms": 18.853343963623047,
+          "cpu_enqueue_wall_ms": 1.0573659092187881,
+          "calls": 1
+        },
+        "eva/attention_1": {
+          "cuda_event_interval_ms": 8.216511726379395,
+          "cpu_enqueue_wall_ms": 0.5035630892962217,
+          "calls": 1
+        },
+        "eva/ffn_1": {
+          "cuda_event_interval_ms": 9.924384117126465,
+          "cpu_enqueue_wall_ms": 0.16709999181330204,
+          "calls": 1
+        },
+        "eva/block_1": {
+          "cuda_event_interval_ms": 19.611616134643555,
+          "cpu_enqueue_wall_ms": 0.8767889812588692,
+          "calls": 1
+        },
+        "eva/attention_2": {
+          "cuda_event_interval_ms": 7.031839847564697,
+          "cpu_enqueue_wall_ms": 0.4816032014787197,
+          "calls": 1
+        },
+        "eva/ffn_2": {
+          "cuda_event_interval_ms": 10.15174388885498,
+          "cpu_enqueue_wall_ms": 0.13246596790850163,
+          "calls": 1
+        },
+        "eva/block_2": {
+          "cuda_event_interval_ms": 18.151199340820312,
+          "cpu_enqueue_wall_ms": 0.7260439451783895,
+          "calls": 1
+        },
+        "eva/attention_3": {
+          "cuda_event_interval_ms": 8.826144218444824,
+          "cpu_enqueue_wall_ms": 0.4491100553423166,
+          "calls": 1
+        },
+        "eva/ffn_3": {
+          "cuda_event_interval_ms": 10.15555191040039,
+          "cpu_enqueue_wall_ms": 0.13143988326191902,
+          "calls": 1
+        },
+        "eva/block_3": {
+          "cuda_event_interval_ms": 20.493728637695312,
+          "cpu_enqueue_wall_ms": 0.76333899050951,
+          "calls": 1
+        },
+        "eva/attention_4": {
+          "cuda_event_interval_ms": 8.816351890563965,
+          "cpu_enqueue_wall_ms": 0.4355029668658972,
+          "calls": 1
+        },
+        "eva/ffn_4": {
+          "cuda_event_interval_ms": 10.161215782165527,
+          "cpu_enqueue_wall_ms": 0.1341619063168764,
+          "calls": 1
+        },
+        "eva/block_4": {
+          "cuda_event_interval_ms": 20.496383666992188,
+          "cpu_enqueue_wall_ms": 0.7481388747692108,
+          "calls": 1
+        },
+        "eva/attention_5": {
+          "cuda_event_interval_ms": 7.1787519454956055,
+          "cpu_enqueue_wall_ms": 0.4177840892225504,
+          "calls": 1
+        },
+        "eva/ffn_5": {
+          "cuda_event_interval_ms": 10.154879570007324,
+          "cpu_enqueue_wall_ms": 0.13398611918091774,
+          "calls": 1
+        },
+        "eva/block_5": {
+          "cuda_event_interval_ms": 18.304031372070312,
+          "cpu_enqueue_wall_ms": 0.6576289888471365,
+          "calls": 1
+        },
+        "eva/attention_6": {
+          "cuda_event_interval_ms": 8.821056365966797,
+          "cpu_enqueue_wall_ms": 0.42318482883274555,
+          "calls": 1
+        },
+        "eva/ffn_6": {
+          "cuda_event_interval_ms": 10.149120330810547,
+          "cpu_enqueue_wall_ms": 0.13253395445644855,
+          "calls": 1
+        },
+        "eva/block_6": {
+          "cuda_event_interval_ms": 20.491872787475586,
+          "cpu_enqueue_wall_ms": 0.7361811585724354,
+          "calls": 1
+        },
+        "eva/attention_7": {
+          "cuda_event_interval_ms": 8.81612777709961,
+          "cpu_enqueue_wall_ms": 0.42864400893449783,
+          "calls": 1
+        },
+        "eva/ffn_7": {
+          "cuda_event_interval_ms": 10.1561279296875,
+          "cpu_enqueue_wall_ms": 0.13014278374612331,
+          "calls": 1
+        },
+        "eva/block_7": {
+          "cuda_event_interval_ms": 20.49228858947754,
+          "cpu_enqueue_wall_ms": 0.7299559656530619,
+          "calls": 1
+        },
+        "eva/attention_8": {
+          "cuda_event_interval_ms": 7.177984237670898,
+          "cpu_enqueue_wall_ms": 0.41383993811905384,
+          "calls": 1
+        },
+        "eva/ffn_8": {
+          "cuda_event_interval_ms": 10.200287818908691,
+          "cpu_enqueue_wall_ms": 0.1345651689916849,
+          "calls": 1
+        },
+        "eva/block_8": {
+          "cuda_event_interval_ms": 18.362367630004883,
+          "cpu_enqueue_wall_ms": 0.6613330915570259,
+          "calls": 1
+        },
+        "eva/attention_9": {
+          "cuda_event_interval_ms": 9.010432243347168,
+          "cpu_enqueue_wall_ms": 0.4202451091259718,
+          "calls": 1
+        },
+        "eva/ffn_9": {
+          "cuda_event_interval_ms": 10.251968383789062,
+          "cpu_enqueue_wall_ms": 0.12939679436385632,
+          "calls": 1
+        },
+        "eva/block_9": {
+          "cuda_event_interval_ms": 20.798336029052734,
+          "cpu_enqueue_wall_ms": 0.7242630235850811,
+          "calls": 1
+        },
+        "eva/attention_10": {
+          "cuda_event_interval_ms": 8.887295722961426,
+          "cpu_enqueue_wall_ms": 0.42195990681648254,
+          "calls": 1
+        },
+        "eva/ffn_10": {
+          "cuda_event_interval_ms": 10.207839965820312,
+          "cpu_enqueue_wall_ms": 0.12789713218808174,
+          "calls": 1
+        },
+        "eva/block_10": {
+          "cuda_event_interval_ms": 20.62131118774414,
+          "cpu_enqueue_wall_ms": 0.7286560721695423,
+          "calls": 1
+        },
+        "eva/attention_11": {
+          "cuda_event_interval_ms": 7.204639911651611,
+          "cpu_enqueue_wall_ms": 0.4137849900871515,
+          "calls": 1
+        },
+        "eva/ffn_11": {
+          "cuda_event_interval_ms": 10.210304260253906,
+          "cpu_enqueue_wall_ms": 0.12634508311748505,
+          "calls": 1
+        },
+        "eva/block_11": {
+          "cuda_event_interval_ms": 18.395488739013672,
+          "cpu_enqueue_wall_ms": 0.6439241115003824,
+          "calls": 1
+        },
+        "eva/attention_12": {
+          "cuda_event_interval_ms": 8.908960342407227,
+          "cpu_enqueue_wall_ms": 0.41297893039882183,
+          "calls": 1
+        },
+        "eva/ffn_12": {
+          "cuda_event_interval_ms": 10.209152221679688,
+          "cpu_enqueue_wall_ms": 0.1386408694088459,
+          "calls": 1
+        },
+        "eva/block_12": {
+          "cuda_event_interval_ms": 20.648544311523438,
+          "cpu_enqueue_wall_ms": 0.7272330112755299,
+          "calls": 1
+        },
+        "eva/attention_13": {
+          "cuda_event_interval_ms": 8.891519546508789,
+          "cpu_enqueue_wall_ms": 0.41578197851777077,
+          "calls": 1
+        },
+        "eva/ffn_13": {
+          "cuda_event_interval_ms": 10.234784126281738,
+          "cpu_enqueue_wall_ms": 0.1285560429096222,
+          "calls": 1
+        },
+        "eva/block_13": {
+          "cuda_event_interval_ms": 20.65500831604004,
+          "cpu_enqueue_wall_ms": 0.7209130562841892,
+          "calls": 1
+        },
+        "eva/attention_14": {
+          "cuda_event_interval_ms": 7.259488105773926,
+          "cpu_enqueue_wall_ms": 0.41561503894627094,
+          "calls": 1
+        },
+        "eva/ffn_14": {
+          "cuda_event_interval_ms": 10.22332763671875,
+          "cpu_enqueue_wall_ms": 0.13283290900290012,
+          "calls": 1
+        },
+        "eva/block_14": {
+          "cuda_event_interval_ms": 18.47225570678711,
+          "cpu_enqueue_wall_ms": 0.6562341004610062,
+          "calls": 1
+        },
+        "eva/attention_15": {
+          "cuda_event_interval_ms": 8.865823745727539,
+          "cpu_enqueue_wall_ms": 0.4170038737356663,
+          "calls": 1
+        },
+        "eva/ffn_15": {
+          "cuda_event_interval_ms": 10.1495361328125,
+          "cpu_enqueue_wall_ms": 0.12953300029039383,
+          "calls": 1
+        },
+        "eva/block_15": {
+          "cuda_event_interval_ms": 20.540128707885742,
+          "cpu_enqueue_wall_ms": 0.730736181139946,
+          "calls": 1
+        },
+        "eva/attention_16": {
+          "cuda_event_interval_ms": 8.80406379699707,
+          "cpu_enqueue_wall_ms": 0.4171989858150482,
+          "calls": 1
+        },
+        "eva/ffn_16": {
+          "cuda_event_interval_ms": 10.128095626831055,
+          "cpu_enqueue_wall_ms": 0.13494491577148438,
+          "calls": 1
+        },
+        "eva/block_16": {
+          "cuda_event_interval_ms": 20.4532470703125,
+          "cpu_enqueue_wall_ms": 0.7282199803739786,
+          "calls": 1
+        },
+        "eva/attention_17": {
+          "cuda_event_interval_ms": 7.190944194793701,
+          "cpu_enqueue_wall_ms": 0.4087940324097872,
+          "calls": 1
+        },
+        "eva/ffn_17": {
+          "cuda_event_interval_ms": 10.128479957580566,
+          "cpu_enqueue_wall_ms": 0.1282279845327139,
+          "calls": 1
+        },
+        "eva/block_17": {
+          "cuda_event_interval_ms": 18.28927993774414,
+          "cpu_enqueue_wall_ms": 0.6413690280169249,
+          "calls": 1
+        },
+        "eva/attention_18": {
+          "cuda_event_interval_ms": 8.837696075439453,
+          "cpu_enqueue_wall_ms": 0.42092520743608475,
+          "calls": 1
+        },
+        "eva/ffn_18": {
+          "cuda_event_interval_ms": 10.127167701721191,
+          "cpu_enqueue_wall_ms": 0.12796791270375252,
+          "calls": 1
+        },
+        "eva/block_18": {
+          "cuda_event_interval_ms": 20.48703956604004,
+          "cpu_enqueue_wall_ms": 0.7244281005114317,
+          "calls": 1
+        },
+        "eva/attention_19": {
+          "cuda_event_interval_ms": 8.806783676147461,
+          "cpu_enqueue_wall_ms": 0.40686200372874737,
+          "calls": 1
+        },
+        "eva/ffn_19": {
+          "cuda_event_interval_ms": 10.123071670532227,
+          "cpu_enqueue_wall_ms": 0.13441895134747028,
+          "calls": 1
+        },
+        "eva/block_19": {
+          "cuda_event_interval_ms": 20.448863983154297,
+          "cpu_enqueue_wall_ms": 0.738942064344883,
+          "calls": 1
+        },
+        "eva/attention_20": {
+          "cuda_event_interval_ms": 7.1910719871521,
+          "cpu_enqueue_wall_ms": 4.273304017260671,
+          "calls": 1
+        },
+        "eva/ffn_20": {
+          "cuda_event_interval_ms": 10.130656242370605,
+          "cpu_enqueue_wall_ms": 3.423796035349369,
+          "calls": 1
+        },
+        "eva/block_20": {
+          "cuda_event_interval_ms": 18.298688888549805,
+          "cpu_enqueue_wall_ms": 9.940268937498331,
+          "calls": 1
+        },
+        "eva/attention_21": {
+          "cuda_event_interval_ms": 8.803168296813965,
+          "cpu_enqueue_wall_ms": 10.144704952836037,
+          "calls": 1
+        },
+        "eva/ffn_21": {
+          "cuda_event_interval_ms": 10.125823974609375,
+          "cpu_enqueue_wall_ms": 5.3303539752960205,
+          "calls": 1
+        },
+        "eva/block_21": {
+          "cuda_event_interval_ms": 20.44233512878418,
+          "cpu_enqueue_wall_ms": 19.874125020578504,
+          "calls": 1
+        },
+        "eva/attention_22": {
+          "cuda_event_interval_ms": 8.803839683532715,
+          "cpu_enqueue_wall_ms": 13.687198981642723,
+          "calls": 1
+        },
+        "eva/ffn_22": {
+          "cuda_event_interval_ms": 10.125151634216309,
+          "cpu_enqueue_wall_ms": 5.24110603146255,
+          "calls": 1
+        },
+        "eva/block_22": {
+          "cuda_event_interval_ms": 20.459775924682617,
+          "cpu_enqueue_wall_ms": 20.26490797288716,
+          "calls": 1
+        },
+        "eva/attention_23": {
+          "cuda_event_interval_ms": 7.223743915557861,
+          "cpu_enqueue_wall_ms": 10.286825941875577,
+          "calls": 1
+        },
+        "eva/ffn_23": {
+          "cuda_event_interval_ms": 10.126399993896484,
+          "cpu_enqueue_wall_ms": 3.6666360683739185,
+          "calls": 1
+        },
+        "eva/block_23": {
+          "cuda_event_interval_ms": 18.32921600341797,
+          "cpu_enqueue_wall_ms": 16.807828098535538,
+          "calls": 1
+        },
+        "eva": {
+          "cuda_event_interval_ms": 477.01202392578125,
+          "cpu_enqueue_wall_ms": 85.15011495910585,
+          "calls": 1
+        },
+        "perception_position": {
+          "cuda_event_interval_ms": 2.1064319610595703,
+          "cpu_enqueue_wall_ms": 389.7931321989745,
+          "calls": 1
+        },
+        "detection/pre_update_memory": {
+          "cuda_event_interval_ms": 0.11513599753379822,
+          "cpu_enqueue_wall_ms": 0.4020610358566046,
+          "calls": 1
+        },
+        "detection/input_projection": {
+          "cuda_event_interval_ms": 0.37305599451065063,
+          "cpu_enqueue_wall_ms": 0.054244883358478546,
+          "calls": 1
+        },
+        "head_shared/query_pos": {
+          "cuda_event_interval_ms": 0.45081600546836853,
+          "cpu_enqueue_wall_ms": 0.3552918788045645,
+          "calls": 4
+        },
+        "head_shared/ego_pose_pe": {
+          "cuda_event_interval_ms": 0.27724799513816833,
+          "cpu_enqueue_wall_ms": 0.27195014990866184,
+          "calls": 2
+        },
+        "head_shared/time_embedding": {
+          "cuda_event_interval_ms": 0.4840959943830967,
+          "cpu_enqueue_wall_ms": 0.46140095219016075,
+          "calls": 4
+        },
+        "detection/temporal_alignment": {
+          "cuda_event_interval_ms": 1.7472000122070312,
+          "cpu_enqueue_wall_ms": 1.7487029545009136,
+          "calls": 1
+        },
+        "detection/self_attention_0": {
+          "cuda_event_interval_ms": 0.9779520034790039,
+          "cpu_enqueue_wall_ms": 0.3149870317429304,
+          "calls": 1
+        },
+        "detection/cross_attention_0": {
+          "cuda_event_interval_ms": 0.7089920043945312,
+          "cpu_enqueue_wall_ms": 0.38012489676475525,
+          "calls": 1
+        },
+        "detection/ffn_0": {
+          "cuda_event_interval_ms": 0.2216320037841797,
+          "cpu_enqueue_wall_ms": 0.09239790961146355,
+          "calls": 1
+        },
+        "detection/self_attention_1": {
+          "cuda_event_interval_ms": 0.8999999761581421,
+          "cpu_enqueue_wall_ms": 0.2494330983608961,
+          "calls": 1
+        },
+        "detection/cross_attention_1": {
+          "cuda_event_interval_ms": 0.7144960165023804,
+          "cpu_enqueue_wall_ms": 0.3178699407726526,
+          "calls": 1
+        },
+        "detection/ffn_1": {
+          "cuda_event_interval_ms": 0.2168319970369339,
+          "cpu_enqueue_wall_ms": 0.08377502672374249,
+          "calls": 1
+        },
+        "detection/self_attention_2": {
+          "cuda_event_interval_ms": 0.8996800184249878,
+          "cpu_enqueue_wall_ms": 0.2565300092101097,
+          "calls": 1
+        },
+        "detection/cross_attention_2": {
+          "cuda_event_interval_ms": 0.7100480198860168,
+          "cpu_enqueue_wall_ms": 0.30543701723217964,
+          "calls": 1
+        },
+        "detection/ffn_2": {
+          "cuda_event_interval_ms": 0.21663999557495117,
+          "cpu_enqueue_wall_ms": 0.08077104575932026,
+          "calls": 1
+        },
+        "detection/self_attention_3": {
+          "cuda_event_interval_ms": 0.900704026222229,
+          "cpu_enqueue_wall_ms": 0.24590897373855114,
+          "calls": 1
+        },
+        "detection/cross_attention_3": {
+          "cuda_event_interval_ms": 0.7167040109634399,
+          "cpu_enqueue_wall_ms": 0.30543794855475426,
+          "calls": 1
+        },
+        "detection/ffn_3": {
+          "cuda_event_interval_ms": 0.2163199931383133,
+          "cpu_enqueue_wall_ms": 0.08208793587982655,
+          "calls": 1
+        },
+        "detection/self_attention_4": {
+          "cuda_event_interval_ms": 0.8896960020065308,
+          "cpu_enqueue_wall_ms": 0.29686582274734974,
+          "calls": 1
+        },
+        "detection/cross_attention_4": {
+          "cuda_event_interval_ms": 0.6926720142364502,
+          "cpu_enqueue_wall_ms": 0.30604004859924316,
+          "calls": 1
+        },
+        "detection/ffn_4": {
+          "cuda_event_interval_ms": 0.2112639993429184,
+          "cpu_enqueue_wall_ms": 0.08676713332533836,
+          "calls": 1
+        },
+        "detection/self_attention_5": {
+          "cuda_event_interval_ms": 0.8877760171890259,
+          "cpu_enqueue_wall_ms": 0.23749098181724548,
+          "calls": 1
+        },
+        "detection/cross_attention_5": {
+          "cuda_event_interval_ms": 0.6937919855117798,
+          "cpu_enqueue_wall_ms": 0.2986420877277851,
+          "calls": 1
+        },
+        "detection/ffn_5": {
+          "cuda_event_interval_ms": 0.2170879989862442,
+          "cpu_enqueue_wall_ms": 0.08901301771402359,
+          "calls": 1
+        },
+        "detection/output_projection": {
+          "cuda_event_interval_ms": 0.04588799923658371,
+          "cpu_enqueue_wall_ms": 0.04202499985694885,
+          "calls": 1
+        },
+        "detection/post_update_memory": {
+          "cuda_event_interval_ms": 0.16940799355506897,
+          "cpu_enqueue_wall_ms": 0.6067580543458462,
+          "calls": 1
+        },
+        "detection": {
+          "cuda_event_interval_ms": 16.17228889465332,
+          "cpu_enqueue_wall_ms": 11.889301938936114,
+          "calls": 1
+        },
+        "map/pre_update_memory": {
+          "cuda_event_interval_ms": 0.2629759907722473,
+          "cpu_enqueue_wall_ms": 0.2625419292598963,
+          "calls": 1
+        },
+        "map/input_projection": {
+          "cuda_event_interval_ms": 0.36102399230003357,
+          "cpu_enqueue_wall_ms": 0.06118509918451309,
+          "calls": 1
+        },
+        "map/temporal_alignment": {
+          "cuda_event_interval_ms": 1.6871039867401123,
+          "cpu_enqueue_wall_ms": 1.6864670906215906,
+          "calls": 1
+        },
+        "map/self_attention_0": {
+          "cuda_event_interval_ms": 2.6842238903045654,
+          "cpu_enqueue_wall_ms": 0.31345710158348083,
+          "calls": 1
+        },
+        "map/cross_attention_0": {
+          "cuda_event_interval_ms": 0.9236479997634888,
+          "cpu_enqueue_wall_ms": 0.4022810608148575,
+          "calls": 1
+        },
+        "map/ffn_0": {
+          "cuda_event_interval_ms": 0.3401919901371002,
+          "cpu_enqueue_wall_ms": 0.08805980905890465,
+          "calls": 1
+        },
+        "map/self_attention_1": {
+          "cuda_event_interval_ms": 2.619231939315796,
+          "cpu_enqueue_wall_ms": 0.26198895648121834,
+          "calls": 1
+        },
+        "map/cross_attention_1": {
+          "cuda_event_interval_ms": 0.9240000247955322,
+          "cpu_enqueue_wall_ms": 0.3027617931365967,
+          "calls": 1
+        },
+        "map/ffn_1": {
+          "cuda_event_interval_ms": 0.3481920063495636,
+          "cpu_enqueue_wall_ms": 0.07834495045244694,
+          "calls": 1
+        },
+        "map/self_attention_2": {
+          "cuda_event_interval_ms": 2.545151948928833,
+          "cpu_enqueue_wall_ms": 0.24388683959841728,
+          "calls": 1
+        },
+        "map/cross_attention_2": {
+          "cuda_event_interval_ms": 0.8689919710159302,
+          "cpu_enqueue_wall_ms": 0.3016269765794277,
+          "calls": 1
+        },
+        "map/ffn_2": {
+          "cuda_event_interval_ms": 0.323199987411499,
+          "cpu_enqueue_wall_ms": 0.07892493158578873,
+          "calls": 1
+        },
+        "map/self_attention_3": {
+          "cuda_event_interval_ms": 2.528480052947998,
+          "cpu_enqueue_wall_ms": 0.2433760091662407,
+          "calls": 1
+        },
+        "map/cross_attention_3": {
+          "cuda_event_interval_ms": 0.8677759766578674,
+          "cpu_enqueue_wall_ms": 0.30175899155437946,
+          "calls": 1
+        },
+        "map/ffn_3": {
+          "cuda_event_interval_ms": 0.32761600613594055,
+          "cpu_enqueue_wall_ms": 0.07915683090686798,
+          "calls": 1
+        },
+        "map/self_attention_4": {
+          "cuda_event_interval_ms": 2.5303359031677246,
+          "cpu_enqueue_wall_ms": 0.23641507141292095,
+          "calls": 1
+        },
+        "map/cross_attention_4": {
+          "cuda_event_interval_ms": 0.8685439825057983,
+          "cpu_enqueue_wall_ms": 0.2944520674645901,
+          "calls": 1
+        },
+        "map/ffn_4": {
+          "cuda_event_interval_ms": 0.32870399951934814,
+          "cpu_enqueue_wall_ms": 0.09063188917934895,
+          "calls": 1
+        },
+        "map/self_attention_5": {
+          "cuda_event_interval_ms": 2.530656099319458,
+          "cpu_enqueue_wall_ms": 0.2433951012790203,
+          "calls": 1
+        },
+        "map/cross_attention_5": {
+          "cuda_event_interval_ms": 0.868224024772644,
+          "cpu_enqueue_wall_ms": 0.2972439397126436,
+          "calls": 1
+        },
+        "map/ffn_5": {
+          "cuda_event_interval_ms": 0.32284799218177795,
+          "cpu_enqueue_wall_ms": 0.07744412869215012,
+          "calls": 1
+        },
+        "map/post_update_memory": {
+          "cuda_event_interval_ms": 0.14371199905872345,
+          "cpu_enqueue_wall_ms": 0.37701986730098724,
+          "calls": 1
+        },
+        "map/output_projection": {
+          "cuda_event_interval_ms": 0.04387199878692627,
+          "cpu_enqueue_wall_ms": 0.04030903801321983,
+          "calls": 1
+        },
+        "map": {
+          "cuda_event_interval_ms": 32.428897857666016,
+          "cpu_enqueue_wall_ms": 14.125726884230971,
+          "calls": 1
+        },
+        "output_adapter": {
+          "cuda_event_interval_ms": 3.1051840782165527,
+          "cpu_enqueue_wall_ms": 3.1058979220688343,
+          "calls": 1
+        },
+        "m1_commit": {
+          "cuda_event_interval_ms": 54.93513488769531,
+          "cpu_enqueue_wall_ms": 54.93674101307988,
+          "calls": 1
+        },
+        "llm/attention_0": {
+          "cuda_event_interval_ms": 54.62297588586807,
+          "cpu_enqueue_wall_ms": 52.89742723107338,
+          "calls": 86
+        },
+        "llm/ffn_0": {
+          "cuda_event_interval_ms": 37.52176007628441,
+          "cpu_enqueue_wall_ms": 9.434428997337818,
+          "calls": 86
+        },
+        "llm/attention_1": {
+          "cuda_event_interval_ms": 38.00102388858795,
+          "cpu_enqueue_wall_ms": 46.394799603149295,
+          "calls": 86
+        },
+        "llm/ffn_1": {
+          "cuda_event_interval_ms": 34.3057599067688,
+          "cpu_enqueue_wall_ms": 8.431512862443924,
+          "calls": 86
+        },
+        "llm/attention_2": {
+          "cuda_event_interval_ms": 37.64217582345009,
+          "cpu_enqueue_wall_ms": 42.836064007133245,
+          "calls": 86
+        },
+        "llm/ffn_2": {
+          "cuda_event_interval_ms": 34.04208016395569,
+          "cpu_enqueue_wall_ms": 8.239217568188906,
+          "calls": 86
+        },
+        "llm/attention_3": {
+          "cuda_event_interval_ms": 37.62511983513832,
+          "cpu_enqueue_wall_ms": 42.84649295732379,
+          "calls": 86
+        },
+        "llm/ffn_3": {
+          "cuda_event_interval_ms": 34.01824006438255,
+          "cpu_enqueue_wall_ms": 8.14378703944385,
+          "calls": 86
+        },
+        "llm/attention_4": {
+          "cuda_event_interval_ms": 37.51846405863762,
+          "cpu_enqueue_wall_ms": 42.559620225802064,
+          "calls": 86
+        },
+        "llm/ffn_4": {
+          "cuda_event_interval_ms": 34.031487971544266,
+          "cpu_enqueue_wall_ms": 8.105145767331123,
+          "calls": 86
+        },
+        "llm/attention_5": {
+          "cuda_event_interval_ms": 37.50352016091347,
+          "cpu_enqueue_wall_ms": 42.23958170041442,
+          "calls": 86
+        },
+        "llm/ffn_5": {
+          "cuda_event_interval_ms": 34.008287996053696,
+          "cpu_enqueue_wall_ms": 7.964207790791988,
+          "calls": 86
+        },
+        "llm/attention_6": {
+          "cuda_event_interval_ms": 37.607008188962936,
+          "cpu_enqueue_wall_ms": 42.29228035546839,
+          "calls": 86
+        },
+        "llm/ffn_6": {
+          "cuda_event_interval_ms": 34.157344073057175,
+          "cpu_enqueue_wall_ms": 8.46731849014759,
+          "calls": 86
+        },
+        "llm/attention_7": {
+          "cuda_event_interval_ms": 37.529376059770584,
+          "cpu_enqueue_wall_ms": 42.289121774956584,
+          "calls": 86
+        },
+        "llm/ffn_7": {
+          "cuda_event_interval_ms": 34.10652795433998,
+          "cpu_enqueue_wall_ms": 8.2576519344002,
+          "calls": 86
+        },
+        "llm/attention_8": {
+          "cuda_event_interval_ms": 37.659199982881546,
+          "cpu_enqueue_wall_ms": 42.687876150012016,
+          "calls": 86
+        },
+        "llm/ffn_8": {
+          "cuda_event_interval_ms": 34.20972791314125,
+          "cpu_enqueue_wall_ms": 7.823400432243943,
+          "calls": 86
+        },
+        "llm/attention_9": {
+          "cuda_event_interval_ms": 37.620096027851105,
+          "cpu_enqueue_wall_ms": 41.837866650894284,
+          "calls": 86
+        },
+        "llm/ffn_9": {
+          "cuda_event_interval_ms": 34.05119985342026,
+          "cpu_enqueue_wall_ms": 7.913550594821572,
+          "calls": 86
+        },
+        "llm/attention_10": {
+          "cuda_event_interval_ms": 37.40383988618851,
+          "cpu_enqueue_wall_ms": 42.07952693104744,
+          "calls": 86
+        },
+        "llm/ffn_10": {
+          "cuda_event_interval_ms": 34.19337609410286,
+          "cpu_enqueue_wall_ms": 8.097080048173666,
+          "calls": 86
+        },
+        "llm/attention_11": {
+          "cuda_event_interval_ms": 37.650560081005096,
+          "cpu_enqueue_wall_ms": 42.19907964579761,
+          "calls": 86
+        },
+        "llm/ffn_11": {
+          "cuda_event_interval_ms": 34.169439882040024,
+          "cpu_enqueue_wall_ms": 8.030646713450551,
+          "calls": 86
+        },
+        "llm/attention_12": {
+          "cuda_event_interval_ms": 37.5457601249218,
+          "cpu_enqueue_wall_ms": 42.04300558194518,
+          "calls": 86
+        },
+        "llm/ffn_12": {
+          "cuda_event_interval_ms": 34.149823904037476,
+          "cpu_enqueue_wall_ms": 7.855111500248313,
+          "calls": 86
+        },
+        "llm/attention_13": {
+          "cuda_event_interval_ms": 37.70643204450607,
+          "cpu_enqueue_wall_ms": 42.1915790066123,
+          "calls": 86
+        },
+        "llm/ffn_13": {
+          "cuda_event_interval_ms": 34.19273588061333,
+          "cpu_enqueue_wall_ms": 7.913448149338365,
+          "calls": 86
+        },
+        "llm/attention_14": {
+          "cuda_event_interval_ms": 37.48966380953789,
+          "cpu_enqueue_wall_ms": 42.3839061986655,
+          "calls": 86
+        },
+        "llm/ffn_14": {
+          "cuda_event_interval_ms": 33.995616018772125,
+          "cpu_enqueue_wall_ms": 7.92601378634572,
+          "calls": 86
+        },
+        "llm/attention_15": {
+          "cuda_event_interval_ms": 37.49760001897812,
+          "cpu_enqueue_wall_ms": 41.720325127243996,
+          "calls": 86
+        },
+        "llm/ffn_15": {
+          "cuda_event_interval_ms": 34.19241580367088,
+          "cpu_enqueue_wall_ms": 7.962987525388598,
+          "calls": 86
+        },
+        "llm/attention_16": {
+          "cuda_event_interval_ms": 37.58044794201851,
+          "cpu_enqueue_wall_ms": 42.73080895654857,
+          "calls": 86
+        },
+        "llm/ffn_16": {
+          "cuda_event_interval_ms": 34.250080078840256,
+          "cpu_enqueue_wall_ms": 8.153976639732718,
+          "calls": 86
+        },
+        "llm/attention_17": {
+          "cuda_event_interval_ms": 37.72540783882141,
+          "cpu_enqueue_wall_ms": 45.05900153890252,
+          "calls": 86
+        },
+        "llm/ffn_17": {
+          "cuda_event_interval_ms": 34.265983909368515,
+          "cpu_enqueue_wall_ms": 8.309005061164498,
+          "calls": 86
+        },
+        "llm/attention_18": {
+          "cuda_event_interval_ms": 37.64259195327759,
+          "cpu_enqueue_wall_ms": 44.857729226350784,
+          "calls": 86
+        },
+        "llm/ffn_18": {
+          "cuda_event_interval_ms": 34.04947182536125,
+          "cpu_enqueue_wall_ms": 8.198476629331708,
+          "calls": 86
+        },
+        "llm/attention_19": {
+          "cuda_event_interval_ms": 37.62617591023445,
+          "cpu_enqueue_wall_ms": 44.93191419169307,
+          "calls": 86
+        },
+        "llm/ffn_19": {
+          "cuda_event_interval_ms": 34.0279358625412,
+          "cpu_enqueue_wall_ms": 8.195598376914859,
+          "calls": 86
+        },
+        "llm/attention_20": {
+          "cuda_event_interval_ms": 37.89328023791313,
+          "cpu_enqueue_wall_ms": 44.98664732091129,
+          "calls": 86
+        },
+        "llm/ffn_20": {
+          "cuda_event_interval_ms": 34.19894391298294,
+          "cpu_enqueue_wall_ms": 8.274774765595794,
+          "calls": 86
+        },
+        "llm/attention_21": {
+          "cuda_event_interval_ms": 37.34611201286316,
+          "cpu_enqueue_wall_ms": 45.36621319130063,
+          "calls": 86
+        },
+        "llm/ffn_21": {
+          "cuda_event_interval_ms": 34.38895991444588,
+          "cpu_enqueue_wall_ms": 8.24404857121408,
+          "calls": 86
+        },
+        "llm/attention_22": {
+          "cuda_event_interval_ms": 37.810400158166885,
+          "cpu_enqueue_wall_ms": 44.60083739832044,
+          "calls": 86
+        },
+        "llm/ffn_22": {
+          "cuda_event_interval_ms": 34.263808220624924,
+          "cpu_enqueue_wall_ms": 8.174405666068196,
+          "calls": 86
+        },
+        "llm/attention_23": {
+          "cuda_event_interval_ms": 37.56790408492088,
+          "cpu_enqueue_wall_ms": 45.0524790212512,
+          "calls": 86
+        },
+        "llm/ffn_23": {
+          "cuda_event_interval_ms": 34.125727891922,
+          "cpu_enqueue_wall_ms": 8.3263348788023,
+          "calls": 86
+        },
+        "llm/attention_24": {
+          "cuda_event_interval_ms": 37.59545615315437,
+          "cpu_enqueue_wall_ms": 45.047202380374074,
+          "calls": 86
+        },
+        "llm/ffn_24": {
+          "cuda_event_interval_ms": 34.202656000852585,
+          "cpu_enqueue_wall_ms": 8.121376158669591,
+          "calls": 86
+        },
+        "llm/attention_25": {
+          "cuda_event_interval_ms": 37.45235192775726,
+          "cpu_enqueue_wall_ms": 44.46552926674485,
+          "calls": 86
+        },
+        "llm/ffn_25": {
+          "cuda_event_interval_ms": 34.23206406831741,
+          "cpu_enqueue_wall_ms": 8.10606381855905,
+          "calls": 86
+        },
+        "llm/attention_26": {
+          "cuda_event_interval_ms": 37.618496000766754,
+          "cpu_enqueue_wall_ms": 44.73726265132427,
+          "calls": 86
+        },
+        "llm/ffn_26": {
+          "cuda_event_interval_ms": 34.22259211540222,
+          "cpu_enqueue_wall_ms": 8.167424704879522,
+          "calls": 86
+        },
+        "llm/attention_27": {
+          "cuda_event_interval_ms": 37.75667205452919,
+          "cpu_enqueue_wall_ms": 45.372007647529244,
+          "calls": 86
+        },
+        "llm/ffn_27": {
+          "cuda_event_interval_ms": 34.110911935567856,
+          "cpu_enqueue_wall_ms": 8.164542960003018,
+          "calls": 86
+        },
+        "llm/attention_28": {
+          "cuda_event_interval_ms": 37.501471906900406,
+          "cpu_enqueue_wall_ms": 45.08136096410453,
+          "calls": 86
+        },
+        "llm/ffn_28": {
+          "cuda_event_interval_ms": 34.147903978824615,
+          "cpu_enqueue_wall_ms": 8.157211821526289,
+          "calls": 86
+        },
+        "llm/attention_29": {
+          "cuda_event_interval_ms": 37.5860159099102,
+          "cpu_enqueue_wall_ms": 44.429917354136705,
+          "calls": 86
+        },
+        "llm/ffn_29": {
+          "cuda_event_interval_ms": 34.11363181471825,
+          "cpu_enqueue_wall_ms": 8.049241034314036,
+          "calls": 86
+        },
+        "llm/attention_30": {
+          "cuda_event_interval_ms": 37.571743816137314,
+          "cpu_enqueue_wall_ms": 45.74562213383615,
+          "calls": 86
+        },
+        "llm/ffn_30": {
+          "cuda_event_interval_ms": 34.142208099365234,
+          "cpu_enqueue_wall_ms": 8.340624859556556,
+          "calls": 86
+        },
+        "llm/attention_31": {
+          "cuda_event_interval_ms": 37.805536061525345,
+          "cpu_enqueue_wall_ms": 46.37247486971319,
+          "calls": 86
+        },
+        "llm/ffn_31": {
+          "cuda_event_interval_ms": 34.029375940561295,
+          "cpu_enqueue_wall_ms": 8.270691381767392,
+          "calls": 86
+        },
+        "llm/output_projection": {
+          "cuda_event_interval_ms": 32.21068787574768,
+          "cpu_enqueue_wall_ms": 4.138939315453172,
+          "calls": 86
+        },
+        "llm_prefill": {
+          "cuda_event_interval_ms": 180.1815948486328,
+          "cpu_enqueue_wall_ms": 100.79041100107133,
+          "calls": 1
+        },
+        "llm_decode": {
+          "cuda_event_interval_ms": 2371.350175857544,
+          "cpu_enqueue_wall_ms": 2040.9051070455462,
+          "calls": 85
+        },
+        "llm_generation": {
+          "cuda_event_interval_ms": 2604.093505859375,
+          "cpu_enqueue_wall_ms": 2604.094421956688,
+          "calls": 1
+        }
+      },
+      "llm_forward_steps": [
+        {
+          "stage": "llm_prefill",
+          "input_shape": [
+            1,
+            577,
+            4096
+          ],
+          "past_tokens": 0,
+          "cpu_enqueue_ms": 100.79041100107133,
+          "cuda_event_interval_ms": 180.1815948486328
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 577,
+          "cpu_enqueue_ms": 25.103071937337518,
+          "cuda_event_interval_ms": 29.065631866455078
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 578,
+          "cpu_enqueue_ms": 23.972586961463094,
+          "cuda_event_interval_ms": 27.95305633544922
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 579,
+          "cpu_enqueue_ms": 24.336482863873243,
+          "cuda_event_interval_ms": 27.94121551513672
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 580,
+          "cpu_enqueue_ms": 24.166516959667206,
+          "cuda_event_interval_ms": 27.835552215576172
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 581,
+          "cpu_enqueue_ms": 24.324268801137805,
+          "cuda_event_interval_ms": 27.93836784362793
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 582,
+          "cpu_enqueue_ms": 23.938363883644342,
+          "cuda_event_interval_ms": 27.7042236328125
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 583,
+          "cpu_enqueue_ms": 24.451697943732142,
+          "cuda_event_interval_ms": 27.77574348449707
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 584,
+          "cpu_enqueue_ms": 24.10519402474165,
+          "cuda_event_interval_ms": 27.683135986328125
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 585,
+          "cpu_enqueue_ms": 23.922526044771075,
+          "cuda_event_interval_ms": 27.833919525146484
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 586,
+          "cpu_enqueue_ms": 24.10344989039004,
+          "cuda_event_interval_ms": 27.704511642456055
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 587,
+          "cpu_enqueue_ms": 23.561470909044147,
+          "cuda_event_interval_ms": 28.06060791015625
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 588,
+          "cpu_enqueue_ms": 23.635406978428364,
+          "cuda_event_interval_ms": 27.692928314208984
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 589,
+          "cpu_enqueue_ms": 23.814742919057608,
+          "cuda_event_interval_ms": 28.00806427001953
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 590,
+          "cpu_enqueue_ms": 23.702349979430437,
+          "cuda_event_interval_ms": 27.7043514251709
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 591,
+          "cpu_enqueue_ms": 23.751460015773773,
+          "cuda_event_interval_ms": 27.78281593322754
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 592,
+          "cpu_enqueue_ms": 23.831569822505116,
+          "cuda_event_interval_ms": 27.788288116455078
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 593,
+          "cpu_enqueue_ms": 24.240887025371194,
+          "cuda_event_interval_ms": 27.868576049804688
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 594,
+          "cpu_enqueue_ms": 23.700725054368377,
+          "cuda_event_interval_ms": 27.784448623657227
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 595,
+          "cpu_enqueue_ms": 23.740892997011542,
+          "cuda_event_interval_ms": 27.87424087524414
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 596,
+          "cpu_enqueue_ms": 23.461710894480348,
+          "cuda_event_interval_ms": 27.709823608398438
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 597,
+          "cpu_enqueue_ms": 23.591140983626246,
+          "cuda_event_interval_ms": 27.832639694213867
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 598,
+          "cpu_enqueue_ms": 23.715735878795385,
+          "cuda_event_interval_ms": 27.884672164916992
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 599,
+          "cpu_enqueue_ms": 23.698400938883424,
+          "cuda_event_interval_ms": 27.828672409057617
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 600,
+          "cpu_enqueue_ms": 23.686703061684966,
+          "cuda_event_interval_ms": 27.724416732788086
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 601,
+          "cpu_enqueue_ms": 24.27248819731176,
+          "cuda_event_interval_ms": 27.94060707092285
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 602,
+          "cpu_enqueue_ms": 23.689732886850834,
+          "cuda_event_interval_ms": 27.738399505615234
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 603,
+          "cpu_enqueue_ms": 23.62467208877206,
+          "cuda_event_interval_ms": 27.859519958496094
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 604,
+          "cpu_enqueue_ms": 23.807124933227897,
+          "cuda_event_interval_ms": 27.75868797302246
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 605,
+          "cpu_enqueue_ms": 24.33263510465622,
+          "cuda_event_interval_ms": 27.9836483001709
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 606,
+          "cpu_enqueue_ms": 24.3365119677037,
+          "cuda_event_interval_ms": 27.857664108276367
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 607,
+          "cpu_enqueue_ms": 24.101181887090206,
+          "cuda_event_interval_ms": 27.91059112548828
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 608,
+          "cpu_enqueue_ms": 23.583668051287532,
+          "cuda_event_interval_ms": 27.713855743408203
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 609,
+          "cpu_enqueue_ms": 23.6679099034518,
+          "cuda_event_interval_ms": 27.829919815063477
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 610,
+          "cpu_enqueue_ms": 23.780025076121092,
+          "cuda_event_interval_ms": 27.703840255737305
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 611,
+          "cpu_enqueue_ms": 23.59640598297119,
+          "cuda_event_interval_ms": 27.895360946655273
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 612,
+          "cpu_enqueue_ms": 23.79447198472917,
+          "cuda_event_interval_ms": 27.72313690185547
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 613,
+          "cpu_enqueue_ms": 23.544302908703685,
+          "cuda_event_interval_ms": 27.83679962158203
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 614,
+          "cpu_enqueue_ms": 23.59488303773105,
+          "cuda_event_interval_ms": 27.7258243560791
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 615,
+          "cpu_enqueue_ms": 23.474785033613443,
+          "cuda_event_interval_ms": 27.88355255126953
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 616,
+          "cpu_enqueue_ms": 24.12637905217707,
+          "cuda_event_interval_ms": 27.952064514160156
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 617,
+          "cpu_enqueue_ms": 24.278298020362854,
+          "cuda_event_interval_ms": 27.922496795654297
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 618,
+          "cpu_enqueue_ms": 24.2176060564816,
+          "cuda_event_interval_ms": 27.73961639404297
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 619,
+          "cpu_enqueue_ms": 23.63828895613551,
+          "cuda_event_interval_ms": 27.9704647064209
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 620,
+          "cpu_enqueue_ms": 23.517207009717822,
+          "cuda_event_interval_ms": 27.80406379699707
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 621,
+          "cpu_enqueue_ms": 23.52724503725767,
+          "cuda_event_interval_ms": 27.88912010192871
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 622,
+          "cpu_enqueue_ms": 24.54860112629831,
+          "cuda_event_interval_ms": 27.836416244506836
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 623,
+          "cpu_enqueue_ms": 23.698736913502216,
+          "cuda_event_interval_ms": 27.93881607055664
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 624,
+          "cpu_enqueue_ms": 23.30679213628173,
+          "cuda_event_interval_ms": 27.747455596923828
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 625,
+          "cpu_enqueue_ms": 23.85027683340013,
+          "cuda_event_interval_ms": 28.135040283203125
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 626,
+          "cpu_enqueue_ms": 23.66373292170465,
+          "cuda_event_interval_ms": 27.75334358215332
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 627,
+          "cpu_enqueue_ms": 24.035354843363166,
+          "cuda_event_interval_ms": 27.886751174926758
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 628,
+          "cpu_enqueue_ms": 23.39460700750351,
+          "cuda_event_interval_ms": 27.773727416992188
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 629,
+          "cpu_enqueue_ms": 23.521112045273185,
+          "cuda_event_interval_ms": 27.925952911376953
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 630,
+          "cpu_enqueue_ms": 23.446594132110476,
+          "cuda_event_interval_ms": 27.790687561035156
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 631,
+          "cpu_enqueue_ms": 23.656142875552177,
+          "cuda_event_interval_ms": 27.912992477416992
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 632,
+          "cpu_enqueue_ms": 23.296545958146453,
+          "cuda_event_interval_ms": 27.799327850341797
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 633,
+          "cpu_enqueue_ms": 23.828708101063967,
+          "cuda_event_interval_ms": 27.95769691467285
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 634,
+          "cpu_enqueue_ms": 24.09221208654344,
+          "cuda_event_interval_ms": 28.008544921875
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 635,
+          "cpu_enqueue_ms": 23.673640098422766,
+          "cuda_event_interval_ms": 27.878496170043945
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 636,
+          "cpu_enqueue_ms": 23.925262037664652,
+          "cuda_event_interval_ms": 27.84275245666504
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 637,
+          "cpu_enqueue_ms": 23.823819123208523,
+          "cuda_event_interval_ms": 27.9532470703125
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 638,
+          "cpu_enqueue_ms": 23.315133061259985,
+          "cuda_event_interval_ms": 27.834976196289062
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 639,
+          "cpu_enqueue_ms": 23.71378499083221,
+          "cuda_event_interval_ms": 27.80099105834961
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 640,
+          "cpu_enqueue_ms": 23.784926859661937,
+          "cuda_event_interval_ms": 27.81177520751953
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 641,
+          "cpu_enqueue_ms": 23.801614064723253,
+          "cuda_event_interval_ms": 27.969343185424805
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 642,
+          "cpu_enqueue_ms": 23.845148039981723,
+          "cuda_event_interval_ms": 27.961376190185547
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 643,
+          "cpu_enqueue_ms": 23.65112490952015,
+          "cuda_event_interval_ms": 28.184736251831055
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 644,
+          "cpu_enqueue_ms": 23.9121918566525,
+          "cuda_event_interval_ms": 27.864639282226562
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 645,
+          "cpu_enqueue_ms": 23.445263970643282,
+          "cuda_event_interval_ms": 27.920608520507812
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 646,
+          "cpu_enqueue_ms": 23.713167058303952,
+          "cuda_event_interval_ms": 27.875551223754883
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 647,
+          "cpu_enqueue_ms": 23.839088156819344,
+          "cuda_event_interval_ms": 27.84771156311035
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 648,
+          "cpu_enqueue_ms": 26.052149944007397,
+          "cuda_event_interval_ms": 27.922719955444336
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 649,
+          "cpu_enqueue_ms": 24.93737800978124,
+          "cuda_event_interval_ms": 27.964576721191406
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 650,
+          "cpu_enqueue_ms": 25.878666900098324,
+          "cuda_event_interval_ms": 27.8852481842041
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 651,
+          "cpu_enqueue_ms": 25.166206993162632,
+          "cuda_event_interval_ms": 28.16476821899414
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 652,
+          "cpu_enqueue_ms": 24.84137611463666,
+          "cuda_event_interval_ms": 28.044992446899414
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 653,
+          "cpu_enqueue_ms": 24.745536968111992,
+          "cuda_event_interval_ms": 28.05913543701172
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 654,
+          "cpu_enqueue_ms": 25.06792894564569,
+          "cuda_event_interval_ms": 27.94326400756836
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 655,
+          "cpu_enqueue_ms": 25.03201295621693,
+          "cuda_event_interval_ms": 27.918272018432617
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 656,
+          "cpu_enqueue_ms": 24.59981688298285,
+          "cuda_event_interval_ms": 27.86025619506836
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 657,
+          "cpu_enqueue_ms": 24.472061078995466,
+          "cuda_event_interval_ms": 27.97225570678711
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 658,
+          "cpu_enqueue_ms": 23.390501970425248,
+          "cuda_event_interval_ms": 27.838623046875
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 659,
+          "cpu_enqueue_ms": 24.148112162947655,
+          "cuda_event_interval_ms": 28.02262306213379
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 660,
+          "cpu_enqueue_ms": 24.578797863796353,
+          "cuda_event_interval_ms": 28.26665687561035
+        },
+        {
+          "stage": "llm_decode",
+          "input_shape": [
+            1,
+            1
+          ],
+          "past_tokens": 661,
+          "cpu_enqueue_ms": 26.147799100726843,
+          "cuda_event_interval_ms": 28.654687881469727
+        }
+      ],
+      "additivity": "Nested intervals overlap; never sum module P50s or CPU enqueue time with GPU intervals."
+    }
+  }
+]

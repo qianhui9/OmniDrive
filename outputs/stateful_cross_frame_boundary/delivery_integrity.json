@@ -1,0 +1,59 @@
+{
+  "protected_source_unchanged": true,
+  "historical_outputs_unchanged": true,
+  "executed_runtime_unchanged": true,
+  "executed_source": {
+    "tools/worldstream_m123/large_boundary/profile.py": "b06d408cde473f18173f16194fb8d5e396ba0c85d49d2e98a9a897be4431bc20",
+    "tools/worldstream_m123/large_boundary/__init__.py": "9c19d98288f0acfe5b6704fc49f262cc527a9d0c8567a22e017f41475ef85b06",
+    "tools/worldstream_m123/large_boundary/report.py": "2d18d38dd17e8025d00e8730574943fde0cd1abc35fa53c2ad71f5d7e359722a",
+    "tools/worldstream_m123/large_boundary/run.py": "4b211b266c7a28d0670c36153d5a223f21920ce6727bfa31bf310fa837c9f0a1",
+    "tools/worldstream_m123/stateful_opportunity/gpu_audit.py": "3429afe90ed847b58862b68062413431be9e16825c2ee1af98a52f079ae68862",
+    "tools/worldstream_m123/stateful_opportunity/__init__.py": "d43be7369437a402e01630e1bab1b01fd3a3a4658fe16eded970fc60068555bd",
+    "tools/worldstream_m123/stateful_opportunity/report.py": "5aff85d89d3b075cc09390b3f495d0a4b1ba96097b25c64742a99ab666ad5e92",
+    "tools/worldstream_m123/stateful_opportunity/common.py": "b956eb5cae4cc93b847ba725e8ebe2e8abdd435d647d3175bd86594343271aea"
+  },
+  "current_analysis_source": {
+    "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/large_boundary/profile.py": "b06d408cde473f18173f16194fb8d5e396ba0c85d49d2e98a9a897be4431bc20",
+    "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/large_boundary/__init__.py": "9c19d98288f0acfe5b6704fc49f262cc527a9d0c8567a22e017f41475ef85b06",
+    "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/large_boundary/report.py": "15da2549cd7e05339c9e55caf58ab5e9347a2a9e7be04175dab41aeb82ecf308",
+    "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/large_boundary/run.py": "4b211b266c7a28d0670c36153d5a223f21920ce6727bfa31bf310fa837c9f0a1"
+  },
+  "analysis_revision_note": "GPU completed with its archived source manifest. Subsequent report.py-only changes clarify paired service costs and conditional oracle accounting; no runtime/profiler code changed or results replayed.",
+  "raw_run": "outputs/stateful_cross_frame_boundary/gpu_run01",
+  "old_regression_658_preserved": true,
+  "provenance": {
+    "raw_run": "outputs/stateful_cross_frame_boundary/gpu_run01",
+    "head": "57ddef9c28c69a8ad32f3e78d38aaaca00331b92",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "checkpoint_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+    "dataset": {
+      "path": "./data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl",
+      "sha256": "f432aa166d0f6c0ffe9dd22fb92352ec02d02709f87d7c28dd7095351b1bfba7"
+    },
+    "seed": 0,
+    "sampling": {
+      "do_sample": true,
+      "temperature": 0.1,
+      "top_p": 0.75,
+      "max_new_tokens": 320,
+      "num_beams": 1,
+      "use_cache": true
+    },
+    "population": {
+      "original_task": "planning",
+      "task_classifier_label": "global_safety",
+      "population": "Exploratory",
+      "native_multi_cross_frame_requalification": "Not Run",
+      "scenes": 8,
+      "unique_frames": 96,
+      "service_requests": 192,
+      "measured_requests_per_mode": 88,
+      "profile_requests": 2,
+      "witness_requests": 8,
+      "independent_heldout_scenes": 0
+    },
+    "environment_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/environment.json",
+    "effective_generation_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/effective_generation.json",
+    "executed_source_manifest_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/source_manifest.json"
+  }
+}

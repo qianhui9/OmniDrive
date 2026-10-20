@@ -1,0 +1,1794 @@
+{
+  "candidates": [
+    {
+      "name": "state_triggered_large_llm_prefill_decode",
+      "hotspot_rank": 1,
+      "operators": [
+        "llm_generation"
+      ],
+      "source": [
+        "projects/mmdet3d_plugin/models/detectors/petr3d.py:Petr3D.simple_test_pts",
+        "worldstream/m3/world_state.py:query_world_state",
+        "worldstream/m3/prefill_executor.py:PrefillExecutor.generate"
+      ],
+      "current_required_inputs": [
+        "complete current vision carriers",
+        "native token/position/mask history",
+        "all layer KV",
+        "generated token history/EOS",
+        "RNG and sampling processors",
+        "model/LoRA/execution version"
+      ],
+      "source_origin": "actual previous native frame, same scene/cameras/epoch/execution signature; detailed versions in raw M1 states",
+      "necessary_dependency_witnesses": {
+        "llm/inputs_embeds": {
+          "observed": 6,
+          "exactly_equal": 0
+        },
+        "llm/layer0_key": {
+          "observed": 6,
+          "exactly_equal": 0
+        },
+        "llm/layer0_value": {
+          "observed": 6,
+          "exactly_equal": 0
+        }
+      },
+      "mathematical_closure": false,
+      "necessary_inputs_all_unchanged": false,
+      "closure_proof_status": "Rejected by changed necessary inputs",
+      "state_evidence_qualified": false,
+      "M1_necessary_sufficient": false,
+      "m1_certified_anchors": 0,
+      "m1_complete_task_coverage": false,
+      "source_legal_transitions": 6,
+      "all_native_model_computation_preserved": true,
+      "actually_skipped": 0,
+      "online_oracle_used": false,
+      "blocker": "Planning requires full current evidence. Current multimodal inputs and KV differ; RNG and generated history add decode dependencies. No historical answer substitution or carrier deletion is allowed."
+    },
+    {
+      "name": "whole_visual_backbone",
+      "hotspot_rank": 2,
+      "operators": [
+        "eva"
+      ],
+      "source": [
+        "projects/mmdet3d_plugin/models/backbones/eva_vit.py:EVAViT.forward",
+        "worldstream/m2/dependency_planner.py:DependencyPlanner.plan"
+      ],
+      "current_required_inputs": [
+        "all six current normalized RGB tensors",
+        "camera order",
+        "model/LoRA/backend signature",
+        "absolute positions and RoPE",
+        "global attention context"
+      ],
+      "source_origin": "actual previous native frame, same scene/cameras/epoch/execution signature; detailed versions in raw M1 states",
+      "necessary_dependency_witnesses": {
+        "rgb": {
+          "observed": 6,
+          "exactly_equal": 0
+        }
+      },
+      "mathematical_closure": false,
+      "necessary_inputs_all_unchanged": false,
+      "closure_proof_status": "Rejected by changed necessary inputs",
+      "state_evidence_qualified": false,
+      "M1_necessary_sufficient": false,
+      "m1_certified_anchors": 0,
+      "m1_complete_task_coverage": false,
+      "source_legal_transitions": 6,
+      "all_native_model_computation_preserved": true,
+      "actually_skipped": 0,
+      "online_oracle_used": false,
+      "blocker": "Any changed camera input reaches its global blocks. M1 stable regions do not prove whole EVA tensor equivalence. No displaced-window method reconsidered."
+    },
+    {
+      "name": "detection_map_transformer_subgraphs",
+      "hotspot_rank": 3,
+      "operators": [
+        "detection",
+        "map"
+      ],
+      "source": [
+        "projects/mmdet3d_plugin/models/dense_heads/streampetr_head.py:StreamPETRHead.forward",
+        "projects/mmdet3d_plugin/models/dense_heads/petr_head_map.py:PETRHeadM.forward",
+        "projects/mmdet3d_plugin/models/utils/petr_transformer.py:PETRTransformerDecoderLayer.forward"
+      ],
+      "current_required_inputs": [
+        "current projected visual features",
+        "current positional embeddings",
+        "queries",
+        "temporal memory and position",
+        "masks",
+        "pose/timestamps",
+        "model/execution version"
+      ],
+      "source_origin": "actual previous native frame, same scene/cameras/epoch/execution signature; detailed versions in raw M1 states",
+      "necessary_dependency_witnesses": {
+        "detection/current_visual": {
+          "observed": 6,
+          "exactly_equal": 0
+        },
+        "detection/temporal_pos": {
+          "observed": 6,
+          "exactly_equal": 0
+        },
+        "detection/query": {
+          "observed": 6,
+          "exactly_equal": 0
+        },
+        "map/current_visual": {
+          "observed": 6,
+          "exactly_equal": 0
+        },
+        "map/temporal_pos": {
+          "observed": 6,
+          "exactly_equal": 0
+        }
+      },
+      "mathematical_closure": false,
+      "necessary_inputs_all_unchanged": false,
+      "closure_proof_status": "Rejected by changed necessary inputs",
+      "state_evidence_qualified": false,
+      "M1_necessary_sufficient": false,
+      "m1_certified_anchors": 0,
+      "m1_complete_task_coverage": false,
+      "source_legal_transitions": 6,
+      "all_native_model_computation_preserved": true,
+      "actually_skipped": 0,
+      "online_oracle_used": false,
+      "blocker": "Attention/FFN outputs depend on current queries and current image keys. Native temporal Memory is already in the baseline. Historical V alone does not close a Transformer subgraph."
+    }
+  ],
+  "witnesses": [
+    {
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "ordinal": 0,
+      "timestamp": 1531281492.800148,
+      "cameras": [
+        "CAM_FRONT",
+        "CAM_FRONT_RIGHT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "epoch": 3,
+      "signature": "ba4bb111dc74f4b3ef7f874d723d1e9027207687a232673e5e12e54e77a2683a",
+      "source_frame": null,
+      "history_legal": false,
+      "dependencies": {},
+      "whole_input_verification_wall_ms": 0.0006069894880056381,
+      "diagnostic_snapshot_copy_wall_ms": 0.32548699527978897,
+      "diagnostic_snapshot_bytes": 98702024,
+      "actual_reuse": 0,
+      "decision": "Observation only; no executor attached",
+      "service_outputs_bitwise_equal": true
+    },
+    {
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "ordinal": 1,
+      "timestamp": 1531281493.199947,
+      "cameras": [
+        "CAM_FRONT",
+        "CAM_FRONT_RIGHT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "epoch": 3,
+      "signature": "ba4bb111dc74f4b3ef7f874d723d1e9027207687a232673e5e12e54e77a2683a",
+      "source_frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "history_legal": true,
+      "dependencies": {
+        "rgb": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            6,
+            3,
+            640,
+            640
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1156,
+            1456
+          ],
+          "dtype": "torch.bool"
+        },
+        "detection/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            2056,
+            2656
+          ],
+          "dtype": "torch.bool"
+        },
+        "map/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "llm/native_token_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            65
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/rng_cpu": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            5056
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/rng_cuda": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            816
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/inputs_embeds": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            577,
+            4096
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/position_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/attention_mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/layer0_key": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/layer0_value": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/last_logits": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1,
+            32000
+          ],
+          "dtype": "torch.float32"
+        }
+      },
+      "whole_input_verification_wall_ms": 14.55550896935165,
+      "diagnostic_snapshot_copy_wall_ms": 0.3236480988562107,
+      "diagnostic_snapshot_bytes": 98702024,
+      "actual_reuse": 0,
+      "decision": "Observation only; no executor attached",
+      "service_outputs_bitwise_equal": true
+    },
+    {
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "ordinal": 2,
+      "timestamp": 1531281493.799884,
+      "cameras": [
+        "CAM_FRONT",
+        "CAM_FRONT_RIGHT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "epoch": 3,
+      "signature": "ba4bb111dc74f4b3ef7f874d723d1e9027207687a232673e5e12e54e77a2683a",
+      "source_frame": "3613b5ea52bc46d0966fede34be89d38",
+      "history_legal": true,
+      "dependencies": {
+        "rgb": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            6,
+            3,
+            640,
+            640
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1156,
+            1456
+          ],
+          "dtype": "torch.bool"
+        },
+        "detection/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            2056,
+            2656
+          ],
+          "dtype": "torch.bool"
+        },
+        "map/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "llm/native_token_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            65
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/rng_cpu": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            5056
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/rng_cuda": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            816
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/inputs_embeds": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            577,
+            4096
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/position_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/attention_mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/layer0_key": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/layer0_value": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/last_logits": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1,
+            32000
+          ],
+          "dtype": "torch.float32"
+        }
+      },
+      "whole_input_verification_wall_ms": 1.1372019071131945,
+      "diagnostic_snapshot_copy_wall_ms": 0.4978110082447529,
+      "diagnostic_snapshot_bytes": 98702024,
+      "actual_reuse": 0,
+      "decision": "Observation only; no executor attached",
+      "service_outputs_bitwise_equal": true
+    },
+    {
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "ordinal": 3,
+      "timestamp": 1531281494.299758,
+      "cameras": [
+        "CAM_FRONT",
+        "CAM_FRONT_RIGHT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "epoch": 3,
+      "signature": "ba4bb111dc74f4b3ef7f874d723d1e9027207687a232673e5e12e54e77a2683a",
+      "source_frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "history_legal": true,
+      "dependencies": {
+        "rgb": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            6,
+            3,
+            640,
+            640
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1156,
+            1456
+          ],
+          "dtype": "torch.bool"
+        },
+        "detection/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            2056,
+            2656
+          ],
+          "dtype": "torch.bool"
+        },
+        "map/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "llm/native_token_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            65
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/rng_cpu": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            5056
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/rng_cuda": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            816
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/inputs_embeds": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            577,
+            4096
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/position_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/attention_mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/layer0_key": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/layer0_value": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/last_logits": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1,
+            32000
+          ],
+          "dtype": "torch.float32"
+        }
+      },
+      "whole_input_verification_wall_ms": 1.1488317977637053,
+      "diagnostic_snapshot_copy_wall_ms": 0.5685288924723864,
+      "diagnostic_snapshot_bytes": 98702024,
+      "actual_reuse": 0,
+      "decision": "Observation only; no executor attached",
+      "service_outputs_bitwise_equal": true
+    },
+    {
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "ordinal": 0,
+      "timestamp": 1538985029.898073,
+      "cameras": [
+        "CAM_FRONT",
+        "CAM_FRONT_RIGHT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "epoch": 3,
+      "signature": "ba4bb111dc74f4b3ef7f874d723d1e9027207687a232673e5e12e54e77a2683a",
+      "source_frame": null,
+      "history_legal": false,
+      "dependencies": {},
+      "whole_input_verification_wall_ms": 0.0007671769708395004,
+      "diagnostic_snapshot_copy_wall_ms": 0.8640820160508156,
+      "diagnostic_snapshot_bytes": 98702024,
+      "actual_reuse": 0,
+      "decision": "Observation only; no executor attached",
+      "service_outputs_bitwise_equal": true
+    },
+    {
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "ordinal": 1,
+      "timestamp": 1538985030.397925,
+      "cameras": [
+        "CAM_FRONT",
+        "CAM_FRONT_RIGHT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "epoch": 3,
+      "signature": "ba4bb111dc74f4b3ef7f874d723d1e9027207687a232673e5e12e54e77a2683a",
+      "source_frame": "e57fa7124f6741e697b1841bc023a90f",
+      "history_legal": true,
+      "dependencies": {
+        "rgb": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            6,
+            3,
+            640,
+            640
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1156,
+            1456
+          ],
+          "dtype": "torch.bool"
+        },
+        "detection/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            2056,
+            2656
+          ],
+          "dtype": "torch.bool"
+        },
+        "map/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "llm/native_token_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            65
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/rng_cpu": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            5056
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/rng_cuda": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            816
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/inputs_embeds": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            577,
+            4096
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/position_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/attention_mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/layer0_key": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/layer0_value": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/last_logits": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1,
+            32000
+          ],
+          "dtype": "torch.float32"
+        }
+      },
+      "whole_input_verification_wall_ms": 1.1483188718557358,
+      "diagnostic_snapshot_copy_wall_ms": 0.5113671068102121,
+      "diagnostic_snapshot_bytes": 98702024,
+      "actual_reuse": 0,
+      "decision": "Observation only; no executor attached",
+      "service_outputs_bitwise_equal": true
+    },
+    {
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "ordinal": 2,
+      "timestamp": 1538985030.89836,
+      "cameras": [
+        "CAM_FRONT",
+        "CAM_FRONT_RIGHT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "epoch": 3,
+      "signature": "ba4bb111dc74f4b3ef7f874d723d1e9027207687a232673e5e12e54e77a2683a",
+      "source_frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "history_legal": true,
+      "dependencies": {
+        "rgb": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            6,
+            3,
+            640,
+            640
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1156,
+            1456
+          ],
+          "dtype": "torch.bool"
+        },
+        "detection/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            2056,
+            2656
+          ],
+          "dtype": "torch.bool"
+        },
+        "map/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "llm/native_token_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            65
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/rng_cpu": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            5056
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/rng_cuda": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            816
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/inputs_embeds": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            577,
+            4096
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/position_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/attention_mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/layer0_key": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/layer0_value": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/last_logits": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1,
+            32000
+          ],
+          "dtype": "torch.float32"
+        }
+      },
+      "whole_input_verification_wall_ms": 1.1341390199959278,
+      "diagnostic_snapshot_copy_wall_ms": 0.5457948427647352,
+      "diagnostic_snapshot_bytes": 98702024,
+      "actual_reuse": 0,
+      "decision": "Observation only; no executor attached",
+      "service_outputs_bitwise_equal": true
+    },
+    {
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "ordinal": 3,
+      "timestamp": 1538985031.398234,
+      "cameras": [
+        "CAM_FRONT",
+        "CAM_FRONT_RIGHT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "epoch": 3,
+      "signature": "ba4bb111dc74f4b3ef7f874d723d1e9027207687a232673e5e12e54e77a2683a",
+      "source_frame": "ee81134b6b24406995723630e2cee714",
+      "history_legal": true,
+      "dependencies": {
+        "rgb": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            6,
+            3,
+            640,
+            640
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/query_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1156,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1156,
+            1456
+          ],
+          "dtype": "torch.bool"
+        },
+        "detection/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "detection/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            300,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_visual": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/query_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            2056,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/current_pos": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            9600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            2056,
+            2656
+          ],
+          "dtype": "torch.bool"
+        },
+        "map/temporal_memory": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "map/temporal_pos": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            600,
+            256
+          ],
+          "dtype": "torch.float32"
+        },
+        "llm/native_token_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            65
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/rng_cpu": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            5056
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/rng_cuda": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            816
+          ],
+          "dtype": "torch.uint8"
+        },
+        "llm/inputs_embeds": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            577,
+            4096
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/position_ids": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/attention_mask": {
+          "shape_equal": true,
+          "exact_equal": true,
+          "current_shape": [
+            1,
+            577
+          ],
+          "dtype": "torch.int64"
+        },
+        "llm/layer0_key": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/layer0_value": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            32,
+            577,
+            128
+          ],
+          "dtype": "torch.float16"
+        },
+        "llm/last_logits": {
+          "shape_equal": true,
+          "exact_equal": false,
+          "current_shape": [
+            1,
+            1,
+            32000
+          ],
+          "dtype": "torch.float32"
+        }
+      },
+      "whole_input_verification_wall_ms": 24.143545888364315,
+      "diagnostic_snapshot_copy_wall_ms": 0.7150350138545036,
+      "diagnostic_snapshot_bytes": 98702024,
+      "actual_reuse": 0,
+      "decision": "Observation only; no executor attached",
+      "service_outputs_bitwise_equal": true
+    }
+  ],
+  "diagnostic_rule": "Equality is necessary, never semantic similarity. Post-forward KV differences only disprove reuse; they cannot authorize avoiding that forward.",
+  "M1_observation_physical_transformer_task_claims_separate": true,
+  "provenance": {
+    "raw_run": "outputs/stateful_cross_frame_boundary/gpu_run01",
+    "head": "57ddef9c28c69a8ad32f3e78d38aaaca00331b92",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "checkpoint_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+    "dataset": {
+      "path": "./data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl",
+      "sha256": "f432aa166d0f6c0ffe9dd22fb92352ec02d02709f87d7c28dd7095351b1bfba7"
+    },
+    "seed": 0,
+    "sampling": {
+      "do_sample": true,
+      "temperature": 0.1,
+      "top_p": 0.75,
+      "max_new_tokens": 320,
+      "num_beams": 1,
+      "use_cache": true
+    },
+    "population": {
+      "original_task": "planning",
+      "task_classifier_label": "global_safety",
+      "population": "Exploratory",
+      "native_multi_cross_frame_requalification": "Not Run",
+      "scenes": 8,
+      "unique_frames": 96,
+      "service_requests": 192,
+      "measured_requests_per_mode": 88,
+      "profile_requests": 2,
+      "witness_requests": 8,
+      "independent_heldout_scenes": 0
+    },
+    "environment_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/environment.json",
+    "effective_generation_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/effective_generation.json",
+    "executed_source_manifest_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/source_manifest.json"
+  }
+}

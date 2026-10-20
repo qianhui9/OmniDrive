@@ -1,0 +1,49 @@
+{
+  "tests": 678,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "status": "passed",
+  "duration_seconds": 108.596,
+  "exit_code": 0,
+  "scope": "Frozen M1/M2/M3 plus audit regression; Active task quality Not Run",
+  "cpu_affinity": "0-3,6-31",
+  "torch_threads": 1,
+  "cv2_threads": 1,
+  "original_658_history": "preserved",
+  "provenance": {
+    "raw_run": "outputs/stateful_cross_frame_boundary/gpu_run01",
+    "head": "57ddef9c28c69a8ad32f3e78d38aaaca00331b92",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "checkpoint_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+    "dataset": {
+      "path": "./data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl",
+      "sha256": "f432aa166d0f6c0ffe9dd22fb92352ec02d02709f87d7c28dd7095351b1bfba7"
+    },
+    "seed": 0,
+    "sampling": {
+      "do_sample": true,
+      "temperature": 0.1,
+      "top_p": 0.75,
+      "max_new_tokens": 320,
+      "num_beams": 1,
+      "use_cache": true
+    },
+    "population": {
+      "original_task": "planning",
+      "task_classifier_label": "global_safety",
+      "population": "Exploratory",
+      "native_multi_cross_frame_requalification": "Not Run",
+      "scenes": 8,
+      "unique_frames": 96,
+      "service_requests": 192,
+      "measured_requests_per_mode": 88,
+      "profile_requests": 2,
+      "witness_requests": 8,
+      "independent_heldout_scenes": 0
+    },
+    "environment_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/environment.json",
+    "effective_generation_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/effective_generation.json",
+    "executed_source_manifest_ref": "outputs/stateful_cross_frame_boundary/gpu_run01/source_manifest.json"
+  }
+}

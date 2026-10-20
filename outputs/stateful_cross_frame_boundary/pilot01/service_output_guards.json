@@ -1,0 +1,4428 @@
+{
+  "9f1f69646d644e35be4fe0122a8b91ef/adce54dcf6404d37bd170ffc4c2a7836": {
+    "Native Original": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "5d98fde7f192492436eebbc77a77aa53d4444e3a3928ff85061b13876b382e11"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "cc6de3c4d897cfc6d6478947e8fc4ac0be1ebe7456142b827bf906390d6dc3da"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "5e8630317605de97956f056e0d4dc96eb0f94ea1b8740cd8f793ed5689dd840b"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.30, +0.23), (+4.62, +0.97), (+6.91, +2.17), (+9.11, +3.78), (+11.27, +5.63), (+13.32, +7.64)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "5ab39bd3f424879dde4afb7c9f9b79c09a2a193239a42b2a8186e56d41e0302f"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "2da60f8dbaa9e7feced06dae4113b0c7fda3af5b3329020491d654dbee96a028"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "340769df6626292db5864dc45105d8066479829a36de8d0ad597877b3731b681"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "0a1c38a21322671a0f237bb6d731ffc5079d82fc76c6b8040276e7dd5df8b6ac"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "6f79b67d4dfa0288e658528ea52d171e2cadee0100706a58fd04741fe0d6c4b5"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "6de62e229a193c9b5617cfb933e57b3d14ed13544fd9394c922ddfa59761b4f3"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "6482965ea9b58cbbb5fda33acc2f88c021f5544c9102185563dcec9ba6b8de39"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "3b2d57c87418a0d2ea0f1bdf60a2e9a798dbef26a45539d7ba3ee9de05e4f764"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "138b56ec7c4458e1089f524ff1df6e9862c0d653faf03146115ceffd35157210"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "cfe9f66546bd1417fcd815db8c67496b48225b9387a946b8e7946e35e175ac19"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "ddaa7e84903f10a246b73fa108695392da0d94b2676a2c6b51c8dc9be26f81f8"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "6f79b67d4dfa0288e658528ea52d171e2cadee0100706a58fd04741fe0d6c4b5"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "94266cdad69b549a114a9290fd783e7cfda1b3e965abd342abe1ef36d7a912da"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "3b2d57c87418a0d2ea0f1bdf60a2e9a798dbef26a45539d7ba3ee9de05e4f764"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "78b8385edb00dad32675b4a4eb2fe0b68a74ccbecefb33976bac3b739e905374"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29941,
+            29900,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29941,
+            511,
+            20532,
+            29946,
+            29889,
+            29953,
+            29906,
+            29892,
+            718,
+            29900,
+            29889,
+            29929,
+            29955,
+            511,
+            20532,
+            29953,
+            29889,
+            29929,
+            29896,
+            29892,
+            718,
+            29906,
+            29889,
+            29896,
+            29955,
+            511,
+            20532,
+            29929,
+            29889,
+            29896,
+            29896,
+            29892,
+            718,
+            29941,
+            29889,
+            29955,
+            29947,
+            511,
+            20532,
+            29896,
+            29896,
+            29889,
+            29906,
+            29955,
+            29892,
+            718,
+            29945,
+            29889,
+            29953,
+            29941,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29941,
+            29906,
+            29892,
+            718,
+            29955,
+            29889,
+            29953,
+            29946,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    },
+    "Persistent Full": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "5d98fde7f192492436eebbc77a77aa53d4444e3a3928ff85061b13876b382e11"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "cc6de3c4d897cfc6d6478947e8fc4ac0be1ebe7456142b827bf906390d6dc3da"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "5e8630317605de97956f056e0d4dc96eb0f94ea1b8740cd8f793ed5689dd840b"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.30, +0.23), (+4.62, +0.97), (+6.91, +2.17), (+9.11, +3.78), (+11.27, +5.63), (+13.32, +7.64)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "5ab39bd3f424879dde4afb7c9f9b79c09a2a193239a42b2a8186e56d41e0302f"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "2da60f8dbaa9e7feced06dae4113b0c7fda3af5b3329020491d654dbee96a028"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "340769df6626292db5864dc45105d8066479829a36de8d0ad597877b3731b681"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "0a1c38a21322671a0f237bb6d731ffc5079d82fc76c6b8040276e7dd5df8b6ac"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "6f79b67d4dfa0288e658528ea52d171e2cadee0100706a58fd04741fe0d6c4b5"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "6de62e229a193c9b5617cfb933e57b3d14ed13544fd9394c922ddfa59761b4f3"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "6482965ea9b58cbbb5fda33acc2f88c021f5544c9102185563dcec9ba6b8de39"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "3b2d57c87418a0d2ea0f1bdf60a2e9a798dbef26a45539d7ba3ee9de05e4f764"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "138b56ec7c4458e1089f524ff1df6e9862c0d653faf03146115ceffd35157210"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "cfe9f66546bd1417fcd815db8c67496b48225b9387a946b8e7946e35e175ac19"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "ddaa7e84903f10a246b73fa108695392da0d94b2676a2c6b51c8dc9be26f81f8"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "6f79b67d4dfa0288e658528ea52d171e2cadee0100706a58fd04741fe0d6c4b5"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "94266cdad69b549a114a9290fd783e7cfda1b3e965abd342abe1ef36d7a912da"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "3b2d57c87418a0d2ea0f1bdf60a2e9a798dbef26a45539d7ba3ee9de05e4f764"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "78b8385edb00dad32675b4a4eb2fe0b68a74ccbecefb33976bac3b739e905374"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29941,
+            29900,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29941,
+            511,
+            20532,
+            29946,
+            29889,
+            29953,
+            29906,
+            29892,
+            718,
+            29900,
+            29889,
+            29929,
+            29955,
+            511,
+            20532,
+            29953,
+            29889,
+            29929,
+            29896,
+            29892,
+            718,
+            29906,
+            29889,
+            29896,
+            29955,
+            511,
+            20532,
+            29929,
+            29889,
+            29896,
+            29896,
+            29892,
+            718,
+            29941,
+            29889,
+            29955,
+            29947,
+            511,
+            20532,
+            29896,
+            29896,
+            29889,
+            29906,
+            29955,
+            29892,
+            718,
+            29945,
+            29889,
+            29953,
+            29941,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29941,
+            29906,
+            29892,
+            718,
+            29955,
+            29889,
+            29953,
+            29946,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    }
+  },
+  "9f1f69646d644e35be4fe0122a8b91ef/3613b5ea52bc46d0966fede34be89d38": {
+    "Native Original": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "dc858bcd3a86b8da222a065de0caa7d149d4e2be4544f7c405f196f34bb2bac7"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "19bef94e017903a218b1bd7f27126a7ba0782ea1b676642ef0efa54c18b61d35"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "1850b3b82d6bebcaccd8c9f87c0972e47cf3bfc00f1a09589be35c36c459ff6f"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.22, +0.21), (+4.42, +0.97), (+6.59, +2.20), (+8.72, +3.78), (+10.72, +5.58), (+12.57, +7.47)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "a74dab8ee7d03939abe4d2bed639d27d2dcb1615ef05aa226a7f9d82ef541031"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "16fb387d0e39b338150268957788319fc724c5150522f07928d08ec05c5099d2"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "3c58b5a11cd08768092d3e193b25494b8516070a58cca16ab18a2f26efd3fd1c"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "1c632f47f01cdb2d5bfb88dd5a3929f752f72f9d158f354e3561a3b90bb0c7d6"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "63499d1d12ec1dd97e5a5b6d85700adcf578d60586841ec68a3b025443e6ce15"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "b1da4110429804e1ce7e515a51915e3e6365fbd18550d55232c82dffe963799b"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "c292f4a78aa84bca2710940e7c3562ebfcd94bc25b8186e78d05577c5c938697"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "fa2c383cdd25735ec38af4749c792063111c8a3ff207e846165991c8b9958ae1"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "e9e2a52e61cba7988f5aa104d6f2e845551c313f42de726095d5181c54051ca7"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "652b36d5054f6698212810d2141ede57a62096789e77b8cb909df2e69d3d4b27"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "2b748a79b91cfc18f75e0a7853a851ade09ff6b3cf58eb41cca56b6f9513f9b3"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "63499d1d12ec1dd97e5a5b6d85700adcf578d60586841ec68a3b025443e6ce15"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "7839d5775feac3cff95a343a70d0e6f5e5cd66e206378df315075a4ad165dfc1"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "fa2c383cdd25735ec38af4749c792063111c8a3ff207e846165991c8b9958ae1"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "326bc2691f38acaad43253a796b246e13fc345c84a2661a2c070e8b429f5e7c9"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29906,
+            29906,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29896,
+            511,
+            20532,
+            29946,
+            29889,
+            29946,
+            29906,
+            29892,
+            718,
+            29900,
+            29889,
+            29929,
+            29955,
+            511,
+            20532,
+            29953,
+            29889,
+            29945,
+            29929,
+            29892,
+            718,
+            29906,
+            29889,
+            29906,
+            29900,
+            511,
+            20532,
+            29947,
+            29889,
+            29955,
+            29906,
+            29892,
+            718,
+            29941,
+            29889,
+            29955,
+            29947,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29955,
+            29906,
+            29892,
+            718,
+            29945,
+            29889,
+            29945,
+            29947,
+            511,
+            20532,
+            29896,
+            29906,
+            29889,
+            29945,
+            29955,
+            29892,
+            718,
+            29955,
+            29889,
+            29946,
+            29955,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    },
+    "Persistent Full": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "dc858bcd3a86b8da222a065de0caa7d149d4e2be4544f7c405f196f34bb2bac7"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "19bef94e017903a218b1bd7f27126a7ba0782ea1b676642ef0efa54c18b61d35"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "1850b3b82d6bebcaccd8c9f87c0972e47cf3bfc00f1a09589be35c36c459ff6f"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.22, +0.21), (+4.42, +0.97), (+6.59, +2.20), (+8.72, +3.78), (+10.72, +5.58), (+12.57, +7.47)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "a74dab8ee7d03939abe4d2bed639d27d2dcb1615ef05aa226a7f9d82ef541031"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "16fb387d0e39b338150268957788319fc724c5150522f07928d08ec05c5099d2"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "3c58b5a11cd08768092d3e193b25494b8516070a58cca16ab18a2f26efd3fd1c"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "1c632f47f01cdb2d5bfb88dd5a3929f752f72f9d158f354e3561a3b90bb0c7d6"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "63499d1d12ec1dd97e5a5b6d85700adcf578d60586841ec68a3b025443e6ce15"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "b1da4110429804e1ce7e515a51915e3e6365fbd18550d55232c82dffe963799b"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "c292f4a78aa84bca2710940e7c3562ebfcd94bc25b8186e78d05577c5c938697"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "fa2c383cdd25735ec38af4749c792063111c8a3ff207e846165991c8b9958ae1"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "e9e2a52e61cba7988f5aa104d6f2e845551c313f42de726095d5181c54051ca7"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "652b36d5054f6698212810d2141ede57a62096789e77b8cb909df2e69d3d4b27"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "2b748a79b91cfc18f75e0a7853a851ade09ff6b3cf58eb41cca56b6f9513f9b3"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "63499d1d12ec1dd97e5a5b6d85700adcf578d60586841ec68a3b025443e6ce15"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "7839d5775feac3cff95a343a70d0e6f5e5cd66e206378df315075a4ad165dfc1"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "fa2c383cdd25735ec38af4749c792063111c8a3ff207e846165991c8b9958ae1"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "326bc2691f38acaad43253a796b246e13fc345c84a2661a2c070e8b429f5e7c9"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29906,
+            29906,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29896,
+            511,
+            20532,
+            29946,
+            29889,
+            29946,
+            29906,
+            29892,
+            718,
+            29900,
+            29889,
+            29929,
+            29955,
+            511,
+            20532,
+            29953,
+            29889,
+            29945,
+            29929,
+            29892,
+            718,
+            29906,
+            29889,
+            29906,
+            29900,
+            511,
+            20532,
+            29947,
+            29889,
+            29955,
+            29906,
+            29892,
+            718,
+            29941,
+            29889,
+            29955,
+            29947,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29955,
+            29906,
+            29892,
+            718,
+            29945,
+            29889,
+            29945,
+            29947,
+            511,
+            20532,
+            29896,
+            29906,
+            29889,
+            29945,
+            29955,
+            29892,
+            718,
+            29955,
+            29889,
+            29946,
+            29955,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    }
+  },
+  "9f1f69646d644e35be4fe0122a8b91ef/c0f6cef97fa44973afe8ed8e18e652c3": {
+    "Native Original": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "f83ff5ea1ff2be976a7c281a43c673533cf23dc99d131b28d0dbbc9264944e3d"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "773fd026c1ffa4bcfbe89d123dde2f577aa98c60b5c5f72307f65ab257a31d39"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "afd35fd5d3a0fcfdca4f9bd82ad73aa383f574173347de1a9ca0e81f5dd3027e"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.36, +0.17), (+4.74, +0.73), (+7.12, +1.67), (+9.43, +2.90), (+11.74, +4.38), (+13.99, +6.04)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "540f6c2ab706bf0961bcc1ff9d39b2a59d571b3c59f637dce599a89a113eaab3"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "81496a3d7a505995eef447f950e39fd633e5b1a604b253a36fc02eb196140042"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "0736aa921048c47153afbb91d52106e94e10a248b5eb4ac0cf7c615ce6346fec"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "4cfb2cdefe643cd389c0ae982b06f6ff48e66f6f7abf6137d8090024c08c2ba3"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "26851e75bc01bcdb64eae9239f854b94731bd598c6032bf05e819b1a25d451fd"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "47b5838866ec59f04e3343db80143afd8d5c8d07c4a2c3e7e1eda658635e69aa"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "162208a0968af2cebb8d8875c8a1b6f2e10d17bd08a289fc0db9d4632f3f87dd"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "127542b15ce01d19cde7d6dd532267140e8109e6759c759ba935787542d85930"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "ab404d894687721df8670e7abd9fb716242b128a47bd6c903888eccb0bc5d8e5"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "e831705f935e9f39646f9c71a70d6b93218f52f63afce66847d2af686ee37e51"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "1f7d8f69441e32bccae0a95a4c312941b05ce01d2bc2a9996f8a5a025c16161e"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "26851e75bc01bcdb64eae9239f854b94731bd598c6032bf05e819b1a25d451fd"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "47b5838866ec59f04e3343db80143afd8d5c8d07c4a2c3e7e1eda658635e69aa"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "127542b15ce01d19cde7d6dd532267140e8109e6759c759ba935787542d85930"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7106df47ff7bb3daa3d2a86dbb4102f7814fd5529ed5341439ce14279c566b56"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29941,
+            29953,
+            29892,
+            718,
+            29900,
+            29889,
+            29896,
+            29955,
+            511,
+            20532,
+            29946,
+            29889,
+            29955,
+            29946,
+            29892,
+            718,
+            29900,
+            29889,
+            29955,
+            29941,
+            511,
+            20532,
+            29955,
+            29889,
+            29896,
+            29906,
+            29892,
+            718,
+            29896,
+            29889,
+            29953,
+            29955,
+            511,
+            20532,
+            29929,
+            29889,
+            29946,
+            29941,
+            29892,
+            718,
+            29906,
+            29889,
+            29929,
+            29900,
+            511,
+            20532,
+            29896,
+            29896,
+            29889,
+            29955,
+            29946,
+            29892,
+            718,
+            29946,
+            29889,
+            29941,
+            29947,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29929,
+            29929,
+            29892,
+            718,
+            29953,
+            29889,
+            29900,
+            29946,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    },
+    "Persistent Full": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "f83ff5ea1ff2be976a7c281a43c673533cf23dc99d131b28d0dbbc9264944e3d"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "773fd026c1ffa4bcfbe89d123dde2f577aa98c60b5c5f72307f65ab257a31d39"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "afd35fd5d3a0fcfdca4f9bd82ad73aa383f574173347de1a9ca0e81f5dd3027e"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.36, +0.17), (+4.74, +0.73), (+7.12, +1.67), (+9.43, +2.90), (+11.74, +4.38), (+13.99, +6.04)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "540f6c2ab706bf0961bcc1ff9d39b2a59d571b3c59f637dce599a89a113eaab3"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "81496a3d7a505995eef447f950e39fd633e5b1a604b253a36fc02eb196140042"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "0736aa921048c47153afbb91d52106e94e10a248b5eb4ac0cf7c615ce6346fec"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "4cfb2cdefe643cd389c0ae982b06f6ff48e66f6f7abf6137d8090024c08c2ba3"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "26851e75bc01bcdb64eae9239f854b94731bd598c6032bf05e819b1a25d451fd"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "47b5838866ec59f04e3343db80143afd8d5c8d07c4a2c3e7e1eda658635e69aa"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "162208a0968af2cebb8d8875c8a1b6f2e10d17bd08a289fc0db9d4632f3f87dd"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "127542b15ce01d19cde7d6dd532267140e8109e6759c759ba935787542d85930"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "ab404d894687721df8670e7abd9fb716242b128a47bd6c903888eccb0bc5d8e5"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "e831705f935e9f39646f9c71a70d6b93218f52f63afce66847d2af686ee37e51"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "1f7d8f69441e32bccae0a95a4c312941b05ce01d2bc2a9996f8a5a025c16161e"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "26851e75bc01bcdb64eae9239f854b94731bd598c6032bf05e819b1a25d451fd"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "47b5838866ec59f04e3343db80143afd8d5c8d07c4a2c3e7e1eda658635e69aa"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "127542b15ce01d19cde7d6dd532267140e8109e6759c759ba935787542d85930"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7106df47ff7bb3daa3d2a86dbb4102f7814fd5529ed5341439ce14279c566b56"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29941,
+            29953,
+            29892,
+            718,
+            29900,
+            29889,
+            29896,
+            29955,
+            511,
+            20532,
+            29946,
+            29889,
+            29955,
+            29946,
+            29892,
+            718,
+            29900,
+            29889,
+            29955,
+            29941,
+            511,
+            20532,
+            29955,
+            29889,
+            29896,
+            29906,
+            29892,
+            718,
+            29896,
+            29889,
+            29953,
+            29955,
+            511,
+            20532,
+            29929,
+            29889,
+            29946,
+            29941,
+            29892,
+            718,
+            29906,
+            29889,
+            29929,
+            29900,
+            511,
+            20532,
+            29896,
+            29896,
+            29889,
+            29955,
+            29946,
+            29892,
+            718,
+            29946,
+            29889,
+            29941,
+            29947,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29929,
+            29929,
+            29892,
+            718,
+            29953,
+            29889,
+            29900,
+            29946,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    }
+  },
+  "9f1f69646d644e35be4fe0122a8b91ef/895d801ecf3e40019e43a0d5b80bb453": {
+    "Native Original": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "246f29b552b2fec6fc63dded2311b5e1db95e60c1c99f83885b2ae7067357f09"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "5a3184ed61c37e0c679a959836544bdd492b8c0d56c4e2949006dcdce21e56a4"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "5df9ecf532f4be6f818d75486db6af528bb687ccbf7796d123bd756c272062ea"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.50, +0.15), (+5.15, +0.67), (+7.92, +1.50), (+10.82, +2.55), (+13.88, +3.79), (+17.08, +5.12)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "4b1205c4f920835a8145762099d4fe768df02096cb71d8c920884802e2a2fa2f"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "6ce22cef07997685e8c21a6a4c6cdd71c0a4208e8c72e362529d55db67e07b1d"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "dd6af610c0353366d6c904e223652834ed0e29660bc733642a534ce7d588b518"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "0d57df92f4cc1e64098aed2a8f7c6a501feaabd000b191f7a6ffe37e61d8d687"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "e4a613cd843aa385d0aabe18e62fab8d1bd147e4d8d403a3f9432f38f1846bb0"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "9c04645955cc6717f6aa62646c38a7a369a9081af2e0b447654d9d1ea5b2aab4"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "9dc0e9880936548229d95323ab1e65bb1f3dae2c0f8d2d6f0d5135421bb438a1"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "521414d45377ad2a07567486c5c686d4b02d518c595f7c4e2a7b5a59a3f3d5f6"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "a518876a0a344b51b2e9575d0ccb87333eaeb99c4a99445201788db0897f2747"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "6a60ce76c590200de3aedb0b2e4e3d15118b58cdbc3912f4bf5de25f9a5c6d46"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "a9f699a8f2bfe0a9c9277585f298fe403b3cd2a05e6b113eb74bb03072b5f9b5"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "e4a613cd843aa385d0aabe18e62fab8d1bd147e4d8d403a3f9432f38f1846bb0"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "9c04645955cc6717f6aa62646c38a7a369a9081af2e0b447654d9d1ea5b2aab4"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "521414d45377ad2a07567486c5c686d4b02d518c595f7c4e2a7b5a59a3f3d5f6"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7106df47ff7bb3daa3d2a86dbb4102f7814fd5529ed5341439ce14279c566b56"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29945,
+            29900,
+            29892,
+            718,
+            29900,
+            29889,
+            29896,
+            29945,
+            511,
+            20532,
+            29945,
+            29889,
+            29896,
+            29945,
+            29892,
+            718,
+            29900,
+            29889,
+            29953,
+            29955,
+            511,
+            20532,
+            29955,
+            29889,
+            29929,
+            29906,
+            29892,
+            718,
+            29896,
+            29889,
+            29945,
+            29900,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29947,
+            29906,
+            29892,
+            718,
+            29906,
+            29889,
+            29945,
+            29945,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29947,
+            29947,
+            29892,
+            718,
+            29941,
+            29889,
+            29955,
+            29929,
+            511,
+            20532,
+            29896,
+            29955,
+            29889,
+            29900,
+            29947,
+            29892,
+            718,
+            29945,
+            29889,
+            29896,
+            29906,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    },
+    "Persistent Full": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "246f29b552b2fec6fc63dded2311b5e1db95e60c1c99f83885b2ae7067357f09"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "5a3184ed61c37e0c679a959836544bdd492b8c0d56c4e2949006dcdce21e56a4"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "5df9ecf532f4be6f818d75486db6af528bb687ccbf7796d123bd756c272062ea"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.50, +0.15), (+5.15, +0.67), (+7.92, +1.50), (+10.82, +2.55), (+13.88, +3.79), (+17.08, +5.12)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "4b1205c4f920835a8145762099d4fe768df02096cb71d8c920884802e2a2fa2f"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "6ce22cef07997685e8c21a6a4c6cdd71c0a4208e8c72e362529d55db67e07b1d"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "dd6af610c0353366d6c904e223652834ed0e29660bc733642a534ce7d588b518"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "0d57df92f4cc1e64098aed2a8f7c6a501feaabd000b191f7a6ffe37e61d8d687"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "e4a613cd843aa385d0aabe18e62fab8d1bd147e4d8d403a3f9432f38f1846bb0"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "9c04645955cc6717f6aa62646c38a7a369a9081af2e0b447654d9d1ea5b2aab4"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "9dc0e9880936548229d95323ab1e65bb1f3dae2c0f8d2d6f0d5135421bb438a1"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "521414d45377ad2a07567486c5c686d4b02d518c595f7c4e2a7b5a59a3f3d5f6"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "a518876a0a344b51b2e9575d0ccb87333eaeb99c4a99445201788db0897f2747"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "6a60ce76c590200de3aedb0b2e4e3d15118b58cdbc3912f4bf5de25f9a5c6d46"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "a9f699a8f2bfe0a9c9277585f298fe403b3cd2a05e6b113eb74bb03072b5f9b5"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "e4a613cd843aa385d0aabe18e62fab8d1bd147e4d8d403a3f9432f38f1846bb0"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "9c04645955cc6717f6aa62646c38a7a369a9081af2e0b447654d9d1ea5b2aab4"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "521414d45377ad2a07567486c5c686d4b02d518c595f7c4e2a7b5a59a3f3d5f6"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7106df47ff7bb3daa3d2a86dbb4102f7814fd5529ed5341439ce14279c566b56"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29945,
+            29900,
+            29892,
+            718,
+            29900,
+            29889,
+            29896,
+            29945,
+            511,
+            20532,
+            29945,
+            29889,
+            29896,
+            29945,
+            29892,
+            718,
+            29900,
+            29889,
+            29953,
+            29955,
+            511,
+            20532,
+            29955,
+            29889,
+            29929,
+            29906,
+            29892,
+            718,
+            29896,
+            29889,
+            29945,
+            29900,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29947,
+            29906,
+            29892,
+            718,
+            29906,
+            29889,
+            29945,
+            29945,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29947,
+            29947,
+            29892,
+            718,
+            29941,
+            29889,
+            29955,
+            29929,
+            511,
+            20532,
+            29896,
+            29955,
+            29889,
+            29900,
+            29947,
+            29892,
+            718,
+            29945,
+            29889,
+            29896,
+            29906,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    }
+  },
+  "a04daf2d0f194b2ab2ff2a47dfebc1d7/e57fa7124f6741e697b1841bc023a90f": {
+    "Persistent Full": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "d68d81ad8c54ebd41696735aa3c2ebf806f70a999aba6ccf6662068302aef928"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "f596ae8ced9081a897f62987cd00dbc5df7a0ab554825a041ed724d23e36226c"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "aced25df5e295e670733b15a51361c90f8552b8b8d3c9af5de82804680f6d97e"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.30, +0.04), (+4.80, +0.21), (+7.49, +0.54), (+10.35, +1.04), (+13.34, +1.68), (+16.49, +2.44)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "08101864ea80bb734b4da665268926634c310b7dd7e20cd607eae05d9cd04ab5"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "f2d11b732daf4dde4117b5f508f42ccd16f01146e61148ceb2cac6e675915f14"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "b26c9923b0e5d73b1138cf50c66ec3719511b91d28fa4b4489b39b7b5ed8eba1"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "2d37c21b72b8137bb28411d71da848b6c391f3435bf0fb8c8b7dddc8245f5176"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "6df2a452ec9f06bdd2e1c9c5e4014ff947cf48fef9eb125a308f92b03ea8eedd"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "ad1efec48e81bbf875f2fc2ac2521629d19af7eaef87531b3cfb3aa0de031648"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "1dbf12c4a9257f3a68fabba96294e8d81bc9cb534701d561020e608cbc0587fe"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a2101ecf98f91bacaf9cc447a5af0a93a93c146fe07134055b8a081629833e72"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "98b38c3d8264eaf40ae7c02fa32f671a3359dee3265807945a367ce0885fb719"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "868a07fccd9d1093ab53cb7752557897614a978fa81dce28661309561b339c15"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e007325647e55c767233402e4ec82861e46593ad777e57cd4b4082b0a402800f"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "6df2a452ec9f06bdd2e1c9c5e4014ff947cf48fef9eb125a308f92b03ea8eedd"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "a39e15406e877bf42de86d4ab835b1200770012ed5494268722b4cedc65d4c8e"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a2101ecf98f91bacaf9cc447a5af0a93a93c146fe07134055b8a081629833e72"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "78b8385edb00dad32675b4a4eb2fe0b68a74ccbecefb33976bac3b739e905374"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29941,
+            29900,
+            29892,
+            718,
+            29900,
+            29889,
+            29900,
+            29946,
+            511,
+            20532,
+            29946,
+            29889,
+            29947,
+            29900,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29896,
+            511,
+            20532,
+            29955,
+            29889,
+            29946,
+            29929,
+            29892,
+            718,
+            29900,
+            29889,
+            29945,
+            29946,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29941,
+            29945,
+            29892,
+            718,
+            29896,
+            29889,
+            29900,
+            29946,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29941,
+            29946,
+            29892,
+            718,
+            29896,
+            29889,
+            29953,
+            29947,
+            511,
+            20532,
+            29896,
+            29953,
+            29889,
+            29946,
+            29929,
+            29892,
+            718,
+            29906,
+            29889,
+            29946,
+            29946,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    },
+    "Native Original": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "d68d81ad8c54ebd41696735aa3c2ebf806f70a999aba6ccf6662068302aef928"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "f596ae8ced9081a897f62987cd00dbc5df7a0ab554825a041ed724d23e36226c"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "aced25df5e295e670733b15a51361c90f8552b8b8d3c9af5de82804680f6d97e"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.30, +0.04), (+4.80, +0.21), (+7.49, +0.54), (+10.35, +1.04), (+13.34, +1.68), (+16.49, +2.44)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "08101864ea80bb734b4da665268926634c310b7dd7e20cd607eae05d9cd04ab5"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "f2d11b732daf4dde4117b5f508f42ccd16f01146e61148ceb2cac6e675915f14"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "b26c9923b0e5d73b1138cf50c66ec3719511b91d28fa4b4489b39b7b5ed8eba1"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "2d37c21b72b8137bb28411d71da848b6c391f3435bf0fb8c8b7dddc8245f5176"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "6df2a452ec9f06bdd2e1c9c5e4014ff947cf48fef9eb125a308f92b03ea8eedd"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "ad1efec48e81bbf875f2fc2ac2521629d19af7eaef87531b3cfb3aa0de031648"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "1dbf12c4a9257f3a68fabba96294e8d81bc9cb534701d561020e608cbc0587fe"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a2101ecf98f91bacaf9cc447a5af0a93a93c146fe07134055b8a081629833e72"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "98b38c3d8264eaf40ae7c02fa32f671a3359dee3265807945a367ce0885fb719"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "868a07fccd9d1093ab53cb7752557897614a978fa81dce28661309561b339c15"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e007325647e55c767233402e4ec82861e46593ad777e57cd4b4082b0a402800f"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "6df2a452ec9f06bdd2e1c9c5e4014ff947cf48fef9eb125a308f92b03ea8eedd"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "a39e15406e877bf42de86d4ab835b1200770012ed5494268722b4cedc65d4c8e"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a2101ecf98f91bacaf9cc447a5af0a93a93c146fe07134055b8a081629833e72"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "78b8385edb00dad32675b4a4eb2fe0b68a74ccbecefb33976bac3b739e905374"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29941,
+            29900,
+            29892,
+            718,
+            29900,
+            29889,
+            29900,
+            29946,
+            511,
+            20532,
+            29946,
+            29889,
+            29947,
+            29900,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29896,
+            511,
+            20532,
+            29955,
+            29889,
+            29946,
+            29929,
+            29892,
+            718,
+            29900,
+            29889,
+            29945,
+            29946,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29941,
+            29945,
+            29892,
+            718,
+            29896,
+            29889,
+            29900,
+            29946,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29941,
+            29946,
+            29892,
+            718,
+            29896,
+            29889,
+            29953,
+            29947,
+            511,
+            20532,
+            29896,
+            29953,
+            29889,
+            29946,
+            29929,
+            29892,
+            718,
+            29906,
+            29889,
+            29946,
+            29946,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    }
+  },
+  "a04daf2d0f194b2ab2ff2a47dfebc1d7/9f6df3e551884233bb31cd0d1aa864b4": {
+    "Persistent Full": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "e9dbf0d33b5baa476bb62237a9c7d96aeca606e68620334948a9edaf5ad4cfb1"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "34a78d500a299cd6f80b94ce2bbee7157fac0cb9a6542ced26896d72b1f5c9f1"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "a2b7f5d536b1798fa9fde6c8e70859162a0a5810cce4f0937b09e9fec2045413"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.43, +0.05), (+5.01, +0.25), (+7.71, +0.59), (+10.51, +1.06), (+13.44, +1.65), (+16.49, +2.32)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "2b3311d2a5128a9343f688c406ed8ff7d85749ee0867afedb75afd79f249616b"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "55047bb315fb265a576c5d84926294367658513155fca0a8f3ed4f181767c733"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "7aefeec41254c14322d759b0d02ddbb973e76f53dda99f2421eade69437bbde2"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "27ac83428a583610aaf724a7f319669e7309bcb8696729b95d30bfc2a0223ed3"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "45cd0ec0058e60d94e087db70124ec0315ca4720c146415596f62d29d606d504"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "b21da35ad5780b899fbed7263120a0efb4f249df7eb5781b5ae945f8a31ad9da"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "a853b59b9138ca14c2ef1e7f7f4ba29dd1ce2ba2c2aedbb63f59364d65046b1f"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a991bb4e2c778882db1a454a1070a5549ca86bb7b5e0da4122794b0750ed4ac2"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "9314e61a2a1682a4b4230ef1ba8c25719ef3838607d365b56f5b9afb0d45d2ed"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "c56293945b41f616d9ed0de2f3f490780381648c379cc96e095772d42a2a235d"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "bb8af635b80187ea8a5cf47d24ead49844bfba45eff175a0328f564af2366645"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "45cd0ec0058e60d94e087db70124ec0315ca4720c146415596f62d29d606d504"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "78e372d8ac81298837536c3e7dbf69d7cfcaa22d2ddcbb2b0a387d032d2842b8"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a991bb4e2c778882db1a454a1070a5549ca86bb7b5e0da4122794b0750ed4ac2"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "326bc2691f38acaad43253a796b246e13fc345c84a2661a2c070e8b429f5e7c9"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29946,
+            29941,
+            29892,
+            718,
+            29900,
+            29889,
+            29900,
+            29945,
+            511,
+            20532,
+            29945,
+            29889,
+            29900,
+            29896,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29945,
+            511,
+            20532,
+            29955,
+            29889,
+            29955,
+            29896,
+            29892,
+            718,
+            29900,
+            29889,
+            29945,
+            29929,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29945,
+            29896,
+            29892,
+            718,
+            29896,
+            29889,
+            29900,
+            29953,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29946,
+            29946,
+            29892,
+            718,
+            29896,
+            29889,
+            29953,
+            29945,
+            511,
+            20532,
+            29896,
+            29953,
+            29889,
+            29946,
+            29929,
+            29892,
+            718,
+            29906,
+            29889,
+            29941,
+            29906,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    },
+    "Native Original": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "e9dbf0d33b5baa476bb62237a9c7d96aeca606e68620334948a9edaf5ad4cfb1"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "34a78d500a299cd6f80b94ce2bbee7157fac0cb9a6542ced26896d72b1f5c9f1"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "a2b7f5d536b1798fa9fde6c8e70859162a0a5810cce4f0937b09e9fec2045413"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.43, +0.05), (+5.01, +0.25), (+7.71, +0.59), (+10.51, +1.06), (+13.44, +1.65), (+16.49, +2.32)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "2b3311d2a5128a9343f688c406ed8ff7d85749ee0867afedb75afd79f249616b"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "55047bb315fb265a576c5d84926294367658513155fca0a8f3ed4f181767c733"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "7aefeec41254c14322d759b0d02ddbb973e76f53dda99f2421eade69437bbde2"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "27ac83428a583610aaf724a7f319669e7309bcb8696729b95d30bfc2a0223ed3"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "45cd0ec0058e60d94e087db70124ec0315ca4720c146415596f62d29d606d504"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "b21da35ad5780b899fbed7263120a0efb4f249df7eb5781b5ae945f8a31ad9da"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "a853b59b9138ca14c2ef1e7f7f4ba29dd1ce2ba2c2aedbb63f59364d65046b1f"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a991bb4e2c778882db1a454a1070a5549ca86bb7b5e0da4122794b0750ed4ac2"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "9314e61a2a1682a4b4230ef1ba8c25719ef3838607d365b56f5b9afb0d45d2ed"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "c56293945b41f616d9ed0de2f3f490780381648c379cc96e095772d42a2a235d"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "bb8af635b80187ea8a5cf47d24ead49844bfba45eff175a0328f564af2366645"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "45cd0ec0058e60d94e087db70124ec0315ca4720c146415596f62d29d606d504"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "78e372d8ac81298837536c3e7dbf69d7cfcaa22d2ddcbb2b0a387d032d2842b8"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a991bb4e2c778882db1a454a1070a5549ca86bb7b5e0da4122794b0750ed4ac2"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "326bc2691f38acaad43253a796b246e13fc345c84a2661a2c070e8b429f5e7c9"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29946,
+            29941,
+            29892,
+            718,
+            29900,
+            29889,
+            29900,
+            29945,
+            511,
+            20532,
+            29945,
+            29889,
+            29900,
+            29896,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29945,
+            511,
+            20532,
+            29955,
+            29889,
+            29955,
+            29896,
+            29892,
+            718,
+            29900,
+            29889,
+            29945,
+            29929,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29945,
+            29896,
+            29892,
+            718,
+            29896,
+            29889,
+            29900,
+            29953,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29946,
+            29946,
+            29892,
+            718,
+            29896,
+            29889,
+            29953,
+            29945,
+            511,
+            20532,
+            29896,
+            29953,
+            29889,
+            29946,
+            29929,
+            29892,
+            718,
+            29906,
+            29889,
+            29941,
+            29906,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    }
+  },
+  "a04daf2d0f194b2ab2ff2a47dfebc1d7/ee81134b6b24406995723630e2cee714": {
+    "Persistent Full": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "728a5c69a94902042e6b014a170f3c4bd8892c71a29594bb17765a54e2571af9"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "dfc83f285b47627f61dfd4fc3204296069fd2206e416fb21f70b62e93a30fcfc"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "9e0f11cf4cb895b2128dcd11df609d61d7a52e141d834e29decd9c512c2e290b"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.52, +0.05), (+5.15, +0.20), (+7.86, +0.44), (+10.61, +0.76), (+13.39, +1.14), (+16.17, +1.56)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "c91114e5d3824a9b047e46a1fe847261949fa7b8216204bcf467a762a45cca3c"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "d40c3e040e391dc6068e1e255e73b2ef1e20cd4134d6ff9381a9d11e521ff89b"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "686d38a8cdf491360a6a59b55e03ec2d2daf468ef54c9a4e3d6c4d335e1f56e6"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "86d5636ad313533809eda3823be1cddb8cde15e99d70c681fd9f6cefb8023729"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "d0f6f4549746193fa496db0b96962dcb19478ce673e9933f21f4f2e3ca4bb5f9"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "b957ce935c2001425d9777aa14eed643f66dff8170547531ef66ea748cae49df"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "62f0055da2ee9bbaa005e6ee31918547f77baeb4fab46e939673dde1e38d642d"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "5731e7796ba9540bf7f9a1474cba69b228904133bd381c80bb9ce69911e99b28"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "45d4c4b00974d9b11fbc6d1cc4542bdaecd9a3f29d97d36a62d747b23d7e2d3a"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "2d3a1423a6dd7eb4e1c2b86d257483dc8de04deab5bfb42ad3829c21ddb453a4"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "ce59fa3ce39a9c449f538a50300db1c7d0ec7f98835bb57c3e5d2c7a0c39d55e"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "d0f6f4549746193fa496db0b96962dcb19478ce673e9933f21f4f2e3ca4bb5f9"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "b957ce935c2001425d9777aa14eed643f66dff8170547531ef66ea748cae49df"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "5731e7796ba9540bf7f9a1474cba69b228904133bd381c80bb9ce69911e99b28"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7106df47ff7bb3daa3d2a86dbb4102f7814fd5529ed5341439ce14279c566b56"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29945,
+            29906,
+            29892,
+            718,
+            29900,
+            29889,
+            29900,
+            29945,
+            511,
+            20532,
+            29945,
+            29889,
+            29896,
+            29945,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29900,
+            511,
+            20532,
+            29955,
+            29889,
+            29947,
+            29953,
+            29892,
+            718,
+            29900,
+            29889,
+            29946,
+            29946,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29953,
+            29896,
+            29892,
+            718,
+            29900,
+            29889,
+            29955,
+            29953,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29941,
+            29929,
+            29892,
+            718,
+            29896,
+            29889,
+            29896,
+            29946,
+            511,
+            20532,
+            29896,
+            29953,
+            29889,
+            29896,
+            29955,
+            29892,
+            718,
+            29896,
+            29889,
+            29945,
+            29953,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    },
+    "Native Original": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "728a5c69a94902042e6b014a170f3c4bd8892c71a29594bb17765a54e2571af9"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "dfc83f285b47627f61dfd4fc3204296069fd2206e416fb21f70b62e93a30fcfc"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "9e0f11cf4cb895b2128dcd11df609d61d7a52e141d834e29decd9c512c2e290b"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.52, +0.05), (+5.15, +0.20), (+7.86, +0.44), (+10.61, +0.76), (+13.39, +1.14), (+16.17, +1.56)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "c91114e5d3824a9b047e46a1fe847261949fa7b8216204bcf467a762a45cca3c"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "d40c3e040e391dc6068e1e255e73b2ef1e20cd4134d6ff9381a9d11e521ff89b"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "686d38a8cdf491360a6a59b55e03ec2d2daf468ef54c9a4e3d6c4d335e1f56e6"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "86d5636ad313533809eda3823be1cddb8cde15e99d70c681fd9f6cefb8023729"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "d0f6f4549746193fa496db0b96962dcb19478ce673e9933f21f4f2e3ca4bb5f9"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "b957ce935c2001425d9777aa14eed643f66dff8170547531ef66ea748cae49df"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "62f0055da2ee9bbaa005e6ee31918547f77baeb4fab46e939673dde1e38d642d"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "5731e7796ba9540bf7f9a1474cba69b228904133bd381c80bb9ce69911e99b28"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "45d4c4b00974d9b11fbc6d1cc4542bdaecd9a3f29d97d36a62d747b23d7e2d3a"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "2d3a1423a6dd7eb4e1c2b86d257483dc8de04deab5bfb42ad3829c21ddb453a4"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "ce59fa3ce39a9c449f538a50300db1c7d0ec7f98835bb57c3e5d2c7a0c39d55e"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "d0f6f4549746193fa496db0b96962dcb19478ce673e9933f21f4f2e3ca4bb5f9"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "b957ce935c2001425d9777aa14eed643f66dff8170547531ef66ea748cae49df"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "5731e7796ba9540bf7f9a1474cba69b228904133bd381c80bb9ce69911e99b28"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7106df47ff7bb3daa3d2a86dbb4102f7814fd5529ed5341439ce14279c566b56"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29945,
+            29906,
+            29892,
+            718,
+            29900,
+            29889,
+            29900,
+            29945,
+            511,
+            20532,
+            29945,
+            29889,
+            29896,
+            29945,
+            29892,
+            718,
+            29900,
+            29889,
+            29906,
+            29900,
+            511,
+            20532,
+            29955,
+            29889,
+            29947,
+            29953,
+            29892,
+            718,
+            29900,
+            29889,
+            29946,
+            29946,
+            511,
+            20532,
+            29896,
+            29900,
+            29889,
+            29953,
+            29896,
+            29892,
+            718,
+            29900,
+            29889,
+            29955,
+            29953,
+            511,
+            20532,
+            29896,
+            29941,
+            29889,
+            29941,
+            29929,
+            29892,
+            718,
+            29896,
+            29889,
+            29896,
+            29946,
+            511,
+            20532,
+            29896,
+            29953,
+            29889,
+            29896,
+            29955,
+            29892,
+            718,
+            29896,
+            29889,
+            29945,
+            29953,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    }
+  },
+  "a04daf2d0f194b2ab2ff2a47dfebc1d7/770e9c5da527420594a50b6ea1408f42": {
+    "Persistent Full": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "14629d17ef5773308eb932cda5f0a638d5bcb7b452f7a4b37aba20fd67c8bf89"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "c0e96f7a30d8cf8c877bb40a4e68f826783f7d2759ec26ccd9d176a1cbe2916b"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "956ab2bd130c47b7789d7a7a036943b3290711c6de5a452825128cc32b2d1fad"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.64, +0.03), (+5.49, +0.15), (+8.48, +0.34), (+11.69, +0.59), (+15.07, +0.86), (+18.58, +1.16)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "f138744bfb1d4c8d963e28846ae299c6393dfe5ca3f3d832b25bce3bfca7d7b8"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "4e9e54d2656ac1230f5ea8bf7c2bf32d4880f11608cd0afc9a51d7d01f3e3bb3"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "6b088fd6123269c77a5742971272ee4357927c2afaad89c0fee172c47020a64b"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e2e6d8e909e266713bdc584abfb9041132ec876cc5d34a5f9e4592144646721a"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7cf1b5eccd8cd939e83958c094a4c235b73eeca82683a887cbdd84549768c4df"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "bc0d8bbc75326f761bb04a3806b5ad7c557077b082c63131006132da7542d10d"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "7f2dfe9dfebbf78825c9ec1fb1dcf133a3ef06e18868920e98f666cf246ba1a0"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a71fba538460793706572b71f384f88fef375f1006b4968b643143170907bcf9"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "c31a0cf80e6ecfd66fa48be8a757fe64906e9fdad38bb8c72bd522fb29e4aa4e"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "f6751c019ddf214a5b7087b416727131588966e97c5ff1926a95012578d5b81a"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "413c2d26b27027c77bc198e2a1d92b5c707456baad9d7b3e532fae52d57c14b6"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7cf1b5eccd8cd939e83958c094a4c235b73eeca82683a887cbdd84549768c4df"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "bc0d8bbc75326f761bb04a3806b5ad7c557077b082c63131006132da7542d10d"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a71fba538460793706572b71f384f88fef375f1006b4968b643143170907bcf9"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7106df47ff7bb3daa3d2a86dbb4102f7814fd5529ed5341439ce14279c566b56"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29953,
+            29946,
+            29892,
+            718,
+            29900,
+            29889,
+            29900,
+            29941,
+            511,
+            20532,
+            29945,
+            29889,
+            29946,
+            29929,
+            29892,
+            718,
+            29900,
+            29889,
+            29896,
+            29945,
+            511,
+            20532,
+            29947,
+            29889,
+            29946,
+            29947,
+            29892,
+            718,
+            29900,
+            29889,
+            29941,
+            29946,
+            511,
+            20532,
+            29896,
+            29896,
+            29889,
+            29953,
+            29929,
+            29892,
+            718,
+            29900,
+            29889,
+            29945,
+            29929,
+            511,
+            20532,
+            29896,
+            29945,
+            29889,
+            29900,
+            29955,
+            29892,
+            718,
+            29900,
+            29889,
+            29947,
+            29953,
+            511,
+            20532,
+            29896,
+            29947,
+            29889,
+            29945,
+            29947,
+            29892,
+            718,
+            29896,
+            29889,
+            29896,
+            29953,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    },
+    "Native Original": {
+      "output": [
+        {
+          "pts_bbox": {
+            "boxes_3d": {
+              "shape": [
+                300,
+                9
+              ],
+              "dtype": "torch.float32",
+              "sha256": "14629d17ef5773308eb932cda5f0a638d5bcb7b452f7a4b37aba20fd67c8bf89"
+            },
+            "scores_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.float32",
+              "sha256": "c0e96f7a30d8cf8c877bb40a4e68f826783f7d2759ec26ccd9d176a1cbe2916b"
+            },
+            "labels_3d": {
+              "shape": [
+                300
+              ],
+              "dtype": "torch.int64",
+              "sha256": "956ab2bd130c47b7789d7a7a036943b3290711c6de5a452825128cc32b2d1fad"
+            }
+          },
+          "text_out": [
+            {
+              "Q": "Please provide the planning trajectory for the ego car without reasons.",
+              "A": [
+                "Here is the planning trajectory [PT, (+2.64, +0.03), (+5.49, +0.15), (+8.48, +0.34), (+11.69, +0.59), (+15.07, +0.86), (+18.58, +1.16)]."
+              ]
+            }
+          ],
+          "lane_results": [
+            [
+              {
+                "shape": [
+                  300,
+                  11,
+                  3
+                ],
+                "dtype": "float32",
+                "sha256": "f138744bfb1d4c8d963e28846ae299c6393dfe5ca3f3d832b25bce3bfca7d7b8"
+              },
+              {
+                "shape": [
+                  300,
+                  1
+                ],
+                "dtype": "float32",
+                "sha256": "4e9e54d2656ac1230f5ea8bf7c2bf32d4880f11608cd0afc9a51d7d01f3e3bb3"
+              }
+            ]
+          ]
+        }
+      ],
+      "memory": {
+        "det": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "6b088fd6123269c77a5742971272ee4357927c2afaad89c0fee172c47020a64b"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "e2e6d8e909e266713bdc584abfb9041132ec876cc5d34a5f9e4592144646721a"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7cf1b5eccd8cd939e83958c094a4c235b73eeca82683a887cbdd84549768c4df"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "bc0d8bbc75326f761bb04a3806b5ad7c557077b082c63131006132da7542d10d"
+          },
+          "memory_velo": {
+            "shape": [
+              1,
+              900,
+              2
+            ],
+            "dtype": "float32",
+            "sha256": "7f2dfe9dfebbf78825c9ec1fb1dcf133a3ef06e18868920e98f666cf246ba1a0"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a71fba538460793706572b71f384f88fef375f1006b4968b643143170907bcf9"
+          },
+          "memory_canbus": {
+            "shape": [
+              1,
+              3,
+              14
+            ],
+            "dtype": "float32",
+            "sha256": "c31a0cf80e6ecfd66fa48be8a757fe64906e9fdad38bb8c72bd522fb29e4aa4e"
+          }
+        },
+        "map": {
+          "memory_len": 600,
+          "memory_embedding": {
+            "shape": [
+              1,
+              900,
+              256
+            ],
+            "dtype": "float32",
+            "sha256": "f6751c019ddf214a5b7087b416727131588966e97c5ff1926a95012578d5b81a"
+          },
+          "memory_reference_point": {
+            "shape": [
+              1,
+              900,
+              11,
+              3
+            ],
+            "dtype": "float32",
+            "sha256": "413c2d26b27027c77bc198e2a1d92b5c707456baad9d7b3e532fae52d57c14b6"
+          },
+          "memory_timestamp": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7cf1b5eccd8cd939e83958c094a4c235b73eeca82683a887cbdd84549768c4df"
+          },
+          "memory_egopose": {
+            "shape": [
+              1,
+              900,
+              4,
+              4
+            ],
+            "dtype": "float32",
+            "sha256": "bc0d8bbc75326f761bb04a3806b5ad7c557077b082c63131006132da7542d10d"
+          },
+          "sample_time": {
+            "shape": [
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "a71fba538460793706572b71f384f88fef375f1006b4968b643143170907bcf9"
+          },
+          "memory_mask": {
+            "shape": [
+              1,
+              900,
+              1
+            ],
+            "dtype": "float64",
+            "sha256": "7106df47ff7bb3daa3d2a86dbb4102f7814fd5529ed5341439ce14279c566b56"
+          }
+        }
+      },
+      "token_ids": [
+        [
+          [
+            1,
+            2266,
+            338,
+            278,
+            18987,
+            23324,
+            706,
+            518,
+            7982,
+            29892,
+            20532,
+            29906,
+            29889,
+            29953,
+            29946,
+            29892,
+            718,
+            29900,
+            29889,
+            29900,
+            29941,
+            511,
+            20532,
+            29945,
+            29889,
+            29946,
+            29929,
+            29892,
+            718,
+            29900,
+            29889,
+            29896,
+            29945,
+            511,
+            20532,
+            29947,
+            29889,
+            29946,
+            29947,
+            29892,
+            718,
+            29900,
+            29889,
+            29941,
+            29946,
+            511,
+            20532,
+            29896,
+            29896,
+            29889,
+            29953,
+            29929,
+            29892,
+            718,
+            29900,
+            29889,
+            29945,
+            29929,
+            511,
+            20532,
+            29896,
+            29945,
+            29889,
+            29900,
+            29955,
+            29892,
+            718,
+            29900,
+            29889,
+            29947,
+            29953,
+            511,
+            20532,
+            29896,
+            29947,
+            29889,
+            29945,
+            29947,
+            29892,
+            718,
+            29896,
+            29889,
+            29896,
+            29953,
+            29897,
+            1822,
+            2
+          ]
+        ]
+      ]
+    }
+  }
+}
