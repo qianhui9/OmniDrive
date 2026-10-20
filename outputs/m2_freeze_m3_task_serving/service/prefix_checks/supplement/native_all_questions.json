@@ -1,0 +1,628 @@
+{
+  "population": "exploratory_reused_population",
+  "rows": [
+    {
+      "question": "Please provide the planning trajectory for the ego car without reasons.",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 2317.2766810748726,
+      "stages": {
+        "prefill": {
+          "wall_ms": 182.7585999853909,
+          "gpu_ms": 182.73997497558594,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 2115.3031464200467,
+          "gpu_ms": 2114.3896312713623,
+          "calls": 84
+        }
+      },
+      "prompt_tokens": 65,
+      "generated_tokens": 85,
+      "answer": "Here is the planning trajectory [PT, (+2.30, +0.23), (+4.62, +0.97), (+6.90, +2.17), (+9.09, +3.78), (+11.22, +5.63), (+13.29, +7.71)].",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Please shortly describe your driving action.",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 815.7053908798844,
+      "stages": {
+        "prefill": {
+          "wall_ms": 180.5219459347427,
+          "gpu_ms": 180.50965881347656,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 629.0522436611354,
+          "gpu_ms": 628.7864990234375,
+          "calls": 25
+        }
+      },
+      "prompt_tokens": 58,
+      "generated_tokens": 26,
+      "answer": "I'm proceeding straight at a moderate speed, as the road is clear and there are no immediate obstacles.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Please describe the current driving conditions based on the input images.",
+      "task_type": "global_safety",
+      "source": "actual_native_question",
+      "wall_ms": 4252.454550005496,
+      "stages": {
+        "prefill": {
+          "wall_ms": 180.7742090895772,
+          "gpu_ms": 180.7626190185547,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 4035.110757453367,
+          "gpu_ms": 4033.312936782837,
+          "calls": 159
+        }
+      },
+      "prompt_tokens": 63,
+      "generated_tokens": 160,
+      "answer": "The vehicle is positioned on a quiet, tree-lined street with minimal traffic. To the left, there's a construction site bordered by a temporary barrier, and a pedestrian pathway runs parallel to the road. Directly ahead, the road curves gently to the right, with clear lane markings and no immediate traffic signals or signs indicating restrictions. To the right, the road is bordered by a grassy embankment leading up to a modern building, suggesting a mix of urban and green spaces. The rear views show a clear road with no vehicles in close proximity. A pedestrian crossing is visible on the left, but no pedestrians are present. The overall atmosphere suggests a non-rushed, peaceful driving environment.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "What kind of buildings can be observed on the left-front side of the vehicle?",
+      "task_type": "object_relation",
+      "source": "actual_native_question",
+      "wall_ms": 640.5847070273012,
+      "stages": {
+        "prefill": {
+          "wall_ms": 180.69895799271762,
+          "gpu_ms": 180.6868438720703,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 455.01217315904796,
+          "gpu_ms": 454.822847366333,
+          "calls": 18
+        }
+      },
+      "prompt_tokens": 68,
+      "generated_tokens": 19,
+      "answer": "On the left-front side, there are modern buildings with reflective glass facades.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Is there any indication of a pedestrian crossing or traffic signals ahead?",
+      "task_type": "object_relation",
+      "source": "actual_native_question",
+      "wall_ms": 1146.5953779406846,
+      "stages": {
+        "prefill": {
+          "wall_ms": 180.32601987943053,
+          "gpu_ms": 180.31411743164062,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 957.5402899645269,
+          "gpu_ms": 957.1412143707275,
+          "calls": 38
+        }
+      },
+      "prompt_tokens": 67,
+      "generated_tokens": 39,
+      "answer": "There is no visible pedestrian crossing or traffic signals directly ahead, but the presence of road markings suggests there may be intersections or pedestrian crossings further along the road.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "What type of roadway is the vehicle currently on?",
+      "task_type": "map_topology",
+      "source": "actual_native_question",
+      "wall_ms": 616.1751220934093,
+      "stages": {
+        "prefill": {
+          "wall_ms": 182.11002997122705,
+          "gpu_ms": 182.09689331054688,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 429.72295731306076,
+          "gpu_ms": 429.5445785522461,
+          "calls": 17
+        }
+      },
+      "prompt_tokens": 62,
+      "generated_tokens": 18,
+      "answer": "The vehicle is on a two-lane road with one lane for each direction.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Are there any obstructions on the road that would impact driving behavior?",
+      "task_type": "map_topology",
+      "source": "actual_native_question",
+      "wall_ms": 612.4148219823837,
+      "stages": {
+        "prefill": {
+          "wall_ms": 179.21072407625616,
+          "gpu_ms": 179.198974609375,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 428.82866761647165,
+          "gpu_ms": 428.654239654541,
+          "calls": 17
+        }
+      },
+      "prompt_tokens": 66,
+      "generated_tokens": 18,
+      "answer": "There are no immediate obstructions on the road ahead that would impact driving behavior.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Considering the absence of traffic, how should the vehicle proceed with the left turn?",
+      "task_type": "object_relation",
+      "source": "actual_native_question",
+      "wall_ms": 1172.030121088028,
+      "stages": {
+        "prefill": {
+          "wall_ms": 179.6726279426366,
+          "gpu_ms": 179.66079711914062,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 983.4601134061813,
+          "gpu_ms": 983.0460777282715,
+          "calls": 39
+        }
+      },
+      "prompt_tokens": 68,
+      "generated_tokens": 40,
+      "answer": "The vehicle should proceed with the left turn at a slow pace, ensuring it is safe to do so, and be mindful of any potential pedestrians or vehicles that may appear.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "What does the presence of construction equipment on the left-rear suggest about the area?",
+      "task_type": "object_relation",
+      "source": "actual_native_question",
+      "wall_ms": 1176.5248540323228,
+      "stages": {
+        "prefill": {
+          "wall_ms": 183.15211590379477,
+          "gpu_ms": 183.1393585205078,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 984.1215452179313,
+          "gpu_ms": 983.6994895935059,
+          "calls": 39
+        }
+      },
+      "prompt_tokens": 69,
+      "generated_tokens": 40,
+      "answer": "The presence of construction equipment on the left-rear suggests that the area is undergoing development or maintenance, which could mean the road conditions may change or there could be temporary obstructions.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Given the calm scenario directly behind, how should the driver check for following traffic?",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 1047.9702490847558,
+      "stages": {
+        "prefill": {
+          "wall_ms": 182.49747599475086,
+          "gpu_ms": 182.4849853515625,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 857.7274710405618,
+          "gpu_ms": 857.3711013793945,
+          "calls": 34
+        }
+      },
+      "prompt_tokens": 67,
+      "generated_tokens": 35,
+      "answer": "The driver should regularly check the rearview mirrors to monitor for any vehicles that may approach from behind, ensuring they are aware of the traffic situation around the vehicle.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Are there any specific actions the driver should take due to the construction site observed on the left-rear?",
+      "task_type": "object_relation",
+      "source": "actual_native_question",
+      "wall_ms": 1175.426719011739,
+      "stages": {
+        "prefill": {
+          "wall_ms": 181.63407314568758,
+          "gpu_ms": 181.62252807617188,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 984.5293429680169,
+          "gpu_ms": 984.113245010376,
+          "calls": 39
+        }
+      },
+      "prompt_tokens": 73,
+      "generated_tokens": 40,
+      "answer": "The driver should be cautious and prepared for potential changes in traffic patterns due to the construction site, but there are no immediate actions required as it is not affecting the current driving path.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Are there any traffic elements that could impact your driving?",
+      "task_type": "unknown",
+      "source": "actual_native_question",
+      "wall_ms": 3773.106959881261,
+      "stages": {
+        "prefill": {
+          "wall_ms": 181.9235689472407,
+          "gpu_ms": 181.90643310546875,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 3560.9754759352654,
+          "gpu_ms": 3559.4508895874023,
+          "calls": 141
+        }
+      },
+      "prompt_tokens": 62,
+      "generated_tokens": 142,
+      "answer": "In this scenario, the presence of a moving car behind me, located at (-10.0, +3.0) meters with a velocity of (+4.0, +1.4) meters per second, could influence my driving decisions. I need to be aware of this vehicle as it is moving in the same direction as me. Additionally, there are traffic cones located at (-3.9, +4.0) meters to my back left, which indicate a potential hazard or construction area that I should be mindful of. However, since these objects are behind me and not in my immediate path, they do not pose an immediate threat to my driving behavior.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "What should be your next action and why?",
+      "task_type": "unknown",
+      "source": "actual_native_question",
+      "wall_ms": 2726.947464980185,
+      "stages": {
+        "prefill": {
+          "wall_ms": 182.45790689252317,
+          "gpu_ms": 182.4470977783203,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 2522.5677439011633,
+          "gpu_ms": 2521.536449432373,
+          "calls": 100
+        }
+      },
+      "prompt_tokens": 60,
+      "generated_tokens": 101,
+      "answer": "The next action should be to proceed straight ahead at a moderate speed while staying in the current lane. This decision is based on the clear road ahead, the absence of immediate traffic or pedestrians, and the presence of a speed hump sign indicating the need to slow down for a speed hump ahead. Maintaining a moderate speed will allow for safe navigation over the speed hump and provide sufficient reaction time if any unexpected obstacles or changes in traffic conditions occur.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "If you follow the trajectory [PT, (+1.64, -6.73), (+4.63, -8.64), (+7.55, -11.32), (+11.49, -15.50), (+15.40, -18.96), (+16.90, -20.75)], what would happen?",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 2732.61546716094,
+      "stages": {
+        "prefill": {
+          "wall_ms": 225.33953306265175,
+          "gpu_ms": 225.3271026611328,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 2486.179231433198,
+          "gpu_ms": 2485.137601852417,
+          "calls": 98
+        }
+      },
+      "prompt_tokens": 144,
+      "generated_tokens": 99,
+      "answer": "Following this trajectory would lead to a right turn, which is considered relatively safe in this context. However, it's important to ensure that the turn is made safely and in accordance with traffic rules, such as signaling in advance and checking for any pedestrians or vehicles that might be affected by the turn. Given the clear road conditions and the absence of immediate traffic, this maneuver should be executed without incident, provided that all necessary precautions are taken.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "If you follow the trajectory [PT, (+6.72, +2.02), (+10.81, +5.45), (+14.26, +9.19), (+17.45, +12.33), (+18.41, +13.24), (+18.64, +13.45)], what would happen?",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 3196.9483529683203,
+      "stages": {
+        "prefill": {
+          "wall_ms": 223.8444190006703,
+          "gpu_ms": 223.83103942871094,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 2947.4473607260734,
+          "gpu_ms": 2946.193817138672,
+          "calls": 116
+        }
+      },
+      "prompt_tokens": 145,
+      "generated_tokens": 117,
+      "answer": "Following this trajectory would lead to a moderate-speed deceleration and a left turn. This action is relatively safe as it suggests a cautious approach to turning left, likely in preparation for a left turn at a later point. However, it's important to ensure that the left turn is executed only after checking for oncoming traffic from the opposite direction and any pedestrians that might be crossing, as the trajectory indicates a significant leftward movement. The moderate speed should be adjusted according to the road conditions and visibility at the intersection.",
+      "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836"
+    },
+    {
+      "question": "Please provide the planning trajectory for the ego car without reasons.",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 2348.732982063666,
+      "stages": {
+        "prefill": {
+          "wall_ms": 183.65054903551936,
+          "gpu_ms": 183.6328887939453,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 2145.220608683303,
+          "gpu_ms": 2144.2688312530518,
+          "calls": 85
+        }
+      },
+      "prompt_tokens": 65,
+      "generated_tokens": 86,
+      "answer": "Here is the planning trajectory [PT, (+2.30, +0.04), (+4.80, +0.20), (+7.49, +0.50), (+10.28, +0.93), (+13.18, +1.48), (+16.18, +2.12)].",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "Please shortly describe your driving action.",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 894.9701769743115,
+      "stages": {
+        "prefill": {
+          "wall_ms": 181.98696291074157,
+          "gpu_ms": 181.97503662109375,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 706.1764688696712,
+          "gpu_ms": 705.8721923828125,
+          "calls": 28
+        }
+      },
+      "prompt_tokens": 58,
+      "generated_tokens": 29,
+      "answer": "I'm proceeding slowly and maintaining my lane, as the road is clear and there are no immediate obstacles or traffic.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "Please describe the current driving conditions based on the input images.",
+      "task_type": "global_safety",
+      "source": "actual_native_question",
+      "wall_ms": 4570.124896010384,
+      "stages": {
+        "prefill": {
+          "wall_ms": 181.8118009250611,
+          "gpu_ms": 181.79583740234375,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 4351.3679462485015,
+          "gpu_ms": 4349.530055999756,
+          "calls": 172
+        }
+      },
+      "prompt_tokens": 63,
+      "generated_tokens": 173,
+      "answer": "The vehicle is positioned on a quiet, tree-lined road with no immediate traffic in sight. To the left, a pedestrian path runs parallel to the road, bordered by a grassy area and a series of buildings set back from the road, suggesting a suburban or semi-urban environment. Directly ahead, the road stretches out with clear lane markings and no visible traffic, leading towards a gentle curve to the right. The weather appears overcast, and the absence of shadows suggests it could be either early morning or late afternoon. To the right, the roadside is lined with dense foliage, enhancing the sense of seclusion. Behind the vehicle, the road remains clear, with no following traffic, and the surroundings mirror the front view with more buildings and greenery.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "What specific infrastructure can be seen to the left of the vehicle?",
+      "task_type": "object_relation",
+      "source": "actual_native_question",
+      "wall_ms": 541.1971909925342,
+      "stages": {
+        "prefill": {
+          "wall_ms": 182.83749907277524,
+          "gpu_ms": 182.82598876953125,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 354.47208769619465,
+          "gpu_ms": 354.32662200927734,
+          "calls": 14
+        }
+      },
+      "prompt_tokens": 65,
+      "generated_tokens": 15,
+      "answer": "To the left of the vehicle, there is a bus stop shelter.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "What kind of traffic calming measure is visible on the road?",
+      "task_type": "map_topology",
+      "source": "actual_native_question",
+      "wall_ms": 790.4857881367207,
+      "stages": {
+        "prefill": {
+          "wall_ms": 178.57356905005872,
+          "gpu_ms": 178.5629119873047,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 605.8294847607613,
+          "gpu_ms": 605.5636215209961,
+          "calls": 24
+        }
+      },
+      "prompt_tokens": 64,
+      "generated_tokens": 25,
+      "answer": "There is a speed bump on the road ahead, which is a traffic calming measure designed to slow down vehicles.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "Is there any sign of potential hazards or the need for increased attention while driving?",
+      "task_type": "unknown",
+      "source": "actual_native_question",
+      "wall_ms": 742.5019750371575,
+      "stages": {
+        "prefill": {
+          "wall_ms": 181.57264008186758,
+          "gpu_ms": 181.56134033203125,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 555.4230352863669,
+          "gpu_ms": 555.1928958892822,
+          "calls": 22
+        }
+      },
+      "prompt_tokens": 69,
+      "generated_tokens": 23,
+      "answer": "Yes, the overcast weather could potentially reduce visibility, requiring increased attention and the use of headlights.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "How would you describe the general setting and atmosphere around the vehicle?",
+      "task_type": "object_relation",
+      "source": "actual_native_question",
+      "wall_ms": 815.5140171293169,
+      "stages": {
+        "prefill": {
+          "wall_ms": 178.91654814593494,
+          "gpu_ms": 178.90524291992188,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 630.5766790173948,
+          "gpu_ms": 630.3185901641846,
+          "calls": 25
+        }
+      },
+      "prompt_tokens": 64,
+      "generated_tokens": 26,
+      "answer": "The setting is a quiet, tree-lined road with a serene atmosphere, likely in a residential or park area.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "What actions should a driver take in this scenario?",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 893.7179050408304,
+      "stages": {
+        "prefill": {
+          "wall_ms": 181.50154408067465,
+          "gpu_ms": 181.4896697998047,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 705.8485324960202,
+          "gpu_ms": 705.5569896697998,
+          "calls": 28
+        }
+      },
+      "prompt_tokens": 61,
+      "generated_tokens": 29,
+      "answer": "The driver should continue driving straight, maintain a moderate speed, and stay alert for any changes in the road conditions or unexpected obstacles.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "What are the traffic elements that may affect your driving behavior?",
+      "task_type": "global_safety",
+      "source": "actual_native_question",
+      "wall_ms": 2700.5886561237276,
+      "stages": {
+        "prefill": {
+          "wall_ms": 181.6853100899607,
+          "gpu_ms": 181.6732177734375,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 2497.4731993861496,
+          "gpu_ms": 2496.406524658203,
+          "calls": 99
+        }
+      },
+      "prompt_tokens": 63,
+      "generated_tokens": 100,
+      "answer": "In this scenario, the only traffic element that may affect my driving behavior is a moving car located behind me, traveling in the same direction. Its position is (-10.0, +0.8) meters with a velocity of (+3.3, -0.2) meters per second. Since it is behind me and we are both moving in the same direction, it does not pose an immediate threat. However, I should remain aware of its presence through regular mirror checks.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "What should be your next action and why?",
+      "task_type": "unknown",
+      "source": "actual_native_question",
+      "wall_ms": 2242.152971215546,
+      "stages": {
+        "prefill": {
+          "wall_ms": 181.79109203629196,
+          "gpu_ms": 181.7782745361328,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 2042.401310056448,
+          "gpu_ms": 2041.5585250854492,
+          "calls": 81
+        }
+      },
+      "prompt_tokens": 60,
+      "generated_tokens": 82,
+      "answer": "Given the current scenario, the next action should be to proceed slowly and maintain the current lane while going straight ahead. This decision is informed by the clear road ahead, the absence of immediate traffic or pedestrians, and the need to stay alert for any potential hazards, such as vehicles exiting from parking spaces or pedestrians that may emerge from the surrounding buildings.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "If you follow the trajectory [PT, (+12.13, +1.39), (+18.20, +3.07), (+22.97, +4.55), (+26.71, +5.78), (+28.18, +6.30), (+28.72, +6.48)], what would happen?",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 2040.284191025421,
+      "stages": {
+        "prefill": {
+          "wall_ms": 224.07585405744612,
+          "gpu_ms": 224.06431579589844,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 1800.6829794030637,
+          "gpu_ms": 1799.956407546997,
+          "calls": 71
+        }
+      },
+      "prompt_tokens": 143,
+      "generated_tokens": 72,
+      "answer": "Following this trajectory would result in moving out of the drivable area. This action is unsafe as it deviates from the designated driving lane, potentially leading to an accident or collision with roadside objects or pedestrians. It's crucial to stay within the lane markings to ensure safety and compliance with traffic regulations.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    },
+    {
+      "question": "If you follow the trajectory [PT, (+3.80, -0.11), (+7.64, -0.40), (+11.54, -0.88), (+15.43, -1.52), (+19.37, -2.31), (+23.35, -3.21)], what would happen?",
+      "task_type": "planning",
+      "source": "actual_native_question",
+      "wall_ms": 1656.1941518448293,
+      "stages": {
+        "prefill": {
+          "wall_ms": 223.5116211231798,
+          "gpu_ms": 223.4982452392578,
+          "calls": 1
+        },
+        "decode": {
+          "wall_ms": 1419.912495650351,
+          "gpu_ms": 1419.3246936798096,
+          "calls": 56
+        }
+      },
+      "prompt_tokens": 141,
+      "generated_tokens": 57,
+      "answer": "Following this trajectory would lead the vehicle out of the drivable area, which is unsafe and violates traffic rules. This action could potentially result in an accident or cause the vehicle to become stuck, as it deviates from the designated lane and the intended path of travel.",
+      "scene": "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      "frame": "e57fa7124f6741e697b1841bc023a90f"
+    }
+  ],
+  "selection": "Every native planning/short/conversation/VQA request of the first frame in each of the same two service scenes; no answer-based selection",
+  "source_sha256": "4d224104e451280923a9b9332d603f0a8c759de493ead247ffb4d821a58b8554"
+}

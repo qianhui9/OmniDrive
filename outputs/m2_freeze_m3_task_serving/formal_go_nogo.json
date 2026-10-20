@@ -1,0 +1,50 @@
+{
+  "m1_frozen": true,
+  "m2_exact_frozen": true,
+  "m2_conditional_production_enabled": false,
+  "m3_task_answerable_population": 0,
+  "m3_direct_query_quality_pass": false,
+  "m3_direct_query_profitable": false,
+  "m3_exact_prefix_profitable": false,
+  "full_vlm_e2e_speedup": 0.8975809148270804,
+  "raw_descriptive_speedup_by_population": {
+    "identical_requests": {
+      "count": 8,
+      "p50": 0.9703435445953073,
+      "p95": 1.0183960182168068,
+      "mean": 0.9610300983499255
+    },
+    "native_multi": {
+      "count": 8,
+      "p50": 0.9803277989898794,
+      "p95": 0.9986461912728029,
+      "mean": 0.9767114883698704
+    },
+    "natural_planning": {
+      "count": 8,
+      "p50": 0.9019495530548678,
+      "p95": 1.0413028479504132,
+      "mean": 0.8975809148270804
+    }
+  },
+  "production_quality_constrained_speedup_established": false,
+  "remaining_system_bottleneck": "Original autoregressive decode; actual per-token decoder execution dominates prefill. Kernel trace gives execution evidence, not a memory-bandwidth measurement.",
+  "next_research_priority": "Profile and optimize the original per-token decode execution under unchanged whole-output quality, including launch/LoRA/GEMM/KV traffic. No new state approximation or compact cache approved.",
+  "gates": {
+    "G1_m1_m2_freeze": true,
+    "G2_conditional": "No-Go; zero complete source windows",
+    "G3_actual_workload_profile": true,
+    "G4_complete_evidence": "Interface tested; zero verified native population",
+    "G5_independent_direct_quality": "No-Go; absent independent accepted population",
+    "G6_exclusive_routes_and_prefix": {
+      "routes_exclusive": true,
+      "prefix_whole_output_quality_pass": false,
+      "go": false,
+      "reason": "Input/KV dependency identity is checked; observed full-output disagreement blocks production even when mathematical prefix matches"
+    },
+    "G7_same_service_net_gain": "No-Go for production; descriptive per-population timings only",
+    "G8_regression": true
+  },
+  "independent_final_test": false,
+  "exposed_population_label": "exploratory_reused_population"
+}

@@ -79,7 +79,7 @@ def test_repeat_unknown_uses_actual_exact_check_and_real_producer_version(eva,co
     actual,diag=r.forward(x,computation_state=s,execution_context=b)
     for h in hooks:h.remove()
     assert torch.equal(actual[0],eva(x)[0])
-    assert diag['reuse_mode']=='exact' and diag['actual_skipped_windows']==36
+    assert diag['reuse_mode']=='experimental_conditional_forced' and diag['actual_skipped_windows']==36
     assert calls==[2,3] and r.cache.images is None  # isolated from formal Exact cache
     assert all(u['computation_frame_id']=='0' and u['computation_version']==1 for u in r.conditional_executor.cache.sources[1])
     assert r.conditional_executor.cache.version==2
@@ -95,7 +95,7 @@ def test_displaced_context_is_conditional_and_tail_always_executes(eva,context):
     calls=[];hs=[m.register_forward_hook(lambda m,a,v,i=i:calls.append(i)) for i,m in enumerate(eva.blocks)]
     actual,diag=r.forward(current,computation_state=s,execution_context=b)
     for h in hs:h.remove()
-    assert diag['reuse_mode']=='experimental_conditional' and diag['conditional_reused_windows']==2
+    assert diag['reuse_mode']=='experimental_conditional_forced' and diag['conditional_reused_windows']==2
     assert 0 not in calls and 1 not in calls and calls==[2,3]
     assert not diag['transformer_dependency_certified'] and not diag['task_quality_certified']
     assert not torch.equal(actual[0],eva(current)[0])  # ABS/context cannot be geometrically undone
@@ -105,7 +105,7 @@ def test_displaced_context_is_conditional_and_tail_always_executes(eva,context):
     # A later same-coordinate input is not re-labelled Exact after approximate ancestry.
     c=dict(b,frame_id='2',timestamp=2.);s2=state(r,c,(40,40))
     _,d2=r.forward(current,computation_state=s2,execution_context=c)
-    assert d2['conditional_reused_windows']>=2 and d2['reuse_mode']=='experimental_conditional'
+    assert d2['conditional_reused_windows']>=2 and d2['reuse_mode']=='experimental_conditional_forced'
     assert r.conditional_executor.cache.sources[1][0]['computation_window_index']==1
 
 

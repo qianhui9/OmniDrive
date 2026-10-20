@@ -1,0 +1,623 @@
+# Codex 任务：OmniDrive M2 冻结收尾与 M3 任务条件化 VLM 服务优化
+
+## 一、任务目标
+
+项目目录：
+
+`/data/qh/phdCode/work4/OmniDrive`
+
+首先检查实际 HEAD、代码及历史实验结果，以实际实现为准，不覆盖用户已有修改。
+
+本轮目标：
+
+1. 完成 M2 Conditional Prefix 的最后一次准入瓶颈归因，冻结已经验证的 M2 Exact Runtime。
+2. 保持 M1 Source-Linked Computation State 工程接口不变。
+3. 分析原始 OmniDrive 在 nuScenes 连续场景中的真实 Prefill、Decode、视觉和状态维护开销。
+4. 复用现有 M3，实现一种具有严格任务证据约束的 **Task-Conditioned VLM Serving** 实验路径。
+5. 验证部分问题能否利用当前有效的状态直接回答，从而避免不必要的 LLM Generation。
+6. 通过真实任务质量和端到端性能决定是否启用新的执行路径。
+
+仅使用：
+
+**nuScenes 六摄像头连续驾驶数据 + 原始 OmniDrive 模型及权重。**
+
+不引入其他数据集，不训练或微调模型，不修改 Backbone、Detection/Map Head、LLM 权重及网络结构。
+
+本轮必须完成实际代码、实验、回归测试及报告，不要仅给出设计建议。
+
+---
+
+# 二、第一阶段：M2 最终归因与冻结
+
+## 2.1 冻结已有实现
+
+默认使用：
+
+`configs/worldstream_m1_engineering_frozen.yaml`
+
+保留 M1：
+
+- Source-Linked State。
+- Observation Links。
+- Computation Provenance。
+- Dirty/Candidate/Unknown。
+- Validity Lease。
+- Feature/Window Scope。
+- Precheck/Commit。
+
+M2 保留：
+
+- Existing Exact Reuse。
+- Dependency Planner。
+- WindowExecutor。
+- Camera Selective Invalidation。
+- Cache Version/Producer Source。
+- Cost/Quality Gate。
+- Full Forward 回退。
+
+继续保持：
+
+`experimental_conditional_reuse: false`
+
+不再尝试增加新的 Surface、Window Cache 层级或复杂 Token 复用算法。
+
+## 2.2 完成来源复用准入漏斗
+
+重点检查：
+
+- `worldstream/m2/source_alignment.py`
+- `worldstream/m2/conditional_prefix.py`
+- `worldstream/m2/dependency_planner.py`
+- `worldstream/m2/runtime.py`
+
+基于上一轮固定的 8 Scene、96 帧、576 路相机人口，统计同一来源候选在以下各关口的数量：
+
+1. 有实际来源对应的 Pixel。
+2. 完整观测支持的 Patch。
+3. 无来源冲突的 Patch。
+4. 满足空间位移约束的 Patch。
+5. 完整来源支持的 Window。
+6. 符合原 EVA Attention 依赖的 Window。
+7. 满足内容残差条件的 Window。
+8. 通过下游质量和成本验证的 Window。
+
+明确每关淘汰原因，并输出对应数量和比例。
+
+另外，针对部分观测 Window，使用实际 Full Forward 作为**离线 Oracle**，分析理想更新比例下的视觉误差和潜在计算节省。
+
+Oracle 仅用于诊断，不能进入在线准入。
+
+如果依旧没有足够的完整 Window 或质量—收益空间，确认当前 Conditional Prefix 路线 No-Go，停止继续研发此计算边界。
+
+## 2.3 清晰区分 Exact 与 Research Conditional
+
+当前研究配置使用 `mode='exact'` 强制执行实验性路径，容易造成语义混淆。
+
+在不改变已有正式运行策略的前提下，完善诊断标识：
+
+- `full`
+- `exact`
+- `experimental_conditional_forced`
+
+分别记录：
+
+- `exact_reused_windows`
+- `conditional_reused_windows`
+- `actual_skipped_block_computations`
+- `reuse_source_frame/version`
+- `quality_qualified`
+- `performance_qualified`
+- `fallback_reason`
+
+实验性结果不得记录为正式 Exact 计算等价。
+
+保留独立研究缓存，不能污染正式 M2 Cache。
+
+如果实验性特征已经影响 Temporal Memory，则随后仅刷新 EVA 不得被标记为整个系统状态恢复。应重新初始化合法的下游状态，或使用可靠快照重新执行。
+
+本阶段结束后，除必要的正确性修复外，不再修改 M2 的核心执行算法。
+
+---
+
+# 三、第二阶段：重新分析完整 VLM 工作负载
+
+这部分是本轮主要工作，**先测量，再决定 M3 优化机制**。
+
+重点检查现有：
+
+- `worldstream/m3/runtime.py`
+- `worldstream/m3/config.py`
+- `worldstream/m3/prefill_executor.py`
+- `worldstream/m3/prefix_kv_cache.py`
+- `worldstream/m3/native_decode.py`
+- `worldstream/m3/task_conditioner.py`
+- `worldstream/m3/world_state.py`
+- `worldstream/m3/post_perception.py`
+- `worldstream/m3/carrier_selector.py`
+- `worldstream/m3/scheduler.py`
+- `tools/worldstream_m3/`
+
+参考：
+
+- `outputs/system_optimization_v5/experiment_report.md`
+- `outputs/module2_state_aware_incremental_reuse/experiment_report.md`
+- `outputs/module2_state_aware_incremental_reuse/cost_benefit_analysis.json`
+
+现有结果表明：
+
+- LLM Generation P50 约 2329ms。
+- Decode P50 约 2285ms。
+- EVA 前两个 Block 约 39.51ms。
+- 自然场景 Conditional M2 实际跳算为 0。
+- 既有 Compact State 输入未通过对应的质量和净收益门槛。
+
+上述数字仅是已有实验人口的测量，不能直接视为所有任务的固定分解。
+
+## 3.1 精确拆分 VLM 时延
+
+在真实 nuScenes 连续请求中分别测量：
+
+- M1 Precheck。
+- Vision Tower。
+- Detection/Map Head。
+- Temporal Memory。
+- M1 Commit。
+- M2 Adapter/Cache。
+- M3 Context Construction。
+- LLM Input Expansion。
+- LLM Prefill。
+- LLM Decode。
+- Output Parsing。
+- 完整 E2E Wall/GPU。
+
+其中 Prefill 与 Decode 必须使用各自的实际 CUDA/Wall 测量，不允许简单用两个 P50 相减。
+
+记录：
+
+- 原始 Prompt Token。
+- 真实展开后的视觉 Token。
+- 有效 LLM 输入 Token。
+- Prefill 长度。
+- Decode 生成 Token 数量。
+- 每 Token Decode 时延。
+- 输出是否可解析。
+- 当前请求、历史请求及视觉来源。
+
+必须确认现有 LLM Decode 长时延主要来自生成长度、单 Token 执行成本、缓存行为还是其他实际瓶颈。
+
+## 3.2 统计任务人口和状态复用机会
+
+基于原始 OmniDrive 实际请求，统计：
+
+- Object Relation。
+- Local Metric。
+- Map/Topology。
+- Global Safety。
+- Planning。
+- Unknown/Other。
+
+每类分别统计：
+
+- 请求数量。
+- 平均/分位 Token。
+- Prefill/Decode 时间。
+- 输出长度。
+- 重复查询比例。
+- 是否依赖当前视觉。
+- 是否能够使用现有 Head/State 的信息完整回答。
+- 是否需要全局多模态推理。
+
+必须区分：
+
+**历史状态相关** 与 **状态足以完整回答当前任务**。
+
+不能因为问题中出现 `car`、`distance`、`lane` 等关键词，就认为 M1 状态足以回答。
+
+对于语义相似问题，也不能仅凭文本相似度直接复用旧答案。
+
+建议输出一张任务类别—计算开销—可回答人口的分析表。
+
+## 3.3 计算理想收益上界
+
+分别估计：
+
+- 完全省略 Prefill 的上界。
+- 完全避免本次 LLM Generation 的上界。
+- 仅减少输入视觉 Token 的上界。
+- Exact Prefix 复用的真实收益。
+- 任务状态直接查询的潜在收益。
+
+所有上界应使用实际计时、任务频率和工作量，不能按 Token 比例直接外推。
+
+如果真实可回答任务人口非常少，必须如实报告，不强行声称 M3 可获得明显加速。
+
+---
+
+# 四、第三阶段：实现任务证据驱动的状态查询
+
+本轮优先研究一种简单机制：
+
+**Task-Evidence-Gated Serving**
+
+核心思想：
+
+在当前任务所需信息已经由合法、完整且足够新鲜的状态提供时，尝试避免再次进行完整 LLM Generation；否则继续原始 OmniDrive 推理。
+
+不新增复杂世界模型，不引入加权置信度评分器。
+
+## 4.1 复用已有 M3
+
+优先扩展：
+
+- `world_state.py`
+- `post_perception.py`
+- `task_conditioner.py`
+- `runtime.py`
+- `scheduler.py`
+
+不要重写已有 Prefix KV Cache、Prefill Executor 或独立视觉状态维护器。
+
+建议新增一个轻量 `TaskEvidenceContract` 或等价结构，包含：
+
+- `task_type`
+- `task_template`
+- `referent_id`
+- `scene_id`
+- `frame_id`
+- `timestamp`
+- `source_frame/version`
+- `current_observation_available`
+- `task_required_fields`
+- `available_fields`
+- `referent_unique`
+- `task_input_complete`
+- `state_fresh`
+- `contradiction_free`
+- `quality_certificate`
+- `answer_format`
+
+这些字段只描述任务所需证据，不引入复杂的多级状态机。
+
+## 4.2 严格任务准入
+
+只针对输入需求能够明确列举的任务研究直接查询，例如：
+
+- 唯一可指称对象的局部距离。
+- 已确定对象的局部位置属性。
+- 具有明确范围和完备检测证据的局部属性查询。
+
+是否真正支持这些任务，以实际模型输出和离线独立质量评价为准。
+
+禁止直接短路：
+
+- 全局安全判断。
+- 复杂驾驶决策。
+- 规划轨迹生成。
+- 未知对象的存在性判断。
+- 缺少完整场景覆盖的计数任务。
+- 无法唯一指称的对象问题。
+- 来源过期或缺少当前证据的问题。
+
+特别注意：
+
+**历史 Object Identity 连续，不能证明该对象当前的位置、速度或周围关系仍然正确。**
+
+当前 Head 与历史记录预测一致，也只代表预测一致性，不等于独立物理真值。
+
+对于状态证据不完整的请求，必须保留 Unknown 并正常执行原始 VLM。
+
+## 4.3 设计最小 Direct Query 执行路径
+
+实现：
+
+`Task Request → Evidence Check → Direct Query / Original VLM`
+
+要求：
+
+1. 请求必须符合明确的任务语法和输出格式。
+2. 任务必须具有唯一的场景指称。
+3. 来源签名、时间、版本及所需字段完整。
+4. 缺少当前证据时不直接使用历史事实。
+5. 不使用离线 GT 进行在线判断。
+6. 状态查询与原始模型输出格式兼容。
+7. 无法回答时完整回退，不生成猜测结果。
+8. 保留每次准入、拒绝与实际省略的模型计算记录。
+
+先实现：
+
+`shadow_evaluation=True`
+
+在 Shadow 模式中同时运行状态查询和原始 VLM，只作质量比较，不计入实际节省。
+
+当具备独立质量证据后，再实现一个显式开启的实验性真正短路路径，确保被短路请求没有执行对应 LLM Prefill/Decode。
+
+正式 Auto 默认关闭，不能因为 Shadow 结果很好就自动启用。
+
+如果当前 OmniDrive 原生任务中没有符合证据条件的请求，就保留 Shadow 与拒绝统计，不人为构造大量简单问题宣称真实工作负载加速。
+
+新增受控问题仅作为功能验证，必须与原始任务人口分开。
+
+---
+
+# 五、第四阶段：保留并验证现有 Exact Prefix 复用
+
+M3 已有：
+
+- `PrefixKVCache`
+- `PrefillExecutor`
+- `common_prefix_seed`
+- `single_question_fastpath`
+- `batched_decode`
+
+本轮不重新开发这些模块。
+
+仅补充与任务条件化服务的集成，验证：
+
+1. 原始多模态展开后的完整 Prefix 确实相同。
+2. Vision Carrier 发生变化时不会错误命中。
+3. Position ID、Attention Mask 和 Generation 参数匹配。
+4. KV Cache 来源及 Model Version 一致。
+5. 当前任务不能直接回答时，仍允许合法 Exact Prefix。
+6. 非 Exact 的语义相似输入不能冒充 Prefix Match。
+7. Decode 输出质量与原始模型一致。
+8. 真实 Cache/Branch/签名成本计入 E2E。
+
+Task Direct Query、Exact Prefix Reuse、Original VLM 应为清晰的执行路径，不能相互冒充节省。
+
+如果 Prefill 占比持续很小，或 Prefix 分支成本不能回收，保留现有机制但不要进一步堆叠复杂缓存策略。
+
+---
+
+# 六、第五阶段：任务质量、性能与消融实验
+
+## 6.1 数据与人口
+
+仅使用 nuScenes 六摄像头连续场景及原始 OmniDrive 实际任务。
+
+采用：
+
+- 自然连续请求。
+- 跨帧重复或相关查询。
+- 多问题同帧查询。
+- 受控完全相同请求。
+- 状态过期、指称歧义、缺失证据等反例。
+
+已曝光数据标记：
+
+`exploratory_reused_population`
+
+独立质量验证与参数选择必须按 Scene/Log 隔离，不能将相同 Log 的重划分冒充全新独立 Final Test。
+
+若缺少合格独立证据，保留正式 No-Go。
+
+## 6.2 对照方法
+
+至少比较：
+
+1. Original OmniDrive。
+2. Frozen M1 + Full Maintain。
+3. Frozen M1 + Frozen Exact M2。
+4. Existing M3 Exact Prefix。
+5. Task Evidence Shadow。
+6. Experimental Task Direct Query。
+7. Direct Query + Exact Prefix Fallback。
+
+只有符合任务准入的请求才可比较真实 Direct Query 加速；所有拒绝请求和失败请求必须留在整体统计人口中。
+
+## 6.3 质量评价
+
+直接查询需要分别验证：
+
+- 当前对象指称是否唯一。
+- 输入是否完备。
+- 证据是否真实来自在线状态。
+- 状态是否过期。
+- 答案单位与格式。
+- 数值/语义答案与合法参考的误差。
+- 与原始 VLM 的一致性及分歧。
+- Unknown/Reject 是否合理。
+- 错误 Direct Answer 和错误拒绝数量。
+
+使用 nuScenes GT 时只能用于离线评价。
+
+不能将原始模型和状态查询答案一致视作独立正确性证明。
+
+原始 OmniDrive 的 Detection、Map、Memory、LLM 和 Planning 质量门保持不变；对于未涉及的任务继续执行原模型。
+
+尤其不能使用无法解析的轨迹或短答案制造表面上的时延提升。
+
+## 6.4 性能指标
+
+必须报告：
+
+- Task Admission Rate。
+- Correctly Answerable Rate。
+- False Direct Admission。
+- Direct Query Latency。
+- Avoided Prefill/Decode Requests。
+- Actual Saved Decode Tokens。
+- Exact Prefix Hit Rate。
+- Cache Memory。
+- M1/M2/M3 开销。
+- E2E P50/P95。
+- 峰值 CPU/GPU 内存。
+- Fallback Reasons。
+
+性能比较必须保持相同的 Persistent State 服务契约。
+
+必须分别报告：
+
+**M3 边际收益** 与 **相对原始 OmniDrive 的完整系统收益**。
+
+Shadow 中执行了完整 VLM，不能把其假想省略的时延记为真实加速。
+
+对确实短路生成的实验路径，使用实际同步计时验证 Prefill/Decode 未执行。
+
+---
+
+# 七、代码修改范围
+
+## 7.1 M2 仅允许小范围收尾
+
+优先：
+
+- `worldstream/m2/source_alignment.py`
+- `worldstream/m2/conditional_prefix.py`
+- `worldstream/m2/config.py`
+- 必要的测试与诊断脚本。
+
+只允许：
+
+- 准入漏斗分析。
+- Research/Exact 语义明确化。
+- Cache 来源与 Memory 恢复正确性测试。
+- 必要缺陷修复。
+
+不继续重写 WindowExecutor 或 Scheduler。
+
+## 7.2 M3 为主要修改对象
+
+优先：
+
+- `worldstream/m3/runtime.py`
+- `worldstream/m3/task_conditioner.py`
+- `worldstream/m3/world_state.py`
+- `worldstream/m3/post_perception.py`
+- `worldstream/m3/scheduler.py`
+- 必要的 Task Evidence 辅助文件。
+- `tools/worldstream_m3/`
+- `tests/worldstream_m3/`
+- 必要实验配置。
+
+原则上不修改：
+
+- `worldstream/m1/`
+- 原始 OmniDrive 权重与网络。
+- 正式 Exact Dependency/Quality Gate。
+- 原有 M3 Prefix KV Cache 的计算正确性逻辑。
+
+新增研究路径必须能够完全关闭。
+
+必须保留 Source Version、Scene/Time 一致性、状态事务及完整回退。
+
+---
+
+# 八、测试与输出要求
+
+运行：
+
+`pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q`
+
+若 CUDA 可用，执行真实 OmniDrive 完整模型回归。
+
+新增测试至少覆盖：
+
+- M2 Exact 与 Conditional 隔离。
+- M2 Cache/Memory 污染恢复。
+- M3 Task Evidence 完整与缺失。
+- 重复对象与指称歧义。
+- 历史状态过期。
+- 当前 Head 与历史状态冲突。
+- Direct Query 格式及单位。
+- Direct Query Shadow 与真实跳算区别。
+- LLM Prefill/Decode 真实测量。
+- Prefix 正确命中与错误拒绝。
+- Exact Prefix 和 Direct Query 互斥执行。
+- 原始 Detection/Map/Memory/LLM/Planning 质量不退化。
+- GPU OOM/Scene Reset/状态重置。
+
+新建：
+
+`outputs/m2_freeze_m3_task_serving/`
+
+至少输出：
+
+- `implementation_changes.md`
+- `m2_admission_funnel.json`
+- `m2_freeze_decision.md`
+- `vlm_latency_breakdown.json`
+- `task_workload_census.json`
+- `task_answerability_analysis.json`
+- `task_evidence_contract.json`
+- `direct_query_shadow_quality.json`
+- `direct_query_execution_results.json`
+- `exact_prefix_integration.json`
+- `runtime_cost_benefit.json`
+- `end_to_end_comparison.json`
+- `original_model_parity.json`
+- `regression_results.json`
+- `formal_go_nogo.json`
+- `experiment_report.md`
+- `commands.sh`
+
+所有指标保留真实请求分母、执行签名、场景来源和实际测量时间，不得使用预设加速数字。
+
+---
+
+# 九、执行顺序与停止条件
+
+按照以下顺序实际推进：
+
+**Step 1：M2 最终诊断与冻结。**
+
+完成准入漏斗和小范围语义清理；保留 Exact、默认关闭 Conditional，不再扩大视觉缓存算法。
+
+**Step 2：M3 工作负载剖析。**
+
+准确量化 Vision、Prefill、Decode、上下文构造、状态维护和任务人口，判断可获得的最大收益。
+
+**Step 3：任务可回答性评价。**
+
+复用已有 M3 World State/Post-Perception，建立严格证据契约，统计真正输入完备的问题。
+
+**Step 4：实现 Shadow Task Query。**
+
+不跳过原始 VLM，先验证状态查询质量及拒绝正确性。
+
+**Step 5：实现实验性 Direct Query。**
+
+仅对已获得充分任务质量证据的任务，真正跳过 LLM Generation；其余请求完整回退。
+
+**Step 6：集成已有 Exact Prefix Fallback。**
+
+保持输入、来源及缓存计算等价性，不新增近似 Prefix 策略。
+
+**Step 7：真实 nuScenes 完整服务实验。**
+
+比较原始模型、Persistent State 服务、M3 Shadow、Direct Query 与 Exact Prefix，报告任务质量和 E2E 收益。
+
+最终分别输出：
+
+| Gate | 判断内容                            |
+| ---- | ------------------------------- |
+| G1   | M1/M2 冻结接口及 Exact 正确性           |
+| G2   | M2 当前计算边界的完整 No-Go 证据           |
+| G3   | M3 真实任务与 Prefill/Decode 工作负载分析  |
+| G4   | 状态输入对目标任务是否完备                   |
+| G5   | Direct Query 正确性与独立质量证据         |
+| G6   | Exact Prefix/Direct Query 执行正确性 |
+| G7   | 同服务 E2E 净收益                     |
+| G8   | 完整模型与工程回归                       |
+
+### 最终停止条件
+
+1. 如果 M2 仍然没有合法完整 Window 或净收益，冻结当前 Conditional Prefix，不再堆叠视觉复用机制。
+2. 如果 M3 没有足够的输入完备任务，或 Direct Query 未通过质量验证，保持正式路径关闭，不允许通过放宽任务分类或使用过期状态制造成功。
+3. 如果 Prefill 占比较低，不能继续把压缩 Prefix 当作主要收益来源；应根据实际 Decode/任务结果决定后续工作。
+4. 如果既有 M3 Compact 或 Prefix 方案仍然不具备质量—收益联合证据，不得在正式 Auto 中启用。
+5. 若全部任务级方案均 No-Go，保留当前稳定的 M1/M2/M3 接口与负面实验结果，明确下一步最值得研究的计算边界，而不是继续叠加启发式机制。
+
+最终请明确给出：
+
+- `m1_frozen`
+- `m2_exact_frozen`
+- `m2_conditional_production_enabled`
+- `m3_task_answerable_population`
+- `m3_direct_query_quality_pass`
+- `m3_direct_query_profitable`
+- `m3_exact_prefix_profitable`
+- `full_vlm_e2e_speedup`
+- `remaining_system_bottleneck`
+- `next_research_priority`
+
+**请直接完成实际代码修改、实验、质量回归、CUDA Profiling 和结果归档。所有未完成或未通过的项目如实报告，不要使用理论值冒充真实收益。**

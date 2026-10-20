@@ -1,0 +1,503 @@
+{
+  "population": "native_service",
+  "checks": 144,
+  "candidate_answers": 0,
+  "complete_contracts": 0,
+  "quality_qualified": 0,
+  "disagreements_with_full_vlm": null,
+  "numeric_reference_error": null,
+  "reason": "No native complete/independently qualified candidate. Undefined accuracy is not 100%.",
+  "false_direct_count": 0,
+  "false_direct_rate": null,
+  "false_reject_rate": null,
+  "correctly_answerable_rate_verified": 0.0,
+  "false_reject_reason": "Unknown without independently established answerable references",
+  "controlled_negative_original_model_checks": {
+    "population": "controlled_functionality_only",
+    "records_are_physical_truth": false,
+    "quality_certificate_provided": false,
+    "rows": [
+      {
+        "case": "missing",
+        "wall_ms": 668.4503988362849,
+        "diagnostics": {
+          "mode": "task_evidence",
+          "requests": [
+            {
+              "contract": {
+                "task_type": "local_metric",
+                "template": "distance_observed_id",
+                "referent_id": "fixture-1",
+                "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+                "frame_id": "adce54dcf6404d37bd170ffc4c2a7836",
+                "timestamp": 1.0,
+                "source_frame": "",
+                "source_version": "",
+                "current_observation_available": false,
+                "required_fields": [
+                  "center_ego_m"
+                ],
+                "available_fields": [],
+                "referent_unique": false,
+                "task_input_complete": false,
+                "state_fresh": false,
+                "contradiction_free": false,
+                "quality_certificate": "",
+                "answer_format": "distance_m_2dp",
+                "execution_signature": "controlled-fixture",
+                "units": "m",
+                "independent_current_identity": false
+              },
+              "candidate": null,
+              "evidence_complete": false,
+              "quality_qualified": false,
+              "reason": "referent_missing_or_ambiguous",
+              "route": "visual_fallback",
+              "shadow_evaluation": false,
+              "actual_avoided_prefill_requests": 0,
+              "actual_avoided_decode_requests": 0,
+              "hypothetical_savings_credited": false,
+              "fallback_reason": "referent_missing_or_ambiguous"
+            }
+          ],
+          "visual_fallback": {
+            "mode": "full",
+            "reason": "single_question_no_shared_prefix",
+            "requests": []
+          },
+          "admission_cpu_ms": 0.02690916880965233,
+          "cache_bytes": 0,
+          "actual_direct_requests": 0,
+          "actual_visual_requests": 1
+        },
+        "stages": {
+          "prefill": {
+            "wall_ms": 182.10606602951884,
+            "gpu_ms": 182.09365844726562,
+            "calls": 1
+          },
+          "decode": {
+            "wall_ms": 480.5080839432776,
+            "gpu_ms": 480.315616607666,
+            "calls": 19
+          }
+        },
+        "answer": "The distance to the observed object, a traffic cone, is approximately 3.5 meters."
+      },
+      {
+        "case": "ambiguous",
+        "wall_ms": 666.9575429987162,
+        "diagnostics": {
+          "mode": "task_evidence",
+          "requests": [
+            {
+              "contract": {
+                "task_type": "local_metric",
+                "template": "distance_observed_id",
+                "referent_id": "fixture-1",
+                "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+                "frame_id": "adce54dcf6404d37bd170ffc4c2a7836",
+                "timestamp": 1.0,
+                "source_frame": "",
+                "source_version": "",
+                "current_observation_available": false,
+                "required_fields": [
+                  "center_ego_m"
+                ],
+                "available_fields": [],
+                "referent_unique": false,
+                "task_input_complete": false,
+                "state_fresh": false,
+                "contradiction_free": false,
+                "quality_certificate": "",
+                "answer_format": "distance_m_2dp",
+                "execution_signature": "controlled-fixture",
+                "units": "m",
+                "independent_current_identity": false
+              },
+              "candidate": null,
+              "evidence_complete": false,
+              "quality_qualified": false,
+              "reason": "referent_missing_or_ambiguous",
+              "route": "visual_fallback",
+              "shadow_evaluation": false,
+              "actual_avoided_prefill_requests": 0,
+              "actual_avoided_decode_requests": 0,
+              "hypothetical_savings_credited": false,
+              "fallback_reason": "referent_missing_or_ambiguous"
+            }
+          ],
+          "visual_fallback": {
+            "mode": "full",
+            "reason": "single_question_no_shared_prefix",
+            "requests": []
+          },
+          "admission_cpu_ms": 0.03131292760372162,
+          "cache_bytes": 0,
+          "actual_direct_requests": 0,
+          "actual_visual_requests": 1
+        },
+        "stages": {
+          "prefill": {
+            "wall_ms": 180.41666806675494,
+            "gpu_ms": 180.4042205810547,
+            "calls": 1
+          },
+          "decode": {
+            "wall_ms": 480.7171542197466,
+            "gpu_ms": 480.518367767334,
+            "calls": 19
+          }
+        },
+        "answer": "The distance to the observed object, a traffic cone, is approximately 3.5 meters."
+      },
+      {
+        "case": "stale",
+        "wall_ms": 667.3572990112007,
+        "diagnostics": {
+          "mode": "task_evidence",
+          "requests": [
+            {
+              "contract": {
+                "task_type": "local_metric",
+                "template": "distance_observed_id",
+                "referent_id": "fixture-1",
+                "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+                "frame_id": "adce54dcf6404d37bd170ffc4c2a7836",
+                "timestamp": 1.0,
+                "source_frame": "adce54dcf6404d37bd170ffc4c2a7836",
+                "source_version": "v1",
+                "current_observation_available": true,
+                "required_fields": [
+                  "center_ego_m"
+                ],
+                "available_fields": [
+                  "center_ego_m"
+                ],
+                "referent_unique": true,
+                "task_input_complete": true,
+                "state_fresh": false,
+                "contradiction_free": true,
+                "quality_certificate": "",
+                "answer_format": "distance_m_2dp",
+                "execution_signature": "controlled-fixture",
+                "units": "m",
+                "independent_current_identity": true
+              },
+              "candidate": null,
+              "evidence_complete": false,
+              "quality_qualified": false,
+              "reason": "stale_source_or_signature",
+              "route": "visual_fallback",
+              "shadow_evaluation": false,
+              "actual_avoided_prefill_requests": 0,
+              "actual_avoided_decode_requests": 0,
+              "hypothetical_savings_credited": false,
+              "fallback_reason": "stale_source_or_signature"
+            }
+          ],
+          "visual_fallback": {
+            "mode": "full",
+            "reason": "single_question_no_shared_prefix",
+            "requests": []
+          },
+          "admission_cpu_ms": 0.03705988638103008,
+          "cache_bytes": 0,
+          "actual_direct_requests": 0,
+          "actual_visual_requests": 1
+        },
+        "stages": {
+          "prefill": {
+            "wall_ms": 181.30768300034106,
+            "gpu_ms": 181.29408264160156,
+            "calls": 1
+          },
+          "decode": {
+            "wall_ms": 480.5692080408335,
+            "gpu_ms": 480.3666572570801,
+            "calls": 19
+          }
+        },
+        "answer": "The distance to the observed object, a traffic cone, is approximately 3.5 meters."
+      },
+      {
+        "case": "no_current",
+        "wall_ms": 666.4157509803772,
+        "diagnostics": {
+          "mode": "task_evidence",
+          "requests": [
+            {
+              "contract": {
+                "task_type": "local_metric",
+                "template": "distance_observed_id",
+                "referent_id": "fixture-1",
+                "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+                "frame_id": "adce54dcf6404d37bd170ffc4c2a7836",
+                "timestamp": 1.0,
+                "source_frame": "adce54dcf6404d37bd170ffc4c2a7836",
+                "source_version": "v1",
+                "current_observation_available": false,
+                "required_fields": [
+                  "center_ego_m"
+                ],
+                "available_fields": [
+                  "center_ego_m"
+                ],
+                "referent_unique": true,
+                "task_input_complete": true,
+                "state_fresh": true,
+                "contradiction_free": true,
+                "quality_certificate": "",
+                "answer_format": "distance_m_2dp",
+                "execution_signature": "controlled-fixture",
+                "units": "m",
+                "independent_current_identity": true
+              },
+              "candidate": null,
+              "evidence_complete": false,
+              "quality_qualified": false,
+              "reason": "no_current_observation",
+              "route": "visual_fallback",
+              "shadow_evaluation": false,
+              "actual_avoided_prefill_requests": 0,
+              "actual_avoided_decode_requests": 0,
+              "hypothetical_savings_credited": false,
+              "fallback_reason": "no_current_observation"
+            }
+          ],
+          "visual_fallback": {
+            "mode": "full",
+            "reason": "single_question_no_shared_prefix",
+            "requests": []
+          },
+          "admission_cpu_ms": 0.03764987923204899,
+          "cache_bytes": 0,
+          "actual_direct_requests": 0,
+          "actual_visual_requests": 1
+        },
+        "stages": {
+          "prefill": {
+            "wall_ms": 180.1783749833703,
+            "gpu_ms": 180.16665649414062,
+            "calls": 1
+          },
+          "decode": {
+            "wall_ms": 480.61923729255795,
+            "gpu_ms": 480.41772651672363,
+            "calls": 19
+          }
+        },
+        "answer": "The distance to the observed object, a traffic cone, is approximately 3.5 meters."
+      },
+      {
+        "case": "conflict",
+        "wall_ms": 667.3996751196682,
+        "diagnostics": {
+          "mode": "task_evidence",
+          "requests": [
+            {
+              "contract": {
+                "task_type": "local_metric",
+                "template": "distance_observed_id",
+                "referent_id": "fixture-1",
+                "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+                "frame_id": "adce54dcf6404d37bd170ffc4c2a7836",
+                "timestamp": 1.0,
+                "source_frame": "adce54dcf6404d37bd170ffc4c2a7836",
+                "source_version": "v1",
+                "current_observation_available": true,
+                "required_fields": [
+                  "center_ego_m"
+                ],
+                "available_fields": [
+                  "center_ego_m"
+                ],
+                "referent_unique": true,
+                "task_input_complete": true,
+                "state_fresh": true,
+                "contradiction_free": false,
+                "quality_certificate": "",
+                "answer_format": "distance_m_2dp",
+                "execution_signature": "controlled-fixture",
+                "units": "m",
+                "independent_current_identity": true
+              },
+              "candidate": null,
+              "evidence_complete": false,
+              "quality_qualified": false,
+              "reason": "current_history_contradiction",
+              "route": "visual_fallback",
+              "shadow_evaluation": false,
+              "actual_avoided_prefill_requests": 0,
+              "actual_avoided_decode_requests": 0,
+              "hypothetical_savings_credited": false,
+              "fallback_reason": "current_history_contradiction"
+            }
+          ],
+          "visual_fallback": {
+            "mode": "full",
+            "reason": "single_question_no_shared_prefix",
+            "requests": []
+          },
+          "admission_cpu_ms": 0.039089005440473557,
+          "cache_bytes": 0,
+          "actual_direct_requests": 0,
+          "actual_visual_requests": 1
+        },
+        "stages": {
+          "prefill": {
+            "wall_ms": 181.06084899045527,
+            "gpu_ms": 181.04421997070312,
+            "calls": 1
+          },
+          "decode": {
+            "wall_ms": 480.82769475877285,
+            "gpu_ms": 480.62975883483887,
+            "calls": 19
+          }
+        },
+        "answer": "The distance to the observed object, a traffic cone, is approximately 3.5 meters."
+      },
+      {
+        "case": "wrong_units",
+        "wall_ms": 666.8370869010687,
+        "diagnostics": {
+          "mode": "task_evidence",
+          "requests": [
+            {
+              "contract": {
+                "task_type": "local_metric",
+                "template": "distance_observed_id",
+                "referent_id": "fixture-1",
+                "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+                "frame_id": "adce54dcf6404d37bd170ffc4c2a7836",
+                "timestamp": 1.0,
+                "source_frame": "adce54dcf6404d37bd170ffc4c2a7836",
+                "source_version": "v1",
+                "current_observation_available": true,
+                "required_fields": [
+                  "center_ego_m"
+                ],
+                "available_fields": [
+                  "center_ego_m"
+                ],
+                "referent_unique": true,
+                "task_input_complete": true,
+                "state_fresh": true,
+                "contradiction_free": true,
+                "quality_certificate": "",
+                "answer_format": "distance_m_2dp",
+                "execution_signature": "controlled-fixture",
+                "units": "cm",
+                "independent_current_identity": true
+              },
+              "candidate": null,
+              "evidence_complete": false,
+              "quality_qualified": false,
+              "reason": "unsupported_units",
+              "route": "visual_fallback",
+              "shadow_evaluation": false,
+              "actual_avoided_prefill_requests": 0,
+              "actual_avoided_decode_requests": 0,
+              "hypothetical_savings_credited": false,
+              "fallback_reason": "unsupported_units"
+            }
+          ],
+          "visual_fallback": {
+            "mode": "full",
+            "reason": "single_question_no_shared_prefix",
+            "requests": []
+          },
+          "admission_cpu_ms": 0.04070787690579891,
+          "cache_bytes": 0,
+          "actual_direct_requests": 0,
+          "actual_visual_requests": 1
+        },
+        "stages": {
+          "prefill": {
+            "wall_ms": 180.46558392234147,
+            "gpu_ms": 180.453369140625,
+            "calls": 1
+          },
+          "decode": {
+            "wall_ms": 480.65602546557784,
+            "gpu_ms": 480.4468193054199,
+            "calls": 19
+          }
+        },
+        "answer": "The distance to the observed object, a traffic cone, is approximately 3.5 meters."
+      },
+      {
+        "case": "no_independent_certificate",
+        "wall_ms": 667.0703650452197,
+        "diagnostics": {
+          "mode": "task_evidence",
+          "requests": [
+            {
+              "contract": {
+                "task_type": "local_metric",
+                "template": "distance_observed_id",
+                "referent_id": "fixture-1",
+                "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+                "frame_id": "adce54dcf6404d37bd170ffc4c2a7836",
+                "timestamp": 1.0,
+                "source_frame": "adce54dcf6404d37bd170ffc4c2a7836",
+                "source_version": "v1",
+                "current_observation_available": true,
+                "required_fields": [
+                  "center_ego_m"
+                ],
+                "available_fields": [
+                  "center_ego_m"
+                ],
+                "referent_unique": true,
+                "task_input_complete": true,
+                "state_fresh": true,
+                "contradiction_free": true,
+                "quality_certificate": "",
+                "answer_format": "distance_m_2dp",
+                "execution_signature": "controlled-fixture",
+                "units": "m",
+                "independent_current_identity": true
+              },
+              "candidate": "5.00 m",
+              "evidence_complete": true,
+              "quality_qualified": false,
+              "reason": "missing_independent_task_quality_certificate",
+              "route": "visual_fallback",
+              "shadow_evaluation": false,
+              "actual_avoided_prefill_requests": 0,
+              "actual_avoided_decode_requests": 0,
+              "hypothetical_savings_credited": false,
+              "fallback_reason": "missing_independent_task_quality_certificate"
+            }
+          ],
+          "visual_fallback": {
+            "mode": "full",
+            "reason": "single_question_no_shared_prefix",
+            "requests": []
+          },
+          "admission_cpu_ms": 0.04666205495595932,
+          "cache_bytes": 0,
+          "actual_direct_requests": 0,
+          "actual_visual_requests": 1
+        },
+        "stages": {
+          "prefill": {
+            "wall_ms": 180.90205313637853,
+            "gpu_ms": 180.890625,
+            "calls": 1
+          },
+          "decode": {
+            "wall_ms": 480.6174677796662,
+            "gpu_ms": 480.41292572021484,
+            "calls": 19
+          }
+        },
+        "answer": "The distance to the observed object, a traffic cone, is approximately 3.5 meters."
+      }
+    ]
+  },
+  "controlled_fixture_tests": "tests/worldstream_m3/test_task_evidence_serving.py; functionality only, never a quality certificate",
+  "shadow_savings_credited_ms": 0
+}

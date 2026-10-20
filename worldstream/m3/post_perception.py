@@ -66,11 +66,8 @@ def local_query(state,question,context):
 
 
 def direct_query(state,question,context,task_certificate=None):
-    request=local_query(state,question,context)
-    if not request['admitted']:return request
-    # No caller can turn prediction agreement into a deployment approval.
-    if not task_certificate or task_certificate.get('state_execution_signature')!=state.execution_signature or task_certificate.get('independent_quality_pass') is not True:
-        return dict(request,admitted=False,reason='missing_independent_direct_task_certificate',text='')
-    center=np.asarray(request['records'][0]['center_ego_m'])
-    return dict(request,numeric_value=float(np.linalg.norm(center[:2])) if 'distance' in question.lower() else center.tolist(),
-        reason='certified_local_numeric_query')
+    """Compatibility entry shares the strict serving gate, not head agreement."""
+    from .task_evidence import evaluate_task_evidence
+    result=evaluate_task_evidence(question,context,getattr(state,'records',()),task_certificate)
+    return dict(result.to_dict(),admitted=result.evidence_complete and result.quality_qualified,
+        text=result.candidate if result.quality_qualified else '',task=result.contract.task_type)

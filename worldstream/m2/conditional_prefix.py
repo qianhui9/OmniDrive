@@ -58,7 +58,8 @@ class ConditionalPrefixExecutor:
             saved=self._publish(images,content['x'],outputs,context,signature,value[0].stride())
         return value,dict(mode='full',reuse_mode='full',fallback_reason=reason,cache_saved=saved,
             cache_version=self.cache.version,cache_bytes=self.cache.bytes+(0 if self.content is None else self.content.numel()*self.content.element_size()),
-            actual_skipped_windows=0,conditional_reused_windows=0,actual_skipped_block_computations=0,
+            actual_skipped_windows=0,conditional_reused_windows=0,exact_reused_windows=0,actual_skipped_block_computations=0,
+            quality_qualified=False,performance_qualified=False,reuse_source_frame=[],reuse_source_version=[],
             transformer_dependency_certified=False,task_quality_certified=False,stages=[])
 
     def forward(self,images,bundle,context,signature,force=False,observer=None):
@@ -181,11 +182,14 @@ class ConditionalPrefixExecutor:
             owned=torch.empty_strided(result.shape,self.cache.output_stride,dtype=result.dtype,device=result.device);owned.copy_(result);result=owned
         saved=self._publish(images,content,outputs,context,signature,result.stride(),provenance)
         skipped=len(reused)*len(self.prefix)
-        diag=dict(mode='experimental_conditional' if conditional_windows else 'incremental' if skipped else 'full',
-            reuse_mode='experimental_conditional' if conditional_windows else 'exact' if skipped else 'full',
+        diag=dict(mode='experimental_conditional_forced' if skipped else 'full',
+            reuse_mode='experimental_conditional_forced' if skipped else 'full',
             fallback_reason=None if skipped else 'content_residual_rejected',stages=stages,
             actual_skipped_windows=skipped,actual_skipped_block_computations=skipped,
-            conditional_reused_windows=conditional_windows,verified_exact_windows=exact_windows,
+            conditional_reused_windows=conditional_windows,verified_exact_windows=exact_windows,exact_reused_windows=exact_windows,
+            quality_qualified=False,performance_qualified=False,
+            reuse_source_frame=sorted({str(u['computation_frame_id']) for i in self.prefix for j,u in enumerate(provenance[i]) if j in reused}),
+            reuse_source_version=sorted({u['computation_version'] for i in self.prefix for j,u in enumerate(provenance[i]) if j in reused}),
             cache_saved=saved,cache_version=self.cache.version,cache_bytes=self.cache.bytes+self.content.numel()*self.content.element_size(),
             output_window_provenance=copy.deepcopy(provenance),source_alignment=reports or [],
             M2_validation_ms=validation_ms,M2_execution_ms=(perf_counter()-execution_start)*1000,

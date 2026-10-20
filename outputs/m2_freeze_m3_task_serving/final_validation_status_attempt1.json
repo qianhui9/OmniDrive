@@ -1,0 +1,45 @@
+{
+  "status": "completed",
+  "steps": [
+    {
+      "name": "final_regression",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-m",
+        "pytest",
+        "tests/worldstream_m1",
+        "tests/worldstream_m2",
+        "tests/worldstream_m3",
+        "-q",
+        "-o",
+        "junit_family=legacy",
+        "--junitxml=outputs/m2_freeze_m3_task_serving/final_regression_cuda.xml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "final_source_validation",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-u",
+        "-m",
+        "tools.worldstream_m3.task_serving_profile",
+        "--phase",
+        "final_source_validation",
+        "--scenes",
+        "1",
+        "--frames",
+        "1",
+        "--questions",
+        "3"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

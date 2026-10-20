@@ -157,6 +157,20 @@ class IncrementalVisionRuntime:
         diagnostics['recomputed_windows'] = sum(s.get('executed_windows',0) for s in diagnostics.get('stages',[]))
         diagnostics['cache_hits'] = diagnostics.get('actual_skipped_windows',0) + diagnostics.get('actual_reused_cameras',0)
         diagnostics.setdefault('reuse_mode','exact' if diagnostics['cache_hits'] else 'full')
+        # Normalize receipt names only; admission, execution and cache contents
+        # remain frozen. Research cache results never masquerade as formal Exact.
+        skipped = diagnostics.get('actual_skipped_windows', 0)
+        diagnostics.setdefault('actual_skipped_block_computations', skipped)
+        diagnostics.setdefault('conditional_reused_windows', 0)
+        diagnostics.setdefault('exact_reused_windows', skipped // max(1, len(self.prefix)))
+        diagnostics.setdefault('quality_qualified', bool(diagnostics['cache_hits']) and not self.config.experimental_conditional_reuse)
+        diagnostics.setdefault('performance_qualified', bool(diagnostics['cache_hits']) and self.config.mode == 'auto' and not self.config.experimental_conditional_reuse)
+        published = diagnostics.get('output_window_provenance', {})
+        units = [u for values in published.values() for u in values] if isinstance(published, dict) else published
+        reused_units = [u for u in units if u.get('computation_frame_id') != context.get('frame_id')]
+        diagnostics.setdefault('reuse_source_frame', sorted({str(u.get('computation_frame_id')) for u in reused_units}))
+        diagnostics.setdefault('reuse_source_version', sorted({u.get('computation_version') for u in reused_units if u.get('computation_version') is not None}))
+
         diagnostics['source_mismatch'] = bool('mismatch' in (diagnostics.get('fallback_reason') or ''))
         now,old = context.get('timestamp'),previous_context.get('timestamp')
         diagnostics['cache_verification_age'] = now-old if now is not None and old is not None else None

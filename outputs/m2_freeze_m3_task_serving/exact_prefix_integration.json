@@ -1,0 +1,1366 @@
+{
+  "query_denominator": 96,
+  "actual_prefix_hit_rate": 0.5,
+  "complete_prefill_elisions_via_prefix": 16,
+  "saved_decode_tokens_via_prefix": 0,
+  "corrected_final_identity_witness": {
+    "caller_loaded_bytecode_sha256": "cdfc0a95c0ecefd4525360c4487ff0971f39a84e1061c6bc8944426ff6fe46fc",
+    "actual_original_tokenizer_supported_question_binding": true,
+    "scene": "9f1f69646d644e35be4fe0122a8b91ef",
+    "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+    "input_length": 577,
+    "rows": [
+      {
+        "field": "position_ids",
+        "index": 3,
+        "old_value": 3,
+        "new_value": 4,
+        "actual_value_changed": true,
+        "matching_prefix": 3,
+        "passed": true
+      },
+      {
+        "field": "attention_mask",
+        "index": 3,
+        "old_value": 1,
+        "new_value": 0,
+        "actual_value_changed": true,
+        "matching_prefix": 3,
+        "passed": true
+      },
+      {
+        "field": "token_ids",
+        "index": 3,
+        "old_value": 1546,
+        "new_value": 1547,
+        "actual_value_changed": true,
+        "matching_prefix": 3,
+        "passed": true
+      },
+      {
+        "field": "visual_mask",
+        "index": 3,
+        "old_value": false,
+        "new_value": true,
+        "actual_value_changed": true,
+        "matching_prefix": 3,
+        "passed": true
+      }
+    ],
+    "changed_vision_prefix": 35,
+    "first_visual_index": 35,
+    "changed_vision_rejects_full_visual_prefix": true,
+    "scene_change": 0,
+    "model_signature_change": 0,
+    "all_mutations_verified": true,
+    "first_supplement_probe_visual_mask_mutation_note": "Initial auxiliary probe assigned 0 to a text token already False, so it was a no-op. Its raw results are retained; this fresh final-source witness toggles the actual value.",
+    "source_sha256": "c201b546f9dab7a0011a564a9a9bc5dbc8885107d99be793adb9d989ea71dbc8"
+  },
+  "original_model_checks": {
+    "population": "controlled_identical_original_request_on_real_carriers",
+    "input_length": 577,
+    "visual_tokens": 513,
+    "boundaries": {
+      "identical": 577,
+      "changed_vision": 35,
+      "scene_change": 0,
+      "model_version_change": 0,
+      "position_ids_changed": 3,
+      "attention_mask_changed": 3,
+      "token_ids_changed": 3,
+      "visual_mask_changed": 577,
+      "different_question_token": 575
+    },
+    "native_independent_token_ids_equal": true,
+    "native_repeated_token_ids_equal": true,
+    "cache_immutable": true,
+    "first": {
+      "input_tokens": 577,
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "forward_prefill_lengths": [
+        577
+      ],
+      "computed_source": [
+        "9f1f69646d644e35be4fe0122a8b91ef",
+        "adce54dcf6404d37bd170ffc4c2a7836",
+        0,
+        0
+      ],
+      "suffix_computed_source": [
+        "9f1f69646d644e35be4fe0122a8b91ef",
+        "adce54dcf6404d37bd170ffc4c2a7836",
+        0,
+        0
+      ],
+      "prefix_storage": "owned_clone",
+      "cache_stored": true,
+      "prefill_including_cache_cpu_enqueue_ms": 101.49041912518442,
+      "prefill_including_cache_gpu_ms": 182.53082275390625,
+      "llm_wall_ms": 2310.449492186308,
+      "cache_bytes": 307383385,
+      "prefix_lineage": [],
+      "branch_workspace_bytes": 0
+    },
+    "repeated": {
+      "input_tokens": 577,
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "forward_prefill_lengths": [],
+      "computed_source": [
+        "9f1f69646d644e35be4fe0122a8b91ef",
+        "adce54dcf6404d37bd170ffc4c2a7836",
+        0,
+        0
+      ],
+      "suffix_computed_source": [
+        "9f1f69646d644e35be4fe0122a8b91ef",
+        "adce54dcf6404d37bd170ffc4c2a7836",
+        0,
+        0
+      ],
+      "prefix_storage": "owned_clone",
+      "prefill_including_cache_cpu_enqueue_ms": 0.3699120134115219,
+      "prefill_including_cache_gpu_ms": 0.8919039964675903,
+      "llm_wall_ms": 2125.814275117591,
+      "cache_bytes": 307383385,
+      "prefix_lineage": [],
+      "branch_workspace_bytes": 302514176
+    },
+    "repeated_wall_ms": 2128.434424987063,
+    "kv_bytes": 302514176,
+    "computed_source": [
+      "9f1f69646d644e35be4fe0122a8b91ef",
+      "adce54dcf6404d37bd170ffc4c2a7836",
+      0,
+      0
+    ],
+    "kv_shape": [
+      1,
+      32,
+      577,
+      128
+    ],
+    "kv_dtype": "torch.float16",
+    "all_original_visual_tokens_retained": true,
+    "semantic_matching_used": false,
+    "production_auto_enabled": false,
+    "original_sampling_identical_request": {
+      "temperature": 0.1,
+      "top_p": 0.75,
+      "token_ids_equal": true,
+      "cached_diagnostics": {
+        "input_tokens": 577,
+        "reused_tokens": 577,
+        "effective_prefill_tokens": 0,
+        "forward_prefill_lengths": [],
+        "computed_source": [
+          "9f1f69646d644e35be4fe0122a8b91ef",
+          "adce54dcf6404d37bd170ffc4c2a7836",
+          0,
+          0
+        ],
+        "suffix_computed_source": [
+          "9f1f69646d644e35be4fe0122a8b91ef",
+          "adce54dcf6404d37bd170ffc4c2a7836",
+          0,
+          0
+        ],
+        "prefix_storage": "owned_clone",
+        "prefill_including_cache_cpu_enqueue_ms": 0.33589405938982964,
+        "llm_cpu_enqueue_ms": 2148.6168999690562,
+        "cache_bytes": 307383385,
+        "prefix_lineage": [],
+        "branch_workspace_bytes": 302514176
+      },
+      "note": "Actual original base.generate, bypasses runner greedy wrapper; active embedded LoRA unchanged"
+    },
+    "native_related_question_numerics": {
+      "exact_input_prefix": 559,
+      "full_length": 570,
+      "suffix_length": 11,
+      "final_prefill_logit_max_abs": 0.0234375,
+      "last_argmax_equal": true,
+      "shared_KV_max_abs": 0.03125,
+      "frozen_target_relaxed": false,
+      "task_quality_certificate": false
+    },
+    "trace": {
+      "max_new_tokens": 5,
+      "scope": "Actual native one prefill plus four decode steps, diagnostic only; profiler overhead excluded from service comparison",
+      "top_cuda": [
+        {
+          "name": "aten::mm",
+          "calls": 2405,
+          "self_cpu_ms": 16.063,
+          "self_cuda_ms": 213.238
+        },
+        {
+          "name": "ampere_fp16_s1688gemm_fp16_128x128_ldg8_f2f_stages_32x1_tn",
+          "calls": 160,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 64.461
+        },
+        {
+          "name": "void cutlass::Kernel<cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x128_32x3_tn_align8>(cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x128_32x3_tn_align8::Params)",
+          "calls": 65,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 60.56
+        },
+        {
+          "name": "ampere_fp16_s16816gemm_fp16_64x64_sliced1x2_ldg8_f2f_stages_64x5_tn",
+          "calls": 640,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 37.849
+        },
+        {
+          "name": "ampere_fp16_s16816gemm_fp16_64x64_ldg8_f2f_stages_64x5_tn",
+          "calls": 256,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 31.432
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 11028,
+          "self_cpu_ms": 84.255,
+          "self_cuda_ms": 24.407
+        },
+        {
+          "name": "aten::mul",
+          "calls": 2106,
+          "self_cpu_ms": 6.916,
+          "self_cuda_ms": 12.642
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1522,
+          "self_cpu_ms": 3.102,
+          "self_cuda_ms": 12.081
+        },
+        {
+          "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+          "calls": 3790,
+          "self_cpu_ms": 0.058,
+          "self_cuda_ms": 11.118
+        },
+        {
+          "name": "aten::bmm",
+          "calls": 320,
+          "self_cpu_ms": 1.933,
+          "self_cuda_ms": 10.304
+        },
+        {
+          "name": "aten::cat",
+          "calls": 591,
+          "self_cpu_ms": 2.039,
+          "self_cuda_ms": 7.117
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 970,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 6.608
+        },
+        {
+          "name": "ampere_sgemm_128x128_tn",
+          "calls": 128,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 6.164
+        },
+        {
+          "name": "aten::add",
+          "calls": 1133,
+          "self_cpu_ms": 4.209,
+          "self_cuda_ms": 6.097
+        },
+        {
+          "name": "ampere_sgemm_128x64_tn",
+          "calls": 128,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 5.203
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+          "calls": 491,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 4.949
+        },
+        {
+          "name": "aten::add_",
+          "calls": 640,
+          "self_cpu_ms": 1.414,
+          "self_cuda_ms": 4.924
+        },
+        {
+          "name": "void at::native::unrolled_elementwise_kernel<at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1>)",
+          "calls": 640,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 4.924
+        },
+        {
+          "name": "cudaStreamGetCaptureInfo",
+          "calls": 1296,
+          "self_cpu_ms": 0.009,
+          "self_cuda_ms": 4.831
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+          "calls": 705,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 4.494
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 64, 64>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 64, 64>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "calls": 384,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 4.033
+        },
+        {
+          "name": "void at::native::vectorized_elementwise_kernel<4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2> >(int, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2>)",
+          "calls": 640,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 3.866
+        },
+        {
+          "name": "void cutlass::Kernel<cutlass_75_tensorop_f16_s1688gemm_f16_128x256_nn_align1>(cutlass_75_tensorop_f16_s1688gemm_f16_128x256_nn_align1::Params)",
+          "calls": 32,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 3.815
+        },
+        {
+          "name": "void cutlass::Kernel<cutlass_75_tensorop_f16_s1688gemm_f16_64x128_tn_align1>(cutlass_75_tensorop_f16_s1688gemm_f16_64x128_tn_align1::Params)",
+          "calls": 32,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 3.53
+        },
+        {
+          "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<c10::Half> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<c10::Half> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<c10::Half> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<c10::Half> const&)::{lambda(int)#1})",
+          "calls": 224,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 3.517
+        },
+        {
+          "name": "aten::_softmax",
+          "calls": 160,
+          "self_cpu_ms": 0.622,
+          "self_cuda_ms": 3.103
+        },
+        {
+          "name": "void (anonymous namespace)::softmax_warp_forward<c10::Half, float, float, 10, false, false>(float*, c10::Half const*, int, int, int, bool const*, int, bool)",
+          "calls": 160,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 3.103
+        },
+        {
+          "name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, float, float, float, float, false, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)",
+          "calls": 512,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 3.075
+        },
+        {
+          "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 128, 1>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 128, 1>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+          "calls": 192,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 3.011
+        },
+        {
+          "name": "void gemv2T_kernel_val<int, int, float, float, float, float, 128, 16, 2, 2, false, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>, float, float)",
+          "calls": 512,
+          "self_cpu_ms": 0.0,
+          "self_cuda_ms": 2.565
+        }
+      ],
+      "top_cpu": [
+        {
+          "name": "cudaMemcpyAsync",
+          "calls": 30,
+          "self_cpu_ms": 111.289,
+          "self_cuda_ms": 0.048
+        },
+        {
+          "name": "cudaLaunchKernel",
+          "calls": 11028,
+          "self_cpu_ms": 84.255,
+          "self_cuda_ms": 24.407
+        },
+        {
+          "name": "aten::mm",
+          "calls": 2405,
+          "self_cpu_ms": 16.063,
+          "self_cuda_ms": 213.238
+        },
+        {
+          "name": "aten::matmul",
+          "calls": 2725,
+          "self_cpu_ms": 6.959,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "aten::mul",
+          "calls": 2106,
+          "self_cpu_ms": 6.916,
+          "self_cuda_ms": 12.642
+        },
+        {
+          "name": "aten::linear",
+          "calls": 2405,
+          "self_cpu_ms": 6.687,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "aten::add",
+          "calls": 1133,
+          "self_cpu_ms": 4.209,
+          "self_cuda_ms": 6.097
+        },
+        {
+          "name": "aten::_to_copy",
+          "calls": 1478,
+          "self_cpu_ms": 3.274,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "aten::copy_",
+          "calls": 1522,
+          "self_cpu_ms": 3.102,
+          "self_cuda_ms": 12.081
+        },
+        {
+          "name": "aten::t",
+          "calls": 2407,
+          "self_cpu_ms": 2.251,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "aten::cat",
+          "calls": 591,
+          "self_cpu_ms": 2.039,
+          "self_cuda_ms": 7.117
+        },
+        {
+          "name": "aten::bmm",
+          "calls": 320,
+          "self_cpu_ms": 1.933,
+          "self_cuda_ms": 10.304
+        },
+        {
+          "name": "aten::index",
+          "calls": 322,
+          "self_cpu_ms": 1.74,
+          "self_cuda_ms": 1.103
+        },
+        {
+          "name": "aten::to",
+          "calls": 2784,
+          "self_cpu_ms": 1.719,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "cudaMalloc",
+          "calls": 29,
+          "self_cpu_ms": 1.615,
+          "self_cuda_ms": 0.039
+        },
+        {
+          "name": "aten::empty_strided",
+          "calls": 1480,
+          "self_cpu_ms": 1.607,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "aten::add_",
+          "calls": 640,
+          "self_cpu_ms": 1.414,
+          "self_cuda_ms": 4.924
+        },
+        {
+          "name": "aten::pow",
+          "calls": 325,
+          "self_cpu_ms": 1.394,
+          "self_cuda_ms": 1.982
+        },
+        {
+          "name": "aten::mean",
+          "calls": 325,
+          "self_cpu_ms": 1.394,
+          "self_cuda_ms": 2.194
+        },
+        {
+          "name": "aten::neg",
+          "calls": 320,
+          "self_cpu_ms": 1.098,
+          "self_cuda_ms": 1.23
+        },
+        {
+          "name": "aten::set_",
+          "calls": 3,
+          "self_cpu_ms": 1.04,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "aten::rsqrt",
+          "calls": 325,
+          "self_cpu_ms": 0.974,
+          "self_cuda_ms": 0.649
+        },
+        {
+          "name": "aten::reshape",
+          "calls": 3532,
+          "self_cpu_ms": 0.901,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "aten::div",
+          "calls": 160,
+          "self_cpu_ms": 0.656,
+          "self_cuda_ms": 1.942
+        },
+        {
+          "name": "aten::_softmax",
+          "calls": 160,
+          "self_cpu_ms": 0.622,
+          "self_cuda_ms": 3.103
+        },
+        {
+          "name": "aten::silu",
+          "calls": 160,
+          "self_cpu_ms": 0.538,
+          "self_cuda_ms": 1.283
+        },
+        {
+          "name": "aten::slice",
+          "calls": 1644,
+          "self_cpu_ms": 0.509,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "cudaMemsetAsync",
+          "calls": 257,
+          "self_cpu_ms": 0.42,
+          "self_cuda_ms": 0.197
+        },
+        {
+          "name": "aten::transpose",
+          "calls": 3207,
+          "self_cpu_ms": 0.366,
+          "self_cuda_ms": 0.0
+        },
+        {
+          "name": "aten::softmax",
+          "calls": 160,
+          "self_cpu_ms": 0.278,
+          "self_cuda_ms": 0.0
+        }
+      ]
+    }
+  },
+  "service_rows": [
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 558,
+      "effective_prefill_tokens": 18,
+      "input_tokens": 576,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 558,
+      "effective_prefill_tokens": 18,
+      "input_tokens": 576,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 560,
+      "effective_prefill_tokens": 18,
+      "input_tokens": 578,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 558,
+      "effective_prefill_tokens": 19,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "exact_prefix",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 560,
+      "effective_prefill_tokens": 18,
+      "input_tokens": 578,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 558,
+      "effective_prefill_tokens": 19,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 11,
+      "input_tokens": 570,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "native_multi",
+      "mode": "direct_prefix_fallback",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 559,
+      "effective_prefill_tokens": 16,
+      "input_tokens": 575,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "adce54dcf6404d37bd170ffc4c2a7836",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "3613b5ea52bc46d0966fede34be89d38",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "c0f6cef97fa44973afe8ed8e18e652c3",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "895d801ecf3e40019e43a0d5b80bb453",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "exact_prefix",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "e57fa7124f6741e697b1841bc023a90f",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "9f6df3e551884233bb31cd0d1aa864b4",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "ee81134b6b24406995723630e2cee714",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 0,
+      "effective_prefill_tokens": 577,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "short_or_missing_prefix"
+    },
+    {
+      "population": "identical_requests",
+      "mode": "direct_prefix_fallback",
+      "frame": "770e9c5da527420594a50b6ea1408f42",
+      "reused_tokens": 577,
+      "effective_prefill_tokens": 0,
+      "input_tokens": 577,
+      "cache_bytes": 307383385,
+      "reason": "explicit_exact_experiment"
+    }
+  ],
+  "service_prefix_hits": 48,
+  "single_question_fastpath_preserved": true,
+  "common_prefix_seed_and_batched_decode_algorithms_unchanged": true,
+  "changed_generation_contract": "Existing beam/unsupported mask tests remain native; original full-model service uses frozen greedy controls. No generation algorithm replaced.",
+  "direct_prefix_route_exclusive": true,
+  "production_auto_approved": false,
+  "note": "Identical expanded input is dependency-exact; suffix prefill shapes may have floating-point differences. Frozen whole-output quality gates are not relaxed."
+}

@@ -20,6 +20,8 @@ class M3Runtime:
         self._scope = None
         self._signature = None
         self._timestamp = None
+        from .scheduler import read_artifact
+        self.direct_task_certificate = read_artifact(self.config.direct_task_certificate)
 
     def reset(self):
         self.cache.reset()
@@ -27,6 +29,79 @@ class M3Runtime:
 
     @torch.no_grad()
     def generate(self, lm_head, input_ids_list, vision_carriers, world_state=None,
+                 visual_execution=None, context=None, questions=None, layout=None,
+                 verified_state=None, tokenizer=None, task_evidence=None, **generation):
+        ids = list(input_ids_list)
+        qs = list(questions) if questions is not None else [''] * len(ids)
+        if len(ids) != len(qs):
+            raise ValueError('Question metadata order must match input IDs')
+        arguments = dict(world_state=world_state, visual_execution=visual_execution,
+            context=context, layout=layout, verified_state=verified_state, tokenizer=tokenizer)
+        if not self.config.task_evidence_enabled:
+            return self._generate_visual(lm_head, ids, vision_carriers, questions=qs,
+                **arguments, **generation)
+        from .task_evidence import evaluate_task_evidence,native_prompt_matches
+        tick = perf_counter()
+        records = task_evidence if task_evidence is not None else getattr(verified_state, 'records', ())
+        decisions = [evaluate_task_evidence(q, context or {}, records, self.direct_task_certificate) for q in qs]
+        admission_ms = (perf_counter() - tick) * 1000
+        format_supported = not any(generation.get(k) for k in ('return_dict_in_generate', 'output_scores', 'output_attentions', 'output_hidden_states'))
+        format_supported = format_supported and not any(k in generation for k in ('attention_mask', 'position_ids', 'past_key_values', 'inputs_embeds', 'stopping_criteria', 'constraints', 'force_words_ids'))
+        bindings = [native_prompt_matches(tokenizer, x, q) if d.quality_qualified else False for x, q, d in zip(ids, qs, decisions)]
+        direct = [bool(bound and format_supported and self.config.experimental_direct_query and not self.config.shadow_evaluation
+            and d.evidence_complete and d.quality_qualified and tokenizer is not None) for d, bound in zip(decisions, bindings)]
+        execution_rejections = [None] * len(ids)
+        answers = [None] * len(ids)
+        for i, allowed in enumerate(direct):
+            if allowed:
+                # Encode only the final schema-compatible answer; no model forward,
+                # multimodal expansion, prefill or decode is invoked for this query.
+                encoded = tokenizer.encode(decisions[i].candidate, add_special_tokens=False)
+                limit = generation.get('max_new_tokens')
+                if not encoded or (limit is not None and len(encoded) > limit):
+                    direct[i] = False
+                    execution_rejections[i] = 'direct_answer_exceeds_generation_budget'
+                else:
+                    answers[i] = ids[i].new_tensor(encoded).reshape(1, -1)
+        fallback_indices = [i for i, allowed in enumerate(direct) if not allowed]
+        fallback_diag = dict(mode='no_visual_requests', requests=[])
+        if fallback_indices:
+            if self.config.direct_query_prefix_fallback and not self.config.shadow_evaluation:
+                fallback, fallback_diag = self._generate_visual(lm_head,
+                    [ids[i] for i in fallback_indices], vision_carriers,
+                    questions=[qs[i] for i in fallback_indices], **arguments, **generation)
+            else:
+                self.reset()
+                fallback = [lm_head.generate(inputs=ids[i].unsqueeze(0) if ids[i].ndim == 1 else ids[i],
+                    images=vision_carriers, **generation) for i in fallback_indices]
+                fallback_diag = dict(mode='full', reason='evidence_full_visual_fallback', requests=[])
+            for i, answer in zip(fallback_indices, fallback):answers[i] = answer
+        elif direct:
+            # A direct-only transaction never leaves an unrelated prefix live.
+            self.reset()
+        rows = []
+        for i, d in enumerate(decisions):
+            rows.append(dict(d.to_dict(), route='direct' if direct[i] else 'visual_fallback',
+                shadow_evaluation=self.config.shadow_evaluation,native_prompt_bound=bindings[i],
+                actual_avoided_prefill_requests=int(direct[i]), actual_avoided_decode_requests=int(direct[i]),
+                hypothetical_savings_credited=False,
+                fallback_reason=None if direct[i] else execution_rejections[i] or ('shadow_requires_original_vlm' if self.config.shadow_evaluation
+                    and d.quality_qualified else d.reason if not d.quality_qualified else 'native_prompt_or_output_contract_mismatch' if not bindings[i] or not format_supported else 'experimental_execution_disabled')))
+        return answers, dict(mode='task_evidence', requests=rows, visual_fallback=fallback_diag,
+            admission_cpu_ms=admission_ms, cache_bytes=self.cache.nbytes,
+            actual_direct_requests=sum(direct), actual_visual_requests=len(fallback_indices))
+
+    def _generate_visual(self, *args, **kwargs):
+        try:
+            return self._generate_visual_impl(*args, **kwargs)
+        except Exception:
+            # No prefix from an interrupted/OOM generation may survive into a
+            # later request. The caller owns retry and downstream memory policy.
+            self.reset()
+            raise
+
+    @torch.no_grad()
+    def _generate_visual_impl(self, lm_head, input_ids_list, vision_carriers, world_state=None,
                  visual_execution=None, context=None, questions=None, layout=None,
                  verified_state=None, tokenizer=None, **generation):
         context = dict(context or {})

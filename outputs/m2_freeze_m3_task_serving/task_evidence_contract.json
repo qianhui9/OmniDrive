@@ -1,0 +1,52 @@
+{
+  "default": {
+    "task_type": "unknown",
+    "template": "",
+    "referent_id": "",
+    "scene_id": "",
+    "frame_id": "",
+    "timestamp": 0.0,
+    "source_frame": "",
+    "source_version": "",
+    "current_observation_available": false,
+    "required_fields": [
+      "center_ego_m"
+    ],
+    "available_fields": [],
+    "referent_unique": false,
+    "task_input_complete": false,
+    "state_fresh": false,
+    "contradiction_free": false,
+    "quality_certificate": "",
+    "answer_format": "",
+    "execution_signature": "",
+    "units": "m",
+    "independent_current_identity": false
+  },
+  "grammar": "What is the (distance|relative position) (?:to|of) observed object ([A-Za-z0-9_.:-]+) in meters\\?",
+  "input_binding": "Actual input token IDs must decode to the unchanged original single-turn OmniDrive Vicuna prompt containing exactly the declared question and one image marker; unknown wrappers/history reject",
+  "metrics": {
+    "distance": "Planar Euclidean distance from ego origin to current observed object center, meters, two decimals",
+    "relative_position": "Current ego x/y/z meters, JSON x_m/y_m/z_m, two decimals"
+  },
+  "default_shadow": true,
+  "production_enabled": false,
+  "experimental_execution_requires": [
+    "offline_experiment",
+    "task_evidence_enabled",
+    "experimental_direct_query",
+    "shadow_evaluation=False",
+    "complete independent current evidence",
+    "matching independently heldout task artifact",
+    "native prompt + output schema binding"
+  ],
+  "forbidden": [
+    "global safety",
+    "planning/driving decisions",
+    "unknown existence",
+    "incomplete detection counts",
+    "ambiguous/stale/no-current observations",
+    "online GT",
+    "head-history agreement as independent truth"
+  ]
+}

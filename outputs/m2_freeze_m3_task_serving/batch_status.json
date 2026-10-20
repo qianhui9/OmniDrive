@@ -1,0 +1,62 @@
+{
+  "status": "completed",
+  "steps": [
+    {
+      "name": "regression",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-m",
+        "pytest",
+        "tests/worldstream_m1",
+        "tests/worldstream_m2",
+        "tests/worldstream_m3",
+        "-q",
+        "-o",
+        "junit_family=legacy",
+        "--junitxml=outputs/m2_freeze_m3_task_serving/regression_cuda.xml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "service",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-u",
+        "-m",
+        "tools.worldstream_m3.task_serving_profile",
+        "--phase",
+        "service",
+        "--scenes",
+        "2",
+        "--frames",
+        "4",
+        "--questions",
+        "3",
+        "--warmup",
+        "0",
+        "--repeats",
+        "1"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "m2_oracle",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-u",
+        "-m",
+        "tools.worldstream_m3.m2_freeze_oracle"
+      ],
+      "exit_code": 0
+    }
+  ]
+}

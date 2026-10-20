@@ -4,6 +4,11 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class M3Config:
+    task_evidence_enabled: bool = False
+    shadow_evaluation: bool = True
+    experimental_direct_query: bool = False
+    direct_query_prefix_fallback: bool = True
+    direct_task_certificate: str = ''
     mode: str = 'auto'
     memory_budget_mb: float = 512
     min_prefix_tokens: int = 32
@@ -27,6 +32,10 @@ class M3Config:
     batch_cost_table: str = ''
 
     def __post_init__(self):
+        if self.experimental_direct_query and (not self.offline_experiment or not self.task_evidence_enabled):
+            raise ValueError('Direct task execution requires an explicit offline evidence experiment')
+        if self.task_evidence_enabled and self.state_context != 'none':
+            raise ValueError('Direct contracts preserve original visual prompts on fallback')
         if self.post_perception and (not self.offline_experiment or self.state_context=='none'):
             raise ValueError('Post-perception task candidates require an offline state experiment')
         if self.mode not in ('full', 'auto', 'exact', 'compact', 'combined'):
