@@ -3,6 +3,7 @@ import argparse
 import hashlib
 from pathlib import Path
 import random
+from time import perf_counter,process_time
 import numpy as np
 from .io_utils import write_json
 
@@ -78,14 +79,24 @@ def main():
             if transform['type'] == 'Collect3D' and 'cam_infos' not in transform['meta_keys']:
                 transform['meta_keys'] = tuple(transform['meta_keys']) + ('cam_infos',)
     dataset = build_dataset(cfg.data.test)
-    indices = [i for i, item in enumerate(dataset.data_infos)
-               if item['scene_token'] == (args.scene or dataset.data_infos[0]['scene_token'])][:args.frames]
+    from .dataset import log_context_from_root
+    from .scene_protocol import select_scenes
+    context=log_context_from_root('data/nuscenes')
+    chosen_scene=args.scene or sorted({x['scene_token'] for x in dataset.data_infos})[0]
+    by_token={info['token']:i for i,info in enumerate(dataset.data_infos)}
+    sequence=sorted((x for x in dataset.data_infos if x['scene_token']==chosen_scene),key=lambda x:x['timestamp'])
+    sequence=sequence[:args.frames] if args.frames else sequence
+    indices=[by_token[x['token']] for x in sequence]
+    write_json(root/'selection.json',dict(scene_id=chosen_scene,log_token=context.log_for_scene(chosen_scene),
+        source_context_sha256=context.digest,sequence_type='nuScenes keyframes, not high-frequency video',
+        frame_limit=args.frames,selected=[dict(frame_id=i['token'],timestamp=i['timestamp']/1e6) for i in sequence]))
     if not indices: raise ValueError('No selected samples')
     run_metadata['sample_ids'] = [dataset.data_infos[i]['token'] for i in indices]
     model = build_model(cfg.model, test_cfg=cfg.get('test_cfg'))
     if cfg.get('fp16'): wrap_fp16_model(model)
     load_checkpoint(model, args.checkpoint, map_location='cpu')
     model.cuda().eval()
+    model.m1_source_context=context
     run_metadata['perception_only'] = args.perception_only
     all_results = {}
     for mode in (['baseline', 'observe_only'] if args.compare else ['observe_only']):
@@ -94,6 +105,7 @@ def main():
         model.m1_manager = WorldStateManager(settings) if mode == 'observe_only' else None
         model.save_path = str(root/mode/'language')+'/'
         outputs, memory, backbone = [], [], []
+        frame_measurements=[]
         hook = model.img_backbone.register_forward_hook(lambda module, inputs, out: backbone.append(digest(out)))
         torch.cuda.reset_peak_memory_stats()
         start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
@@ -101,13 +113,20 @@ def main():
         with torch.no_grad():
             for index in indices:
                 batch = scatter(collate([dataset[index]], samples_per_gpu=1), [torch.cuda.current_device()])[0]
+                torch.cuda.synchronize();wall=perf_counter();cpu=process_time()
                 result = model(return_loss=False, rescale=True, **batch)
+                torch.cuda.synchronize()
+                frame_measurements.append(dict(frame_id=dataset.data_infos[index]['token'],
+                    end_to_end_wall_ms=(perf_counter()-wall)*1000,
+                    measurement_cpu_process_ms=(process_time()-cpu)*1000,
+                    end_to_end_scope='native full model call including M1 and Planning; excludes batch IO and output hashing'))
                 outputs.append(digest(result))
                 memory.append({branch: {key: digest(value) for key, value in vars(head).items()
                               if key.startswith('memory_') or key == 'sample_time'}
                               for branch, head in [('det', model.pts_bbox_head), ('map', model.map_head)]})
         end.record(); torch.cuda.synchronize(); hook.remove()
         all_results[mode] = {'outputs': outputs, 'memory': memory, 'backbone': backbone,
+                             'frame_measurements':frame_measurements,
                              'gpu_elapsed_ms_including_host_gaps': start.elapsed_time(end),
                              'peak_allocated_bytes': torch.cuda.max_memory_allocated()}
     if args.compare:

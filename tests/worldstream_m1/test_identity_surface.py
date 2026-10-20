@@ -65,7 +65,8 @@ def test_readout_invalidates_changed_binding(config,make_frame,make_prediction,m
 def test_new_detection_and_pending_do_not_inherit_certificate(config,make_frame,make_prediction):
     m,p,f,_=identity_manager(config,make_frame,make_prediction);r=m.precheck(f);m.commit(f,FullOutputs([p]),r)
     original=m.get_current_certifications();assert original.certified_anchor_ids
-    next_frame=make_frame(101,support=False);r=m.precheck(next_frame)
+    next_frame=make_frame(101,support=False);next_frame.metadata['log_token']='evaluation-log'
+    r=m.precheck(next_frame)
     assert m.get_current_certifications().frame_id==f.frame_id
     # No qualification for new code/population; reject and clear new geometry.
     m._physical_issuer=EvidenceIssuer();m.commit(next_frame,FullOutputs([p]),r)

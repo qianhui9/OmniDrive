@@ -106,6 +106,7 @@ class M1Config:
     efficient_state: bool = False
     motion_risk_revocation: bool = False
     measurement_reuse: bool = False
+    observation_diagnostics: bool = False  # read-only, never relaxes validation
 
     def __post_init__(self):
         import math

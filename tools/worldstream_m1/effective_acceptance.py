@@ -23,44 +23,95 @@ def sha(path):
     return h.hexdigest()
 
 
-def replay(output,frames=12,scenes=2):
+def replay(output,frames=12,scenes=2,config='configs/worldstream_m1_effective.yaml',repeats=2):
+    from time import perf_counter, process_time
+    from .scene_protocol import select_scenes,aggregate
+    from .dataset import log_context_from_root
     dest=Path(output);dest.mkdir(parents=True,exist_ok=False)
     predictions=Path('outputs/module1_evidence_optimization/model_observations.pkl')
     selection=json.loads(Path('outputs/module1_evidence_optimization/data_selection.json').read_text())
     infos_path=Path(selection['info_file'])
     with predictions.open('rb') as f:outputs=pickle.load(f)
     with infos_path.open('rb') as f:infos=pickle.load(f)['infos']
-    available={i['scene_token'] for i in infos if i['token'] in outputs}
-    selected=[]
-    for scene in sorted(available)[:scenes]:
-        selected.extend(sorted((i for i in infos if i['scene_token']==scene and i['token'] in outputs),
-                               key=lambda i:i['timestamp'])[:frames])
-    if len(selected)<2:raise ValueError('Insufficient actual sequential images and detections')
-    protocol=dict(population='Exploratory previously exposed scenes; no qualification',
-        coordinates='resized_raw_image 640px; separate from full-model preprocessed_image',
+    context=log_context_from_root('data/nuscenes')
+    sequences,protocol=select_scenes(infos,set(outputs),scenes,frames,context)
+    protocol.update(population='Exploratory previously exposed scenes; no qualification',
+        coordinates='resized_raw_image 640px; not full-model preprocessed_image',
         detection_source=str(predictions),detection_sha256=sha(predictions),
-        infos_sha256=sha(infos_path),selection=[dict(scene=i['scene_token'],frame=i['token']) for i in selected],
-        m2_enabled=False,m3_enabled=False,online_GT=False,full_model_executed=False)
+        infos_path=str(infos_path),infos_sha256=sha(infos_path),config=config,
+        log_context_sha256=context.digest,source_sha256=source_manifest(),
+        m2_enabled=False,m3_enabled=False,online_GT=False,full_model_executed=False,repeats=repeats)
     (dest/'protocol.json').write_text(json.dumps(protocol,indent=2)+'\n')
     cv2.setNumThreads(1)
-    settings=replace(M1Config.load('configs/worldstream_m1_effective.yaml'),logging=False)
-    for repeat in range(2):
-        manager=WorldStateManager(settings)
-        for info in selected:
-            frame=frame_from_info(info,'data/nuscenes')
-            result=manager.precheck(frame)
-            # Existing records retain their explicit historical-model replay source.
-            manager.commit(frame,outputs[info['token']],result)
-            append_result(dest/f'repeat_{repeat}.jsonl',result,manager.last_commit_diagnostics,
-                          manager.export_state_audit())
-    summaries=[verify(dest/f'repeat_{i}.jsonl') for i in range(2)]
-    comparable=lambda r:{k:v for k,v in r.items() if k not in ('log','log_sha256')}
-    equal=comparable(summaries[0])==comparable(summaries[1])
-    (dest/'reproducibility.json').write_text(json.dumps(dict(repeats=summaries,counts_and_bindings_reproduced=equal),indent=2)+'\n')
-    if not equal:raise AssertionError('Replay output counts/bindings changed')
+    settings=replace(M1Config.load(config),logging=False)
+    summaries=[];reproduced=True
+    ledger={scene:'Not Run' for scene in sequences}
+    (dest/'run_status.json').write_text(json.dumps(ledger,indent=2)+'\n')
+    for scene,sequence in sequences.items():
+        folder=dest/'scenes'/scene;folder.mkdir(parents=True)
+        ledger[scene]='Running'
+        (dest/'run_status.json').write_text(json.dumps(ledger,indent=2)+'\n')
+        repeat_summaries=[]
+        selected_spec=next(x for x in protocol['scenes'] if x['scene_id']==scene)
+        ordinals={x['frame_id']:x['dataset_sequence_index'] for x in selected_spec['selected_frames']}
+        for repeat in range(repeats):
+            manager=WorldStateManager(settings)  # no state/history crosses this boundary
+            trace=folder/f'repeat_{repeat}.jsonl'
+            errors=[]
+            for index,info in enumerate(sequence):
+                wall=perf_counter();cpu=process_time()
+                try:
+                    frame=frame_from_info(info,'data/nuscenes',source_context=context)
+                    manager._diagnostic_source_images={cid:c.image for cid,c in manager._previous_cameras.items()}
+                    m1_cpu=process_time()
+                    t=perf_counter();result=manager.precheck(frame);pre=(perf_counter()-t)*1000
+                    t=perf_counter();manager.commit(frame,outputs[info['token']],result);commit=(perf_counter()-t)*1000
+                    m1_cpu_ms=(process_time()-m1_cpu)*1000
+                    audit=manager.export_state_audit()
+                    timing=dict(precheck_wall_ms=pre,commit_wall_ms=commit,m1_cpu_process_ms=m1_cpu_ms,
+                        measurement_cpu_process_ms=(process_time()-cpu)*1000,
+                        end_to_end_wall_ms=(perf_counter()-wall)*1000,
+                        end_to_end_scope='frame read/decode, M1 precheck, commit, audit; excludes persistence and visualization')
+                    append_result(trace,result,manager.last_commit_diagnostics,audit,
+                        dict(latency=timing,scene_sequence_index=index,dataset_sequence_index=ordinals[info['token']]))
+                    if repeat==0:
+                        from .observation_diagnostics import visualize_case
+                        visualize_case(manager,frame,folder,index)
+                except Exception as exc:
+                    manager.abort_pending()
+                    ledger[scene]='Failed'
+                    (dest/'run_status.json').write_text(json.dumps(ledger,indent=2)+'\n')
+                    errors.append(dict(frame=info['token'],type=type(exc).__name__,reason=str(exc),
+                        audit=manager.export_state_audit()))
+                    (folder/f'exceptions_{repeat}.json').write_text(json.dumps(errors,indent=2)+'\n')
+                    raise
+            summary=verify(trace)
+            (folder/f'metrics_{repeat}.json').write_text(json.dumps(summary,indent=2)+'\n')
+            repeat_summaries.append(summary)
+        from .scene_metrics import reproducibility_signature
+        equal=all(reproducibility_signature(x)==reproducibility_signature(repeat_summaries[0]) for x in repeat_summaries)
+        reproduced &= equal
+        (folder/'reproducibility.json').write_text(json.dumps(dict(repeats=repeats,reproduced=equal),indent=2)+'\n')
+        summaries.append(repeat_summaries[0])
+        ledger[scene]='Completed' if equal else 'Reproducibility Failed'
+        (dest/'run_status.json').write_text(json.dumps(ledger,indent=2)+'\n')
+        print(scene,'frames',len(sequence),'coverage',summary['observation_anchor_coverage'],'reproduced',equal,flush=True)
+    combined=aggregate(summaries)
+    combined.update(reproduced=reproduced,executed_scene_ids=[s['scene_id'] for s in summaries],
+        unexecuted_scene_ids=protocol['unexecuted_scene_ids'],full_dataset_validated=False,
+        source_unchanged=protocol['source_sha256']==source_manifest())
+    (dest/'summary.json').write_text(json.dumps(combined,indent=2)+'\n')
+    if not reproduced or not combined['source_unchanged']:raise AssertionError('Reproducibility/source check failed')
 
 
-def verify(path):
+def source_manifest():
+    files=[*Path('worldstream/m1').glob('*.py'),Path(__file__),Path('tools/worldstream_m1/dataset.py'),
+           Path('tools/worldstream_m1/scene_protocol.py'),Path('tools/worldstream_m1/scene_metrics.py'),
+           Path('tools/worldstream_m1/observation_diagnostics.py')]
+    return {str(p):sha(p) for p in files}
+
+
+def _verify_sequence(path):
     rows=[json.loads(line) for line in Path(path).read_text().splitlines()]
     totals=Counter();rejections=Counter();foreground=Counter();identity=Counter();resets=Counter()
     foreground_reasons=Counter();identity_reasons=Counter();identity_view_reasons=Counter()
@@ -131,11 +182,29 @@ def verify(path):
         risk_status='Not Run: no independently qualified producer and no accepted population',frames=frames)
 
 
+def verify(path):
+    from .scene_metrics import summarize_scene
+    from .scene_protocol import aggregate
+    rows=[json.loads(line) for line in Path(path).read_text().splitlines()]
+    grouped={}
+    for row in rows:grouped.setdefault(row['precheck']['scene_id'],[]).append(row)
+    if len(grouped)==1:
+        base=_verify_sequence(path)
+        return summarize_scene(rows,base)
+    # Legacy traces can be analyzed, but are not evidence of independent instances.
+    scenes=[summarize_scene(v,None) for v in grouped.values()]
+    return dict(aggregate(scenes),independent_scene_execution=False,legacy_mixed_trace=True)
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--frames',type=int,default=12)
+    parser.add_argument('--scenes',type=int,default=2,help='0: all available target scenes')
+    parser.add_argument('--repeats',type=int,default=2)
+    parser.add_argument('--config',default='configs/worldstream_m1_effective.yaml')
     parser.add_argument('--replay-output');parser.add_argument('--log');parser.add_argument('--summary')
     a=parser.parse_args()
-    if a.replay_output:replay(a.replay_output)
+    if a.replay_output:replay(a.replay_output,a.frames,a.scenes,a.config,a.repeats)
     if a.log:
         out=Path(a.summary)
         if out.exists():raise ValueError('Choose fresh summary')

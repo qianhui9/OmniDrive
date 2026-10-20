@@ -49,6 +49,7 @@ class WorldStateManager:
         self._identity_history = ()
         self._identity_hypotheses = ()
         self._computation_receipt = None
+        self._committed_log_token = None
         qualification=None
         if self.config.physical_qualification_path:
             import json
@@ -73,6 +74,7 @@ class WorldStateManager:
         self._identity_history = ()
         self._identity_hypotheses = ()
         self._computation_receipt = None
+        self._committed_log_token = None
 
     def _prepare(self, frame):
         s = self.store
@@ -106,6 +108,13 @@ class WorldStateManager:
             "invalid_timestamp_or_pose", "missing_or_misidentified_cameras",
             "invalid_camera_calibration_or_timing", "missing_frame_identity_or_execution_signature",
             "duplicate_frame_id"} else None
+        from .source_context import log_binding_reason
+        log_reason=log_binding_reason(frame.metadata,frame.scene_id)
+        if (s.scene_id==frame.scene_id and self._committed_log_token is not None
+                and frame.metadata.get('log_token')!=self._committed_log_token):
+            log_reason='log_source_changed_or_missing'
+        if log_reason:
+            reason=log_reason;self._input_rejection=log_reason
         if self.calibration and (not self.calibration.get('observation_protocol')
                 or self.calibration['observation_protocol'] != frame.metadata.get('observation_protocol')):
             reason = "calibration_protocol_incompatible"
@@ -200,6 +209,7 @@ class WorldStateManager:
             self._pending = (frame.scene_id, frame.frame_id, frame.timestamp, frame.execution_signature)
             self.last_result = result
             return result
+        self._pending_execution_signature = frame.execution_signature
         self._last_precheck_timestamp = frame.timestamp
         expired_ids = [k for k, a in self.store.anchors.items()
                        if frame.timestamp - a.source_timestamp > self.config.max_state_age_s]
@@ -286,6 +296,7 @@ class WorldStateManager:
                     xy[:,0] = np.clip(xy[:,0],0,excluded.shape[1]-1)
                     xy[:,1] = np.clip(xy[:,1],0,excluded.shape[0]-1)
                     evidence.supported &= ~anchor_excluded[xy[:,1],xy[:,0]]
+                evidence.diagnostics['supported_points_after_exclusion'] = int(evidence.supported.sum())
                 evidence.diagnostics['excluded_motion_or_occlusion_area_ratio'] = float(excluded.mean())
                 # Exclusion is an acceptance gate. Preserve measured rejection
                 # evidence separately, without changing legacy identity inputs.
@@ -330,6 +341,9 @@ class WorldStateManager:
                     validation.evidence['bidirectional_geometry']=proof
                     if not proof['passed']:
                         validation.valid=False;validation.reason=proof['reason']
+                if self.config.observation_diagnostics:
+                    from .observation_diagnostics import attach_observation_funnel
+                    attach_observation_funnel(self,anchor,camera,p,occluded,validation)
                 camera_checks[cid] = dict(asdict(validation), geometry_valid=p.valid,
                                           projected_points=p.uv,
                                           predicted_region=p.region, coverage=p.coverage,
@@ -524,6 +538,7 @@ class WorldStateManager:
         self._pending = None
         self._pending_store = None
         self._camera_layout = camera_layout(frame)
+        self._committed_log_token = worker._committed_log_token
         precheck_result.diagnostics['transaction_status'] = ('rejected' if self._input_rejection else 'committed')
         if precheck_result.computation_state is not None:
             precheck_result.computation_state.diagnostics['transaction_status'] = 'committed'
@@ -790,6 +805,7 @@ class WorldStateManager:
         for aid, anchor in self.store.anchors.items():
             anchor.associated_feature_ids = [fid for fid in anchor.associated_feature_ids
                 if fid in self.store.features and aid in self.store.features[fid].source_anchor_ids]
+        self._committed_log_token = frame.metadata.get('log_token')
         self.store.last_timestamp = frame.timestamp
         self.store.execution_signature = frame.execution_signature
         self.store.commit_count += 1

@@ -1,0 +1,27 @@
+# M1-only state maintenance and real RGB measurements. Existing risk gates retained.
+enabled: true
+execution_mode: observe_only
+temporal_visibility: true
+local_support: true
+foreground_correspondence: true
+identity_continuity: true
+identity_method: temporal
+identity_tracking_policy: shadow
+identity_history_frames: 3
+dense_local_support: true
+dense_motion_guard: true
+dense_guard_radius_px: 8
+temporal_workers: 6
+trust_detection_velocity: false
+capture_tensors: false
+capture_backbone: false
+logging: true
+visualization: false
+profiling: true
+# Independent qualification absent: candidates must remain unqualified.
+physical_qualification_path: null
+physical_qualification_sha256: null
+
+# M1.1: diagnostics only; evidence/risk thresholds are unchanged.
+observation_diagnostics: true
+identity_diagnostics: true

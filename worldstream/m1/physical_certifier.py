@@ -97,6 +97,9 @@ class EvidenceIssuer:
             return reasons+['independent_validation_units_invalid']
         if not calibration_scenes or not calibration_logs:
             reasons.append('calibration_scene_or_log_provenance_missing')
+        from .source_context import log_binding_reason
+        binding_reason=log_binding_reason(frame.metadata,frame.scene_id)
+        if binding_reason:reasons.append(binding_reason)
         evaluation_log=frame.metadata.get('log_token')
         if not isinstance(evaluation_log,str) or not evaluation_log:
             reasons.append('evaluation_log_provenance_missing')

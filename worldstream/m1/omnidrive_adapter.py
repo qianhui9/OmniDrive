@@ -47,7 +47,7 @@ def quaternion_transform(rotation, translation):
     return rigid_transform(Quaternion(rotation).rotation_matrix, translation)
 
 
-def frame_from_model(img_metas, data, config):
+def frame_from_model(img_metas, data, config, source_context=None):
     if len(img_metas) != 1 or data['img'].shape[0] != 1:
         raise ValueError("M1 streaming supports batch size 1 only")
     meta = img_metas[0]
@@ -104,6 +104,8 @@ def frame_from_model(img_metas, data, config):
     signature = hashlib.sha256(json.dumps(signature_info, sort_keys=True).encode()).hexdigest()
     signature_info['observation_protocol'] = {'coordinate_space': 'preprocessed_image',
         'normalization': signature_info['normalization'], 'shapes': signature_info['shapes']}
+    from .source_context import metadata_log_source
+    signature_info.update(metadata_log_source(meta,str(meta['scene_token']),str(meta['sample_idx']),source_context))
     return Frame(str(meta['scene_token']), str(meta['sample_idx']), timestamp, pose, cameras,
                  signature, signature_info)
 
@@ -153,11 +155,11 @@ def outputs_from_model(frame, bbox_results, lane_results, features, config):
     return FullOutputs(anchors, records)
 
 
-def append_result(path, result, commit_diagnostics, committed_state=None):
+def append_result(path, result, commit_diagnostics, committed_state=None, experiment=None):
     from .state_types import json_value
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open('a') as handle:
         handle.write(json.dumps(json_value({'precheck': result.to_dict(), 'commit': commit_diagnostics,
-                                              'committed_state': committed_state}),
+                                              'committed_state': committed_state, 'experiment': experiment}),
                                 allow_nan=False) + '\n')

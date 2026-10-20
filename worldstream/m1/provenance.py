@@ -85,7 +85,8 @@ def export_state_audit(manager):
     rows=[]
     for aid,a in store.anchors.items():
         certificate=qualified.get(aid)
-        rows.append(dict(anchor_id=aid, source_frame_id=a.source_frame_id,
+        rows.append(dict(anchor_id=aid, semantic_class=a.semantic_class,anchor_type=a.anchor_type,
+            center_world=a.geometry_world.center.tolist(), source_frame_id=a.source_frame_id,
             source_timestamp=a.source_timestamp, source_epoch=a.source_state_epoch,
             state_version=state_geometry_version(a), execution_signature=a.source_execution_signature,
             cameras={cid:dict(timestamp=o.timestamp,region=list(o.region)) for cid,o in a.observation_support.items()},
@@ -99,7 +100,7 @@ def export_state_audit(manager):
             certified_claim=certificate.certified_claim if certificate else None,
             status='identity_certified' if certificate else ('observed' if a.observation_support else 'unknown'),
             association_basis=a.association_basis))
-    return copy.deepcopy(dict(scene_id=store.scene_id,frame_id=manager._previous_frame_id,
+    return copy.deepcopy(dict(scene_id=store.scene_id,log_token=manager._committed_log_token,frame_id=manager._previous_frame_id,
         timestamp=store.last_timestamp,state_epoch=store.generation,source_digest=store.source_digest(),
         execution_signature=store.execution_signature,transaction_status='committed' if store.last_timestamp is not None else 'empty',
         anchors=rows, features=store.feature_versions(), certifications=certificates.to_dict(),

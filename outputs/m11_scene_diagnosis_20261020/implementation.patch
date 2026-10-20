@@ -1,0 +1,1625 @@
+diff --git a/projects/mmdet3d_plugin/models/detectors/petr3d.py b/projects/mmdet3d_plugin/models/detectors/petr3d.py
+index ef675be..2e3b32e 100644
+--- a/projects/mmdet3d_plugin/models/detectors/petr3d.py
++++ b/projects/mmdet3d_plugin/models/detectors/petr3d.py
+@@ -568,7 +568,8 @@ class Petr3D(MVXTwoStageDetector):
+             settings = self.m1_manager.config
+             adapter_start = time.perf_counter()
+             with measure_transfers() as input_transfers:
+-                frame = frame_from_model(img_metas, data, settings)
++                frame = frame_from_model(img_metas, data, settings,
++                                         getattr(self, 'm1_source_context', None))
+             if runtime is not None and runtime.active and runtime.config.reuse_m1_signature:
+                 suffix=runtime.m1_signature_suffix(self)
+             else:
+diff --git a/tests/worldstream_m1/test_identity_surface.py b/tests/worldstream_m1/test_identity_surface.py
+index c736b5c..c193b26 100644
+--- a/tests/worldstream_m1/test_identity_surface.py
++++ b/tests/worldstream_m1/test_identity_surface.py
+@@ -65,7 +65,8 @@ def test_readout_invalidates_changed_binding(config,make_frame,make_prediction,m
+ def test_new_detection_and_pending_do_not_inherit_certificate(config,make_frame,make_prediction):
+     m,p,f,_=identity_manager(config,make_frame,make_prediction);r=m.precheck(f);m.commit(f,FullOutputs([p]),r)
+     original=m.get_current_certifications();assert original.certified_anchor_ids
+-    next_frame=make_frame(101,support=False);r=m.precheck(next_frame)
++    next_frame=make_frame(101,support=False);next_frame.metadata['log_token']='evaluation-log'
++    r=m.precheck(next_frame)
+     assert m.get_current_certifications().frame_id==f.frame_id
+     # No qualification for new code/population; reject and clear new geometry.
+     m._physical_issuer=EvidenceIssuer();m.commit(next_frame,FullOutputs([p]),r)
+diff --git a/tools/worldstream_m1/dataset.py b/tools/worldstream_m1/dataset.py
+index e16f40f..546c9e8 100644
+--- a/tools/worldstream_m1/dataset.py
++++ b/tools/worldstream_m1/dataset.py
+@@ -1,5 +1,7 @@
+ """Current raw input is separated from commit outputs and offline-only annotations."""
+ import pickle
++import json
++from functools import lru_cache
+ from pathlib import Path
+ import cv2
+ import numpy as np
+@@ -9,6 +11,15 @@ from worldstream.m1.omnidrive_adapter import quaternion_transform
+ from .io_utils import iter_json_array, read_prediction_subset
+ 
+ 
++@lru_cache(maxsize=4)
++def log_context_from_root(root):
++    """Read only scene/sample provenance tables, never annotation/instance tables."""
++    from worldstream.m1.source_context import LogSourceContext
++    tables=Path(root)/'v1.0-trainval'
++    return LogSourceContext.from_rows(json.loads((tables/'scene.json').read_text()),
++                                     json.loads((tables/'sample.json').read_text()))
++
++
+ def select_infos(path, scene=None, limit=12, stride=1, scene_index=0):
+     if stride < 1 or limit < 1:
+         raise ValueError('limit and stride must be positive')
+@@ -33,7 +44,7 @@ def resolve_image(path, root):
+     raise FileNotFoundError(str(path))
+ 
+ 
+-def frame_from_info(info, root, max_width=640, signature='raw-replay'):
++def frame_from_info(info, root, max_width=640, signature='raw-replay',source_context=None):
+     pose = quaternion_transform(info['ego2global_rotation'], info['ego2global_translation'])
+     cameras = {}
+     for cid, cam in info['cams'].items():
+@@ -50,8 +61,13 @@ def frame_from_info(info, root, max_width=640, signature='raw-replay'):
+                @ quaternion_transform(cam['sensor2ego_rotation'], cam['sensor2ego_translation']))
+         cameras[cid] = CameraFrame(cid, image, affine @ cam['cam_intrinsic'], inverse_transform(c2w),
+                                    cam['timestamp'] / 1e6, 'resized_raw_image', affine)
++    from worldstream.m1.source_context import metadata_log_source
++    context=source_context
++    if context is None and (Path(root)/'v1.0-trainval/scene.json').is_file():
++        context=log_context_from_root(str(root))
++    provenance=metadata_log_source(info,info['scene_token'],info['token'],context)
+     return Frame(info['scene_token'], info['token'], info['timestamp'] / 1e6, pose, cameras,
+-                 signature, {'sampling': 'nuScenes keyframes, not high-frequency video',
++                 signature, {**provenance,'sampling': 'nuScenes keyframes, not high-frequency video',
+                              'observation_protocol': {'coordinate_space': 'resized_raw_image', 'max_width': max_width},
+                              'camera_order': list(cameras)})
+ 
+diff --git a/tools/worldstream_m1/effective_acceptance.py b/tools/worldstream_m1/effective_acceptance.py
+index d3090a2..889db31 100644
+--- a/tools/worldstream_m1/effective_acceptance.py
++++ b/tools/worldstream_m1/effective_acceptance.py
+@@ -23,44 +23,95 @@ def sha(path):
+     return h.hexdigest()
+ 
+ 
+-def replay(output,frames=12,scenes=2):
++def replay(output,frames=12,scenes=2,config='configs/worldstream_m1_effective.yaml',repeats=2):
++    from time import perf_counter, process_time
++    from .scene_protocol import select_scenes,aggregate
++    from .dataset import log_context_from_root
+     dest=Path(output);dest.mkdir(parents=True,exist_ok=False)
+     predictions=Path('outputs/module1_evidence_optimization/model_observations.pkl')
+     selection=json.loads(Path('outputs/module1_evidence_optimization/data_selection.json').read_text())
+     infos_path=Path(selection['info_file'])
+     with predictions.open('rb') as f:outputs=pickle.load(f)
+     with infos_path.open('rb') as f:infos=pickle.load(f)['infos']
+-    available={i['scene_token'] for i in infos if i['token'] in outputs}
+-    selected=[]
+-    for scene in sorted(available)[:scenes]:
+-        selected.extend(sorted((i for i in infos if i['scene_token']==scene and i['token'] in outputs),
+-                               key=lambda i:i['timestamp'])[:frames])
+-    if len(selected)<2:raise ValueError('Insufficient actual sequential images and detections')
+-    protocol=dict(population='Exploratory previously exposed scenes; no qualification',
+-        coordinates='resized_raw_image 640px; separate from full-model preprocessed_image',
++    context=log_context_from_root('data/nuscenes')
++    sequences,protocol=select_scenes(infos,set(outputs),scenes,frames,context)
++    protocol.update(population='Exploratory previously exposed scenes; no qualification',
++        coordinates='resized_raw_image 640px; not full-model preprocessed_image',
+         detection_source=str(predictions),detection_sha256=sha(predictions),
+-        infos_sha256=sha(infos_path),selection=[dict(scene=i['scene_token'],frame=i['token']) for i in selected],
+-        m2_enabled=False,m3_enabled=False,online_GT=False,full_model_executed=False)
++        infos_path=str(infos_path),infos_sha256=sha(infos_path),config=config,
++        log_context_sha256=context.digest,source_sha256=source_manifest(),
++        m2_enabled=False,m3_enabled=False,online_GT=False,full_model_executed=False,repeats=repeats)
+     (dest/'protocol.json').write_text(json.dumps(protocol,indent=2)+'\n')
+     cv2.setNumThreads(1)
+-    settings=replace(M1Config.load('configs/worldstream_m1_effective.yaml'),logging=False)
+-    for repeat in range(2):
+-        manager=WorldStateManager(settings)
+-        for info in selected:
+-            frame=frame_from_info(info,'data/nuscenes')
+-            result=manager.precheck(frame)
+-            # Existing records retain their explicit historical-model replay source.
+-            manager.commit(frame,outputs[info['token']],result)
+-            append_result(dest/f'repeat_{repeat}.jsonl',result,manager.last_commit_diagnostics,
+-                          manager.export_state_audit())
+-    summaries=[verify(dest/f'repeat_{i}.jsonl') for i in range(2)]
+-    comparable=lambda r:{k:v for k,v in r.items() if k not in ('log','log_sha256')}
+-    equal=comparable(summaries[0])==comparable(summaries[1])
+-    (dest/'reproducibility.json').write_text(json.dumps(dict(repeats=summaries,counts_and_bindings_reproduced=equal),indent=2)+'\n')
+-    if not equal:raise AssertionError('Replay output counts/bindings changed')
++    settings=replace(M1Config.load(config),logging=False)
++    summaries=[];reproduced=True
++    ledger={scene:'Not Run' for scene in sequences}
++    (dest/'run_status.json').write_text(json.dumps(ledger,indent=2)+'\n')
++    for scene,sequence in sequences.items():
++        folder=dest/'scenes'/scene;folder.mkdir(parents=True)
++        ledger[scene]='Running'
++        (dest/'run_status.json').write_text(json.dumps(ledger,indent=2)+'\n')
++        repeat_summaries=[]
++        selected_spec=next(x for x in protocol['scenes'] if x['scene_id']==scene)
++        ordinals={x['frame_id']:x['dataset_sequence_index'] for x in selected_spec['selected_frames']}
++        for repeat in range(repeats):
++            manager=WorldStateManager(settings)  # no state/history crosses this boundary
++            trace=folder/f'repeat_{repeat}.jsonl'
++            errors=[]
++            for index,info in enumerate(sequence):
++                wall=perf_counter();cpu=process_time()
++                try:
++                    frame=frame_from_info(info,'data/nuscenes',source_context=context)
++                    manager._diagnostic_source_images={cid:c.image for cid,c in manager._previous_cameras.items()}
++                    m1_cpu=process_time()
++                    t=perf_counter();result=manager.precheck(frame);pre=(perf_counter()-t)*1000
++                    t=perf_counter();manager.commit(frame,outputs[info['token']],result);commit=(perf_counter()-t)*1000
++                    m1_cpu_ms=(process_time()-m1_cpu)*1000
++                    audit=manager.export_state_audit()
++                    timing=dict(precheck_wall_ms=pre,commit_wall_ms=commit,m1_cpu_process_ms=m1_cpu_ms,
++                        measurement_cpu_process_ms=(process_time()-cpu)*1000,
++                        end_to_end_wall_ms=(perf_counter()-wall)*1000,
++                        end_to_end_scope='frame read/decode, M1 precheck, commit, audit; excludes persistence and visualization')
++                    append_result(trace,result,manager.last_commit_diagnostics,audit,
++                        dict(latency=timing,scene_sequence_index=index,dataset_sequence_index=ordinals[info['token']]))
++                    if repeat==0:
++                        from .observation_diagnostics import visualize_case
++                        visualize_case(manager,frame,folder,index)
++                except Exception as exc:
++                    manager.abort_pending()
++                    ledger[scene]='Failed'
++                    (dest/'run_status.json').write_text(json.dumps(ledger,indent=2)+'\n')
++                    errors.append(dict(frame=info['token'],type=type(exc).__name__,reason=str(exc),
++                        audit=manager.export_state_audit()))
++                    (folder/f'exceptions_{repeat}.json').write_text(json.dumps(errors,indent=2)+'\n')
++                    raise
++            summary=verify(trace)
++            (folder/f'metrics_{repeat}.json').write_text(json.dumps(summary,indent=2)+'\n')
++            repeat_summaries.append(summary)
++        from .scene_metrics import reproducibility_signature
++        equal=all(reproducibility_signature(x)==reproducibility_signature(repeat_summaries[0]) for x in repeat_summaries)
++        reproduced &= equal
++        (folder/'reproducibility.json').write_text(json.dumps(dict(repeats=repeats,reproduced=equal),indent=2)+'\n')
++        summaries.append(repeat_summaries[0])
++        ledger[scene]='Completed' if equal else 'Reproducibility Failed'
++        (dest/'run_status.json').write_text(json.dumps(ledger,indent=2)+'\n')
++        print(scene,'frames',len(sequence),'coverage',summary['observation_anchor_coverage'],'reproduced',equal,flush=True)
++    combined=aggregate(summaries)
++    combined.update(reproduced=reproduced,executed_scene_ids=[s['scene_id'] for s in summaries],
++        unexecuted_scene_ids=protocol['unexecuted_scene_ids'],full_dataset_validated=False,
++        source_unchanged=protocol['source_sha256']==source_manifest())
++    (dest/'summary.json').write_text(json.dumps(combined,indent=2)+'\n')
++    if not reproduced or not combined['source_unchanged']:raise AssertionError('Reproducibility/source check failed')
+ 
+ 
+-def verify(path):
++def source_manifest():
++    files=[*Path('worldstream/m1').glob('*.py'),Path(__file__),Path('tools/worldstream_m1/dataset.py'),
++           Path('tools/worldstream_m1/scene_protocol.py'),Path('tools/worldstream_m1/scene_metrics.py'),
++           Path('tools/worldstream_m1/observation_diagnostics.py')]
++    return {str(p):sha(p) for p in files}
++
++
++def _verify_sequence(path):
+     rows=[json.loads(line) for line in Path(path).read_text().splitlines()]
+     totals=Counter();rejections=Counter();foreground=Counter();identity=Counter();resets=Counter()
+     foreground_reasons=Counter();identity_reasons=Counter();identity_view_reasons=Counter()
+@@ -131,11 +182,29 @@ def verify(path):
+         risk_status='Not Run: no independently qualified producer and no accepted population',frames=frames)
+ 
+ 
++def verify(path):
++    from .scene_metrics import summarize_scene
++    from .scene_protocol import aggregate
++    rows=[json.loads(line) for line in Path(path).read_text().splitlines()]
++    grouped={}
++    for row in rows:grouped.setdefault(row['precheck']['scene_id'],[]).append(row)
++    if len(grouped)==1:
++        base=_verify_sequence(path)
++        return summarize_scene(rows,base)
++    # Legacy traces can be analyzed, but are not evidence of independent instances.
++    scenes=[summarize_scene(v,None) for v in grouped.values()]
++    return dict(aggregate(scenes),independent_scene_execution=False,legacy_mixed_trace=True)
++
++
+ def main():
+     parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--frames',type=int,default=12)
++    parser.add_argument('--scenes',type=int,default=2,help='0: all available target scenes')
++    parser.add_argument('--repeats',type=int,default=2)
++    parser.add_argument('--config',default='configs/worldstream_m1_effective.yaml')
+     parser.add_argument('--replay-output');parser.add_argument('--log');parser.add_argument('--summary')
+     a=parser.parse_args()
+-    if a.replay_output:replay(a.replay_output)
++    if a.replay_output:replay(a.replay_output,a.frames,a.scenes,a.config,a.repeats)
+     if a.log:
+         out=Path(a.summary)
+         if out.exists():raise ValueError('Choose fresh summary')
+diff --git a/tools/worldstream_m1/effective_gpu_validation.py b/tools/worldstream_m1/effective_gpu_validation.py
+index b664e04..46abdc1 100644
+--- a/tools/worldstream_m1/effective_gpu_validation.py
++++ b/tools/worldstream_m1/effective_gpu_validation.py
+@@ -1,67 +1,102 @@
+-"""Final full Planning validation through the existing native model entry point.
++"""Scene-isolated full Planning comparisons through the existing model_smoke tool.
+ 
+-Adds source/checkpoint pins, language-file comparison and independent M1 log
+-verification. Does not alter model, generation settings, M2 or M3 mechanisms.
++Each scene runs in a fresh process/model/M1 instance. Weights, generation and
++M2/M3 mechanisms are unchanged. This is an experiment driver, not a runtime.
+ """
+ import argparse
+ import json
+ import os
+ from pathlib import Path
++import pickle
+ import subprocess
+ import sys
+ from .effective_acceptance import sha, verify
++from .scene_protocol import select_scenes,aggregate
++from .scene_metrics import summarize_scene
++from .dataset import log_context_from_root
+ 
+ 
+ def source_manifest():
+     paths=[*Path('worldstream/m1').glob('*.py'),
+            Path('projects/mmdet3d_plugin/models/detectors/petr3d.py'),
+-           Path('configs/worldstream_m1_effective.yaml'),
+-           Path('projects/configs/OmniDrive/worldstream_m1_effective.py'),
+-           Path('tools/worldstream_m1/model_smoke.py'),Path(__file__),
+-           Path('tools/worldstream_m1/effective_acceptance.py')]
++           *[Path('configs')/n for n in ('worldstream_m1_effective.yaml','worldstream_m11_diagnostics.yaml')],
++           *[Path('tools/worldstream_m1')/n for n in ('model_smoke.py','effective_acceptance.py',
++             'effective_gpu_validation.py','scene_protocol.py','scene_metrics.py','dataset.py','observation_diagnostics.py')]]
+     return {str(p):sha(p) for p in paths}
+ 
+ 
+ def main():
+     p=argparse.ArgumentParser(description=__doc__)
+-    p.add_argument('--output',required=True);p.add_argument('--frames',type=int,default=8);p.add_argument('--scene')
++    p.add_argument('--output',required=True);p.add_argument('--frames',type=int,default=12)
++    p.add_argument('--scene');p.add_argument('--scene-ids',help='Comma-separated fixed target scene IDs')
++    p.add_argument('--scenes',type=int,default=2,help='0: all configured dataset scenes')
++    p.add_argument('--config',default='projects/configs/OmniDrive/worldstream_m11_diagnostics.py')
++    p.add_argument('--m1-config',default='configs/worldstream_m11_diagnostics.yaml')
+     a=p.parse_args();root=Path(a.output);root.mkdir(parents=True,exist_ok=False)
+     write=lambda name,value:(root/name).write_text(json.dumps(value,indent=2)+'\n')
+     manifest=source_manifest();write('source_before.json',manifest)
+     from mmcv import Config
+-    cfg=Config.fromfile('projects/configs/OmniDrive/worldstream_m1_effective.py')
+-    checkpoint_paths=[Path('ckpts/iter_10548.pth'),*sorted(Path('ckpts/pretrain_qformer').glob('*'))]
++    cfg=Config.fromfile(a.config)
++    assert cfg.model.get('m2_enable') is False and cfg.model.get('m3_enable') is False
++    with open(cfg.data.test.ann_file,'rb') as f:infos=pickle.load(f)['infos']
++    context=log_context_from_root('data/nuscenes')
++    sequences,selection=select_scenes(infos,None,a.scenes,a.frames,context)
++    explicit=a.scene_ids.split(',') if a.scene_ids else [a.scene] if a.scene else None
++    if explicit:
++        if len(set(explicit))!=len(explicit):raise ValueError('Duplicate target scene IDs')
++        sequences,selection=select_scenes(infos,None,0,a.frames,context)
++        if set(explicit)-set(sequences):raise ValueError('Target scene absent from configured dataset')
++        sequences={s:sequences[s] for s in explicit}
++        selection['sampling_rule']='Explicit frozen scene IDs; timestamp-sorted available keyframe prefixes'
++        for spec in selection['scenes']:
++            spec['scheduled']=spec['scene_id'] in sequences;spec['status']='Scheduled' if spec['scheduled'] else 'Not Run'
++        selection['scheduled_scene_count']=len(sequences)
++        selection['unexecuted_scene_ids']=[s['scene_id'] for s in selection['scenes'] if not s['scheduled']]
++    write('selection.json',selection)
+     checkpoints={}
+-    for path in checkpoint_paths:
++    for path in [Path('ckpts/iter_10548.pth'),*sorted(Path('ckpts/pretrain_qformer').glob('*'))]:
+         if not path.is_file():continue
+         print('Hashing',str(path),flush=True)
+         checkpoints[str(path)]=dict(bytes=path.stat().st_size,sha256=sha(path))
+         write('checkpoint_digests.json',checkpoints)
+-    print('Checkpoint hashes completed; starting full model',flush=True)
+     write('provenance.json',dict(head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+-        affinity=sorted(os.sched_getaffinity(0)),python=sys.executable,
+-        checkpoint=checkpoints,dataset=cfg.data.test.ann_file,dataset_sha256=sha(cfg.data.test.ann_file),
+-        model_config_sha256=__import__('hashlib').sha256(cfg.pretty_text.encode()).hexdigest(),
+-        population='Exploratory native configured dataset; no independent qualification or quality claim',
++        affinity=sorted(os.sched_getaffinity(0)),python=sys.executable,checkpoint=checkpoints,
++        dataset=cfg.data.test.ann_file,dataset_sha256=sha(cfg.data.test.ann_file),
++        log_context_sha256=context.digest,population='Exploratory; no independent qualification',
+         m2_enabled=False,m3_enabled=False,planning_task_unchanged=True))
+-    from . import model_smoke
+-    old=sys.argv
+-    sys.argv=['model_smoke','--config','projects/configs/OmniDrive/worldstream_m1_effective.py',
+-              '--m1-config','configs/worldstream_m1_effective.yaml','--compare','--frames',str(a.frames),'--output',str(root)]
+-    if a.scene:sys.argv+=['--scene',a.scene]
+-    try:model_smoke.main()
+-    finally:sys.argv=old
+-    baseline=root/'baseline/language';observed=root/'observe_only/language'
+-    names=sorted(p.name for p in baseline.iterdir())
+-    comparisons=[dict(frame=n,equal=(baseline/n).read_bytes()==(observed/n).read_bytes(),
+-                      baseline_sha256=sha(baseline/n),observed_sha256=sha(observed/n)) for n in names]
+-    language_equal=names==sorted(p.name for p in observed.iterdir()) and all(c['equal'] for c in comparisons)
+-    write('language_comparison.json',dict(actual_language_files_equal=language_equal,frames=len(names),files=comparisons))
+-    write('m1_independent_acceptance.json',verify(root/'m1_state.jsonl'))
++    summaries=[];parity=[];(root/'scenes').mkdir()
++    for scene,sequence in sequences.items():
++        folder=root/'scenes'/scene
++        cmd=[sys.executable,'-m','tools.worldstream_m1.model_smoke','--config',a.config,
++             '--m1-config',a.m1_config,'--compare','--frames',str(a.frames),'--scene',scene,'--output',str(folder)]
++        with (root/'scenes'/f'{scene}.stdout.log').open('w') as out:
++            result=subprocess.run(cmd,stdout=out,stderr=subprocess.STDOUT)
++        if result.returncode:
++            write('failure.json',dict(scene=scene,returncode=result.returncode,completed_scenes=[s['scene_id'] for s in summaries]))
++            raise RuntimeError('Scene model validation failed: '+scene)
++        rows=[json.loads(line) for line in (folder/'m1_state.jsonl').read_text().splitlines()]
++        model_result=json.loads((folder/'results.json').read_text())
++        measurements={x['frame_id']:x for x in model_result['observe_only']['frame_measurements']}
++        for index,row in enumerate(rows):row['experiment']=dict(latency=measurements[row['precheck']['frame_id']],dataset_sequence_index=index)
++        summary=summarize_scene(rows,verify(folder/'m1_state.jsonl'))
++        summary['baseline_latency']=[x['end_to_end_wall_ms'] for x in model_result['baseline']['frame_measurements']]
++        baseline=folder/'baseline/language';observed=folder/'observe_only/language'
++        names=sorted(p.name for p in baseline.iterdir())
++        comparisons=[dict(frame=n,equal=(baseline/n).read_bytes()==(observed/n).read_bytes(),
++                          baseline_sha256=sha(baseline/n),observed_sha256=sha(observed/n)) for n in names]
++        equal=names==sorted(p.name for p in observed.iterdir()) and all(c['equal'] for c in comparisons)
++        (folder/'language_comparison.json').write_text(json.dumps(dict(equal=equal,files=comparisons),indent=2)+'\n')
++        (folder/'metrics.json').write_text(json.dumps(summary,indent=2)+'\n')
++        summaries.append(summary);parity.append(dict(scene_id=scene,language_equal=equal,native_model_parity=model_result['observe_only_equal']))
++        write('summary.json',dict(aggregate(summaries),parity=parity,executed_scene_ids=[s['scene_id'] for s in summaries],
++            unexecuted_scene_ids=[s['scene_id'] for s in selection['scenes'] if s['scene_id'] not in {x['scene_id'] for x in summaries}],
++            full_dataset_validated=False,independent_scene_execution=True))
++        if not equal or not model_result['observe_only_equal']:raise AssertionError('Native parity failed')
++        print('Completed independent model scene',scene,flush=True)
+     after=source_manifest();write('source_after.json',after)
+-    write('final_verification.json',dict(sources_unchanged=manifest==after,language_equal=language_equal,
+-        native_model_parity=json.loads((root/'results.json').read_text())['observe_only_equal']))
+-    assert manifest==after and language_equal
++    write('final_verification.json',dict(sources_unchanged=manifest==after,
++        all_scene_native_parity=all(x['native_model_parity'] and x['language_equal'] for x in parity)))
++    assert manifest==after
+ 
+ 
+ if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/model_smoke.py b/tools/worldstream_m1/model_smoke.py
+index 0c45711..819263e 100644
+--- a/tools/worldstream_m1/model_smoke.py
++++ b/tools/worldstream_m1/model_smoke.py
+@@ -3,6 +3,7 @@ import argparse
+ import hashlib
+ from pathlib import Path
+ import random
++from time import perf_counter,process_time
+ import numpy as np
+ from .io_utils import write_json
+ 
+@@ -78,14 +79,24 @@ def main():
+             if transform['type'] == 'Collect3D' and 'cam_infos' not in transform['meta_keys']:
+                 transform['meta_keys'] = tuple(transform['meta_keys']) + ('cam_infos',)
+     dataset = build_dataset(cfg.data.test)
+-    indices = [i for i, item in enumerate(dataset.data_infos)
+-               if item['scene_token'] == (args.scene or dataset.data_infos[0]['scene_token'])][:args.frames]
++    from .dataset import log_context_from_root
++    from .scene_protocol import select_scenes
++    context=log_context_from_root('data/nuscenes')
++    chosen_scene=args.scene or sorted({x['scene_token'] for x in dataset.data_infos})[0]
++    by_token={info['token']:i for i,info in enumerate(dataset.data_infos)}
++    sequence=sorted((x for x in dataset.data_infos if x['scene_token']==chosen_scene),key=lambda x:x['timestamp'])
++    sequence=sequence[:args.frames] if args.frames else sequence
++    indices=[by_token[x['token']] for x in sequence]
++    write_json(root/'selection.json',dict(scene_id=chosen_scene,log_token=context.log_for_scene(chosen_scene),
++        source_context_sha256=context.digest,sequence_type='nuScenes keyframes, not high-frequency video',
++        frame_limit=args.frames,selected=[dict(frame_id=i['token'],timestamp=i['timestamp']/1e6) for i in sequence]))
+     if not indices: raise ValueError('No selected samples')
+     run_metadata['sample_ids'] = [dataset.data_infos[i]['token'] for i in indices]
+     model = build_model(cfg.model, test_cfg=cfg.get('test_cfg'))
+     if cfg.get('fp16'): wrap_fp16_model(model)
+     load_checkpoint(model, args.checkpoint, map_location='cpu')
+     model.cuda().eval()
++    model.m1_source_context=context
+     run_metadata['perception_only'] = args.perception_only
+     all_results = {}
+     for mode in (['baseline', 'observe_only'] if args.compare else ['observe_only']):
+@@ -94,6 +105,7 @@ def main():
+         model.m1_manager = WorldStateManager(settings) if mode == 'observe_only' else None
+         model.save_path = str(root/mode/'language')+'/'
+         outputs, memory, backbone = [], [], []
++        frame_measurements=[]
+         hook = model.img_backbone.register_forward_hook(lambda module, inputs, out: backbone.append(digest(out)))
+         torch.cuda.reset_peak_memory_stats()
+         start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+@@ -101,13 +113,20 @@ def main():
+         with torch.no_grad():
+             for index in indices:
+                 batch = scatter(collate([dataset[index]], samples_per_gpu=1), [torch.cuda.current_device()])[0]
++                torch.cuda.synchronize();wall=perf_counter();cpu=process_time()
+                 result = model(return_loss=False, rescale=True, **batch)
++                torch.cuda.synchronize()
++                frame_measurements.append(dict(frame_id=dataset.data_infos[index]['token'],
++                    end_to_end_wall_ms=(perf_counter()-wall)*1000,
++                    measurement_cpu_process_ms=(process_time()-cpu)*1000,
++                    end_to_end_scope='native full model call including M1 and Planning; excludes batch IO and output hashing'))
+                 outputs.append(digest(result))
+                 memory.append({branch: {key: digest(value) for key, value in vars(head).items()
+                               if key.startswith('memory_') or key == 'sample_time'}
+                               for branch, head in [('det', model.pts_bbox_head), ('map', model.map_head)]})
+         end.record(); torch.cuda.synchronize(); hook.remove()
+         all_results[mode] = {'outputs': outputs, 'memory': memory, 'backbone': backbone,
++                             'frame_measurements':frame_measurements,
+                              'gpu_elapsed_ms_including_host_gaps': start.elapsed_time(end),
+                              'peak_allocated_bytes': torch.cuda.max_memory_allocated()}
+     if args.compare:
+diff --git a/worldstream/m1/config.py b/worldstream/m1/config.py
+index 1b48565..b2e36ab 100644
+--- a/worldstream/m1/config.py
++++ b/worldstream/m1/config.py
+@@ -106,6 +106,7 @@ class M1Config:
+     efficient_state: bool = False
+     motion_risk_revocation: bool = False
+     measurement_reuse: bool = False
++    observation_diagnostics: bool = False  # read-only, never relaxes validation
+ 
+     def __post_init__(self):
+         import math
+diff --git a/worldstream/m1/omnidrive_adapter.py b/worldstream/m1/omnidrive_adapter.py
+index 84d806b..a78bdf3 100644
+--- a/worldstream/m1/omnidrive_adapter.py
++++ b/worldstream/m1/omnidrive_adapter.py
+@@ -47,7 +47,7 @@ def quaternion_transform(rotation, translation):
+     return rigid_transform(Quaternion(rotation).rotation_matrix, translation)
+ 
+ 
+-def frame_from_model(img_metas, data, config):
++def frame_from_model(img_metas, data, config, source_context=None):
+     if len(img_metas) != 1 or data['img'].shape[0] != 1:
+         raise ValueError("M1 streaming supports batch size 1 only")
+     meta = img_metas[0]
+@@ -104,6 +104,8 @@ def frame_from_model(img_metas, data, config):
+     signature = hashlib.sha256(json.dumps(signature_info, sort_keys=True).encode()).hexdigest()
+     signature_info['observation_protocol'] = {'coordinate_space': 'preprocessed_image',
+         'normalization': signature_info['normalization'], 'shapes': signature_info['shapes']}
++    from .source_context import metadata_log_source
++    signature_info.update(metadata_log_source(meta,str(meta['scene_token']),str(meta['sample_idx']),source_context))
+     return Frame(str(meta['scene_token']), str(meta['sample_idx']), timestamp, pose, cameras,
+                  signature, signature_info)
+ 
+@@ -153,11 +155,11 @@ def outputs_from_model(frame, bbox_results, lane_results, features, config):
+     return FullOutputs(anchors, records)
+ 
+ 
+-def append_result(path, result, commit_diagnostics, committed_state=None):
++def append_result(path, result, commit_diagnostics, committed_state=None, experiment=None):
+     from .state_types import json_value
+     path = Path(path)
+     path.parent.mkdir(parents=True, exist_ok=True)
+     with path.open('a') as handle:
+         handle.write(json.dumps(json_value({'precheck': result.to_dict(), 'commit': commit_diagnostics,
+-                                              'committed_state': committed_state}),
++                                              'committed_state': committed_state, 'experiment': experiment}),
+                                 allow_nan=False) + '\n')
+diff --git a/worldstream/m1/physical_certifier.py b/worldstream/m1/physical_certifier.py
+index 3f7d87f..35fb923 100644
+--- a/worldstream/m1/physical_certifier.py
++++ b/worldstream/m1/physical_certifier.py
+@@ -97,6 +97,9 @@ class EvidenceIssuer:
+             return reasons+['independent_validation_units_invalid']
+         if not calibration_scenes or not calibration_logs:
+             reasons.append('calibration_scene_or_log_provenance_missing')
++        from .source_context import log_binding_reason
++        binding_reason=log_binding_reason(frame.metadata,frame.scene_id)
++        if binding_reason:reasons.append(binding_reason)
+         evaluation_log=frame.metadata.get('log_token')
+         if not isinstance(evaluation_log,str) or not evaluation_log:
+             reasons.append('evaluation_log_provenance_missing')
+diff --git a/worldstream/m1/provenance.py b/worldstream/m1/provenance.py
+index f893e8e..bc760fc 100644
+--- a/worldstream/m1/provenance.py
++++ b/worldstream/m1/provenance.py
+@@ -85,7 +85,8 @@ def export_state_audit(manager):
+     rows=[]
+     for aid,a in store.anchors.items():
+         certificate=qualified.get(aid)
+-        rows.append(dict(anchor_id=aid, source_frame_id=a.source_frame_id,
++        rows.append(dict(anchor_id=aid, semantic_class=a.semantic_class,anchor_type=a.anchor_type,
++            center_world=a.geometry_world.center.tolist(), source_frame_id=a.source_frame_id,
+             source_timestamp=a.source_timestamp, source_epoch=a.source_state_epoch,
+             state_version=state_geometry_version(a), execution_signature=a.source_execution_signature,
+             cameras={cid:dict(timestamp=o.timestamp,region=list(o.region)) for cid,o in a.observation_support.items()},
+@@ -99,7 +100,7 @@ def export_state_audit(manager):
+             certified_claim=certificate.certified_claim if certificate else None,
+             status='identity_certified' if certificate else ('observed' if a.observation_support else 'unknown'),
+             association_basis=a.association_basis))
+-    return copy.deepcopy(dict(scene_id=store.scene_id,frame_id=manager._previous_frame_id,
++    return copy.deepcopy(dict(scene_id=store.scene_id,log_token=manager._committed_log_token,frame_id=manager._previous_frame_id,
+         timestamp=store.last_timestamp,state_epoch=store.generation,source_digest=store.source_digest(),
+         execution_signature=store.execution_signature,transaction_status='committed' if store.last_timestamp is not None else 'empty',
+         anchors=rows, features=store.feature_versions(), certifications=certificates.to_dict(),
+diff --git a/worldstream/m1/state_manager.py b/worldstream/m1/state_manager.py
+index 469b81e..88dd71b 100644
+--- a/worldstream/m1/state_manager.py
++++ b/worldstream/m1/state_manager.py
+@@ -49,6 +49,7 @@ class WorldStateManager:
+         self._identity_history = ()
+         self._identity_hypotheses = ()
+         self._computation_receipt = None
++        self._committed_log_token = None
+         qualification=None
+         if self.config.physical_qualification_path:
+             import json
+@@ -73,6 +74,7 @@ class WorldStateManager:
+         self._identity_history = ()
+         self._identity_hypotheses = ()
+         self._computation_receipt = None
++        self._committed_log_token = None
+ 
+     def _prepare(self, frame):
+         s = self.store
+@@ -106,6 +108,13 @@ class WorldStateManager:
+             "invalid_timestamp_or_pose", "missing_or_misidentified_cameras",
+             "invalid_camera_calibration_or_timing", "missing_frame_identity_or_execution_signature",
+             "duplicate_frame_id"} else None
++        from .source_context import log_binding_reason
++        log_reason=log_binding_reason(frame.metadata,frame.scene_id)
++        if (s.scene_id==frame.scene_id and self._committed_log_token is not None
++                and frame.metadata.get('log_token')!=self._committed_log_token):
++            log_reason='log_source_changed_or_missing'
++        if log_reason:
++            reason=log_reason;self._input_rejection=log_reason
+         if self.calibration and (not self.calibration.get('observation_protocol')
+                 or self.calibration['observation_protocol'] != frame.metadata.get('observation_protocol')):
+             reason = "calibration_protocol_incompatible"
+@@ -200,6 +209,7 @@ class WorldStateManager:
+             self._pending = (frame.scene_id, frame.frame_id, frame.timestamp, frame.execution_signature)
+             self.last_result = result
+             return result
++        self._pending_execution_signature = frame.execution_signature
+         self._last_precheck_timestamp = frame.timestamp
+         expired_ids = [k for k, a in self.store.anchors.items()
+                        if frame.timestamp - a.source_timestamp > self.config.max_state_age_s]
+@@ -286,6 +296,7 @@ class WorldStateManager:
+                     xy[:,0] = np.clip(xy[:,0],0,excluded.shape[1]-1)
+                     xy[:,1] = np.clip(xy[:,1],0,excluded.shape[0]-1)
+                     evidence.supported &= ~anchor_excluded[xy[:,1],xy[:,0]]
++                evidence.diagnostics['supported_points_after_exclusion'] = int(evidence.supported.sum())
+                 evidence.diagnostics['excluded_motion_or_occlusion_area_ratio'] = float(excluded.mean())
+                 # Exclusion is an acceptance gate. Preserve measured rejection
+                 # evidence separately, without changing legacy identity inputs.
+@@ -330,6 +341,9 @@ class WorldStateManager:
+                     validation.evidence['bidirectional_geometry']=proof
+                     if not proof['passed']:
+                         validation.valid=False;validation.reason=proof['reason']
++                if self.config.observation_diagnostics:
++                    from .observation_diagnostics import attach_observation_funnel
++                    attach_observation_funnel(self,anchor,camera,p,occluded,validation)
+                 camera_checks[cid] = dict(asdict(validation), geometry_valid=p.valid,
+                                           projected_points=p.uv,
+                                           predicted_region=p.region, coverage=p.coverage,
+@@ -524,6 +538,7 @@ class WorldStateManager:
+         self._pending = None
+         self._pending_store = None
+         self._camera_layout = camera_layout(frame)
++        self._committed_log_token = worker._committed_log_token
+         precheck_result.diagnostics['transaction_status'] = ('rejected' if self._input_rejection else 'committed')
+         if precheck_result.computation_state is not None:
+             precheck_result.computation_state.diagnostics['transaction_status'] = 'committed'
+@@ -790,6 +805,7 @@ class WorldStateManager:
+         for aid, anchor in self.store.anchors.items():
+             anchor.associated_feature_ids = [fid for fid in anchor.associated_feature_ids
+                 if fid in self.store.features and aid in self.store.features[fid].source_anchor_ids]
++        self._committed_log_token = frame.metadata.get('log_token')
+         self.store.last_timestamp = frame.timestamp
+         self.store.execution_signature = frame.execution_signature
+         self.store.commit_count += 1
+diff --git a/configs/worldstream_m11_diagnostics.yaml b/configs/worldstream_m11_diagnostics.yaml
+new file mode 100644
+index 0000000..a3bed72
+--- /dev/null
++++ b/configs/worldstream_m11_diagnostics.yaml
+@@ -0,0 +1,27 @@
++# M1-only state maintenance and real RGB measurements. Existing risk gates retained.
++enabled: true
++execution_mode: observe_only
++temporal_visibility: true
++local_support: true
++foreground_correspondence: true
++identity_continuity: true
++identity_method: temporal
++identity_tracking_policy: shadow
++identity_history_frames: 3
++dense_local_support: true
++dense_motion_guard: true
++dense_guard_radius_px: 8
++temporal_workers: 6
++trust_detection_velocity: false
++capture_tensors: false
++capture_backbone: false
++logging: true
++visualization: false
++profiling: true
++# Independent qualification absent: candidates must remain unqualified.
++physical_qualification_path: null
++physical_qualification_sha256: null
++
++# M1.1: diagnostics only; evidence/risk thresholds are unchanged.
++observation_diagnostics: true
++identity_diagnostics: true
+diff --git a/projects/configs/OmniDrive/worldstream_m11_diagnostics.py b/projects/configs/OmniDrive/worldstream_m11_diagnostics.py
+new file mode 100644
+index 0000000..c6a39c4
+--- /dev/null
++++ b/projects/configs/OmniDrive/worldstream_m11_diagnostics.py
+@@ -0,0 +1,3 @@
++"""M1.1 real measurements and scene provenance, original Planning task."""
++_base_ = ['./worldstream_m1_effective.py']
++model = dict(m1_config='configs/worldstream_m11_diagnostics.yaml',m2_enable=False,m3_enable=False)
+diff --git a/tests/worldstream_m1/test_scene_diagnostics.py b/tests/worldstream_m1/test_scene_diagnostics.py
+new file mode 100644
+index 0000000..1d5cecb
+--- /dev/null
++++ b/tests/worldstream_m1/test_scene_diagnostics.py
+@@ -0,0 +1,198 @@
++"""Scene isolation, trusted non-label context, denominators and read-only funnels."""
++from dataclasses import replace
++import copy
++import numpy as np
++import pytest
++from worldstream.m1 import WorldStateManager, FullOutputs
++from worldstream.m1.source_context import LogSourceContext,metadata_log_source
++from worldstream.m1.omnidrive_adapter import frame_from_model
++from tools.worldstream_m1.scene_protocol import select_scenes,aggregate,ratio
++from tools.worldstream_m1.scene_metrics import summarize_scene
++from test_integration import inputs
++
++
++def context():
++    return LogSourceContext.from_rows([dict(token='scene',log_token='real-log'),dict(token='other',log_token='other-log')],
++        [dict(token='100.0',scene_token='scene'),dict(token='100.5',scene_token='scene'),dict(token='b0',scene_token='other')])
++
++
++def test_same_log_multiple_scenes_is_legal_but_not_independent_units():
++    ctx=LogSourceContext.from_rows([dict(token='a',log_token='one-log'),dict(token='b',log_token='one-log')])
++    assert len(set(ctx.scene_logs.values()))==1
++
++
++@pytest.mark.parametrize('change',['duplicate_scene','duplicate_frame','missing_log','unknown_sample_scene'])
++def test_trusted_context_rejects_inconsistent_tables(change):
++    scenes=[dict(token='scene',log_token='real-log')];samples=[dict(token='f',scene_token='scene')]
++    if change=='duplicate_scene':scenes*=2
++    elif change=='duplicate_frame':samples*=2
++    elif change=='missing_log':scenes[0]['log_token']=''
++    else:samples[0]['scene_token']='absent'
++    with pytest.raises(ValueError):LogSourceContext.from_rows(scenes,samples)
++
++
++def test_raw_and_model_metadata_use_same_real_log(config):
++    meta,data=inputs();ctx=context()
++    f=frame_from_model(meta,data,config,ctx)
++    assert f.metadata['log_token']=='real-log' and f.metadata['log_source']['context_sha256']==ctx.digest
++    assert f.metadata['log_source']==metadata_log_source({},'scene','100.0',ctx)['log_source']
++
++
++@pytest.mark.parametrize('change',['wrong_log','wrong_scene','missing_frame','blank_log'])
++def test_model_source_mismatch_is_rejected(config,change):
++    meta,data=inputs();ctx=context()
++    if change=='wrong_log':meta[0]['log_token']='forged'
++    elif change=='wrong_scene':meta[0]['scene_token']='other'
++    elif change=='missing_frame':meta[0]['sample_idx']='absent'
++    else:meta[0]['log_token']=''
++    with pytest.raises(ValueError):frame_from_model(meta,data,config,ctx)
++
++
++def test_missing_context_does_not_invent_log(config):
++    meta,data=inputs();f=frame_from_model(meta,data,config)
++    assert 'log_token' not in f.metadata and f.metadata['log_provenance_status']=='missing'
++
++
++@pytest.mark.parametrize('change',['missing','changed','binding'])
++def test_same_scene_log_change_clears_history(config,make_frame,make_prediction,change):
++    m=WorldStateManager(replace(config,temporal_visibility=True))
++    f=make_frame();f.metadata.update(context().metadata_for('scene',f.frame_id))
++    m.initialize(f,FullOutputs([make_prediction()]))
++    g=make_frame(100.5);g.metadata.update(context().metadata_for('scene',g.frame_id))
++    if change=='missing':g.metadata={}
++    elif change=='changed':g.metadata['log_token']='different'
++    else:g.metadata['log_source']['scene_id']='other'
++    r=m.precheck(g)
++    assert r.diagnostics['input_rejection'] in ('log_source_changed_or_missing','log_scene_binding_mismatch')
++    m.commit(g,FullOutputs([make_prediction()]),r)
++    assert not m.store.anchors and not m._previous_cameras and not m._identity_history
++
++
++def test_scene_boundary_has_no_anchor_image_identity_or_digest_reuse(config,make_frame,make_prediction):
++    m=WorldStateManager(replace(config,temporal_visibility=True,identity_continuity=True,identity_method='temporal'))
++    for t in (100.,100.5):
++        f=make_frame(t);f.metadata.update(context().metadata_for('scene',f.frame_id))
++        r=m.precheck(f);m.commit(f,FullOutputs([make_prediction()]),r)
++    old_ids=set(m.store.anchors);old_digest=m.store.source_digest();old_frame_digest=m._previous_frame_digest
++    assert m._previous_cameras and m._identity_history
++    g=make_frame(101,scene='other',frame_id='b0');g.metadata.update(context().metadata_for('other','b0'))
++    r=m.precheck(g)
++    assert r.diagnostics['reset_reason']=='scene_change' and not r.anchor_provenance
++    assert not m.store.anchors and not m._previous_cameras and not m._identity_history and m._previous_frame_digest is None
++    m.commit(g,FullOutputs([make_prediction()]),r)
++    assert old_ids.isdisjoint(m.store.anchors)
++    assert m.store.source_digest()!=old_digest and m._previous_frame_digest!=old_frame_digest
++    assert all(x['scene_id']=='other' for x in m._identity_history)
++    assert m.export_state_audit()['log_token']=='other-log'
++
++
++def test_selector_does_not_interleave_and_records_missing_keyframes():
++    rows=[dict(token=f'{s}{t}',scene_token=s,timestamp=t*500000) for t in (3,1,2) for s in ('b','a')]
++    selected,manifest=select_scenes(rows,{'a1','a3','b1','b2','b3'},scene_limit=1)
++    assert list(selected)==['a'] and [r['token'] for r in selected['a']]==['a1','a3']
++    spec=manifest['scenes'][0]
++    assert spec['missing_prediction_frames']==['a2']
++    assert [r['dataset_sequence_index'] for r in spec['selected_frames']]==[0,2]
++    assert manifest['unexecuted_scene_ids']==['b']
++    all_selected,_=select_scenes(rows,scene_limit=0,frame_limit=0)
++    assert len(all_selected)==2 and all(len(v)==3 for v in all_selected.values())
++
++
++@pytest.mark.parametrize('change',['token','time'])
++def test_selector_rejects_duplicate_dataset_identity(change):
++    a=dict(token='f',scene_token='s',timestamp=10)
++    b=dict(token='f' if change=='token' else 'g',scene_token='s',timestamp=20 if change=='token' else 10)
++    with pytest.raises(ValueError):select_scenes([a,b])
++
++
++def test_micro_and_macro_use_distinct_denominators_and_null():
++    def scene(name,n,d):
++        return dict(scene_id=name,counts=dict(observation_supported_anchor_events=n,historical_projection_candidates=d),
++            observation_anchor_coverage=ratio(n,d),observed_pixel_coverage=None,certification_coverage=None,
++            identity_candidate_coverage=None,identity_unknown_fraction=None)
++    result=aggregate([scene('large',0,100),scene('small',1,1),scene('empty',0,0)])
++    assert result['micro']['observation_anchor_coverage']==1/101
++    assert result['macro']['observation_anchor_coverage']['mean']==.5
++    assert result['macro']['observation_anchor_coverage']['n']==2
++    assert result['macro']['certification_coverage']['mean'] is None
++    assert result['micro']['identity_candidate_coverage'] is None
++
++
++def test_diagnostics_do_not_change_acceptance(config,make_frame,make_prediction):
++    results=[]
++    for enabled in (False,True):
++        m=WorldStateManager(replace(config,temporal_visibility=True,observation_diagnostics=enabled))
++        m.initialize(make_frame(),FullOutputs([make_prediction()]))
++        f=make_frame(100.5);r=m.precheck(f)
++        results.append((r.valid_anchor_ids,m.last_masks['front'].copy()))
++        if enabled:
++            v=next(iter(r.diagnostics['anchors'].values()))['cameras']['front']
++            assert v['evidence']['observation_funnel']['source_descriptor_reconstruction']['passed']
++            assert v['evidence']['finite_claims']['foreground_ownership']=='unknown'
++    assert results[0][0]==results[1][0] and np.array_equal(results[0][1],results[1][1])
++
++
++def test_offline_wrong_unknown_is_not_false_accept_and_logs_not_scenes():
++    from tools.worldstream_m1.offline_identity_scoring import score_links,summarize,log_risk
++    identities={'f0':{'a':'instance-a'},'f1':{'b':'instance-b'}}
++    base=dict(source_frame_id='f0',current_frame_id='f1',anchor_id='a',target_anchor_id='b',status='unknown',certified=False)
++    rows=score_links([base],identities,'scene','one-log')
++    result=summarize(rows)
++    assert result['counts']['wrong']==1 and result['counts']['formal_wrong']==0
++    assert result['candidate_accuracy'] is None and result['formal_false_acceptance_risk'] is None
++    # Two scenes sharing a log never become two independent qualification units.
++    rows+=score_links([dict(base,status='candidate',certified=True)],identities,'second-scene','one-log')
++    risk=log_risk(rows)
++    assert len(risk['calibration_logs'])==1 and not risk['validation_logs']
++    assert risk['status']=='BLOCKED' and risk['confidence_upper_95'] is None
++
++
++def test_offline_risk_does_not_count_unscorable_acceptance_as_success():
++    from tools.worldstream_m1.offline_identity_scoring import log_risk
++    row=dict(log_token='validation',scene_id='s',formal_certified=True,score='unscorable')
++    risk=log_risk([row],['calibration'],['validation'])
++    assert risk['unscorable_formal_accepts']==1 and risk['fully_scorable_log_units']==0
++    assert risk['confidence_upper_95'] is None and risk['status']=='BLOCKED'
++
++
++def test_offline_split_rejects_log_leakage():
++    from tools.worldstream_m1.offline_identity_scoring import log_risk
++    with pytest.raises(ValueError,match='overlap'):
++        log_risk([],['shared-log'],['shared-log'])
++
++
++def ledger_fixture(config,make_frame,make_prediction):
++    m=WorldStateManager(replace(config,temporal_visibility=True,observation_diagnostics=True));rows=[]
++    for t in (100.,100.5):
++        f=make_frame(t);f.metadata.update(context().metadata_for('scene',f.frame_id))
++        r=m.precheck(f);m.commit(f,FullOutputs([make_prediction()]),r)
++        rows.append(dict(precheck=r.to_dict(),commit=copy.deepcopy(m.last_commit_diagnostics),committed_state=m.export_state_audit()))
++    return rows
++
++
++def test_independent_ledger_matches_prior_actual_versions(config,make_frame,make_prediction):
++    from tools.worldstream_m1.scene_revalidate import validate_rows
++    result=validate_rows(ledger_fixture(config,make_frame,make_prediction),context())
++    assert result['checks']['historical_versions_verified']==1
++
++
++@pytest.mark.parametrize('mutation',['historical_version','camera_version','current_without_commit','retained_version','log_context','future_source'])
++def test_independent_ledger_detects_tampered_sources(config,make_frame,make_prediction,mutation):
++    from tools.worldstream_m1.scene_revalidate import validate_rows
++    rows=ledger_fixture(config,make_frame,make_prediction)
++    p=rows[1]['precheck'];s=rows[1]['committed_state']
++    if mutation=='historical_version':next(iter(p['anchor_provenance'].values()))['state_version']='tampered'
++    elif mutation=='camera_version':next(iter(next(iter(p['diagnostics']['anchors'].values()))['cameras'].values()))['evidence']['source_state_version']='tampered'
++    elif mutation=='current_without_commit':rows[1]['commit']['committed_anchor_ids']=[]
++    elif mutation=='retained_version':
++        a=copy.deepcopy(rows[0]['committed_state']['anchors'][0]);a['state_version']='tampered';s['anchors'].append(dict(a,anchor_id='uncomputed-retained'))
++    elif mutation=='log_context':p['diagnostics']['execution_context']['log_source']['context_sha256']='tampered'
++    else:next(iter(p['anchor_provenance'].values()))['source_frame_id']=p['frame_id']
++    with pytest.raises(AssertionError):validate_rows(rows,context())
++
++
++def test_visualization_does_not_draw_failed_lk_placeholders():
++    from tools.worldstream_m1.identity_cases import measured_tracks
++    record=dict(source_points=[[1,2],[3,4],[5,6]],current_points=[[1,2],[np.nan,9],[7,8]],correspondence_valid=[False,True,True])
++    p,q=measured_tracks(record)
++    assert p.tolist()==[[5.,6.]] and q.tolist()==[[7.,8.]]
+diff --git a/tools/worldstream_m1/identity_cases.py b/tools/worldstream_m1/identity_cases.py
+new file mode 100644
+index 0000000..c0dea1f
+--- /dev/null
++++ b/tools/worldstream_m1/identity_cases.py
+@@ -0,0 +1,78 @@
++"""Draw actual measured candidate/rejection examples; never a qualification plot."""
++import argparse
++import json
++from pathlib import Path
++import pickle
++import cv2
++import numpy as np
++from .dataset import frame_from_info
++
++
++def measured_tracks(record):
++    """Do not draw failed LK placeholder coordinates as measured matches."""
++    p=np.asarray(record.get('source_points',[]),float);q=np.asarray(record.get('current_points',[]),float)
++    if p.ndim!=2 or p.shape[1:]!=(2,) or q.shape!=p.shape:return np.empty((0,2)),np.empty((0,2))
++    valid=np.asarray(record.get('correspondence_valid',np.ones(len(p),bool)),bool)
++    if valid.shape!=(len(p),):return np.empty((0,2)),np.empty((0,2))
++    valid=valid & np.isfinite(p).all(1) & np.isfinite(q).all(1)
++    return p[valid],q[valid]
++
++
++def render(root,output):
++    root=Path(root);out=Path(output);out.mkdir(parents=True,exist_ok=False)
++    protocol=json.loads((root/('protocol.json' if (root/'protocol.json').exists() else 'provenance.json')).read_text())
++    with open(protocol.get('infos_path',protocol.get('dataset')),'rb') as f:infos={x['token']:x for x in pickle.load(f)['infos']}
++    raw=(root/'protocol.json').exists()
++    cfg=None
++    if not raw:
++        from mmcv import Config
++        from .state_interface_replay import preprocessed_frame
++        from worldstream.m1 import M1Config
++        cfg=Config.fromfile('projects/configs/OmniDrive/worldstream_m11_diagnostics.py')
++        settings=M1Config.load('configs/worldstream_m11_diagnostics.yaml')
++    traces=sorted((root/'scenes').glob('*/repeat_0.jsonl')) or sorted((root/'scenes').glob('*/m1_state.jsonl'))
++    manifest=[]
++    for trace in traces:
++        rows=[json.loads(x) for x in trace.read_text().splitlines()]
++        proposals=[p for row in rows for p in row['commit']['identity_continuity_proposals']]
++        for status in ('candidate','unknown'):
++            chosen=None
++            for p in proposals:
++                if p['status']!=status:continue
++                for v in p['measurements'].get('views',[]):
++                    d=v.get('track_diagnostics',v)
++                    if len(measured_tracks(d)[0])>=2:
++                        chosen=(p,v,d);break
++                if chosen:break
++            if chosen is None:
++                manifest.append(dict(scene_id=trace.parent.name,status=status,visualization='Not Available: no actual measured view'))
++                continue
++            p,v,d=chosen
++            def get_frame(token):
++                if raw:return frame_from_info(infos[token],'data/nuscenes')
++                return preprocessed_frame(infos[token],cfg,settings)[0]
++            old=get_frame(p['source_frame_id']).cameras[v['camera']].image.copy()
++            current=get_frame(p['current_frame_id']).cameras[v['camera']].image.copy()
++            source_points,current_points=measured_tracks(d)
++            for x,y in zip(source_points,current_points):
++                cv2.circle(old,tuple(np.rint(x).astype(int)),2,(30,210,70),-1)
++                cv2.circle(current,tuple(np.rint(y).astype(int)),2,(30,210,70),-1)
++            for image,key in ((old,'source_region'),(current,'current_region')):
++                r=v.get(key)
++                if r:cv2.rectangle(image,tuple(np.rint(r[:2]).astype(int)),tuple(np.rint(r[2:]).astype(int)),(250,180,20),1)
++            panel=np.concatenate([old,current],axis=1)
++            label=f'Measured {status}; source/current; NOT qualified identity or pixel ownership'
++            cv2.putText(panel,label,(6,18),cv2.FONT_HERSHEY_SIMPLEX,.42,(255,255,255),1)
++            name=f'{trace.parent.name}_{status}.png';cv2.imwrite(str(out/name),cv2.cvtColor(panel,cv2.COLOR_RGB2BGR))
++            manifest.append(dict(scene_id=trace.parent.name,status=status,source_frame=p['source_frame_id'],
++                current_frame=p['current_frame_id'],camera=v['camera'],measured_points=len(source_points),drawn_scope='Finite valid RGB correspondences, not ownership',
++                formal_certified=False,foreground_ownership='Unknown',file=name))
++    (out/'case_manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
++    a=p.parse_args();cv2.setNumThreads(1);render(a.root,a.output)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/observation_diagnostics.py b/tools/worldstream_m1/observation_diagnostics.py
+new file mode 100644
+index 0000000..dfc38cb
+--- /dev/null
++++ b/tools/worldstream_m1/observation_diagnostics.py
+@@ -0,0 +1,36 @@
++"""Measured diagnostic panels; green tracks are not identity truth."""
++from pathlib import Path
++import json
++import cv2
++import numpy as np
++
++
++def visualize_case(manager,frame,folder,index):
++    # Preserve one deterministic early/late example per scene, including all-rejected cases.
++    if index not in (1,5):return
++    cid=next(iter(frame.cameras));camera=frame.cameras[cid];e=manager.last_evidence.get(cid)
++    current=camera.image.copy();old=manager._previous_cameras.get(cid)
++    # Commit has replaced previous cameras. Draw the measured source points on a
++    # separately saved precheck source image supplied by the runner.
++    source=getattr(manager,'_diagnostic_source_images',{}).get(cid)
++    if source is None:return
++    source=cv2.cvtColor(source,cv2.COLOR_GRAY2RGB) if source.ndim==2 else source.copy()
++    if e is not None:
++        for p,q,ok in zip(e.source_points[::8],e.current_points[::8],e.supported[::8]):
++            color=(30,200,30) if ok else (230,60,40)
++            cv2.circle(source,tuple(np.rint(p).astype(int)),2,color,-1)
++            cv2.circle(current,tuple(np.rint(q).astype(int)),2,color,-1)
++    panel=np.concatenate([source,current],axis=1)
++    cv2.putText(panel,'Actual source / current RGB tracks; green=local support, NOT identity truth',
++                (8,18),cv2.FONT_HERSHEY_SIMPLEX,.45,(255,255,255),1)
++    path=Path(folder)/'cases';path.mkdir(exist_ok=True)
++    cv2.imwrite(str(path/f'{index:03d}_{cid}.png'),cv2.cvtColor(panel,cv2.COLOR_RGB2BGR))
++    checks=manager.last_result.diagnostics.get('anchors',{})
++    samples=[]
++    for aid,a in checks.items():
++        if cid in a['cameras']:
++            v=a['cameras'][cid]
++            if v.get('predicted_region'):
++                samples.append(dict(anchor_id=aid,accepted=a['valid'],camera=cid,**v))
++    from worldstream.m1.state_types import json_value
++    (path/f'{index:03d}_{cid}.json').write_text(json.dumps(json_value(samples),indent=2)+'\n')
+diff --git a/tools/worldstream_m1/offline_identity_scoring.py b/tools/worldstream_m1/offline_identity_scoring.py
+new file mode 100644
+index 0000000..6936357
+--- /dev/null
++++ b/tools/worldstream_m1/offline_identity_scoring.py
+@@ -0,0 +1,124 @@
++"""Offline-only nuScenes identity scoring. Never imported by online M1.
++
++Unique class-compatible, sensor-supported 2m assignment (0.25m ambiguity
++margin) defines scorable detection identities. This is not a pixel mask oracle.
++Unknown proposals are diagnostics, not false accepted identities.
++"""
++import argparse
++from collections import Counter
++import json
++from pathlib import Path
++import pickle
++from types import SimpleNamespace
++import numpy as np
++from scipy.stats import beta
++from .dataset import load_oracle,log_context_from_root
++from .evidence_oracle import identity_population
++from .scene_protocol import ratio,distribution
++from .effective_acceptance import sha
++
++
++def score_links(proposals, identities, scene, log):
++    result=[]
++    for p in proposals:
++        source=identities.get(p['source_frame_id'],{}).get(p['anchor_id'])
++        target=identities.get(p['current_frame_id'],{}).get(p.get('target_anchor_id'))
++        status='unscorable' if source is None or target is None else 'correct' if source==target else 'wrong'
++        result.append(dict(scene_id=scene,log_token=log,source_frame_id=p['source_frame_id'],
++            current_frame_id=p['current_frame_id'],source_anchor_id=p['anchor_id'],target_anchor_id=p.get('target_anchor_id'),
++            proposal_status=p['status'],formal_certified=bool(p.get('certified',False)),score=status,
++            source_instance=source,target_instance=target,
++            reason='unique_supported_GT_instances' if status!='unscorable' else 'source_or_target_not_uniquely_scorable'))
++    return result
++
++
++def summarize(rows):
++    counts=Counter(total_proposals=len(rows),**{k:0 for k in ('correct','wrong','unscorable','candidates','candidate_correct',
++        'candidate_wrong','candidate_unscorable','formally_certified','formal_wrong','formal_unscorable')})
++    for x in rows:
++        counts[x['score']]+=1
++        if x['proposal_status']=='candidate':
++            counts['candidates']+=1;counts['candidate_'+x['score']]+=1
++        if x['formal_certified']:
++            counts['formally_certified']+=1
++            if x['score']=='wrong':counts['formal_wrong']+=1
++            if x['score']=='unscorable':counts['formal_unscorable']+=1
++    return dict(counts=dict(counts),scorable_coverage=ratio(counts['correct']+counts['wrong'],len(rows)),
++        candidate_coverage=ratio(counts['candidates'],len(rows)),
++        candidate_accuracy=ratio(counts['candidate_correct'],counts['candidate_correct']+counts['candidate_wrong']),
++        denominator_scope='All evaluated finite geometric object association edges; Unknown edges are not accepted',
++        formal_false_acceptance_risk=ratio(counts['formal_wrong'],counts['formally_certified']) if not counts['formal_unscorable'] else None)
++
++
++def log_risk(rows,calibration_logs=None,validation_logs=None):
++    logs=sorted({x['log_token'] for x in rows})
++    calibration=logs[:max(1,len(logs)//5)] if calibration_logs is None else calibration_logs
++    validation=logs[len(calibration):] if validation_logs is None else validation_logs
++    if set(calibration)&set(validation) or set(logs)-set(calibration)-set(validation):
++        raise ValueError('Calibration/validation logs overlap or omit scored provenance')
++    units=[]
++    for log in validation:
++        accepted=[x for x in rows if x['log_token']==log and x['formal_certified']]
++        if accepted:units.append(dict(log_token=log,scenes=sorted({x['scene_id'] for x in accepted}),
++            accepted=len(accepted),wrong=sum(x['score']=='wrong' for x in accepted),
++            unscorable=sum(x['score']=='unscorable' for x in accepted)))
++    n=len(units);errors=sum(x['wrong']>0 for x in units);unknown=sum(x['unscorable'] for x in units)
++    upper=(float(beta.ppf(.95,errors+1,n-errors)) if n and errors<n else 1. if n else None) if not unknown else None
++    return dict(status='BLOCKED',risk_limit=.05,confidence=.95,calibration_logs=calibration,validation_logs=validation,
++        validation_log_units_with_formal_accepts=n,units=units,scene_error_events=errors if n else None,
++        unscorable_formal_accepts=unknown,fully_scorable_log_units=sum(u['unscorable']==0 for u in units),
++        confidence_upper_95=upper,
++        reasons=['No independent qualification issued','Exploratory previously exposed population',
++                 'Insufficient independently scored qualified acceptance logs'],qualification_file_generated=False)
++
++
++def score_run(root,output):
++    root=Path(root);out=Path(output);out.mkdir(parents=True,exist_ok=False)
++    protocol=json.loads((root/('protocol.json' if (root/'protocol.json').exists() else 'provenance.json')).read_text())
++    info_path=protocol.get('infos_path',protocol.get('dataset'))
++    traces=sorted((root/'scenes').glob('*/repeat_0.jsonl')) or sorted((root/'scenes').glob('*/m1_state.jsonl'))
++    rows_by_scene={p.parent.name:[json.loads(l) for l in p.read_text().splitlines()] for p in traces}
++    tokens={x['precheck']['frame_id'] for rows in rows_by_scene.values() for x in rows}
++    with open(info_path,'rb') as f:infos=pickle.load(f)['infos']
++    selected=[i for i in infos if i['token'] in tokens]
++    context=log_context_from_root('data/nuscenes')
++    logs=sorted({context.log_for_scene(s) for s in rows_by_scene})
++    calibration=logs[:max(1,len(logs)//5)];validation=logs[len(calibration):]
++    frozen=dict(scene_log_mapping={s:context.log_for_scene(s) for s in rows_by_scene},
++        calibration_logs=calibration,validation_logs=validation,
++        split_rule='Lexicographic independent logs; first max(1,floor(log_count/5)) calibration',
++        frozen_before_label_read=True,online_GT=False,scorer_code_sha256=sha(__file__),
++        gate_m=2.,ambiguity_margin_m=.25,qualification_risk_limit=.05,confidence=.95)
++    (out/'protocol.json').write_text(json.dumps(frozen,indent=2)+'\n')
++    oracle=load_oracle(selected,'data/nuscenes')  # only now, after every online trace was committed
++    all_scores=[];scenes=[]
++    for scene,rows in rows_by_scene.items():
++        identities={};population=Counter()
++        for row in rows:
++            p=row['precheck'];current=[a for a in row['committed_state']['anchors']
++                if a['source_frame_id']==p['frame_id'] and a['anchor_type']=='object']
++            predictions=[SimpleNamespace(semantic_class=a['semantic_class'],geometry_world=SimpleNamespace(center=np.asarray(a['center_world']))) for a in current]
++            known,statuses=identity_population(predictions,oracle[p['frame_id']])
++            identities[p['frame_id']]={current[i]['anchor_id']:ann['instance_id'] for i,ann in known.items()}
++            population.update(x['status'] for x in statuses.values())
++        proposals=[x for row in rows for x in row['commit']['identity_continuity_proposals']]
++        scores=score_links(proposals,identities,scene,context.log_for_scene(scene));summary=summarize(scores)
++        summary.update(scene_id=scene,log_token=context.log_for_scene(scene),detection_scoring_statuses=dict(population))
++        (out/f'{scene}.json').write_text(json.dumps(summary,indent=2)+'\n')
++        (out/f'{scene}.jsonl').write_text(''.join(json.dumps(x)+'\n' for x in scores))
++        all_scores+=scores;scenes.append(summary)
++    result=dict(micro=summarize(all_scores),macro={k:distribution([s[k] for s in scenes]) for k in
++        ('scorable_coverage','candidate_coverage','candidate_accuracy')},scenes=scenes,log_qualification=log_risk(all_scores,calibration,validation),
++        GT_used_only_after_online_execution=True,scoring_rule='Unique class-compatible sensor-supported GT centre assignment <=2m, ambiguity margin 0.25m; no dense ownership claim',
++        trace_sha256={str(p):sha(p) for p in traces},
++        label_table_sha256={str(p):sha(p) for p in [Path('data/nuscenes/v1.0-trainval')/n for n in
++            ('sample_annotation.json','instance.json','category.json')]})
++    (out/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
++    a=p.parse_args();score_run(a.root,a.output)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/scene_diagnosis.py b/tools/worldstream_m1/scene_diagnosis.py
+new file mode 100644
+index 0000000..5a05572
+--- /dev/null
++++ b/tools/worldstream_m1/scene_diagnosis.py
+@@ -0,0 +1,83 @@
++"""Offline read-only reduction of per-frame/Anchor/camera observation evidence.
++
++Two populations are reported: all historical views and geometrically eligible
++views of projection candidates. Dense pixels, motion identity and metric claims
++remain different populations. No labels are read here.
++"""
++import argparse
++from collections import Counter
++import csv
++import json
++from pathlib import Path
++
++
++def diagnose_scene(trace,output):
++    from worldstream.m1 import M1Config
++    config=M1Config.load('configs/worldstream_m11_diagnostics.yaml')
++    projection_failures={}
++    rows=[json.loads(x) for x in Path(trace).read_text().splitlines()];funnel={};all_reasons=Counter();subgroups={};flat=[];frames=[]
++    for row in rows:
++        p=row['precheck'];frame_count=Counter();candidate=set(p['association_candidate_ids'])
++        for aid,a in p['diagnostics'].get('anchors',{}).items():
++            kind='map_or_region' if a['anchor_type']!='object' else 'static_class_prior' if a['motion_hypothesis']=='static_class_prior' else 'dynamic_or_motion_unqualified'
++            group=subgroups.setdefault(kind,Counter(anchors=0,observations=0,eligible_camera_views=0))
++            group['anchors']+=1;group['observations']+=a['valid']
++            for cid,v in a['cameras'].items():
++                eligible=aid in candidate and v['geometry_valid'];frame_count['all_historical_camera_views']+=1
++                if eligible:group['eligible_camera_views']+=1;frame_count['eligible_candidate_camera_views']+=1
++                if eligible and not v['valid']:all_reasons[v['reason']]+=1
++                e=v.get('evidence',{});checks=e.get('observation_funnel',{})
++                item=dict(frame_id=p['frame_id'],anchor_id=aid,camera=cid,subgroup=kind,
++                    eligible_candidate_view=eligible,anchor_observation_supported=a['valid'],camera_observation_supported=v['valid'],
++                    reason=v['reason'],descriptor_residual=v['residual'],source_frame_id=e.get('source_frame_id'),
++                    source_frame_digest=e.get('source_frame_digest'),source_state_version=e.get('source_state_version'),
++                    source_epoch=e.get('source_epoch'))
++                for name,c in checks.items():
++                    item[name]=c['passed']
++                    if eligible:
++                        counts=funnel.setdefault(name,Counter(total=0,passed=0,rejected=0,unknown=0))
++                        counts['total']+=1;counts['passed' if c['passed'] is True else 'rejected' if c['passed'] is False else 'unknown']+=1
++                projection_check=checks.get('current_projection',{})
++                if projection_check.get('passed') is False:
++                    projection_failures.setdefault(kind,Counter())[projection_check['reason']]+=1
++                # These are the actual anchor_visibility outputs AFTER exclusion
++                # and the predicted-box motion bound, not the raw local tracks.
++                if eligible:
++                    actual=dict(visibility_minimum_points=None if 'supported_points' not in e else e['supported_points']>=config.support_min_points,
++                        visibility_support_fraction=None if 'support_fraction' not in e else e['support_fraction']>=config.support_point_fraction,
++                        visibility_spatial_fraction=None if 'quadrant_fraction' not in e else e['quadrant_fraction']>=config.support_quadrant_fraction)
++                    for name,value in actual.items():
++                        item[name]=value
++                        c=funnel.setdefault(name,Counter(total=0,passed=0,rejected=0,unknown=0));c['total']+=1
++                        c['passed' if value is True else 'rejected' if value is False else 'unknown']+=1
++                    for key in ('selected_points','supported_points','support_fraction','quadrant_fraction'):
++                        item['actual_visibility_'+key]=e.get(key)
++                measurements=e.get('observation_measurements',{})
++                item['local_support_fraction']=measurements.get('local_support_fraction');item['quadrants']=measurements.get('quadrants')
++                flat.append(item)
++        frames.append(dict(frame_id=p['frame_id'],timestamp=p['timestamp'],counts=dict(frame_count),
++            anchor_rejection_reasons=dict(Counter(reason for a in p['diagnostics'].get('anchors',{}).values() for reason in a['reasons']))))
++    output=Path(output);output.mkdir(parents=True,exist_ok=False)
++    fields=sorted({k for x in flat for k in x})
++    with (output/'anchor_camera_funnel.csv').open('w') as f:
++        writer=csv.DictWriter(f,fieldnames=fields);writer.writeheader();writer.writerows(flat)
++    result=dict(scene_id=rows[0]['precheck']['scene_id'],frames=frames,
++        eligible_candidate_view_funnel={k:dict(v) for k,v in funnel.items()},eligible_view_rejection_reasons=dict(all_reasons),
++        subgroups={k:dict(v) for k,v in subgroups.items()},
++        projection_failure_reasons_by_subgroup={k:dict(v) for k,v in projection_failures.items()},
++        finite_claim_boundaries=dict(static_class_prior_is_stationarity_proof=False,
++            LK_or_stable_pixels_prove_foreground=False,identity_proves_metric_geometry=False,
++            metric_geometry_qualified=False,neural_feature_equivalence=False))
++    (output/'diagnosis.json').write_text(json.dumps(result,indent=2)+'\n')
++    return result
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
++    a=p.parse_args();out=Path(a.output);out.mkdir(parents=True,exist_ok=False)
++    root=Path(a.root);traces=sorted((root/'scenes').glob('*/repeat_0.jsonl')) or sorted((root/'scenes').glob('*/m1_state.jsonl'))
++    summaries=[diagnose_scene(path,out/path.parent.name) for path in traces]
++    (out/'summary.json').write_text(json.dumps(summaries,indent=2)+'\n')
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/scene_metrics.py b/tools/worldstream_m1/scene_metrics.py
+new file mode 100644
+index 0000000..7200033
+--- /dev/null
++++ b/tools/worldstream_m1/scene_metrics.py
+@@ -0,0 +1,102 @@
++"""Scene-local metrics. Null denominators stay unknown; pooled ratios use counts."""
++from collections import Counter
++import numpy as np
++from .scene_protocol import RATIOS,ratio,distribution
++
++
++def latency_stats(values):
++    values=[float(v) for v in values if v is not None and np.isfinite(v)]
++    return dict(samples=len(values),p50=float(np.percentile(values,50)) if values else None,
++                p95=float(np.percentile(values,95)) if values else None,scope='milliseconds')
++
++
++def summarize_scene(rows,base=None):
++    if not rows:raise ValueError('No scene rows')
++    scene=rows[0]['precheck']['scene_id'];counts=Counter();cert=Counter();fg=Counter();identity=Counter();view=Counter()
++    statuses_fg=Counter();statuses_identity=Counter();resets=Counter();funnel={};frames=[];logs=set();times={};known=set();last=None
++    for row in rows:
++        p=row['precheck'];c=row['commit'];s=row['committed_state'];d=p['diagnostics'];experiment=row.get('experiment') or {}
++        if p['scene_id']!=scene or s['scene_id']!=scene:raise ValueError('Mixed scene sequence')
++        assert d['transaction_status']=='committed' and s['transaction_status']=='committed'
++        assert s['frame_id']==p['frame_id'] and s['timestamp']==p['timestamp']
++        assert s['state_epoch']==d['state_epoch'] and s['source_digest']
++        log=s.get('log_token',d.get('execution_context',{}).get('log_token'))
++        if log is not None:logs.add(log)
++        assert len(logs)<=1,'Scene cannot change log identity'
++        dt=None if last is None else p['timestamp']-last['timestamp']
++        if last is not None:assert dt>0 and p['frame_id']!=last['frame_id']
++        for a in p['anchor_provenance'].values():
++            assert (scene,a['source_frame_id']) in known and a['source_timestamp']<p['timestamp']
++            assert a['source_state_epoch']==s['state_epoch'] and a['source_execution_signature']==s['execution_signature']
++            assert a['state_version']
++        for a in s['anchors']:
++            assert a['source_timestamp']<=p['timestamp'] and a['state_version']
++            assert not a['physical_or_geometry_certified']
++        for f in s['features'].values():
++            assert not f['network_reuse_authorized']
++            assert f['tensor_captured']==(f['tensor_availability']=='captured')
++        counts.update(frames=1,camera_observations=len(p['invalidation_regions']),
++            historical_projection_candidates=len(p['association_candidate_ids']),
++            observation_supported_anchor_events=len(p['observation_supported_anchor_ids']),
++            actual_committed_anchor_events=len(c['committed_anchor_ids']),
++            actual_current_observed_anchor_events=sum(a['observed'] and a['source_frame_id']==p['frame_id'] for a in s['anchors']),
++            snapshot_observed_anchor_events=sum(a['observed'] for a in s['anchors']),
++            certified_anchor_events=len(s['certifications']['certified_anchor_ids']))
++        counts['identity_proposals']+=len(c['identity_continuity_proposals'])
++        for x in c['post_perception_physical_certifications']:cert.update(x['rejection_reasons'])
++        for x in c['foreground_correspondence_proposals']:
++            statuses_fg[x['status']]+=1;fg.update(x['rejection_reasons'])
++        for x in c['identity_continuity_proposals']:
++            statuses_identity[x['status']]+=1;identity.update(x['rejection_reasons'])
++            view.update(v['reason'] for v in x['measurements'].get('views',[]))
++            counts['identity_candidate_proposals']+=x['status']=='candidate'
++            counts['identity_unknown_proposals']+=x['status']=='unknown'
++        for e in d.get('temporal_evidence',{}).values():
++            for key in ('points','bidirectional_points','geometric_points','supported_points','supported_points_after_exclusion'):
++                counts['measured_'+key]+=e.get(key,0)
++        for r in p['invalidation_regions'].values():
++            from worldstream.m1.mask_codec import decode_mask
++            mask=decode_mask(r['observation_stable_mask']);counts['camera_pixels']+=mask.size
++            counts['observation_supported_pixels']+=int(mask.sum())
++        if d.get('reset_reason'):resets[d['reset_reason']]+=1
++        for aid,a in d.get('anchors',{}).items():
++            for cid,v in a['cameras'].items():
++                for name,item in v.get('evidence',{}).get('observation_funnel',{}).items():
++                    counter=funnel.setdefault(name,Counter(total=0,passed=0,rejected=0,unknown=0))
++                    counter['total']+=1;counter['passed' if item['passed'] is True else 'rejected' if item['passed'] is False else 'unknown']+=1
++        timing={'precheck_wall_ms':d.get('timings_ms',{}).get('precheck_total'),
++                'commit_wall_ms':c.get('commit_total_ms'),**(experiment.get('latency') or {})}
++        for k,v in timing.items():
++            if k.endswith('_ms'):times.setdefault(k,[]).append(v)
++        frames.append(dict(frame_id=p['frame_id'],timestamp=p['timestamp'],delta_s=dt,
++            dataset_sequence_index=experiment.get('dataset_sequence_index'),epoch=s['state_epoch'],
++            state_version_check='PASS',source_binding='PASS',transaction_status=d['transaction_status'],
++            reset_reason=d.get('reset_reason'),source_digest=s['source_digest'],
++            candidates=len(p['association_candidate_ids']),observations=len(p['observation_supported_anchor_ids']),
++            certified=len(s['certifications']['certified_anchor_ids'])))
++        known.add((scene,p['frame_id']));last=p
++    for key in ('identity_proposals','identity_candidate_proposals','identity_unknown_proposals','camera_pixels',
++                'observation_supported_pixels'):counts.setdefault(key,0)
++    deltas=[f['delta_s'] for f in frames if f['delta_s'] is not None]
++    missing=[dict(previous=frames[i-1]['frame_id'],current=f['frame_id'],
++        skipped_dataset_keyframes=f['dataset_sequence_index']-frames[i-1]['dataset_sequence_index']-1)
++        for i,f in enumerate(frames) if i and f['dataset_sequence_index'] is not None and frames[i-1]['dataset_sequence_index'] is not None
++        and f['dataset_sequence_index']>frames[i-1]['dataset_sequence_index']+1]
++    result=dict(base or {})
++    result.update(scene_id=scene,log_token=next(iter(logs)) if logs else None,counts=dict(counts),
++        time_range_s=[frames[0]['timestamp'],frames[-1]['timestamp']],frame_intervals=distribution(deltas),
++        missing_keyframe_events=missing,long_gap_frames=[f['frame_id'] for f in frames if f['reset_reason']=='long_frame_gap'],
++        sequence_type='nuScenes keyframes, not high-frequency video',frames=frames,binding_checks='PASS',transaction_failures=0,
++        certificate_rejections=dict(cert),foreground_proposals=dict(statuses_fg),identity_proposals=dict(statuses_identity),
++        foreground_rejection_reasons=dict(fg),identity_rejection_reasons=dict(identity),identity_view_reasons=dict(view),resets=dict(resets),
++        observation_funnel={k:dict(v) for k,v in funnel.items()},latency_samples=times,latency={k:latency_stats(v) for k,v in times.items()},
++        qualification_blockers=['independent_producer_qualification_missing'] if not counts['certified_anchor_events'] else [],
++        empirical_false_acceptance_risk=None,empirical_risk_upper_95=None)
++    result.update({name:ratio(counts[a],counts[b]) for name,(a,b) in RATIOS.items()})
++    return result
++
++
++def reproducibility_signature(summary):
++    return dict(scene=summary['scene_id'],log=summary['log_token'],counts=summary['counts'],
++        ratios={name:summary[name] for name in RATIOS},funnel=summary['observation_funnel'],
++        rejection=summary['certificate_rejections'],identity=summary['identity_rejection_reasons'],frames=summary['frames'])
+diff --git a/tools/worldstream_m1/scene_protocol.py b/tools/worldstream_m1/scene_protocol.py
+new file mode 100644
+index 0000000..0673fef
+--- /dev/null
++++ b/tools/worldstream_m1/scene_protocol.py
+@@ -0,0 +1,89 @@
++"""Deterministic scene-local keyframe selection and honest micro/macro statistics."""
++from collections import Counter
++import numpy as np
++
++
++def ratio(n, d):
++    return n / d if d else None
++
++
++def distribution(values):
++    xs=[float(x) for x in values if x is not None and np.isfinite(x)]
++    if not xs:return dict(n=0,mean=None,median=None,p05=None,p95=None,min=None,max=None,std=None)
++    return dict(n=len(xs),mean=float(np.mean(xs)),median=float(np.median(xs)),
++                p05=float(np.percentile(xs,5)),p95=float(np.percentile(xs,95)),
++                min=min(xs),max=max(xs),std=float(np.std(xs)))
++
++
++def select_scenes(infos, available_tokens=None, scene_limit=0, frame_limit=0, context=None):
++    """Use contiguous prefixes of available keyframes, never hide missing predictions.
++
++    Limits of zero mean all available targets. Frame metadata contains no labels.
++    Scene sorting is frozen and explicit; no selection depends on observed quality.
++    """
++    if scene_limit<0 or frame_limit<0:raise ValueError('Limits must be nonnegative')
++    grouped={};seen=set()
++    for info in infos:
++        token=info['token']
++        if token in seen:raise ValueError('Repeated sample token in dataset')
++        seen.add(token);grouped.setdefault(info['scene_token'],[]).append(info)
++    sequences={};specs=[];eligible=[]
++    for scene,rows in sorted(grouped.items()):
++        rows=sorted(rows,key=lambda x:(x['timestamp'],x['token']))
++        times=[i['timestamp'] for i in rows]
++        if len(set(times))!=len(times):raise ValueError('Repeated timestamp inside scene')
++        available=[i for i in rows if available_tokens is None or i['token'] in available_tokens]
++        if available:eligible.append(scene)
++        sequences[scene]=available[:frame_limit] if frame_limit else available
++        indices={r['token']:n for n,r in enumerate(rows)}
++        specs.append(dict(scene_id=scene,log_token=context.log_for_scene(scene) if context else None,
++            dataset_frames=len(rows),available_frames=len(available),
++            missing_prediction_frames=[i['token'] for i in rows if available_tokens is not None and i['token'] not in available_tokens],
++            omitted_by_frame_limit=[i['token'] for i in available[len(sequences[scene]):]],
++            selected_frames=[dict(frame_id=i['token'],timestamp=i['timestamp']/1e6,
++                dataset_sequence_index=indices[i['token']]) for i in sequences[scene]]))
++    selected=eligible[:scene_limit] if scene_limit else eligible
++    for s in specs:
++        s['scheduled']=s['scene_id'] in selected
++        s['status']='Scheduled' if s['scheduled'] else 'Not Run'
++        s['reason']=None if s['scheduled'] else ('scene_limit' if s['available_frames'] else 'no_actual_predictions')
++    return {s:sequences[s] for s in selected},dict(
++        sampling_rule='Lexicographic scene_token, timestamp-sorted available keyframe prefix; zero limit means all',
++        sequence_type='nuScenes keyframes, not high-frequency video',
++        dataset_scene_count=len(grouped),available_target_scene_count=len(eligible),scheduled_scene_count=len(selected),
++        scene_limit=scene_limit,frame_limit=frame_limit,scenes=specs,
++        unexecuted_scene_ids=[s['scene_id'] for s in specs if not s['scheduled']])
++
++
++RATIOS={'observation_anchor_coverage':('observation_supported_anchor_events','historical_projection_candidates'),
++        'observed_pixel_coverage':('observation_supported_pixels','camera_pixels'),
++        'certification_coverage':('certified_anchor_events','actual_current_observed_anchor_events'),
++        'identity_candidate_coverage':('identity_candidate_proposals','identity_proposals'),
++        'identity_unknown_fraction':('identity_unknown_proposals','identity_proposals')}
++
++
++def aggregate(scenes):
++    counts=Counter()
++    for s in scenes:
++        counts.update({k:v for k,v in s['counts'].items() if k!='unique_scenes'})
++    counts['unique_scenes']=len(scenes)
++    micro={name:ratio(counts[a],counts[b]) for name,(a,b) in RATIOS.items()}
++    macro={name:distribution([s.get(name) for s in scenes]) for name in RATIOS}
++    flags=[]
++    for s in scenes:
++        reasons=[]
++        if s['counts'].get('historical_projection_candidates',0) and s['observation_anchor_coverage']==0:
++            reasons.append('zero_anchor_observation_coverage')
++        if s['counts'].get('identity_proposals',0) and s['identity_unknown_fraction']==1:
++            reasons.append('all_identity_proposals_unknown')
++        rejection=s.get('identity_rejection_reasons',{})
++        if rejection and max(rejection.values())/sum(rejection.values())>=.9:
++            reasons.append('identity_rejections_concentrated_at_least_90_percent')
++        if s.get('transaction_failures',0):reasons.append('transaction_failures')
++        flags.append(dict(scene_id=s['scene_id'],flags=reasons))
++    from .scene_metrics import latency_stats
++    timing_keys=sorted({k for s in scenes for k in s.get('latency_samples',{})})
++    latency_micro={k:latency_stats([v for s in scenes for v in s.get('latency_samples',{}).get(k,[])]) for k in timing_keys}
++    latency_macro={k:distribution([s.get('latency',{}).get(k,{}).get('p50') for s in scenes]) for k in timing_keys}
++    return dict(micro=dict(counts=dict(counts),**micro),macro=macro,latency_micro=latency_micro,latency_macro=latency_macro,
++        scene_flags=flags,scenes=scenes,independent_scene_statistics_are_not_independent_log_qualification=True)
+diff --git a/tools/worldstream_m1/scene_revalidate.py b/tools/worldstream_m1/scene_revalidate.py
+new file mode 100644
+index 0000000..dca7053
+--- /dev/null
++++ b/tools/worldstream_m1/scene_revalidate.py
+@@ -0,0 +1,72 @@
++"""Independent ledger checks against earlier actual committed state versions."""
++import argparse
++from collections import Counter
++import json
++from pathlib import Path
++from .dataset import log_context_from_root
++from .effective_acceptance import sha
++
++
++def validate_rows(rows,context=None):
++    known={};seen_frames=set();scene=None;log=None;counts=Counter();last_time=None
++    for row in rows:
++        p,c,s=row['precheck'],row['commit'],row['committed_state'];d=p['diagnostics']
++        if scene is None:scene=p['scene_id'];log=s.get('log_token')
++        assert p['scene_id']==s['scene_id']==scene,'scene binding'
++        assert p['frame_id']==s['frame_id'] and p['frame_id'] not in seen_frames,'frame identity'
++        assert p['timestamp']==s['timestamp'] and (last_time is None or p['timestamp']>last_time),'time binding'
++        assert d['transaction_status']==s['transaction_status']=='committed','transaction boundary'
++        assert s['state_epoch']==d['state_epoch'] and s['source_digest'],'epoch/digest binding'
++        assert s.get('log_token')==log,'log binding'
++        if context is not None:
++            expected=context.metadata_for(scene,p['frame_id'])
++            metadata=d['execution_context']
++            assert metadata['log_token']==log==expected['log_token'],'trusted log binding'
++            assert metadata['log_source']==expected['log_source'],'source context binding'
++        for aid,source in p['anchor_provenance'].items():
++            key=(source['source_frame_id'],aid)
++            assert key in known,'source must be a prior actual committed version'
++            actual=known[key]
++            assert source['state_version']==actual['state_version'],'historical state version mismatch'
++            assert source['source_timestamp']==actual['source_timestamp']<p['timestamp'],'historical source time'
++            assert source['source_state_epoch']==actual['source_epoch']==s['state_epoch'],'historical source epoch'
++            assert source['source_execution_signature']==actual['execution_signature']==s['execution_signature'],'execution source binding'
++            counts['historical_versions_verified']+=1
++            for view in d['anchors'][aid]['cameras'].values():
++                e=view.get('evidence',{})
++                if 'source_state_version' in e:
++                    assert e['source_state_version']==actual['state_version'],'camera evidence version mismatch'
++                    assert e['source_frame_id']==source['source_frame_id'],'camera evidence source mismatch'
++                    counts['camera_evidence_versions_verified']+=1
++        committed=set(c['committed_anchor_ids'])
++        current={a['anchor_id']:a for a in s['anchors']}
++        for aid,a in current.items():
++            key=(a['source_frame_id'],aid)
++            if a['source_frame_id']==p['frame_id']:
++                assert aid in committed and a['source_timestamp']==p['timestamp'],'uncomputed current state'
++                assert a['source_epoch']==s['state_epoch'] and a['execution_signature']==s['execution_signature'],'current execution binding'
++                known[key]=a;counts['actual_current_versions_verified']+=1
++            else:
++                assert key in known and known[key]['state_version']==a['state_version'],'retained version changed without computation'
++        for cert in s['certifications']['certifications']:
++            a=current[cert['anchor_id']]
++            assert cert['current_state_version']==a['state_version'] and cert['current_frame_id']==p['frame_id'],'certificate version binding'
++            assert cert['evidence_provenance']['risk_qualification_sha256'],'qualification missing'
++        seen_frames.add(p['frame_id']);last_time=p['timestamp'];counts['frames']+=1
++    return dict(status='PASS',scene_id=scene,log_token=log,checks=dict(counts))
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
++    a=p.parse_args();root=Path(a.root);out=Path(a.output)
++    if out.exists():raise ValueError('Choose fresh verification output')
++    traces=sorted((root/'scenes').glob('*/repeat_*.jsonl')) or sorted((root/'scenes').glob('*/m1_state.jsonl'))
++    ctx=log_context_from_root('data/nuscenes');results=[]
++    for trace in traces:
++        result=validate_rows([json.loads(x) for x in trace.read_text().splitlines()],ctx)
++        results.append(dict(trace=str(trace),sha256=sha(trace),**result))
++    out.write_text(json.dumps(dict(schema='prior_committed_version_ledger_v1',validator_sha256=sha(__file__),
++        context_sha256=ctx.digest,traces=results,all_pass=bool(results) and all(x['status']=='PASS' for x in results)),indent=2)+'\n')
++
++
++if __name__=='__main__':main()
+diff --git a/worldstream/m1/observation_diagnostics.py b/worldstream/m1/observation_diagnostics.py
+new file mode 100644
+index 0000000..b4440f7
+--- /dev/null
++++ b/worldstream/m1/observation_diagnostics.py
+@@ -0,0 +1,70 @@
++"""Read-only necessary-condition diagnostics; no acceptance gate is weakened."""
++import numpy as np
++from .geometry import state_geometry_version
++
++
++def attach_observation_funnel(manager, anchor, camera, projection, occluded, validation):
++    cid=camera.camera_id;obs=anchor.observation_support.get(cid)
++    record=next((r for r in manager._identity_history if r['frame_id']==anchor.source_frame_id),None)
++    old=(record['cameras'].get(cid) if record else manager._previous_cameras.get(cid)
++         if anchor.source_frame_id==manager._previous_frame_id else None)
++    source_digest=record['frame_digest'] if record else manager._previous_frame_digest if old is not None else None
++    e=manager.last_evidence.get(cid);checks={}
++    def check(name,value,reason):
++        value=None if value is None else bool(value)
++        checks[name]=dict(passed=value,reason='ok' if value is True else reason)
++    check('historical_frame_source',bool(old is not None and source_digest),'actual_source_frame_unavailable')
++    check('source_epoch',anchor.source_state_epoch==manager.store.generation,'source_epoch_mismatch')
++    check('state_version',anchor.state_version==state_geometry_version(anchor),'state_version_mismatch')
++    check('execution_signature',anchor.source_execution_signature==manager._pending_execution_signature,'execution_signature_mismatch')
++    check('historical_crop',obs is not None,'historical_crop_missing')
++    reconstructed=None
++    if old is not None and obs is not None:
++        rebuilt=manager.validator.descriptor(old.image,obs.region)
++        reconstructed=bool(rebuilt is not None and np.array_equal(rebuilt,obs.descriptor))
++    check('source_descriptor_reconstruction',reconstructed,'source_descriptor_missing_or_mismatch')
++    check('current_projection',bool(projection.valid),projection.reason)
++    region=validation.region if len(validation.region)==4 else projection.region
++    descriptor=manager.validator.descriptor(camera.image,region) if region is not None else None
++    check('current_crop_descriptor',descriptor is not None,'low_texture_or_invalid_crop')
++    check('descriptor_residual',bool(validation.observation_consistent),'observation_mismatch')
++    check('camera_time_and_coordinate',None if old is None else bool(old.camera_id==cid and old.coordinate_space==camera.coordinate_space
++        and old.timing_reliable and camera.timing_reliable and obs is not None and obs.timestamp==old.timestamp),'camera_time_or_coordinate_unknown')
++    check('projected_occlusion',not occluded,'projected_occlusion')
++    tracks={};measurements={}
++    if e is not None and obs is not None and projection.region is not None:
++        p=np.asarray(e.source_points);q=np.asarray(e.current_points);n=len(p)
++        r=np.asarray(obs.region);s=np.asarray(projection.region)
++        inside=((p[:,0]>=r[0])&(p[:,0]<r[2])&(p[:,1]>=r[1])&(p[:,1]<r[3])&
++                (q[:,0]>=s[0])&(q[:,0]<s[2])&(q[:,1]>=s[1])&(q[:,1]<s[3]))
++        raw=e.raw_correspondence_supported if e.raw_correspondence_supported is not None else e.supported
++        masks=dict(crop_correspondence=inside,
++            bidirectional=inside&e.correspondence_valid&(e.fb_error_px<=manager.config.flow_fb_max_px),
++            calibrated_geometry=inside&e.correspondence_valid&e.geometry_valid,
++            local_photo_geometry=inside&e.correspondence_valid&e.geometry_valid&raw,
++            after_motion_occlusion_exclusion=inside&e.supported)
++        for k,mask in masks.items():tracks[k]=dict(total=n,passed=int(mask.sum()),rejected=int(n-mask.sum()))
++        chosen=masks['local_photo_geometry'];total=int(inside.sum());count=int(chosen.sum())
++        unique=bool(len(np.unique(p[chosen],axis=0))==count and len(np.unique(q[chosen],axis=0))==count) if count else None
++        quadrants=len(np.unique(np.clip(((p[chosen]-r[:2])/np.maximum(r[2:]-r[:2],1)*2).astype(int),0,1),axis=0)) if count else 0
++        check('track_uniqueness',unique,'tracks_missing_or_repeated')
++        check('track_spatial_distribution',bool(count and quadrants/4>=manager.config.support_quadrant_fraction),'spatial_support_insufficient')
++        check('track_support_fraction',bool(total and count/total>=manager.config.support_point_fraction),'local_track_support_insufficient')
++        def stats(values):
++            v=np.asarray(values);v=v[np.isfinite(v)]
++            return dict(n=len(v),median=float(np.median(v)) if len(v) else None,p95=float(np.percentile(v,95)) if len(v) else None)
++        measurements=dict(tracks=tracks,local_support_fraction=count/total if total else None,quadrants=quadrants,
++            fb_error_px=stats(e.fb_error_px[inside]),patch_residual=stats(e.patch_residual[inside]),
++            actual_source_timestamp=e.source_timestamp,current_camera_timestamp=e.timestamp)
++        check('measurement_source_time',bool(old is not None and e.source_timestamp==old.timestamp and e.timestamp==camera.timestamp),
++              'measured_track_source_mismatch')
++    else:
++        for k in ('track_uniqueness','track_spatial_distribution','track_support_fraction','measurement_source_time'):
++            check(k,None,'tracks_or_source_crop_unavailable')
++    validation.evidence.update(observation_funnel=checks,observation_measurements=measurements,
++        source_crop_region=list(obs.region) if obs is not None else None,
++        source_frame_id=anchor.source_frame_id,source_frame_digest=source_digest,
++        source_state_version=anchor.state_version,source_epoch=anchor.source_state_epoch,
++        source_execution_signature=anchor.source_execution_signature,
++        finite_claims=dict(foreground_ownership='unknown',identity='unknown',stationarity='unqualified_class_prior_only',
++                           metric_geometry='uncertified',neural_equivalence=False))
+diff --git a/worldstream/m1/source_context.py b/worldstream/m1/source_context.py
+new file mode 100644
+index 0000000..d97ea7b
+--- /dev/null
++++ b/worldstream/m1/source_context.py
+@@ -0,0 +1,64 @@
++"""Non-label scene/log/sample context supplied by the dataset or online owner.
++
++A log may contain several scenes. Never synthesize log IDs from frame tokens.
++This binds provenance only; it cannot qualify an identity producer.
++"""
++from dataclasses import dataclass
++import hashlib
++import json
++from types import MappingProxyType
++
++
++@dataclass(frozen=True)
++class LogSourceContext:
++    scene_logs: object
++    frame_scenes: object
++    digest: str
++
++    @classmethod
++    def from_rows(cls, scenes, samples=()):
++        scene_logs={};frame_scenes={}
++        for row in scenes:
++            scene,log=row['token'],row['log_token']
++            if not isinstance(scene,str) or not scene or not isinstance(log,str) or not log:
++                raise ValueError('Missing legitimate scene/log identifier')
++            if scene in scene_logs:raise ValueError('Duplicate scene mapping')
++            scene_logs[scene]=log
++        for row in samples:
++            token,scene=row['token'],row['scene_token']
++            if token in frame_scenes or scene not in scene_logs:
++                raise ValueError('Duplicate sample or unknown scene mapping')
++            frame_scenes[token]=scene
++        encoded=json.dumps(dict(scene_logs=scene_logs,frame_scenes=frame_scenes),sort_keys=True).encode()
++        return cls(MappingProxyType(scene_logs),MappingProxyType(frame_scenes),hashlib.sha256(encoded).hexdigest())
++
++    def log_for_scene(self, scene):
++        if scene not in self.scene_logs:raise ValueError('Scene absent from trusted log context')
++        return self.scene_logs[scene]
++
++    def metadata_for(self, scene, frame, declared_log=None):
++        log=self.log_for_scene(scene)
++        if self.frame_scenes and self.frame_scenes.get(frame)!=scene:
++            raise ValueError('Frame/scene mismatch in trusted source context')
++        if declared_log is not None and declared_log!=log:
++            raise ValueError('Dataset log does not match trusted source context')
++        return dict(log_token=log,log_source=dict(scene_id=scene,log_token=log,
++            context_sha256=self.digest,origin='trusted_dataset_scene_sample_tables'),log_provenance_status='bound')
++
++
++def metadata_log_source(meta, scene, frame, context=None):
++    if context is not None:return context.metadata_for(scene,frame,meta.get('log_token'))
++    log=meta.get('log_token')
++    if log is None:return dict(log_provenance_status='missing')
++    if not isinstance(log,str) or not log.strip():raise ValueError('Invalid dataset log identifier')
++    if meta.get('log_scene_token',scene)!=scene:raise ValueError('Dataset log/scene mismatch')
++    return dict(log_token=log,log_source=dict(scene_id=scene,log_token=log,
++        origin='dataset_metadata'),log_provenance_status='bound')
++
++
++def log_binding_reason(metadata, scene):
++    log=metadata.get('log_token');source=metadata.get('log_source')
++    if log is not None and (not isinstance(log,str) or not log.strip()):return 'invalid_log_token'
++    if source is not None and (not isinstance(source,dict) or source.get('scene_id')!=scene or source.get('log_token')!=log):
++        return 'log_scene_binding_mismatch'
++    return None

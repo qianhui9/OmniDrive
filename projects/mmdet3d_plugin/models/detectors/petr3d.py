@@ -568,7 +568,8 @@ class Petr3D(MVXTwoStageDetector):
             settings = self.m1_manager.config
             adapter_start = time.perf_counter()
             with measure_transfers() as input_transfers:
-                frame = frame_from_model(img_metas, data, settings)
+                frame = frame_from_model(img_metas, data, settings,
+                                         getattr(self, 'm1_source_context', None))
             if runtime is not None and runtime.active and runtime.config.reuse_m1_signature:
                 suffix=runtime.m1_signature_suffix(self)
             else:

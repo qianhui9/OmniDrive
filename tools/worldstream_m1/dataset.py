@@ -1,5 +1,7 @@
 """Current raw input is separated from commit outputs and offline-only annotations."""
 import pickle
+import json
+from functools import lru_cache
 from pathlib import Path
 import cv2
 import numpy as np
@@ -7,6 +9,15 @@ from worldstream.m1 import CameraFrame, Frame, FullOutputs, Geometry, Perception
 from worldstream.m1.geometry import box_geometry, inverse_transform, transform_points
 from worldstream.m1.omnidrive_adapter import quaternion_transform
 from .io_utils import iter_json_array, read_prediction_subset
+
+
+@lru_cache(maxsize=4)
+def log_context_from_root(root):
+    """Read only scene/sample provenance tables, never annotation/instance tables."""
+    from worldstream.m1.source_context import LogSourceContext
+    tables=Path(root)/'v1.0-trainval'
+    return LogSourceContext.from_rows(json.loads((tables/'scene.json').read_text()),
+                                     json.loads((tables/'sample.json').read_text()))
 
 
 def select_infos(path, scene=None, limit=12, stride=1, scene_index=0):
@@ -33,7 +44,7 @@ def resolve_image(path, root):
     raise FileNotFoundError(str(path))
 
 
-def frame_from_info(info, root, max_width=640, signature='raw-replay'):
+def frame_from_info(info, root, max_width=640, signature='raw-replay',source_context=None):
     pose = quaternion_transform(info['ego2global_rotation'], info['ego2global_translation'])
     cameras = {}
     for cid, cam in info['cams'].items():
@@ -50,8 +61,13 @@ def frame_from_info(info, root, max_width=640, signature='raw-replay'):
                @ quaternion_transform(cam['sensor2ego_rotation'], cam['sensor2ego_translation']))
         cameras[cid] = CameraFrame(cid, image, affine @ cam['cam_intrinsic'], inverse_transform(c2w),
                                    cam['timestamp'] / 1e6, 'resized_raw_image', affine)
+    from worldstream.m1.source_context import metadata_log_source
+    context=source_context
+    if context is None and (Path(root)/'v1.0-trainval/scene.json').is_file():
+        context=log_context_from_root(str(root))
+    provenance=metadata_log_source(info,info['scene_token'],info['token'],context)
     return Frame(info['scene_token'], info['token'], info['timestamp'] / 1e6, pose, cameras,
-                 signature, {'sampling': 'nuScenes keyframes, not high-frequency video',
+                 signature, {**provenance,'sampling': 'nuScenes keyframes, not high-frequency video',
                              'observation_protocol': {'coordinate_space': 'resized_raw_image', 'max_width': max_width},
                              'camera_order': list(cameras)})
 
