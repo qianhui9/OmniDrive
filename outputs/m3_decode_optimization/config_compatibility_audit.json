@@ -1,0 +1,46 @@
+{
+  "keyword_configs": [
+    {
+      "kwargs": {
+        "mode": "full",
+        "offline_experiment": true,
+        "decode_cuda_graph": false,
+        "identical_prefill_only": false
+      },
+      "value_equal": true
+    },
+    {
+      "kwargs": {
+        "mode": "full",
+        "offline_experiment": true,
+        "decode_cuda_graph": true,
+        "identical_prefill_only": false
+      },
+      "value_equal": true
+    },
+    {
+      "kwargs": {
+        "mode": "exact",
+        "offline_experiment": true,
+        "decode_cuda_graph": false,
+        "identical_prefill_only": false
+      },
+      "value_equal": true
+    },
+    {
+      "kwargs": {
+        "mode": "exact",
+        "offline_experiment": true,
+        "decode_cuda_graph": false,
+        "identical_prefill_only": true
+      },
+      "value_equal": true
+    }
+  ],
+  "measured_runtime_bodies_unchanged": {
+    "worldstream/m3/native_decode.py": true,
+    "worldstream/m3/runtime.py": true
+  },
+  "positional_evidence_compatibility_restored": true,
+  "reason": "New flags moved to dataclass tail after measured runs; benchmark kwargs values and neural execution bodies unchanged; final-source full model confirmation is separately recorded"
+}

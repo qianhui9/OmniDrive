@@ -1,0 +1,45 @@
+{
+  "modes": [
+    "original",
+    "full_maintain",
+    "frozen_exact_m2",
+    "m3_native",
+    "decode_graph",
+    "legacy_prefix",
+    "guarded_prefix"
+  ],
+  "specs": [
+    [
+      "9f1f69646d644e35be4fe0122a8b91ef",
+      [
+        39,
+        40
+      ]
+    ],
+    [
+      "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      [
+        5337,
+        5338
+      ]
+    ]
+  ],
+  "populations": [
+    "planning",
+    "native_multi"
+  ],
+  "warmup": 1,
+  "repeats": 2,
+  "sampling": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "num_beams": 1,
+    "max_new_tokens": 320,
+    "use_cache": true
+  },
+  "order": "Original first for each paired repeat; other arms rotate by repeat",
+  "timers": "deferred per-forward CUDA events and CPU submission; request boundary synchronize",
+  "native_generator": "original PEFT generate; observer signature failures archived",
+  "protected": "M1/M2/TaskEvidence/weights/heads unchanged; experimental conditional false"
+}

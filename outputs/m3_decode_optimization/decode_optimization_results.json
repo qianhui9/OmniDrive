@@ -1,0 +1,164 @@
+{
+  "implementation": "native_static_decode_graphs_v1",
+  "default_enabled": false,
+  "mechanism_count": 1,
+  "complete_sampled_generation": [
+    {
+      "mode": "native",
+      "requests": 24,
+      "full_generation_wall_ms": {
+        "count": 24,
+        "mean": 2588.1421392162642,
+        "p50": 2352.497474523261,
+        "p95": 4712.12324303342,
+        "min": 816.9540099333972,
+        "max": 4722.671465948224
+      },
+      "decode_span_wall_ms": {
+        "count": 24,
+        "mean": 2406.6340861318167,
+        "p50": 2170.211009448394,
+        "p95": 4528.375032101758,
+        "min": 638.5398730635643,
+        "max": 4538.049187976867
+      },
+      "prefill_wall_ms": {
+        "count": 24,
+        "mean": 179.99821525881998,
+        "p50": 180.11028948239982,
+        "p95": 182.75902277091518,
+        "min": 175.8780269883573,
+        "max": 183.1528339534998
+      },
+      "decode_forward_wall_ms": {
+        "count": 24,
+        "mean": 2362.0998521413035,
+        "p50": 2130.3564539412037,
+        "p95": 4444.771570782177,
+        "min": 627.074021846056,
+        "max": 4453.604884678498
+      },
+      "decode_GPU_ms": {
+        "count": 24,
+        "mean": 2360.9790704250336,
+        "p50": 2129.3171072006226,
+        "p95": 4442.729822444916,
+        "min": 626.7857913970947,
+        "max": 4451.50696182251
+      },
+      "token_wall_ms": {
+        "count": 2246,
+        "mean": 25.240603940957826,
+        "p50": 25.23159107659012,
+        "p95": 25.438517972361296,
+        "min": 24.836947908625007,
+        "max": 26.543535059317946
+      },
+      "token_equal": true,
+      "rng_equal": true
+    },
+    {
+      "mode": "graph",
+      "requests": 24,
+      "full_generation_wall_ms": {
+        "count": 24,
+        "mean": 2622.8532231568047,
+        "p50": 2385.1965634385124,
+        "p95": 4769.93952402845,
+        "min": 832.4461539741606,
+        "max": 4778.7370551377535
+      },
+      "decode_span_wall_ms": {
+        "count": 24,
+        "mean": 2433.224618570724,
+        "p50": 2196.6520161367953,
+        "p95": 4578.1275328597985,
+        "min": 646.0469430312514,
+        "max": 4586.337821092457
+      },
+      "prefill_wall_ms": {
+        "count": 24,
+        "mean": 179.91746953339316,
+        "p50": 179.73739537410438,
+        "p95": 182.76458715554327,
+        "min": 176.54472310096025,
+        "max": 183.00351896323264
+      },
+      "decode_forward_wall_ms": {
+        "count": 24,
+        "mean": 2388.8862539897673,
+        "p50": 2154.1805531596765,
+        "p95": 4495.400986471213,
+        "min": 633.9283322449774,
+        "max": 4503.1087922398
+      },
+      "decode_GPU_ms": {
+        "count": 24,
+        "mean": 2387.7739096482596,
+        "p50": 2153.168165206909,
+        "p95": 4493.33184671402,
+        "min": 633.6318073272705,
+        "max": 4501.04069519043
+      },
+      "token_wall_ms": {
+        "count": 2246,
+        "mean": 25.526834414850587,
+        "p50": 25.516609544865787,
+        "p95": 25.716836098581553,
+        "min": 25.15082200989127,
+        "max": 26.848081033676863
+      },
+      "token_equal": true,
+      "rng_equal": true
+    }
+  ],
+  "raw": "micro/full_generation.jsonl",
+  "service_ratios": {
+    "planning_steady": {
+      "requests": 8,
+      "same_service": 0.9860185301693494,
+      "versus_Original": 0.8944417915772482,
+      "paired_mean_ratio": 0.9861006342367418
+    },
+    "planning_including_warmup": {
+      "requests": 12,
+      "same_service": 0.9841892910644682,
+      "versus_Original": 0.9018797536124341,
+      "paired_mean_ratio": 0.9840707170976662
+    },
+    "native_multi_steady": {
+      "requests": 8,
+      "same_service": 0.989317848465683,
+      "versus_Original": 0.9515050557588962,
+      "paired_mean_ratio": 0.9893867851131009
+    },
+    "native_multi_including_warmup": {
+      "requests": 12,
+      "same_service": 0.989903970297218,
+      "versus_Original": 0.9519141861554196,
+      "paired_mean_ratio": 0.9899280956776373
+    }
+  },
+  "synchronous_timer_note": "Separate barrier-instrumented attribution. Decode span starts at first decode forward through generator return; excludes prefill and its first sampling. No E2E minus prefill estimate.",
+  "first_candidate": {
+    "reason": "Self-interrupted: 74-second capture plus slower owned-clone replay; retain first candidate",
+    "completed_requests": 24,
+    "source_unchanged": true
+  },
+  "final_cold_requests": [
+    {
+      "population": "planning",
+      "wall_ms": 3073.261298937723,
+      "diagnostics": {
+        "enabled": true,
+        "captured": 160,
+        "replayed": 13440,
+        "native_calls": 160,
+        "capture_failures": [],
+        "setup_cpu_ms": 7.492766948416829,
+        "fallback_reason": null,
+        "resident_graphs": 160
+      }
+    }
+  ]
+}

@@ -30,6 +30,9 @@ class M3Config:
     adaptive_batch: bool = False  # offline length grouping; each shape is uncertified
     max_batch_size: int = 5
     batch_cost_table: str = ''
+    # Append extensions: retain the established positional constructor contract.
+    decode_cuda_graph: bool = False
+    identical_prefill_only: bool = False  # conservative research guard, Auto still gated
 
     def __post_init__(self):
         if self.experimental_direct_query and (not self.offline_experiment or not self.task_evidence_enabled):

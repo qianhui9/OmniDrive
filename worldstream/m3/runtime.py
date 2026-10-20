@@ -20,6 +20,7 @@ class M3Runtime:
         self._scope = None
         self._signature = None
         self._timestamp = None
+        self._decode_graphs = None
         from .scheduler import read_artifact
         self.direct_task_certificate = read_artifact(self.config.direct_task_certificate)
 
@@ -29,6 +30,27 @@ class M3Runtime:
 
     @torch.no_grad()
     def generate(self, lm_head, input_ids_list, vision_carriers, world_state=None,
+                 visual_execution=None, context=None, questions=None, layout=None,
+                 verified_state=None, tokenizer=None, task_evidence=None, **generation):
+        args=dict(world_state=world_state,visual_execution=visual_execution,context=context,
+            questions=questions,layout=layout,verified_state=verified_state,tokenizer=tokenizer,
+            task_evidence=task_evidence,**generation)
+        if not self.config.decode_cuda_graph:
+            return self._generate_impl(lm_head,input_ids_list,vision_carriers,**args)
+        from .native_decode import StaticDecodeGraphs
+        if self._decode_graphs is None:self._decode_graphs=StaticDecodeGraphs()
+        try:
+            with self._decode_graphs.activate(lm_head) as stats:
+                out,diagnostics=self._generate_impl(lm_head,input_ids_list,vision_carriers,**args)
+            diagnostics['decode_execution']=stats
+            return out,diagnostics
+        except Exception:
+            self.reset()
+            self._decode_graphs.clear()
+            raise
+
+    @torch.no_grad()
+    def _generate_impl(self, lm_head, input_ids_list, vision_carriers, world_state=None,
                  visual_execution=None, context=None, questions=None, layout=None,
                  verified_state=None, tokenizer=None, task_evidence=None, **generation):
         ids = list(input_ids_list)
@@ -281,6 +303,13 @@ class M3Runtime:
             if shared_seed and shared_seed['cache_stored'] and prefix>=shared_seed['prefix_tokens']:
                 allowed,reason=True,'independently_admitted_common_prefix_plan'
             prefix = prefix if allowed else 0
+            if self.config.identical_prefill_only and prefix:
+                # An exact input LCP does not certify FP16 KV invariance across
+                # different full/suffix GEMM shapes. Reuse saved final logits
+                # only for the entire stored prefill, otherwise compute full.
+                if prefix != expanded.length or self.cache.entry.expanded.length != expanded.length:
+                    prefix=0
+                    reason='partial_prefix_has_no_numerical_parity_certificate'
             # Uncertified auto calls the original generate. Preparing embeddings
             # above is admission overhead and remains inside the request timing.
             capture_allowed = self.scheduler.capture_allowed(expanded, context, len(ids_list))

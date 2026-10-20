@@ -1,0 +1,22 @@
+{
+  "decode_bottleneck_identified": true,
+  "decode_optimization_implemented": true,
+  "decode_quality_pass": true,
+  "decode_token_latency_speedup": 0.9865661257886983,
+  "decode_e2e_speedup": {
+    "planning": 0.9860185301693494,
+    "native_multi": 0.989317848465683
+  },
+  "prefix_parity_fixed": false,
+  "prefix_quality_pass": true,
+  "prefix_production_enabled": false,
+  "full_vlm_e2e_speedup": {
+    "planning": 0.8944417915772482,
+    "native_multi": 0.9515050557588962
+  },
+  "remaining_system_bottleneck": "Native dense FP16 GEMM execution; persistent M1 maintenance and full prefill remain charged",
+  "next_research_priority": "Kernel-level GEMM profiling under unchanged weights; seek a supported backend with proven full sampling quality and measured net gain",
+  "production_decode_enabled": false,
+  "formal_go": false,
+  "reason": "Default off; no independent production certificate, partial prefix remains unproved. See measured same-service/Original and cold-inclusive ratios separately."
+}
