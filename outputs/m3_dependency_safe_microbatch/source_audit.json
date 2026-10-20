@@ -1,0 +1,19 @@
+{
+  "changed_since_validation_snapshot": [
+    "worldstream/m3/sampling_microbatch.py",
+    "tools/worldstream_m3/microbatch/fallback.py",
+    "tests/worldstream_m3/test_sampling_microbatch.py"
+  ],
+  "late_loaded_fallback_sources": {
+    "tools/worldstream_m3/microbatch/fallback.py": "b1fee3b75be16cdf114a856931e4917a42f7d13f0040ae9a1aabc0a08bfda0a9",
+    "tools/worldstream_m3/microbatch/full_parity.py": "658836362ebffa281a83819f8db82bf2067f707dfac5bce5d8a356d269b7374e",
+    "tools/worldstream_m3/microbatch/greedy_engineering.py": "3c701a3af61e3cc528d57d222a56c42f9415765c2ab2598ffa81f4e622ed8f11",
+    "tools/worldstream_m3/microbatch/final_source.py": "fa79ed084083a636dad158c7a1e538fb83a4410186098217bc6ae7ff0d639bfd",
+    "tools/worldstream_m3/microbatch/trajectory.py": "31935333591c3cbec370e4a111c2aef4677a5580835886ffb52fcbc3ec0329d7"
+  },
+  "unexpected_execution_changes": [],
+  "admission_only_guard_extension_verified": true,
+  "late_loaded_sources_still_identical": true,
+  "regression_test_and_runtime_sources_unchanged": true,
+  "explanation": "Fallback modules are imported after complete service; exact loaded versions archived before fallback execution. Finalizer edits are reporting-only. The max_time admission rejection is AST-isolated and confirmed by complete real CUDA generation against measured source; tests are pinned again before pytest."
+}

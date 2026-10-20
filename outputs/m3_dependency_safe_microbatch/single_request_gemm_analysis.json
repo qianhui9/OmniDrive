@@ -1,0 +1,1760 @@
+{
+  "production_optimization_implemented": false,
+  "full_token": [
+    {
+      "repeat": 0,
+      "warmup": true,
+      "wall_ms": 25.96488897688687,
+      "gpu_ms": 25.960447311401367,
+      "cpu_submission_ms": 13.958110008388758
+    },
+    {
+      "repeat": 1,
+      "warmup": true,
+      "wall_ms": 25.755178881809115,
+      "gpu_ms": 25.75155258178711,
+      "cpu_submission_ms": 13.790444005280733
+    },
+    {
+      "repeat": 2,
+      "warmup": true,
+      "wall_ms": 25.7229118142277,
+      "gpu_ms": 25.71776008605957,
+      "cpu_submission_ms": 13.765522977337241
+    },
+    {
+      "repeat": 3,
+      "warmup": false,
+      "wall_ms": 25.70914290845394,
+      "gpu_ms": 25.705472946166992,
+      "cpu_submission_ms": 13.782975962385535
+    },
+    {
+      "repeat": 4,
+      "warmup": false,
+      "wall_ms": 25.691527174785733,
+      "gpu_ms": 25.68694305419922,
+      "cpu_submission_ms": 13.763163005933166
+    },
+    {
+      "repeat": 5,
+      "warmup": false,
+      "wall_ms": 25.706629967316985,
+      "gpu_ms": 25.70230484008789,
+      "cpu_submission_ms": 13.778097927570343
+    },
+    {
+      "repeat": 6,
+      "warmup": false,
+      "wall_ms": 25.662821950390935,
+      "gpu_ms": 25.659135818481445,
+      "cpu_submission_ms": 13.738071080297232
+    },
+    {
+      "repeat": 7,
+      "warmup": false,
+      "wall_ms": 25.67493193782866,
+      "gpu_ms": 25.670303344726562,
+      "cpu_submission_ms": 13.736899010837078
+    },
+    {
+      "repeat": 8,
+      "warmup": false,
+      "wall_ms": 25.663986802101135,
+      "gpu_ms": 25.660320281982422,
+      "cpu_submission_ms": 13.739355839788914
+    },
+    {
+      "repeat": 9,
+      "warmup": false,
+      "wall_ms": 25.677378987893462,
+      "gpu_ms": 25.671680450439453,
+      "cpu_submission_ms": 13.75111611559987
+    },
+    {
+      "repeat": 10,
+      "warmup": false,
+      "wall_ms": 25.702520040795207,
+      "gpu_ms": 25.69830322265625,
+      "cpu_submission_ms": 13.777177082374692
+    },
+    {
+      "repeat": 11,
+      "warmup": false,
+      "wall_ms": 25.69275419227779,
+      "gpu_ms": 25.688831329345703,
+      "cpu_submission_ms": 13.763716211542487
+    },
+    {
+      "repeat": 12,
+      "warmup": false,
+      "wall_ms": 25.65005701035261,
+      "gpu_ms": 25.645984649658203,
+      "cpu_submission_ms": 13.733261032029986
+    },
+    {
+      "repeat": 13,
+      "warmup": false,
+      "wall_ms": 25.610334938392043,
+      "gpu_ms": 25.606143951416016,
+      "cpu_submission_ms": 13.710503000766039
+    },
+    {
+      "repeat": 14,
+      "warmup": false,
+      "wall_ms": 25.63449810259044,
+      "gpu_ms": 25.629728317260742,
+      "cpu_submission_ms": 13.730752980336547
+    },
+    {
+      "repeat": 15,
+      "warmup": false,
+      "wall_ms": 25.619873078539968,
+      "gpu_ms": 25.615360260009766,
+      "cpu_submission_ms": 13.72353988699615
+    }
+  ],
+  "individual_real_module_gemm": [
+    {
+      "module": "model.layers.0.self_attn.q_proj.base_layer",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        4096,
+        4096
+      ],
+      "weight_dtype": "torch.float16",
+      "weight_bytes": 33554432,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.06978004239499569,
+          "gpu_ms": 0.06652799993753433,
+          "cpu_submission_ms": 0.022578053176403046
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.06018788553774357,
+          "gpu_ms": 0.05724800005555153,
+          "cpu_submission_ms": 0.012818025425076485
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.05881907418370247,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.011365162208676338
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.058424193412065506,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.010865041986107826
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.05622301250696182,
+          "gpu_ms": 0.05222399905323982,
+          "cpu_submission_ms": 0.008568866178393364
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.05613197572529316,
+          "gpu_ms": 0.05222399905323982,
+          "cpu_submission_ms": 0.008607981726527214
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.056484946981072426,
+          "gpu_ms": 0.05222399905323982,
+          "cpu_submission_ms": 0.008630799129605293
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.056197866797447205,
+          "gpu_ms": 0.05222399905323982,
+          "cpu_submission_ms": 0.008716946467757225
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.05657901056110859,
+          "gpu_ms": 0.052352000027894974,
+          "cpu_submission_ms": 0.008661067113280296
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.05663605406880379,
+          "gpu_ms": 0.05222399905323982,
+          "cpu_submission_ms": 0.008507166057825089
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.056216027587652206,
+          "gpu_ms": 0.05222399905323982,
+          "cpu_submission_ms": 0.008780043572187424
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.05627702921628952,
+          "gpu_ms": 0.05299200117588043,
+          "cpu_submission_ms": 0.008399831131100655
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 642.5098155695218,
+      "flop_per_weight_byte": 1.0
+    },
+    {
+      "module": "model.layers.0.self_attn.q_proj.lora_A.default",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        128,
+        4096
+      ],
+      "weight_dtype": "torch.float32",
+      "weight_bytes": 2097152,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.047212932258844376,
+          "gpu_ms": 0.044863998889923096,
+          "cpu_submission_ms": 0.039394013583660126
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.015933066606521606,
+          "gpu_ms": 0.013024000450968742,
+          "cpu_submission_ms": 0.007363036274909973
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.014869030565023422,
+          "gpu_ms": 0.011231999844312668,
+          "cpu_submission_ms": 0.006051035597920418
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.014340970665216446,
+          "gpu_ms": 0.01119999960064888,
+          "cpu_submission_ms": 0.0055551063269376755
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.013874145224690437,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005485024303197861
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.014432007446885109,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005522044375538826
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.013907905668020248,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005319016054272652
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.013940967619419098,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005257083103060722
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.014183809980750084,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.00520097091794014
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.014175893738865852,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005292939022183418
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.01381291076540947,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005292007699608803
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.013974029570817947,
+          "gpu_ms": 0.01033599954098463,
+          "cpu_submission_ms": 0.0052300747483968735
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 204.8000051736833,
+      "flop_per_weight_byte": 0.5
+    },
+    {
+      "module": "model.layers.0.self_attn.q_proj.lora_B.default",
+      "input_shape": [
+        1,
+        1,
+        128
+      ],
+      "weight_shape": [
+        4096,
+        128
+      ],
+      "weight_dtype": "torch.float32",
+      "weight_bytes": 2097152,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.01845485530793667,
+          "gpu_ms": 0.014336000196635723,
+          "cpu_submission_ms": 0.010738847777247429
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.013503013178706169,
+          "gpu_ms": 0.01027199998497963,
+          "cpu_submission_ms": 0.006700167432427406
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.012404052540659904,
+          "gpu_ms": 0.008991999551653862,
+          "cpu_submission_ms": 0.005837995558977127
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.012227101251482964,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005709938704967499
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.011986121535301208,
+          "gpu_ms": 0.0081599997356534,
+          "cpu_submission_ms": 0.005429144948720932
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.01811678521335125,
+          "gpu_ms": 0.014336000196635723,
+          "cpu_submission_ms": 0.011276919394731522
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.012236181646585464,
+          "gpu_ms": 0.008991999551653862,
+          "cpu_submission_ms": 0.005573965609073639
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.012021046131849289,
+          "gpu_ms": 0.00825599953532219,
+          "cpu_submission_ms": 0.005349982529878616
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.012106029316782951,
+          "gpu_ms": 0.009056000038981438,
+          "cpu_submission_ms": 0.005458015948534012
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.011996831744909286,
+          "gpu_ms": 0.008191999979317188,
+          "cpu_submission_ms": 0.005385838449001312
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.012186821550130844,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005377922207117081
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.01198495738208294,
+          "gpu_ms": 0.008191999979317188,
+          "cpu_submission_ms": 0.005330890417098999
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 233.22421091694554,
+      "flop_per_weight_byte": 0.5
+    },
+    {
+      "module": "model.layers.0.self_attn.k_proj.base_layer",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        4096,
+        4096
+      ],
+      "weight_dtype": "torch.float16",
+      "weight_bytes": 33554432,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.07181288674473763,
+          "gpu_ms": 0.06860800087451935,
+          "cpu_submission_ms": 0.023714033886790276
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.06277603097259998,
+          "gpu_ms": 0.059328000992536545,
+          "cpu_submission_ms": 0.012636883184313774
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.05866494029760361,
+          "gpu_ms": 0.05500800162553787,
+          "cpu_submission_ms": 0.009112991392612457
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.05771988071501255,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.008689938113093376
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.05732802674174309,
+          "gpu_ms": 0.053247999399900436,
+          "cpu_submission_ms": 0.008512986823916435
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.05808821879327297,
+          "gpu_ms": 0.05503999814391136,
+          "cpu_submission_ms": 0.008522067219018936
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.057952944189310074,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.008561881259083748
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.05746493116021156,
+          "gpu_ms": 0.053247999399900436,
+          "cpu_submission_ms": 0.008375849574804306
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.05772896111011505,
+          "gpu_ms": 0.05423999950289726,
+          "cpu_submission_ms": 0.008299015462398529
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.058169011026620865,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.008153961971402168
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.05790404975414276,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.008278992027044296
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.058072153478860855,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.008427072316408157
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 618.2641538305612,
+      "flop_per_weight_byte": 1.0
+    },
+    {
+      "module": "model.layers.0.self_attn.k_proj.lora_A.default",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        128,
+        4096
+      ],
+      "weight_dtype": "torch.float32",
+      "weight_bytes": 2097152,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.01867697574198246,
+          "gpu_ms": 0.015359999611973763,
+          "cpu_submission_ms": 0.010304851457476616
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.015106983482837677,
+          "gpu_ms": 0.012160000391304493,
+          "cpu_submission_ms": 0.006376998499035835
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.014529796317219734,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005839858204126358
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.014358200132846832,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005715992301702499
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.01409812830388546,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.0055620912462472916
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.014089979231357574,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005325069651007652
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.01409510150551796,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005387002602219582
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.01434306614100933,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005259178578853607
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.014713965356349945,
+          "gpu_ms": 0.01033599954098463,
+          "cpu_submission_ms": 0.005552079528570175
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.014211051166057587,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005407026037573814
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.013999175280332565,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005257083103060722
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.013874843716621399,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005340902134776115
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 204.8000051736833,
+      "flop_per_weight_byte": 0.5
+    },
+    {
+      "module": "model.layers.0.self_attn.k_proj.lora_B.default",
+      "input_shape": [
+        1,
+        1,
+        128
+      ],
+      "weight_shape": [
+        4096,
+        128
+      ],
+      "weight_dtype": "torch.float32",
+      "weight_bytes": 2097152,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.0167179387062788,
+          "gpu_ms": 0.013311999849975109,
+          "cpu_submission_ms": 0.008996110409498215
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.013767043128609657,
+          "gpu_ms": 0.01033599954098463,
+          "cpu_submission_ms": 0.006730901077389717
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.012761913239955902,
+          "gpu_ms": 0.009279999881982803,
+          "cpu_submission_ms": 0.0057891011238098145
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.012241071090102196,
+          "gpu_ms": 0.008960000239312649,
+          "cpu_submission_ms": 0.005733221769332886
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.012528151273727417,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.0056801363825798035
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.012465054169297218,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005607958883047104
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.012392876669764519,
+          "gpu_ms": 0.009151999838650227,
+          "cpu_submission_ms": 0.00561797060072422
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.012381002306938171,
+          "gpu_ms": 0.009088000282645226,
+          "cpu_submission_ms": 0.005548121407628059
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.01227506436407566,
+          "gpu_ms": 0.008511999621987343,
+          "cpu_submission_ms": 0.00554393045604229
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.011828029528260231,
+          "gpu_ms": 0.008191999979317188,
+          "cpu_submission_ms": 0.005432870239019394
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.012402189895510674,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005637062713503838
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.012382864952087402,
+          "gpu_ms": 0.008352000266313553,
+          "cpu_submission_ms": 0.005631009116768837
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 230.76055620341447,
+      "flop_per_weight_byte": 0.5
+    },
+    {
+      "module": "model.layers.0.self_attn.v_proj.base_layer",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        4096,
+        4096
+      ],
+      "weight_dtype": "torch.float16",
+      "weight_bytes": 33554432,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.06158510223031044,
+          "gpu_ms": 0.05734400078654289,
+          "cpu_submission_ms": 0.013930955901741982
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.05799112841486931,
+          "gpu_ms": 0.055135998874902725,
+          "cpu_submission_ms": 0.009584007784724236
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.05764001980423927,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.009055016562342644
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.0570730771869421,
+          "gpu_ms": 0.054048001766204834,
+          "cpu_submission_ms": 0.008732080459594727
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.057558994740247726,
+          "gpu_ms": 0.053247999399900436,
+          "cpu_submission_ms": 0.008651986718177795
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.05699298344552517,
+          "gpu_ms": 0.053247999399900436,
+          "cpu_submission_ms": 0.008622882887721062
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.05754712037742138,
+          "gpu_ms": 0.05423999950289726,
+          "cpu_submission_ms": 0.008721137419342995
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.05841907113790512,
+          "gpu_ms": 0.05411199852824211,
+          "cpu_submission_ms": 0.008746981620788574
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.05771988071501255,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.009016832336783409
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.0573229044675827,
+          "gpu_ms": 0.053247999399900436,
+          "cpu_submission_ms": 0.008509960025548935
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.057646073400974274,
+          "gpu_ms": 0.054048001766204834,
+          "cpu_submission_ms": 0.008898088708519936
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.057815806940197945,
+          "gpu_ms": 0.05423999950289726,
+          "cpu_submission_ms": 0.008522998541593552
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 620.8265042831044,
+      "flop_per_weight_byte": 1.0
+    },
+    {
+      "module": "model.layers.0.self_attn.v_proj.lora_A.default",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        128,
+        4096
+      ],
+      "weight_dtype": "torch.float32",
+      "weight_bytes": 2097152,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.018300022929906845,
+          "gpu_ms": 0.015359999611973763,
+          "cpu_submission_ms": 0.01002405770123005
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.015327008441090584,
+          "gpu_ms": 0.012223999947309494,
+          "cpu_submission_ms": 0.006708083674311638
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.014657853171229362,
+          "gpu_ms": 0.010944000445306301,
+          "cpu_submission_ms": 0.006070826202630997
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.014290912076830864,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005805864930152893
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.014546094462275505,
+          "gpu_ms": 0.011231999844312668,
+          "cpu_submission_ms": 0.005854060873389244
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.014342134818434715,
+          "gpu_ms": 0.010975999757647514,
+          "cpu_submission_ms": 0.005573965609073639
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.014360994100570679,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005519017577171326
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.014323042705655098,
+          "gpu_ms": 0.010463999584317207,
+          "cpu_submission_ms": 0.00561191700398922
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.014502089470624924,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005558133125305176
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.01395796425640583,
+          "gpu_ms": 0.01104000024497509,
+          "cpu_submission_ms": 0.005369074642658234
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.014245975762605667,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005609821528196335
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.01419498585164547,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.0055890996009111404
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 189.95941607469882,
+      "flop_per_weight_byte": 0.5
+    },
+    {
+      "module": "model.layers.0.self_attn.v_proj.lora_B.default",
+      "input_shape": [
+        1,
+        1,
+        128
+      ],
+      "weight_shape": [
+        4096,
+        128
+      ],
+      "weight_dtype": "torch.float32",
+      "weight_bytes": 2097152,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.016635050997138023,
+          "gpu_ms": 0.013120000250637531,
+          "cpu_submission_ms": 0.0089199747890234
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.013184966519474983,
+          "gpu_ms": 0.009312000125646591,
+          "cpu_submission_ms": 0.006530899554491043
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.012806849554181099,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005825888365507126
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.012324890121817589,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005610985681414604
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.012239906936883926,
+          "gpu_ms": 0.00825599953532219,
+          "cpu_submission_ms": 0.005484791472554207
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.012201955541968346,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005383044481277466
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.01231115311384201,
+          "gpu_ms": 0.009088000282645226,
+          "cpu_submission_ms": 0.005469191819429398
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.01189298927783966,
+          "gpu_ms": 0.008191999979317188,
+          "cpu_submission_ms": 0.005361856892704964
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.012106029316782951,
+          "gpu_ms": 0.008352000266313553,
+          "cpu_submission_ms": 0.005409121513366699
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.011869007721543312,
+          "gpu_ms": 0.009088000282645226,
+          "cpu_submission_ms": 0.005441019311547279
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.012214062735438347,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005411915481090546
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.012309057638049126,
+          "gpu_ms": 0.008320000022649765,
+          "cpu_submission_ms": 0.005458947271108627
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 230.76055620341447,
+      "flop_per_weight_byte": 0.5
+    },
+    {
+      "module": "model.layers.0.self_attn.o_proj.base_layer",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        4096,
+        4096
+      ],
+      "weight_dtype": "torch.float16",
+      "weight_bytes": 33554432,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.06206100806593895,
+          "gpu_ms": 0.058368001133203506,
+          "cpu_submission_ms": 0.014282995834946632
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.058256788179278374,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.009870855137705803
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.05760812200605869,
+          "gpu_ms": 0.05395200103521347,
+          "cpu_submission_ms": 0.009024050086736679
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.05711894482374191,
+          "gpu_ms": 0.053247999399900436,
+          "cpu_submission_ms": 0.008618924766778946
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.057753873988986015,
+          "gpu_ms": 0.05423999950289726,
+          "cpu_submission_ms": 0.008689938113093376
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.05786586552858353,
+          "gpu_ms": 0.05427199974656105,
+          "cpu_submission_ms": 0.00851391814649105
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.057382043451070786,
+          "gpu_ms": 0.053247999399900436,
+          "cpu_submission_ms": 0.008274102583527565
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.057009048759937286,
+          "gpu_ms": 0.053279999643564224,
+          "cpu_submission_ms": 0.008402857929468155
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.05741906352341175,
+          "gpu_ms": 0.054048001766204834,
+          "cpu_submission_ms": 0.008438946679234505
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.0573890283703804,
+          "gpu_ms": 0.05350400134921074,
+          "cpu_submission_ms": 0.008290866389870644
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.05667493678629398,
+          "gpu_ms": 0.05222399905323982,
+          "cpu_submission_ms": 0.008258968591690063
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.0574188306927681,
+          "gpu_ms": 0.0541439987719059,
+          "cpu_submission_ms": 0.008314847946166992
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 627.1387401662993,
+      "flop_per_weight_byte": 1.0
+    },
+    {
+      "module": "model.layers.0.self_attn.o_proj.lora_A.default",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        128,
+        4096
+      ],
+      "weight_dtype": "torch.float32",
+      "weight_bytes": 2097152,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.018070917576551437,
+          "gpu_ms": 0.014336000196635723,
+          "cpu_submission_ms": 0.009642913937568665
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.015001976862549782,
+          "gpu_ms": 0.011392000131309032,
+          "cpu_submission_ms": 0.006275949999690056
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.013977987691760063,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005592824891209602
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.013818033039569855,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005524139851331711
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.016720034182071686,
+          "gpu_ms": 0.013311999849975109,
+          "cpu_submission_ms": 0.008126022294163704
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.014317920431494713,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.005541834980249405
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.01416495069861412,
+          "gpu_ms": 0.011008000001311302,
+          "cpu_submission_ms": 0.005563022568821907
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.014038989320397377,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005434965714812279
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.01415587030351162,
+          "gpu_ms": 0.011168000288307667,
+          "cpu_submission_ms": 0.00551086850464344
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.014455057680606842,
+          "gpu_ms": 0.010239999741315842,
+          "cpu_submission_ms": 0.005523907020688057
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.013922108337283134,
+          "gpu_ms": 0.011231999844312668,
+          "cpu_submission_ms": 0.005448935553431511
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.014288118109107018,
+          "gpu_ms": 0.011264000087976456,
+          "cpu_submission_ms": 0.0056480057537555695
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 187.78223010932516,
+      "flop_per_weight_byte": 0.5
+    },
+    {
+      "module": "model.layers.0.self_attn.o_proj.lora_B.default",
+      "input_shape": [
+        1,
+        1,
+        128
+      ],
+      "weight_shape": [
+        4096,
+        128
+      ],
+      "weight_dtype": "torch.float32",
+      "weight_bytes": 2097152,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.017110025510191917,
+          "gpu_ms": 0.01414399966597557,
+          "cpu_submission_ms": 0.009537208825349808
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.013595912605524063,
+          "gpu_ms": 0.00940799992531538,
+          "cpu_submission_ms": 0.006401911377906799
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.01285504549741745,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.006003072485327721
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.012277159839868546,
+          "gpu_ms": 0.009088000282645226,
+          "cpu_submission_ms": 0.005600973963737488
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.012476928532123566,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.00568595714867115
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.012192875146865845,
+          "gpu_ms": 0.008448000065982342,
+          "cpu_submission_ms": 0.005492009222507477
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.012147007510066032,
+          "gpu_ms": 0.00825599953532219,
+          "cpu_submission_ms": 0.005461042746901512
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.012286938726902008,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.00569014810025692
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.012662028893828392,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.0057960860431194305
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.012781936675310135,
+          "gpu_ms": 0.009216000325977802,
+          "cpu_submission_ms": 0.005632871761918068
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.012816861271858215,
+          "gpu_ms": 0.009440000168979168,
+          "cpu_submission_ms": 0.0057390425354242325
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.012828968465328217,
+          "gpu_ms": 0.009312000125646591,
+          "cpu_submission_ms": 0.005694804713129997
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 227.5555475067212,
+      "flop_per_weight_byte": 0.5
+    },
+    {
+      "module": "model.layers.0.mlp.gate_proj",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        11008,
+        4096
+      ],
+      "weight_dtype": "torch.float16",
+      "weight_bytes": 90177536,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.14509214088320732,
+          "gpu_ms": 0.14131200313568115,
+          "cpu_submission_ms": 0.020339153707027435
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.13734400272369385,
+          "gpu_ms": 0.13312000036239624,
+          "cpu_submission_ms": 0.011645955964922905
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.13695191591978073,
+          "gpu_ms": 0.13312000036239624,
+          "cpu_submission_ms": 0.010355841368436813
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.13664201833307743,
+          "gpu_ms": 0.13312000036239624,
+          "cpu_submission_ms": 0.010211020708084106
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.13599381782114506,
+          "gpu_ms": 0.13209599256515503,
+          "cpu_submission_ms": 0.01012999564409256
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.13532210141420364,
+          "gpu_ms": 0.131071999669075,
+          "cpu_submission_ms": 0.009945128113031387
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.13514002785086632,
+          "gpu_ms": 0.131071999669075,
+          "cpu_submission_ms": 0.00997120514512062
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.13556098565459251,
+          "gpu_ms": 0.13180799782276154,
+          "cpu_submission_ms": 0.01016492024064064
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.13581104576587677,
+          "gpu_ms": 0.13209599256515503,
+          "cpu_submission_ms": 0.00995909795165062
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.1357709988951683,
+          "gpu_ms": 0.13209599256515503,
+          "cpu_submission_ms": 0.009939074516296387
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.13569509610533714,
+          "gpu_ms": 0.1319040060043335,
+          "cpu_submission_ms": 0.010149087756872177
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.13551395386457443,
+          "gpu_ms": 0.1319359987974167,
+          "cpu_submission_ms": 0.009982846677303314
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 683.4945490386183,
+      "flop_per_weight_byte": 1.0
+    },
+    {
+      "module": "model.layers.0.mlp.up_proj",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        11008,
+        4096
+      ],
+      "weight_dtype": "torch.float16",
+      "weight_bytes": 90177536,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.13881688937544823,
+          "gpu_ms": 0.13516800105571747,
+          "cpu_submission_ms": 0.01522689126431942
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.13520009815692902,
+          "gpu_ms": 0.131071999669075,
+          "cpu_submission_ms": 0.010974938049912453
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.1346748322248459,
+          "gpu_ms": 0.131071999669075,
+          "cpu_submission_ms": 0.010168878361582756
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.13400614261627197,
+          "gpu_ms": 0.130048006772995,
+          "cpu_submission_ms": 0.010092975571751595
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.13402500189840794,
+          "gpu_ms": 0.13078400492668152,
+          "cpu_submission_ms": 0.00989297404885292
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.13398402370512486,
+          "gpu_ms": 0.12998400628566742,
+          "cpu_submission_ms": 0.010085990652441978
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.1340801827609539,
+          "gpu_ms": 0.130048006772995,
+          "cpu_submission_ms": 0.00975816510617733
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.13475795276463032,
+          "gpu_ms": 0.13100799918174744,
+          "cpu_submission_ms": 0.009689945727586746
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.13361102901399136,
+          "gpu_ms": 0.1300159990787506,
+          "cpu_submission_ms": 0.009738141670823097
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.13433396816253662,
+          "gpu_ms": 0.13087999820709229,
+          "cpu_submission_ms": 0.009689945727586746
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.13423804193735123,
+          "gpu_ms": 0.13087999820709229,
+          "cpu_submission_ms": 0.00992300920188427
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.1344471238553524,
+          "gpu_ms": 0.131071999669075,
+          "cpu_submission_ms": 0.009899027645587921
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 689.5150217379731,
+      "flop_per_weight_byte": 1.0
+    },
+    {
+      "module": "model.layers.0.mlp.down_proj",
+      "input_shape": [
+        1,
+        1,
+        11008
+      ],
+      "weight_shape": [
+        4096,
+        11008
+      ],
+      "weight_dtype": "torch.float16",
+      "weight_bytes": 90177536,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.12930016964673996,
+          "gpu_ms": 0.12595200538635254,
+          "cpu_submission_ms": 0.014034099876880646
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.12660608626902103,
+          "gpu_ms": 0.1228799968957901,
+          "cpu_submission_ms": 0.00958004966378212
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.12479489669203758,
+          "gpu_ms": 0.12083200365304947,
+          "cpu_submission_ms": 0.008749077096581459
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.12453901581466198,
+          "gpu_ms": 0.12169600278139114,
+          "cpu_submission_ms": 0.008708098903298378
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.12468895874917507,
+          "gpu_ms": 0.12083200365304947,
+          "cpu_submission_ms": 0.008733011782169342
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.1253590453416109,
+          "gpu_ms": 0.12169600278139114,
+          "cpu_submission_ms": 0.008460134267807007
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.1268379855901003,
+          "gpu_ms": 0.12383999675512314,
+          "cpu_submission_ms": 0.008721137419342995
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.12580212205648422,
+          "gpu_ms": 0.12185599654912949,
+          "cpu_submission_ms": 0.008658040314912796
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.1256689429283142,
+          "gpu_ms": 0.12185599654912949,
+          "cpu_submission_ms": 0.008434988558292389
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.12417696416378021,
+          "gpu_ms": 0.11980800330638885,
+          "cpu_submission_ms": 0.008234987035393715
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.12480700388550758,
+          "gpu_ms": 0.12083200365304947,
+          "cpu_submission_ms": 0.008362112566828728
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.12485403567552567,
+          "gpu_ms": 0.12083200365304947,
+          "cpu_submission_ms": 0.00840798020362854
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 741.006556821678,
+      "flop_per_weight_byte": 1.0
+    },
+    {
+      "module": "lm_head",
+      "input_shape": [
+        1,
+        1,
+        4096
+      ],
+      "weight_shape": [
+        32000,
+        4096
+      ],
+      "weight_dtype": "torch.float16",
+      "weight_bytes": 262144000,
+      "rows": [
+        {
+          "repeat": 0,
+          "warmup": true,
+          "wall_ms": 0.36658812314271927,
+          "gpu_ms": 0.3633280098438263,
+          "cpu_submission_ms": 0.018215039744973183
+        },
+        {
+          "repeat": 1,
+          "warmup": true,
+          "wall_ms": 0.3639680799096823,
+          "gpu_ms": 0.3603839874267578,
+          "cpu_submission_ms": 0.012620119377970695
+        },
+        {
+          "repeat": 2,
+          "warmup": true,
+          "wall_ms": 0.3638151101768017,
+          "gpu_ms": 0.3604480028152466,
+          "cpu_submission_ms": 0.010975170880556107
+        },
+        {
+          "repeat": 3,
+          "warmup": false,
+          "wall_ms": 0.3631019499152899,
+          "gpu_ms": 0.35942399501800537,
+          "cpu_submission_ms": 0.011001946404576302
+        },
+        {
+          "repeat": 4,
+          "warmup": false,
+          "wall_ms": 0.3614570014178753,
+          "gpu_ms": 0.35737600922584534,
+          "cpu_submission_ms": 0.010585878044366837
+        },
+        {
+          "repeat": 5,
+          "warmup": false,
+          "wall_ms": 0.3610828425735235,
+          "gpu_ms": 0.35737600922584534,
+          "cpu_submission_ms": 0.010366784408688545
+        },
+        {
+          "repeat": 6,
+          "warmup": false,
+          "wall_ms": 0.36100693978369236,
+          "gpu_ms": 0.3572799861431122,
+          "cpu_submission_ms": 0.01064687967300415
+        },
+        {
+          "repeat": 7,
+          "warmup": false,
+          "wall_ms": 0.3639198839664459,
+          "gpu_ms": 0.35942399501800537,
+          "cpu_submission_ms": 0.01057400368154049
+        },
+        {
+          "repeat": 8,
+          "warmup": false,
+          "wall_ms": 0.362608814612031,
+          "gpu_ms": 0.35839998722076416,
+          "cpu_submission_ms": 0.010570976883172989
+        },
+        {
+          "repeat": 9,
+          "warmup": false,
+          "wall_ms": 0.3612530417740345,
+          "gpu_ms": 0.35737600922584534,
+          "cpu_submission_ms": 0.010517891496419907
+        },
+        {
+          "repeat": 10,
+          "warmup": false,
+          "wall_ms": 0.36062602885067463,
+          "gpu_ms": 0.35737600922584534,
+          "cpu_submission_ms": 0.010387971997261047
+        },
+        {
+          "repeat": 11,
+          "warmup": false,
+          "wall_ms": 0.36080414429306984,
+          "gpu_ms": 0.35737600922584534,
+          "cpu_submission_ms": 0.010351184755563736
+        }
+      ],
+      "weight_bytes_per_gpu_interval_gb_s": 733.5243363645513,
+      "flop_per_weight_byte": 1.0
+    }
+  ],
+  "leaf_kernel_totals_ms": {
+    "other": 21.12000000000022,
+    "gemm_gemv": 79.03200000000022
+  },
+  "decode_trace_calls": 4,
+  "inference": "Batch=1 projections have approximately one/two FLOPs per weight byte per output row, and measured batch throughput improves sharply as shared weight reads serve more rows. This is consistent with weight-traffic/shape efficiency limits; no unmeasured DRAM counter or compute utilization is claimed.",
+  "chosen_finite_direction": "Batch=1 GEMM diagnosis, with commit dependency census only",
+  "decision": "No certified minimal replacement identified; original dense FP16/LoRA math retained. No CUDA Graph recapture, precision change, quantization or network rewrite was attempted.",
+  "timings": "GPU event intervals include host gaps. Operator CUDA attribution is not added to leaf kernels."
+}

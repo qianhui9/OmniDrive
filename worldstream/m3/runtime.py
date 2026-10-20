@@ -32,6 +32,16 @@ class M3Runtime:
     def generate(self, lm_head, input_ids_list, vision_carriers, world_state=None,
                  visual_execution=None, context=None, questions=None, layout=None,
                  verified_state=None, tokenizer=None, task_evidence=None, **generation):
+        if self.config.experimental_rng_isolated_microbatch:
+            from .sampling_microbatch import SamplingMicrobatchExecutor
+            ids=list(input_ids_list);qs=list(questions) if questions is not None else ['']*len(ids)
+            executor=SamplingMicrobatchExecutor(self.config.sampling_microbatch_size,self.config.sampling_microbatch_seed)
+            answer,diag=executor.try_generate(lm_head,ids,vision_carriers,qs,dict(context or {}),tokenizer,**generation)
+            if answer is not None:return answer,dict(mode='experimental_rng_isolated_microbatch',sampling_microbatch=diag)
+            # Attempt work is charged; failed temporary KV never enters PrefixCache.
+            self.reset()
+            native=[lm_head.generate(inputs=x[None] if x.ndim==1 else x,images=vision_carriers,**generation) for x in ids]
+            return native,dict(mode='full',reason='sampling_microbatch_native_fallback',sampling_microbatch=diag)
         args=dict(world_state=world_state,visual_execution=visual_execution,context=context,
             questions=questions,layout=layout,verified_state=verified_state,tokenizer=tokenizer,
             task_evidence=task_evidence,**generation)

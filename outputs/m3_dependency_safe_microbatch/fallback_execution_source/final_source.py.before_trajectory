@@ -1,0 +1,43 @@
+"""Real complete-generation confirmation of an admission-only guard extension."""
+import hashlib
+import importlib
+import torch
+from .common import OLD,write_json,measure
+
+
+@torch.no_grad()
+def run(model,root):
+    import worldstream.m3.sampling_microbatch as module
+    previous_class=module.SamplingMicrobatchExecutor
+    # Keep the executing module dictionary separate: a plain reload would also
+    # change the old class's function globals and invalidate this comparison.
+    import types
+    previous=types.ModuleType('worldstream.m3._measured_sampling_microbatch')
+    previous.__package__='worldstream.m3'
+    measured=(root/'validation/source/worldstream/m3/sampling_microbatch.py').read_text()
+    exec(compile(measured,'measured_sampling_microbatch.py','exec'),previous.__dict__)
+    importlib.reload(module)
+    snapshots=torch.load(OLD/'phase1/carrier_snapshots.pt',map_location='cpu');first=snapshots[0]
+    selected=[s for s in snapshots if (s['scene'],s['frame'])==(first['scene'],first['frame'])][:4]
+    ids=[torch.tensor(s['prompt_ids'],device='cuda') for s in selected]
+    carriers=selected[0]['carriers'].cuda();questions=[s['question'] for s in selected]
+    context=dict(scene_id=first['scene'],frame_id=first['frame'],camera_ids=list('abcdef'))
+    from .common import SAMPLING
+    (old,old_diag),old_time=measure(lambda:previous.SamplingMicrobatchExecutor(4,123).try_generate(
+        model.lm_head,ids,carriers,questions,context,model.tokenizer,**SAMPLING))
+    (new,new_diag),new_time=measure(lambda:module.SamplingMicrobatchExecutor(4,123).try_generate(
+        model.lm_head,ids,carriers,questions,context,model.tokenizer,**SAMPLING))
+    artifact=dict(admission_only_change='Reject config.max_time because the custom loop does not implement wall-time stopping',
+        actual_experiment_max_time=None,old=old_time,final=new_time,
+        old_ids=[t.cpu().tolist() for t in old] if old is not None else None,
+        final_ids=[t.cpu().tolist() for t in new] if new is not None else None,
+        admitted=old_diag['admitted'] and new_diag['admitted'],
+        complete_token_ids_equal=old is not None and new is not None and all(torch.equal(a,b) for a,b in zip(old,new)),
+        private_rng_states_equal=[r['final_rng_sha256'] for r in old_diag.get('requests',[])]==[r['final_rng_sha256'] for r in new_diag.get('requests',[])],
+        final_source_sha256=hashlib.sha256(open(module.__file__,'rb').read()).hexdigest(),
+        scope='Four actual independent same-frame six-camera full visual prompts, original 320-token sampled complete outputs; '
+            'not an E2E rerun and not a sampling/quality certificate')
+    write_json(root/'final_source_confirmation.json',artifact)
+    if not artifact['complete_token_ids_equal'] or not artifact['private_rng_states_equal']:
+        raise RuntimeError('Admission-only final source confirmation failed')
+    return artifact

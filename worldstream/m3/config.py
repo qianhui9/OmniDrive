@@ -33,8 +33,17 @@ class M3Config:
     # Append extensions: retain the established positional constructor contract.
     decode_cuda_graph: bool = False
     identical_prefill_only: bool = False  # conservative research guard, Auto still gated
+    experimental_rng_isolated_microbatch: bool = False
+    sampling_microbatch_size: int = 2
+    sampling_microbatch_seed: int = 0
 
     def __post_init__(self):
+        if self.sampling_microbatch_size not in (2,4):
+            raise ValueError('Sampling microbatch research supports fixed groups of 2/4')
+        if self.experimental_rng_isolated_microbatch and (not self.offline_experiment or
+                self.batched_decode or self.experimental_direct_query or self.decode_cuda_graph or
+                self.state_context!='none' or self.mode!='full'):
+            raise ValueError('Isolated sampling requires explicit offline full-input mode with other shortcuts disabled')
         if self.experimental_direct_query and (not self.offline_experiment or not self.task_evidence_enabled):
             raise ValueError('Direct task execution requires an explicit offline evidence experiment')
         if self.task_evidence_enabled and self.state_context != 'none':

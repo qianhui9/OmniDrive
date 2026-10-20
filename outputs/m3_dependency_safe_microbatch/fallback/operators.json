@@ -1,0 +1,2761 @@
+[
+  {
+    "name": "aten::new_ones",
+    "calls": 4,
+    "self_cpu_ms": 0.015,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        577
+      ],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::new_empty",
+    "calls": 4,
+    "self_cpu_ms": 0.006,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        577
+      ],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::empty",
+    "calls": 16,
+    "self_cpu_ms": 0.144,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::fill_",
+    "calls": 4,
+    "self_cpu_ms": 0.023,
+    "self_cuda_ms": 0.005,
+    "input_shapes": [
+      [
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "cudaLaunchKernel",
+    "calls": 8644,
+    "self_cpu_ms": 10.95,
+    "self_cuda_ms": 10.73,
+    "input_shapes": []
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<long>, at::detail::Array<char*, 1> >(int, at::native::FillFunctor<long>, at::detail::Array<char*, 1>)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.005,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::to",
+    "calls": 4,
+    "self_cpu_ms": 0.008,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::_to_copy",
+    "calls": 4,
+    "self_cpu_ms": 0.011,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::empty_strided",
+    "calls": 1176,
+    "self_cpu_ms": 1.255,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::copy_",
+    "calls": 4,
+    "self_cpu_ms": 0.016,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      []
+    ]
+  },
+  {
+    "name": "cudaMemcpyAsync",
+    "calls": 8,
+    "self_cpu_ms": 0.065,
+    "self_cuda_ms": 0.0,
+    "input_shapes": []
+  },
+  {
+    "name": "cudaStreamSynchronize",
+    "calls": 4,
+    "self_cpu_ms": 15.2,
+    "self_cuda_ms": 0.0,
+    "input_shapes": []
+  },
+  {
+    "name": "Memcpy HtoD (Pageable -> Device)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::lift_fresh",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "name": "aten::detach_",
+    "calls": 4,
+    "self_cpu_ms": 0.005,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "name": "detach_",
+    "calls": 4,
+    "self_cpu_ms": 0.001,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "name": "aten::view",
+    "calls": 4,
+    "self_cpu_ms": 0.008,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::to",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::embedding",
+    "calls": 4,
+    "self_cpu_ms": 0.019,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        32000,
+        4096
+      ],
+      [
+        1,
+        1
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 260,
+    "self_cpu_ms": 0.124,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 260,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::index_select",
+    "calls": 4,
+    "self_cpu_ms": 0.036,
+    "self_cuda_ms": 0.012,
+    "input_shapes": [
+      [
+        32000,
+        4096
+      ],
+      [],
+      [
+        1
+      ]
+    ]
+  },
+  {
+    "name": "aten::resize_",
+    "calls": 4,
+    "self_cpu_ms": 0.009,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        0
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::(anonymous namespace)::indexSelectSmallIndex<c10::Half, long, unsigned int, 2, 2, -2>(at::cuda::detail::TensorInfo<c10::Half, unsigned int>, at::cuda::detail::TensorInfo<c10::Half, unsigned int>, at::cuda::detail::TensorInfo<long, unsigned int>, int, int, unsigned int, long)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.012,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::view",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::slice",
+    "calls": 4,
+    "self_cpu_ms": 0.012,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        578
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 8,
+    "self_cpu_ms": 0.001,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        578
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::unsqueeze",
+    "calls": 4,
+    "self_cpu_ms": 0.006,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::unsqueeze",
+    "calls": 4,
+    "self_cpu_ms": 0.001,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        578
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::slice",
+    "calls": 4,
+    "self_cpu_ms": 0.002,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 8,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::expand",
+    "calls": 4,
+    "self_cpu_ms": 0.006,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::to",
+    "calls": 8,
+    "self_cpu_ms": 0.032,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::_to_copy",
+    "calls": 8,
+    "self_cpu_ms": 0.017,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::copy_",
+    "calls": 12,
+    "self_cpu_ms": 0.027,
+    "self_cuda_ms": 0.028,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#20}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+    "calls": 392,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 1.176,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::rsub",
+    "calls": 4,
+    "self_cpu_ms": 0.013,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::sub",
+    "calls": 4,
+    "self_cpu_ms": 0.029,
+    "self_cuda_ms": 0.008,
+    "input_shapes": [
+      [],
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctorOnOther_add<c10::Half>, at::detail::Array<char*, 2> >(int, at::native::CUDAFunctorOnOther_add<c10::Half>, at::detail::Array<char*, 2>)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.008,
+    "input_shapes": []
+  },
+  {
+    "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#22}::operator()() const::{lambda(bool)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#22}::operator()() const::{lambda(bool)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.012,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::masked_fill",
+    "calls": 4,
+    "self_cpu_ms": 0.015,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::clone",
+    "calls": 4,
+    "self_cpu_ms": 0.015,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::empty_like",
+    "calls": 4,
+    "self_cpu_ms": 0.007,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::masked_fill_",
+    "calls": 4,
+    "self_cpu_ms": 0.018,
+    "self_cuda_ms": 0.008,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "Memcpy DtoD (Device -> Device)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.004,
+    "input_shapes": []
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::masked_fill_kernel<bool>(at::TensorIterator&, c10::Scalar const&)::{lambda()#1}::operator()() const::{lambda()#22}::operator()() const::{lambda(c10::Half, bool)#1}, at::detail::Array<char*, 3> >(int, at::native::(anonymous namespace)::masked_fill_kernel<bool>(at::TensorIterator&, c10::Scalar const&)::{lambda()#1}::operator()() const::{lambda()#22}::operator()() const::{lambda(c10::Half, bool)#1}, at::detail::Array<char*, 3>)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.008,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::to",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::to",
+    "calls": 1804,
+    "self_cpu_ms": 1.313,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::_to_copy",
+    "calls": 1032,
+    "self_cpu_ms": 2.107,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::copy_",
+    "calls": 1032,
+    "self_cpu_ms": 1.996,
+    "self_cuda_ms": 3.429,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        1,
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::unrolled_elementwise_kernel<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1> >(int, at::native::direct_copy_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#14}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>, TrivialOffsetCalculator<1, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<1>, at::native::memory::StoreWithCast<1>)",
+    "calls": 776,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 2.661,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::pow",
+    "calls": 260,
+    "self_cpu_ms": 1.189,
+    "self_cuda_ms": 0.276,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::result_type",
+    "calls": 260,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::pow_tensor_scalar_kernel_impl<float, float>(at::TensorIteratorBase&, float)::{lambda(float)#1}, at::detail::Array<char*, 2> >(int, at::native::(anonymous namespace)::pow_tensor_scalar_kernel_impl<float, float>(at::TensorIteratorBase&, float)::{lambda(float)#1}, at::detail::Array<char*, 2>)",
+    "calls": 260,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.276,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::mean",
+    "calls": 260,
+    "self_cpu_ms": 1.189,
+    "self_cuda_ms": 0.918,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::reduce_kernel<512, 1, at::native::ReduceOp<float, at::native::MeanOps<float, float>, unsigned int, float, 4> >(at::native::ReduceOp<float, at::native::MeanOps<float, float>, unsigned int, float, 4>)",
+    "calls": 260,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.918,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::add",
+    "calls": 260,
+    "self_cpu_ms": 0.834,
+    "self_cuda_ms": 0.42,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctorOnSelf_add<float>, at::detail::Array<char*, 2> >(int, at::native::CUDAFunctorOnSelf_add<float>, at::detail::Array<char*, 2>)",
+    "calls": 260,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.42,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::rsqrt",
+    "calls": 260,
+    "self_cpu_ms": 0.791,
+    "self_cuda_ms": 0.515,
+    "input_shapes": [
+      [
+        1,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::rsqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#4}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2> >(int, at::native::rsqrt_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#4}::operator()() const::{lambda(float)#1}, at::detail::Array<char*, 2>)",
+    "calls": 260,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.515,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::mul",
+    "calls": 260,
+    "self_cpu_ms": 0.816,
+    "self_cuda_ms": 0.52,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+    "calls": 260,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.52,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::mul",
+    "calls": 260,
+    "self_cpu_ms": 0.805,
+    "self_cuda_ms": 0.521,
+    "input_shapes": [
+      [
+        4096
+      ],
+      [
+        1,
+        1,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3> >(int, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 3>)",
+    "calls": 388,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.777,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::linear",
+    "calls": 512,
+    "self_cpu_ms": 1.227,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        4096,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::t",
+    "calls": 512,
+    "self_cpu_ms": 0.525,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 512,
+    "self_cpu_ms": 0.034,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        4096
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 512,
+    "self_cpu_ms": 0.004,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        4096
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::matmul",
+    "calls": 512,
+    "self_cpu_ms": 1.193,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        4096,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 1284,
+    "self_cpu_ms": 0.205,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 1284,
+    "self_cpu_ms": 0.011,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::mm",
+    "calls": 512,
+    "self_cpu_ms": 4.362,
+    "self_cuda_ms": 23.411,
+    "input_shapes": [
+      [
+        1,
+        4096
+      ],
+      [
+        4096,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags",
+    "calls": 2824,
+    "self_cpu_ms": 0.061,
+    "self_cuda_ms": 3.56,
+    "input_shapes": []
+  },
+  {
+    "name": "ampere_fp16_s16816gemm_fp16_64x64_sliced1x2_ldg8_f2f_stages_64x5_tn",
+    "calls": 640,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 37.726,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::_unsafe_view",
+    "calls": 1152,
+    "self_cpu_ms": 0.039,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::dropout",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::linear",
+    "calls": 512,
+    "self_cpu_ms": 1.07,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        128,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::t",
+    "calls": 512,
+    "self_cpu_ms": 0.518,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        128,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 512,
+    "self_cpu_ms": 0.014,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        128,
+        4096
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 512,
+    "self_cpu_ms": 0.006,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        128,
+        4096
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::matmul",
+    "calls": 512,
+    "self_cpu_ms": 1.167,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        4096,
+        128
+      ]
+    ]
+  },
+  {
+    "name": "aten::mm",
+    "calls": 512,
+    "self_cpu_ms": 2.422,
+    "self_cuda_ms": 3.071,
+    "input_shapes": [
+      [
+        1,
+        4096
+      ],
+      [
+        4096,
+        128
+      ]
+    ]
+  },
+  {
+    "name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, float, float, float, float, false, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 3.071,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::_unsafe_view",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::linear",
+    "calls": 512,
+    "self_cpu_ms": 1.02,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        128
+      ],
+      [
+        4096,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::t",
+    "calls": 512,
+    "self_cpu_ms": 0.474,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        128
+      ]
+    ]
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 512,
+    "self_cpu_ms": 0.014,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 512,
+    "self_cpu_ms": 0.008,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::matmul",
+    "calls": 512,
+    "self_cpu_ms": 1.112,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        128
+      ],
+      [
+        128,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 512,
+    "self_cpu_ms": 0.045,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::mm",
+    "calls": 512,
+    "self_cpu_ms": 2.071,
+    "self_cuda_ms": 2.56,
+    "input_shapes": [
+      [
+        1,
+        128
+      ],
+      [
+        128,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "void gemv2T_kernel_val<int, int, float, float, float, float, 128, 16, 2, 2, false, false, cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>, float, float)",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 2.56,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::mul",
+    "calls": 512,
+    "self_cpu_ms": 1.727,
+    "self_cuda_ms": 0.53,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2> >(int, at::native::AUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2>)",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.53,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::add_",
+    "calls": 512,
+    "self_cpu_ms": 1.196,
+    "self_cuda_ms": 1.559,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        1,
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::unrolled_elementwise_kernel<at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1> >(int, at::native::CUDAFunctor_add<float>, at::detail::Array<char*, 3>, TrivialOffsetCalculator<2, unsigned int>, TrivialOffsetCalculator<1, unsigned int>, at::native::memory::LoadWithCast<2>, at::native::memory::StoreWithCast<1>)",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 1.559,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::view",
+    "calls": 384,
+    "self_cpu_ms": 0.011,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 384,
+    "self_cpu_ms": 0.126,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        32,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 384,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        32,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::slice",
+    "calls": 768,
+    "self_cpu_ms": 0.219,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096,
+        128
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 768,
+    "self_cpu_ms": 0.004,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::to",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        578,
+        128
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::squeeze",
+    "calls": 256,
+    "self_cpu_ms": 0.15,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        578,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        578,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::squeeze",
+    "calls": 256,
+    "self_cpu_ms": 0.016,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        578,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        578,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::index",
+    "calls": 256,
+    "self_cpu_ms": 1.523,
+    "self_cuda_ms": 0.658,
+    "input_shapes": [
+      [
+        578,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        578,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::index_elementwise_kernel<128, 4, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<2> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char*, long)#1} const&)::{lambda(int)#1})",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.658,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::unsqueeze",
+    "calls": 256,
+    "self_cpu_ms": 0.134,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::mul",
+    "calls": 512,
+    "self_cpu_ms": 1.664,
+    "self_cuda_ms": 1.298,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      [
+        1,
+        1,
+        1,
+        128
+      ]
+    ]
+  },
+  {
+    "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > >(at::TensorIteratorBase&, at::native::BinaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> > const&)::{lambda(int)#1})",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 1.298,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::slice",
+    "calls": 512,
+    "self_cpu_ms": 0.304,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 768,
+    "self_cpu_ms": 0.016,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::neg",
+    "calls": 256,
+    "self_cpu_ms": 0.891,
+    "self_cuda_ms": 0.65,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        64
+      ]
+    ]
+  },
+  {
+    "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1} const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1}>(at::TensorIteratorBase&, at::native::neg_kernel_cuda(at::TensorIteratorBase&)::{lambda()#2}::operator()() const::{lambda()#16}::operator()() const::{lambda(c10::Half)#1} const&)::{lambda(int)#1})",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.65,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::cat",
+    "calls": 512,
+    "self_cpu_ms": 1.931,
+    "self_cuda_ms": 6.899,
+    "input_shapes": [
+      [],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::(anonymous namespace)::CatArrayBatchedCopy<c10::Half, unsigned int, 4, 64, 64>(c10::Half*, at::native::(anonymous namespace)::CatArrInputTensorMetadata<c10::Half, unsigned int, 64, 64>, at::native::(anonymous namespace)::TensorSizeStride<unsigned int, 4u>, int, unsigned int)",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 6.899,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::add",
+    "calls": 256,
+    "self_cpu_ms": 0.769,
+    "self_cuda_ms": 0.261,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::CUDAFunctor_add<c10::Half>, at::detail::Array<char*, 3> >(int, at::native::CUDAFunctor_add<c10::Half>, at::detail::Array<char*, 3>)",
+    "calls": 512,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.773,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 128,
+    "self_cpu_ms": 0.124,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        578,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 256,
+    "self_cpu_ms": 0.005,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        578,
+        128
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::matmul",
+    "calls": 128,
+    "self_cpu_ms": 0.621,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      [
+        1,
+        32,
+        128,
+        578
+      ]
+    ]
+  },
+  {
+    "name": "aten::expand",
+    "calls": 128,
+    "self_cpu_ms": 0.134,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 128,
+    "self_cpu_ms": 0.13,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 128,
+    "self_cpu_ms": 0.001,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::expand",
+    "calls": 128,
+    "self_cpu_ms": 0.003,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        128,
+        578
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 128,
+    "self_cpu_ms": 0.072,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        128,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        128,
+        578
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        128,
+        578
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::bmm",
+    "calls": 128,
+    "self_cpu_ms": 0.884,
+    "self_cuda_ms": 1.409,
+    "input_shapes": [
+      [
+        32,
+        1,
+        128
+      ],
+      [
+        32,
+        128,
+        578
+      ]
+    ]
+  },
+  {
+    "name": "aten::_unsafe_view",
+    "calls": 128,
+    "self_cpu_ms": 0.002,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        32,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::div",
+    "calls": 128,
+    "self_cpu_ms": 0.522,
+    "self_cuda_ms": 0.256,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "std::enable_if<true, void>::type internal::gemvx::kernel<int, int, __half, __half, __half, float, true, true, true, false, 7, false, cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float>)",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 1.409,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::add",
+    "calls": 128,
+    "self_cpu_ms": 0.408,
+    "self_cuda_ms": 0.384,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [
+        1,
+        1,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::BUnaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2> >(int, at::native::BUnaryFunctor<c10::Half, c10::Half, c10::Half, at::native::binary_internal::MulFunctor<float> >, at::detail::Array<char*, 2>)",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.256,
+    "input_shapes": []
+  },
+  {
+    "name": "void at::native::elementwise_kernel<128, 4, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<c10::Half> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<c10::Half> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl<at::native::CUDAFunctor_add<c10::Half> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<c10::Half> const&)::{lambda(int)#1})",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.384,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::softmax",
+    "calls": 128,
+    "self_cpu_ms": 0.18,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::_softmax",
+    "calls": 128,
+    "self_cpu_ms": 0.461,
+    "self_cuda_ms": 0.516,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::to",
+    "calls": 128,
+    "self_cpu_ms": 0.184,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "void (anonymous namespace)::softmax_warp_forward<c10::Half, float, float, 10, false, false>(float*, c10::Half const*, int, int, int, bool const*, int, bool)",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.516,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::_to_copy",
+    "calls": 128,
+    "self_cpu_ms": 0.3,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::copy_",
+    "calls": 128,
+    "self_cpu_ms": 0.264,
+    "self_cuda_ms": 0.384,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::matmul",
+    "calls": 128,
+    "self_cpu_ms": 0.69,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [
+        1,
+        32,
+        578,
+        128
+      ]
+    ]
+  },
+  {
+    "name": "aten::expand",
+    "calls": 128,
+    "self_cpu_ms": 0.009,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 128,
+    "self_cpu_ms": 0.066,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 128,
+    "self_cpu_ms": 0.001,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        578
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::expand",
+    "calls": 128,
+    "self_cpu_ms": 0.004,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        578,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 128,
+    "self_cpu_ms": 0.013,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        578,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        578,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::bmm",
+    "calls": 128,
+    "self_cpu_ms": 0.644,
+    "self_cuda_ms": 1.815,
+    "input_shapes": [
+      [
+        32,
+        1,
+        578
+      ],
+      [
+        32,
+        578,
+        128
+      ]
+    ]
+  },
+  {
+    "name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, __half, __half, __half, float, false, true, false, false, 9, false, cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float> >(cublasGemvParams<cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half const>, cublasGemvTensorStridedBatched<__half>, float>)",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 1.815,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::_unsafe_view",
+    "calls": 128,
+    "self_cpu_ms": 0.001,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        32,
+        1,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 128,
+    "self_cpu_ms": 0.012,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32,
+        1,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 128,
+    "self_cpu_ms": 0.072,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        32,
+        128
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 128,
+    "self_cpu_ms": 0.001,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        32,
+        128
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::add",
+    "calls": 256,
+    "self_cpu_ms": 0.786,
+    "self_cuda_ms": 0.512,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        1,
+        1,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::linear",
+    "calls": 256,
+    "self_cpu_ms": 0.803,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        11008,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::t",
+    "calls": 256,
+    "self_cpu_ms": 0.26,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        11008,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        11008,
+        4096
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::matmul",
+    "calls": 256,
+    "self_cpu_ms": 0.617,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        4096,
+        11008
+      ]
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        11008,
+        4096
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::mm",
+    "calls": 256,
+    "self_cpu_ms": 2.878,
+    "self_cuda_ms": 31.087,
+    "input_shapes": [
+      [
+        1,
+        4096
+      ],
+      [
+        4096,
+        11008
+      ]
+    ]
+  },
+  {
+    "name": "cudaStreamGetCaptureInfo",
+    "calls": 783,
+    "self_cpu_ms": 0.008,
+    "self_cuda_ms": 0.971,
+    "input_shapes": []
+  },
+  {
+    "name": "cudaEventQuery",
+    "calls": 260,
+    "self_cpu_ms": 0.077,
+    "self_cuda_ms": 0.176,
+    "input_shapes": []
+  },
+  {
+    "name": "cudaMemsetAsync",
+    "calls": 256,
+    "self_cpu_ms": 0.444,
+    "self_cuda_ms": 0.27,
+    "input_shapes": []
+  },
+  {
+    "name": "Memset (Device)",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.005,
+    "input_shapes": []
+  },
+  {
+    "name": "ampere_fp16_s16816gemm_fp16_64x64_ldg8_f2f_stages_64x5_tn",
+    "calls": 256,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 31.082,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::_unsafe_view",
+    "calls": 256,
+    "self_cpu_ms": 0.001,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        11008
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::silu",
+    "calls": 128,
+    "self_cpu_ms": 0.417,
+    "self_cuda_ms": 0.256,
+    "input_shapes": [
+      [
+        1,
+        1,
+        11008
+      ]
+    ]
+  },
+  {
+    "name": "aten::mul",
+    "calls": 128,
+    "self_cpu_ms": 0.386,
+    "self_cuda_ms": 0.256,
+    "input_shapes": [
+      [
+        1,
+        1,
+        11008
+      ],
+      [
+        1,
+        1,
+        11008
+      ]
+    ]
+  },
+  {
+    "name": "aten::linear",
+    "calls": 128,
+    "self_cpu_ms": 0.344,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        11008
+      ],
+      [
+        4096,
+        11008
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::t",
+    "calls": 128,
+    "self_cpu_ms": 0.122,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        11008
+      ]
+    ]
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 128,
+    "self_cpu_ms": 0.019,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        11008
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::matmul",
+    "calls": 128,
+    "self_cpu_ms": 0.294,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        11008
+      ],
+      [
+        11008,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        4096,
+        11008
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::reshape",
+    "calls": 128,
+    "self_cpu_ms": 0.008,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        11008
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::_reshape_alias",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        11008
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::mm",
+    "calls": 128,
+    "self_cpu_ms": 0.997,
+    "self_cuda_ms": 14.315,
+    "input_shapes": [
+      [
+        1,
+        11008
+      ],
+      [
+        11008,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "void at::native::vectorized_elementwise_kernel<4, at::native::(anonymous namespace)::silu_kernel(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2> >(int, at::native::(anonymous namespace)::silu_kernel(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#6}::operator()() const::{lambda(c10::Half)#1}, at::detail::Array<char*, 2>)",
+    "calls": 128,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.256,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::linear",
+    "calls": 4,
+    "self_cpu_ms": 0.033,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        32000,
+        4096
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::t",
+    "calls": 4,
+    "self_cpu_ms": 0.002,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        32000,
+        4096
+      ]
+    ]
+  },
+  {
+    "name": "aten::transpose",
+    "calls": 4,
+    "self_cpu_ms": 0.003,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        32000,
+        4096
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::as_strided",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        32000,
+        4096
+      ],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::matmul",
+    "calls": 4,
+    "self_cpu_ms": 0.008,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        4096
+      ],
+      [
+        4096,
+        32000
+      ]
+    ]
+  },
+  {
+    "name": "aten::mm",
+    "calls": 4,
+    "self_cpu_ms": 0.065,
+    "self_cuda_ms": 1.393,
+    "input_shapes": [
+      [
+        1,
+        4096
+      ],
+      [
+        4096,
+        32000
+      ]
+    ]
+  },
+  {
+    "name": "cudaFuncSetAttribute",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": []
+  },
+  {
+    "name": "aten::_unsafe_view",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        32000
+      ],
+      []
+    ]
+  },
+  {
+    "name": "aten::to",
+    "calls": 4,
+    "self_cpu_ms": 0.007,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        32000
+      ],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::_to_copy",
+    "calls": 4,
+    "self_cpu_ms": 0.007,
+    "self_cuda_ms": 0.0,
+    "input_shapes": [
+      [
+        1,
+        1,
+        32000
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  {
+    "name": "aten::copy_",
+    "calls": 4,
+    "self_cpu_ms": 0.008,
+    "self_cuda_ms": 0.012,
+    "input_shapes": [
+      [
+        1,
+        1,
+        32000
+      ],
+      [
+        1,
+        1,
+        32000
+      ],
+      []
+    ]
+  },
+  {
+    "name": "void cutlass::Kernel<cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x64_32x4_tn_align8>(cutlass_80_tensorop_f16_s16816gemm_relu_f16_256x64_32x4_tn_align8::Params)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 1.369,
+    "input_shapes": []
+  },
+  {
+    "name": "void splitKreduce_kernel<32, 16, int, __half, __half, float, __half, true, false, false>(cublasSplitKParams<float>, __half const*, __half const*, __half*, float const*, float const*, __half const*, __half const*, __half*, void*, long, float*, int*)",
+    "calls": 4,
+    "self_cpu_ms": 0.0,
+    "self_cuda_ms": 0.024,
+    "input_shapes": []
+  },
+  {
+    "name": "cudaDeviceSynchronize",
+    "calls": 2,
+    "self_cpu_ms": 5.557,
+    "self_cuda_ms": 0.0,
+    "input_shapes": []
+  }
+]

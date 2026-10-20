@@ -1,0 +1,74 @@
+{
+  "sgvd_numerical_root_cause": "native_fp16_execution_shape_rounding",
+  "sgvd_frozen": true,
+  "native_independent_task_population": {
+    "requests": 105,
+    "frames": 8,
+    "population": "exploratory_reused_population"
+  },
+  "sampling_microbatch_feasible": true,
+  "sampling_distribution_qualified": false,
+  "microbatch_runtime_implemented": true,
+  "microbatch_task_quality_pass": false,
+  "microbatch_gpu_speedup": {
+    "1": 1.0,
+    "2": 1.7336413727843971,
+    "4": 3.348603594275857,
+    "8": 5.495459378769481
+  },
+  "microbatch_gpu_speedup_definition": "Aggregate sampled-token throughput ratio from CUDA event intervals, including native processors/private sampling and host gaps; not a kernel-only or complete-service gain.",
+  "microbatch_full_service_speedup": {
+    "microbatch2": {
+      "original": {
+        "n": 6,
+        "p50": 1.432131860550574,
+        "p95": 1.5415100218299933
+      },
+      "full_maintain": {
+        "n": 6,
+        "p50": 1.4575444432907503,
+        "p95": 1.54523079850226
+      },
+      "m3_native": {
+        "n": 6,
+        "p50": 1.4573444857554638,
+        "p95": 1.5425753263596746
+      },
+      "isolated_serial": {
+        "n": 6,
+        "p50": 1.4204837694445185,
+        "p95": 1.4517997548133357
+      }
+    },
+    "microbatch4": {
+      "original": {
+        "n": 6,
+        "p50": 1.7234598149066254,
+        "p95": 1.7695271128035372
+      },
+      "full_maintain": {
+        "n": 6,
+        "p50": 1.7569766419614916,
+        "p95": 1.8163464842351118
+      },
+      "m3_native": {
+        "n": 6,
+        "p50": 1.7562939706258736,
+        "p95": 1.817952352967482
+      },
+      "isolated_serial": {
+        "n": 6,
+        "p50": 1.7107393421960326,
+        "p95": 1.7923278136242722
+      }
+    }
+  },
+  "performance_qualification": "Actual experimental timing ratios, including all attempts/fallbacks; not quality-qualified acceleration. Generated token totals and frozen quality are reported separately; generation budget was never lowered.",
+  "single_request_optimization_result": "Measured original GEMM/LoRA/LM-head diagnostics only; no certified replacement",
+  "m1_decode_overlap_opportunity": "bounded_commit_only",
+  "production_microbatch_enabled": false,
+  "formal_go": false,
+  "reason": "No qualified native FP16 sampling distribution and frozen microbatch task quality failed",
+  "remaining_system_bottleneck": "Batch=1 FP16 weight traffic/shape efficiency, full prefill and M1 maintenance. Batched arithmetic/RNG semantics remain a formal sampling/quality qualification barrier.",
+  "next_research_priority": "Use measured per-question planning latency and source-bound native FP16 probabilities to evaluate any future batching contract; do not expand runtime or enable production under current evidence."
+}

@@ -1,0 +1,60 @@
+{
+  "modes": [
+    "original",
+    "full_maintain",
+    "m3_native",
+    "isolated_serial",
+    "microbatch2",
+    "microbatch4",
+    "greedy_control"
+  ],
+  "specs": [
+    [
+      "9f1f69646d644e35be4fe0122a8b91ef",
+      [
+        39,
+        40,
+        41,
+        43
+      ]
+    ],
+    [
+      "a04daf2d0f194b2ab2ff2a47dfebc1d7",
+      [
+        5337,
+        5338,
+        5339,
+        5341
+      ]
+    ]
+  ],
+  "populations": [
+    "planning",
+    "native_multi"
+  ],
+  "native_multi_scenes": 1,
+  "native_multi_seeds": [
+    123,
+    223,
+    323
+  ],
+  "planning_seeds": [
+    123
+  ],
+  "frames_per_scene": 2,
+  "sampling": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "num_beams": 1,
+    "max_new_tokens": 320,
+    "use_cache": true
+  },
+  "population": "exploratory_reused_population",
+  "greedy_control": "Explicit independent engineering arm, do_sample=False; never a sampling speedup/quality certificate",
+  "rng_comparator": "isolated_serial uses original native generate per request, same request_seed mapping as microbatch",
+  "ordering": "Original and isolated serial reference first; remaining arms rotated per repeat",
+  "inputs": "All original questions for each frame, same prepared samples, full six-camera model; no duplicated or truncated questions",
+  "single_request": "Planning uses ordinary fallback, cannot inherit batch throughput",
+  "optimization": "Fixed groups 2/4 only; no unmeasured length grouping or Batch=8 runtime"
+}
