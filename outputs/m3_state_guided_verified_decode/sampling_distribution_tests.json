@@ -1,0 +1,231 @@
+{
+  "seed": 20261020,
+  "rows": [
+    {
+      "case": "categorical",
+      "n": 200000,
+      "target": [
+        0.2,
+        0.3,
+        0.5
+      ],
+      "draft": 1,
+      "observed": [
+        0.19923,
+        0.301515,
+        0.499255
+      ],
+      "counts": [
+        39846,
+        60303,
+        99851
+      ],
+      "accepted": 60303,
+      "wilson95": [
+        [
+          0.19748527510584138,
+          0.2009862786279377
+        ],
+        [
+          0.29950757780594367,
+          0.30353004676714906
+        ],
+        [
+          0.4970637314343383,
+          0.5014462971839801
+        ]
+      ],
+      "max_abs_error": 0.0015149999999999886,
+      "passed": true
+    },
+    {
+      "case": "all_accept",
+      "n": 200000,
+      "target": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "draft": 1,
+      "observed": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "counts": [
+        0,
+        200000,
+        0
+      ],
+      "accepted": 200000,
+      "wilson95": [
+        [
+          0.0,
+          1.920692519040967e-05
+        ],
+        [
+          0.9999807930748098,
+          1.0000000000000002
+        ],
+        [
+          0.0,
+          1.920692519040967e-05
+        ]
+      ],
+      "max_abs_error": 0.0,
+      "passed": true
+    },
+    {
+      "case": "all_reject",
+      "n": 200000,
+      "target": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "draft": 0,
+      "observed": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "counts": [
+        0,
+        200000,
+        0
+      ],
+      "accepted": 0,
+      "wilson95": [
+        [
+          0.0,
+          1.920692519040967e-05
+        ],
+        [
+          0.9999807930748098,
+          1.0000000000000002
+        ],
+        [
+          0.0,
+          1.920692519040967e-05
+        ]
+      ],
+      "max_abs_error": 0.0,
+      "passed": true
+    },
+    {
+      "case": "rare_proposal",
+      "n": 200000,
+      "target": [
+        1e-12,
+        0.25,
+        0.749999999999
+      ],
+      "draft": 0,
+      "observed": [
+        0.0,
+        0.25043,
+        0.74957
+      ],
+      "counts": [
+        0,
+        50086,
+        149914
+      ],
+      "accepted": 0,
+      "wilson95": [
+        [
+          0.0,
+          1.920692519040967e-05
+        ],
+        [
+          0.24853599190603268,
+          0.2523335950386068
+        ],
+        [
+          0.7476664049613931,
+          0.7514640080939673
+        ]
+      ],
+      "max_abs_error": 0.00042999999999998595,
+      "passed": true
+    },
+    {
+      "case": "near_one",
+      "n": 200000,
+      "target": [
+        0.999999999999,
+        1e-12,
+        0.0
+      ],
+      "draft": 0,
+      "observed": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "counts": [
+        200000,
+        0,
+        0
+      ],
+      "accepted": 200000,
+      "wilson95": [
+        [
+          0.9999807930748098,
+          1.0000000000000002
+        ],
+        [
+          0.0,
+          1.920692519040967e-05
+        ],
+        [
+          0.0,
+          1.920692519040967e-05
+        ]
+      ],
+      "max_abs_error": 1e-12,
+      "passed": true
+    },
+    {
+      "case": "truncated_support",
+      "n": 200000,
+      "target": [
+        0.25,
+        0.0,
+        0.75
+      ],
+      "draft": 1,
+      "observed": [
+        0.249335,
+        0.0,
+        0.750665
+      ],
+      "counts": [
+        49867,
+        0,
+        150133
+      ],
+      "accepted": 0,
+      "wilson95": [
+        [
+          0.2474437852698874,
+          0.25123584373791835
+        ],
+        [
+          0.0,
+          1.920692519040967e-05
+        ],
+        [
+          0.7487641562620817,
+          0.7525562147301126
+        ]
+      ],
+      "max_abs_error": 0.0006650000000000267,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "proof": "P(Y=d)=p(d); P(Y=y!=d)=(1-p(d))*p(y)/(1-p(d))=p(y). Conditioning on every valid emitted prefix gives the joint law. At p(d)=0 always reject; at p(d)=1 always accept. EOS terminates the law.",
+  "joint_enumeration": "tests/worldstream_m3/test_verified_sampling.py: prefix-dependent three-token vocabulary, EOS and budgets, lengths 1/2/4/8/16",
+  "limitation": "Primitive distribution test only; not a parallel FP16 numerical or complete-model task certificate"
+}

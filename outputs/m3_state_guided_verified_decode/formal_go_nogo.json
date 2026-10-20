@@ -1,0 +1,19 @@
+{
+  "historical_draft_available": true,
+  "draft_acceptance_sufficient": true,
+  "verification_profitable": true,
+  "verification_profitable_scope": "Exploratory native-prefix expected cost only, not a runtime gain",
+  "sampling_distribution_correct": false,
+  "categorical_sampling_primitive_correct": true,
+  "sgvd_runtime_implemented": false,
+  "sgvd_task_quality_pass": false,
+  "sgvd_decode_speedup": null,
+  "sgvd_e2e_speedup": null,
+  "sgvd_production_enabled": false,
+  "remaining_bottleneck": "Original FP16 dense GEMM and charged M1 maintenance/full prefill; parallel-vs-serial target arithmetic is an additional exact-distribution barrier",
+  "next_research_priority": "Profile original dense GEMM bandwidth/compute and full-maintenance cost under frozen output contracts; require a serial/parallel target-distribution certificate before any future SGVD execution",
+  "formal_go": false,
+  "decision": "stop_no_exact_target_certificate",
+  "independent_heldout": false,
+  "unexecuted": "Experimental SGVD and its GPU optimizations stop at the target-distribution gate; no fabricated speedup or quality."
+}
