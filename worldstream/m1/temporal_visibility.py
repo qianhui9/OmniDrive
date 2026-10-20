@@ -36,7 +36,12 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
     old_gray = gray_image(previous)
     p0 = cv2.goodFeaturesToTrack(old_gray, maxCorners=config.flow_max_points, qualityLevel=.01,
                                  minDistance=config.flow_min_distance_px, blockSize=5)
-    if p0 is None: d['reason']='insufficient_texture'; return evidence
+    if p0 is None:p0=np.empty((0,1,2),np.float32)
+    from .correspondence_recovery import retain_depth_points
+    source,seed_diagnostics=retain_depth_points(p0[:,0],depth_history,previous,config)
+    d['depth_feature_seeding']=seed_diagnostics
+    p0=source.reshape(-1,1,2)
+    if not len(p0):d['reason']='insufficient_texture';return evidence
     if config.ego_motion_mode != 'off':
         from .ego_motion import track_with_prediction
         source = p0[:,0]
@@ -44,6 +49,7 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
         evidence.motion_measurements = motion
         d['ego_motion'] = dict(motion['info'], raw_valid=int(motion['raw_valid'].sum()),
             recovered=int(motion['seed_recovered'].sum()), conflicts=int(motion['initialization_conflict'].sum()))
+        if 'candidate_funnel' in motion:d['candidate_funnel']=motion['candidate_funnel']
         collision = np.zeros(len(source),bool)  # uniqueness already checked after merge
     else:
         p1, s1, error = cv2.calcOpticalFlowPyrLK(old_gray, gray, p0, None, winSize=(21,21), maxLevel=3,

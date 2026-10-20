@@ -1,0 +1,21 @@
+{
+  "online_GT": false,
+  "labels_read_after_commits": true,
+  "coordinates": "native preprocessed_image reconstructed with existing test pipeline",
+  "runtime_config": "projects/configs/OmniDrive/worldstream_m11_diagnostics.py",
+  "m1_config": "configs/worldstream_m121_aligned.yaml",
+  "target_match_radius_px": 1.0,
+  "correspondence_tolerance_px": 2.0,
+  "qualification_population": false,
+  "source_traces": {
+    "outputs/m121_history_recovery_20261020/gpu/scenes/01452fbfbf4543af8acdfd3e8a1ee806/m1_state.jsonl": "0103fdeeaa82a6522337ea0d48797af6710b7919e93fe3b4793f9cf680a947fa",
+    "outputs/m121_history_recovery_20261020/gpu/scenes/01e4fcbe6e49483293ce45727152b36e/m1_state.jsonl": "f50f599aee493624ca6ae4e3de12a9180dfd2fabaca8b379a25e52b137690dee"
+  },
+  "scorer_sha256": "ee41300d884e405512d8d8d91e9cd607b48b92fb2dfdcdb4e53f6b0f2c7b1b55",
+  "limitations": [
+    "Unannotated LiDAR points assumed static",
+    "Rigid annotated box motion approximation",
+    "Sparse depth only; camera/LiDAR timing and occlusions can be unscorable",
+    "No object ownership or formal identity accuracy follows from image point counts"
+  ]
+}

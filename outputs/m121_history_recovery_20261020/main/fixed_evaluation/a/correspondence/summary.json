@@ -1,0 +1,1978 @@
+{
+  "scenes": [
+    {
+      "scene_id": "20ec831deb0f44e397497198cbe5a97c",
+      "all_tracks": {
+        "counts": {
+          "total": 64674,
+          "correct": 143,
+          "wrong": 287,
+          "unscorable": 64244
+        },
+        "scorable_fraction": 0.006648730556328664,
+        "correspondence_accuracy": 0.3325581395348837
+      },
+      "measured_same_RGB": {
+        "counts": {
+          "total": 5890,
+          "correct": 43,
+          "wrong": 7,
+          "unscorable": 5840
+        },
+        "scorable_fraction": 0.008488964346349746,
+        "correspondence_accuracy": 0.86
+      },
+      "observation_supported": {
+        "counts": {
+          "total": 5699,
+          "correct": 34,
+          "wrong": 7,
+          "unscorable": 5658
+        },
+        "scorable_fraction": 0.007194244604316547,
+        "correspondence_accuracy": 0.8292682926829268
+      },
+      "strata": {
+        "depth_group": {
+          "far_ge30m": {
+            "counts": {
+              "total": 4,
+              "correct": 2,
+              "wrong": 2,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.5
+          },
+          "middle_10to30m": {
+            "counts": {
+              "total": 38,
+              "correct": 36,
+              "wrong": 2,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.9473684210526315
+          },
+          "near_lt10m": {
+            "counts": {
+              "total": 8,
+              "correct": 5,
+              "wrong": 3,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.625
+          },
+          "unknown": {
+            "counts": {
+              "total": 5840,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 5840
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "semantic_class": {
+          "barrier": {
+            "counts": {
+              "total": 1,
+              "correct": 0,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.0
+          },
+          "car": {
+            "counts": {
+              "total": 13,
+              "correct": 13,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "truck": {
+            "counts": {
+              "total": 2,
+              "correct": 2,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unannotated_background": {
+            "counts": {
+              "total": 34,
+              "correct": 28,
+              "wrong": 6,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.8235294117647058
+          },
+          "unknown": {
+            "counts": {
+              "total": 5840,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 5840
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "object_motion": {
+          "conditional_static": {
+            "counts": {
+              "total": 49,
+              "correct": 42,
+              "wrong": 7,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.8571428571428571
+          },
+          "object_moving": {
+            "counts": {
+              "total": 1,
+              "correct": 1,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unknown": {
+            "counts": {
+              "total": 5840,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 5840
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "visibility": {
+          "both_sparse_depth_supported": {
+            "counts": {
+              "total": 50,
+              "correct": 43,
+              "wrong": 7,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.86
+          },
+          "sparse_reference_unavailable": {
+            "counts": {
+              "total": 5840,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 5840
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "ego_motion_group": {
+          "small_motion": {
+            "counts": {
+              "total": 4328,
+              "correct": 29,
+              "wrong": 6,
+              "unscorable": 4293
+            },
+            "scorable_fraction": 0.008086876155268022,
+            "correspondence_accuracy": 0.8285714285714286
+          },
+          "translation_ge1m": {
+            "counts": {
+              "total": 524,
+              "correct": 3,
+              "wrong": 0,
+              "unscorable": 521
+            },
+            "scorable_fraction": 0.0057251908396946565,
+            "correspondence_accuracy": 1.0
+          },
+          "turn_ge3deg": {
+            "counts": {
+              "total": 1038,
+              "correct": 11,
+              "wrong": 1,
+              "unscorable": 1026
+            },
+            "scorable_fraction": 0.011560693641618497,
+            "correspondence_accuracy": 0.9166666666666666
+          }
+        }
+      },
+      "prediction_funnel": {
+        "raw_valid": 17218,
+        "recovered": 83,
+        "conflicts": 0,
+        "depth_points": null,
+        "predicted_points": 60005
+      },
+      "residuals": {
+        "fb_error_px": {
+          "n": 5890,
+          "mean": 0.06321188621397893,
+          "median": 0.02591835241764784,
+          "p05": 0.002116625488270074,
+          "p95": 0.26455659121274955,
+          "min": 3.0517578125e-05,
+          "max": 0.748662531375885,
+          "std": 0.10006753959515044
+        },
+        "raw_fb_error_px": {
+          "n": 5890,
+          "mean": 1.9707669502342493,
+          "median": 0.026035464368760586,
+          "p05": 0.002116625488270074,
+          "p95": 0.31576943695545207,
+          "min": 3.0517578125e-05,
+          "max": 354.070068359375,
+          "std": 18.814315293167205
+        },
+        "prediction_residual_px": {
+          "n": 5890,
+          "mean": 14.635384119477767,
+          "median": 7.545940926420608,
+          "p05": 0.715048660562886,
+          "p95": 57.68888199937735,
+          "min": 0.14925111031857372,
+          "max": 120.15147951764696,
+          "std": 17.838780637863167
+        },
+        "patch_residual": {
+          "n": 5890,
+          "mean": 0.0121160044280673,
+          "median": 0.01186615414917469,
+          "p05": 0.006792341405525803,
+          "p95": 0.018291863333433866,
+          "min": 0.002895139390602708,
+          "max": 0.024916592985391617,
+          "std": 0.0036005360079601092
+        },
+        "measured_displacement_px": {
+          "n": 5890,
+          "mean": 22.234268978081666,
+          "median": 11.917316661989478,
+          "p05": 2.278566248657632,
+          "p95": 72.23573160703442,
+          "min": 0.20915388425434928,
+          "max": 130.714682805902,
+          "std": 24.308850378132348
+        },
+        "raw_prediction_residual_px": {
+          "n": 5890,
+          "mean": 16.425219180386197,
+          "median": 7.599630521600529,
+          "p05": 0.715048660562886,
+          "p95": 61.63526614312266,
+          "min": 0.14925111031857372,
+          "max": 335.00691490069926,
+          "std": 24.730447898645266
+        },
+        "prediction_uncertainty_px": {
+          "n": 0,
+          "mean": null,
+          "median": null,
+          "p05": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "std": null
+        }
+      }
+    },
+    {
+      "scene_id": "58af378ff68b49c99aabf320dca1ee25",
+      "all_tracks": {
+        "counts": {
+          "total": 57745,
+          "correct": 124,
+          "wrong": 443,
+          "unscorable": 57178
+        },
+        "scorable_fraction": 0.009819031950818253,
+        "correspondence_accuracy": 0.21869488536155202
+      },
+      "measured_same_RGB": {
+        "counts": {
+          "total": 7589,
+          "correct": 73,
+          "wrong": 85,
+          "unscorable": 7431
+        },
+        "scorable_fraction": 0.020819607326393465,
+        "correspondence_accuracy": 0.4620253164556962
+      },
+      "observation_supported": {
+        "counts": {
+          "total": 6541,
+          "correct": 55,
+          "wrong": 78,
+          "unscorable": 6408
+        },
+        "scorable_fraction": 0.020333282372725883,
+        "correspondence_accuracy": 0.41353383458646614
+      },
+      "strata": {
+        "depth_group": {
+          "far_ge30m": {
+            "counts": {
+              "total": 37,
+              "correct": 36,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.972972972972973
+          },
+          "middle_10to30m": {
+            "counts": {
+              "total": 93,
+              "correct": 36,
+              "wrong": 57,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.3870967741935484
+          },
+          "near_lt10m": {
+            "counts": {
+              "total": 28,
+              "correct": 1,
+              "wrong": 27,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.03571428571428571
+          },
+          "unknown": {
+            "counts": {
+              "total": 7431,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 7431
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "semantic_class": {
+          "car": {
+            "counts": {
+              "total": 8,
+              "correct": 6,
+              "wrong": 2,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.75
+          },
+          "truck": {
+            "counts": {
+              "total": 2,
+              "correct": 2,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unannotated_background": {
+            "counts": {
+              "total": 148,
+              "correct": 65,
+              "wrong": 83,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.4391891891891892
+          },
+          "unknown": {
+            "counts": {
+              "total": 7431,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 7431
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "object_motion": {
+          "conditional_static": {
+            "counts": {
+              "total": 158,
+              "correct": 73,
+              "wrong": 85,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.4620253164556962
+          },
+          "unknown": {
+            "counts": {
+              "total": 7431,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 7431
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "visibility": {
+          "both_sparse_depth_supported": {
+            "counts": {
+              "total": 158,
+              "correct": 73,
+              "wrong": 85,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.4620253164556962
+          },
+          "sparse_reference_unavailable": {
+            "counts": {
+              "total": 7431,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 7431
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "ego_motion_group": {
+          "small_motion": {
+            "counts": {
+              "total": 5227,
+              "correct": 47,
+              "wrong": 77,
+              "unscorable": 5103
+            },
+            "scorable_fraction": 0.023722976850966138,
+            "correspondence_accuracy": 0.3790322580645161
+          },
+          "translation_ge1m": {
+            "counts": {
+              "total": 1784,
+              "correct": 22,
+              "wrong": 7,
+              "unscorable": 1755
+            },
+            "scorable_fraction": 0.016255605381165918,
+            "correspondence_accuracy": 0.7586206896551724
+          },
+          "turn_ge3deg": {
+            "counts": {
+              "total": 578,
+              "correct": 4,
+              "wrong": 1,
+              "unscorable": 573
+            },
+            "scorable_fraction": 0.00865051903114187,
+            "correspondence_accuracy": 0.8
+          }
+        }
+      },
+      "prediction_funnel": {
+        "raw_valid": 20896,
+        "recovered": 112,
+        "conflicts": 0,
+        "depth_points": null,
+        "predicted_points": 53935
+      },
+      "residuals": {
+        "fb_error_px": {
+          "n": 7589,
+          "mean": 0.05044666104818691,
+          "median": 0.013613585382699966,
+          "p05": 0.0009558385936543345,
+          "p95": 0.23818615972995733,
+          "min": 3.4119690099032596e-05,
+          "max": 0.7474519610404968,
+          "std": 0.09944212366260825
+        },
+        "raw_fb_error_px": {
+          "n": 7589,
+          "mean": 1.5767255121208914,
+          "median": 0.013791142962872982,
+          "p05": 0.0009558385936543345,
+          "p95": 0.3036574304103851,
+          "min": 3.4119690099032596e-05,
+          "max": 960.2138671875,
+          "std": 19.136987243449244
+        },
+        "prediction_residual_px": {
+          "n": 7589,
+          "mean": 11.853526148814971,
+          "median": 4.33057007430028,
+          "p05": 0.18989378254516331,
+          "p95": 50.31503579663394,
+          "min": 0.028789351223888187,
+          "max": 176.13069260353618,
+          "std": 16.43888695612631
+        },
+        "patch_residual": {
+          "n": 7589,
+          "mean": 0.010446434687558718,
+          "median": 0.009935533627867699,
+          "p05": 0.005552785284817219,
+          "p95": 0.017044319584965703,
+          "min": 0.00372148840688169,
+          "max": 0.024081628769636154,
+          "std": 0.0035953775083083653
+        },
+        "measured_displacement_px": {
+          "n": 7589,
+          "mean": 16.897483255136528,
+          "median": 9.414402690071615,
+          "p05": 0.8449331417970617,
+          "p95": 57.730815082230016,
+          "min": 0.018360958639792858,
+          "max": 119.42897107083257,
+          "std": 20.252538938910543
+        },
+        "raw_prediction_residual_px": {
+          "n": 7589,
+          "mean": 12.65067655252219,
+          "median": 4.390949832383952,
+          "p05": 0.18989378254516331,
+          "p95": 50.633481446020966,
+          "min": 0.028789351223888187,
+          "max": 298.6293208672903,
+          "std": 20.26580297021518
+        },
+        "prediction_uncertainty_px": {
+          "n": 664,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        }
+      }
+    },
+    {
+      "scene_id": "93032908bafd484ea10a39b0d5d3fff6",
+      "all_tracks": {
+        "counts": {
+          "total": 79954,
+          "correct": 54,
+          "wrong": 277,
+          "unscorable": 79623
+        },
+        "scorable_fraction": 0.004139880431247967,
+        "correspondence_accuracy": 0.16314199395770393
+      },
+      "measured_same_RGB": {
+        "counts": {
+          "total": 280,
+          "correct": 2,
+          "wrong": 1,
+          "unscorable": 277
+        },
+        "scorable_fraction": 0.010714285714285714,
+        "correspondence_accuracy": 0.6666666666666666
+      },
+      "observation_supported": {
+        "counts": {
+          "total": 280,
+          "correct": 2,
+          "wrong": 1,
+          "unscorable": 277
+        },
+        "scorable_fraction": 0.010714285714285714,
+        "correspondence_accuracy": 0.6666666666666666
+      },
+      "strata": {
+        "depth_group": {
+          "far_ge30m": {
+            "counts": {
+              "total": 3,
+              "correct": 2,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.6666666666666666
+          },
+          "unknown": {
+            "counts": {
+              "total": 277,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 277
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "semantic_class": {
+          "unannotated_background": {
+            "counts": {
+              "total": 3,
+              "correct": 2,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.6666666666666666
+          },
+          "unknown": {
+            "counts": {
+              "total": 277,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 277
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "object_motion": {
+          "conditional_static": {
+            "counts": {
+              "total": 3,
+              "correct": 2,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.6666666666666666
+          },
+          "unknown": {
+            "counts": {
+              "total": 277,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 277
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "visibility": {
+          "both_sparse_depth_supported": {
+            "counts": {
+              "total": 3,
+              "correct": 2,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.6666666666666666
+          },
+          "sparse_reference_unavailable": {
+            "counts": {
+              "total": 277,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 277
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "ego_motion_group": {
+          "translation_ge1m": {
+            "counts": {
+              "total": 280,
+              "correct": 2,
+              "wrong": 1,
+              "unscorable": 277
+            },
+            "scorable_fraction": 0.010714285714285714,
+            "correspondence_accuracy": 0.6666666666666666
+          }
+        }
+      },
+      "prediction_funnel": {
+        "raw_valid": 2925,
+        "recovered": 0,
+        "conflicts": 0,
+        "depth_points": null,
+        "predicted_points": 78315
+      },
+      "residuals": {
+        "fb_error_px": {
+          "n": 280,
+          "mean": 0.10922722729238947,
+          "median": 0.04181466996669769,
+          "p05": 0.004594014165923,
+          "p95": 0.511951717734337,
+          "min": 0.000907994108274579,
+          "max": 0.7333362698554993,
+          "std": 0.1588950491128316
+        },
+        "raw_fb_error_px": {
+          "n": 280,
+          "mean": 0.10922722729238947,
+          "median": 0.04181466996669769,
+          "p05": 0.004594014165923,
+          "p95": 0.511951717734337,
+          "min": 0.000907994108274579,
+          "max": 0.7333362698554993,
+          "std": 0.1588950491128316
+        },
+        "prediction_residual_px": {
+          "n": 280,
+          "mean": 4.935086681808785,
+          "median": 2.8250118289454695,
+          "p05": 0.9521423626058907,
+          "p95": 13.232608110744732,
+          "min": 0.5602746189477262,
+          "max": 54.93758326171281,
+          "std": 7.430134484953515
+        },
+        "patch_residual": {
+          "n": 280,
+          "mean": 0.014249404925586922,
+          "median": 0.014310800936073065,
+          "p05": 0.009012364456430078,
+          "p95": 0.019297001417726285,
+          "min": 0.005169256590306759,
+          "max": 0.02223428152501583,
+          "std": 0.0031275266311533937
+        },
+        "measured_displacement_px": {
+          "n": 280,
+          "mean": 8.36166664044254,
+          "median": 6.170584429077811,
+          "p05": 1.0066882957247754,
+          "p95": 19.895945711895187,
+          "min": 0.35241149670789207,
+          "max": 59.69212545531324,
+          "std": 7.76606180241178
+        },
+        "raw_prediction_residual_px": {
+          "n": 280,
+          "mean": 4.935086681808785,
+          "median": 2.8250118289454695,
+          "p05": 0.9521423626058907,
+          "p95": 13.232608110744732,
+          "min": 0.5602746189477262,
+          "max": 54.93758326171281,
+          "std": 7.430134484953515
+        },
+        "prediction_uncertainty_px": {
+          "n": 0,
+          "mean": null,
+          "median": null,
+          "p05": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "std": null
+        }
+      }
+    },
+    {
+      "scene_id": "9a1188aba4bf458c8220818a6c0be55a",
+      "all_tracks": {
+        "counts": {
+          "total": 103880,
+          "correct": 20,
+          "wrong": 293,
+          "unscorable": 103567
+        },
+        "scorable_fraction": 0.003013092029264536,
+        "correspondence_accuracy": 0.06389776357827476
+      },
+      "measured_same_RGB": {
+        "counts": {
+          "total": 80,
+          "correct": 0,
+          "wrong": 0,
+          "unscorable": 80
+        },
+        "scorable_fraction": 0.0,
+        "correspondence_accuracy": null
+      },
+      "observation_supported": {
+        "counts": {
+          "total": 80,
+          "correct": 0,
+          "wrong": 0,
+          "unscorable": 80
+        },
+        "scorable_fraction": 0.0,
+        "correspondence_accuracy": null
+      },
+      "strata": {
+        "depth_group": {
+          "unknown": {
+            "counts": {
+              "total": 80,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 80
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "semantic_class": {
+          "unknown": {
+            "counts": {
+              "total": 80,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 80
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "object_motion": {
+          "unknown": {
+            "counts": {
+              "total": 80,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 80
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "visibility": {
+          "sparse_reference_unavailable": {
+            "counts": {
+              "total": 80,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 80
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "ego_motion_group": {
+          "translation_ge1m": {
+            "counts": {
+              "total": 80,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 80
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        }
+      },
+      "prediction_funnel": {
+        "raw_valid": 808,
+        "recovered": 0,
+        "conflicts": 0,
+        "depth_points": null,
+        "predicted_points": 102211
+      },
+      "residuals": {
+        "fb_error_px": {
+          "n": 80,
+          "mean": 0.14198271099594423,
+          "median": 0.07902498543262482,
+          "p05": 0.013648268533870578,
+          "p95": 0.4576684445142746,
+          "min": 0.007361824158579111,
+          "max": 0.6911290884017944,
+          "std": 0.15719788754869038
+        },
+        "raw_fb_error_px": {
+          "n": 80,
+          "mean": 0.14198271099594423,
+          "median": 0.07902498543262482,
+          "p05": 0.013648268533870578,
+          "p95": 0.4576684445142746,
+          "min": 0.007361824158579111,
+          "max": 0.6911290884017944,
+          "std": 0.15719788754869038
+        },
+        "prediction_residual_px": {
+          "n": 80,
+          "mean": 5.224886940903408,
+          "median": 3.0317208057736598,
+          "p05": 1.2287029435873076,
+          "p95": 12.35400178086832,
+          "min": 0.5584817710178375,
+          "max": 45.983613829616296,
+          "std": 8.600243696991084
+        },
+        "patch_residual": {
+          "n": 80,
+          "mean": 0.01568240429041907,
+          "median": 0.015576701611280441,
+          "p05": 0.01103944038040936,
+          "p95": 0.01962002273648977,
+          "min": 0.010245662182569504,
+          "max": 0.023732302710413933,
+          "std": 0.0027178949937049714
+        },
+        "measured_displacement_px": {
+          "n": 80,
+          "mean": 11.89298861795514,
+          "median": 8.07734420154085,
+          "p05": 3.7783362459946375,
+          "p95": 27.6141306114988,
+          "min": 2.2009673125611484,
+          "max": 57.291542583841455,
+          "std": 10.258910882153417
+        },
+        "raw_prediction_residual_px": {
+          "n": 80,
+          "mean": 5.224886940903408,
+          "median": 3.0317208057736598,
+          "p05": 1.2287029435873076,
+          "p95": 12.35400178086832,
+          "min": 0.5584817710178375,
+          "max": 45.983613829616296,
+          "std": 8.600243696991084
+        },
+        "prediction_uncertainty_px": {
+          "n": 0,
+          "mean": null,
+          "median": null,
+          "p05": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "std": null
+        }
+      }
+    },
+    {
+      "scene_id": "c0d3796765e2452d990309b2568adac5",
+      "all_tracks": {
+        "counts": {
+          "total": 62713,
+          "correct": 1346,
+          "wrong": 376,
+          "unscorable": 60991
+        },
+        "scorable_fraction": 0.027458421698850318,
+        "correspondence_accuracy": 0.7816492450638792
+      },
+      "measured_same_RGB": {
+        "counts": {
+          "total": 40387,
+          "correct": 1128,
+          "wrong": 185,
+          "unscorable": 39074
+        },
+        "scorable_fraction": 0.032510461287047814,
+        "correspondence_accuracy": 0.8591012947448591
+      },
+      "observation_supported": {
+        "counts": {
+          "total": 29891,
+          "correct": 814,
+          "wrong": 122,
+          "unscorable": 28955
+        },
+        "scorable_fraction": 0.031313773376601656,
+        "correspondence_accuracy": 0.8696581196581197
+      },
+      "strata": {
+        "depth_group": {
+          "far_ge30m": {
+            "counts": {
+              "total": 196,
+              "correct": 192,
+              "wrong": 4,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.9795918367346939
+          },
+          "middle_10to30m": {
+            "counts": {
+              "total": 573,
+              "correct": 529,
+              "wrong": 44,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.9232111692844677
+          },
+          "near_lt10m": {
+            "counts": {
+              "total": 544,
+              "correct": 407,
+              "wrong": 137,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.7481617647058824
+          },
+          "unknown": {
+            "counts": {
+              "total": 39074,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 39074
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "semantic_class": {
+          "barrier": {
+            "counts": {
+              "total": 125,
+              "correct": 91,
+              "wrong": 34,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.728
+          },
+          "car": {
+            "counts": {
+              "total": 31,
+              "correct": 25,
+              "wrong": 6,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.8064516129032258
+          },
+          "construction_vehicle": {
+            "counts": {
+              "total": 11,
+              "correct": 11,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "pedestrian": {
+            "counts": {
+              "total": 3,
+              "correct": 0,
+              "wrong": 3,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.0
+          },
+          "traffic_cone": {
+            "counts": {
+              "total": 20,
+              "correct": 17,
+              "wrong": 3,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.85
+          },
+          "truck": {
+            "counts": {
+              "total": 86,
+              "correct": 67,
+              "wrong": 19,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.7790697674418605
+          },
+          "unannotated_background": {
+            "counts": {
+              "total": 1037,
+              "correct": 917,
+              "wrong": 120,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.8842815814850531
+          },
+          "unknown": {
+            "counts": {
+              "total": 39074,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 39074
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "object_motion": {
+          "conditional_static": {
+            "counts": {
+              "total": 1308,
+              "correct": 1127,
+              "wrong": 181,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.8616207951070336
+          },
+          "object_moving": {
+            "counts": {
+              "total": 5,
+              "correct": 1,
+              "wrong": 4,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.2
+          },
+          "unknown": {
+            "counts": {
+              "total": 39074,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 39074
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "visibility": {
+          "both_sparse_depth_supported": {
+            "counts": {
+              "total": 1313,
+              "correct": 1128,
+              "wrong": 185,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.8591012947448591
+          },
+          "sparse_reference_unavailable": {
+            "counts": {
+              "total": 39074,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 39074
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "ego_motion_group": {
+          "small_motion": {
+            "counts": {
+              "total": 40387,
+              "correct": 1128,
+              "wrong": 185,
+              "unscorable": 39074
+            },
+            "scorable_fraction": 0.032510461287047814,
+            "correspondence_accuracy": 0.8591012947448591
+          }
+        }
+      },
+      "prediction_funnel": {
+        "raw_valid": 55201,
+        "recovered": 5,
+        "conflicts": 0,
+        "depth_points": null,
+        "predicted_points": 62695
+      },
+      "residuals": {
+        "fb_error_px": {
+          "n": 40387,
+          "mean": 0.022863420701680032,
+          "median": 0.003428044030442834,
+          "p05": 0.0002906038222135976,
+          "p95": 0.11450154408812512,
+          "min": 0.0,
+          "max": 0.7483084797859192,
+          "std": 0.06537972211863509
+        },
+        "raw_fb_error_px": {
+          "n": 40387,
+          "mean": 0.03579602094685234,
+          "median": 0.003428044030442834,
+          "p05": 0.0002906038222135976,
+          "p95": 0.1149155914783477,
+          "min": 0.0,
+          "max": 202.19187927246094,
+          "std": 1.3460595149042487
+        },
+        "prediction_residual_px": {
+          "n": 40387,
+          "mean": 4.677097216246686,
+          "median": 0.26654305917213394,
+          "p05": 0.025703087420925752,
+          "p95": 24.558976626627818,
+          "min": 0.0006623459112670326,
+          "max": 95.99195657828498,
+          "std": 8.832298835853335
+        },
+        "patch_residual": {
+          "n": 40387,
+          "mean": 0.008228272076617384,
+          "median": 0.007168651092797518,
+          "p05": 0.004196677170693874,
+          "p95": 0.015419700928032395,
+          "min": 0.0019607823342084885,
+          "max": 0.024592341855168343,
+          "std": 0.0035539916056035945
+        },
+        "measured_displacement_px": {
+          "n": 40387,
+          "mean": 4.723580426225099,
+          "median": 0.45109390332285776,
+          "p05": 0.019224344642869328,
+          "p95": 24.82681194600417,
+          "min": 0.0008396494441038577,
+          "max": 96.72819195959444,
+          "std": 8.919271203708169
+        },
+        "raw_prediction_residual_px": {
+          "n": 40387,
+          "mean": 4.683028083882064,
+          "median": 0.26654305917213394,
+          "p05": 0.025703087420925752,
+          "p95": 24.54932460024308,
+          "min": 0.0006623459112670326,
+          "max": 175.74401939324406,
+          "std": 8.896462490456303
+        },
+        "prediction_uncertainty_px": {
+          "n": 19129,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        }
+      }
+    },
+    {
+      "scene_id": "febc1800b9ed432d96aee5ecf0156831",
+      "all_tracks": {
+        "counts": {
+          "total": 67201,
+          "correct": 1924,
+          "wrong": 68,
+          "unscorable": 65209
+        },
+        "scorable_fraction": 0.029642416035475662,
+        "correspondence_accuracy": 0.9658634538152611
+      },
+      "measured_same_RGB": {
+        "counts": {
+          "total": 58050,
+          "correct": 1792,
+          "wrong": 1,
+          "unscorable": 56257
+        },
+        "scorable_fraction": 0.030887166236003447,
+        "correspondence_accuracy": 0.9994422755158952
+      },
+      "observation_supported": {
+        "counts": {
+          "total": 28467,
+          "correct": 517,
+          "wrong": 0,
+          "unscorable": 27950
+        },
+        "scorable_fraction": 0.01816137984332736,
+        "correspondence_accuracy": 1.0
+      },
+      "strata": {
+        "depth_group": {
+          "far_ge30m": {
+            "counts": {
+              "total": 325,
+              "correct": 324,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.9969230769230769
+          },
+          "middle_10to30m": {
+            "counts": {
+              "total": 423,
+              "correct": 423,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "near_lt10m": {
+            "counts": {
+              "total": 1045,
+              "correct": 1045,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unknown": {
+            "counts": {
+              "total": 56257,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 56257
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "semantic_class": {
+          "car": {
+            "counts": {
+              "total": 525,
+              "correct": 525,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "pedestrian": {
+            "counts": {
+              "total": 2,
+              "correct": 1,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.5
+          },
+          "truck": {
+            "counts": {
+              "total": 99,
+              "correct": 99,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unannotated_background": {
+            "counts": {
+              "total": 1167,
+              "correct": 1167,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unknown": {
+            "counts": {
+              "total": 56257,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 56257
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "object_motion": {
+          "conditional_static": {
+            "counts": {
+              "total": 1792,
+              "correct": 1792,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "object_moving": {
+            "counts": {
+              "total": 1,
+              "correct": 0,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.0
+          },
+          "unknown": {
+            "counts": {
+              "total": 56257,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 56257
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "visibility": {
+          "both_sparse_depth_supported": {
+            "counts": {
+              "total": 1793,
+              "correct": 1792,
+              "wrong": 1,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 0.9994422755158952
+          },
+          "sparse_reference_unavailable": {
+            "counts": {
+              "total": 56257,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 56257
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "ego_motion_group": {
+          "small_motion": {
+            "counts": {
+              "total": 58050,
+              "correct": 1792,
+              "wrong": 1,
+              "unscorable": 56257
+            },
+            "scorable_fraction": 0.030887166236003447,
+            "correspondence_accuracy": 0.9994422755158952
+          }
+        }
+      },
+      "prediction_funnel": {
+        "raw_valid": 63934,
+        "recovered": 1,
+        "conflicts": 0,
+        "depth_points": null,
+        "predicted_points": 67201
+      },
+      "residuals": {
+        "fb_error_px": {
+          "n": 58050,
+          "mean": 0.00372476190438596,
+          "median": 0.0009033667156472802,
+          "p05": 0.00012302029062993824,
+          "p95": 0.010422304505482309,
+          "min": 0.0,
+          "max": 0.7331656217575073,
+          "std": 0.020197821669358892
+        },
+        "raw_fb_error_px": {
+          "n": 58050,
+          "mean": 0.003724744555715457,
+          "median": 0.0009033667156472802,
+          "p05": 0.00012302029062993824,
+          "p95": 0.010422304505482309,
+          "min": 0.0,
+          "max": 0.7331656217575073,
+          "std": 0.020197820643523722
+        },
+        "prediction_residual_px": {
+          "n": 58050,
+          "mean": 0.08458822640394652,
+          "median": 0.06265816828033918,
+          "p05": 0.017952976050136727,
+          "p95": 0.24631324932564047,
+          "min": 0.00032816375952010113,
+          "max": 0.9888094394741517,
+          "std": 0.08425586425372542
+        },
+        "patch_residual": {
+          "n": 58050,
+          "mean": 0.00589072916672776,
+          "median": 0.005493876524269581,
+          "p05": 0.003756505635101348,
+          "p95": 0.0093089809641242,
+          "min": 0.001428225077688694,
+          "max": 0.0226590633392334,
+          "std": 0.0019809933943547003
+        },
+        "measured_displacement_px": {
+          "n": 58050,
+          "mean": 0.06233298968213807,
+          "median": 0.03480050322289856,
+          "p05": 0.006900039674277385,
+          "p95": 0.23129859783837203,
+          "min": 5.501634636633284e-05,
+          "max": 1.0490915476145375,
+          "std": 0.08582201432910447
+        },
+        "raw_prediction_residual_px": {
+          "n": 58050,
+          "mean": 0.08458820331257111,
+          "median": 0.06265816828033918,
+          "p05": 0.017952976050136727,
+          "p95": 0.24631324932564047,
+          "min": 0.00032816375952010113,
+          "max": 0.9888094394741517,
+          "std": 0.08425586424208212
+        },
+        "prediction_uncertainty_px": {
+          "n": 58050,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        }
+      }
+    }
+  ],
+  "micro": {
+    "all_tracks": {
+      "counts": {
+        "total": 436167,
+        "correct": 3611,
+        "wrong": 1744,
+        "unscorable": 430812
+      },
+      "scorable_fraction": 0.012277407506757732,
+      "correspondence_accuracy": 0.6743230625583567
+    },
+    "measured_same_RGB": {
+      "counts": {
+        "total": 112276,
+        "correct": 3038,
+        "wrong": 279,
+        "unscorable": 108959
+      },
+      "scorable_fraction": 0.029543268374363177,
+      "correspondence_accuracy": 0.9158878504672897
+    },
+    "observation_supported": {
+      "counts": {
+        "total": 70958,
+        "correct": 1422,
+        "wrong": 208,
+        "unscorable": 69328
+      },
+      "scorable_fraction": 0.02297133515600778,
+      "correspondence_accuracy": 0.8723926380368098
+    },
+    "strata": {
+      "depth_group": {
+        "far_ge30m": {
+          "counts": {
+            "total": 565,
+            "correct": 556,
+            "wrong": 9,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.984070796460177
+        },
+        "middle_10to30m": {
+          "counts": {
+            "total": 1127,
+            "correct": 1024,
+            "wrong": 103,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.9086069210292813
+        },
+        "near_lt10m": {
+          "counts": {
+            "total": 1625,
+            "correct": 1458,
+            "wrong": 167,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.8972307692307693
+        },
+        "unknown": {
+          "counts": {
+            "total": 108959,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 108959
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      },
+      "semantic_class": {
+        "barrier": {
+          "counts": {
+            "total": 126,
+            "correct": 91,
+            "wrong": 35,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.7222222222222222
+        },
+        "car": {
+          "counts": {
+            "total": 577,
+            "correct": 569,
+            "wrong": 8,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.9861351819757366
+        },
+        "construction_vehicle": {
+          "counts": {
+            "total": 11,
+            "correct": 11,
+            "wrong": 0,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 1.0
+        },
+        "pedestrian": {
+          "counts": {
+            "total": 5,
+            "correct": 1,
+            "wrong": 4,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.2
+        },
+        "traffic_cone": {
+          "counts": {
+            "total": 20,
+            "correct": 17,
+            "wrong": 3,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.85
+        },
+        "truck": {
+          "counts": {
+            "total": 189,
+            "correct": 170,
+            "wrong": 19,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.8994708994708994
+        },
+        "unannotated_background": {
+          "counts": {
+            "total": 2389,
+            "correct": 2179,
+            "wrong": 210,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.9120971117622436
+        },
+        "unknown": {
+          "counts": {
+            "total": 108959,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 108959
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      },
+      "object_motion": {
+        "conditional_static": {
+          "counts": {
+            "total": 3310,
+            "correct": 3036,
+            "wrong": 274,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.9172205438066465
+        },
+        "object_moving": {
+          "counts": {
+            "total": 7,
+            "correct": 2,
+            "wrong": 5,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.2857142857142857
+        },
+        "unknown": {
+          "counts": {
+            "total": 108959,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 108959
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      },
+      "visibility": {
+        "both_sparse_depth_supported": {
+          "counts": {
+            "total": 3317,
+            "correct": 3038,
+            "wrong": 279,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 0.9158878504672897
+        },
+        "sparse_reference_unavailable": {
+          "counts": {
+            "total": 108959,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 108959
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      },
+      "ego_motion_group": {
+        "small_motion": {
+          "counts": {
+            "total": 107992,
+            "correct": 2996,
+            "wrong": 269,
+            "unscorable": 104727
+          },
+          "scorable_fraction": 0.030233721016371583,
+          "correspondence_accuracy": 0.9176110260336907
+        },
+        "translation_ge1m": {
+          "counts": {
+            "total": 2668,
+            "correct": 27,
+            "wrong": 8,
+            "unscorable": 2633
+          },
+          "scorable_fraction": 0.013118440779610194,
+          "correspondence_accuracy": 0.7714285714285715
+        },
+        "turn_ge3deg": {
+          "counts": {
+            "total": 1616,
+            "correct": 15,
+            "wrong": 2,
+            "unscorable": 1599
+          },
+          "scorable_fraction": 0.01051980198019802,
+          "correspondence_accuracy": 0.8823529411764706
+        }
+      }
+    }
+  },
+  "residual_micro": {
+    "fb_error_px": {
+      "n": 112276,
+      "mean": 0.017249522261613588,
+      "median": 0.001842471130657941,
+      "p05": 0.0001643421855987981,
+      "p95": 0.08320100605487823,
+      "min": 0.0,
+      "max": 0.748662531375885,
+      "std": 0.05784640189272471
+    },
+    "raw_fb_error_px": {
+      "n": 112276,
+      "mean": 0.2251366704222321,
+      "median": 0.0018425204907543957,
+      "p05": 0.0001643421855987981,
+      "p95": 0.08537798933684826,
+      "min": 0.0,
+      "max": 960.2138671875,
+      "std": 6.655624480863415
+    },
+    "prediction_residual_px": {
+      "n": 112276,
+      "mean": 3.311152066769065,
+      "median": 0.091936237883675,
+      "p05": 0.021585899628224037,
+      "p95": 20.13160911869412,
+      "min": 0.00032816375952010113,
+      "max": 176.13069260353618,
+      "std": 8.99653280248189
+    },
+    "patch_residual": {
+      "n": 112276,
+      "mean": 0.0073939019659988794,
+      "median": 0.0061799706891179085,
+      "p05": 0.003954825107939541,
+      "p95": 0.014853206695988774,
+      "min": 0.001428225077688694,
+      "max": 0.024916592985391617,
+      "std": 0.003397111193380775
+    },
+    "measured_displacement_px": {
+      "n": 112276,
+      "mean": 4.069233168067027,
+      "median": 0.07358763549270392,
+      "p05": 0.009431397530773497,
+      "p95": 25.058032235971652,
+      "min": 5.501634636633284e-05,
+      "max": 130.714682805902,
+      "std": 11.160074602466723
+    },
+    "raw_prediction_residual_px": {
+      "n": 112276,
+      "mean": 3.461061500069329,
+      "median": 0.091936237883675,
+      "p05": 0.021585899628224037,
+      "p95": 20.416188964266684,
+      "min": 0.00032816375952010113,
+      "max": 335.00691490069926,
+      "std": 10.462936811974426
+    },
+    "prediction_uncertainty_px": {
+      "n": 77843,
+      "mean": 0.0,
+      "median": 0.0,
+      "p05": 0.0,
+      "p95": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "std": 0.0
+    }
+  },
+  "residual_macro_scene_median": {
+    "fb_error_px": {
+      "n": 6,
+      "mean": 0.027450500657626737,
+      "median": 0.019765968900173903,
+      "p05": 0.0015345360443461686,
+      "p95": 0.06972240656614304,
+      "min": 0.0009033667156472802,
+      "max": 0.07902498543262482,
+      "std": 0.02690072268310298
+    },
+    "raw_fb_error_px": {
+      "n": 6,
+      "mean": 0.027499612246174365,
+      "median": 0.019913303665816784,
+      "p05": 0.0015345360443461686,
+      "p95": 0.06972240656614304,
+      "min": 0.0009033667156472802,
+      "max": 0.07902498543262482,
+      "std": 0.02688447969655774
+    },
+    "prediction_residual_px": {
+      "n": 6,
+      "mean": 3.0104074771487483,
+      "median": 2.928366317359565,
+      "p05": 0.11362939100328787,
+      "p95": 6.742098213390526,
+      "min": 0.06265816828033918,
+      "max": 7.545940926420608,
+      "std": 2.535308550877121
+    },
+    "patch_residual": {
+      "n": 6,
+      "mean": 0.010725286323577166,
+      "median": 0.010900843888521194,
+      "p05": 0.005912570166401565,
+      "p95": 0.015260226442478597,
+      "min": 0.005493876524269581,
+      "max": 0.015576701611280441,
+      "std": 0.003613279597520815
+    },
+    "measured_displacement_px": {
+      "n": 6,
+      "mean": 6.010923731537585,
+      "median": 7.123964315309331,
+      "p05": 0.13887385324788837,
+      "p95": 11.291588169010012,
+      "min": 0.03480050322289856,
+      "max": 11.917316661989478,
+      "std": 4.423243307159202
+    },
+    "raw_prediction_residual_px": {
+      "n": 6,
+      "mean": 3.0294190360260136,
+      "median": 2.928366317359565,
+      "p05": 0.11362939100328787,
+      "p95": 6.797460349296385,
+      "min": 0.06265816828033918,
+      "max": 7.599630521600529,
+      "std": 2.55661040072665
+    },
+    "prediction_uncertainty_px": {
+      "n": 3,
+      "mean": 0.0,
+      "median": 0.0,
+      "p05": 0.0,
+      "p95": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "std": 0.0
+    }
+  },
+  "macro": {
+    "measured_same_RGB": {
+      "scorable_fraction": {
+        "n": 6,
+        "mean": 0.017236747485013363,
+        "median": 0.015766946520339588,
+        "p05": 0.0021222410865874364,
+        "p95": 0.032104637524286724,
+        "min": 0.0,
+        "max": 0.032510461287047814,
+        "std": 0.01189277673828824
+      },
+      "correspondence_accuracy": {
+        "n": 5,
+        "mean": 0.7694471106766234,
+        "median": 0.8591012947448591,
+        "p05": 0.5029535864978903,
+        "p95": 0.9715538204127161,
+        "min": 0.4620253164556962,
+        "max": 0.9994422755158952,
+        "std": 0.18665875471999405
+      }
+    },
+    "observation_supported": {
+      "scorable_fraction": {
+        "n": 6,
+        "mean": 0.01461949431854286,
+        "median": 0.014437832778806538,
+        "p05": 0.0017985611510791368,
+        "p95": 0.028568650625632713,
+        "min": 0.0,
+        "max": 0.031313773376601656,
+        "std": 0.01006649460635323
+      },
+      "correspondence_accuracy": {
+        "n": 5,
+        "mean": 0.7558253827188358,
+        "median": 0.8292682926829268,
+        "p05": 0.4641604010025062,
+        "p95": 0.9739316239316239,
+        "min": 0.41353383458646614,
+        "max": 1.0,
+        "std": 0.20153698286836114
+      }
+    }
+  },
+  "label_table_sha256": {
+    "data/nuscenes/v1.0-trainval/sample_annotation.json": "1f4f3835cb86f4efe49ccad3ae6f5f6a2d068422696de564c5892b5b06bea2a9",
+    "data/nuscenes/v1.0-trainval/instance.json": "8f8b19496ce45353874714ce23a9df7f47f48cb6203df2dd456ea0247d146461",
+    "data/nuscenes/v1.0-trainval/category.json": "30f64fb175e5bd7db99892d90f9034481bca491f26600c5c0d1a56106b198dfe"
+  },
+  "qualification_generated": false
+}

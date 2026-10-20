@@ -1,0 +1,4071 @@
+{
+  "fixed": {
+    "baseline": {
+      "operational": {
+        "counts": {
+          "frames": 72,
+          "camera_observations": 432,
+          "historical_projection_candidates": 2644,
+          "observation_supported_anchor_events": 39,
+          "actual_committed_anchor_events": 2638,
+          "actual_current_observed_anchor_events": 2304,
+          "snapshot_observed_anchor_events": 2873,
+          "certified_anchor_events": 0,
+          "identity_proposals": 5211,
+          "measured_points": 436167,
+          "measured_bidirectional_points": 160982,
+          "measured_geometric_points": 139070,
+          "measured_supported_points": 112075,
+          "measured_supported_points_after_exclusion": 70768,
+          "camera_pixels": 99532800,
+          "observation_supported_pixels": 320792,
+          "identity_candidate_proposals": 225,
+          "identity_unknown_proposals": 4986,
+          "unique_scenes": 6
+        },
+        "observation_anchor_coverage": 0.014750378214826021,
+        "observed_pixel_coverage": 0.0032229777520576134,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.04317789291882556,
+        "identity_unknown_fraction": 0.9568221070811744
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 6,
+          "mean": 0.007629107981220657,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.03433098591549296,
+          "min": 0.0,
+          "max": 0.045774647887323945,
+          "std": 0.017059204053695577
+        },
+        "observed_pixel_coverage": {
+          "n": 6,
+          "mean": 0.003222977752057613,
+          "median": 3.668137538580247e-05,
+          "p05": 0.0,
+          "p95": 0.01309547706886574,
+          "min": 0.0,
+          "max": 0.016558702256944443,
+          "std": 0.00604416397034522
+        },
+        "certification_coverage": {
+          "n": 6,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 6,
+          "mean": 0.10151790137243794,
+          "median": 0.02671998720131844,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13716924928590338
+        },
+        "identity_unknown_fraction": {
+          "n": 6,
+          "mean": 0.8984820986275621,
+          "median": 0.9732800127986816,
+          "p05": 0.6735831415420023,
+          "p95": 1.0,
+          "min": 0.625,
+          "max": 1.0,
+          "std": 0.1371692492859034
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 72,
+          "p50": 305.06051413249224,
+          "p95": 1202.6785851223394,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 72,
+          "p50": 1193.0828695185483,
+          "p95": 2337.203380896244,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 72,
+          "p50": 859.9681380000028,
+          "p95": 1807.0515846999995,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 72,
+          "p50": 957.397070499999,
+          "p95": 2238.1089307500038,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 72,
+          "p50": 191.25139841344208,
+          "p95": 324.4650386739522,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 436167,
+            "correct": 3610,
+            "wrong": 1745,
+            "unscorable": 430812
+          },
+          "scorable_fraction": 0.012277407506757732,
+          "correspondence_accuracy": 0.6741363211951448
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 112075,
+            "correct": 3037,
+            "wrong": 277,
+            "unscorable": 108761
+          },
+          "scorable_fraction": 0.029569484720053534,
+          "correspondence_accuracy": 0.9164152082076041
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 70768,
+            "correct": 1421,
+            "wrong": 206,
+            "unscorable": 69141
+          },
+          "scorable_fraction": 0.022990617228125707,
+          "correspondence_accuracy": 0.8733866011063307
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 565,
+                "correct": 556,
+                "wrong": 9,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.984070796460177
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 1124,
+                "correct": 1023,
+                "wrong": 101,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9101423487544484
+            },
+            "near_lt10m": {
+              "counts": {
+                "total": 1625,
+                "correct": 1458,
+                "wrong": 167,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8972307692307693
+            },
+            "unknown": {
+              "counts": {
+                "total": 108761,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 108761
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "barrier": {
+              "counts": {
+                "total": 126,
+                "correct": 91,
+                "wrong": 35,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.7222222222222222
+            },
+            "car": {
+              "counts": {
+                "total": 577,
+                "correct": 569,
+                "wrong": 8,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9861351819757366
+            },
+            "construction_vehicle": {
+              "counts": {
+                "total": 11,
+                "correct": 11,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "pedestrian": {
+              "counts": {
+                "total": 5,
+                "correct": 1,
+                "wrong": 4,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2
+            },
+            "traffic_cone": {
+              "counts": {
+                "total": 20,
+                "correct": 17,
+                "wrong": 3,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.85
+            },
+            "truck": {
+              "counts": {
+                "total": 189,
+                "correct": 170,
+                "wrong": 19,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8994708994708994
+            },
+            "unannotated_background": {
+              "counts": {
+                "total": 2386,
+                "correct": 2178,
+                "wrong": 208,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9128248113998324
+            },
+            "unknown": {
+              "counts": {
+                "total": 108761,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 108761
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 3307,
+                "correct": 3035,
+                "wrong": 272,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9177502267916541
+            },
+            "object_moving": {
+              "counts": {
+                "total": 7,
+                "correct": 2,
+                "wrong": 5,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2857142857142857
+            },
+            "unknown": {
+              "counts": {
+                "total": 108761,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 108761
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 3314,
+                "correct": 3037,
+                "wrong": 277,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9164152082076041
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 108761,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 108761
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "small_motion": {
+              "counts": {
+                "total": 107986,
+                "correct": 2996,
+                "wrong": 269,
+                "unscorable": 104721
+              },
+              "scorable_fraction": 0.030235400885299947,
+              "correspondence_accuracy": 0.9176110260336907
+            },
+            "translation_ge1m": {
+              "counts": {
+                "total": 2611,
+                "correct": 27,
+                "wrong": 6,
+                "unscorable": 2578
+              },
+              "scorable_fraction": 0.012638835695135964,
+              "correspondence_accuracy": 0.8181818181818182
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 1478,
+                "correct": 14,
+                "wrong": 2,
+                "unscorable": 1462
+              },
+              "scorable_fraction": 0.010825439783491205,
+              "correspondence_accuracy": 0.875
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.017236424254900136,
+            "median": 0.015789134297560136,
+            "p05": 0.0021095229894954365,
+            "p95": 0.03210778957030916,
+            "min": 0.0,
+            "max": 0.03251448665246892,
+            "std": 0.011902233119310738
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7700603624037992,
+            "median": 0.8571428571428571,
+            "p05": 0.5076923076923077,
+            "p95": 0.971374079361688,
+            "min": 0.46794871794871795,
+            "max": 0.9994422755158952,
+            "std": 0.18443937357226334
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.014611735674651986,
+            "median": 0.014437832778806538,
+            "p05": 0.0017806267806267807,
+            "p95": 0.028575470847133612,
+            "min": 0.0,
+            "max": 0.03131482101037136,
+            "std": 0.01007792476865527
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7562344229138123,
+            "median": 0.825,
+            "p05": 0.46921119592875316,
+            "p95": 0.9739316239316239,
+            "min": 0.4198473282442748,
+            "max": 1.0,
+            "std": 0.19909493040590645
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 5211,
+          "correct": 1045,
+          "wrong": 195,
+          "unscorable": 3971,
+          "candidates": 225,
+          "candidate_correct": 163,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 62,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.2379581654193053,
+        "candidate_coverage": 0.04317789291882556,
+        "candidate_accuracy": 1.0,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 6,
+          "mean": 0.38007643138704816,
+          "median": 0.3367376294591484,
+          "p05": 0.1628703028165062,
+          "p95": 0.6897493573264781,
+          "min": 0.1517476555839727,
+          "max": 0.75,
+          "std": 0.20744393433956854
+        },
+        "candidate_coverage": {
+          "n": 6,
+          "mean": 0.10151790137243795,
+          "median": 0.02671998720131844,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.1371692492859034
+        },
+        "candidate_accuracy": {
+          "n": 3,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "20db5722b62c4c17bbff2d7b265a3c51"
+        ],
+        "validation_logs": [
+          "3313a6a85b264e4c86ee44d6e6329cf3",
+          "6f5b61bfb298454eb6fe7ba279792815",
+          "7e25a2c8ea1f41c5b0da1e69ecfa71a2",
+          "84ff0dbb8d7343ab95e776c4955d5884",
+          "d0450edaed4a46f898403f45fa9e5f0d"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    },
+    "old_b": {
+      "operational": {
+        "counts": {
+          "frames": 72,
+          "camera_observations": 432,
+          "historical_projection_candidates": 2644,
+          "observation_supported_anchor_events": 39,
+          "actual_committed_anchor_events": 2638,
+          "actual_current_observed_anchor_events": 2304,
+          "snapshot_observed_anchor_events": 2873,
+          "certified_anchor_events": 0,
+          "identity_proposals": 5211,
+          "measured_points": 436167,
+          "measured_bidirectional_points": 162293,
+          "measured_geometric_points": 139707,
+          "measured_supported_points": 112327,
+          "measured_supported_points_after_exclusion": 71010,
+          "camera_pixels": 99532800,
+          "observation_supported_pixels": 320792,
+          "identity_candidate_proposals": 225,
+          "identity_unknown_proposals": 4986,
+          "unique_scenes": 6
+        },
+        "observation_anchor_coverage": 0.014750378214826021,
+        "observed_pixel_coverage": 0.0032229777520576134,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.04317789291882556,
+        "identity_unknown_fraction": 0.9568221070811744
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 6,
+          "mean": 0.007629107981220657,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.03433098591549296,
+          "min": 0.0,
+          "max": 0.045774647887323945,
+          "std": 0.017059204053695577
+        },
+        "observed_pixel_coverage": {
+          "n": 6,
+          "mean": 0.003222977752057613,
+          "median": 3.668137538580247e-05,
+          "p05": 0.0,
+          "p95": 0.01309547706886574,
+          "min": 0.0,
+          "max": 0.016558702256944443,
+          "std": 0.00604416397034522
+        },
+        "certification_coverage": {
+          "n": 6,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 6,
+          "mean": 0.10151790137243794,
+          "median": 0.02671998720131844,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13716924928590338
+        },
+        "identity_unknown_fraction": {
+          "n": 6,
+          "mean": 0.8984820986275621,
+          "median": 0.9732800127986816,
+          "p05": 0.6735831415420023,
+          "p95": 1.0,
+          "min": 0.625,
+          "max": 1.0,
+          "std": 0.1371692492859034
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 72,
+          "p50": 492.39549902267754,
+          "p95": 2216.856845805888,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 72,
+          "p50": 1112.1484221657738,
+          "p95": 3101.6325553529905,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1368.5628190000027,
+          "p95": 3481.1157431499896,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1466.839020000009,
+          "p95": 3664.7479502499864,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 72,
+          "p50": 307.2829346638173,
+          "p95": 1159.9993647658268,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 436167,
+            "correct": 3617,
+            "wrong": 1741,
+            "unscorable": 430809
+          },
+          "scorable_fraction": 0.012284285606201295,
+          "correspondence_accuracy": 0.6750653228816723
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 112327,
+            "correct": 3038,
+            "wrong": 279,
+            "unscorable": 109010
+          },
+          "scorable_fraction": 0.029529854798935253,
+          "correspondence_accuracy": 0.9158878504672897
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 71010,
+            "correct": 1422,
+            "wrong": 208,
+            "unscorable": 69380
+          },
+          "scorable_fraction": 0.022954513448810027,
+          "correspondence_accuracy": 0.8723926380368098
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 565,
+                "correct": 556,
+                "wrong": 9,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.984070796460177
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 1127,
+                "correct": 1024,
+                "wrong": 103,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9086069210292813
+            },
+            "near_lt10m": {
+              "counts": {
+                "total": 1625,
+                "correct": 1458,
+                "wrong": 167,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8972307692307693
+            },
+            "unknown": {
+              "counts": {
+                "total": 109010,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 109010
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "barrier": {
+              "counts": {
+                "total": 126,
+                "correct": 91,
+                "wrong": 35,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.7222222222222222
+            },
+            "car": {
+              "counts": {
+                "total": 577,
+                "correct": 569,
+                "wrong": 8,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9861351819757366
+            },
+            "construction_vehicle": {
+              "counts": {
+                "total": 11,
+                "correct": 11,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "pedestrian": {
+              "counts": {
+                "total": 5,
+                "correct": 1,
+                "wrong": 4,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2
+            },
+            "traffic_cone": {
+              "counts": {
+                "total": 20,
+                "correct": 17,
+                "wrong": 3,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.85
+            },
+            "truck": {
+              "counts": {
+                "total": 189,
+                "correct": 170,
+                "wrong": 19,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8994708994708994
+            },
+            "unannotated_background": {
+              "counts": {
+                "total": 2389,
+                "correct": 2179,
+                "wrong": 210,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9120971117622436
+            },
+            "unknown": {
+              "counts": {
+                "total": 109010,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 109010
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 3310,
+                "correct": 3036,
+                "wrong": 274,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9172205438066465
+            },
+            "object_moving": {
+              "counts": {
+                "total": 7,
+                "correct": 2,
+                "wrong": 5,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2857142857142857
+            },
+            "unknown": {
+              "counts": {
+                "total": 109010,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 109010
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 3317,
+                "correct": 3038,
+                "wrong": 279,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9158878504672897
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 109010,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 109010
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "small_motion": {
+              "counts": {
+                "total": 107999,
+                "correct": 2996,
+                "wrong": 269,
+                "unscorable": 104734
+              },
+              "scorable_fraction": 0.030231761405198197,
+              "correspondence_accuracy": 0.9176110260336907
+            },
+            "translation_ge1m": {
+              "counts": {
+                "total": 2712,
+                "correct": 27,
+                "wrong": 8,
+                "unscorable": 2677
+              },
+              "scorable_fraction": 0.012905604719764012,
+              "correspondence_accuracy": 0.7714285714285715
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 1616,
+                "correct": 15,
+                "wrong": 2,
+                "unscorable": 1599
+              },
+              "scorable_fraction": 0.01051980198019802,
+              "correspondence_accuracy": 0.8823529411764706
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.017214702543911053,
+            "median": 0.01570558404131891,
+            "p05": 0.0021197218924877055,
+            "p95": 0.032104770546243326,
+            "min": 0.0,
+            "max": 0.032510461287047814,
+            "std": 0.011888036642980963
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7694471106766234,
+            "median": 0.8591012947448591,
+            "p05": 0.5029535864978903,
+            "p95": 0.9715538204127161,
+            "min": 0.4620253164556962,
+            "max": 0.9994422755158952,
+            "std": 0.18665875471999405
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.01459486824109728,
+            "median": 0.014437832778806538,
+            "p05": 0.001796354714335787,
+            "p95": 0.028533917946207694,
+            "min": 0.0,
+            "max": 0.031313773376601656,
+            "std": 0.01005455989700276
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7558253827188358,
+            "median": 0.8292682926829268,
+            "p05": 0.4641604010025062,
+            "p95": 0.9739316239316239,
+            "min": 0.41353383458646614,
+            "max": 1.0,
+            "std": 0.20153698286836114
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 5211,
+          "correct": 1045,
+          "wrong": 195,
+          "unscorable": 3971,
+          "candidates": 225,
+          "candidate_correct": 163,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 62,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.2379581654193053,
+        "candidate_coverage": 0.04317789291882556,
+        "candidate_accuracy": 1.0,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 6,
+          "mean": 0.38007643138704816,
+          "median": 0.3367376294591484,
+          "p05": 0.1628703028165062,
+          "p95": 0.6897493573264781,
+          "min": 0.1517476555839727,
+          "max": 0.75,
+          "std": 0.20744393433956854
+        },
+        "candidate_coverage": {
+          "n": 6,
+          "mean": 0.10151790137243795,
+          "median": 0.02671998720131844,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.1371692492859034
+        },
+        "candidate_accuracy": {
+          "n": 3,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "20db5722b62c4c17bbff2d7b265a3c51"
+        ],
+        "validation_logs": [
+          "3313a6a85b264e4c86ee44d6e6329cf3",
+          "6f5b61bfb298454eb6fe7ba279792815",
+          "7e25a2c8ea1f41c5b0da1e69ecfa71a2",
+          "84ff0dbb8d7343ab95e776c4955d5884",
+          "d0450edaed4a46f898403f45fa9e5f0d"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    },
+    "a": {
+      "operational": {
+        "counts": {
+          "frames": 72,
+          "camera_observations": 432,
+          "historical_projection_candidates": 2644,
+          "observation_supported_anchor_events": 25,
+          "actual_committed_anchor_events": 2638,
+          "actual_current_observed_anchor_events": 2304,
+          "snapshot_observed_anchor_events": 2873,
+          "certified_anchor_events": 0,
+          "identity_proposals": 5211,
+          "measured_points": 436167,
+          "measured_bidirectional_points": 112276,
+          "measured_geometric_points": 112276,
+          "measured_supported_points": 112276,
+          "measured_supported_points_after_exclusion": 70958,
+          "camera_pixels": 99532800,
+          "observation_supported_pixels": 320792,
+          "identity_candidate_proposals": 225,
+          "identity_unknown_proposals": 4986,
+          "unique_scenes": 6
+        },
+        "observation_anchor_coverage": 0.009455370650529501,
+        "observed_pixel_coverage": 0.0032229777520576134,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.04317789291882556,
+        "identity_unknown_fraction": 0.9568221070811744
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 6,
+          "mean": 0.004890453834115806,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.022007042253521125,
+          "min": 0.0,
+          "max": 0.029342723004694836,
+          "std": 0.010935387213907423
+        },
+        "observed_pixel_coverage": {
+          "n": 6,
+          "mean": 0.003222977752057613,
+          "median": 3.668137538580247e-05,
+          "p05": 0.0,
+          "p95": 0.01309547706886574,
+          "min": 0.0,
+          "max": 0.016558702256944443,
+          "std": 0.00604416397034522
+        },
+        "certification_coverage": {
+          "n": 6,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 6,
+          "mean": 0.10151790137243794,
+          "median": 0.02671998720131844,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13716924928590338
+        },
+        "identity_unknown_fraction": {
+          "n": 6,
+          "mean": 0.8984820986275621,
+          "median": 0.9732800127986816,
+          "p05": 0.6735831415420023,
+          "p95": 1.0,
+          "min": 0.625,
+          "max": 1.0,
+          "std": 0.1371692492859034
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 72,
+          "p50": 491.95792304817587,
+          "p95": 2308.03763625445,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 72,
+          "p50": 1368.6029043747112,
+          "p95": 4640.281644207426,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1394.5244399999979,
+          "p95": 3393.1469470999873,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1529.4622284999964,
+          "p95": 3634.664829949989,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 72,
+          "p50": 335.3586825542152,
+          "p95": 1127.6007065083834,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 436167,
+            "correct": 3611,
+            "wrong": 1744,
+            "unscorable": 430812
+          },
+          "scorable_fraction": 0.012277407506757732,
+          "correspondence_accuracy": 0.6743230625583567
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 112276,
+            "correct": 3038,
+            "wrong": 279,
+            "unscorable": 108959
+          },
+          "scorable_fraction": 0.029543268374363177,
+          "correspondence_accuracy": 0.9158878504672897
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 70958,
+            "correct": 1422,
+            "wrong": 208,
+            "unscorable": 69328
+          },
+          "scorable_fraction": 0.02297133515600778,
+          "correspondence_accuracy": 0.8723926380368098
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 565,
+                "correct": 556,
+                "wrong": 9,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.984070796460177
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 1127,
+                "correct": 1024,
+                "wrong": 103,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9086069210292813
+            },
+            "near_lt10m": {
+              "counts": {
+                "total": 1625,
+                "correct": 1458,
+                "wrong": 167,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8972307692307693
+            },
+            "unknown": {
+              "counts": {
+                "total": 108959,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 108959
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "barrier": {
+              "counts": {
+                "total": 126,
+                "correct": 91,
+                "wrong": 35,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.7222222222222222
+            },
+            "car": {
+              "counts": {
+                "total": 577,
+                "correct": 569,
+                "wrong": 8,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9861351819757366
+            },
+            "construction_vehicle": {
+              "counts": {
+                "total": 11,
+                "correct": 11,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "pedestrian": {
+              "counts": {
+                "total": 5,
+                "correct": 1,
+                "wrong": 4,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2
+            },
+            "traffic_cone": {
+              "counts": {
+                "total": 20,
+                "correct": 17,
+                "wrong": 3,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.85
+            },
+            "truck": {
+              "counts": {
+                "total": 189,
+                "correct": 170,
+                "wrong": 19,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8994708994708994
+            },
+            "unannotated_background": {
+              "counts": {
+                "total": 2389,
+                "correct": 2179,
+                "wrong": 210,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9120971117622436
+            },
+            "unknown": {
+              "counts": {
+                "total": 108959,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 108959
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 3310,
+                "correct": 3036,
+                "wrong": 274,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9172205438066465
+            },
+            "object_moving": {
+              "counts": {
+                "total": 7,
+                "correct": 2,
+                "wrong": 5,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2857142857142857
+            },
+            "unknown": {
+              "counts": {
+                "total": 108959,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 108959
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 3317,
+                "correct": 3038,
+                "wrong": 279,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9158878504672897
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 108959,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 108959
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "small_motion": {
+              "counts": {
+                "total": 107992,
+                "correct": 2996,
+                "wrong": 269,
+                "unscorable": 104727
+              },
+              "scorable_fraction": 0.030233721016371583,
+              "correspondence_accuracy": 0.9176110260336907
+            },
+            "translation_ge1m": {
+              "counts": {
+                "total": 2668,
+                "correct": 27,
+                "wrong": 8,
+                "unscorable": 2633
+              },
+              "scorable_fraction": 0.013118440779610194,
+              "correspondence_accuracy": 0.7714285714285715
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 1616,
+                "correct": 15,
+                "wrong": 2,
+                "unscorable": 1599
+              },
+              "scorable_fraction": 0.01051980198019802,
+              "correspondence_accuracy": 0.8823529411764706
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.017236747485013363,
+            "median": 0.015766946520339588,
+            "p05": 0.0021222410865874364,
+            "p95": 0.032104637524286724,
+            "min": 0.0,
+            "max": 0.032510461287047814,
+            "std": 0.01189277673828824
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7694471106766234,
+            "median": 0.8591012947448591,
+            "p05": 0.5029535864978903,
+            "p95": 0.9715538204127161,
+            "min": 0.4620253164556962,
+            "max": 0.9994422755158952,
+            "std": 0.18665875471999405
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.01461949431854286,
+            "median": 0.014437832778806538,
+            "p05": 0.0017985611510791368,
+            "p95": 0.028568650625632713,
+            "min": 0.0,
+            "max": 0.031313773376601656,
+            "std": 0.01006649460635323
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7558253827188358,
+            "median": 0.8292682926829268,
+            "p05": 0.4641604010025062,
+            "p95": 0.9739316239316239,
+            "min": 0.41353383458646614,
+            "max": 1.0,
+            "std": 0.20153698286836114
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 5211,
+          "correct": 1045,
+          "wrong": 195,
+          "unscorable": 3971,
+          "candidates": 225,
+          "candidate_correct": 163,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 62,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.2379581654193053,
+        "candidate_coverage": 0.04317789291882556,
+        "candidate_accuracy": 1.0,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 6,
+          "mean": 0.38007643138704816,
+          "median": 0.3367376294591484,
+          "p05": 0.1628703028165062,
+          "p95": 0.6897493573264781,
+          "min": 0.1517476555839727,
+          "max": 0.75,
+          "std": 0.20744393433956854
+        },
+        "candidate_coverage": {
+          "n": 6,
+          "mean": 0.10151790137243795,
+          "median": 0.02671998720131844,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.1371692492859034
+        },
+        "candidate_accuracy": {
+          "n": 3,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "20db5722b62c4c17bbff2d7b265a3c51"
+        ],
+        "validation_logs": [
+          "3313a6a85b264e4c86ee44d6e6329cf3",
+          "6f5b61bfb298454eb6fe7ba279792815",
+          "7e25a2c8ea1f41c5b0da1e69ecfa71a2",
+          "84ff0dbb8d7343ab95e776c4955d5884",
+          "d0450edaed4a46f898403f45fa9e5f0d"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    },
+    "b": {
+      "operational": {
+        "counts": {
+          "frames": 72,
+          "camera_observations": 432,
+          "historical_projection_candidates": 2644,
+          "observation_supported_anchor_events": 39,
+          "actual_committed_anchor_events": 2638,
+          "actual_current_observed_anchor_events": 2304,
+          "snapshot_observed_anchor_events": 2873,
+          "certified_anchor_events": 0,
+          "identity_proposals": 5211,
+          "measured_points": 444391,
+          "measured_bidirectional_points": 115450,
+          "measured_geometric_points": 115450,
+          "measured_supported_points": 115450,
+          "measured_supported_points_after_exclusion": 74073,
+          "camera_pixels": 99532800,
+          "observation_supported_pixels": 320792,
+          "identity_candidate_proposals": 224,
+          "identity_unknown_proposals": 4987,
+          "unique_scenes": 6
+        },
+        "observation_anchor_coverage": 0.014750378214826021,
+        "observed_pixel_coverage": 0.0032229777520576134,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.04298599117251967,
+        "identity_unknown_fraction": 0.9570140088274803
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 6,
+          "mean": 0.007629107981220657,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.03433098591549296,
+          "min": 0.0,
+          "max": 0.045774647887323945,
+          "std": 0.017059204053695577
+        },
+        "observed_pixel_coverage": {
+          "n": 6,
+          "mean": 0.003222977752057613,
+          "median": 3.668137538580247e-05,
+          "p05": 0.0,
+          "p95": 0.01309547706886574,
+          "min": 0.0,
+          "max": 0.016558702256944443,
+          "std": 0.00604416397034522
+        },
+        "certification_coverage": {
+          "n": 6,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 6,
+          "mean": 0.10144685846252034,
+          "median": 0.02650685847156567,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13721021276467174
+        },
+        "identity_unknown_fraction": {
+          "n": 6,
+          "mean": 0.8985531415374797,
+          "median": 0.9734931415284344,
+          "p05": 0.6735831415420023,
+          "p95": 1.0,
+          "min": 0.625,
+          "max": 1.0,
+          "std": 0.13721021276467174
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 72,
+          "p50": 608.8452239055187,
+          "p95": 2257.0005932473578,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 72,
+          "p50": 1781.6791939549148,
+          "p95": 3070.1178715680726,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1731.0125724999991,
+          "p95": 3701.0438627500007,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1883.0767995000012,
+          "p95": 4023.193675950016,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 72,
+          "p50": 390.73047903366387,
+          "p95": 1190.6436291174034,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 444391,
+            "correct": 3715,
+            "wrong": 1806,
+            "unscorable": 438870
+          },
+          "scorable_fraction": 0.012423743955210615,
+          "correspondence_accuracy": 0.6728853468574534
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 115450,
+            "correct": 3101,
+            "wrong": 310,
+            "unscorable": 112039
+          },
+          "scorable_fraction": 0.029545257687310523,
+          "correspondence_accuracy": 0.9091175608326004
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 74073,
+            "correct": 1484,
+            "wrong": 238,
+            "unscorable": 72351
+          },
+          "scorable_fraction": 0.02324733708638775,
+          "correspondence_accuracy": 0.8617886178861789
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 574,
+                "correct": 561,
+                "wrong": 13,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9773519163763066
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 1182,
+                "correct": 1061,
+                "wrong": 121,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8976311336717429
+            },
+            "near_lt10m": {
+              "counts": {
+                "total": 1655,
+                "correct": 1479,
+                "wrong": 176,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8936555891238671
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "barrier": {
+              "counts": {
+                "total": 141,
+                "correct": 103,
+                "wrong": 38,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.7304964539007093
+            },
+            "car": {
+              "counts": {
+                "total": 578,
+                "correct": 569,
+                "wrong": 9,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9844290657439446
+            },
+            "construction_vehicle": {
+              "counts": {
+                "total": 11,
+                "correct": 11,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "pedestrian": {
+              "counts": {
+                "total": 5,
+                "correct": 1,
+                "wrong": 4,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2
+            },
+            "traffic_cone": {
+              "counts": {
+                "total": 20,
+                "correct": 17,
+                "wrong": 3,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.85
+            },
+            "truck": {
+              "counts": {
+                "total": 189,
+                "correct": 170,
+                "wrong": 19,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8994708994708994
+            },
+            "unannotated_background": {
+              "counts": {
+                "total": 2467,
+                "correct": 2230,
+                "wrong": 237,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9039319010944467
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 3404,
+                "correct": 3099,
+                "wrong": 305,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9103995299647474
+            },
+            "object_moving": {
+              "counts": {
+                "total": 7,
+                "correct": 2,
+                "wrong": 5,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2857142857142857
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 3411,
+                "correct": 3101,
+                "wrong": 310,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9091175608326004
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "small_motion": {
+              "counts": {
+                "total": 110393,
+                "correct": 3052,
+                "wrong": 298,
+                "unscorable": 107043
+              },
+              "scorable_fraction": 0.0303461270189233,
+              "correspondence_accuracy": 0.9110447761194029
+            },
+            "translation_ge1m": {
+              "counts": {
+                "total": 3187,
+                "correct": 31,
+                "wrong": 10,
+                "unscorable": 3146
+              },
+              "scorable_fraction": 0.012864763100094132,
+              "correspondence_accuracy": 0.7560975609756098
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 1870,
+                "correct": 18,
+                "wrong": 2,
+                "unscorable": 1850
+              },
+              "scorable_fraction": 0.0106951871657754,
+              "correspondence_accuracy": 0.9
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.017426400039899332,
+            "median": 0.016044398263518927,
+            "p05": 0.0021626297577854673,
+            "p95": 0.032420730392910484,
+            "min": 0.0,
+            "max": 0.03293191844521283,
+            "std": 0.011981356128934813
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7571009531264339,
+            "median": 0.8166666666666667,
+            "p05": 0.49195402298850577,
+            "p95": 0.9704444793555111,
+            "min": 0.4482758620689655,
+            "max": 0.9994422755158952,
+            "std": 0.18724645054779976
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.014894359848588315,
+            "median": 0.01447637337490109,
+            "p05": 0.0018902891030392883,
+            "p95": 0.029178647156388817,
+            "min": 0.0,
+            "max": 0.031931166347992354,
+            "std": 0.010244511096525655
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7433876818018129,
+            "median": 0.7843137254901961,
+            "p05": 0.4554809843400447,
+            "p95": 0.9726546906187624,
+            "min": 0.40268456375838924,
+            "max": 1.0,
+            "std": 0.20192184125011692
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 5211,
+          "correct": 1045,
+          "wrong": 195,
+          "unscorable": 3971,
+          "candidates": 224,
+          "candidate_correct": 162,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 62,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.2379581654193053,
+        "candidate_coverage": 0.04298599117251967,
+        "candidate_accuracy": 1.0,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 6,
+          "mean": 0.38007643138704816,
+          "median": 0.3367376294591484,
+          "p05": 0.1628703028165062,
+          "p95": 0.6897493573264781,
+          "min": 0.1517476555839727,
+          "max": 0.75,
+          "std": 0.20744393433956854
+        },
+        "candidate_coverage": {
+          "n": 6,
+          "mean": 0.10144685846252034,
+          "median": 0.02650685847156567,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13721021276467174
+        },
+        "candidate_accuracy": {
+          "n": 3,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "20db5722b62c4c17bbff2d7b265a3c51"
+        ],
+        "validation_logs": [
+          "3313a6a85b264e4c86ee44d6e6329cf3",
+          "6f5b61bfb298454eb6fe7ba279792815",
+          "7e25a2c8ea1f41c5b0da1e69ecfa71a2",
+          "84ff0dbb8d7343ab95e776c4955d5884",
+          "d0450edaed4a46f898403f45fa9e5f0d"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    },
+    "c": {
+      "operational": {
+        "counts": {
+          "frames": 72,
+          "camera_observations": 432,
+          "historical_projection_candidates": 2644,
+          "observation_supported_anchor_events": 39,
+          "actual_committed_anchor_events": 2638,
+          "actual_current_observed_anchor_events": 2304,
+          "snapshot_observed_anchor_events": 2873,
+          "certified_anchor_events": 0,
+          "identity_proposals": 5211,
+          "measured_points": 444391,
+          "measured_bidirectional_points": 115450,
+          "measured_geometric_points": 115450,
+          "measured_supported_points": 115450,
+          "measured_supported_points_after_exclusion": 74073,
+          "camera_pixels": 99532800,
+          "observation_supported_pixels": 320792,
+          "identity_candidate_proposals": 224,
+          "identity_unknown_proposals": 4987,
+          "unique_scenes": 6
+        },
+        "observation_anchor_coverage": 0.014750378214826021,
+        "observed_pixel_coverage": 0.0032229777520576134,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.04298599117251967,
+        "identity_unknown_fraction": 0.9570140088274803
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 6,
+          "mean": 0.007629107981220657,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.03433098591549296,
+          "min": 0.0,
+          "max": 0.045774647887323945,
+          "std": 0.017059204053695577
+        },
+        "observed_pixel_coverage": {
+          "n": 6,
+          "mean": 0.003222977752057613,
+          "median": 3.668137538580247e-05,
+          "p05": 0.0,
+          "p95": 0.01309547706886574,
+          "min": 0.0,
+          "max": 0.016558702256944443,
+          "std": 0.00604416397034522
+        },
+        "certification_coverage": {
+          "n": 6,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 6,
+          "mean": 0.10144685846252034,
+          "median": 0.02650685847156567,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13721021276467174
+        },
+        "identity_unknown_fraction": {
+          "n": 6,
+          "mean": 0.8985531415374797,
+          "median": 0.9734931415284344,
+          "p05": 0.6735831415420023,
+          "p95": 1.0,
+          "min": 0.625,
+          "max": 1.0,
+          "std": 0.13721021276467174
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 72,
+          "p50": 667.5214559072629,
+          "p95": 2511.333396355623,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 72,
+          "p50": 1507.7635686611757,
+          "p95": 3953.6523922462957,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1701.3841244999953,
+          "p95": 3658.876242400005,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1828.1974614999913,
+          "p95": 3920.1010527499925,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 72,
+          "p50": 374.9491150956601,
+          "p95": 736.8337858119049,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 444391,
+            "correct": 3715,
+            "wrong": 1806,
+            "unscorable": 438870
+          },
+          "scorable_fraction": 0.012423743955210615,
+          "correspondence_accuracy": 0.6728853468574534
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 115450,
+            "correct": 3101,
+            "wrong": 310,
+            "unscorable": 112039
+          },
+          "scorable_fraction": 0.029545257687310523,
+          "correspondence_accuracy": 0.9091175608326004
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 74073,
+            "correct": 1484,
+            "wrong": 238,
+            "unscorable": 72351
+          },
+          "scorable_fraction": 0.02324733708638775,
+          "correspondence_accuracy": 0.8617886178861789
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 574,
+                "correct": 561,
+                "wrong": 13,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9773519163763066
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 1182,
+                "correct": 1061,
+                "wrong": 121,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8976311336717429
+            },
+            "near_lt10m": {
+              "counts": {
+                "total": 1655,
+                "correct": 1479,
+                "wrong": 176,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8936555891238671
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "barrier": {
+              "counts": {
+                "total": 141,
+                "correct": 103,
+                "wrong": 38,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.7304964539007093
+            },
+            "car": {
+              "counts": {
+                "total": 578,
+                "correct": 569,
+                "wrong": 9,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9844290657439446
+            },
+            "construction_vehicle": {
+              "counts": {
+                "total": 11,
+                "correct": 11,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "pedestrian": {
+              "counts": {
+                "total": 5,
+                "correct": 1,
+                "wrong": 4,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2
+            },
+            "traffic_cone": {
+              "counts": {
+                "total": 20,
+                "correct": 17,
+                "wrong": 3,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.85
+            },
+            "truck": {
+              "counts": {
+                "total": 189,
+                "correct": 170,
+                "wrong": 19,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8994708994708994
+            },
+            "unannotated_background": {
+              "counts": {
+                "total": 2467,
+                "correct": 2230,
+                "wrong": 237,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9039319010944467
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 3404,
+                "correct": 3099,
+                "wrong": 305,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9103995299647474
+            },
+            "object_moving": {
+              "counts": {
+                "total": 7,
+                "correct": 2,
+                "wrong": 5,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2857142857142857
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 3411,
+                "correct": 3101,
+                "wrong": 310,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9091175608326004
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "small_motion": {
+              "counts": {
+                "total": 110393,
+                "correct": 3052,
+                "wrong": 298,
+                "unscorable": 107043
+              },
+              "scorable_fraction": 0.0303461270189233,
+              "correspondence_accuracy": 0.9110447761194029
+            },
+            "translation_ge1m": {
+              "counts": {
+                "total": 3187,
+                "correct": 31,
+                "wrong": 10,
+                "unscorable": 3146
+              },
+              "scorable_fraction": 0.012864763100094132,
+              "correspondence_accuracy": 0.7560975609756098
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 1870,
+                "correct": 18,
+                "wrong": 2,
+                "unscorable": 1850
+              },
+              "scorable_fraction": 0.0106951871657754,
+              "correspondence_accuracy": 0.9
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.017426400039899332,
+            "median": 0.016044398263518927,
+            "p05": 0.0021626297577854673,
+            "p95": 0.032420730392910484,
+            "min": 0.0,
+            "max": 0.03293191844521283,
+            "std": 0.011981356128934813
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7571009531264339,
+            "median": 0.8166666666666667,
+            "p05": 0.49195402298850577,
+            "p95": 0.9704444793555111,
+            "min": 0.4482758620689655,
+            "max": 0.9994422755158952,
+            "std": 0.18724645054779976
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.014894359848588315,
+            "median": 0.01447637337490109,
+            "p05": 0.0018902891030392883,
+            "p95": 0.029178647156388817,
+            "min": 0.0,
+            "max": 0.031931166347992354,
+            "std": 0.010244511096525655
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7433876818018129,
+            "median": 0.7843137254901961,
+            "p05": 0.4554809843400447,
+            "p95": 0.9726546906187624,
+            "min": 0.40268456375838924,
+            "max": 1.0,
+            "std": 0.20192184125011692
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 5211,
+          "correct": 1045,
+          "wrong": 195,
+          "unscorable": 3971,
+          "candidates": 224,
+          "candidate_correct": 162,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 62,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.2379581654193053,
+        "candidate_coverage": 0.04298599117251967,
+        "candidate_accuracy": 1.0,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 6,
+          "mean": 0.38007643138704816,
+          "median": 0.3367376294591484,
+          "p05": 0.1628703028165062,
+          "p95": 0.6897493573264781,
+          "min": 0.1517476555839727,
+          "max": 0.75,
+          "std": 0.20744393433956854
+        },
+        "candidate_coverage": {
+          "n": 6,
+          "mean": 0.10144685846252034,
+          "median": 0.02650685847156567,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13721021276467174
+        },
+        "candidate_accuracy": {
+          "n": 3,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "20db5722b62c4c17bbff2d7b265a3c51"
+        ],
+        "validation_logs": [
+          "3313a6a85b264e4c86ee44d6e6329cf3",
+          "6f5b61bfb298454eb6fe7ba279792815",
+          "7e25a2c8ea1f41c5b0da1e69ecfa71a2",
+          "84ff0dbb8d7343ab95e776c4955d5884",
+          "d0450edaed4a46f898403f45fa9e5f0d"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    },
+    "aligned": {
+      "operational": {
+        "counts": {
+          "frames": 72,
+          "camera_observations": 432,
+          "historical_projection_candidates": 2644,
+          "observation_supported_anchor_events": 40,
+          "actual_committed_anchor_events": 2638,
+          "actual_current_observed_anchor_events": 2304,
+          "snapshot_observed_anchor_events": 2873,
+          "certified_anchor_events": 0,
+          "identity_proposals": 5211,
+          "measured_points": 444391,
+          "measured_bidirectional_points": 115450,
+          "measured_geometric_points": 115450,
+          "measured_supported_points": 115450,
+          "measured_supported_points_after_exclusion": 74073,
+          "camera_pixels": 99532800,
+          "observation_supported_pixels": 320792,
+          "identity_candidate_proposals": 224,
+          "identity_unknown_proposals": 4987,
+          "unique_scenes": 6
+        },
+        "observation_anchor_coverage": 0.015128593040847202,
+        "observed_pixel_coverage": 0.0032229777520576134,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.04298599117251967,
+        "identity_unknown_fraction": 0.9570140088274803
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 6,
+          "mean": 0.00782472613458529,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0352112676056338,
+          "min": 0.0,
+          "max": 0.046948356807511735,
+          "std": 0.017496619542251873
+        },
+        "observed_pixel_coverage": {
+          "n": 6,
+          "mean": 0.003222977752057613,
+          "median": 3.668137538580247e-05,
+          "p05": 0.0,
+          "p95": 0.01309547706886574,
+          "min": 0.0,
+          "max": 0.016558702256944443,
+          "std": 0.00604416397034522
+        },
+        "certification_coverage": {
+          "n": 6,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 6,
+          "mean": 0.10144685846252034,
+          "median": 0.02650685847156567,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13721021276467174
+        },
+        "identity_unknown_fraction": {
+          "n": 6,
+          "mean": 0.8985531415374797,
+          "median": 0.9734931415284344,
+          "p05": 0.6735831415420023,
+          "p95": 1.0,
+          "min": 0.625,
+          "max": 1.0,
+          "std": 0.13721021276467174
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 72,
+          "p50": 691.354971495457,
+          "p95": 2475.524944369681,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 72,
+          "p50": 1326.7521425150335,
+          "p95": 3580.9544773655957,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1829.4814639999952,
+          "p95": 3720.046381699993,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 72,
+          "p50": 1963.3472694999928,
+          "p95": 4175.351590100005,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 72,
+          "p50": 400.26785887312144,
+          "p95": 1247.9337347089315,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 444391,
+            "correct": 3715,
+            "wrong": 1806,
+            "unscorable": 438870
+          },
+          "scorable_fraction": 0.012423743955210615,
+          "correspondence_accuracy": 0.6728853468574534
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 115450,
+            "correct": 3101,
+            "wrong": 310,
+            "unscorable": 112039
+          },
+          "scorable_fraction": 0.029545257687310523,
+          "correspondence_accuracy": 0.9091175608326004
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 74073,
+            "correct": 1484,
+            "wrong": 238,
+            "unscorable": 72351
+          },
+          "scorable_fraction": 0.02324733708638775,
+          "correspondence_accuracy": 0.8617886178861789
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 574,
+                "correct": 561,
+                "wrong": 13,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9773519163763066
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 1182,
+                "correct": 1061,
+                "wrong": 121,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8976311336717429
+            },
+            "near_lt10m": {
+              "counts": {
+                "total": 1655,
+                "correct": 1479,
+                "wrong": 176,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8936555891238671
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "barrier": {
+              "counts": {
+                "total": 141,
+                "correct": 103,
+                "wrong": 38,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.7304964539007093
+            },
+            "car": {
+              "counts": {
+                "total": 578,
+                "correct": 569,
+                "wrong": 9,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9844290657439446
+            },
+            "construction_vehicle": {
+              "counts": {
+                "total": 11,
+                "correct": 11,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "pedestrian": {
+              "counts": {
+                "total": 5,
+                "correct": 1,
+                "wrong": 4,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2
+            },
+            "traffic_cone": {
+              "counts": {
+                "total": 20,
+                "correct": 17,
+                "wrong": 3,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.85
+            },
+            "truck": {
+              "counts": {
+                "total": 189,
+                "correct": 170,
+                "wrong": 19,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.8994708994708994
+            },
+            "unannotated_background": {
+              "counts": {
+                "total": 2467,
+                "correct": 2230,
+                "wrong": 237,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9039319010944467
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 3404,
+                "correct": 3099,
+                "wrong": 305,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9103995299647474
+            },
+            "object_moving": {
+              "counts": {
+                "total": 7,
+                "correct": 2,
+                "wrong": 5,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.2857142857142857
+            },
+            "unknown": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 3411,
+                "correct": 3101,
+                "wrong": 310,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 0.9091175608326004
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 112039,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 112039
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "small_motion": {
+              "counts": {
+                "total": 110393,
+                "correct": 3052,
+                "wrong": 298,
+                "unscorable": 107043
+              },
+              "scorable_fraction": 0.0303461270189233,
+              "correspondence_accuracy": 0.9110447761194029
+            },
+            "translation_ge1m": {
+              "counts": {
+                "total": 3187,
+                "correct": 31,
+                "wrong": 10,
+                "unscorable": 3146
+              },
+              "scorable_fraction": 0.012864763100094132,
+              "correspondence_accuracy": 0.7560975609756098
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 1870,
+                "correct": 18,
+                "wrong": 2,
+                "unscorable": 1850
+              },
+              "scorable_fraction": 0.0106951871657754,
+              "correspondence_accuracy": 0.9
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.017426400039899332,
+            "median": 0.016044398263518927,
+            "p05": 0.0021626297577854673,
+            "p95": 0.032420730392910484,
+            "min": 0.0,
+            "max": 0.03293191844521283,
+            "std": 0.011981356128934813
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7571009531264339,
+            "median": 0.8166666666666667,
+            "p05": 0.49195402298850577,
+            "p95": 0.9704444793555111,
+            "min": 0.4482758620689655,
+            "max": 0.9994422755158952,
+            "std": 0.18724645054779976
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 6,
+            "mean": 0.014894359848588315,
+            "median": 0.01447637337490109,
+            "p05": 0.0018902891030392883,
+            "p95": 0.029178647156388817,
+            "min": 0.0,
+            "max": 0.031931166347992354,
+            "std": 0.010244511096525655
+          },
+          "correspondence_accuracy": {
+            "n": 5,
+            "mean": 0.7433876818018129,
+            "median": 0.7843137254901961,
+            "p05": 0.4554809843400447,
+            "p95": 0.9726546906187624,
+            "min": 0.40268456375838924,
+            "max": 1.0,
+            "std": 0.20192184125011692
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 5211,
+          "correct": 1045,
+          "wrong": 195,
+          "unscorable": 3971,
+          "candidates": 224,
+          "candidate_correct": 162,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 62,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.2379581654193053,
+        "candidate_coverage": 0.04298599117251967,
+        "candidate_accuracy": 1.0,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 6,
+          "mean": 0.38007643138704816,
+          "median": 0.3367376294591484,
+          "p05": 0.1628703028165062,
+          "p95": 0.6897493573264781,
+          "min": 0.1517476555839727,
+          "max": 0.75,
+          "std": 0.20744393433956854
+        },
+        "candidate_coverage": {
+          "n": 6,
+          "mean": 0.10144685846252034,
+          "median": 0.02650685847156567,
+          "p05": 0.0,
+          "p95": 0.3264168584579977,
+          "min": 0.0,
+          "max": 0.375,
+          "std": 0.13721021276467174
+        },
+        "candidate_accuracy": {
+          "n": 3,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "20db5722b62c4c17bbff2d7b265a3c51"
+        ],
+        "validation_logs": [
+          "3313a6a85b264e4c86ee44d6e6329cf3",
+          "6f5b61bfb298454eb6fe7ba279792815",
+          "7e25a2c8ea1f41c5b0da1e69ecfa71a2",
+          "84ff0dbb8d7343ab95e776c4955d5884",
+          "d0450edaed4a46f898403f45fa9e5f0d"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    }
+  },
+  "expanded": {
+    "baseline": {
+      "operational": {
+        "counts": {
+          "frames": 24,
+          "camera_observations": 144,
+          "historical_projection_candidates": 649,
+          "observation_supported_anchor_events": 0,
+          "actual_committed_anchor_events": 655,
+          "actual_current_observed_anchor_events": 581,
+          "snapshot_observed_anchor_events": 835,
+          "certified_anchor_events": 0,
+          "identity_proposals": 764,
+          "measured_points": 102747,
+          "measured_bidirectional_points": 9944,
+          "measured_geometric_points": 3445,
+          "measured_supported_points": 1258,
+          "measured_supported_points_after_exclusion": 1193,
+          "camera_pixels": 33177600,
+          "observation_supported_pixels": 0,
+          "identity_candidate_proposals": 0,
+          "identity_unknown_proposals": 764,
+          "unique_scenes": 2
+        },
+        "observation_anchor_coverage": 0.0,
+        "observed_pixel_coverage": 0.0,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.0,
+        "identity_unknown_fraction": 1.0
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "observed_pixel_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "certification_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_unknown_fraction": {
+          "n": 2,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 24,
+          "p50": 60.55008200928569,
+          "p95": 387.3889939277433,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 24,
+          "p50": 594.9117609998211,
+          "p95": 851.2799110962077,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 24,
+          "p50": 641.1005890000015,
+          "p95": 900.5752875999984,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 24,
+          "p50": 758.0391019999997,
+          "p95": 1016.492907200001,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 24,
+          "p50": 156.52665554080158,
+          "p95": 203.2938449876383,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 102747,
+            "correct": 33,
+            "wrong": 367,
+            "unscorable": 102347
+          },
+          "scorable_fraction": 0.00389305770484783,
+          "correspondence_accuracy": 0.0825
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 1258,
+            "correct": 8,
+            "wrong": 0,
+            "unscorable": 1250
+          },
+          "scorable_fraction": 0.006359300476947536,
+          "correspondence_accuracy": 1.0
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 1193,
+            "correct": 8,
+            "wrong": 0,
+            "unscorable": 1185
+          },
+          "scorable_fraction": 0.006705783738474434,
+          "correspondence_accuracy": 1.0
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 5,
+                "correct": 5,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 3,
+                "correct": 3,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1250,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1250
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "unannotated_background": {
+              "counts": {
+                "total": 8,
+                "correct": 8,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1250,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1250
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 8,
+                "correct": 8,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1250,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1250
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 8,
+                "correct": 8,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 1250,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1250
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "translation_ge1m": {
+              "counts": {
+                "total": 1248,
+                "correct": 8,
+                "wrong": 0,
+                "unscorable": 1240
+              },
+              "scorable_fraction": 0.00641025641025641,
+              "correspondence_accuracy": 1.0
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 10,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 10
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 2,
+            "mean": 0.0032258064516129032,
+            "median": 0.0032258064516129032,
+            "p05": 0.0003225806451612903,
+            "p95": 0.0061290322580645155,
+            "min": 0.0,
+            "max": 0.0064516129032258064,
+            "std": 0.0032258064516129032
+          },
+          "correspondence_accuracy": {
+            "n": 1,
+            "mean": 1.0,
+            "median": 1.0,
+            "p05": 1.0,
+            "p95": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "std": 0.0
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 2,
+            "mean": 0.003404255319148936,
+            "median": 0.003404255319148936,
+            "p05": 0.00034042553191489364,
+            "p95": 0.006468085106382978,
+            "min": 0.0,
+            "max": 0.006808510638297872,
+            "std": 0.003404255319148936
+          },
+          "correspondence_accuracy": {
+            "n": 1,
+            "mean": 1.0,
+            "median": 1.0,
+            "p05": 1.0,
+            "p95": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "std": 0.0
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 764,
+          "correct": 212,
+          "wrong": 5,
+          "unscorable": 547,
+          "candidates": 0,
+          "candidate_correct": 0,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 0,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.28403141361256545,
+        "candidate_coverage": 0.0,
+        "candidate_accuracy": null,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 2,
+          "mean": 0.18473351400180668,
+          "median": 0.18473351400180668,
+          "p05": 0.06014001806684734,
+          "p95": 0.30932700993676604,
+          "min": 0.046296296296296294,
+          "max": 0.3231707317073171,
+          "std": 0.13843721770551037
+        },
+        "candidate_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "candidate_accuracy": {
+          "n": 0,
+          "mean": null,
+          "median": null,
+          "p05": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "std": null
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "6f7fe59adf984e55a82571ab4f17e4e2"
+        ],
+        "validation_logs": [
+          "853a9f9fe7e84bb8b24bff8ebf23f287"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    },
+    "c": {
+      "operational": {
+        "counts": {
+          "frames": 24,
+          "camera_observations": 144,
+          "historical_projection_candidates": 649,
+          "observation_supported_anchor_events": 0,
+          "actual_committed_anchor_events": 655,
+          "actual_current_observed_anchor_events": 581,
+          "snapshot_observed_anchor_events": 835,
+          "certified_anchor_events": 0,
+          "identity_proposals": 764,
+          "measured_points": 103014,
+          "measured_bidirectional_points": 1369,
+          "measured_geometric_points": 1369,
+          "measured_supported_points": 1369,
+          "measured_supported_points_after_exclusion": 1303,
+          "camera_pixels": 33177600,
+          "observation_supported_pixels": 0,
+          "identity_candidate_proposals": 0,
+          "identity_unknown_proposals": 764,
+          "unique_scenes": 2
+        },
+        "observation_anchor_coverage": 0.0,
+        "observed_pixel_coverage": 0.0,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.0,
+        "identity_unknown_fraction": 1.0
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "observed_pixel_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "certification_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_unknown_fraction": {
+          "n": 2,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 24,
+          "p50": 139.6633555414155,
+          "p95": 773.8587882951832,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 24,
+          "p50": 688.4058389114216,
+          "p95": 1344.9752868036735,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 24,
+          "p50": 1128.1715250000009,
+          "p95": 1601.078830400001,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 24,
+          "p50": 1214.7058014999993,
+          "p95": 1868.6007052000025,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 24,
+          "p50": 269.9338609818369,
+          "p95": 348.7241956405341,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 103014,
+            "correct": 35,
+            "wrong": 368,
+            "unscorable": 102611
+          },
+          "scorable_fraction": 0.003912089618886753,
+          "correspondence_accuracy": 0.08684863523573201
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 1369,
+            "correct": 10,
+            "wrong": 0,
+            "unscorable": 1359
+          },
+          "scorable_fraction": 0.007304601899196494,
+          "correspondence_accuracy": 1.0
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 1303,
+            "correct": 10,
+            "wrong": 0,
+            "unscorable": 1293
+          },
+          "scorable_fraction": 0.007674597083653108,
+          "correspondence_accuracy": 1.0
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 6,
+                "correct": 6,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 4,
+                "correct": 4,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1359,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1359
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "unannotated_background": {
+              "counts": {
+                "total": 10,
+                "correct": 10,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1359,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1359
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 10,
+                "correct": 10,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1359,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1359
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 10,
+                "correct": 10,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 1359,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1359
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "translation_ge1m": {
+              "counts": {
+                "total": 1357,
+                "correct": 10,
+                "wrong": 0,
+                "unscorable": 1347
+              },
+              "scorable_fraction": 0.007369196757553427,
+              "correspondence_accuracy": 1.0
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 12,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 12
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 2,
+            "mean": 0.0037064492216456633,
+            "median": 0.0037064492216456633,
+            "p05": 0.00037064492216456633,
+            "p95": 0.00704225352112676,
+            "min": 0.0,
+            "max": 0.007412898443291327,
+            "std": 0.0037064492216456633
+          },
+          "correspondence_accuracy": {
+            "n": 1,
+            "mean": 1.0,
+            "median": 1.0,
+            "p05": 1.0,
+            "p95": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "std": 0.0
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 2,
+            "mean": 0.003897116134060795,
+            "median": 0.003897116134060795,
+            "p05": 0.0003897116134060795,
+            "p95": 0.0074045206547155105,
+            "min": 0.0,
+            "max": 0.00779423226812159,
+            "std": 0.003897116134060795
+          },
+          "correspondence_accuracy": {
+            "n": 1,
+            "mean": 1.0,
+            "median": 1.0,
+            "p05": 1.0,
+            "p95": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "std": 0.0
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 764,
+          "correct": 212,
+          "wrong": 5,
+          "unscorable": 547,
+          "candidates": 0,
+          "candidate_correct": 0,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 0,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.28403141361256545,
+        "candidate_coverage": 0.0,
+        "candidate_accuracy": null,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 2,
+          "mean": 0.18473351400180668,
+          "median": 0.18473351400180668,
+          "p05": 0.06014001806684734,
+          "p95": 0.30932700993676604,
+          "min": 0.046296296296296294,
+          "max": 0.3231707317073171,
+          "std": 0.13843721770551037
+        },
+        "candidate_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "candidate_accuracy": {
+          "n": 0,
+          "mean": null,
+          "median": null,
+          "p05": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "std": null
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "6f7fe59adf984e55a82571ab4f17e4e2"
+        ],
+        "validation_logs": [
+          "853a9f9fe7e84bb8b24bff8ebf23f287"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    },
+    "aligned": {
+      "operational": {
+        "counts": {
+          "frames": 24,
+          "camera_observations": 144,
+          "historical_projection_candidates": 649,
+          "observation_supported_anchor_events": 0,
+          "actual_committed_anchor_events": 655,
+          "actual_current_observed_anchor_events": 581,
+          "snapshot_observed_anchor_events": 835,
+          "certified_anchor_events": 0,
+          "identity_proposals": 764,
+          "measured_points": 103014,
+          "measured_bidirectional_points": 1369,
+          "measured_geometric_points": 1369,
+          "measured_supported_points": 1369,
+          "measured_supported_points_after_exclusion": 1303,
+          "camera_pixels": 33177600,
+          "observation_supported_pixels": 0,
+          "identity_candidate_proposals": 0,
+          "identity_unknown_proposals": 764,
+          "unique_scenes": 2
+        },
+        "observation_anchor_coverage": 0.0,
+        "observed_pixel_coverage": 0.0,
+        "certification_coverage": 0.0,
+        "identity_candidate_coverage": 0.0,
+        "identity_unknown_fraction": 1.0
+      },
+      "macro": {
+        "observation_anchor_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "observed_pixel_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "certification_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_candidate_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "identity_unknown_fraction": {
+          "n": 2,
+          "mean": 1.0,
+          "median": 1.0,
+          "p05": 1.0,
+          "p95": 1.0,
+          "min": 1.0,
+          "max": 1.0,
+          "std": 0.0
+        }
+      },
+      "latency": {
+        "commit_wall_ms": {
+          "samples": 24,
+          "p50": 146.102731465362,
+          "p95": 766.5834677172825,
+          "scope": "milliseconds"
+        },
+        "end_to_end_wall_ms": {
+          "samples": 24,
+          "p50": 855.7394176023081,
+          "p95": 1849.571645725517,
+          "scope": "milliseconds"
+        },
+        "m1_cpu_process_ms": {
+          "samples": 24,
+          "p50": 1095.3170184999976,
+          "p95": 1603.9065907999998,
+          "scope": "milliseconds"
+        },
+        "measurement_cpu_process_ms": {
+          "samples": 24,
+          "p50": 1250.5310745000006,
+          "p95": 2348.6212738499985,
+          "scope": "milliseconds"
+        },
+        "precheck_wall_ms": {
+          "samples": 24,
+          "p50": 269.14396800566465,
+          "p95": 347.0057014608755,
+          "scope": "milliseconds"
+        }
+      },
+      "correspondence": {
+        "all_tracks": {
+          "counts": {
+            "total": 103014,
+            "correct": 35,
+            "wrong": 368,
+            "unscorable": 102611
+          },
+          "scorable_fraction": 0.003912089618886753,
+          "correspondence_accuracy": 0.08684863523573201
+        },
+        "measured_same_RGB": {
+          "counts": {
+            "total": 1369,
+            "correct": 10,
+            "wrong": 0,
+            "unscorable": 1359
+          },
+          "scorable_fraction": 0.007304601899196494,
+          "correspondence_accuracy": 1.0
+        },
+        "observation_supported": {
+          "counts": {
+            "total": 1303,
+            "correct": 10,
+            "wrong": 0,
+            "unscorable": 1293
+          },
+          "scorable_fraction": 0.007674597083653108,
+          "correspondence_accuracy": 1.0
+        },
+        "strata": {
+          "depth_group": {
+            "far_ge30m": {
+              "counts": {
+                "total": 6,
+                "correct": 6,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "middle_10to30m": {
+              "counts": {
+                "total": 4,
+                "correct": 4,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1359,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1359
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "semantic_class": {
+            "unannotated_background": {
+              "counts": {
+                "total": 10,
+                "correct": 10,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1359,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1359
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "object_motion": {
+            "conditional_static": {
+              "counts": {
+                "total": 10,
+                "correct": 10,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "unknown": {
+              "counts": {
+                "total": 1359,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1359
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "visibility": {
+            "both_sparse_depth_supported": {
+              "counts": {
+                "total": 10,
+                "correct": 10,
+                "wrong": 0,
+                "unscorable": 0
+              },
+              "scorable_fraction": 1.0,
+              "correspondence_accuracy": 1.0
+            },
+            "sparse_reference_unavailable": {
+              "counts": {
+                "total": 1359,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 1359
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          },
+          "ego_motion_group": {
+            "translation_ge1m": {
+              "counts": {
+                "total": 1357,
+                "correct": 10,
+                "wrong": 0,
+                "unscorable": 1347
+              },
+              "scorable_fraction": 0.007369196757553427,
+              "correspondence_accuracy": 1.0
+            },
+            "turn_ge3deg": {
+              "counts": {
+                "total": 12,
+                "correct": 0,
+                "wrong": 0,
+                "unscorable": 12
+              },
+              "scorable_fraction": 0.0,
+              "correspondence_accuracy": null
+            }
+          }
+        }
+      },
+      "correspondence_macro": {
+        "measured_same_RGB": {
+          "scorable_fraction": {
+            "n": 2,
+            "mean": 0.0037064492216456633,
+            "median": 0.0037064492216456633,
+            "p05": 0.00037064492216456633,
+            "p95": 0.00704225352112676,
+            "min": 0.0,
+            "max": 0.007412898443291327,
+            "std": 0.0037064492216456633
+          },
+          "correspondence_accuracy": {
+            "n": 1,
+            "mean": 1.0,
+            "median": 1.0,
+            "p05": 1.0,
+            "p95": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "std": 0.0
+          }
+        },
+        "observation_supported": {
+          "scorable_fraction": {
+            "n": 2,
+            "mean": 0.003897116134060795,
+            "median": 0.003897116134060795,
+            "p05": 0.0003897116134060795,
+            "p95": 0.0074045206547155105,
+            "min": 0.0,
+            "max": 0.00779423226812159,
+            "std": 0.003897116134060795
+          },
+          "correspondence_accuracy": {
+            "n": 1,
+            "mean": 1.0,
+            "median": 1.0,
+            "p05": 1.0,
+            "p95": 1.0,
+            "min": 1.0,
+            "max": 1.0,
+            "std": 0.0
+          }
+        }
+      },
+      "identity": {
+        "counts": {
+          "total_proposals": 764,
+          "correct": 212,
+          "wrong": 5,
+          "unscorable": 547,
+          "candidates": 0,
+          "candidate_correct": 0,
+          "candidate_wrong": 0,
+          "candidate_unscorable": 0,
+          "formally_certified": 0,
+          "formal_wrong": 0,
+          "formal_unscorable": 0
+        },
+        "scorable_coverage": 0.28403141361256545,
+        "candidate_coverage": 0.0,
+        "candidate_accuracy": null,
+        "denominator_scope": "All evaluated finite geometric object association edges; Unknown edges are not accepted",
+        "formal_false_acceptance_risk": null
+      },
+      "identity_macro": {
+        "scorable_coverage": {
+          "n": 2,
+          "mean": 0.18473351400180668,
+          "median": 0.18473351400180668,
+          "p05": 0.06014001806684734,
+          "p95": 0.30932700993676604,
+          "min": 0.046296296296296294,
+          "max": 0.3231707317073171,
+          "std": 0.13843721770551037
+        },
+        "candidate_coverage": {
+          "n": 2,
+          "mean": 0.0,
+          "median": 0.0,
+          "p05": 0.0,
+          "p95": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "std": 0.0
+        },
+        "candidate_accuracy": {
+          "n": 0,
+          "mean": null,
+          "median": null,
+          "p05": null,
+          "p95": null,
+          "min": null,
+          "max": null,
+          "std": null
+        }
+      },
+      "qualification": {
+        "status": "BLOCKED",
+        "risk_limit": 0.05,
+        "confidence": 0.95,
+        "calibration_logs": [
+          "6f7fe59adf984e55a82571ab4f17e4e2"
+        ],
+        "validation_logs": [
+          "853a9f9fe7e84bb8b24bff8ebf23f287"
+        ],
+        "validation_log_units_with_formal_accepts": 0,
+        "units": [],
+        "scene_error_events": null,
+        "unscorable_formal_accepts": 0,
+        "fully_scorable_log_units": 0,
+        "confidence_upper_95": null,
+        "reasons": [
+          "No independent qualification issued",
+          "Exploratory previously exposed population",
+          "Insufficient independently scored qualified acceptance logs"
+        ],
+        "qualification_file_generated": false
+      }
+    }
+  }
+}

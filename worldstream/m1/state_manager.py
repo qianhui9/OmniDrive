@@ -648,14 +648,22 @@ class WorldStateManager:
             else:
                 accepted_pairs.append((i, j))
         geometric_pairs=list(accepted_pairs)
+        identity_costs=costs
+        search_hypotheses={};search_counts=dict(status='Not Run')
+        if self.config.search_dynamic_motion:
+            from .search_motion import search_edges
+            identity_costs,search_hypotheses,search_counts=search_edges(anchors,predictions,costs,frame,self._identity_history,self.config)
+            search_counts['status']='executed'
+            search_counts['hypotheses']={anchors[i].anchor_id:h for i,h in search_hypotheses.items()}
+
         temporal_proposals={};proposal_certificates={}
         identity_protocol=None
         if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
             from .identity_temporal import temporal_identity_pairs
             from .identity_continuity import identity_protocol_digest,IDENTITY_CLAIM
             identity_protocol=identity_protocol_digest(self.config,frame)
-            temporal_proposals=temporal_identity_pairs(anchors,predictions,costs,frame,self._identity_history,
-                self.config,self.validator,self._physical_issuer,self.last_evidence,self._previous_frame_id,self._previous_frame_digest)
+            temporal_proposals=temporal_identity_pairs(anchors,predictions,identity_costs,frame,self._identity_history,
+                self.config,self.validator,self._physical_issuer,self.last_evidence,self._previous_frame_id,self._previous_frame_digest,search_hypotheses=search_hypotheses)
             # A proposal is a relation between actual observations. Check its
             # named claim before deciding whether it may affect ordinary IDs.
             for (i,j),proposal in temporal_proposals.items():
@@ -902,7 +910,7 @@ class WorldStateManager:
                 commit_version=self.store.commit_count,depth_history=copy.deepcopy(self._depth_history),
                 anchors={aid:copy.deepcopy(self.store.anchors[aid]) for aid in committed if aid in self.store.anchors})
             self._identity_history=tuple(r for r in self._identity_history
-                if 0<frame.timestamp-r['timestamp']<=min(self.config.max_state_age_s,1.))+(record,)
+                if 0<frame.timestamp-r['timestamp']<=(2*self.config.max_frame_gap_s if self.config.search_dynamic_motion else min(self.config.max_state_age_s,1.)))+(record,)
             self._identity_history=self._identity_history[-self.config.identity_history_frames:]
         self._previous_frame_id=frame.frame_id
         self._previous_frame_digest=self._pending_digest
@@ -917,6 +925,7 @@ class WorldStateManager:
             "association_is_identity_certification": False,
             "geometric_tracking_pairs": [[anchors[i].anchor_id,selected[j][0]] for i,j in geometric_pairs],
             "identity_tracking_policy": self.config.identity_tracking_policy,
+            "search_motion": search_counts,
             "post_perception_physical_certifications": physical_results,
             "foreground_correspondence_proposals": foreground_results,
             "identity_continuity_proposals": identity_results,

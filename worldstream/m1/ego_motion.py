@@ -69,9 +69,20 @@ def point_predictions(old, new, points, config, history=None):
             if len(hp):
                 from scipy.spatial import cKDTree
                 distance, index = cKDTree(hp).query(p)
+                nearest_distance=distance.copy()
                 # No depth interpolation across an object boundary. Two source
                 # corners must coincide within the existing FB tolerance.
                 match = distance <= config.flow_fb_max_px
+                ambiguous=np.zeros(n,bool);duplicate=np.zeros(n,bool)
+                if config.persistent_depth_tracks:
+                    second=cKDTree(hp).query(p,k=2)[0][:,1]
+                    ambiguous=second<=config.flow_fb_max_px
+                    _,inv,counts=np.unique(index[match],return_inverse=True,return_counts=True)
+                    duplicate[match]=counts[inv]>1
+                    match&=~ambiguous&~duplicate
+                info['depth_association']=dict(status='measured',records=len(hp),query_points=n,
+                    within_radius=int((distance<=config.flow_fb_max_px).sum()),ambiguous=int(ambiguous.sum()),
+                    duplicate=int(duplicate.sum()),one_to_one=int(match.sum()),nearest_distance_px=nearest_distance.tolist())
                 nearest = np.minimum(index, len(hp)-1)
                 z = hz[nearest];u = hu[nearest]
                 predicted, ok, _, _ = project_source_depth(old, new, p, z)
@@ -83,6 +94,7 @@ def point_predictions(old, new, points, config, history=None):
                     np.linalg.norm(upper-predicted, axis=1))[depth_valid]
                 depths[depth_valid] = z[depth_valid]
                 info['depth_kind'] = 'prior_RGB_triangulation_conditional_static'
+                info['depth_uncertainty_m']=u[depth_valid].tolist()
     h,w = new.image.shape[:2]
     valid &= np.isfinite(q).all(1) & (q[:,0]>=0)&(q[:,0]<w)&(q[:,1]>=0)&(q[:,1]<h)
     info.update(predicted_points=int(valid.sum()), depth_points=int(depth_valid.sum()),
@@ -112,7 +124,9 @@ def lk_measure(old_gray, gray, points, config, initial=None):
     return q,fb,good
 
 
-def track_with_prediction(old, new, p, config, history=None):
+def track_with_prediction(old, new, p, config, history=None, static_geometry=True, search_initial=None):
+    if config.multi_hypothesis_tracking:
+        return multi_hypothesis_tracks(old,new,p,config,history,static_geometry,search_initial)
     from .temporal_visibility import gray_image
     raw,raw_fb,raw_good=lk_measure(gray_image(old),gray_image(new),p,config)
     pred,pvalid,spread,depths,info=point_predictions(old,new,p,config,history)
@@ -161,9 +175,69 @@ def measured_depth_history(old, new, evidence, config, binding, additional_exclu
         xy=np.rint(q).astype(int);h,w=additional_exclusion.shape
         xy[:,0]=np.clip(xy[:,0],0,w-1);xy[:,1]=np.clip(xy[:,1],0,h-1)
         keep&=~additional_exclusion[xy[:,1],xy[:,0]]
-    return dict(**binding,timestamp=new.timestamp,camera_sha256=camera_snapshot_digest(new),
+    if config.persistent_depth_tracks:
+        # Propagate both views' bounded image error through triangulation, not
+        # only baseline/displacement magnitude (rotation can inflate that).
+        delta=config.flow_epipolar_max_px
+        for which in (0,1):
+            for axis in (0,1):
+                for sign in (-1,1):
+                    pp=p.copy();qq=q.copy()
+                    (pp if which==0 else qq)[:,axis]+=sign*delta
+                    homogeneous=cv2.triangulatePoints(old.intrinsic@old.world_to_camera[:3],
+                        new.intrinsic@new.world_to_camera[:3],pp.T.copy(),qq.T.copy())
+                    with np.errstate(invalid='ignore',divide='ignore'):
+                        perturbed=(homogeneous[:3]/homogeneous[3:]).T
+                    zz=(perturbed@new.world_to_camera[:3,:3].T+new.world_to_camera[:3,3])[:,2]
+                    u=np.maximum(u,np.abs(zz-z))
+                    keep&=np.isfinite(zz)&(zz>=.5)&(zz<=200)
+        keep&=np.isfinite(u)&(z-u>=.5)&(z+u<=200)
+    result=dict(**binding,timestamp=new.timestamp,camera_sha256=camera_snapshot_digest(new),
         pixels=immutable_array(q[keep]),depths=immutable_array(z[keep]),uncertainty_m=immutable_array(u[keep]),
         evidence_kind='conditional_static_prior_RGB_triangulation',metric_geometry_certified=False)
+    if config.persistent_depth_tracks:
+        result.update(track_ids=[str(binding['frame_id'])+':'+new.camera_id+':'+str(i) for i in np.flatnonzero(keep)],
+            parallax_deg=immutable_array(angle[keep]),reprojection_px=immutable_array(reprojection[keep]),
+            uncertainty_protocol='8_image_axis_perturbations_plus_existing_floor_conditional_static',
+            generation_funnel=dict(measured=len(p),FB_valid=int(evidence.correspondence_valid.sum()),
+                geometry_valid=int((evidence.correspondence_valid&evidence.geometry_valid).sum()),depth_kept=int(keep.sum())))
+    return result
+
+
+def multi_hypothesis_tracks(old,new,p,config,history=None,static_geometry=True,search_initial=None):
+    from dataclasses import replace
+    from .temporal_visibility import gray_image
+    from .correspondence_recovery import select_candidates
+    raw,rf,rv=lk_measure(gray_image(old),gray_image(new),p,config)
+    rotation,rotation_valid,_,_,rotation_info=point_predictions(old,new,p,replace(config,ego_motion_mode='rotation',persistent_depth_tracks=False),None)
+    pred,pvalid,spread,depths,info=point_predictions(old,new,p,config,history)
+    candidates=dict(raw=dict(points=raw,fb=rf,valid=rv,attempted=np.ones(len(p),bool)))
+    for name,initial,attempted in [('rotation',rotation,rotation_valid),
+            ('depth',pred,np.isfinite(depths)&pvalid&(spread<=config.search_radius_px))]:
+        if name=='depth' and config.ego_motion_mode!='depth':continue
+        if attempted.any():
+            q,fb,valid=lk_measure(gray_image(old),gray_image(new),p,config,np.where(attempted[:,None],initial,p))
+            valid&=attempted
+            if name=='depth':valid&=np.linalg.norm(q-initial,axis=1)+spread<=config.search_radius_px
+        else:q,fb,valid=raw.copy(),np.full(len(p),np.inf),np.zeros(len(p),bool)
+        candidates[name]=dict(points=q,fb=fb,valid=valid,attempted=attempted,
+            prediction_residual_px=np.linalg.norm(q-initial,axis=1))
+    if search_initial is not None:
+        initial,uncertainty=search_initial
+        attempted=np.isfinite(initial).all(1)&(uncertainty<=config.search_radius_px)
+        q,fb,valid=lk_measure(gray_image(old),gray_image(new),p,config,np.where(attempted[:,None],initial,p))
+        valid&=attempted&(np.linalg.norm(q-initial,axis=1)+uncertainty<=config.search_radius_px)
+        candidates['dynamic_search']=dict(points=q,fb=fb,valid=valid,attempted=attempted,
+            prediction_residual_px=np.linalg.norm(q-initial,axis=1))
+    q,fb,good,selection=select_candidates(old,new,p,candidates,config,static_geometry)
+    chosen=np.asarray(selection['selected_candidate'],dtype=object)
+    recovered=good&~np.asarray(selection['candidates']['raw']['fully_supported'])
+    m=dict(source_points=np.asarray(p),raw_points=raw,raw_fb_error_px=rf,raw_valid=rv,
+        seeded_points=candidates['rotation']['points'],seeded_valid=candidates['rotation']['valid'],
+        predicted_points=pred,prediction_valid=pvalid,prediction_spread_px=spread,source_depth_m=depths,
+        prediction_residual_px=np.linalg.norm(q-pred,axis=1),seed_recovered=recovered,
+        initialization_conflict=chosen=='ambiguous',info=info,**selection)
+    return q,fb,good,m
 
 
 def static_box_predictions(anchor, old, new, points, config):

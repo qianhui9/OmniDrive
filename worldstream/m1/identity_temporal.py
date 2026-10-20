@@ -58,7 +58,7 @@ def _aligned_descriptor(image,matrix,region,validator):
     return validator.descriptor(aligned,region)
 
 
-def _measure_view(anchor,target,old,cam,validator,config,depth_history=None):
+def _measure_view(anchor,target,old,cam,validator,config,depth_history=None,search_motion=None):
     from .temporal_visibility import gray_image
     from .geometry_support import measured_patch_support
     cid=cam.camera_id;obs=anchor.observation_support.get(cid)
@@ -79,10 +79,17 @@ def _measure_view(anchor,target,old,cam,validator,config,depth_history=None):
     p=cv2.goodFeaturesToTrack(a,maxCorners=96,qualityLevel=.01,minDistance=4,mask=mask,blockSize=5)
     if p is None:return dict(v,reason='RGB_tracks_missing')
     p=p[:,0];p=p[_inside(p,obs.region)]
+    from .correspondence_recovery import retain_depth_points
+    p,depth_seed_diagnostics=retain_depth_points(p,depth_history,old,config,obs.region)
+    v['depth_feature_seeding']=depth_seed_diagnostics
     motion=None
     if config.ego_motion_mode != 'off':
         from .ego_motion import track_with_prediction
-        q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history)
+        if config.multi_hypothesis_tracking:
+            from .search_motion import image_search_initial
+            initial=image_search_initial(anchor,old,cam,p,search_motion,config)
+            q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history,static_geometry=False,search_initial=initial)
+        else:q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history)
         valid&=(q[:,0]>=3)&(q[:,0]<b.shape[1]-3)&(q[:,1]>=3)&(q[:,1]<b.shape[0]-3)
     else:q,fb,valid=_lk(a,b,p)
     if not len(p):return dict(v,reason='RGB_tracks_missing')
@@ -148,7 +155,7 @@ def _cycle(view,source_record,earlier_record,frame,aid):
         backward_fb_error_px=fb0[good].tolist(),long_fb_error_px=fb1[good].tolist())
 
 
-def measure_pair(anchor,target,frame,history,config,validator):
+def measure_pair(anchor,target,frame,history,config,validator,search_motion=None):
     reasons=[];record=next((r for r in reversed(history) if r['frame_id']==anchor.source_frame_id),None)
     m=dict(source_class=anchor.semantic_class,current_class=target.semantic_class,
         source_center=anchor.geometry_world.center.tolist(),current_center=target.geometry_world.center.tolist(),
@@ -181,7 +188,7 @@ def measure_pair(anchor,target,frame,history,config,validator):
                 if depth is not None and any(depth.get(k)!=record.get(k) for k in
                         ('scene_id','frame_id','frame_digest','epoch','execution_signature','commit_version')):
                     reasons.append('actual_depth_history_binding_mismatch');continue
-                view=_measure_view(anchor,target,old,cam,validator,config,depth)
+                view=_measure_view(anchor,target,old,cam,validator,config,depth,search_motion)
                 if (config.identity_method=='temporal_object' and config.identity_object_support
                         and ((config.identity_object_required and view['status']=='supported') or (view['status']=='unknown'
                             and view['reason'] in ('crop_track_or_spatial_support_insufficient','incoherent_local_motion','folded_or_compressed_motion')))):
@@ -194,7 +201,7 @@ def measure_pair(anchor,target,frame,history,config,validator):
 
 
 def temporal_identity_pairs(anchors,predictions,costs,frame,history,config,validator,issuer,
-                            legacy_evidence=None,legacy_frame_id=None,legacy_digest=None):
+                            legacy_evidence=None,legacy_frame_id=None,legacy_digest=None,search_hypotheses=None):
     tick=perf_counter();proposals={};records={}
     for i,j in zip(*np.nonzero(np.isfinite(costs))):
         anchor=anchors[i];pred=predictions[j]
@@ -203,7 +210,7 @@ def temporal_identity_pairs(anchors,predictions,costs,frame,history,config,valid
             velocity_world=pred.velocity_world,velocity_reliable=pred.velocity_reliable,geometry_uncertainty=pred.geometry_uncertainty,
             source_frame_id=frame.frame_id,source_state_epoch=anchor.source_state_epoch,source_execution_signature=frame.execution_signature)
         available=history if config.identity_use_history else history[-1:]
-        proposal,record=measure_pair(anchor,target,frame,available,config,validator)
+        proposal,record=measure_pair(anchor,target,frame,available,config,validator,(search_hypotheses or {}).get(i))
         proposal['acceptance_path']='motion_observed'
         # Preserve the existing independently testable selective population as
         # an alternative two-view producer, with its original receipt/validator.

@@ -67,6 +67,14 @@ class ObservationValidator:
                 value = self.residual(old.descriptor, self.descriptor(camera.image, r))
                 if value < best:
                     best, best_region = value, clip_region(r, camera.image.shape)
+        aligned={}
+        if (self.config.aligned_observation_recovery and temporal_evidence is not None
+                and previous_camera is not None and not occluded):
+            from .correspondence_recovery import measured_aligned_descriptor
+            descriptor,aligned=measured_aligned_descriptor(old,previous_camera,camera,projection,temporal_evidence,self)
+            aligned_residual=self.residual(old.descriptor,descriptor)
+            aligned['descriptor_residual']=aligned_residual
+            if aligned_residual<best:best=aligned_residual
         consistent = best <= self.config.residual_threshold
         visible = not occluded
         visibility_reason = "projected_occlusion" if occluded else "ok"
@@ -83,6 +91,7 @@ class ObservationValidator:
                 visible = False; visibility_reason = "visibility_unknown"
             elif np.asarray(mask[ys, xs], dtype=bool).mean() < self.config.min_coverage:
                 visible = False; visibility_reason = "insufficient_visible_support"
+        if self.config.aligned_observation_recovery:evidence['aligned_observation']=aligned
         valid = consistent and visible
         reason = "ok" if valid else ("observation_mismatch" if not consistent else visibility_reason)
         return Validation(valid, best, best_region, consistent, visible, reason, evidence)

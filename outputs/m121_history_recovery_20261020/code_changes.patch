@@ -1,0 +1,1752 @@
+diff --git a/worldstream/m1/config.py b/worldstream/m1/config.py
+index f5f803d..a29468a 100644
+--- a/worldstream/m1/config.py
++++ b/worldstream/m1/config.py
+@@ -111,7 +111,21 @@ class M1Config:
+     ego_motion_mode: str = "off"  # off, rotation, depth (conditional prior RGB depth)
+     dynamic_motion_prediction: bool = False  # only qualified identity history
+ 
++    persistent_depth_tracks: bool = False
++    multi_hypothesis_tracking: bool = False
++    search_dynamic_motion: bool = False  # isolated hypotheses, never qualified motion
++    aligned_observation_recovery: bool = False
++
+     def __post_init__(self):
++        for key in ('persistent_depth_tracks','multi_hypothesis_tracking','search_dynamic_motion','aligned_observation_recovery'):
++            if type(getattr(self,key)) is not bool:raise ValueError(key+' must be boolean')
++        if self.persistent_depth_tracks and self.ego_motion_mode!='depth':
++            raise ValueError('Persistent depths need depth mode')
++        if self.search_dynamic_motion and (not self.multi_hypothesis_tracking or not self.identity_continuity
++                or self.identity_tracking_policy!='shadow' or not self.identity_method.startswith('temporal')):
++            raise ValueError('Search motion requires measured temporal shadow proposals')
++        if self.aligned_observation_recovery and not self.multi_hypothesis_tracking:
++            raise ValueError('Aligned recovery requires measured multi-hypothesis tracks')
+         if self.ego_motion_mode not in ("off", "rotation", "depth"):
+             raise ValueError("Invalid ego motion mode")
+         if self.ego_motion_mode != "off" and not self.temporal_visibility:
+diff --git a/worldstream/m1/ego_motion.py b/worldstream/m1/ego_motion.py
+index 2c4d116..17a348c 100644
+--- a/worldstream/m1/ego_motion.py
++++ b/worldstream/m1/ego_motion.py
+@@ -69,9 +69,20 @@ def point_predictions(old, new, points, config, history=None):
+             if len(hp):
+                 from scipy.spatial import cKDTree
+                 distance, index = cKDTree(hp).query(p)
++                nearest_distance=distance.copy()
+                 # No depth interpolation across an object boundary. Two source
+                 # corners must coincide within the existing FB tolerance.
+                 match = distance <= config.flow_fb_max_px
++                ambiguous=np.zeros(n,bool);duplicate=np.zeros(n,bool)
++                if config.persistent_depth_tracks:
++                    second=cKDTree(hp).query(p,k=2)[0][:,1]
++                    ambiguous=second<=config.flow_fb_max_px
++                    _,inv,counts=np.unique(index[match],return_inverse=True,return_counts=True)
++                    duplicate[match]=counts[inv]>1
++                    match&=~ambiguous&~duplicate
++                info['depth_association']=dict(status='measured',records=len(hp),query_points=n,
++                    within_radius=int((distance<=config.flow_fb_max_px).sum()),ambiguous=int(ambiguous.sum()),
++                    duplicate=int(duplicate.sum()),one_to_one=int(match.sum()),nearest_distance_px=nearest_distance.tolist())
+                 nearest = np.minimum(index, len(hp)-1)
+                 z = hz[nearest];u = hu[nearest]
+                 predicted, ok, _, _ = project_source_depth(old, new, p, z)
+@@ -83,6 +94,7 @@ def point_predictions(old, new, points, config, history=None):
+                     np.linalg.norm(upper-predicted, axis=1))[depth_valid]
+                 depths[depth_valid] = z[depth_valid]
+                 info['depth_kind'] = 'prior_RGB_triangulation_conditional_static'
++                info['depth_uncertainty_m']=u[depth_valid].tolist()
+     h,w = new.image.shape[:2]
+     valid &= np.isfinite(q).all(1) & (q[:,0]>=0)&(q[:,0]<w)&(q[:,1]>=0)&(q[:,1]<h)
+     info.update(predicted_points=int(valid.sum()), depth_points=int(depth_valid.sum()),
+@@ -112,7 +124,9 @@ def lk_measure(old_gray, gray, points, config, initial=None):
+     return q,fb,good
+ 
+ 
+-def track_with_prediction(old, new, p, config, history=None):
++def track_with_prediction(old, new, p, config, history=None, static_geometry=True, search_initial=None):
++    if config.multi_hypothesis_tracking:
++        return multi_hypothesis_tracks(old,new,p,config,history,static_geometry,search_initial)
+     from .temporal_visibility import gray_image
+     raw,raw_fb,raw_good=lk_measure(gray_image(old),gray_image(new),p,config)
+     pred,pvalid,spread,depths,info=point_predictions(old,new,p,config,history)
+@@ -161,9 +175,69 @@ def measured_depth_history(old, new, evidence, config, binding, additional_exclu
+         xy=np.rint(q).astype(int);h,w=additional_exclusion.shape
+         xy[:,0]=np.clip(xy[:,0],0,w-1);xy[:,1]=np.clip(xy[:,1],0,h-1)
+         keep&=~additional_exclusion[xy[:,1],xy[:,0]]
+-    return dict(**binding,timestamp=new.timestamp,camera_sha256=camera_snapshot_digest(new),
++    if config.persistent_depth_tracks:
++        # Propagate both views' bounded image error through triangulation, not
++        # only baseline/displacement magnitude (rotation can inflate that).
++        delta=config.flow_epipolar_max_px
++        for which in (0,1):
++            for axis in (0,1):
++                for sign in (-1,1):
++                    pp=p.copy();qq=q.copy()
++                    (pp if which==0 else qq)[:,axis]+=sign*delta
++                    homogeneous=cv2.triangulatePoints(old.intrinsic@old.world_to_camera[:3],
++                        new.intrinsic@new.world_to_camera[:3],pp.T.copy(),qq.T.copy())
++                    with np.errstate(invalid='ignore',divide='ignore'):
++                        perturbed=(homogeneous[:3]/homogeneous[3:]).T
++                    zz=(perturbed@new.world_to_camera[:3,:3].T+new.world_to_camera[:3,3])[:,2]
++                    u=np.maximum(u,np.abs(zz-z))
++                    keep&=np.isfinite(zz)&(zz>=.5)&(zz<=200)
++        keep&=np.isfinite(u)&(z-u>=.5)&(z+u<=200)
++    result=dict(**binding,timestamp=new.timestamp,camera_sha256=camera_snapshot_digest(new),
+         pixels=immutable_array(q[keep]),depths=immutable_array(z[keep]),uncertainty_m=immutable_array(u[keep]),
+         evidence_kind='conditional_static_prior_RGB_triangulation',metric_geometry_certified=False)
++    if config.persistent_depth_tracks:
++        result.update(track_ids=[str(binding['frame_id'])+':'+new.camera_id+':'+str(i) for i in np.flatnonzero(keep)],
++            parallax_deg=immutable_array(angle[keep]),reprojection_px=immutable_array(reprojection[keep]),
++            uncertainty_protocol='8_image_axis_perturbations_plus_existing_floor_conditional_static',
++            generation_funnel=dict(measured=len(p),FB_valid=int(evidence.correspondence_valid.sum()),
++                geometry_valid=int((evidence.correspondence_valid&evidence.geometry_valid).sum()),depth_kept=int(keep.sum())))
++    return result
++
++
++def multi_hypothesis_tracks(old,new,p,config,history=None,static_geometry=True,search_initial=None):
++    from dataclasses import replace
++    from .temporal_visibility import gray_image
++    from .correspondence_recovery import select_candidates
++    raw,rf,rv=lk_measure(gray_image(old),gray_image(new),p,config)
++    rotation,rotation_valid,_,_,rotation_info=point_predictions(old,new,p,replace(config,ego_motion_mode='rotation',persistent_depth_tracks=False),None)
++    pred,pvalid,spread,depths,info=point_predictions(old,new,p,config,history)
++    candidates=dict(raw=dict(points=raw,fb=rf,valid=rv,attempted=np.ones(len(p),bool)))
++    for name,initial,attempted in [('rotation',rotation,rotation_valid),
++            ('depth',pred,np.isfinite(depths)&pvalid&(spread<=config.search_radius_px))]:
++        if name=='depth' and config.ego_motion_mode!='depth':continue
++        if attempted.any():
++            q,fb,valid=lk_measure(gray_image(old),gray_image(new),p,config,np.where(attempted[:,None],initial,p))
++            valid&=attempted
++            if name=='depth':valid&=np.linalg.norm(q-initial,axis=1)+spread<=config.search_radius_px
++        else:q,fb,valid=raw.copy(),np.full(len(p),np.inf),np.zeros(len(p),bool)
++        candidates[name]=dict(points=q,fb=fb,valid=valid,attempted=attempted,
++            prediction_residual_px=np.linalg.norm(q-initial,axis=1))
++    if search_initial is not None:
++        initial,uncertainty=search_initial
++        attempted=np.isfinite(initial).all(1)&(uncertainty<=config.search_radius_px)
++        q,fb,valid=lk_measure(gray_image(old),gray_image(new),p,config,np.where(attempted[:,None],initial,p))
++        valid&=attempted&(np.linalg.norm(q-initial,axis=1)+uncertainty<=config.search_radius_px)
++        candidates['dynamic_search']=dict(points=q,fb=fb,valid=valid,attempted=attempted,
++            prediction_residual_px=np.linalg.norm(q-initial,axis=1))
++    q,fb,good,selection=select_candidates(old,new,p,candidates,config,static_geometry)
++    chosen=np.asarray(selection['selected_candidate'],dtype=object)
++    recovered=good&~np.asarray(selection['candidates']['raw']['fully_supported'])
++    m=dict(source_points=np.asarray(p),raw_points=raw,raw_fb_error_px=rf,raw_valid=rv,
++        seeded_points=candidates['rotation']['points'],seeded_valid=candidates['rotation']['valid'],
++        predicted_points=pred,prediction_valid=pvalid,prediction_spread_px=spread,source_depth_m=depths,
++        prediction_residual_px=np.linalg.norm(q-pred,axis=1),seed_recovered=recovered,
++        initialization_conflict=chosen=='ambiguous',info=info,**selection)
++    return q,fb,good,m
+ 
+ 
+ def static_box_predictions(anchor, old, new, points, config):
+diff --git a/worldstream/m1/identity_temporal.py b/worldstream/m1/identity_temporal.py
+index 0d6499f..8869f7b 100644
+--- a/worldstream/m1/identity_temporal.py
++++ b/worldstream/m1/identity_temporal.py
+@@ -58,7 +58,7 @@ def _aligned_descriptor(image,matrix,region,validator):
+     return validator.descriptor(aligned,region)
+ 
+ 
+-def _measure_view(anchor,target,old,cam,validator,config,depth_history=None):
++def _measure_view(anchor,target,old,cam,validator,config,depth_history=None,search_motion=None):
+     from .temporal_visibility import gray_image
+     from .geometry_support import measured_patch_support
+     cid=cam.camera_id;obs=anchor.observation_support.get(cid)
+@@ -79,10 +79,17 @@ def _measure_view(anchor,target,old,cam,validator,config,depth_history=None):
+     p=cv2.goodFeaturesToTrack(a,maxCorners=96,qualityLevel=.01,minDistance=4,mask=mask,blockSize=5)
+     if p is None:return dict(v,reason='RGB_tracks_missing')
+     p=p[:,0];p=p[_inside(p,obs.region)]
++    from .correspondence_recovery import retain_depth_points
++    p,depth_seed_diagnostics=retain_depth_points(p,depth_history,old,config,obs.region)
++    v['depth_feature_seeding']=depth_seed_diagnostics
+     motion=None
+     if config.ego_motion_mode != 'off':
+         from .ego_motion import track_with_prediction
+-        q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history)
++        if config.multi_hypothesis_tracking:
++            from .search_motion import image_search_initial
++            initial=image_search_initial(anchor,old,cam,p,search_motion,config)
++            q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history,static_geometry=False,search_initial=initial)
++        else:q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history)
+         valid&=(q[:,0]>=3)&(q[:,0]<b.shape[1]-3)&(q[:,1]>=3)&(q[:,1]<b.shape[0]-3)
+     else:q,fb,valid=_lk(a,b,p)
+     if not len(p):return dict(v,reason='RGB_tracks_missing')
+@@ -148,7 +155,7 @@ def _cycle(view,source_record,earlier_record,frame,aid):
+         backward_fb_error_px=fb0[good].tolist(),long_fb_error_px=fb1[good].tolist())
+ 
+ 
+-def measure_pair(anchor,target,frame,history,config,validator):
++def measure_pair(anchor,target,frame,history,config,validator,search_motion=None):
+     reasons=[];record=next((r for r in reversed(history) if r['frame_id']==anchor.source_frame_id),None)
+     m=dict(source_class=anchor.semantic_class,current_class=target.semantic_class,
+         source_center=anchor.geometry_world.center.tolist(),current_center=target.geometry_world.center.tolist(),
+@@ -181,7 +188,7 @@ def measure_pair(anchor,target,frame,history,config,validator):
+                 if depth is not None and any(depth.get(k)!=record.get(k) for k in
+                         ('scene_id','frame_id','frame_digest','epoch','execution_signature','commit_version')):
+                     reasons.append('actual_depth_history_binding_mismatch');continue
+-                view=_measure_view(anchor,target,old,cam,validator,config,depth)
++                view=_measure_view(anchor,target,old,cam,validator,config,depth,search_motion)
+                 if (config.identity_method=='temporal_object' and config.identity_object_support
+                         and ((config.identity_object_required and view['status']=='supported') or (view['status']=='unknown'
+                             and view['reason'] in ('crop_track_or_spatial_support_insufficient','incoherent_local_motion','folded_or_compressed_motion')))):
+@@ -194,7 +201,7 @@ def measure_pair(anchor,target,frame,history,config,validator):
+ 
+ 
+ def temporal_identity_pairs(anchors,predictions,costs,frame,history,config,validator,issuer,
+-                            legacy_evidence=None,legacy_frame_id=None,legacy_digest=None):
++                            legacy_evidence=None,legacy_frame_id=None,legacy_digest=None,search_hypotheses=None):
+     tick=perf_counter();proposals={};records={}
+     for i,j in zip(*np.nonzero(np.isfinite(costs))):
+         anchor=anchors[i];pred=predictions[j]
+@@ -203,7 +210,7 @@ def temporal_identity_pairs(anchors,predictions,costs,frame,history,config,valid
+             velocity_world=pred.velocity_world,velocity_reliable=pred.velocity_reliable,geometry_uncertainty=pred.geometry_uncertainty,
+             source_frame_id=frame.frame_id,source_state_epoch=anchor.source_state_epoch,source_execution_signature=frame.execution_signature)
+         available=history if config.identity_use_history else history[-1:]
+-        proposal,record=measure_pair(anchor,target,frame,available,config,validator)
++        proposal,record=measure_pair(anchor,target,frame,available,config,validator,(search_hypotheses or {}).get(i))
+         proposal['acceptance_path']='motion_observed'
+         # Preserve the existing independently testable selective population as
+         # an alternative two-view producer, with its original receipt/validator.
+diff --git a/worldstream/m1/observation_validator.py b/worldstream/m1/observation_validator.py
+index 8fd4e1d..d5cbbae 100644
+--- a/worldstream/m1/observation_validator.py
++++ b/worldstream/m1/observation_validator.py
+@@ -67,6 +67,14 @@ class ObservationValidator:
+                 value = self.residual(old.descriptor, self.descriptor(camera.image, r))
+                 if value < best:
+                     best, best_region = value, clip_region(r, camera.image.shape)
++        aligned={}
++        if (self.config.aligned_observation_recovery and temporal_evidence is not None
++                and previous_camera is not None and not occluded):
++            from .correspondence_recovery import measured_aligned_descriptor
++            descriptor,aligned=measured_aligned_descriptor(old,previous_camera,camera,projection,temporal_evidence,self)
++            aligned_residual=self.residual(old.descriptor,descriptor)
++            aligned['descriptor_residual']=aligned_residual
++            if aligned_residual<best:best=aligned_residual
+         consistent = best <= self.config.residual_threshold
+         visible = not occluded
+         visibility_reason = "projected_occlusion" if occluded else "ok"
+@@ -83,6 +91,7 @@ class ObservationValidator:
+                 visible = False; visibility_reason = "visibility_unknown"
+             elif np.asarray(mask[ys, xs], dtype=bool).mean() < self.config.min_coverage:
+                 visible = False; visibility_reason = "insufficient_visible_support"
++        if self.config.aligned_observation_recovery:evidence['aligned_observation']=aligned
+         valid = consistent and visible
+         reason = "ok" if valid else ("observation_mismatch" if not consistent else visibility_reason)
+         return Validation(valid, best, best_region, consistent, visible, reason, evidence)
+diff --git a/worldstream/m1/state_manager.py b/worldstream/m1/state_manager.py
+index 32ca145..07e665b 100644
+--- a/worldstream/m1/state_manager.py
++++ b/worldstream/m1/state_manager.py
+@@ -648,14 +648,22 @@ class WorldStateManager:
+             else:
+                 accepted_pairs.append((i, j))
+         geometric_pairs=list(accepted_pairs)
++        identity_costs=costs
++        search_hypotheses={};search_counts=dict(status='Not Run')
++        if self.config.search_dynamic_motion:
++            from .search_motion import search_edges
++            identity_costs,search_hypotheses,search_counts=search_edges(anchors,predictions,costs,frame,self._identity_history,self.config)
++            search_counts['status']='executed'
++            search_counts['hypotheses']={anchors[i].anchor_id:h for i,h in search_hypotheses.items()}
++        
+         temporal_proposals={};proposal_certificates={}
+         identity_protocol=None
+         if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
+             from .identity_temporal import temporal_identity_pairs
+             from .identity_continuity import identity_protocol_digest,IDENTITY_CLAIM
+             identity_protocol=identity_protocol_digest(self.config,frame)
+-            temporal_proposals=temporal_identity_pairs(anchors,predictions,costs,frame,self._identity_history,
+-                self.config,self.validator,self._physical_issuer,self.last_evidence,self._previous_frame_id,self._previous_frame_digest)
++            temporal_proposals=temporal_identity_pairs(anchors,predictions,identity_costs,frame,self._identity_history,
++                self.config,self.validator,self._physical_issuer,self.last_evidence,self._previous_frame_id,self._previous_frame_digest,search_hypotheses=search_hypotheses)
+             # A proposal is a relation between actual observations. Check its
+             # named claim before deciding whether it may affect ordinary IDs.
+             for (i,j),proposal in temporal_proposals.items():
+@@ -902,7 +910,7 @@ class WorldStateManager:
+                 commit_version=self.store.commit_count,depth_history=copy.deepcopy(self._depth_history),
+                 anchors={aid:copy.deepcopy(self.store.anchors[aid]) for aid in committed if aid in self.store.anchors})
+             self._identity_history=tuple(r for r in self._identity_history
+-                if 0<frame.timestamp-r['timestamp']<=min(self.config.max_state_age_s,1.))+(record,)
++                if 0<frame.timestamp-r['timestamp']<=(2*self.config.max_frame_gap_s if self.config.search_dynamic_motion else min(self.config.max_state_age_s,1.)))+(record,)
+             self._identity_history=self._identity_history[-self.config.identity_history_frames:]
+         self._previous_frame_id=frame.frame_id
+         self._previous_frame_digest=self._pending_digest
+@@ -917,6 +925,7 @@ class WorldStateManager:
+             "association_is_identity_certification": False,
+             "geometric_tracking_pairs": [[anchors[i].anchor_id,selected[j][0]] for i,j in geometric_pairs],
+             "identity_tracking_policy": self.config.identity_tracking_policy,
++            "search_motion": search_counts,
+             "post_perception_physical_certifications": physical_results,
+             "foreground_correspondence_proposals": foreground_results,
+             "identity_continuity_proposals": identity_results,
+diff --git a/worldstream/m1/temporal_visibility.py b/worldstream/m1/temporal_visibility.py
+index 8042b86..38a919f 100644
+--- a/worldstream/m1/temporal_visibility.py
++++ b/worldstream/m1/temporal_visibility.py
+@@ -36,7 +36,12 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
+     old_gray = gray_image(previous)
+     p0 = cv2.goodFeaturesToTrack(old_gray, maxCorners=config.flow_max_points, qualityLevel=.01,
+                                  minDistance=config.flow_min_distance_px, blockSize=5)
+-    if p0 is None: d['reason']='insufficient_texture'; return evidence
++    if p0 is None:p0=np.empty((0,1,2),np.float32)
++    from .correspondence_recovery import retain_depth_points
++    source,seed_diagnostics=retain_depth_points(p0[:,0],depth_history,previous,config)
++    d['depth_feature_seeding']=seed_diagnostics
++    p0=source.reshape(-1,1,2)
++    if not len(p0):d['reason']='insufficient_texture';return evidence
+     if config.ego_motion_mode != 'off':
+         from .ego_motion import track_with_prediction
+         source = p0[:,0]
+@@ -44,6 +49,7 @@ def build_evidence(previous, current, config, dense_exclusion=None, surface_hist
+         evidence.motion_measurements = motion
+         d['ego_motion'] = dict(motion['info'], raw_valid=int(motion['raw_valid'].sum()),
+             recovered=int(motion['seed_recovered'].sum()), conflicts=int(motion['initialization_conflict'].sum()))
++        if 'candidate_funnel' in motion:d['candidate_funnel']=motion['candidate_funnel']
+         collision = np.zeros(len(source),bool)  # uniqueness already checked after merge
+     else:
+         p1, s1, error = cv2.calcOpticalFlowPyrLK(old_gray, gray, p0, None, winSize=(21,21), maxLevel=3,
+diff --git a/worldstream/m1/correspondence_recovery.py b/worldstream/m1/correspondence_recovery.py
+new file mode 100644
+index 0000000..19629ad
+--- /dev/null
++++ b/worldstream/m1/correspondence_recovery.py
+@@ -0,0 +1,114 @@
++"""Bounded candidate evaluation. Predictions propose; actual RGB gates select.
++
++No weighted score trades away a necessary gate. Conflicting fully supported
++candidates remain Unknown; a candidate failing a necessary gate cannot veto a
++different fully measured candidate. Static geometry is inappropriate for dynamic
++identity views and must be explicitly disabled there, not implicitly bypassed.
++"""
++import cv2
++import numpy as np
++from .geometry_support import measured_patch_support, calibrated_correspondence
++
++
++def retain_depth_points(points, history, old, config, region=None):
++    """Append actual last-commit tracked pixels, never relocate/interpolate depth.
++
++    Keep EVERY newly detected corner so the original support denominator remains
++    visible. Add at most flow_max_points tracked depth rays. All appended points
++    also count in the actual Anchor denominator; no difficult corners are removed.
++    """
++    p=np.asarray(points,np.float32).reshape(-1,2)
++    d=dict(status='Not Run',redetected_points=len(p),depth_records=0,retained_points=0,
++           duplicate_or_near_existing=0,original_points_preserved=True)
++    if not config.persistent_depth_tracks:return p,d
++    d['status']='no_depth_history'
++    if history is None:return p,d
++    from .identity_temporal import camera_snapshot_digest
++    if history.get('camera_sha256')!=camera_snapshot_digest(old) or history.get('timestamp')!=old.timestamp:
++        d['status']='source_binding_rejected';return p,d
++    hp=np.asarray(history['pixels'],np.float32).reshape(-1,2);hz=np.asarray(history['depths']);hu=np.asarray(history['uncertainty_m'])
++    d['depth_records']=len(hp)
++    if len(hp)!=len(hz) or len(hu)!=len(hp):raise ValueError('Malformed tracked depth history')
++    good=np.isfinite(hp).all(1)&np.isfinite(hz)&np.isfinite(hu)&(hu>=0)&(hz-hu>=.5)&(hz+hu<=200)
++    h,w=old.image.shape[:2];good&=(hp[:,0]>=3)&(hp[:,0]<w-3)&(hp[:,1]>=3)&(hp[:,1]<h-3)
++    if region is not None:
++        good&=(hp[:,0]>=region[0])&(hp[:,0]<region[2])&(hp[:,1]>=region[1])&(hp[:,1]<region[3])
++    if len(p):
++        from scipy.spatial import cKDTree
++        distance,_=cKDTree(p).query(hp)
++        d['duplicate_or_near_existing']=int((good&(distance<=config.flow_fb_max_px)).sum())
++        good&=distance>config.flow_fb_max_px
++    # Stable actual track order, no sorting on current target/labels/acceptance.
++    retained=hp[good][:config.flow_max_points]
++    d.update(status='retained' if len(retained) else 'no_distinct_valid_depth_rays',retained_points=len(retained))
++    return np.concatenate([p,retained]),d
++
++
++def select_candidates(old,new,points,candidates,config,static_geometry=True):
++    from .temporal_visibility import gray_image
++    a,b=gray_image(old),gray_image(new);p=np.asarray(points,float);n=len(p)
++    evaluated=[];records={}
++    for name,c in candidates.items():
++        q,fb,lk=c['points'],c['fb'],c['valid']
++        geometric=(calibrated_correspondence(old,new,p,q,config.flow_epipolar_max_px)
++                   if static_geometry else np.ones(n,bool))
++        _,_,photo,residual=measured_patch_support(a,b,p,q,lk&geometric,config)
++        accepted=lk&geometric&photo&(residual<=config.support_residual_max)
++        evaluated.append((name,c,accepted))
++        records[name]=dict(points=q,fb_error_px=fb,lk_valid=lk,geometry_valid=geometric,
++            patch_supported=photo,patch_residual=residual,fully_supported=accepted,
++            attempted=c.get('attempted',np.ones(n,bool)),prediction_residual_px=c.get('prediction_residual_px'))
++    # Stable order preserves original raw solution when the fully valid
++    # measurements agree. This is not a score or an appearance-only identity.
++    q=candidates['raw']['points'].copy();fb=candidates['raw']['fb'].copy()
++    good=np.zeros(n,bool);chosen=np.full(n,'unknown',dtype=object);conflict=np.zeros(n,bool)
++    for name,c,accepted in evaluated:
++        clash=good&accepted&(np.linalg.norm(q-c['points'],axis=1)>config.flow_fb_max_px)
++        conflict|=clash
++        take=~good&accepted
++        q[take]=c['points'][take];fb[take]=c['fb'][take];chosen[take]=name;good|=accepted
++    good&=~conflict;chosen[conflict]='ambiguous'
++    _,inverse,counts=np.unique(np.rint(q/2).astype(np.int64),axis=0,return_inverse=True,return_counts=True)
++    duplicates=good&(counts[inverse]>1);good&=~duplicates;chosen[duplicates]='duplicate'
++    totals={name:dict(attempted=int(np.asarray(r['attempted']).sum()),lk_valid=int(r['lk_valid'].sum()),
++        geometric=int((r['lk_valid']&r['geometry_valid']).sum()),local_supported=int(r['fully_supported'].sum()),
++        selected=int((good&(chosen==name)).sum())) for name,r in records.items()}
++    return q,fb,good,dict(candidates=records,selected_candidate=chosen.tolist(),
++        candidate_funnel=totals,ambiguity_rejected=int(conflict.sum()),duplicate_rejected=int(duplicates.sum()),
++        static_geometry_required=static_geometry)
++
++
++def measured_aligned_descriptor(old,previous,current,projection,evidence,validator):
++    """Only measured affine agreement permits resampling a historical crop.
++
++    Same residual/texture threshold as the original descriptor; fit and withheld
++    spatial witnesses both obey the existing 0.75px FB budget. No box-only warp.
++    """
++    from .temporal_visibility import gray_image
++    c=validator.config;p=evidence.source_points;q=evidence.current_points;r=old.region;s=projection.region
++    inside=(p[:,0]>=r[0])&(p[:,0]<r[2])&(p[:,1]>=r[1])&(p[:,1]<r[3])
++    support=inside&evidence.supported&(q[:,0]>=s[0])&(q[:,0]<s[2])&(q[:,1]>=s[1])&(q[:,1]<s[3])
++    idx=np.flatnonzero(support);d=dict(status='unknown',reason='insufficient_measured_alignment',total_source_points=int(inside.sum()),points=len(idx))
++    if len(idx)<max(8,c.support_min_points) or len(idx)/max(1,int(inside.sum()))<c.support_point_fraction:return None,d
++    if (previous is None or previous.timestamp!=old.timestamp or evidence.source_timestamp!=old.timestamp
++            or evidence.timestamp!=current.timestamp or previous.camera_id!=current.camera_id):return None,dict(d,reason='alignment_source_mismatch')
++    if not np.array_equal(validator.descriptor(previous.image,r),old.descriptor):return None,dict(d,reason='source_descriptor_mismatch')
++    def quadrants(x,region):
++        bits=np.clip(((x-np.asarray(region[:2]))/np.maximum(np.asarray(region[2:])-region[:2],1)*2).astype(int),0,1)
++        return len(np.unique(bits,axis=0))/4
++    if min(quadrants(p[idx],r),quadrants(q[idx],s))<c.support_quadrant_fraction:return None,dict(d,reason='alignment_spatial_support')
++    fit,hold=idx[::2],idx[1::2];design=np.c_[p[fit],np.ones(len(fit))]
++    matrix,_,rank,_=np.linalg.lstsq(design,q[fit],rcond=None);matrix=matrix.T
++    error=np.linalg.norm(np.c_[p[idx],np.ones(len(idx))]@matrix.T-q[idx],axis=1)
++    det=np.linalg.det(matrix[:,:2])
++    if rank<3 or not np.isfinite(matrix).all() or not .5<=det<=2 or (error>c.flow_fb_max_px).any():return None,dict(d,reason='alignment_fit_or_withheld_error')
++    # Pixel validity must cover the actual descriptor crop, no border synthesis.
++    gray=gray_image(current);h,w=gray.shape
++    valid=cv2.warpAffine(np.ones((h,w),np.uint8),matrix,(w,h),flags=cv2.INTER_NEAREST|cv2.WARP_INVERSE_MAP)
++    from .geometry import region_slices
++    crop=valid[region_slices(r,(h,w))]
++    if not crop.size or crop.mean()<c.min_coverage:return None,dict(d,reason='alignment_outside_view')
++    warped=cv2.warpAffine(gray,matrix,(w,h),flags=cv2.INTER_LINEAR|cv2.WARP_INVERSE_MAP)
++    return validator.descriptor(warped,r),dict(d,status='measured',reason='withheld_measured_affine',
++        matrix=matrix.tolist(),max_fit_and_withheld_error_px=float(error.max()),withheld_points=len(hold),
++        foreground_certified=False,metric_geometry_certified=False)
+diff --git a/worldstream/m1/search_motion.py b/worldstream/m1/search_motion.py
+new file mode 100644
+index 0000000..422a03e
+--- /dev/null
++++ b/worldstream/m1/search_motion.py
+@@ -0,0 +1,82 @@
++"""Unqualified, short-lived search hypotheses, isolated from world motion state.
++
++Reads only prior actual commits. Tentative geometric IDs can propose searches;
++they never update trusted velocity, certified identity history, or certificates.
++"""
++import numpy as np
++from .geometry import state_geometry_version,project_points
++
++
++def search_hypothesis(anchor,history,frame,config):
++    d=dict(status='unknown',reason='short_actual_history',qualified=False,
++           identity_claim=False,metric_geometry_claim=False)
++    if anchor.anchor_type!='object' or anchor.semantic_class in {'barrier','traffic_cone'}:
++        return dict(d,reason='static_or_nonobject')
++    records=[]
++    for record in history:
++        if (record['scene_id']!=frame.scene_id or record['epoch']!=anchor.source_state_epoch
++                or record['execution_signature']!=frame.execution_signature):continue
++        a=record['anchors'].get(anchor.anchor_id)
++        if a is None or a.source_frame_id!=record['frame_id'] or a.source_timestamp!=record['timestamp']:continue
++        records.append((record,a))
++    if len(records)<3:return d
++    records=records[-3:];latest=records[-1][1]
++    if latest.source_frame_id!=anchor.source_frame_id or state_geometry_version(latest)!=state_geometry_version(anchor):
++        return dict(d,reason='source_version_mismatch')
++    times=np.asarray([a.source_timestamp for _,a in records]);steps=np.diff(times);dt=frame.timestamp-times[-1]
++    if (not np.isfinite(steps).all() or (steps<=0).any() or (steps>config.max_frame_gap_s).any()
++            or not 0<dt<=min(config.max_state_age_s,.6)):
++        return dict(d,reason='search_time_gap')
++    # A tentative link needs an actual unambiguous geometric association record
++    # for each step; reappearance after a missing frame has no velocity history.
++    for index,(_,a) in enumerate(records[1:],1):
++        if (a.association_history and a.association_history[-1].get('source_state_version')!=state_geometry_version(records[index-1][1])):
++            return dict(d,reason='tentative_source_version_mismatch')
++        if not a.association_history or a.association_history[-1]['status'] not in ('unqualified_geometric_track','qualified_identity'):
++            return dict(d,reason='tentative_link_ambiguous_or_missing')
++    centers=np.asarray([a.geometry_world.center for _,a in records]);velocities=np.diff(centers,axis=0)/steps[:,None]
++    if not np.isfinite(velocities).all():return dict(d,reason='nonfinite_centers')
++    velocity=velocities[-1];change=np.linalg.norm(velocities[-1]-velocities[-2])
++    uncertainty=float(config.velocity_uncertainty_mps*dt+change*dt)
++    if change>config.velocity_uncertainty_mps or uncertainty>=config.association_gate_m:
++        return dict(d,reason='direction_or_acceleration_uncertain',uncertainty_m=uncertainty)
++    return dict(d,status='search_only',reason='three_actual_tentative_centers',center_world=(centers[-1]+velocity*dt).tolist(),
++        velocity_world=velocity.tolist(),uncertainty_m=uncertainty,source_timestamp=float(times[-1]),valid_until=float(times[-1]+.6),
++        source_state_version=state_geometry_version(anchor),source_frame_id=anchor.source_frame_id,
++        sources=[dict(frame_id=r['frame_id'],frame_digest=r['frame_digest'],state_version=state_geometry_version(a),
++                      epoch=r['epoch'],execution_signature=r['execution_signature']) for r,a in records])
++
++
++def search_edges(anchors,predictions,costs,frame,history,config):
++    expanded=costs.copy();hypotheses={};counts=dict(attempts=0,generated=0,new_edges=0)
++    for i,anchor in enumerate(anchors):
++        h=search_hypothesis(anchor,history,frame,config);hypotheses[i]=h;counts['attempts']+=1
++        if h['status']!='search_only':continue
++        counts['generated']+=1
++        for j,pred in enumerate(predictions):
++            if (pred.anchor_type,pred.semantic_class)!=(anchor.anchor_type,anchor.semantic_class):continue
++            a,b=anchor.geometry_world.size,pred.geometry_world.size
++            if a is None or b is None or np.max(np.maximum(a/b,b/a))>config.box_size_ratio:continue
++            distance=float(np.linalg.norm(pred.geometry_world.center-np.asarray(h['center_world'])))
++            if distance+h['uncertainty_m']>config.association_gate_m:continue
++            if not np.isfinite(expanded[i,j]):counts['new_edges']+=1
++            expanded[i,j]=min(expanded[i,j],distance)
++    return expanded,hypotheses,counts
++
++
++def image_search_initial(anchor,old,new,points,hypothesis,config):
++    """Box-centre optical depth is only a search hypothesis, not per-pixel truth."""
++    if hypothesis is None or hypothesis.get('status')!='search_only':return None
++    if (hypothesis['source_state_version']!=state_geometry_version(anchor)
++            or hypothesis['source_frame_id']!=anchor.source_frame_id or old.timestamp>=new.timestamp):return None
++    from .ego_motion import camera_pair_reason,project_source_depth
++    if camera_pair_reason(old,new,config):return None
++    center=anchor.geometry_world.center
++    z=float((old.world_to_camera@np.r_[center,1])[2])
++    if not .5<z<200:return None
++    _,valid,world,_=project_source_depth(old,new,points,np.full(len(points),z))
++    delta=np.asarray(hypothesis['velocity_world'])*(new.timestamp-old.timestamp)
++    uv,target_z,front=project_points(world+delta,new.intrinsic,new.world_to_camera)
++    uncertainty=np.abs(new.intrinsic[0,0])*hypothesis['uncertainty_m']/np.maximum(target_z,.5)
++    uv[~valid|~front]=np.nan
++    return uv,uncertainty
+diff --git a/tests/worldstream_m1/test_history_recovery.py b/tests/worldstream_m1/test_history_recovery.py
+new file mode 100644
+index 0000000..22e2773
+--- /dev/null
++++ b/tests/worldstream_m1/test_history_recovery.py
+@@ -0,0 +1,259 @@
++"""Synthetic diagnostics only; never qualification or online evaluation data."""
++from dataclasses import replace
++import ast
++import copy
++from pathlib import Path
++import cv2
++import numpy as np
++import pytest
++from worldstream.m1 import M1Config,WorldStateManager,FullOutputs,WorldAnchor
++from worldstream.m1.geometry import box_geometry,state_geometry_version
++from worldstream.m1.correspondence_recovery import retain_depth_points,select_candidates
++from worldstream.m1.ego_motion import point_predictions,track_with_prediction
++from worldstream.m1.identity_temporal import camera_snapshot_digest
++from test_ego_motion_compensation import camera
++
++
++def cfg(**kw):
++    return M1Config(temporal_visibility=True,ego_motion_mode='depth',persistent_depth_tracks=True,
++        multi_hypothesis_tracking=True,logging=False,**kw)
++
++
++def history(cam,p,z=None,u=None):
++    return dict(timestamp=cam.timestamp,camera_sha256=camera_snapshot_digest(cam),pixels=np.asarray(p,np.float32),
++        depths=np.full(len(p),10.) if z is None else np.asarray(z),uncertainty_m=np.full(len(p),.3) if u is None else np.asarray(u))
++
++
++def test_retained_tracks_do_not_require_new_corner_coincidence():
++    a=camera();p=np.array([[30.,30.],[80.,80.]])
++    h=history(a,[[34.3,30.7],[90.2,80.1]])
++    retained,d=retain_depth_points(p,h,a,cfg())
++    assert np.array_equal(retained[:len(p)],p) and len(retained)==4 and d['retained_points']==2
++    _,_,_,depths,info=point_predictions(a,camera(100.5,(.3,0,0)),retained,cfg(),h)
++    assert np.isfinite(depths[2:]).all() and np.isnan(depths[:2]).all()
++    assert info['depth_association']['one_to_one']==2
++
++
++@pytest.mark.parametrize('bad',['camera','time','invalid_depth','large_uncertainty'])
++def test_invalid_history_never_seeds_other_surface(bad):
++    a=camera();h=history(a,[[50.,50.]])
++    if bad=='camera':h['camera_sha256']='other'
++    elif bad=='time':h['timestamp']-=.5
++    elif bad=='invalid_depth':h['depths'][:]=np.nan
++    else:h['uncertainty_m'][:]=20
++    retained,d=retain_depth_points([[100.,100.]],h,a,cfg())
++    assert len(retained)==1 and d['retained_points']==0
++
++
++@pytest.mark.parametrize('kind',['many_to_one','two_surfaces'])
++def test_depth_matching_uniqueness(kind):
++    a,b=camera(),camera(100.5,(.3,0,0))
++    p=np.array([[50.,50.],[50.1,50.]]) if kind=='many_to_one' else np.array([[50.,50.]])
++    hp=[[50.,50.]] if kind=='many_to_one' else [[49.8,50.],[50.2,50.]]
++    h=history(a,hp,z=[5.] if kind=='many_to_one' else [5.,50.])
++    _,_,_,z,d=point_predictions(a,b,p,cfg(),h)
++    assert np.isnan(z).all()
++    assert d['depth_association']['duplicate' if kind=='many_to_one' else 'ambiguous']>0
++
++
++def candidate(q,valid):
++    return dict(points=np.asarray(q,float),fb=np.zeros(len(q)),valid=np.asarray(valid,bool))
++
++
++def test_complete_gate_failure_can_be_excluded_before_conflict(monkeypatch):
++    import worldstream.m1.correspondence_recovery as mod
++    p=np.array([[50.,50.],[100.,100.]])
++    candidates=dict(raw=candidate(p,[True,True]),rotation=candidate(p+10,[True,True]))
++    monkeypatch.setattr(mod,'calibrated_correspondence',lambda old,new,p,q,t:np.ones(len(p),bool))
++    def support(a,b,p,q,eligible,config):
++        ok=(q[:,0]<55)|((q[:,0]>105)&(q[:,0]<115))
++        return None,None,ok,np.where(ok,0.,1.)
++    monkeypatch.setattr(mod,'measured_patch_support',support)
++    q,_,good,d=select_candidates(camera(),camera(100.5),p,candidates,cfg())
++    assert good.all() and np.array_equal(q,[[50,50],[110,110]])
++    assert d['selected_candidate']==['raw','rotation']
++
++
++def test_indistinguishable_valid_candidates_remain_unknown(monkeypatch):
++    import worldstream.m1.correspondence_recovery as mod
++    p=np.array([[50.,50.],[100.,100.]])
++    monkeypatch.setattr(mod,'calibrated_correspondence',lambda *a:np.ones(2,bool))
++    monkeypatch.setattr(mod,'measured_patch_support',lambda *a:(None,None,np.ones(2,bool),np.zeros(2)))
++    q,_,good,d=select_candidates(camera(),camera(100.5),p,dict(raw=candidate(p,[True,True]),depth=candidate(p+10,[True,True])),cfg())
++    assert not good.any() and d['ambiguity_rejected']==2
++
++
++def test_large_camera_motion_pipeline_requires_real_measurement():
++    a=camera();b=camera(100.5,(.7,0,0),.09)
++    plane_h=b.intrinsic@(b.world_to_camera[:3,:3]+np.outer(b.world_to_camera[:3,3],[0,0,.1]))@np.linalg.inv(a.intrinsic)
++    b.image=cv2.warpPerspective(a.image,plane_h,(320,240))
++    p=cv2.goodFeaturesToTrack(a.image,maxCorners=200,qualityLevel=.01,minDistance=5)[:,0]
++    h=history(a,p)
++    q,fb,valid,m=track_with_prediction(a,b,p,cfg(),h)
++    assert valid.sum()>20 and m['candidate_funnel']['depth']['attempted']>20
++    a.image[:]=128;b.image[:]=128
++    assert not track_with_prediction(a,b,p,cfg(),h)[2].any()
++
++
++def tentative_history(speed=1.,turn=False):
++    records=[]
++    for i in range(3):
++        x=i*.5*speed if not turn or i<2 else -i*.5*speed
++        a=WorldAnchor('a','scene','object','car',box_geometry([x,0,50],[2,2,2]),100+i*.5,
++            source_frame_id=str(i),source_state_epoch=2,source_execution_signature='default')
++        a.association_history=[dict(status='unqualified_geometric_track',source_state_version=state_geometry_version(records[-1]['anchors']['a']) if records else None)]
++        records.append(dict(scene_id='scene',frame_id=str(i),timestamp=a.source_timestamp,epoch=2,execution_signature='default',frame_digest='real'+str(i),anchors={'a':a}))
++    return records
++
++
++@pytest.mark.parametrize('bad',['none','turn','version','scene','gap','ambiguous'])
++def test_search_motion_is_separate_and_bounded(make_frame,bad):
++    from worldstream.m1.search_motion import search_hypothesis
++    records=tentative_history(turn=bad=='turn');anchor=copy.deepcopy(records[-1]['anchors']['a']);f=make_frame(t=101.5)
++    if bad=='version':anchor.geometry_world.center[0]+=1
++    if bad=='scene':f.scene_id='other'
++    if bad=='gap':f.timestamp=103
++    if bad=='ambiguous':records[-1]['anchors']['a'].association_history[-1]['status']='ambiguous_or_missing'
++    h=search_hypothesis(anchor,records,f,cfg())
++    assert not anchor.velocity_reliable and not anchor.motion_history and not anchor.motion_prediction
++    if bad=='none':
++        assert h['status']=='search_only' and not h['qualified'] and h['source_state_version']==state_geometry_version(anchor)
++    else:assert h['status']=='unknown'
++
++
++def test_search_edges_do_not_alter_ordinary_association(make_frame,make_prediction):
++    from worldstream.m1.search_motion import search_edges
++    records=tentative_history(3);anchor=records[-1]['anchors']['a'];f=make_frame(t=101.5)
++    from worldstream.m1 import PerceptionAnchor
++    pred=PerceptionAnchor('object','car',box_geometry([4.5,0,50],[2,2,2]))
++    original=np.array([[np.inf]])
++    expanded,h,d=search_edges([anchor],[pred],original,f,records,cfg())
++    assert np.isinf(original).all() and np.isfinite(expanded).all() and d['new_edges']==1
++    assert not anchor.identity_link_qualified and anchor.physical_certification is None
++
++
++def test_pending_depth_history_and_search_reset(make_frame,make_prediction,monkeypatch):
++    c=cfg(identity_continuity=True,identity_method='temporal',search_dynamic_motion=True)
++    m=WorldStateManager(c)
++    for t in [100,100.5,101]:
++        f=make_frame(t=t);r=m.precheck(f);m.commit(f,FullOutputs([make_prediction(semantic='car')]),r)
++    before=m.store.source_digest();f=make_frame(t=101.5);r=m.precheck(f)
++    import worldstream.m1.ego_motion as module
++    def fail(*a,**kw):raise RuntimeError('actual commit failure')
++    monkeypatch.setattr(module,'measured_depth_history',fail)
++    with pytest.raises(RuntimeError):m.commit(f,FullOutputs([make_prediction()]),r)
++    assert m.store.source_digest()==before
++    f=make_frame(t=200,scene='other');m.precheck(f)
++    assert not m._identity_history and not m._depth_history
++
++
++def test_oracle_dependency_is_offline_only(make_frame):
++    for file in Path('worldstream/m1').glob('*.py'):
++        tree=ast.parse(file.read_text())
++        for node in ast.walk(tree):
++            if isinstance(node,ast.ImportFrom):assert not (node.module or '').startswith('tools.')
++            if isinstance(node,ast.Import):assert not any(a.name.startswith('tools.') for a in node.names)
++    from worldstream.m1.input_contract import frame_digest
++    f=make_frame();f.metadata['oracle']={'depth':10.}
++    with pytest.raises(ValueError,match='forbidden'):frame_digest(f)
++
++
++def test_search_config_cannot_enable_experimental_tracking():
++    with pytest.raises(ValueError,match='shadow'):
++        cfg(identity_continuity=True,identity_method='temporal',search_dynamic_motion=True,identity_tracking_policy='experimental')
++
++
++def test_empty_multi_candidate_shapes():
++    q,fb,good,m=track_with_prediction(camera(),camera(100.5),np.empty((0,2)),cfg())
++    assert q.shape==(0,2) and good.shape==(0,) and m['initialization_conflict'].shape==(0,)
++
++
++@pytest.mark.parametrize('bad',['none','heldout','descriptor','timestamp','spatial','low_texture'])
++def test_alignment_requires_measured_heldout_quality(bad):
++    from types import SimpleNamespace
++    from worldstream.m1.correspondence_recovery import measured_aligned_descriptor
++    from worldstream.m1.observation_validator import ObservationValidator
++    a,b=camera(),camera(100.5)
++    b.image=cv2.warpAffine(a.image,np.float32([[1,0,5],[0,1,2]]),(320,240))
++    validator=ObservationValidator(cfg())
++    x,y=np.meshgrid([70.,90.,110.,130.],[60.,80.,100.,120.]);p=np.c_[x.ravel(),y.ravel()];q=p+[5,2]
++    r=(60,50,140,130);s=(65,52,145,132)
++    old=SimpleNamespace(region=r,timestamp=a.timestamp,descriptor=validator.descriptor(a.image,r))
++    e=SimpleNamespace(source_points=p,current_points=q,supported=np.ones(len(p),bool),source_timestamp=a.timestamp,timestamp=b.timestamp)
++    if bad=='heldout':e.current_points[1]+=[3,0]
++    elif bad=='descriptor':old.descriptor=old.descriptor+1
++    elif bad=='timestamp':e.source_timestamp-=.1
++    elif bad=='spatial':e.source_points=np.tile([70.,60.],(16,1))
++    elif bad=='low_texture':b.image[:]=128
++    descriptor,d=measured_aligned_descriptor(old,a,b,SimpleNamespace(region=s),e,validator)
++    if bad=='none':
++        assert d['status']=='measured' and validator.residual(descriptor,old.descriptor)<1e-5
++    elif bad=='low_texture':assert descriptor is None
++    else:assert descriptor is None and d['status']=='unknown'
++
++
++def test_tentative_velocity_never_becomes_qualified(make_frame):
++    from worldstream.m1.search_motion import search_hypothesis
++    from worldstream.m1.world_motion import update_world_motion
++    records=tentative_history();old=records[-1]['anchors']['a'];h=search_hypothesis(old,records,make_frame(t=101.5),cfg())
++    new=copy.deepcopy(old);new.source_timestamp=101.5;new.geometry_world.center[:]=h['center_world']
++    update_world_motion(old,new,cfg())
++    assert h['status']=='search_only' and not new.motion_history and not new.velocity_reliable
++    assert not new.motion_prediction['reliable'] and new.physical_certification is None
++
++
++def test_low_parallax_cannot_create_depth():
++    from worldstream.m1.ego_motion import measured_depth_history
++    from worldstream.m1.temporal_visibility import build_evidence
++    a,b=camera(),camera(100.5,yaw=.05)
++    b.image=cv2.warpPerspective(a.image,b.intrinsic@b.world_to_camera[:3,:3]@np.linalg.inv(a.intrinsic),(320,240))
++    e=build_evidence(a,b,cfg())
++    assert not len(measured_depth_history(a,b,e,cfg(),{})['depths'])
++
++
++def test_oracle_requires_finished_commits_before_sensor_read(tmp_path,monkeypatch):
++    import json
++    import tools.worldstream_m1.depth_oracle_diagnosis as module
++    folder=tmp_path/'online';(folder/'scenes'/'s').mkdir(parents=True)
++    (folder/'protocol.json').write_text(json.dumps({'config':'configs/worldstream_m121_b.yaml'}))
++    (folder/'scenes'/'s'/'repeat_0.jsonl').write_text(json.dumps({'precheck':{'diagnostics':{'transaction_status':'pending'}}})+'\n')
++    monkeypatch.setattr(module,'world_lidar',lambda *a:pytest.fail('sensor read before commit'))
++    with pytest.raises(ValueError,match='completed online commits'):module.run(folder,tmp_path/'offline')
++
++
++def test_additional_scorer_shared_source_rejects_wrong_and_ambiguous():
++    from tools.worldstream_m1.source_anchored_scoring import score_source_anchored
++    ref=dict(scorable=np.array([True,True]),source_uv=np.array([[10.,10.],[30.,30.]]),target_uv=np.array([[20.,10.],[40.,30.]]))
++    m=dict(source_points=[[10.,10.],[30.,30.],[100.,100.]],current_points=[[20.,10.],[30.,30.],[100.,100.]])
++    assert [r['score'] for r in score_source_anchored(ref,m)]==['correct','wrong','unscorable']
++    ref['source_uv'][1]=[10.1,10.1]
++    assert score_source_anchored(ref,m)[0]['score']=='unscorable'
++
++
++@pytest.mark.parametrize('field',['scene_id','epoch','execution_signature','frame_id','frame_digest','commit_version'])
++def test_new_depth_history_still_requires_manager_source_binding(make_frame,make_prediction,field):
++    m=WorldStateManager(cfg());f=make_frame();r=m.precheck(f);m.commit(f,FullOutputs([make_prediction()]),r)
++    m._depth_history['front']=dict(scene_id=f.scene_id,epoch=m.store.generation,execution_signature=f.execution_signature,
++        frame_id=m._previous_frame_id,frame_digest=m._previous_frame_digest,commit_version=m.store.commit_count)
++    m._depth_history['front'][field]='tampered'
++    with pytest.raises(ValueError,match='binding mismatch'):m._bound_depth_history('front',make_frame(t=100.5))
++
++
++def test_real_commits_search_do_not_change_tracking_or_trusted_motion(make_frame,make_prediction):
++    baseline=WorldStateManager(cfg(identity_continuity=True,identity_method='temporal'))
++    search=WorldStateManager(cfg(identity_continuity=True,identity_method='temporal',search_dynamic_motion=True))
++    for t in [100.,100.5,101.,101.5]:
++        f=make_frame(t=t);outputs=FullOutputs([make_prediction(semantic='car')])
++        for m in (baseline,search):r=m.precheck(f);m.commit(f,outputs,r)
++        assert baseline.last_commit_diagnostics['association_pairs']==search.last_commit_diagnostics['association_pairs']
++        assert not search.get_current_certifications().certified_anchor_ids
++        for a in search.store.anchors.values():
++            assert not a.velocity_reliable and not a.motion_history and not a.identity_link_qualified
++            assert a.physical_certification is None or not a.physical_certification.certified
++    assert search.last_commit_diagnostics['search_motion']['generated']==1
++
++
++def test_new_producer_configuration_invalidates_old_protocol(make_frame):
++    from worldstream.m1.identity_continuity import identity_protocol_digest
++    f=make_frame();a=M1Config.load('configs/worldstream_m121_old_b.yaml');b=M1Config.load('configs/worldstream_m121_b.yaml')
++    assert identity_protocol_digest(a,f)!=identity_protocol_digest(b,f)
+diff --git a/configs/worldstream_m121_aligned.yaml b/configs/worldstream_m121_aligned.yaml
+new file mode 100644
+index 0000000..fb76204
+--- /dev/null
++++ b/configs/worldstream_m121_aligned.yaml
+@@ -0,0 +1,37 @@
++# M1-only state maintenance and real RGB measurements. Existing risk gates retained.
++enabled: true
++execution_mode: observe_only
++temporal_visibility: true
++local_support: true
++foreground_correspondence: true
++identity_continuity: true
++identity_method: temporal
++identity_tracking_policy: shadow
++identity_history_frames: 3
++dense_local_support: true
++dense_motion_guard: true
++dense_guard_radius_px: 8
++temporal_workers: 6
++trust_detection_velocity: false
++capture_tensors: false
++capture_backbone: false
++logging: true
++visualization: false
++profiling: true
++# Independent qualification absent: candidates must remain unqualified.
++physical_qualification_path: null
++physical_qualification_sha256: null
++
++# M1.1: diagnostics only; evidence/risk thresholds are unchanged.
++observation_diagnostics: true
++identity_diagnostics: true
++
++# M1.2 opt-in search model; no qualification or threshold change.
++ego_motion_mode: "depth"
++dynamic_motion_prediction: false
++
++# M1.2.1 bounded recovery: no risk or acceptance threshold changes.
++persistent_depth_tracks: true
++multi_hypothesis_tracking: true
++search_dynamic_motion: true
++aligned_observation_recovery: true
+diff --git a/configs/worldstream_m121_baseline.yaml b/configs/worldstream_m121_baseline.yaml
+new file mode 100644
+index 0000000..a720623
+--- /dev/null
++++ b/configs/worldstream_m121_baseline.yaml
+@@ -0,0 +1,37 @@
++# M1-only state maintenance and real RGB measurements. Existing risk gates retained.
++enabled: true
++execution_mode: observe_only
++temporal_visibility: true
++local_support: true
++foreground_correspondence: true
++identity_continuity: true
++identity_method: temporal
++identity_tracking_policy: shadow
++identity_history_frames: 3
++dense_local_support: true
++dense_motion_guard: true
++dense_guard_radius_px: 8
++temporal_workers: 6
++trust_detection_velocity: false
++capture_tensors: false
++capture_backbone: false
++logging: true
++visualization: false
++profiling: true
++# Independent qualification absent: candidates must remain unqualified.
++physical_qualification_path: null
++physical_qualification_sha256: null
++
++# M1.1: diagnostics only; evidence/risk thresholds are unchanged.
++observation_diagnostics: true
++identity_diagnostics: true
++
++# M1.2 opt-in search model; no qualification or threshold change.
++ego_motion_mode: "off"
++dynamic_motion_prediction: false
++
++# M1.2.1 bounded recovery: no risk or acceptance threshold changes.
++persistent_depth_tracks: false
++multi_hypothesis_tracking: false
++search_dynamic_motion: false
++aligned_observation_recovery: false
+diff --git a/configs/worldstream_m121_a.yaml b/configs/worldstream_m121_a.yaml
+new file mode 100644
+index 0000000..6dc7e00
+--- /dev/null
++++ b/configs/worldstream_m121_a.yaml
+@@ -0,0 +1,37 @@
++# M1-only state maintenance and real RGB measurements. Existing risk gates retained.
++enabled: true
++execution_mode: observe_only
++temporal_visibility: true
++local_support: true
++foreground_correspondence: true
++identity_continuity: true
++identity_method: temporal
++identity_tracking_policy: shadow
++identity_history_frames: 3
++dense_local_support: true
++dense_motion_guard: true
++dense_guard_radius_px: 8
++temporal_workers: 6
++trust_detection_velocity: false
++capture_tensors: false
++capture_backbone: false
++logging: true
++visualization: false
++profiling: true
++# Independent qualification absent: candidates must remain unqualified.
++physical_qualification_path: null
++physical_qualification_sha256: null
++
++# M1.1: diagnostics only; evidence/risk thresholds are unchanged.
++observation_diagnostics: true
++identity_diagnostics: true
++
++# M1.2 opt-in search model; no qualification or threshold change.
++ego_motion_mode: "rotation"
++dynamic_motion_prediction: false
++
++# M1.2.1 bounded recovery: no risk or acceptance threshold changes.
++persistent_depth_tracks: false
++multi_hypothesis_tracking: true
++search_dynamic_motion: false
++aligned_observation_recovery: false
+diff --git a/configs/worldstream_m121_old_b.yaml b/configs/worldstream_m121_old_b.yaml
+new file mode 100644
+index 0000000..14b4fa3
+--- /dev/null
++++ b/configs/worldstream_m121_old_b.yaml
+@@ -0,0 +1,37 @@
++# M1-only state maintenance and real RGB measurements. Existing risk gates retained.
++enabled: true
++execution_mode: observe_only
++temporal_visibility: true
++local_support: true
++foreground_correspondence: true
++identity_continuity: true
++identity_method: temporal
++identity_tracking_policy: shadow
++identity_history_frames: 3
++dense_local_support: true
++dense_motion_guard: true
++dense_guard_radius_px: 8
++temporal_workers: 6
++trust_detection_velocity: false
++capture_tensors: false
++capture_backbone: false
++logging: true
++visualization: false
++profiling: true
++# Independent qualification absent: candidates must remain unqualified.
++physical_qualification_path: null
++physical_qualification_sha256: null
++
++# M1.1: diagnostics only; evidence/risk thresholds are unchanged.
++observation_diagnostics: true
++identity_diagnostics: true
++
++# M1.2 opt-in search model; no qualification or threshold change.
++ego_motion_mode: "depth"
++dynamic_motion_prediction: false
++
++# M1.2.1 bounded recovery: no risk or acceptance threshold changes.
++persistent_depth_tracks: false
++multi_hypothesis_tracking: false
++search_dynamic_motion: false
++aligned_observation_recovery: false
+diff --git a/configs/worldstream_m121_c.yaml b/configs/worldstream_m121_c.yaml
+new file mode 100644
+index 0000000..bea26d9
+--- /dev/null
++++ b/configs/worldstream_m121_c.yaml
+@@ -0,0 +1,37 @@
++# M1-only state maintenance and real RGB measurements. Existing risk gates retained.
++enabled: true
++execution_mode: observe_only
++temporal_visibility: true
++local_support: true
++foreground_correspondence: true
++identity_continuity: true
++identity_method: temporal
++identity_tracking_policy: shadow
++identity_history_frames: 3
++dense_local_support: true
++dense_motion_guard: true
++dense_guard_radius_px: 8
++temporal_workers: 6
++trust_detection_velocity: false
++capture_tensors: false
++capture_backbone: false
++logging: true
++visualization: false
++profiling: true
++# Independent qualification absent: candidates must remain unqualified.
++physical_qualification_path: null
++physical_qualification_sha256: null
++
++# M1.1: diagnostics only; evidence/risk thresholds are unchanged.
++observation_diagnostics: true
++identity_diagnostics: true
++
++# M1.2 opt-in search model; no qualification or threshold change.
++ego_motion_mode: "depth"
++dynamic_motion_prediction: false
++
++# M1.2.1 bounded recovery: no risk or acceptance threshold changes.
++persistent_depth_tracks: true
++multi_hypothesis_tracking: true
++search_dynamic_motion: true
++aligned_observation_recovery: false
+diff --git a/configs/worldstream_m121_b.yaml b/configs/worldstream_m121_b.yaml
+new file mode 100644
+index 0000000..365296c
+--- /dev/null
++++ b/configs/worldstream_m121_b.yaml
+@@ -0,0 +1,37 @@
++# M1-only state maintenance and real RGB measurements. Existing risk gates retained.
++enabled: true
++execution_mode: observe_only
++temporal_visibility: true
++local_support: true
++foreground_correspondence: true
++identity_continuity: true
++identity_method: temporal
++identity_tracking_policy: shadow
++identity_history_frames: 3
++dense_local_support: true
++dense_motion_guard: true
++dense_guard_radius_px: 8
++temporal_workers: 6
++trust_detection_velocity: false
++capture_tensors: false
++capture_backbone: false
++logging: true
++visualization: false
++profiling: true
++# Independent qualification absent: candidates must remain unqualified.
++physical_qualification_path: null
++physical_qualification_sha256: null
++
++# M1.1: diagnostics only; evidence/risk thresholds are unchanged.
++observation_diagnostics: true
++identity_diagnostics: true
++
++# M1.2 opt-in search model; no qualification or threshold change.
++ego_motion_mode: "depth"
++dynamic_motion_prediction: false
++
++# M1.2.1 bounded recovery: no risk or acceptance threshold changes.
++persistent_depth_tracks: true
++multi_hypothesis_tracking: true
++search_dynamic_motion: false
++aligned_observation_recovery: false
+diff --git a/tools/worldstream_m1/depth_oracle_diagnosis.py b/tools/worldstream_m1/depth_oracle_diagnosis.py
+new file mode 100644
+index 0000000..cbfe450
+--- /dev/null
++++ b/tools/worldstream_m1/depth_oracle_diagnosis.py
+@@ -0,0 +1,150 @@
++"""OFFLINE ONLY: sparse sensor-depth initializer diagnostic after all commits.
++
++No manager/commit/certificate is called. Oracle outputs are never imported by
++online M1. Sensor samples constrain sparse rays, not dense truth, identity or a
++guaranteed mathematical upper bound. Unknowns are retained in every denominator.
++"""
++import argparse
++from collections import Counter
++import json
++from pathlib import Path
++import pickle
++import cv2
++import numpy as np
++from scipy.spatial import cKDTree
++from .effective_acceptance import sha
++from .dataset import frame_from_info,load_oracle
++from .coverage_oracle import world_lidar,depth_map,prepare_pair
++from .motion_scoring import score_points,counts
++from .scene_protocol import distribution,ratio
++from .source_anchored_scoring import score_source_anchored
++from worldstream.m1 import M1Config
++from worldstream.m1.ego_motion import project_source_depth,lk_measure
++from worldstream.m1.geometry_support import calibrated_correspondence,measured_patch_support
++from worldstream.m1.temporal_visibility import gray_image
++
++
++def sensor_ray_depth(points,camera,pixels):
++    uv,z,xy,front,nearest=depth_map(points,camera)
++    ids=np.flatnonzero(front)
++    keep=z[ids]<=nearest[xy[ids,1],xy[ids,0]]+.5
++    ids=ids[keep];depth=np.full(len(pixels),np.nan);reason=np.full(len(pixels),'no_sparse_reference',dtype=object)
++    if not len(ids):return depth,reason
++    tree=cKDTree(uv[ids]);distance,index=tree.query(pixels)
++    for j in np.flatnonzero(distance<=1.):
++        neighbours=tree.query_ball_point(pixels[j],1.);zs=z[ids[neighbours]]
++        if np.ptp(zs)>1.:
++            reason[j]='multiple_sensor_depths';continue
++        depth[j]=z[ids[index[j]]];reason[j]='sparse_sensor_ray'
++    return depth,reason
++
++
++def evaluate(old,new,p,q,fb,valid,config):
++    geometry=calibrated_correspondence(old,new,p,q,config.flow_epipolar_max_px)
++    _,_,supported,residual=measured_patch_support(gray_image(old),gray_image(new),p,q,valid&geometry,config)
++    return dict(source_points=p.tolist(),current_points=q.tolist(),fb_error_px=fb.tolist(),
++        correspondence_valid=valid.tolist(),geometry_valid=geometry.tolist(),patch_supported=supported.tolist(),patch_residual=residual.tolist())
++
++
++def run(root,output):
++    root=Path(root);out=Path(output);out.mkdir(parents=True,exist_ok=False)
++    protocol=json.loads((root/'protocol.json').read_text());config=M1Config.load(protocol['config'])
++    traces=sorted((root/'scenes').glob('*/repeat_0.jsonl'))
++    rows={t.parent.name:[json.loads(x) for x in t.read_text().splitlines()] for t in traces}
++    for rs in rows.values():
++        if not rs or any(x['precheck']['diagnostics']['transaction_status']!='committed' for x in rs):
++            raise ValueError('Oracle diagnostic requires completed online commits')
++    with open(protocol['infos_path'],'rb') as f:infos={i['token']:i for i in pickle.load(f)['infos']}
++    selected={x['precheck']['frame_id'] for rs in rows.values() for x in rs}
++    (out/'protocol.json').write_text(json.dumps(dict(offline_only=True,online_GT=False,all_online_commits_completed_before_sensor_read=True,
++        source_trace_sha256={str(t):sha(t) for t in traces},code_sha256=sha(__file__),
++        sensor_source='Actual source LiDAR, sparse ray <=1px and depth discontinuity <=1m; no future sensor for initialization',
++        evaluation='Original unchanged two-frame sparse LiDAR/annotation scoring; future/current sensor used only as offline reference',
++        qualification_generated=False,online_states_updated=False,limitation='Sparse diagnostic comparison; not dense identity truth or a guaranteed upper bound'),indent=2)+'\n')
++    annotations=load_oracle([infos[t] for t in selected],'data/nuscenes')
++    totals={k:[] for k in ('baseline','rgb_depth','oracle_depth')};summaries=[]
++    for scene,rs in rows.items():
++        population={k:[] for k in totals};funnel=Counter();previous=None;prior_points=None
++        folder=out/scene;folder.mkdir()
++        with (folder/'diagnostic_tracks.jsonl').open('w') as log:
++            for row in rs:
++                token=row['precheck']['frame_id'];current=frame_from_info(infos[token],'data/nuscenes');sensor=world_lidar(infos[token])
++                if previous is not None:
++                    reference=prepare_pair(previous,current,prior_points,sensor,annotations[previous.frame_id],annotations[token],config)
++                    for cid,e in row['precheck']['diagnostics'].get('temporal_evidence',{}).items():
++                        m=e.get('point_measurements',{});p=np.asarray(m.get('source_points',[]),float)
++                        if not len(p):continue
++                        old,new=previous.cameras[cid],current.cameras[cid];depth,reasons=sensor_ray_depth(prior_points,old,p)
++                        known=np.isfinite(depth);funnel['all_source_points']+=len(p);funnel['reliable_sparse_source_depth']+=int(known.sum())
++                        funnel.update(reasons.tolist())
++                        initializer=p.copy()
++                        if known.any():initializer[known],_,_,_=project_source_depth(old,new,p[known],depth[known])
++                        in_view=known&np.isfinite(initializer).all(1)&(initializer[:,0]>=0)&(initializer[:,0]<new.image.shape[1])&(initializer[:,1]>=0)&(initializer[:,1]<new.image.shape[0])
++                        initializer=np.where(in_view[:,None],initializer,p)
++                        oq,of,ov=lk_measure(gray_image(old),gray_image(new),p,config,initializer)
++                        ov&=in_view
++                        rawq=np.asarray(m.get('raw_points',m['current_points']),float)
++                        rawfb=np.asarray(m.get('raw_fb_error_px',m['fb_error_px']),float)
++                        rawvalid=np.asarray(m.get('raw_valid',m['correspondence_valid']),bool)
++                        candidates=dict(baseline=evaluate(old,new,p,rawq,rawfb,rawvalid,config),rgb_depth=m,
++                            oracle_depth=evaluate(old,new,p,oq,of,ov,config))
++                        funnel['oracle_initialized']+=int(in_view.sum());funnel['oracle_FB_valid']+=int(ov.sum())
++                        # Reconstruct the unchanged historical dynamic/occlusion
++                        # rejection footprint from the committed online trace.
++                        exclusion=np.zeros(new.image.shape[:2],bool)
++                        from worldstream.m1.geometry import region_slices
++                        for a in row['precheck']['diagnostics'].get('anchors',{}).values():
++                            view=a['cameras'].get(cid,{})
++                            dynamic=a['anchor_type']=='object' and a.get('motion_hypothesis')!='static_class_prior'
++                            occlusion=view.get('evidence',{}).get('observation_funnel',{}).get('projected_occlusion',{}).get('passed') is False
++                            region=view.get('predicted_region')
++                            if region is not None and (dynamic or occlusion):exclusion[region_slices(region,exclusion.shape)]=True
++                        for name,original in list(candidates.items()):
++                            measured=dict(original)
++                            xy=np.rint(np.asarray(measured['current_points'])).astype(int)
++                            xy[:,0]=np.clip(xy[:,0],0,exclusion.shape[1]-1);xy[:,1]=np.clip(xy[:,1],0,exclusion.shape[0]-1)
++                            measured['observation_supported_after_exclusion']=(np.asarray(measured['patch_supported'],bool)&~exclusion[xy[:,1],xy[:,0]]).tolist()
++                            # local dict below is consumed independently; source
++                            # JSON and online states remain byte-for-byte intact.
++                            candidates[name]=measured
++                        for name,measured in candidates.items():
++                            # Score exactly the same source population in all arms;
++                            # missing oracle references remain unknown, never removed.
++                            scored=score_points(reference[cid],measured)
++                            anchored=score_source_anchored(reference[cid],measured)
++                            for j,r in enumerate(scored):
++                                r.update(arm=name,camera=cid,source_frame=previous.frame_id,current_frame=token,
++                                    oracle_reference_available=bool(known[j]),oracle_reference_reason=str(reasons[j]),
++                                    additional_source_anchored_score=anchored[j]['score'],
++                                    additional_source_anchored_error_px=anchored[j]['correspondence_error_px'])
++                                if name=='oracle_depth' and not known[j]:r.update(score='unscorable',measured=False,observation_supported=False)
++                                log.write(json.dumps(r)+'\n')
++                            population[name]+=scored
++                previous=current;prior_points=sensor
++        summary=dict(scene_id=scene,funnel=dict(funnel),arms={})
++        for name,scored in population.items():
++            summary['arms'][name]=dict(all_source_tracks=counts(scored),
++                measured=counts([r for r in scored if r['measured']]),
++                observation_supported=counts([r for r in scored if r['observation_supported']]),
++                additional_source_anchored_measured=counts([dict(r,score=r['additional_source_anchored_score']) for r in scored if r['measured']]),
++                common_sparse_reference=counts([r for r in scored if r['oracle_reference_available'] and r['measured']]),
++                common_reference_source_denominator=sum(r['oracle_reference_available'] for r in scored))
++            totals[name]+=scored
++        summaries.append(summary);(folder/'metrics.json').write_text(json.dumps(summary,indent=2)+'\n')
++        print(scene,summary['funnel'],flush=True)
++    micro={name:dict(all_source_tracks=counts(xs),measured=counts([r for r in xs if r['measured']]),
++        observation_supported=counts([r for r in xs if r['observation_supported']]),
++        additional_source_anchored_measured=counts([dict(r,score=r['additional_source_anchored_score']) for r in xs if r['measured']]),
++        common_sparse_reference=counts([r for r in xs if r['oracle_reference_available'] and r['measured']]),
++        common_reference_source_denominator=sum(r['oracle_reference_available'] for r in xs)) for name,xs in totals.items()}
++    (out/'summary.json').write_text(json.dumps(dict(scenes=summaries,micro=micro,
++        macro={name:distribution([s['arms'][name]['measured']['correspondence_accuracy'] for s in summaries]) for name in totals},
++        no_online_state_or_certificate_modified=True,anchor_support_counterfactual='Not Run: low-level offline correspondence diagnostic does not commit or certify Anchors'),indent=2)+'\n')
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
++    a=p.parse_args();cv2.setNumThreads(1);run(a.root,a.output)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/source_anchored_scoring.py b/tools/worldstream_m1/source_anchored_scoring.py
+new file mode 100644
+index 0000000..b8b48a8
+--- /dev/null
++++ b/tools/worldstream_m1/source_anchored_scoring.py
+@@ -0,0 +1,30 @@
++"""Additional OFFLINE diagnostic; does not replace the original target scorer.
++
++Choose sparse two-frame reference by SOURCE pixel, so a wrong target cannot
++select a convenient reference. Same 1px sparse radius and 2px error threshold;
++local displacement approximation and sparse sensor/rigid-motion limitations
++remain. All absent/ambiguous references stay Unknown, on a shared source set.
++"""
++import numpy as np
++from scipy.spatial import cKDTree
++
++
++def score_source_anchored(reference,measurements):
++    p=np.asarray(measurements['source_points'],float)
++    q=np.asarray(measurements['current_points'],float)
++    ids=np.flatnonzero(reference['scorable'])
++    rows=[dict(index=j,score='unscorable',correspondence_error_px=None,
++               reason='no_sparse_source_reference') for j in range(len(p))]
++    if not len(ids):return rows
++    tree=cKDTree(reference['source_uv'][ids]);distance,index=tree.query(p)
++    for j in np.flatnonzero(distance<=1.):
++        i=ids[index[j]];near=ids[tree.query_ball_point(p[j],1.)]
++        predictions=reference['target_uv'][near]+p[j]-reference['source_uv'][near]
++        if (len(predictions)>1 and np.linalg.norm(predictions-predictions[0],axis=1).max()>2.):
++            rows[j]['reason']='ambiguous_sparse_source_surfaces';continue
++        target=reference['target_uv'][i]+p[j]-reference['source_uv'][i]
++        error=float(np.linalg.norm(q[j]-target))
++        if not np.isfinite(error):continue
++        rows[j].update(score='correct' if error<=2. else 'wrong',correspondence_error_px=error,
++                       reason='both_frames_sparse_source_anchored')
++    return rows
+diff --git a/tools/worldstream_m1/history_recovery_experiment.py b/tools/worldstream_m1/history_recovery_experiment.py
+new file mode 100644
+index 0000000..7ec581f
+--- /dev/null
++++ b/tools/worldstream_m1/history_recovery_experiment.py
+@@ -0,0 +1,61 @@
++"""M1.2.1 predeclared fixed cohort, followed by deterministic expansion.
++
++Uses the existing M1 CPU replay, never a new inference runtime or executor.
++"""
++import argparse
++import json
++import pickle
++from pathlib import Path
++from .effective_acceptance import replay,sha,source_manifest
++from .scene_protocol import select_scenes
++from .dataset import log_context_from_root
++
++VARIANTS=('baseline','old_b','a','b','c','aligned')
++
++
++def freeze(output):
++    out=Path(output);out.mkdir(parents=True,exist_ok=False)
++    prior=Path('outputs/m12_ego_motion_20261020/run03/frozen_protocol.json')
++    old=json.loads(prior.read_text())
++    with open(old['source_info'],'rb') as f:infos=pickle.load(f)['infos']
++    detection='outputs/module1_evidence_optimization/model_observations.pkl'
++    with open(detection,'rb') as f:outputs=pickle.load(f)
++    sequences,selection=select_scenes(infos,set(outputs),0,12,log_context_from_root('data/nuscenes'))
++    fixed=old['selected_scene_ids'];expanded=sorted(set(sequences)-set(fixed))[:2]
++    configs={v:dict(path=f'configs/worldstream_m121_{v}.yaml',sha256=sha(f'configs/worldstream_m121_{v}.yaml')) for v in VARIANTS}
++    spec=dict(frozen_before_evaluation=True,online_GT=False,qualification_population=False,
++        fixed_scene_ids=fixed,expanded_scene_ids=expanded,frames=12,repeats=2,
++        expansion_rule='After fixed regression, two lexicographically first available scenes outside fixed M1.2 cohort; no result/label selection',
++        variants=configs,expanded_variants=['baseline','c','aligned'],
++        old_fixed_protocol=str(prior),old_fixed_protocol_sha256=sha(prior),
++        selection=selection,source_sha256=source_manifest(),
++        full_model_target_ids=old['GPU_target_scene_ids'],
++        scripts_sha256={str(p):sha(p) for p in Path('tools/worldstream_m1').glob('*.py')},
++        m2_enabled=False,m3_enabled=False,execution_mode='observe_only')
++    (out/'frozen_protocol.json').write_text(json.dumps(spec,indent=2)+'\n')
++
++
++def run(root,cohort,variant):
++    root=Path(root);spec=json.loads((root/'frozen_protocol.json').read_text())
++    if spec['source_sha256']!=source_manifest():raise ValueError('Frozen online source changed')
++    if variant not in spec['variants']:raise ValueError('Unknown frozen variant')
++    if cohort=='expanded':
++        if variant not in spec['expanded_variants']:raise ValueError('Variant not scheduled in expansion')
++        for v in spec['variants']:
++            s=json.loads((root/'fixed'/v/'summary.json').read_text())
++            if not s['reproduced'] or not s['source_unchanged']:raise ValueError('Fixed cohort incomplete or failed reproducibility')
++    config=spec['variants'][variant]
++    if sha(config['path'])!=config['sha256']:raise ValueError('Frozen config changed')
++    replay(root/cohort/variant,12,0,config['path'],2,spec[cohort+'_scene_ids'])
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['freeze','run'])
++    p.add_argument('--output',required=True);p.add_argument('--cohort',choices=['fixed','expanded'])
++    p.add_argument('--variant',choices=VARIANTS)
++    a=p.parse_args()
++    if a.action=='freeze':freeze(a.output)
++    else:run(a.output,a.cohort,a.variant)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/history_recovery_metrics.py b/tools/worldstream_m1/history_recovery_metrics.py
+new file mode 100644
+index 0000000..7586820
+--- /dev/null
++++ b/tools/worldstream_m1/history_recovery_metrics.py
+@@ -0,0 +1,91 @@
++"""Read-only M1.2.1 depth/candidate/search funnels; independent scene summaries."""
++import argparse
++from collections import Counter,defaultdict
++import json
++from pathlib import Path
++import numpy as np
++from .effective_acceptance import sha
++from .scene_protocol import ratio,distribution
++
++
++def run(root,output):
++    root=Path(root);out=Path(output);out.mkdir(parents=True,exist_ok=False)
++    all_counts=Counter();all_dist=defaultdict(list);summaries=[]
++    traces=sorted((root/'scenes').glob('*/repeat_0.jsonl')) or sorted((root/'scenes').glob('*/m1_state.jsonl'))
++    for trace in traces:
++        scene=trace.parent.name;folder=out/scene;folder.mkdir();counts=Counter();values=defaultdict(list);reasons=Counter();statuses=Counter()
++        def collect(name,x):
++            a=np.asarray([] if x is None else x,float).ravel();values[name].extend(a[np.isfinite(a)].tolist())
++        with (folder/'frame_camera_funnel.jsonl').open('w') as audit,trace.open() as stream:
++            for line in stream:
++                row=json.loads(line);p,c,s=row['precheck'],row['commit'],row['committed_state'];counts['frames']+=1
++                assert p['diagnostics']['transaction_status']==s['transaction_status']=='committed'
++                search=c.get('search_motion',{});statuses['search_'+search.get('status','Not Run')]+=1
++                for k in ('attempts','generated','new_edges'):counts['dynamic_search_'+k]+=search.get(k,0)
++                for h in search.get('hypotheses',{}).values():
++                    reasons['search_'+h['reason']]+=1
++                    if h['status']=='search_only':collect('search_uncertainty_m',[h['uncertainty_m']])
++                for proposal in c['identity_continuity_proposals']:
++                    source=search.get('hypotheses',{}).get(proposal['anchor_id'],{})
++                    if source.get('status')=='search_only':
++                        counts['search_source_identity_edges']+=1
++                        counts['search_source_identity_candidates']+=proposal['status']=='candidate'
++                    for view in proposal['measurements'].get('views',[]):
++                        m=view.get('ego_motion',{});f=m.get('candidate_funnel',{})
++                        for k,v in f.get('dynamic_search',{}).items():counts['dynamic_image_'+k]+=v
++                        if f.get('dynamic_search',{}).get('selected',0):
++                            counts['dynamic_selected_supported_identity_views']+=view['status']=='supported'
++                            counts['dynamic_selected_candidate_identity_edges']+=proposal['status']=='candidate'
++                for cid,e in p['diagnostics'].get('temporal_evidence',{}).items():
++                    counts['historical_camera_pairs']+=1
++                    h=e.get('depth_feature_seeding',{});g=e.get('ego_motion',{});association=g.get('depth_association',{})
++                    m=e.get('point_measurements',{})
++                    for k in ('redetected_points','depth_records','retained_points','duplicate_or_near_existing'):counts[k]+=h.get(k,0)
++                    statuses['depth_retention_'+h.get('status','Not Run')]+=1
++                    for k in ('records','query_points','within_radius','ambiguous','duplicate','one_to_one'):counts['depth_association_'+k]+=association.get(k,0)
++                    if association:collect('depth_nearest_distance_px',association.get('nearest_distance_px'))
++                    for k in ('points','bidirectional_points','geometric_points','supported_points','supported_points_after_exclusion'):counts[k]+=e.get(k,0)
++                    for name,stages in e.get('candidate_funnel',{}).items():
++                        for k,v in stages.items():counts['candidate_'+name+'_'+k]+=v
++                    for k in ('seed_recovered','initialization_conflict'):
++                        counts[k]+=int(np.asarray(m.get(k,[]),bool).sum())
++                    for k in ('prediction_spread_px','prediction_residual_px','raw_fb_error_px','fb_error_px','source_depth_m'):
++                        collect(k,m.get(k))
++                    collect('depth_uncertainty_m',g.get('depth_uncertainty_m'))
++                    audit.write(json.dumps(dict(frame_id=p['frame_id'],timestamp=p['timestamp'],camera_id=cid,
++                        seeding=h,depth_association={k:v for k,v in association.items() if not isinstance(v,list)},
++                        candidate_funnel=e.get('candidate_funnel',{}),post_exclusion_supported=e.get('supported_points_after_exclusion',0),
++                        reason=e.get('reason'),depth_matching_state='Not Run' if not association else 'no_candidates' if not association.get('records') else 'passed' if association.get('one_to_one') else 'all_rejected'))+'\n')
++                for h in s.get('depth_history',{}).values():
++                    counts['generated_depth_records']+=h.get('points',0)
++                    collect('triangulation_parallax_deg',h.get('parallax_deg'));collect('triangulation_reprojection_px',h.get('reprojection_px'))
++                for a in p['diagnostics'].get('anchors',{}).values():
++                    for v in a['cameras'].values():
++                        aligned=v.get('evidence',{}).get('aligned_observation',{})
++                        if aligned:
++                            reasons['alignment_'+aligned.get('reason','not_applicable')]+=1
++                            counts['alignment_measured_views']+=aligned.get('status')=='measured'
++                            collect('aligned_descriptor_residual',[aligned.get('descriptor_residual')])
++        def ratios(c):
++            return dict(depth_match_rate=ratio(c['depth_association_one_to_one'],c['depth_association_query_points']),
++                retained_ray_rate=ratio(c['retained_points'],c['depth_records']),local_support_rate=ratio(c['supported_points'],c['points']),
++                post_exclusion_support_rate=ratio(c['supported_points_after_exclusion'],c['points']),
++                dynamic_generation_rate=ratio(c['dynamic_search_generated'],c['dynamic_search_attempts']),
++                dynamic_image_selection_rate=ratio(c['dynamic_image_selected'],c['dynamic_image_attempted']))
++        summary=dict(scene_id=scene,counts=dict(counts),ratios=ratios(counts),statuses=dict(statuses),reasons=dict(reasons),
++            distributions={k:distribution(v) for k,v in values.items()},trace_sha256=sha(trace))
++        (folder/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');summaries.append(summary);all_counts.update(counts)
++        for k,v in values.items():all_dist[k]+=v
++    result=dict(scenes=summaries,micro=dict(counts=dict(all_counts),ratios=ratios(all_counts),
++        distributions={k:distribution(v) for k,v in all_dist.items()}),
++        macro={k:distribution([s['ratios'][k] for s in summaries]) for k in summaries[0]['ratios']},
++        no_formal_claim_from_search=True,script_sha256=sha(__file__))
++    (out/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
++    a=p.parse_args();run(a.root,a.output)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/postprocess_history_recovery.py b/tools/worldstream_m1/postprocess_history_recovery.py
+new file mode 100644
+index 0000000..622625f
+--- /dev/null
++++ b/tools/worldstream_m1/postprocess_history_recovery.py
+@@ -0,0 +1,39 @@
++"""Offline read-only evaluation of completed, independently committed runs."""
++import argparse
++import json
++from pathlib import Path
++import subprocess
++import sys
++import time
++
++
++def run(root,cohort):
++    root=Path(root);variants=('baseline','old_b','a','b','c','aligned') if cohort=='fixed' else ('baseline','c','aligned')
++    remaining=list(variants)
++    while remaining:
++        ready=[v for v in remaining if (root/cohort/v/'summary.json').is_file()]
++        if not ready:time.sleep(5);continue
++        for variant in ready:
++            source=root/cohort/variant;out=root/(cohort+'_evaluation')/variant;out.mkdir(parents=True,exist_ok=False)
++            summary=json.loads((source/'summary.json').read_text())
++            if not summary['reproduced'] or not summary['source_unchanged']:raise ValueError('Online replay did not validate')
++            jobs=[('history_recovery_metrics','funnel',True),('motion_scoring','correspondence',True),
++                  ('offline_identity_scoring','identity',True),('scene_revalidate','state_ledger.json',False),
++                  ('motion_revalidate','depth_ledger.json',False)]
++            for module,target,is_dir in jobs:
++                command=[sys.executable,'-m','tools.worldstream_m1.'+module,'--root',str(source),'--output',str(out/target)]
++                start=time.time()
++                with (out/(target.replace('.json','')+'.stdout.log')).open('w') as log:
++                    result=subprocess.run(command,stdout=log,stderr=subprocess.STDOUT)
++                receipt=dict(command=command,returncode=result.returncode,wall_seconds=time.time()-start)
++                (out/(target.replace('.json','')+'.receipt.json')).write_text(json.dumps(receipt,indent=2)+'\n')
++                if result.returncode:raise RuntimeError(str(receipt))
++            remaining.remove(variant);print('Evaluated',cohort,variant,flush=True)
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--cohort',choices=['fixed','expanded'],required=True)
++    a=p.parse_args();run(a.root,a.cohort)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/history_recovery_report.py b/tools/worldstream_m1/history_recovery_report.py
+new file mode 100644
+index 0000000..8f098c2
+--- /dev/null
++++ b/tools/worldstream_m1/history_recovery_report.py
+@@ -0,0 +1,148 @@
++"""Reduce completed M1.2.1 evidence, without changing any scoring/acceptance."""
++import argparse
++from collections import Counter
++import csv
++import json
++from pathlib import Path
++import xml.etree.ElementTree as ET
++from .effective_acceptance import sha,source_manifest
++
++
++def read(path):return json.loads(Path(path).read_text())
++def write(path,value):Path(path).write_text(json.dumps(value,indent=2)+'\n')
++
++
++def run(output):
++    out=Path(output);root=out/'main';spec=read(root/'frozen_protocol.json');records=[];micro={};funnel={};evidence={}
++    for cohort,variants in [('fixed',list(spec['variants'])),('expanded',spec['expanded_variants'])]:
++        micro[cohort]={};funnel[cohort]={}
++        for variant in variants:
++            path=root/cohort/variant;s=read(path/'summary.json');e=root/(cohort+'_evaluation')/variant
++            motion=read(e/'correspondence'/'summary.json');identity=read(e/'identity'/'summary.json');f=read(e/'funnel'/'summary.json')
++            assert s['reproduced'] and s['source_unchanged']
++            assert read(e/'state_ledger.json')['all_pass'] and read(e/'depth_ledger.json')['all_pass']
++            micro[cohort][variant]=dict(operational=s['micro'],macro=s['macro'],latency=s['latency_micro'],
++                correspondence=motion['micro'],correspondence_macro=motion['macro'],identity=identity['micro'],identity_macro=identity['macro'],
++                qualification=identity['log_qualification'])
++            funnel[cohort][variant]=dict(micro=f['micro'],macro=f['macro'],scenes=f['scenes'])
++            for x in s['scenes']:
++                sid=x['scene_id'];c=x['counts'];m=next(t for t in motion['scenes'] if t['scene_id']==sid);i=next(t for t in identity['scenes'] if t['scene_id']==sid)
++                supported=m['observation_supported']['counts'];ic=i['counts']
++                records.append(dict(cohort=cohort,variant=variant,scene_id=sid,log_token=x['log_token'],frames=c['frames'],
++                    projection_candidates=c['historical_projection_candidates'],supported_anchors=c['observation_supported_anchor_events'],coverage=x['observation_anchor_coverage'],
++                    identity_candidates=ic['candidates'],identity_total=ic['total_proposals'],identity_correct=ic['candidate_correct'],identity_wrong=ic['candidate_wrong'],identity_unknown=ic['candidate_unscorable'],
++                    observed_points=supported['total'],correct_points=supported['correct'],wrong_points=supported['wrong'],unscorable_points=supported['unscorable'],
++                    certified=c['certified_anchor_events'],e2e_p50_ms=x['latency']['end_to_end_wall_ms']['p50'],e2e_p95_ms=x['latency']['end_to_end_wall_ms']['p95']))
++            evidence[str(path)]=dict(protocol_sha256=sha(path/'protocol.json'),summary_sha256=sha(path/'summary.json'),
++                executed_scenes=s['executed_scene_ids'],unexecuted_scenes=s['unexecuted_scene_ids'],full_dataset_validated=False)
++    write(out/'results_micro_macro.json',micro);write(out/'recovery_funnels.json',funnel);write(out/'executed_unexecuted.json',evidence)
++    with (out/'scene_comparison.csv').open('w') as f:
++        w=csv.DictWriter(f,fieldnames=list(records[0]));w.writeheader();w.writerows(records)
++    tests=ET.parse(out/'regression_gpu.xml');suite=next(tests.iter('testsuite'))
++    test_groups={}
++    for t in tests.iter('testcase'):
++        group=t.attrib['classname'].split('.')[1];d=test_groups.setdefault(group,Counter(total=0,passed=0,failed=0,skipped=0));d['total']+=1
++        d['failed' if t.find('failure') is not None or t.find('error') is not None else 'skipped' if t.find('skipped') is not None else 'passed']+=1
++    write(out/'test_summary.json',dict(final_suite=suite.attrib,groups=test_groups,
++        new_tests=39,initial_sandbox=dict(passed=839,skipped=1,reason='CUDA unavailable; subsequently rerun with real GPU'),
++        historical_command_errors=['First regression invocation used nonexistent tests/worldstream_cross_module; collected 0 tests; corrected to worldstream_m123'],
++        synthetic_tests_are_not_qualification=True))
++    gpu=read(out/'gpu'/'final_verification.json');qual=read(out/'qualification_inventory.json')
++    unchanged=spec['source_sha256']==source_manifest()
++    assert unchanged and gpu['sources_unchanged'] and gpu['all_scene_native_parity']
++    baseline=read(root/'fixed'/'baseline'/'summary.json');old=read('outputs/m12_ego_motion_20261020/run03/baseline/summary.json')
++    legacy=read(root/'fixed'/'old_b'/'summary.json');old_b=read('outputs/m12_ego_motion_20261020/run03/b/summary.json')
++    comparisons=dict(baseline_count_parity=baseline['micro']['counts']==old['micro']['counts'],
++        old_B_count_parity=legacy['micro']['counts']==old_b['micro']['counts'])
++    write(out/'legacy_count_parity.json',comparisons)
++    gates=dict(Gate_A_Operational=dict(status='PASS',scope='8 independent RGB/cache replay scenes and 2 full-model validation scenes; not complete datasets'),
++        Gate_A_Functional=dict(status='FAIL',reason='Multi-scene improvement with preserved independently scorable correspondence quality has not been established'),
++        Gate_B=dict(status='BLOCKED',formal_certified=0,qualification_file=None,risk_limit=.05,confidence=.95,
++            independent_validation_logs=qual['validation_log_units'],best_case_upper_95=qual['best_case_zero_error_upper_95'],actual_risk_upper_95=None),
++        Gate_C=dict(status='PASS',scope='Atomic source/version/depth ledgers, reset/rollback tests; no neural Tensor reuse authorization'),
++        acceptance='部分达标：实现和运行验收已完成；核心功能收益未达标，独立资格阻塞，不进入 M2',
++        source_unchanged=unchanged,m2_enabled=False,m3_enabled=False,execution_mode='observe_only')
++    write(out/'formal_gates.json',gates)
++    lines=['# M1.2.1 历史观测恢复与运动补偿实验','',gates['acceptance'],'',
++        '本轮所有统计来自本目录的新运行。历史 M1.2 只作为冻结场景和旧计数回归参照。原有实验、失败记录与 M2/M3 代码未覆盖。',
++        '',f"最终回归：{suite.attrib['tests']} 项，失败 {suite.attrib['failures']}、错误 {suite.attrib['errors']}、跳过 {suite.attrib['skipped']}。各测试结果见 regression_gpu.xml；新增 39 项见 new_tests_final.xml。",'',
++        '固定六场景：每场景独立 manager、store、灰度图像/深度/身份历史、计时与输出；每组12帧、2次重复。使用约0.5秒 keyframe，不是高频视频。先完成固定组回归与离线评估，再执行预声明的两个字典序扩展场景。',
++        '', '场景 | Baseline | 旧 B | A | B | C | C+实测裁剪对齐', '---|---:|---:|---:|---:|---:|---:']
++    for sid in spec['fixed_scene_ids']:
++        cells=[]
++        for v in spec['variants']:
++            r=next(x for x in records if x['cohort']=='fixed' and x['variant']==v and x['scene_id']==sid)
++            cells.append(f"{r['supported_anchors']}/{r['projection_candidates']}")
++        lines.append(sid+' | '+' | '.join(cells))
++    lines+=['','上表为有效历史 Anchor / 历史投影候选；原始比率分母保持不变，新增实测深度点同样参与局部支持分母，未删除难样本。', '',
++        '扩展场景 | Baseline | C | C+实测裁剪对齐','---|---:|---:|---:']
++    for sid in spec['expanded_scene_ids']:
++        cells=[]
++        for v in spec['expanded_variants']:
++            r=next(x for x in records if x['cohort']=='expanded' and x['variant']==v and x['scene_id']==sid)
++            cells.append(f"{r['supported_anchors']}/{r['projection_candidates']}")
++        lines.append(sid+' | '+' | '.join(cells))
++    lines+=['','逐场景对应评分、身份正确/错误/不可评分、时延及正式认证数量见 scene_comparison.csv；所有 Micro/Macro、场景均值/中位数/分位数及差异保存在 results_micro_macro.json 和各组 summary.json。未执行场景逐一列于 executed_unexecuted.json，未声称全数据集验证。','',
++        '组别 | Anchor 支持率 Micro | Macro 均值 | 对应正确/错误/不可评分（排除后） | 身份候选正确/错误/不可评分 | E2E P50/P95 ms','---|---:|---:|---:|---:|---:']
++    for cohort,variants in [('fixed',list(spec['variants'])),('expanded',spec['expanded_variants'])]:
++        for v in variants:
++            x=micro[cohort][v];c=x['operational']['counts'];m=x['correspondence']['observation_supported']['counts'];i=x['identity']['counts'];lat=x['latency']['end_to_end_wall_ms']
++            avg=x['macro']['observation_anchor_coverage']['mean']
++            lines.append(f"{cohort}/{v} | {c['observation_supported_anchor_events']}/{c['historical_projection_candidates']} | {avg:.6f} | {m['correct']}/{m['wrong']}/{m['unscorable']} | {i['candidate_correct']}/{i['candidate_wrong']}/{i['candidate_unscorable']} | {lat['p50']:.1f}/{lat['p95']:.1f}")
++    lines+=['','延迟为实际运行观测值，CPU 多组实验和 GPU 验证有并行时段，墙钟差值受资源竞争影响；不据此宣称加速。m1_cpu_process_ms 含各线程 CPU 开销；完整逐帧 Precheck/Commit/CPU/E2E 及 P50/P95 保存在各组 summary.json。', '',
++        '核心改动和调用链：真实 RGB/位姿/标定输入 → 原有来源与历史验证 → 保留 GFT 原始点并追加此前真实跟踪深度点 → raw/rotation/depth 统一完整验证后选择 → 原有静态几何/遮挡/Anchor 支持门 → 可选的实测仿射裁剪描述子 → 提交当前模型感知 → 独立资格门 → 原子发布状态及下一帧深度历史。当前帧生成的深度只供下一帧使用。', '',
++        '此前已有世界坐标投影、相对相机极线验证及 RGB 三角化；新增的是持久实测像素关联、双视图轴向扰动深度区间、多候选完整必要门后消歧、暂定运动搜索和离线 Oracle。没有用全局单应解释不同深度。实测仿射仅在空间分布、留出点误差、纹理、描述子和原有独立可见性门全部通过时提供裁剪观察支持，不认证前景归属或静止性。', '',
++        '深度记录绑定 scene/frame/log/epoch/execution/commit version 和相机图像/位姿/K/映射摘要。原子提交失败不发布新深度，场景切换清空深度和身份历史。每帧每相机漏斗和拒绝原因见 main/*_evaluation/*/funnel；逐 Anchor 相机原始检查和图像保存在各组 scenes。', '',
++        '搜索运动读取同场景前三次真实提交中心和版本链，不读取检测速度/GT；方向变化、关联歧义、时间异常或不确定性过大保持 Unknown。仅候选边和 LK 初始化读取假设；identity_tracking_policy 强制 shadow，普通关联、可信速度、正式运动历史和资格门不因搜索成功改变。world_motion.py 严格条件保留。', '',
++        '深度/候选/运动漏斗详见 recovery_funnels.json。旧 B 的 nearest-match 计数沿用旧诊断命名，不代表新增的一对一歧义验证；新 B/C 才执行一对一检查。恢复数的新定义为 raw 完整必要门未通过而其他候选完整通过，不能直接与旧 LK-only recovered 计数比较。', '',
++        'Oracle 在所有在线帧提交后独立读取源 LiDAR，限定1px近邻、前表面与深度间断检查。共享完全相同源像素人口比较 raw/RGB/独立稀疏深度初始化，缺参考保留 Unknown。没有状态提交或证书调用；main/oracle 保存逐点记录、每场景、Micro/Macro。它是稀疏条件静态诊断，不能保证稠密深度上界，也不反推 Anchor counterfactual 支持（Not Run）。', '',
++        '原 motion_scoring.py 的目标近邻1px、误差2px规则未修改。source_anchored_scoring.py 另行按源像素选独立参考，只在 Oracle 的 additional_source_anchored_measured 中单列，不替换旧评分。稀疏 LiDAR、相机异步和刚体标注近似导致大量 Unknown；不同组可评分子集不同，少量点准确率不具普遍性，不能当作身份准确率或资格风险置信上界。', '',
++        '原生模型对照：两个冻结验证场景各12帧，M1关闭/开启的检测、地图、Planning/语言输出与模型计算摘要一致；见 gpu/final_verification.json、各场景 results.json / language_comparison.json。无 M2/M3 复用、网络跳算或神经 Tensor/KV 复用。', '',
++        f"Gate B：验证集仅 {qual['validation_log_units']} 个独立日志，零错误最佳单侧95%上界仍为 {qual['best_case_zero_error_upper_95']:.6f}，大于0.05。无当前生产者资格文件、无正式接受人口，实际风险及上界为 null。59 个独立零错误验证单位的要求未改变；增加同日志场景/帧数不能替代。", '',
++        'Gate_A_Operational PASS（已执行范围）；Gate_A_Functional FAIL（尚未建立多场景覆盖及质量收益）；Gate_B BLOCKED；Gate_C PASS（状态来源/版本/失效接口）。不进入 M2。', '',
++        '复现：taskset -c 0-3,6-31 bash outputs/m121_history_recovery_20261020/reproduce.sh outputs/m121_reproduce_NEW。必须使用新目录；全部命令使用 OmniDrive 解释器并避开 CPU4/5。GPU命令仅在空闲时运行，不停止其他任务。', '',
++        '初次回归命令误写跨模块目录，收集0项并失败，保留 regression_initial.log/xml；修正目录后839通过、CUDA一项跳过，之后在真实 GPU 环境完整重跑。探索 smoke 为3帧，只作工具调试，不加入固定组或资格统计。', '',
++        '剩余最小修复：为零覆盖场景逐项解决深度/遮挡/描述子和空间支持的必要证据缺口；对大不确定性运动假设收集真实可验证轨迹及独立不确定性校准，不能直接放宽像素预算；获取更多独立日志与更密集可评分对应，再验证覆盖增益与错误关联变化。']
++    lines+=['','固定组深度及搜索完整漏斗（每个比率的原始分子/分母见 recovery_funnels.json）：','',
++        '组别 | 追加实测点 | 深度匹配/查询 | depth 尝试/完整支持/选中 | raw 完整门失败后的恢复 | 运动假设/尝试 | 动态图像尝试/选中',
++        '---|---:|---:|---:|---:|---:|---:']
++    for v in spec['variants']:
++        c=funnel['fixed'][v]['micro']['counts']
++        def n(k):return c.get(k,0)
++        depth='Not Run' if v in ('baseline','a') else f"{n('depth_association_one_to_one')}/{n('depth_association_query_points')}"
++        lines.append(f"{v} | {n('retained_points')} | {depth} | {n('candidate_depth_attempted')}/{n('candidate_depth_local_supported')}/{n('candidate_depth_selected')} | {n('seed_recovered')} | {n('dynamic_search_generated')}/{n('dynamic_search_attempts')} | {n('dynamic_image_attempted')}/{n('dynamic_image_selected')}")
++    lines+=['','Oracle（固定六场景同一源像素人口；数字为完整局部验证后，非身份或 Anchor 准确率）：','',
++        '方案 | 完整局部验证 | 原评分正确/错误/不可评分 | 源锚定另评分正确/错误/不可评分 | 共享稀疏源深度分母',
++        '---|---:|---:|---:|---:']
++    oracle=read(root/'oracle'/'summary.json')
++    for arm,x in oracle['micro'].items():
++        a=x['measured']['counts'];b=x['additional_source_anchored_measured']['counts']
++        lines.append(f"{arm} | {a['total']} | {a['correct']}/{a['wrong']}/{a['unscorable']} | {b['correct']}/{b['wrong']}/{b['unscorable']} | {x['common_reference_source_denominator']}")
++    lines+=['','Oracle 全部源像素数相同；上表完整支持后人口不同，公平的共享参考子集计数另保留 common_sparse_reference；不能把其比率差异解释为普遍准确性或统计显著收益。', '',
++        '修改文件及目的：','',
++        '| 文件 | 目的 |','|---|---|',
++        '| worldstream/m1/config.py | 新功能显式 opt-in；搜索只允许 temporal shadow；旧配置默认行为保留 |',
++        '| worldstream/m1/ego_motion.py | 唯一实际像素深度关联、轴向扰动区间、raw/rotation/depth/search 实测候选 |',
++        '| worldstream/m1/correspondence_recovery.py（新） | 保留所有原始角点，追加真实深度轨迹；统一完整必要门选择、留出实测裁剪对齐 |',
++        '| worldstream/m1/search_motion.py（新） | 已提交暂定中心的短时搜索假设；不写可信速度或证书 |',
++        '| worldstream/m1/temporal_visibility.py | 接入真实深度轨迹与多候选诊断，继续原有后置遮挡和支持门 |',
++        '| worldstream/m1/identity_temporal.py | 在有限身份视图中消费搜索初始化和深度轨迹，保留竞争与周期检查 |',
++        '| worldstream/m1/observation_validator.py | 可选实测裁剪对齐；同一描述子阈值和独立可见性门 |',
++        '| worldstream/m1/state_manager.py | 只扩展影子身份搜索候选，真实历史原子维护及诊断导出 |',
++        '| configs/worldstream_m121_baseline.yaml、worldstream_m121_old_b.yaml、worldstream_m121_a.yaml、worldstream_m121_b.yaml、worldstream_m121_c.yaml、worldstream_m121_aligned.yaml | 六组冻结设置，门限一致，无独立资格文件 |',
++        '| tests/worldstream_m1/test_history_recovery.py（新） | 39项真实测量/合成几何/来源/歧义/事务/搜索隔离/Oracle数据流测试 |',
++        '| tools/worldstream_m1/history_recovery_experiment.py（新） | 冻结同M1.2场景及预声明扩展，调用既有实验回放 |',
++        '| tools/worldstream_m1/history_recovery_metrics.py（新） | 独立场景深度、候选、运动漏斗与 Micro/Macro |',
++        '| tools/worldstream_m1/depth_oracle_diagnosis.py（新） | 提交之后的纯离线稀疏深度初始化对照，不调用 manager/commit/certificate |',
++        '| tools/worldstream_m1/source_anchored_scoring.py（新） | 单列源锚定稀疏评分，不替换既有规则 |',
++        '| tools/worldstream_m1/postprocess_history_recovery.py（新） | 已完成提交的既有独立评分、状态和深度账本验证 |',
++        '| tools/worldstream_m1/history_recovery_report.py（新） | 从完成的原始证据汇总交付，不改变评分/接受 |',
++        '| outputs/m121_history_recovery_20261020/ | 新实验及复现脚本、代码摘要、逐项测试和失败记录；不覆盖历史结果 |']
++    (out/'experiment_report.md').write_text('\n'.join(lines)+'\n')
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',required=True);a=p.parse_args();run(a.output)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/history_recovery_cases.py b/tools/worldstream_m1/history_recovery_cases.py
+new file mode 100644
+index 0000000..1697411
+--- /dev/null
++++ b/tools/worldstream_m1/history_recovery_cases.py
+@@ -0,0 +1,63 @@
++"""Draw actual candidate LK measurements; prediction markers are not truth."""
++import argparse
++import json
++from pathlib import Path
++import pickle
++import cv2
++import numpy as np
++from .dataset import frame_from_info
++from .effective_acceptance import sha
++
++
++def run(root,output):
++    root=Path(root);out=Path(output);out.mkdir(parents=True,exist_ok=False)
++    protocol=json.loads((root/'protocol.json').read_text())
++    with open(protocol['infos_path'],'rb') as f:infos={i['token']:i for i in pickle.load(f)['infos']}
++    manifest=[]
++    for trace in sorted((root/'scenes').glob('*/repeat_0.jsonl')):
++        previous=None;selected=set();folder=out/trace.parent.name;folder.mkdir()
++        with trace.open() as stream:
++            for line in stream:
++                row=json.loads(line);token=row['precheck']['frame_id']
++                if previous is not None and len(selected)<3:
++                    old,new=frame_from_info(infos[previous],'data/nuscenes'),frame_from_info(infos[token],'data/nuscenes')
++                    for cid,e in row['precheck']['diagnostics'].get('temporal_evidence',{}).items():
++                        m=e.get('point_measurements',{});candidates=m.get('candidates',{})
++                        if not candidates:continue
++                        p=np.asarray(m['source_points'],float);chosen=np.asarray(m['selected_candidate'],object)
++                        for kind in ('recovered','ambiguous','quality_rejected'):
++                            if kind in selected:continue
++                            raw=candidates['raw']
++                            mask=(np.asarray(m['seed_recovered'],bool) if kind=='recovered' else chosen=='ambiguous' if kind=='ambiguous'
++                                  else np.asarray(raw['lk_valid'],bool)&~np.asarray(raw['fully_supported'],bool))
++                            indices=np.flatnonzero(mask)
++                            if not len(indices):continue
++                            image=np.concatenate([old.cameras[cid].image,new.cameras[cid].image],axis=1);w=old.cameras[cid].image.shape[1]
++                            entries=[]
++                            for j in indices[:12]:
++                                source=tuple(np.rint(p[j]).astype(int));cv2.circle(image,source,3,(255,255,255),1)
++                                for number,(name,c) in enumerate(candidates.items()):
++                                    if not c['lk_valid'][j]:continue
++                                    q=np.asarray(c['points'][j],float)
++                                    if not np.isfinite(q).all():continue
++                                    target=tuple(np.rint(q+[w,0]).astype(int));color=((0,240,0) if c['fully_supported'][j] else (255,100,0))
++                                    cv2.line(image,source,target,color,1);cv2.circle(image,target,3+number,color,1)
++                                    entries.append(dict(index=int(j),candidate=name,fully_supported=c['fully_supported'][j],
++                                        measured_point=q.tolist(),FB_error_px=c['fb_error_px'][j],patch_residual=c['patch_residual'][j],
++                                        geometry_valid=c['geometry_valid'][j]))
++                            cv2.putText(image,kind+'; actual LK measurements only; green full gates/orange rejected; correctness Unknown',(8,18),cv2.FONT_HERSHEY_SIMPLEX,.4,(255,255,255),1)
++                            path=folder/(kind+'.png');cv2.imwrite(str(path),cv2.cvtColor(image,cv2.COLOR_RGB2BGR));selected.add(kind)
++                            manifest.append(dict(scene_id=trace.parent.name,source_frame=previous,current_frame=token,camera=cid,
++                                kind=kind,path=str(path),sha256=sha(path),measurements=entries,identity_or_correctness_claim=False))
++                previous=token
++        for kind in set(('recovered','ambiguous','quality_rejected'))-selected:
++            manifest.append(dict(scene_id=trace.parent.name,kind=kind,status='No qualifying measured case'))
++    (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
++    a=p.parse_args();run(a.root,a.output)
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m1/search_motion_revalidate.py b/tools/worldstream_m1/search_motion_revalidate.py
+new file mode 100644
+index 0000000..798ac90
+--- /dev/null
++++ b/tools/worldstream_m1/search_motion_revalidate.py
+@@ -0,0 +1,83 @@
++"""Reconstruct search hypotheses and pixel rejection budgets from prior commits.
++
++No labels, certificates or state updates. This also audits the zero-attempt
++case, rather than treating a configured dynamic arm as an activated tracker.
++"""
++import argparse
++from collections import Counter
++import json
++from pathlib import Path
++import pickle
++import numpy as np
++from .dataset import frame_from_info
++from .effective_acceptance import sha
++from .scene_protocol import distribution,ratio
++from worldstream.m1 import M1Config
++from worldstream.m1.ego_motion import project_source_depth
++from worldstream.m1.geometry import project_points
++
++
++def run(root,output):
++    root=Path(root);out=Path(output);out.mkdir(parents=True,exist_ok=False)
++    protocol=json.loads((root/'protocol.json').read_text());config=M1Config.load(protocol['config'])
++    with open(protocol['infos_path'],'rb') as f:infos={i['token']:i for i in pickle.load(f)['infos']}
++    summaries=[];pooled=Counter();all_u=[]
++    for trace in sorted((root/'scenes').glob('*/repeat_0.jsonl')):
++        known={};counts=Counter();values=[];previous=None;old_frame=None
++        with (out/(trace.parent.name+'.jsonl')).open('w') as audit,trace.open() as stream:
++            for line in stream:
++                row=json.loads(line);p,c,s=row['precheck'],row['commit'],row['committed_state']
++                hypotheses=c.get('search_motion',{}).get('hypotheses',{})
++                current=frame_from_info(infos[p['frame_id']],'data/nuscenes')
++                for aid,h in hypotheses.items():
++                    if h['status']!='search_only':continue
++                    assert not h['qualified'] and not h['identity_claim'] and not h['metric_geometry_claim']
++                    witnesses=[known[(w['frame_id'],aid)] for w in h['sources']]
++                    for w,a in zip(h['sources'],witnesses):
++                        assert w['state_version']==a['state_version'] and w['epoch']==a['source_epoch']
++                        assert w['execution_signature']==a['execution_signature']
++                    times=np.array([a['source_timestamp'] for a in witnesses]);centers=np.array([a['center_world'] for a in witnesses])
++                    v=np.diff(centers,axis=0)/np.diff(times)[:,None];dt=p['timestamp']-times[-1]
++                    u=config.velocity_uncertainty_mps*dt+np.linalg.norm(v[-1]-v[-2])*dt
++                    assert h['source_state_version']==witnesses[-1]['state_version']
++                    assert np.allclose(h['velocity_world'],v[-1]) and np.allclose(h['center_world'],centers[-1]+v[-1]*dt)
++                    assert np.isclose(u,h['uncertainty_m']) and times[-1]<p['timestamp'];counts['reconstructed_prior_hypotheses']+=1
++                for prop in c['identity_continuity_proposals']:
++                    h=hypotheses.get(prop['anchor_id'],{})
++                    if h.get('status')!='search_only':continue
++                    a=known[(h['source_frame_id'],prop['anchor_id'])]
++                    for view in prop['measurements']['views']:
++                        m=view.get('ego_motion',{});candidate=m.get('candidates',{}).get('dynamic_search')
++                        if candidate is None:counts['view_not_reached_search_'+view['reason']]+=1;continue
++                        assert old_frame is not None and previous==h['source_frame_id']
++                        cid=view['camera'];old,new=old_frame.cameras[cid],current.cameras[cid];pixels=np.asarray(m['source_points'],float)
++                        depth=float((old.world_to_camera@np.r_[a['center_world'],1])[2])
++                        _,valid,world,_=project_source_depth(old,new,pixels,np.full(len(pixels),depth))
++                        uv,z,front=project_points(world+np.asarray(h['velocity_world'])*(new.timestamp-old.timestamp),new.intrinsic,new.world_to_camera)
++                        uv[~valid|~front]=np.nan
++                        uncertainty=abs(new.intrinsic[0,0])*h['uncertainty_m']/np.maximum(z,.5)
++                        expected=np.isfinite(uv).all(1)&(uncertainty<=config.search_radius_px)
++                        assert np.array_equal(expected,np.asarray(candidate['attempted'],bool))
++                        finite=np.isfinite(uv).all(1);counts['search_image_points']+=len(pixels)
++                        counts['invalid_camera_projection']+=int((~finite).sum())
++                        counts['uncertainty_exceeds_existing_pixel_budget']+=int((finite&~expected).sum())
++                        counts['actual_image_initialization_attempts']+=int(expected.sum());values+=uncertainty[np.isfinite(uncertainty)].tolist()
++                        audit.write(json.dumps(dict(frame_id=p['frame_id'],source_frame=h['source_frame_id'],source_version=h['source_state_version'],
++                            anchor_id=prop['anchor_id'],camera=cid,total=len(pixels),attempted=int(expected.sum()),
++                            pixel_uncertainty=distribution(uncertainty),existing_budget_px=config.search_radius_px,verified=True))+'\n')
++                for a in s['anchors']:
++                    if a['source_frame_id']==p['frame_id']:known[(p['frame_id'],a['anchor_id'])]=a
++                previous=p['frame_id'];old_frame=current
++        summary=dict(scene_id=trace.parent.name,counts=dict(counts),pixel_uncertainty=distribution(values),all_reconstructions_pass=True,
++            attempt_rate=ratio(counts['actual_image_initialization_attempts'],counts['search_image_points']),trace_sha256=sha(trace))
++        summaries.append(summary);pooled.update(counts);all_u+=values
++    (out/'summary.json').write_text(json.dumps(dict(scenes=summaries,micro=dict(counts=dict(pooled),pixel_uncertainty=distribution(all_u)),
++        all_pass=True,GT_read=False,states_updated=False,script_sha256=sha(__file__)),indent=2)+'\n')
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
++    a=p.parse_args();run(a.root,a.output)
++
++
++if __name__=='__main__':main()

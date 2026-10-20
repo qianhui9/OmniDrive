@@ -111,7 +111,21 @@ class M1Config:
     ego_motion_mode: str = "off"  # off, rotation, depth (conditional prior RGB depth)
     dynamic_motion_prediction: bool = False  # only qualified identity history
 
+    persistent_depth_tracks: bool = False
+    multi_hypothesis_tracking: bool = False
+    search_dynamic_motion: bool = False  # isolated hypotheses, never qualified motion
+    aligned_observation_recovery: bool = False
+
     def __post_init__(self):
+        for key in ('persistent_depth_tracks','multi_hypothesis_tracking','search_dynamic_motion','aligned_observation_recovery'):
+            if type(getattr(self,key)) is not bool:raise ValueError(key+' must be boolean')
+        if self.persistent_depth_tracks and self.ego_motion_mode!='depth':
+            raise ValueError('Persistent depths need depth mode')
+        if self.search_dynamic_motion and (not self.multi_hypothesis_tracking or not self.identity_continuity
+                or self.identity_tracking_policy!='shadow' or not self.identity_method.startswith('temporal')):
+            raise ValueError('Search motion requires measured temporal shadow proposals')
+        if self.aligned_observation_recovery and not self.multi_hypothesis_tracking:
+            raise ValueError('Aligned recovery requires measured multi-hypothesis tracks')
         if self.ego_motion_mode not in ("off", "rotation", "depth"):
             raise ValueError("Invalid ego motion mode")
         if self.ego_motion_mode != "off" and not self.temporal_visibility:

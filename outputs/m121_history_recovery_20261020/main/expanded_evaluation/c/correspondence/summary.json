@@ -1,0 +1,762 @@
+{
+  "scenes": [
+    {
+      "scene_id": "08110c8640454affb5167801442a85fd",
+      "all_tracks": {
+        "counts": {
+          "total": 36951,
+          "correct": 33,
+          "wrong": 170,
+          "unscorable": 36748
+        },
+        "scorable_fraction": 0.005493762009147249,
+        "correspondence_accuracy": 0.1625615763546798
+      },
+      "measured_same_RGB": {
+        "counts": {
+          "total": 1349,
+          "correct": 10,
+          "wrong": 0,
+          "unscorable": 1339
+        },
+        "scorable_fraction": 0.007412898443291327,
+        "correspondence_accuracy": 1.0
+      },
+      "observation_supported": {
+        "counts": {
+          "total": 1283,
+          "correct": 10,
+          "wrong": 0,
+          "unscorable": 1273
+        },
+        "scorable_fraction": 0.00779423226812159,
+        "correspondence_accuracy": 1.0
+      },
+      "strata": {
+        "depth_group": {
+          "far_ge30m": {
+            "counts": {
+              "total": 6,
+              "correct": 6,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "middle_10to30m": {
+            "counts": {
+              "total": 4,
+              "correct": 4,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unknown": {
+            "counts": {
+              "total": 1339,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 1339
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "semantic_class": {
+          "unannotated_background": {
+            "counts": {
+              "total": 10,
+              "correct": 10,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unknown": {
+            "counts": {
+              "total": 1339,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 1339
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "object_motion": {
+          "conditional_static": {
+            "counts": {
+              "total": 10,
+              "correct": 10,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "unknown": {
+            "counts": {
+              "total": 1339,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 1339
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "visibility": {
+          "both_sparse_depth_supported": {
+            "counts": {
+              "total": 10,
+              "correct": 10,
+              "wrong": 0,
+              "unscorable": 0
+            },
+            "scorable_fraction": 1.0,
+            "correspondence_accuracy": 1.0
+          },
+          "sparse_reference_unavailable": {
+            "counts": {
+              "total": 1339,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 1339
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "ego_motion_group": {
+          "translation_ge1m": {
+            "counts": {
+              "total": 1349,
+              "correct": 10,
+              "wrong": 0,
+              "unscorable": 1339
+            },
+            "scorable_fraction": 0.007412898443291327,
+            "correspondence_accuracy": 1.0
+          }
+        }
+      },
+      "prediction_funnel": {
+        "raw_valid": 5149,
+        "recovered": 5,
+        "conflicts": 0,
+        "depth_points": 384,
+        "predicted_points": 36469
+      },
+      "residuals": {
+        "fb_error_px": {
+          "n": 1349,
+          "mean": 0.05834225917450674,
+          "median": 0.021359950304031372,
+          "p05": 0.0035189138725399975,
+          "p95": 0.24425228834152188,
+          "min": 0.00031308416510000825,
+          "max": 0.7432706356048584,
+          "std": 0.09765145602907356
+        },
+        "raw_fb_error_px": {
+          "n": 1349,
+          "mean": 0.4929882162411739,
+          "median": 0.021413778886198997,
+          "p05": 0.0035189138725399975,
+          "p95": 0.25715770721435505,
+          "min": 0.00031308416510000825,
+          "max": 185.5288543701172,
+          "std": 7.793448779319526
+        },
+        "prediction_residual_px": {
+          "n": 1349,
+          "mean": 11.601132052213073,
+          "median": 3.899809756403029,
+          "p05": 0.742341840277745,
+          "p95": 48.8866897274774,
+          "min": 0.12427464058118644,
+          "max": 105.5524735631389,
+          "std": 17.07799682800614
+        },
+        "patch_residual": {
+          "n": 1349,
+          "mean": 0.012404813581706198,
+          "median": 0.01217221561819315,
+          "p05": 0.007663876842707395,
+          "p95": 0.01754692681133747,
+          "min": 0.004748929291963577,
+          "max": 0.02237660624086857,
+          "std": 0.0030412966793426327
+        },
+        "measured_displacement_px": {
+          "n": 1349,
+          "mean": 15.08616004745347,
+          "median": 10.818645755407823,
+          "p05": 3.490805877148972,
+          "p95": 40.90993411385192,
+          "min": 0.3974516982333268,
+          "max": 113.00209162805163,
+          "std": 14.52236689609005
+        },
+        "raw_prediction_residual_px": {
+          "n": 1349,
+          "mean": 11.830998673119,
+          "median": 3.899809756403029,
+          "p05": 0.742341840277745,
+          "p95": 49.009823898483674,
+          "min": 0.12427464058118644,
+          "max": 190.4183586712573,
+          "std": 18.526488214772797
+        },
+        "prediction_uncertainty_px": {
+          "n": 192,
+          "mean": 1.4575884839399933,
+          "median": 1.367177688158155,
+          "p05": 0.9014028113395305,
+          "p95": 2.3175502003468096,
+          "min": 0.4615414733503604,
+          "max": 2.7786822520427794,
+          "std": 0.38767363167147867
+        }
+      }
+    },
+    {
+      "scene_id": "102b894332464704900264216480a8f7",
+      "all_tracks": {
+        "counts": {
+          "total": 66063,
+          "correct": 2,
+          "wrong": 198,
+          "unscorable": 65863
+        },
+        "scorable_fraction": 0.0030274132267683876,
+        "correspondence_accuracy": 0.01
+      },
+      "measured_same_RGB": {
+        "counts": {
+          "total": 20,
+          "correct": 0,
+          "wrong": 0,
+          "unscorable": 20
+        },
+        "scorable_fraction": 0.0,
+        "correspondence_accuracy": null
+      },
+      "observation_supported": {
+        "counts": {
+          "total": 20,
+          "correct": 0,
+          "wrong": 0,
+          "unscorable": 20
+        },
+        "scorable_fraction": 0.0,
+        "correspondence_accuracy": null
+      },
+      "strata": {
+        "depth_group": {
+          "unknown": {
+            "counts": {
+              "total": 20,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 20
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "semantic_class": {
+          "unknown": {
+            "counts": {
+              "total": 20,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 20
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "object_motion": {
+          "unknown": {
+            "counts": {
+              "total": 20,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 20
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "visibility": {
+          "sparse_reference_unavailable": {
+            "counts": {
+              "total": 20,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 20
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        },
+        "ego_motion_group": {
+          "translation_ge1m": {
+            "counts": {
+              "total": 8,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 8
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          },
+          "turn_ge3deg": {
+            "counts": {
+              "total": 12,
+              "correct": 0,
+              "wrong": 0,
+              "unscorable": 12
+            },
+            "scorable_fraction": 0.0,
+            "correspondence_accuracy": null
+          }
+        }
+      },
+      "prediction_funnel": {
+        "raw_valid": 4953,
+        "recovered": 0,
+        "conflicts": 0,
+        "depth_points": 15,
+        "predicted_points": 62671
+      },
+      "residuals": {
+        "fb_error_px": {
+          "n": 20,
+          "mean": 0.07979466028045863,
+          "median": 0.020699632354080677,
+          "p05": 0.005481902393512428,
+          "p95": 0.2945817917585374,
+          "min": 0.00321323424577713,
+          "max": 0.4015876054763794,
+          "std": 0.11599642878860643
+        },
+        "raw_fb_error_px": {
+          "n": 20,
+          "mean": 0.07979466028045863,
+          "median": 0.020699632354080677,
+          "p05": 0.005481902393512428,
+          "p95": 0.2945817917585374,
+          "min": 0.00321323424577713,
+          "max": 0.4015876054763794,
+          "std": 0.11599642878860643
+        },
+        "prediction_residual_px": {
+          "n": 20,
+          "mean": 16.443653998105702,
+          "median": 16.771301012552954,
+          "p05": 3.1907260140270157,
+          "p95": 24.869569757310085,
+          "min": 3.019171214932831,
+          "max": 34.880912291532326,
+          "std": 7.022217205266419
+        },
+        "patch_residual": {
+          "n": 20,
+          "mean": 0.01691708629950881,
+          "median": 0.01711004599928856,
+          "p05": 0.011996787413954735,
+          "p95": 0.02266394952312112,
+          "min": 0.011635123752057552,
+          "max": 0.022691456601023674,
+          "std": 0.0029838733171015123
+        },
+        "measured_displacement_px": {
+          "n": 20,
+          "mean": 25.79431766706969,
+          "median": 33.38564933683524,
+          "p05": 0.45813886989004104,
+          "p95": 34.22525989169761,
+          "min": 0.08432316679478832,
+          "max": 37.38254662933539,
+          "std": 12.271680849529673
+        },
+        "raw_prediction_residual_px": {
+          "n": 20,
+          "mean": 16.443653998105702,
+          "median": 16.771301012552954,
+          "p05": 3.1907260140270157,
+          "p95": 24.869569757310085,
+          "min": 3.019171214932831,
+          "max": 34.880912291532326,
+          "std": 7.022217205266419
+        },
+        "prediction_uncertainty_px": {
+          "n": 2,
+          "mean": 1.2652624053236807,
+          "median": 1.2652624053236807,
+          "p05": 1.2483407447211528,
+          "p95": 1.2821840659262085,
+          "min": 1.2464605602097607,
+          "max": 1.2840642504376005,
+          "std": 0.018801845113919913
+        }
+      }
+    }
+  ],
+  "micro": {
+    "all_tracks": {
+      "counts": {
+        "total": 103014,
+        "correct": 35,
+        "wrong": 368,
+        "unscorable": 102611
+      },
+      "scorable_fraction": 0.003912089618886753,
+      "correspondence_accuracy": 0.08684863523573201
+    },
+    "measured_same_RGB": {
+      "counts": {
+        "total": 1369,
+        "correct": 10,
+        "wrong": 0,
+        "unscorable": 1359
+      },
+      "scorable_fraction": 0.007304601899196494,
+      "correspondence_accuracy": 1.0
+    },
+    "observation_supported": {
+      "counts": {
+        "total": 1303,
+        "correct": 10,
+        "wrong": 0,
+        "unscorable": 1293
+      },
+      "scorable_fraction": 0.007674597083653108,
+      "correspondence_accuracy": 1.0
+    },
+    "strata": {
+      "depth_group": {
+        "far_ge30m": {
+          "counts": {
+            "total": 6,
+            "correct": 6,
+            "wrong": 0,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 1.0
+        },
+        "middle_10to30m": {
+          "counts": {
+            "total": 4,
+            "correct": 4,
+            "wrong": 0,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 1.0
+        },
+        "unknown": {
+          "counts": {
+            "total": 1359,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 1359
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      },
+      "semantic_class": {
+        "unannotated_background": {
+          "counts": {
+            "total": 10,
+            "correct": 10,
+            "wrong": 0,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 1.0
+        },
+        "unknown": {
+          "counts": {
+            "total": 1359,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 1359
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      },
+      "object_motion": {
+        "conditional_static": {
+          "counts": {
+            "total": 10,
+            "correct": 10,
+            "wrong": 0,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 1.0
+        },
+        "unknown": {
+          "counts": {
+            "total": 1359,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 1359
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      },
+      "visibility": {
+        "both_sparse_depth_supported": {
+          "counts": {
+            "total": 10,
+            "correct": 10,
+            "wrong": 0,
+            "unscorable": 0
+          },
+          "scorable_fraction": 1.0,
+          "correspondence_accuracy": 1.0
+        },
+        "sparse_reference_unavailable": {
+          "counts": {
+            "total": 1359,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 1359
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      },
+      "ego_motion_group": {
+        "translation_ge1m": {
+          "counts": {
+            "total": 1357,
+            "correct": 10,
+            "wrong": 0,
+            "unscorable": 1347
+          },
+          "scorable_fraction": 0.007369196757553427,
+          "correspondence_accuracy": 1.0
+        },
+        "turn_ge3deg": {
+          "counts": {
+            "total": 12,
+            "correct": 0,
+            "wrong": 0,
+            "unscorable": 12
+          },
+          "scorable_fraction": 0.0,
+          "correspondence_accuracy": null
+        }
+      }
+    }
+  },
+  "residual_micro": {
+    "fb_error_px": {
+      "n": 1369,
+      "mean": 0.05865566167422846,
+      "median": 0.021359950304031372,
+      "p05": 0.0035189138725399975,
+      "p95": 0.2537241995334625,
+      "min": 0.00031308416510000825,
+      "max": 0.7432706356048584,
+      "std": 0.09797801118720764
+    },
+    "raw_fb_error_px": {
+      "n": 1369,
+      "mean": 0.4869517873739611,
+      "median": 0.021413778886198997,
+      "p05": 0.0035189138725399975,
+      "p95": 0.2608195066452026,
+      "min": 0.00031308416510000825,
+      "max": 185.5288543701172,
+      "std": 7.736482836586486
+    },
+    "prediction_residual_px": {
+      "n": 1369,
+      "mean": 11.671877442218808,
+      "median": 3.9475067908316896,
+      "p05": 0.7440278163410811,
+      "p95": 48.76835852558455,
+      "min": 0.12427464058118644,
+      "max": 105.5524735631389,
+      "std": 16.983965034757002
+    },
+    "patch_residual": {
+      "n": 1369,
+      "mean": 0.012470734293434505,
+      "median": 0.012213091365993023,
+      "p05": 0.007677789125591516,
+      "p95": 0.017709815129637718,
+      "min": 0.004748929291963577,
+      "max": 0.022691456601023674,
+      "std": 0.0030882904020919436
+    },
+    "measured_displacement_px": {
+      "n": 1369,
+      "mean": 15.242597704423757,
+      "median": 10.900080148452881,
+      "p05": 3.4673907542849762,
+      "p95": 40.744558641157475,
+      "min": 0.08432316679478832,
+      "max": 113.00209162805163,
+      "std": 14.548842522088426
+    },
+    "raw_prediction_residual_px": {
+      "n": 1369,
+      "mean": 11.898385894813476,
+      "median": 3.9475067908316896,
+      "p05": 0.7440278163410811,
+      "p95": 48.8866897274774,
+      "min": 0.12427464058118644,
+      "max": 190.4183586712573,
+      "std": 18.418554031577262
+    },
+    "prediction_uncertainty_px": {
+      "n": 194,
+      "mean": 1.4556057408614747,
+      "median": 1.3618633006425607,
+      "p05": 0.9017775468304339,
+      "p95": 2.3127952736736357,
+      "min": 0.4615414733503604,
+      "max": 2.7786822520427794,
+      "std": 0.38616382650314346
+    }
+  },
+  "residual_macro_scene_median": {
+    "fb_error_px": {
+      "n": 2,
+      "mean": 0.021029791329056025,
+      "median": 0.021029791329056025,
+      "p05": 0.020732648251578212,
+      "p95": 0.021326934406533837,
+      "min": 0.020699632354080677,
+      "max": 0.021359950304031372,
+      "std": 0.0003301589749753475
+    },
+    "raw_fb_error_px": {
+      "n": 2,
+      "mean": 0.021056705620139837,
+      "median": 0.021056705620139837,
+      "p05": 0.020735339680686592,
+      "p95": 0.021378071559593082,
+      "min": 0.020699632354080677,
+      "max": 0.021413778886198997,
+      "std": 0.00035707326605916023
+    },
+    "prediction_residual_px": {
+      "n": 2,
+      "mean": 10.335555384477992,
+      "median": 10.335555384477992,
+      "p05": 4.543384319210525,
+      "p95": 16.127726449745456,
+      "min": 3.899809756403029,
+      "max": 16.771301012552954,
+      "std": 6.4357456280749625
+    },
+    "patch_residual": {
+      "n": 2,
+      "mean": 0.014641130808740854,
+      "median": 0.014641130808740854,
+      "p05": 0.01241910713724792,
+      "p95": 0.01686315448023379,
+      "min": 0.01217221561819315,
+      "max": 0.01711004599928856,
+      "std": 0.0024689151905477047
+    },
+    "measured_displacement_px": {
+      "n": 2,
+      "mean": 22.102147546121532,
+      "median": 22.102147546121532,
+      "p05": 11.946995934479194,
+      "p95": 32.25729915776387,
+      "min": 10.818645755407823,
+      "max": 33.38564933683524,
+      "std": 11.28350179071371
+    },
+    "raw_prediction_residual_px": {
+      "n": 2,
+      "mean": 10.335555384477992,
+      "median": 10.335555384477992,
+      "p05": 4.543384319210525,
+      "p95": 16.127726449745456,
+      "min": 3.899809756403029,
+      "max": 16.771301012552954,
+      "std": 6.4357456280749625
+    },
+    "prediction_uncertainty_px": {
+      "n": 2,
+      "mean": 1.3162200467409177,
+      "median": 1.3162200467409177,
+      "p05": 1.2703581694654045,
+      "p95": 1.3620819240164312,
+      "min": 1.2652624053236807,
+      "max": 1.367177688158155,
+      "std": 0.05095764141723713
+    }
+  },
+  "macro": {
+    "measured_same_RGB": {
+      "scorable_fraction": {
+        "n": 2,
+        "mean": 0.0037064492216456633,
+        "median": 0.0037064492216456633,
+        "p05": 0.00037064492216456633,
+        "p95": 0.00704225352112676,
+        "min": 0.0,
+        "max": 0.007412898443291327,
+        "std": 0.0037064492216456633
+      },
+      "correspondence_accuracy": {
+        "n": 1,
+        "mean": 1.0,
+        "median": 1.0,
+        "p05": 1.0,
+        "p95": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "std": 0.0
+      }
+    },
+    "observation_supported": {
+      "scorable_fraction": {
+        "n": 2,
+        "mean": 0.003897116134060795,
+        "median": 0.003897116134060795,
+        "p05": 0.0003897116134060795,
+        "p95": 0.0074045206547155105,
+        "min": 0.0,
+        "max": 0.00779423226812159,
+        "std": 0.003897116134060795
+      },
+      "correspondence_accuracy": {
+        "n": 1,
+        "mean": 1.0,
+        "median": 1.0,
+        "p05": 1.0,
+        "p95": 1.0,
+        "min": 1.0,
+        "max": 1.0,
+        "std": 0.0
+      }
+    }
+  },
+  "label_table_sha256": {
+    "data/nuscenes/v1.0-trainval/sample_annotation.json": "1f4f3835cb86f4efe49ccad3ae6f5f6a2d068422696de564c5892b5b06bea2a9",
+    "data/nuscenes/v1.0-trainval/instance.json": "8f8b19496ce45353874714ce23a9df7f47f48cb6203df2dd456ea0247d146461",
+    "data/nuscenes/v1.0-trainval/category.json": "30f64fb175e5bd7db99892d90f9034481bca491f26600c5c0d1a56106b198dfe"
+  },
+  "qualification_generated": false
+}
