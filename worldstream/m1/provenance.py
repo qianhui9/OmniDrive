@@ -101,6 +101,10 @@ def export_state_audit(manager):
             status='identity_certified' if certificate else ('observed' if a.observation_support else 'unknown'),
             association_basis=a.association_basis, motion_prediction=a.motion_prediction,
             motion_history=a.motion_history))
+    for row in rows:
+        external = store.anchors[row['anchor_id']].external_tracking
+        if external:
+            row['external_tracking'] = copy.deepcopy(external)
     return copy.deepcopy(dict(scene_id=store.scene_id,log_token=manager._committed_log_token,frame_id=manager._previous_frame_id,
         timestamp=store.last_timestamp,state_epoch=store.generation,source_digest=store.source_digest(),
         execution_signature=store.execution_signature,transaction_status='committed' if store.last_timestamp is not None else 'empty',

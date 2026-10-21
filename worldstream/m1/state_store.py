@@ -44,6 +44,7 @@ class StateStore:
             value.observation_support = {cid:copy.copy(obs) for cid,obs in anchor.observation_support.items()}
             value.associated_feature_ids = list(anchor.associated_feature_ids)
             value.association_history = copy.deepcopy(anchor.association_history)
+            value.external_tracking = copy.deepcopy(anchor.external_tracking)
             value.motion_history = copy.deepcopy(anchor.motion_history)
             value.motion_prediction = copy.deepcopy(anchor.motion_prediction)
             value.physical_certification = copy.deepcopy(anchor.physical_certification)
@@ -80,6 +81,9 @@ class StateStore:
         from dataclasses import asdict
         # Bind all mutable metadata, not only geometry and tensor allocation size.
         metadata = {aid:asdict(a) for aid,a in self.anchors.items()}
+        for row in metadata.values():
+            if not row['external_tracking']:
+                row.pop('external_tracking')  # preserve legacy off/shadow transaction digests
         feature_metadata = {}
         for fid,r in self.features.items():
             feature_metadata[fid] = {f.name:getattr(r,f.name) for f in fields(r) if f.name!='tensor'}

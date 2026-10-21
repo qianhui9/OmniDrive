@@ -116,7 +116,12 @@ class M1Config:
     search_dynamic_motion: bool = False  # isolated hypotheses, never qualified motion
     aligned_observation_recovery: bool = False
 
+    dqtrack_mode: str = "off"
+    dqtrack_results_path: Optional[str] = None
+
     def __post_init__(self):
+        if self.dqtrack_mode not in ("off", "shadow", "hint"):
+            raise ValueError("Invalid DQTrack mode")
         for key in ('persistent_depth_tracks','multi_hypothesis_tracking','search_dynamic_motion','aligned_observation_recovery'):
             if type(getattr(self,key)) is not bool:raise ValueError(key+' must be boolean')
         if self.persistent_depth_tracks and self.ego_motion_mode!='depth':

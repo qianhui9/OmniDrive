@@ -647,6 +647,12 @@ class WorldStateManager:
                     reasons=reasons, certified=False)])[-self.config.association_history_limit:]
             else:
                 accepted_pairs.append((i, j))
+        dq_hints, dq_diagnostics, dq_edges = {}, None, set()
+        if self.config.dqtrack_mode != 'off':
+            from .dqtrack_bridge import align, corroborated_edges
+            dq_hints, dq_diagnostics = align(frame, predictions, self.config)
+            dq_edges = corroborated_edges(anchors, dq_hints, accepted_pairs, costs)
+            dq_diagnostics['consistent_associations'] = len(dq_edges)
         geometric_pairs=list(accepted_pairs)
         identity_costs=costs
         search_hypotheses={};search_counts=dict(status='Not Run')
@@ -687,6 +693,20 @@ class WorldStateManager:
             measured=legal_assignment(allowed)
             measured_rows={i for i,j in measured};measured_cols={j for i,j in measured}
             accepted_pairs=measured+[(i,j) for i,j in accepted_pairs if i not in measured_rows and j not in measured_cols]
+        if self.config.dqtrack_mode != 'off':
+            from .dqtrack_bridge import identity_conflicts
+            conflicts = identity_conflicts(anchors, dq_hints, accepted_pairs)
+            dq_diagnostics['identity_conflicts'] = [dict(anchor_id=anchors[i].anchor_id,
+                prediction_index=selected[j][0]) for i,j in sorted(conflicts)]
+            if self.config.dqtrack_mode == 'hint':
+                # Independent physical evidence retains precedence over an external tracker.
+                vetoes = {edge for edge in conflicts if not (
+                    edge in proposal_certificates and proposal_certificates[edge].certified)}
+                accepted_pairs = [edge for edge in accepted_pairs if edge not in vetoes]
+                for i,j in sorted(vetoes):
+                    rejected_pairs.append(dict(anchor_id=anchors[i].anchor_id,
+                        prediction_index=selected[j][0], reasons=['external_tracking_identity_conflict'],
+                        certified=False))
         if (len({i for i,j in accepted_pairs})!=len(accepted_pairs)
                 or len({j for i,j in accepted_pairs})!=len(accepted_pairs)):
             raise ValueError('Association must be one-to-one before updating state')
@@ -744,6 +764,10 @@ class WorldStateManager:
                 if a.association_basis=='experimental_identity_hypothesis':
                     a.last_verified_timestamp=None;a.last_verified_source_frame=None
                     a.certified_observation_count=0;a.history_observations=1
+            if self.config.dqtrack_mode == 'hint':
+                a.external_tracking = copy.deepcopy(dq_hints.get(j, {}))
+                if prior is not None and edge in dq_edges and not a.identity_link_qualified:
+                    a.association_basis = 'uncertified_dqtrack_corroborated_geometry'
             a.association_count = prior.association_count + 1 if prior else 0
             a.association_history = ((prior.association_history if prior else []) + [dict(
                 frame_id=frame.frame_id, timestamp=frame.timestamp, source_epoch=self.store.generation,
@@ -941,6 +965,8 @@ class WorldStateManager:
             self.last_commit_diagnostics.pop('state_update_ms')
         # Keep precheck_result frozen at the historical snapshot for M2; current versions are
         # available in store.feature_versions(), not silently substituted into old candidates.
+        if dq_diagnostics is not None:
+            self.last_commit_diagnostics['dqtrack'] = dq_diagnostics
         return precheck_result
 
     def export_m2_inputs(self):

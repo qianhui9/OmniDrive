@@ -125,6 +125,7 @@ class WorldAnchor:
     identity_link_qualified: bool = False
     motion_history: List[dict] = field(default_factory=list)
     motion_prediction: Dict[str, Any] = field(default_factory=dict)
+    external_tracking: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
