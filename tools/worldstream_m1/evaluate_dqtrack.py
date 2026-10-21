@@ -1,4 +1,4 @@
-"""Paired off/shadow/hint replay on identical actual OmniDrive detections.
+"""Paired off/shadow replay on identical actual OmniDrive detections.
 
 No detector or tracker is run. Existing calibration/confirmation scenes remain
 exposed development data. Frame observations are correlated, not IID trials.
@@ -17,7 +17,7 @@ def evaluate(batches, config, trajectories, annotations=None):
     report=dict(frames=len(batches),scene_count=len({f.scene_id for f,_ in batches}),scenes=sorted({f.scene_id for f,_ in batches}),
         sampling='correlated nuScenes keyframes; scenes/instances are dependence groups',
         split='exposed_development_replay',methods={})
-    for mode in ('off','shadow','hint'):
+    for mode in ('off','shadow'):
         manager=WorldStateManager(replace(config,dqtrack_mode=mode,dqtrack_results_path=trajectories))
         records=[]; previous_gt={};errors=0;scored=0;switches=0;instance_anchor={}
         previous_external={};consistent=0;comparable=0;conflicting=0
@@ -68,7 +68,7 @@ def evaluate(batches, config, trajectories, annotations=None):
             identity_switches=switches if annotations is not None else None,
             gt_metric_scope='partial GT matching within 2m; unmatched unknown, not official nuScenes metrics')
     baseline=report['methods']['off']['records']
-    for mode in ('shadow','hint'):
+    for mode in ('shadow',):
         rows=report['methods'][mode]['records']
         report['methods'][mode]['pairs_equal_baseline']=all(a['pairs']==b['pairs'] for a,b in zip(baseline,rows))
         report['methods'][mode]['certifications_equal_baseline']=all(a['certified']==b['certified'] for a,b in zip(baseline,rows))

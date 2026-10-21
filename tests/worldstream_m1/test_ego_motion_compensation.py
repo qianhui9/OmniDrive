@@ -258,7 +258,8 @@ def test_prediction_covariance_does_not_widen_association_gate():
     assert not associate([a],[p],100.5,cfg)[0]  # uncertainty consumes >2m fixed budget
     a.motion_prediction['velocity_covariance']=(np.eye(3)*.01).tolist();a.motion_prediction['position_sigma_m']=.01
     pairs,costs=associate([a],[p,copy.deepcopy(p)],100.5,cfg)
-    assert association_ambiguities(pairs,costs)[pairs[0]]['ambiguous']
+    assert not pairs  # ambiguity is rejected before the single allocator
+    assert association_ambiguities([(0,0)],costs)[0,0]['ambiguous']
 
 
 @pytest.mark.parametrize('mode', ['rotation','depth'])

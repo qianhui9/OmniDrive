@@ -66,7 +66,7 @@ def scene(spec):
     infos,outputs,oracle=_INPUTS;folder=ROOT/'diagnostics'/spec['scene_id'];folder.mkdir(parents=True,exist_ok=False)
     cfg=replace(M1Config.load('configs/worldstream_m1_independent.yaml'),dense_region_policy='surface_local_plane',
         dense_guard_radius_px=2,surface_diagnostics=True,identity_continuity=True,identity_method='temporal',
-        identity_tracking_policy='experimental',identity_diagnostics=True)
+        identity_tracking_policy='shadow',identity_diagnostics=True)
     manager=WorldStateManager(cfg);previous=None;oldpoints=None;casecount=0;parity=Counter()
     historical={(r['frame'],r['camera']):r for r in map(json.loads,(OLD/'traces/development'/spec['scene_id']/'pixels.jsonl').read_text().splitlines()) if r['method']=='surface_local_plane'}
     for token in spec['samples']:

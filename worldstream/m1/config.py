@@ -75,7 +75,7 @@ class M1Config:
     foreground_correspondence: bool = False  # experimental, post-perception only
     identity_continuity: bool = False  # independent claim, experimental Commit only
     identity_method: str = 'selective'  # temporal is an opt-in measured population
-    identity_tracking_policy: str = 'shadow'  # shadow, certified_only, experimental
+    identity_tracking_policy: str = 'shadow'  # independent evidence only; other values retired
     identity_history_frames: int = 3
     identity_use_history: bool = True
     identity_resolve_competition: bool = True
@@ -113,7 +113,7 @@ class M1Config:
 
     persistent_depth_tracks: bool = False
     multi_hypothesis_tracking: bool = False
-    search_dynamic_motion: bool = False  # isolated hypotheses, never qualified motion
+    search_dynamic_motion: bool = False  # retired identity search; manager rejects True
     aligned_observation_recovery: bool = False
 
     dqtrack_mode: str = "off"
@@ -123,27 +123,22 @@ class M1Config:
     dqtrack_policy_qualification_path: Optional[str] = None
     dqtrack_policy_qualification_sha256: Optional[str] = None
 
-    association_track_prior: bool = False  # identity hypothesis only, opt-in
+    association_track_prior: bool = False  # enable bounded history in the single allocator
     association_track_frames: int = 8
     association_track_limit: int = 256
     association_track_ttl_s: float = 3.0
     association_track_bytes: int = 4 * 1024 * 1024
-    association_diagnostics: bool = False
-    association_diagnostic_limit: int = 128
-    association_diagnostic_bytes: int = 64 * 1024
-    association_measurement_limit: int = 64
-
-    association_observation_guard: bool = False  # commit-only, experimental RGB disambiguation
+    association_observation_guard: bool = False  # retired; manager rejects True
 
     def __post_init__(self):
-        if type(self.association_diagnostics) is not bool:
-            raise ValueError('association_diagnostics must be boolean')
         if type(self.association_track_prior) is not bool:
             raise ValueError('association_track_prior must be boolean')
-        for name, minimum in [('association_track_frames', 3), ('association_track_limit', 1), ('association_track_bytes', 1024), ('association_diagnostic_limit', 0), ('association_diagnostic_bytes', 1024), ('association_measurement_limit', 0)]:
+        for name, minimum in [('association_track_frames', 3), ('association_track_limit', 1), ('association_track_bytes', 1024)]:
             if type(getattr(self, name)) is not int or getattr(self, name) < minimum:
                 raise ValueError('Invalid bounded association history: '+name)
         import math
+        if not math.isfinite(self.velocity_uncertainty_mps) or self.velocity_uncertainty_mps<0:
+            raise ValueError('Velocity uncertainty budget must be finite and nonnegative')
         if not math.isfinite(self.association_track_ttl_s) or not 0 < self.association_track_ttl_s <= 10:
             raise ValueError('Invalid association track TTL')
         if type(self.association_observation_guard) is not bool:

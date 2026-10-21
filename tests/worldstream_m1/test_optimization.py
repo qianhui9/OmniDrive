@@ -3,7 +3,7 @@ from dataclasses import replace
 import numpy as np
 import pytest
 from worldstream.m1 import M1Config, FullOutputs, WorldStateManager, Geometry, PerceptionAnchor, WorldAnchor
-from worldstream.m1.association import associate, legal_assignment
+from worldstream.m1.association import associate
 from worldstream.m1.geometry import predict_geometry, sample_polyline, box_geometry
 
 
@@ -18,7 +18,8 @@ def scalar_cost(anchors, predictions, timestamp, cfg):
             if a.anchor_type=='object':
                 if g.size is None or h.size is None:continue
                 if np.any(np.maximum(g.size/h.size,h.size/g.size)>cfg.box_size_ratio):continue
-                d=np.linalg.norm(g.center-h.center); gate=cfg.association_gate_m
+                d=np.linalg.norm(g.center-h.center)
+                gate=cfg.association_gate_m-a.geometry_uncertainty-cfg.velocity_uncertainty_mps*(timestamp-a.source_timestamp)
             else:
                 x,y=sample_polyline(g.points),sample_polyline(h.points)
                 dx,dy=x[-1]-x[0],y[-1]-y[0]
@@ -45,7 +46,10 @@ def test_vector_association_matches_scalar(seed):
     expected=scalar_cost(anchors,predictions,100.5,cfg)
     matches,costs=associate(anchors,predictions,100.5,cfg)
     np.testing.assert_allclose(costs,expected,atol=1e-14,rtol=1e-14)
-    assert matches==legal_assignment(expected)
+    # The old maximum-cardinality objective is retired. The cost equivalence
+    # above remains exact; allocation now has explicit unmatched options.
+    assert len({i for i,j in matches})==len(matches)==len({j for i,j in matches})
+    assert all(np.isfinite(expected[i,j]) for i,j in matches)
 
 
 def test_quality_is_historical_and_commit_only(config,make_frame,make_prediction):

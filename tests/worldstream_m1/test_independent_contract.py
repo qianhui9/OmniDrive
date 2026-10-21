@@ -140,7 +140,7 @@ def test_ambiguity_crossing_and_missing_frames_break_candidate_track(config, mak
     original = set(m.store.anchors)
     f = make_frame(100.5); r = m.precheck(f)
     m.commit(f, FullOutputs([make_prediction(0), make_prediction(0)]), r)
-    assert len(m.last_commit_diagnostics['rejected_ambiguous_associations']) == 2
+    assert m.last_commit_diagnostics['association_tracks']['ambiguous_edges'] == 4
     assert not m.last_commit_diagnostics['association_pairs']
     assert original.isdisjoint(m.last_commit_diagnostics['committed_anchor_ids'])
     f = make_frame(101.); r = m.precheck(f); m.commit(f, FullOutputs([]), r)

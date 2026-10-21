@@ -64,7 +64,13 @@ association_track_bytes: 4194304
 dqtrack_mode: "off"
 association_observation_guard: false
 
-association_diagnostics: true
-association_diagnostic_limit: 128
-association_diagnostic_bytes: 65536
-association_measurement_limit: 64
+# Single identity allocation; independent physical evidence remains opt-in.
+identity_tracking_policy: shadow
+search_dynamic_motion: false
+# No post-allocation identity corrections or evidence experiments in this run.
+identity_continuity: false
+foreground_correspondence: false
+ego_motion_mode: "off"
+multi_hypothesis_tracking: false
+aligned_observation_recovery: false
+dqtrack_association_policy: conservative

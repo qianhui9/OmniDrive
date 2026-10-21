@@ -7,7 +7,7 @@ import copy
 from dataclasses import asdict
 from time import perf_counter
 import numpy as np
-from .association import associate, association_ambiguities
+from .association import associate
 from .input_contract import frame_digest, camera_layout
 from .physical_certifier import certify_available_state
 from .geometry import immutable_array, immutable_geometry, state_geometry_version
@@ -26,6 +26,14 @@ STATIC_CLASSES = {"barrier", "traffic_cone"}
 class WorldStateManager:
     def __init__(self, config=None):
         self.config = M1Config.load(config)
+        retired=[]
+        if self.config.association_observation_guard:retired.append('association_observation_guard')
+        if self.config.search_dynamic_motion:retired.append('search_dynamic_motion')
+        if self.config.identity_tracking_policy!='shadow':retired.append('identity_tracking_policy (use shadow for independent physical evidence)')
+        if self.config.dqtrack_mode=='hint':retired.append('dqtrack_mode=hint (use shadow)')
+        if self.config.dqtrack_policy_qualification_path:retired.append('dqtrack_policy_qualification_path')
+        if self.config.dqtrack_association_policy!='conservative':retired.append('dqtrack_association_policy (use conservative)')
+        if retired:raise ValueError('Retired identity-assignment branches: '+', '.join(retired))
         self.store = StateStore(self.config)
         self.validator = ObservationValidator(self.config)
         self.calibration = None
@@ -585,10 +593,6 @@ class WorldStateManager:
             0., self.last_commit_diagnostics['commit_total_ms'] - core_ms)
         return result
 
-    def _dqtrack_policy_profile(self):
-        from .dqtrack_policy import qualified_profile
-        return qualified_profile(self.config)
-
     def _commit(self, frame, full_outputs, precheck_result):
         start = perf_counter()
         if not self.config.enabled:
@@ -606,10 +610,9 @@ class WorldStateManager:
             return precheck_result
         anchors = list(self.store.anchors.values())
         association_priors, dormant_rows = {}, set()
-        if self.config.association_track_prior:
-            from .association_tracks import candidates as track_candidates
-            anchors, association_priors, dormant_rows = track_candidates(
-                self.store, frame, self.config, full_outputs.source)
+        from .association_tracks import candidates as track_candidates
+        anchors, association_priors, dormant_rows = track_candidates(
+            self.store, frame, self.config, full_outputs.source)
         candidates = []
         malformed = 0
         for index, pred in enumerate(full_outputs.anchors):
@@ -637,70 +640,23 @@ class WorldStateManager:
         selected = sorted(candidates, key=selection_key)[:self.config.max_anchors]
         predictions = [pred for _, pred in selected]
         assoc_start = perf_counter()
-        pairs, costs = associate(anchors, predictions, frame.timestamp, self.config,
-                                 None, dormant_rows)
-        if self.config.association_track_prior:
-            for i, old in enumerate(anchors):
-                if (old.scene_id != frame.scene_id or old.source_state_epoch != self.store.generation
-                        or old.source_execution_signature != frame.execution_signature
-                        or old.evidence_origin != full_outputs.source):
-                    costs[i] = np.inf
-            from .association import legal_assignment
-            pairs = legal_assignment(costs)
-        ambiguities = association_ambiguities(pairs, costs, self.config.association_ambiguity_margin_m)
-        accepted_pairs = []
-        rejected_pairs = []
-        for i, j in pairs:
-            reasons = []
-            if ambiguities[i, j]['ambiguous']:
-                reasons.append('competing_geometric_candidates')
-            if (anchors[i].anchor_type == 'object' and self.store.last_timestamp is not None
-                    and anchors[i].source_timestamp < self.store.last_timestamp):
-                reasons.append('reappearance_after_missing_observation')
-            if reasons:
-                rejected_pairs.append(dict(anchor_id=anchors[i].anchor_id, prediction_index=selected[j][0],
-                    reasons=reasons, **ambiguities[i, j]))
-                anchors[i].association_history = (anchors[i].association_history + [dict(
-                    frame_id=frame.frame_id, timestamp=frame.timestamp, status='ambiguous_or_missing',
-                    reasons=reasons, certified=False)])[-self.config.association_history_limit:]
-            else:
-                accepted_pairs.append((i, j))
-        dq_hints, dq_diagnostics, dq_edges = {}, None, set()
-        if self.config.dqtrack_mode != 'off':
-            from .dqtrack_bridge import align, corroborated_edges
-            dq_hints, dq_diagnostics = align(frame, predictions, self.config)
-            dq_edges = corroborated_edges(anchors, dq_hints, accepted_pairs, costs)
-            dq_diagnostics['consistent_associations'] = len(dq_edges)
-        geometric_pairs=list(accepted_pairs)
-        visual_edges=set();visual_diagnostics=None
-        if self.config.association_observation_guard:
-            from .association_observation import refine
-            accepted_pairs,visual_edges,visual_diagnostics=refine(
-                anchors,predictions,costs,accepted_pairs,frame,self.store.last_timestamp,
-                self.config,self.validator)
-        track_edges = set(); track_diagnostics = None
-        if self.config.association_track_prior:
-            from .association_tracks import refine as refine_tracks
-            accepted_pairs, track_edges, track_diagnostics = refine_tracks(
-                anchors,predictions,costs,accepted_pairs,dormant_rows,self.store,frame,
-                self.config,self.validator,history=self._identity_history,priors=association_priors,
-                selected=selected,origin=full_outputs.source)
-        identity_costs=costs
-        search_hypotheses={};search_counts=dict(status='Not Run')
-        if self.config.search_dynamic_motion:
-            from .search_motion import search_edges
-            identity_costs,search_hypotheses,search_counts=search_edges(anchors,predictions,costs,frame,self._identity_history,self.config)
-            search_counts['status']='executed'
-            search_counts['hypotheses']={anchors[i].anchor_id:h for i,h in search_hypotheses.items()}
-
+        track_diagnostics={}
+        pairs, costs = associate(anchors,predictions,frame.timestamp,self.config,
+            association_priors,dormant_rows,source_context=(frame,self.store.generation,full_outputs.source),
+            diagnostics=track_diagnostics)
+        accepted_pairs=tuple(pairs)  # The ONLY identity allocation; immutable below.
+        dq_diagnostics=None
+        if self.config.dqtrack_mode=='shadow':
+            from .dqtrack_bridge import align
+            _,dq_diagnostics=align(frame,predictions,self.config)
         temporal_proposals={};proposal_certificates={}
         identity_protocol=None
         if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
             from .identity_temporal import temporal_identity_pairs
             from .identity_continuity import identity_protocol_digest,IDENTITY_CLAIM
             identity_protocol=identity_protocol_digest(self.config,frame)
-            temporal_proposals=temporal_identity_pairs(anchors,predictions,identity_costs,frame,self._identity_history,
-                self.config,self.validator,self._physical_issuer,self.last_evidence,self._previous_frame_id,self._previous_frame_digest,search_hypotheses=search_hypotheses)
+            temporal_proposals=temporal_identity_pairs(anchors,predictions,costs,frame,self._identity_history,
+                self.config,self.validator,self._physical_issuer,self.last_evidence,self._previous_frame_id,self._previous_frame_digest)
             # A proposal is a relation between actual observations. Check its
             # named claim before deciding whether it may affect ordinary IDs.
             for (i,j),proposal in temporal_proposals.items():
@@ -715,47 +671,12 @@ class WorldStateManager:
                     source_execution_signature=frame.execution_signature)
                 proposal_certificates[i,j]=certify_physical_evidence(old,target,frame,proposal['evidence'],self._physical_issuer,
                     proposal.get('source_frame_digest',self._previous_frame_digest),identity_protocol,claim=IDENTITY_CLAIM)
-            allowed=np.full_like(costs,np.inf)
-            for edge,p in temporal_proposals.items():
-                if p['status']=='candidate' and (self.config.identity_tracking_policy=='experimental'
-                        or (self.config.identity_tracking_policy=='certified_only' and proposal_certificates[edge].certified)):
-                    allowed[edge]=costs[edge]
-            from .association import legal_assignment
-            measured=legal_assignment(allowed)
-            measured_rows={i for i,j in measured};measured_cols={j for i,j in measured}
-            accepted_pairs=measured+[(i,j) for i,j in accepted_pairs if i not in measured_rows and j not in measured_cols]
-        if self.config.dqtrack_mode != 'off':
-            from .dqtrack_bridge import identity_conflicts
-            conflicts = identity_conflicts(anchors, dq_hints, accepted_pairs,
-                frame=frame if self.config.association_observation_guard else None,
-                last_timestamp=self.store.last_timestamp, max_age=self.config.max_state_age_s)
-            dq_diagnostics['identity_conflicts'] = [dict(anchor_id=anchors[i].anchor_id,
-                prediction_index=selected[j][0]) for i,j in sorted(conflicts)]
-            if self.config.dqtrack_mode == 'hint':
-                # Independent physical evidence retains precedence over an external tracker.
-                vetoes = {edge for edge in conflicts if not (
-                    edge in proposal_certificates and proposal_certificates[edge].certified)}
-                accepted_pairs = [edge for edge in accepted_pairs if edge not in vetoes]
-                for i,j in sorted(vetoes):
-                    rejected_pairs.append(dict(anchor_id=anchors[i].anchor_id,
-                        prediction_index=selected[j][0], reasons=['external_tracking_identity_conflict'],
-                        certified=False))
-        dq_profile=None;dq_tiebreak_edges=set()
-        if self.config.dqtrack_mode=='hint' and self.config.dqtrack_association_policy=='calibrated_tiebreak':
-            dq_profile,qualification=self._dqtrack_policy_profile()
-            dq_diagnostics['policy_qualification']=qualification
-            if dq_profile is not None:
-                from .dqtrack_policy import propose
-                accepted_pairs,dq_tiebreak_edges,policy_diagnostics=propose(
-                    anchors,predictions,accepted_pairs,costs,dq_hints,frame,self.store.last_timestamp,
-                    self.config,dq_profile)
-                dq_diagnostics['policy']=policy_diagnostics
-                if policy_diagnostics['status']=='inactive':dq_profile=None
         if (len({i for i,j in accepted_pairs})!=len(accepted_pairs)
                 or len({j for i,j in accepted_pairs})!=len(accepted_pairs)):
             raise ValueError('Association must be one-to-one before updating state')
         assoc_ms = (perf_counter() - assoc_start) * 1000
-        matched = {j: anchors[i].anchor_id for i, j in accepted_pairs}
+        matched_rows={j:i for i,j in accepted_pairs}
+        matched = {j: anchors[i].anchor_id for i,j in accepted_pairs}
         committed = []
         physical_results=[]
         foreground_results=[]
@@ -765,7 +686,7 @@ class WorldStateManager:
                 source_frame_id=anchors[i].source_frame_id,current_frame_id=frame.frame_id,
                 source_state_version=state_geometry_version(anchors[i]),source_epoch=anchors[i].source_state_epoch,
                 tracking_policy=self.config.identity_tracking_policy,
-                applied_to_tracking=(i,j) in accepted_pairs and (i,j) not in geometric_pairs,
+                applied_to_tracking=False,
                 certified=proposal_certificates[i,j].certified,
                 qualification_reasons=list(proposal_certificates[i,j].rejection_reasons),
                 protocol_digest=identity_protocol,
@@ -777,7 +698,8 @@ class WorldStateManager:
         validated_cameras = {cid: valid_projection_camera(cam) for cid, cam in frame.cameras.items()}
         for j, pred in enumerate(predictions):
             aid = matched.get(j) or self.store.new_anchor_id()
-            prior = self.store.anchors.get(aid)
+            row=matched_rows.get(j)
+            prior = self.store.anchors.get(aid) if row not in dormant_rows else None
             velocity_ok = (pred.velocity_world is not None and np.asarray(pred.velocity_world).shape == (3,)
                            and np.isfinite(pred.velocity_world).all())
             a = WorldAnchor(aid, frame.scene_id, pred.anchor_type, pred.semantic_class,
@@ -802,24 +724,8 @@ class WorldStateManager:
             if prior is not None:
                 edge=(next(i for i,old in enumerate(anchors) if old.anchor_id==aid),j)
                 certificate=proposal_certificates.get(edge)
-                a.association_basis=('qualified_identity' if certificate is not None and certificate.certified else
-                    'experimental_identity_hypothesis' if edge not in geometric_pairs else 'unqualified_geometric_track')
+                a.association_basis=('qualified_identity' if certificate is not None and certificate.certified else 'unqualified_geometric_track')
                 a.identity_link_qualified=bool(certificate is not None and certificate.certified)
-                if a.association_basis=='experimental_identity_hypothesis':
-                    a.last_verified_timestamp=None;a.last_verified_source_frame=None
-                    a.certified_observation_count=0;a.history_observations=1
-            if self.config.dqtrack_mode == 'hint':
-                a.external_tracking = copy.deepcopy(dq_hints.get(j, {}))
-                if dq_profile is not None or self.config.association_observation_guard:
-                    from .dqtrack_policy import recent_metadata
-                    a.external_tracking=recent_metadata(prior,dq_hints.get(j),frame.timestamp,
-                        dq_profile or dict(max_hint_age_s=self.config.max_state_age_s))
-                if prior is not None and edge in dq_tiebreak_edges:
-                    a.association_basis='uncertified_dqtrack_identity_tiebreak'
-                if prior is not None and edge in dq_edges and not a.identity_link_qualified:
-                    a.association_basis = 'uncertified_dqtrack_corroborated_geometry'
-            if prior is not None and edge in visual_edges and not a.identity_link_qualified:
-                a.association_basis='uncertified_visual_geometry'
             a.association_count = prior.association_count + 1 if prior else 0
             a.association_history = ((prior.association_history if prior else []) + [dict(
                 frame_id=frame.frame_id, timestamp=frame.timestamp, source_epoch=self.store.generation,
@@ -827,8 +733,8 @@ class WorldStateManager:
                 certified=a.identity_link_qualified,
                 source_state_version=state_geometry_version(prior) if prior else None)])[-self.config.association_history_limit:]
             a.last_innovation_m = (float(np.linalg.norm(
-                pred.geometry_world.center - predict_geometry(prior, frame.timestamp).center))
-                if prior else None)
+                pred.geometry_world.center - association_priors[row][0]))
+                if prior is not None and prior.anchor_type=='object' and association_priors.get(row) is not None else None)
             a.state_version=state_geometry_version(a)
             if prior is not None and self.config.foreground_correspondence:
                 from .foreground_correspondence import propose_foreground_correspondence
@@ -887,11 +793,9 @@ class WorldStateManager:
                                                                       camera.timestamp, p.coverage)
             if self.config.association_track_prior:
                 from .association_tracks import publish as publish_track
-                candidate_prior = next((old for i,old in enumerate(anchors)
-                                        if (i,j) in accepted_pairs),None)
-                row = next((i for i,old in enumerate(anchors) if old is candidate_prior),None)
-                reliable = (candidate_prior is None or (row,j) in track_edges
-                    or (np.isfinite(costs[row]).sum()==1 and np.isfinite(costs[:,j]).sum()==1))
+                candidate_prior=anchors[row] if row is not None else None
+                reliable=(candidate_prior is None or
+                    (np.isfinite(costs[row]).sum()==1 and np.isfinite(costs[:,j]).sum()==1))
                 if row in dormant_rows:
                     # Identity recovery creates NEW observed state; no historical
                     # lease, feature, verifier or physical certificate is restored.
@@ -912,7 +816,7 @@ class WorldStateManager:
         if self.config.association_track_prior:
             from .association_tracks import prune as prune_tracks
             track_diagnostics.update(prune_tracks(self.store,frame.timestamp,self.config))
-            track_diagnostics['motion_priors']=len(association_priors)
+            track_diagnostics['motion_priors']=sum(p is not None for p in association_priors.values())
         # Per-anchor observation records have known crop provenance; branch records remain
         # conservative. Only computed feature slots advance their own versions.
         from .state_types import ComputedFeature
@@ -963,7 +867,7 @@ class WorldStateManager:
                 if old is not None and e.dense_source_map is not None:
                     self._surface_history[cid]=(copy.copy(old),frame.cameras[cid].timestamp,immutable_array(e.dense_source_map))
         old_cameras=self._previous_cameras
-        if self.config.temporal_visibility or self.config.local_support or self.config.association_track_prior:
+        if self.config.temporal_visibility or self.config.local_support:
             # Own only one bounded grayscale frame per camera, from actual computation.
             # precheck never replaces this source with an uncomputed/verified frame.
             from .temporal_visibility import gray_image
@@ -995,7 +899,7 @@ class WorldStateManager:
                     self.config,dict(scene_id=frame.scene_id,frame_id=frame.frame_id,frame_digest=self._pending_digest,
                         epoch=self.store.generation,execution_signature=frame.execution_signature,
                         commit_version=self.store.commit_count),additional_exclusion=dynamic_mask)
-        if self.config.association_track_prior or (self.config.identity_continuity and self.config.identity_method.startswith('temporal')):
+        if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
             # Only actual successful commits enter this bounded tuple. A failed
             # transaction cannot append an image or advance a source timestamp.
             from .identity_temporal import camera_snapshot_digest
@@ -1006,23 +910,18 @@ class WorldStateManager:
                 commit_version=self.store.commit_count,depth_history=copy.deepcopy(self._depth_history),
                 anchors={aid:copy.deepcopy(self.store.anchors[aid]) for aid in committed if aid in self.store.anchors})
             self._identity_history=tuple(r for r in self._identity_history
-                if 0<frame.timestamp-r['timestamp']<=(self.config.association_track_ttl_s if self.config.association_track_prior else
-                    2*self.config.max_frame_gap_s if self.config.search_dynamic_motion else min(self.config.max_state_age_s,1.)))+(record,)
+                if 0<frame.timestamp-r['timestamp']<=min(self.config.max_state_age_s,1.))+(record,)
             self._identity_history=self._identity_history[-self.config.identity_history_frames:]
         self._previous_frame_id=frame.frame_id
         self._previous_frame_digest=self._pending_digest
         self._identity_hypotheses=tuple(copy.deepcopy(identity_results))
         self.last_commit_diagnostics = {"source": full_outputs.source, "committed_anchor_ids": committed,
             "association_pairs": [[anchors[i].anchor_id, selected[j][0]] for i, j in accepted_pairs],
-            "geometric_candidate_pairs": [[anchors[i].anchor_id, selected[j][0]] for i, j in pairs],
-            "rejected_ambiguous_associations": rejected_pairs,
             "selected_prediction_indices": [index for index, _ in selected],
             "excluded_prediction_count": len(candidates) - len(selected),
             "malformed_prediction_count": malformed,
             "association_is_identity_certification": False,
-            "geometric_tracking_pairs": [[anchors[i].anchor_id,selected[j][0]] for i,j in geometric_pairs],
             "identity_tracking_policy": self.config.identity_tracking_policy,
-            "search_motion": search_counts,
             "post_perception_physical_certifications": physical_results,
             "foreground_correspondence_proposals": foreground_results,
             "identity_continuity_proposals": identity_results,
@@ -1039,14 +938,14 @@ class WorldStateManager:
         # Keep precheck_result frozen at the historical snapshot for M2; current versions are
         # available in store.feature_versions(), not silently substituted into old candidates.
         if track_diagnostics is not None:
+            track_diagnostics['recovered']=[anchors[i].anchor_id for i,j in accepted_pairs if i in dormant_rows]
+            track_diagnostics['dormant_candidates']=len(dormant_rows)
             track_diagnostics['image_history_frames']=len(self._identity_history)
             images={id(c.image):c.image for h in self._identity_history for c in h['cameras'].values()}
             track_diagnostics['image_history_bytes']=sum(a.nbytes for a in images.values())
             self.last_commit_diagnostics['association_tracks'] = track_diagnostics
         if dq_diagnostics is not None:
             self.last_commit_diagnostics['dqtrack'] = dq_diagnostics
-        if visual_diagnostics is not None:
-            self.last_commit_diagnostics['association_observation'] = visual_diagnostics
         return precheck_result
 
     def export_m2_inputs(self, expected_context=None):

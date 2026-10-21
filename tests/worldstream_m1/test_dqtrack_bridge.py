@@ -15,7 +15,7 @@ def payload(frames=('100.0',)):
             for f in frames})
 
 
-def write(tmp_path, data, config, mode='hint'):
+def write(tmp_path, data, config, mode='shadow'):
     p=tmp_path/'tracks.json';p.write_text(json.dumps(data))
     return replace(config,dqtrack_mode=mode,dqtrack_results_path=str(p))
 
@@ -51,7 +51,7 @@ def test_competition_and_coordinates(tmp_path,config,make_frame,make_prediction)
 def test_modes_transactions_and_certification(tmp_path,config,make_frame,make_prediction):
     data=payload(('100.0','100.5'))
     managers=[]
-    for mode in ('off','shadow','hint'):
+    for mode in ('off','shadow'):
         cfg=write(tmp_path,data,config,mode);m=WorldStateManager(cfg)
         for t in (100.,100.5):
             f=make_frame(t=t);r=m.precheck(f)
@@ -59,12 +59,12 @@ def test_modes_transactions_and_certification(tmp_path,config,make_frame,make_pr
             m.commit(f,FullOutputs([make_prediction()]),r)
             with pytest.raises(ValueError):m.commit(f,FullOutputs([make_prediction()]),r)
         managers.append(m)
-    baseline,shadow,hint=managers
+    baseline,shadow=managers
     assert baseline.store.source_digest()==shadow.store.source_digest()
     assert baseline.last_commit_diagnostics['association_pairs']==shadow.last_commit_diagnostics['association_pairs']
-    a=next(iter(hint.store.anchors.values()));b=next(iter(baseline.store.anchors.values()))
+    a=next(iter(shadow.store.anchors.values()));b=next(iter(baseline.store.anchors.values()))
     assert a.anchor_id==b.anchor_id
-    assert a.association_basis=='uncertified_dqtrack_corroborated_geometry'
+    assert a.association_basis=='unqualified_geometric_track'
     assert a.certified_observation_count==b.certified_observation_count
     assert not a.identity_link_qualified
     assert not next(iter(shadow.store.anchors.values())).external_tracking
@@ -81,7 +81,7 @@ def test_hint_hard_gates(tmp_path,config,make_frame,make_prediction,t,scene,x):
 
 
 def test_unavailable(tmp_path,config,make_frame,make_prediction):
-    cfg=replace(config,dqtrack_mode='hint',dqtrack_results_path=str(tmp_path/'missing'))
+    cfg=replace(config,dqtrack_mode='shadow',dqtrack_results_path=str(tmp_path/'missing'))
     assert not align(make_frame(),[make_prediction()],cfg)[0]
     for data in ([],{}, {'m1_manifest':None}):
         assert not align(make_frame(),[make_prediction()],write(tmp_path,data,config))[0]
@@ -89,11 +89,11 @@ def test_unavailable(tmp_path,config,make_frame,make_prediction):
 
 def test_hint_rejects_conflicting_continuation(tmp_path,config,make_frame,make_prediction):
     data=payload(('100.0','100.5'));data['results']['token100.5'][0]['tracking_id']='2'
-    for mode in ('off','shadow','hint'):
+    for mode in ('off','shadow'):
         m=WorldStateManager(write(tmp_path,data,config,mode))
         for t in (100.,100.5):
             f=make_frame(t=t);r=m.precheck(f);m.commit(f,FullOutputs([make_prediction()]),r)
-        assert bool(m.last_commit_diagnostics['association_pairs']) == (mode!='hint')
+        assert bool(m.last_commit_diagnostics['association_pairs']) == True
         assert all(not a.identity_link_qualified for a in m.store.anchors.values())
 
 
@@ -107,10 +107,10 @@ def test_prepare_and_evaluate(tmp_path,config,make_frame,make_prediction):
     cfg=write(tmp_path,data,config)
     batches=[(make_frame(t=t),FullOutputs([make_prediction()])) for t in (100.,100.5)]
     result=evaluate(batches,config,cfg.dqtrack_results_path)
-    assert result['methods']['hint']['consistent_associations']==1
+    assert result['methods']['shadow']['consistent_associations']==1
     assert result['methods']['shadow']['pairs_equal_baseline']
     assert result['methods']['shadow']['certifications_equal_baseline']
-    assert result['methods']['hint']['wrong_identity_continuations'] is None
+    assert result['methods']['shadow']['wrong_identity_continuations'] is None
 
 
 def test_size_order_and_map_exclusion(tmp_path,config,make_frame,make_prediction):
@@ -124,7 +124,10 @@ def test_size_order_and_map_exclusion(tmp_path,config,make_frame,make_prediction
 def test_external_metadata_transaction_isolation(tmp_path,config,make_frame,make_prediction):
     m=WorldStateManager(write(tmp_path,payload(),config))
     f=make_frame();r=m.precheck(f);m.commit(f,FullOutputs([make_prediction()]),r)
-    aid=next(iter(m.store.anchors));staged=m.store.fork()
+    aid=next(iter(m.store.anchors))
+    # Direct metadata fixture tests StateStore isolation; shadow never writes identity hints.
+    m.store.anchors[aid].external_tracking=dict(namespace=['run','scene'],tracking_id='1')
+    staged=m.store.fork()
     staged.anchors[aid].external_tracking['namespace'][0]='mutated'
     assert m.store.anchors[aid].external_tracking['namespace'][0]=='run'
     audit=m.export_state_audit();audit['anchors'][0]['external_tracking']['tracking_id']='mutated'
@@ -150,13 +153,3 @@ def test_ambiguous_geometry_is_not_rescued(tmp_path,config,make_frame,make_predi
     assert not m.last_commit_diagnostics['association_pairs']
     assert not m.last_commit_diagnostics['dqtrack']['aligned']
     assert all(not a.identity_link_qualified for a in m.store.anchors.values())
-
-
-def test_run_namespace_is_unknown_not_conflict(tmp_path,config,make_frame,make_prediction):
-    from worldstream.m1.dqtrack_bridge import identity_conflicts,corroborated_edges
-    m=WorldStateManager(write(tmp_path,payload(),config))
-    f=make_frame();r=m.precheck(f);m.commit(f,FullOutputs([make_prediction()]),r)
-    old=next(iter(m.store.anchors.values()))
-    other=dict(old.external_tracking,namespace=['another_run','scene'],tracking_id='2')
-    assert not identity_conflicts([old],{0:other},[(0,0)])
-    assert not corroborated_edges([old],{0:other},[(0,0)],__import__('numpy').zeros((1,1)))

@@ -72,6 +72,9 @@ def test_shadow_hypotheses_are_defensive_and_commit_atomic(config,make_frame,mak
 @pytest.mark.parametrize('policy',['shadow','certified_only','experimental'])
 def test_explicit_tracking_policy_keeps_conflicts_one_to_one_and_unqualified(config,make_frame,make_prediction,monkeypatch,policy):
     cfg=replace(config,identity_tracking_policy=policy)
+    if policy!='shadow':
+        with pytest.raises(ValueError,match='Retired'):manager(cfg,make_frame,make_prediction,count=2)
+        return
     m=manager(cfg,make_frame,make_prediction,count=2)
     monkeypatch.setattr('worldstream.m1.identity_temporal.temporal_identity_pairs',fake_producer({(0,0),(0,1),(1,0)}))
     f=make_frame(100.5,support=False);r=m.precheck(f)
@@ -84,20 +87,6 @@ def test_explicit_tracking_policy_keeps_conflicts_one_to_one_and_unqualified(con
     if policy!='experimental':assert not any(h['applied_to_tracking'] for h in m.get_identity_hypotheses())
     m.reset('other');assert not m.get_identity_hypotheses()
 
-
-def test_experimental_wrong_recovery_clears_verified_provenance(config,make_frame,make_prediction,monkeypatch):
-    m=manager(replace(config,identity_tracking_policy='experimental'),make_frame,make_prediction)
-    prior=next(iter(m.store.anchors.values()));prior.last_verified_timestamp=100.;prior.certified_observation_count=7
-    oldid=prior.anchor_id
-    monkeypatch.setattr('worldstream.m1.identity_temporal.temporal_identity_pairs',fake_producer({(0,1)}))
-    f=make_frame(100.5,support=False);r=m.precheck(f)
-    m.commit(f,FullOutputs([make_prediction(.1,semantic='car'),make_prediction(1.3,semantic='car')]),r)
-    recovered=m.store.anchors[oldid]
-    assert recovered.association_basis=='experimental_identity_hypothesis'
-    assert not recovered.identity_link_qualified and recovered.last_verified_timestamp is None
-    assert recovered.certified_observation_count==0 and recovered.history_observations==1
-    assert recovered.association_history[-1]['status']=='experimental_identity_hypothesis'
-    assert not m.get_current_certifications().certified_anchor_ids
 
 
 def test_qualified_selective_readout_and_tracking_provenance_agree(config,make_frame,make_prediction):

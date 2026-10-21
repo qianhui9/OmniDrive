@@ -119,7 +119,7 @@ def summarize():
     audit=Counter();separation=Counter()
     for p in complete:
         for s in readlines(p.parent/'state.jsonl'):
-            diag=s['commit'];pairs=diag['association_pairs'];geo=diag['geometric_tracking_pairs']
+            diag=s['commit'];pairs=diag['association_pairs'];geo=diag.get('geometric_tracking_pairs',pairs)
             audit['commits']+=1
             audit['duplicate_source_assignments']+=len(pairs)!=len({a for a,b in pairs})
             audit['duplicate_target_assignments']+=len(pairs)!=len({b for a,b in pairs})

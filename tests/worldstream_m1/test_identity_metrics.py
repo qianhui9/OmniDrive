@@ -31,3 +31,21 @@ def test_saved_trace_reconstruction_and_validation():
 def test_surviving_id_bridges_missed_observation():
     m=ContinuityMetrics();m.update([ann()],{'x':'a'},{'x'});m.update([ann()],{},set());m.update([ann()],{'x':'a'},{'x'})
     assert m.counts['predicted_track_fragments']==0 and m.counts['bridged_visible_gaps']==1
+
+
+def test_recovery_requires_latest_source_label(config,make_frame,make_prediction):
+    from dataclasses import replace
+    from worldstream.m1 import FullOutputs
+    from tools.worldstream_m1.world_identity_eval import evaluate_main_scene
+    p=make_prediction()
+    def annotation(identity):
+        return dict(instance_id=identity,has_sensor_support=True,visibility='4',
+                    geometry=p.geometry_world,**{'class':p.semantic_class})
+    batches=[(make_frame(t=t),FullOutputs([p] if t!=101. else []))
+             for t in (100.,100.5,101.,101.5)]
+    annotations={'100.0':[annotation('old')],'100.5':[],'101.0':[],
+                 '101.5':[annotation('new')]}
+    result=evaluate_main_scene(batches,annotations,replace(config,association_track_prior=True,max_state_age_s=.6))
+    assert len(result['recoveries'])==1
+    assert result['recoveries'][0]['status']=='unknown'
+    assert result['recoveries'][0]['previous_instance'] is None

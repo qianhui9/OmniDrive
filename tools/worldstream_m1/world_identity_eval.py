@@ -47,11 +47,9 @@ def rates(c):
 
 def evaluate_main_scene(batches,annotations,config,saved=None):
     from .identity_metrics import ContinuityMetrics, possible_instances
-    from worldstream.m1.association_diagnostics import edge_gates
-    from worldstream.m1.association_tracks import bound, predict
     manager=WorldStateManager(config)
     continuity=ContinuityMetrics();fast_diagnosis=[];recoveries=[];recovery_opportunities=[]
-    scored_history={};instance_history={};visibility_history={};wrong_relations=[]
+    actual_source_labels={};instance_history={};visibility_history={};wrong_relations=[]
     counters={k:0 for k in ('accepted','candidates','correct','wrong','scored','unknown','eligible',
         'identity_switches','fragments','continuity_breaks','tracks','aligned','alignment_correct',
         'alignment_scored','alignment_unknown','alignment_possible','ambiguous','rejected','proposals')}
@@ -59,8 +57,6 @@ def evaluate_main_scene(batches,annotations,config,saved=None):
     total_gt_visible=0;occluded=0;fast=0;near_opposing=0
     for ordinal,(frame,outputs) in enumerate(batches):
         tick=perf_counter();r=manager.precheck(frame)
-        source_anchors=dict(manager.store.anchors);source_tracks=manager.store.association_tracks
-        source_epoch=manager.store.generation;source_history=manager._identity_history
         manager.commit(frame,copy.deepcopy(outputs),r)
         times.append((perf_counter()-tick)*1000);d=manager.last_commit_diagnostics
         # Explicit post-commit boundary: no GT labels are attached to Frame/outputs.
@@ -110,26 +106,13 @@ def evaluate_main_scene(batches,annotations,config,saved=None):
         saved_metrics={name:reader.update(frame.frame_id,selected,labels,anns,possible)
                        for name,reader in (saved or {}).items()}
         td=d.get('association_tracks') or {}
-        measurements={(v['anchor_id'],v['prediction_index']):v for v in td.get('measurements',[])}
-        previous_by_gt={identity:aid for aid,identity in previous.items()}
         index_by_gt={identity:index for index,identity in labels.items() if index in selected}
         for identity in sorted(eligible):
-            if motions.get(identity)!='fast':continue
-            aid=previous_by_gt[identity];index=index_by_gt[identity];old=source_anchors.get(aid)
-            row=dict(frame_id=frame.frame_id,instance_id=identity,anchor_id=aid,prediction_index=index,
-                     correct=identity in correct_ids,measurement=measurements.get((aid,index),
-                     dict(status='unknown',reason='not_measured_or_bounded_log_limit')))
-            if old is None:row['reason']='source_anchor_unavailable'
-            else:
-                record=source_tracks.get(aid)
-                prior=predict(record,frame.timestamp,config) if bound(record,old,frame,source_epoch) else None
-                row.update(edge_gates(old,outputs.anchors[index],frame,source_epoch,outputs.source,config,prior))
-                row['source_frame']=old.source_frame_id;row['history_frames']=len(record['samples']) if record else 0
-                row['motion_prediction_available']=prior is not None
-                row['source_image_available']=any(h['frame_id']==old.source_frame_id for h in source_history)
-            fast_diagnosis.append(row)
+            if motions.get(identity)=='fast':
+                fast_diagnosis.append(dict(frame_id=frame.frame_id,instance_id=identity,
+                    prediction_index=index_by_gt[identity],correct=identity in correct_ids))
         for aid in td.get('recovered',[]):
-            old=scored_history.get(aid);new=current.get(aid)
+            old=actual_source_labels.get(aid);new=current.get(aid)
             known=old is not None and new is not None
             recoveries.append(dict(frame_id=frame.frame_id,anchor_id=aid,previous_instance=old,current_instance=new,
                 status='correct' if known and old==new else 'wrong' if known else 'unknown'))
@@ -147,7 +130,9 @@ def evaluate_main_scene(batches,annotations,config,saved=None):
             if identity not in visibility_history:visibility_history[identity]=['absent']*ordinal
             ann=ann_by.get(identity)
             visibility_history[identity].append('absent' if ann is None else 'supported' if ann['has_sensor_support'] else 'unsupported')
-        scored_history.update(current)
+        # A newer unscored observation invalidates the older GT label for this
+        # supplemental source/target relation; never fill unknown with history.
+        actual_source_labels.update({aid:current.get(aid) for aid in committed})
         bd=None
         # Difficulty labels are offline summaries, never online evidence.
         total_gt_visible+=len(anns);occluded+=sum(str(a['visibility']) in ('1','2','3') for a in anns)
@@ -163,7 +148,7 @@ def evaluate_main_scene(batches,annotations,config,saved=None):
         traces.append(dict(frame_id=frame.frame_id,scene_id=frame.scene_id,edges=edge_rows,
             certified=list(manager.get_current_certifications().certified_anchor_ids),
             pairs=d['association_pairs'],dqtrack=bd,m1_ms=times[-1],
-            association_observation=d.get('association_observation'),association_tracks=d.get('association_tracks'),
+            association_tracks=d.get('association_tracks'),
             committed_anchor_ids=committed,selected_prediction_indices=selected,scored_identity_by_anchor=current))
     metrics=rates(counters)
     metrics.update(continuity.counts,legacy_gt_gap_count=counters['fragments'],
@@ -235,8 +220,8 @@ def main():
         old_wrong|={(t['frame_id'],e['previous_instance'],e['current_instance']) for t in old['traces'] for e in t['edges'] if e['status']=='wrong'}
     new_wrong={tuple(row) for v in results.values() for row in v['wrong_relations']}
     gates['no_new_wrong_relations']=not(new_wrong-old_wrong)
-    summary=dict(metrics=metrics,saved_reference=reference,denominators_equal=comparable,gates=gates,
-        decision='GO' if comparable and all(gates.values()) else 'NO_GO',scenes=results,
+    summary=dict(task='single_path_refactor',historical_quality_gates=gates,metrics=metrics,saved_reference=reference,denominators_equal=comparable,
+        decision='REVIEW_REFACTOR_QUALITY_AND_COST',scenes=results,
         fragments_definition='GT scored-visible ordinal gaps; independent of assigned identity; preserved unchanged')
     (out/'summary.json').write_text(json.dumps(json_value(summary),indent=2,allow_nan=False))
     print('FINAL',json.dumps(json_value({k:v for k,v in summary.items() if k!='scenes'})),flush=True)

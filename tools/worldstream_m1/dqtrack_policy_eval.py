@@ -1,7 +1,7 @@
 """Development-only paired policy diagnosis; never creates online qualification.
 
-GT labels are constructed and consumed after each manager.commit. ResearchManager
-only injects a frozen numeric profile, never annotations. Independent qualification
+GT labels are constructed and consumed after each manager.commit. Only the
+unified manager and read-only external shadow observations remain available. Independent qualification
 cannot be inferred from exposed nuScenes validation scenes.
 """
 import argparse
@@ -17,11 +17,6 @@ from worldstream.m1 import M1Config,WorldStateManager
 from worldstream.m1.association import legal_assignment
 from worldstream.m1.state_types import WorldAnchor,json_value
 from worldstream.m1.geometry import box_geometry
-
-
-class ResearchManager(WorldStateManager):
-    def _dqtrack_policy_profile(self):
-        return dict(self.research_profile),dict(status='OFFLINE_RESEARCH_ONLY_NOT_QUALIFIED')
 
 
 def strict_labels(predictions,annotations,gate=1.):
@@ -56,14 +51,11 @@ def rates(c):
         alignment_recall=ratio('alignment_correct','alignment_possible'))
 
 
-def evaluate_scene(batches,annotations,config,path,method,profile):
-    mode='off' if method in ('geometry','guard_geometry') else 'shadow' if method=='shadow' else 'hint'
-    cls=ResearchManager if method=='research_tiebreak' else WorldStateManager
-    cfg=replace(config,dqtrack_mode=mode,dqtrack_results_path=str(path),logging=False,
-                dqtrack_association_policy='calibrated_tiebreak' if cls is ResearchManager else 'conservative',
-                association_observation_guard=method in ('guard_geometry','guard_hint'))
-    manager=cls(cfg)
-    if cls is ResearchManager:manager.research_profile=profile
+def evaluate_scene(batches,annotations,config,path,method):
+    if method not in ('geometry','shadow'):
+        raise ValueError('Retired identity correction policy; only geometry or read-only shadow remains')
+    cfg=replace(config,dqtrack_mode='off' if method=='geometry' else 'shadow',dqtrack_results_path=str(path),logging=False)
+    manager=WorldStateManager(cfg)
     counters={k:0 for k in ('accepted','candidates','correct','wrong','scored','unknown','eligible',
         'identity_switches','fragments','continuity_breaks','tracks','aligned','alignment_correct',
         'alignment_scored','alignment_unknown','alignment_possible','ambiguous','rejected','proposals')}
@@ -178,14 +170,9 @@ def main():
     p.add_argument('--infos',default='data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl')
     p.add_argument('--data-root',default='data/nuscenes')
     p.add_argument('--config',default='configs/worldstream_m1_balanced.yaml')
-    p.add_argument('--min-score',type=float,default=.5)
-    p.add_argument('--methods',nargs='+',choices=['geometry','shadow','conservative','research_tiebreak',
-        'guard_geometry','guard_hint'],default=['geometry','shadow','conservative','research_tiebreak'])
+    p.add_argument('--methods',nargs='+',choices=['geometry','shadow'],default=['geometry'])
     a=p.parse_args();output=Path(a.output);output.mkdir(parents=True,exist_ok=False)
     protocol=json.loads(Path(a.protocol).read_text())
-    # Profile is frozen before this program loads any GT evaluation labels.
-    profile=dict(min_score=a.min_score,min_observations=3,max_hint_age_s=1.)
-    (output/'research_profile.json').write_text(json.dumps(profile,indent=2))
     with open(a.infos,'rb') as f:infos=pickle.load(f)['infos']
     by_token={i['token']:i for i in infos}
     with open(a.candidates,'rb') as f:candidates=pickle.load(f)
@@ -198,11 +185,11 @@ def main():
         batches=[(frame_from_info(by_token[t],a.data_root),candidates[t]) for t in spec['samples']]
         results[scene]={}
         for method in a.methods:
-            result=evaluate_scene(batches,annotations,config,Path(a.dqtrack_root)/scene/'normalized_tracking.json',method,profile)
+            result=evaluate_scene(batches,annotations,config,Path(a.dqtrack_root)/scene/'normalized_tracking.json',method)
             with (folder/(method+'.json')).open('x') as f:json.dump(json_value(result),f,allow_nan=False)
             results[scene][method]={k:v for k,v in result.items() if k!='traces'}
             print(scene,method,result['metrics'],flush=True)
-    summary=dict(protocol_sha256=hashlib.sha256(Path(a.protocol).read_bytes()).hexdigest(),profile=profile,
+    summary=dict(protocol_sha256=hashlib.sha256(Path(a.protocol).read_bytes()).hexdigest(),
         deployment_decision='NOT_QUALIFIED_NO_INDEPENDENT_SCENES',scenes=results,methods={})
     for method in a.methods:
         rows=[r[method] for r in results.values()];counts={k:sum(r['metrics'].get(k,0) for r in rows)

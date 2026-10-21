@@ -1,150 +1,152 @@
+"""Single-path identity lifecycle, provenance and transaction tests."""
 from dataclasses import replace
 import copy
 import numpy as np
 import pytest
-from worldstream.m1 import WorldStateManager, FullOutputs
-from worldstream.m1.association_tracks import predict, candidates, prune
+from worldstream.m1 import WorldStateManager,FullOutputs
+from worldstream.m1.geometry import box_geometry
+from worldstream.m1.association_tracks import candidates,predict,prune
 
 
-def commit(m,frame,preds):
-    r=m.precheck(frame);m.commit(frame,FullOutputs(preds),r)
-    return m.last_commit_diagnostics['committed_anchor_ids']
+def commit(manager,frame,predictions):
+    r=manager.precheck(frame);manager.commit(frame,FullOutputs(predictions),r)
+    return manager.last_commit_diagnostics['committed_anchor_ids']
 
 
-def test_robust_prediction_budget(config):
-    h={'samples':[dict(timestamp=t,center=[t*2,0,0],frame_id=str(t)) for t in (0,.5,1)]}
-    center,u=predict(h,1.5,config)
-    assert np.allclose(center,[3,0,0]) and u==0
-    h['samples'][-1]['center']=[20,0,0]
-    assert predict(h,1.5,config) is None
+def test_normal_continuity_and_bounded_history(config,make_frame,make_prediction):
+    m=WorldStateManager(replace(config,association_track_prior=True,association_track_frames=3))
+    for n in range(6):
+        ids=commit(m,make_frame(t=100+n*.25),[make_prediction(n*.25)])
+        assert ids==['scene:g2:a1']
+    record=m.store.association_tracks[ids[0]]
+    assert len(record['samples'])==3
+    assert record['samples'][-1]['timestamp']==101.25
+    assert not m._identity_history  # ordinary association owns no image history
+    assert 'rois' not in record and 'observation_support' not in record['snapshot']
+    a=m.store.anchors[ids[0]]
+    assert not a.identity_link_qualified and not a.velocity_reliable and a.physical_certification is None
 
 
-def test_committed_history_physical_separation(config,make_frame,make_prediction):
+def test_history_prediction_enters_only_allocator(config,make_frame,make_prediction,monkeypatch):
+    import scipy.optimize
+    count=[];original=scipy.optimize.linear_sum_assignment
+    def solve(matrix):count.append(matrix.shape);return original(matrix)
+    monkeypatch.setattr(scipy.optimize,'linear_sum_assignment',solve)
     m=WorldStateManager(replace(config,association_track_prior=True))
-    for n in range(4):
-        ids=commit(m,make_frame(t=100+n*.5),[make_prediction(n*.5)])
-    a=m.store.anchors[ids[0]];h=m.store.association_tracks[ids[0]]
-    assert len(h['samples'])==4
-    assert not a.identity_link_qualified and not a.velocity_reliable
-    assert a.physical_certification is None and not a.motion_history
-    frame=make_frame(t=102)
-    _,priors,_=candidates(m.store,frame,m.config,'actual_perception')
-    assert len(priors)==1
-    assert not candidates(m.store,frame,m.config,'different_source')[1]
-    before=m.store.source_digest()
-    m.precheck(frame);m.abort_pending()
-    assert m.store.source_digest()==before
+    for t in (100.,100.1,100.2,100.7):
+        ids=commit(m,make_frame(t=t),[make_prediction((t-100)*5)])
+        assert ids==['scene:g2:a1']
+    # First frame has no source rows; all other frames allocate exactly once.
+    assert len(count)==3
+    a=m.store.anchors[ids[0]]
+    center,u=predict(a,101.,m.config,m.store.association_tracks[a.anchor_id])
+    assert np.allclose(center,[5.,0.,10.]) and u<1e-8
 
 
-def test_fast_prediction_after_reliable_seed(config,make_frame,make_prediction):
+def test_unstable_history_rejected_without_fallback(config,make_frame,make_prediction):
     m=WorldStateManager(replace(config,association_track_prior=True))
-    original=None
-    for n,t in enumerate((100,100.1,100.2,100.7)):
-        # Real measured texture displacement, not a moving box over unchanged RGB.
-        import cv2
-        from worldstream.m1.geometry import box_geometry
-        frame=make_frame(t=t)
-        frame.cameras['front'].intrinsic[0,0]=40.;frame.cameras['front'].intrinsic[1,1]=40.
-        frame.cameras['front'].image=cv2.warpAffine(frame.cameras['front'].image,
-            np.array([[1.,0.,(t-100)*20],[0.,1.,0.]]),(120,100))
-        pred=make_prediction((t-100)*5)
-        pred.geometry_world=box_geometry(pred.geometry_world.center,[6.,6.,2.])
-        ids=commit(m,frame,[pred])
-        original=original or ids[0]
-        assert ids==[original]
-    assert len(m.store.association_tracks[original]['samples'])==4
-    assert not m.store.anchors[original].velocity_reliable
-
-
-def test_dormant_restore_no_old_feature_or_certification(config,make_frame,make_prediction):
-    cfg=replace(config,association_track_prior=True,max_state_age_s=.6,uncertainty_px=0.)
-    m=WorldStateManager(cfg)
-    from worldstream.m1.geometry import box_geometry
-    pred=make_prediction();pred.geometry_world=box_geometry(pred.geometry_world.center,[4.,4.,2.])
-    for n in range(3):
-        aid=commit(m,make_frame(t=100+n*.25),[pred])[0]
-    commit(m,make_frame(t=101.25),[])
-    assert aid not in m.store.anchors and aid in m.store.association_tracks
-    ids=commit(m,make_frame(t=101.5),[pred])
-    assert ids==[aid]
+    for n,x in enumerate((0.,.5,-.5)):
+        aid=commit(m,make_frame(t=100+n*.1),[make_prediction(x)])[0]
     a=m.store.anchors[aid]
-    assert a.association_basis=='uncertified_dormant_identity_recovery'
-    assert a.physical_certification is None and not a.identity_link_qualified
-    assert a.last_verified_timestamp is None and a.certified_observation_count==0
-    assert not m.last_result.valid_anchor_ids
+    assert predict(a,101.,m.config,m.store.association_tracks[aid]) is None
 
 
-@pytest.mark.parametrize('fault',['scene','epoch','signature','version','origin'])
-def test_bound_rejects_incompatible_history(config,make_frame,make_prediction,fault):
+@pytest.mark.parametrize('fault',['class','size','distance'])
+def test_incompatible_predictions_create_identity(config,make_frame,make_prediction,fault):
     m=WorldStateManager(replace(config,association_track_prior=True))
-    for n in range(3): aid=commit(m,make_frame(t=100+n*.25),[make_prediction()])[0]
-    h=m.store.association_tracks[aid]
-    if fault=='version':h['samples'][-1]['version']='forged'
-    else:h[{'scene':'scene_id','signature':'signature','epoch':'epoch','origin':'origin'}[fault]]='bad'
-    assert not candidates(m.store,make_frame(t=101),m.config,'actual_perception')[1]
+    old=commit(m,make_frame(),[make_prediction()])
+    p=make_prediction()
+    if fault=='class':p.semantic_class='car'
+    if fault=='size':p.geometry_world=box_geometry([0.,0.,10.],[10.,10.,10.])
+    if fault=='distance':p=make_prediction(10.)
+    assert commit(m,make_frame(t=100.5),[p])!=old
 
 
-def test_bounded_and_reset(config,make_frame,make_prediction):
-    cfg=replace(config,association_track_prior=True,association_track_limit=2,association_track_frames=3)
-    m=WorldStateManager(cfg)
-    for n in range(6):commit(m,make_frame(t=100+n*.25),[make_prediction(-5),make_prediction(0),make_prediction(5)])
-    assert len(m.store.association_tracks)<=2
-    assert all(len(r['samples'])<=3 for r in m.store.association_tracks.values())
-    assert prune(m.store,110,cfg)['tracks']==0
-    m.reset();assert not m.store.association_tracks
+def test_ambiguous_competitors_create_new_ids(config,make_frame,make_prediction):
+    m=WorldStateManager(replace(config,association_track_prior=True))
+    old=commit(m,make_frame(),[make_prediction(-.5),make_prediction(.5)])
+    new=commit(m,make_frame(t=100.5),[make_prediction(0.),make_prediction(0.)])
+    assert len(set(new))==2 and not set(old)&set(new)
+    assert not m.last_commit_diagnostics['association_pairs']
 
 
-def test_unknown_appearance_cannot_recover(config,make_frame,make_prediction):
+@pytest.mark.parametrize('fault',['scene','epoch','signature','origin','version'])
+def test_incompatible_history_is_never_used(config,make_frame,make_prediction,fault):
+    m=WorldStateManager(replace(config,association_track_prior=True))
+    for n in range(3):aid=commit(m,make_frame(t=100+n*.1),[make_prediction()])[0]
+    r=m.store.association_tracks[aid]
+    if fault=='version':r['samples'][-1]['version']='forged'
+    else:r[dict(scene='scene_id',epoch='epoch',signature='signature',origin='origin')[fault]]='bad'
+    assert candidates(m.store,make_frame(t=100.5),m.config,'actual_perception')[1][0] is None
+    assert commit(m,make_frame(t=100.5),[make_prediction()])!=[aid]
+
+
+def test_dormant_uses_same_gate_and_inherits_no_qualification(config,make_frame,make_prediction):
     m=WorldStateManager(replace(config,association_track_prior=True,max_state_age_s=.6))
     for n in range(3):aid=commit(m,make_frame(t=100+n*.25),[make_prediction()])[0]
+    old=m.store.anchors[aid];old.last_verified_timestamp=100.5;old.certified_observation_count=7
     commit(m,make_frame(t=101.25),[])
-    f=make_frame(t=101.5);f.cameras['front'].image[:]=128
-    assert commit(m,f,[make_prediction()])!=[aid]
+    assert aid not in m.store.anchors
+    assert commit(m,make_frame(t=101.5),[make_prediction()])==[aid]
+    a=m.store.anchors[aid]
+    assert a.association_basis=='uncertified_dormant_identity_recovery'
+    assert a.last_verified_timestamp is None and a.certified_observation_count==0
+    assert a.physical_certification is None and not a.identity_link_qualified
+    assert m.last_commit_diagnostics['association_tracks']['recovered']==[aid]
+    assert not m.last_result.valid_anchor_ids
+    assert all(f.computation_timestamp==101.5 for f in m.store.features.values())
 
 
-def test_pending_history_tamper_discards_source(config,make_frame,make_prediction):
-    m=WorldStateManager(replace(config,association_track_prior=True))
+def test_expired_or_outside_dormant_is_not_forced(config,make_frame,make_prediction):
+    m=WorldStateManager(replace(config,association_track_prior=True,max_state_age_s=.3,association_track_ttl_s=.9))
     aid=commit(m,make_frame(),[make_prediction()])[0]
+    commit(m,make_frame(t=100.5),[])
+    assert commit(m,make_frame(t=101.),[make_prediction()])!=[aid]
+    assert aid not in m.store.association_tracks
+
+
+def test_tamper_and_commit_failure_are_atomic(config,make_frame,make_prediction,monkeypatch):
+    import worldstream.m1.association_tracks as tracks
+    m=WorldStateManager(replace(config,association_track_prior=True))
+    aid=commit(m,make_frame(),[make_prediction()])[0];before=m.store.source_digest()
+    original=tracks.publish
+    def fail(*args,**kwargs):original(*args,**kwargs);raise RuntimeError('injected')
+    monkeypatch.setattr(tracks,'publish',fail)
     f=make_frame(t=100.5);r=m.precheck(f)
+    with pytest.raises(RuntimeError):m.commit(f,FullOutputs([make_prediction()]),r)
+    assert m.store.source_digest()==before
+    monkeypatch.setattr(tracks,'publish',original)
+    f=make_frame(t=101.);r=m.precheck(f)
     m.store.association_tracks[aid]['samples'][0]['center'][0]+=1
     with pytest.raises(ValueError,match='source state changed'):m.commit(f,FullOutputs([make_prediction()]),r)
     assert not m.store.association_tracks
 
 
-def test_competition_not_written_back(config,make_frame,make_prediction):
-    m=WorldStateManager(replace(config,association_track_prior=True))
-    ids=commit(m,make_frame(),[make_prediction(-.7),make_prediction(.7)])
-    # Equal geometry gives an exact tie. No labels/descriptors turn missing
-    # evidence into an association, and rejected IDs keep only committed seeds.
-    f=make_frame(t=100.5);f.cameras['front'].image[:]=128
-    new=commit(m,f,[make_prediction(0),make_prediction(0)])
-    assert not set(ids)&set(new)
-    assert all(len(m.store.association_tracks[aid]['samples'])==1 for aid in ids)
+def test_budget_and_reset(config,make_frame,make_prediction):
+    m=WorldStateManager(replace(config,association_track_prior=True,association_track_limit=1))
+    commit(m,make_frame(),[make_prediction(0.),make_prediction(8.)])
+    assert len(m.store.association_tracks)==1
+    small=replace(m.config,association_track_bytes=1024)
+    assert prune(m.store,100.,small)['accounted_memory_bytes']<=1024
+    m.reset();assert not m.store.association_tracks
 
 
-def test_commit_failure_does_not_publish_history(config,make_frame,make_prediction,monkeypatch):
-    import worldstream.m1.association_tracks as tracks
-    m=WorldStateManager(replace(config,association_track_prior=True))
-    commit(m,make_frame(),[make_prediction()]);before=m.store.source_digest()
-    original=tracks.publish
-    def fail(*args,**kwargs):
-        original(*args,**kwargs)
-        raise RuntimeError('injected failure after history write')
-    monkeypatch.setattr(tracks,'publish',fail)
-    f=make_frame(t=100.5);r=m.precheck(f)
-    with pytest.raises(RuntimeError,match='injected'):m.commit(f,FullOutputs([make_prediction()]),r)
-    assert m.store.source_digest()==before
+@pytest.mark.parametrize('option',[dict(association_observation_guard=True),dict(dqtrack_mode='hint'),
+    dict(identity_tracking_policy='experimental'),dict(identity_tracking_policy='certified_only'),
+    dict(dqtrack_association_policy='calibrated_tiebreak')])
+def test_retired_assigners_fail_explicitly(config,option):
+    with pytest.raises(ValueError,match='Retired identity-assignment'):WorldStateManager(replace(config,**option))
 
 
-def test_view_change_unknown_and_memory_bound(config,make_frame,make_prediction):
-    import worldstream.m1.association_tracks as tracks
-    m=WorldStateManager(replace(config,association_track_prior=True))
-    for n in range(3):aid=commit(m,make_frame(t=100+n*.25),[make_prediction()])[0]
-    record=copy.deepcopy(m.store.association_tracks[aid])
-    for h in record['samples']:h['rois']['front']['ray']=[0,0,-1]
-    target=m.store.anchors[aid]
-    assert tracks.appearance(record,target,make_frame(t=101),m.config,m.validator,{},0) is None
-    tiny=replace(m.config,association_track_bytes=1024)
-    d=prune(m.store,100.5,tiny)
-    assert d['accounted_memory_bytes']<=1024 and d['serialized_bytes']<=1024
-    assert not m.store.association_tracks
+@pytest.mark.parametrize('samples',[1,3])
+def test_same_age_budget_limits_short_and_mature_tracks(config,make_frame,make_prediction,samples):
+    m=WorldStateManager(replace(config,association_track_prior=True,velocity_uncertainty_mps=2.))
+    for n in range(samples):aid=commit(m,make_frame(t=100+n*.25),[make_prediction()])[0]
+    a=m.store.anchors[aid];record=m.store.association_tracks[aid]
+    assert predict(a,a.source_timestamp+1.1,m.config,record) is None
+    center,budget=predict(a,a.source_timestamp+.5,m.config,record)
+    assert np.allclose(center,a.geometry_world.center) and budget==1.
+
+
+def test_negative_age_budget_rejected(config):
+    with pytest.raises(ValueError,match='Velocity uncertainty'):replace(config,velocity_uncertainty_mps=-1.)

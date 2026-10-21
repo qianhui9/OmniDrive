@@ -59,7 +59,8 @@ def assignment_edge_alternatives(pairs, costs):
     return result
 
 
-def associate(anchors, predictions, timestamp, config, motion_priors=None, identity_only_rows=()):
+def associate(anchors, predictions, timestamp, config, motion_priors=None, identity_only_rows=(),
+              source_context=None, diagnostics=None):
     """Same legal gates as scalar matching, with curves sampled once per input."""
     costs = np.full((len(anchors), len(predictions)), np.inf)
     groups = {}
@@ -74,8 +75,14 @@ def associate(anchors, predictions, timestamp, config, motion_priors=None, ident
     for i, old in enumerate(anchors):
         if timestamp - old.source_timestamp > (config.association_track_ttl_s if i in identity_only_rows else config.max_state_age_s):
             continue
+        if source_context is not None:
+            frame,epoch,origin=source_context
+            if (old.scene_id!=frame.scene_id or old.source_state_epoch!=epoch
+                    or old.source_execution_signature!=frame.execution_signature or old.evidence_origin!=origin
+                    or timestamp<=old.source_timestamp):
+                continue
         try:
-            g = predict_geometry(old, timestamp)
+            g = old.geometry_world if old.anchor_type=='object' else predict_geometry(old,timestamp)
         except ValueError:
             continue
         indices = groups.get((old.anchor_type, old.semantic_class), [])
@@ -88,22 +95,17 @@ def associate(anchors, predictions, timestamp, config, motion_priors=None, ident
             sizes = np.asarray([predictions[j].geometry_world.size for j in indices])
             centers = np.asarray([predictions[j].geometry_world.center for j in indices])
             ratios = np.maximum(g.size / sizes, sizes / g.size)
-            distances = np.linalg.norm(g.center - centers, axis=1)
-            if config.dynamic_motion_prediction:
-                from .world_motion import prediction
-                motion=prediction(old,timestamp)
-                if motion is not None:
-                    center,covariance=motion
-                    residuals=centers-center
-                    distances=np.linalg.norm(residuals,axis=1)
-                    # Fixed 2m gate still applies around the predicted centre;
-                    # uncertainty additionally consumes that gate's budget.
-                    uncertainty=3*np.sqrt(np.linalg.eigvalsh(covariance).max())
-                    distances=np.where(distances+uncertainty<=config.association_gate_m,distances,np.inf)
-            if motion_priors and i in motion_priors:
-                center, uncertainty = motion_priors[i]
-                distances = np.linalg.norm(centers-center, axis=1)
-                distances = np.where(distances+uncertainty <= config.association_gate_m, distances, np.inf)
+            if motion_priors is not None and i in motion_priors:
+                motion=motion_priors[i]
+            elif timestamp==old.source_timestamp and source_context is None:
+                motion=(g.center,0.)  # same-frame external observation alignment
+            else:
+                from .association_tracks import predict
+                motion=predict(old,timestamp,config)
+            if motion is None:continue
+            center,uncertainty=motion
+            distances=np.linalg.norm(np.asarray(center)-centers,axis=1)
+            distances=np.where(distances+uncertainty<=config.association_gate_m,distances,np.inf)
             legal = (~np.any(ratios > config.box_size_ratio, axis=1)
                      & (distances <= config.association_gate_m))
             costs[i, np.asarray(indices)[legal]] = distances[legal]
@@ -125,4 +127,34 @@ def associate(anchors, predictions, timestamp, config, motion_priors=None, ident
                                np.linalg.norm(a - b[::-1], axis=1).mean())
                 if distance <= config.map_gate_m:
                     costs[i, j] = distance
-    return legal_assignment(costs), costs
+    legal_count=int(np.isfinite(costs).sum())
+    # Reject unresolved endpoint competition BEFORE the one global allocation.
+    # A dummy option can then remain unmatched; no second solver repairs it.
+    edges=list(zip(*np.nonzero(np.isfinite(costs))))
+    ambiguous=association_ambiguities(edges,costs,config.association_ambiguity_margin_m)
+    admissible=np.isfinite(costs)
+    for edge,gate in ambiguous.items():
+        if gate['ambiguous']:admissible[edge]=False
+    pairs=unmatched_assignment(costs,[config.association_gate_m if a.anchor_type=='object' else config.map_gate_m for a in anchors],admissible)
+    if diagnostics is not None:
+        diagnostics.update(legal_edges=legal_count,ambiguous_edges=sum(d['ambiguous'] for d in ambiguous.values()),
+                           admissible_edges=int(admissible.sum()),matched=len(pairs))
+    return pairs,costs
+
+
+def unmatched_assignment(costs,row_budgets,admissible=None):
+    """One global minimum-cost assignment, with a private unmatched column/row.
+
+    Legal distances are normalized by their type-specific gate. Unmatched cost
+    is one gate budget; there is no maximum-cardinality bonus or greedy repair.
+    """
+    costs=np.asarray(costs,float)
+    if costs.ndim!=2 or np.isnan(costs).any() or (costs<0).any():raise ValueError('Invalid association costs')
+    n,m=costs.shape
+    if not n or not m:return []
+    budgets=np.asarray(row_budgets,float)
+    if budgets.shape!=(n,) or not np.isfinite(budgets).all() or (budgets<=0).any():raise ValueError('Invalid unmatched budget')
+    from scipy.optimize import linear_sum_assignment
+    dummy=np.full((n,n),np.inf);np.fill_diagonal(dummy,1.)
+    rows,cols=linear_sum_assignment(np.c_[np.where(admissible,costs,np.inf)/np.nextafter(budgets,np.inf)[:,None] if admissible is not None else costs/np.nextafter(budgets,np.inf)[:,None],dummy])
+    return [(int(i),int(j)) for i,j in zip(rows,cols) if j<m and np.isfinite(costs[i,j])]

@@ -106,34 +106,12 @@ def tentative_history(speed=1.,turn=False):
     return records
 
 
-@pytest.mark.parametrize('bad',['none','turn','version','scene','gap','ambiguous'])
-def test_search_motion_is_separate_and_bounded(make_frame,bad):
-    from worldstream.m1.search_motion import search_hypothesis
-    records=tentative_history(turn=bad=='turn');anchor=copy.deepcopy(records[-1]['anchors']['a']);f=make_frame(t=101.5)
-    if bad=='version':anchor.geometry_world.center[0]+=1
-    if bad=='scene':f.scene_id='other'
-    if bad=='gap':f.timestamp=103
-    if bad=='ambiguous':records[-1]['anchors']['a'].association_history[-1]['status']='ambiguous_or_missing'
-    h=search_hypothesis(anchor,records,f,cfg())
-    assert not anchor.velocity_reliable and not anchor.motion_history and not anchor.motion_prediction
-    if bad=='none':
-        assert h['status']=='search_only' and not h['qualified'] and h['source_state_version']==state_geometry_version(anchor)
-    else:assert h['status']=='unknown'
 
 
-def test_search_edges_do_not_alter_ordinary_association(make_frame,make_prediction):
-    from worldstream.m1.search_motion import search_edges
-    records=tentative_history(3);anchor=records[-1]['anchors']['a'];f=make_frame(t=101.5)
-    from worldstream.m1 import PerceptionAnchor
-    pred=PerceptionAnchor('object','car',box_geometry([4.5,0,50],[2,2,2]))
-    original=np.array([[np.inf]])
-    expanded,h,d=search_edges([anchor],[pred],original,f,records,cfg())
-    assert np.isinf(original).all() and np.isfinite(expanded).all() and d['new_edges']==1
-    assert not anchor.identity_link_qualified and anchor.physical_certification is None
 
 
 def test_pending_depth_history_and_search_reset(make_frame,make_prediction,monkeypatch):
-    c=cfg(identity_continuity=True,identity_method='temporal',search_dynamic_motion=True)
+    c=cfg(identity_continuity=True,identity_method='temporal')
     m=WorldStateManager(c)
     for t in [100,100.5,101]:
         f=make_frame(t=t);r=m.precheck(f);m.commit(f,FullOutputs([make_prediction(semantic='car')]),r)
@@ -193,9 +171,8 @@ def test_alignment_requires_measured_heldout_quality(bad):
 
 
 def test_tentative_velocity_never_becomes_qualified(make_frame):
-    from worldstream.m1.search_motion import search_hypothesis
     from worldstream.m1.world_motion import update_world_motion
-    records=tentative_history();old=records[-1]['anchors']['a'];h=search_hypothesis(old,records,make_frame(t=101.5),cfg())
+    records=tentative_history();old=records[-1]['anchors']['a'];h=dict(status='search_only',center_world=[4.5,0,50])
     new=copy.deepcopy(old);new.source_timestamp=101.5;new.geometry_world.center[:]=h['center_world']
     update_world_motion(old,new,cfg())
     assert h['status']=='search_only' and not new.motion_history and not new.velocity_reliable
@@ -239,18 +216,9 @@ def test_new_depth_history_still_requires_manager_source_binding(make_frame,make
     with pytest.raises(ValueError,match='binding mismatch'):m._bound_depth_history('front',make_frame(t=100.5))
 
 
-def test_real_commits_search_do_not_change_tracking_or_trusted_motion(make_frame,make_prediction):
-    baseline=WorldStateManager(cfg(identity_continuity=True,identity_method='temporal'))
-    search=WorldStateManager(cfg(identity_continuity=True,identity_method='temporal',search_dynamic_motion=True))
-    for t in [100.,100.5,101.,101.5]:
-        f=make_frame(t=t);outputs=FullOutputs([make_prediction(semantic='car')])
-        for m in (baseline,search):r=m.precheck(f);m.commit(f,outputs,r)
-        assert baseline.last_commit_diagnostics['association_pairs']==search.last_commit_diagnostics['association_pairs']
-        assert not search.get_current_certifications().certified_anchor_ids
-        for a in search.store.anchors.values():
-            assert not a.velocity_reliable and not a.motion_history and not a.identity_link_qualified
-            assert a.physical_certification is None or not a.physical_certification.certified
-    assert search.last_commit_diagnostics['search_motion']['generated']==1
+def test_manager_rejects_retired_identity_search():
+    with pytest.raises(ValueError,match='Retired'):
+        WorldStateManager(cfg(identity_continuity=True,identity_method='temporal',search_dynamic_motion=True))
 
 
 def test_new_producer_configuration_invalidates_old_protocol(make_frame):

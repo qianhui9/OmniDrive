@@ -58,7 +58,7 @@ def _aligned_descriptor(image,matrix,region,validator):
     return validator.descriptor(aligned,region)
 
 
-def _measure_view(anchor,target,old,cam,validator,config,depth_history=None,search_motion=None,correspondence_cache=None):
+def _measure_view(anchor,target,old,cam,validator,config,depth_history=None,search_motion=None):
     from .temporal_visibility import gray_image
     from .geometry_support import measured_patch_support
     cid=cam.camera_id;obs=anchor.observation_support.get(cid)
@@ -75,34 +75,25 @@ def _measure_view(anchor,target,old,cam,validator,config,depth_history=None,sear
         return dict(v,reason='actual_source_crop_descriptor_mismatch')
     projection=project_anchor(target,cam,config)
     if not projection.valid:return dict(v,reason='current_projection_unavailable')
-    a,b=gray_image(old),gray_image(cam)
-    cache_key=(anchor.source_frame_id,anchor.anchor_id,cid)
-    cached=correspondence_cache.get(cache_key) if correspondence_cache is not None else None
-    if cached is None:
-        mask=np.zeros(a.shape,np.uint8);mask[region_slices(obs.region,a.shape)]=255
-        p=cv2.goodFeaturesToTrack(a,maxCorners=96,qualityLevel=.01,minDistance=4,mask=mask,blockSize=5)
-        if p is None:return dict(v,reason='RGB_tracks_missing')
-        p=p[:,0];p=p[_inside(p,obs.region)]
-        from .correspondence_recovery import retain_depth_points
-        p,depth_seed_diagnostics=retain_depth_points(p,depth_history,old,config,obs.region)
-        v['depth_feature_seeding']=depth_seed_diagnostics
-        motion=None
-        if config.ego_motion_mode != 'off':
-            from .ego_motion import track_with_prediction
-            if config.multi_hypothesis_tracking:
-                from .search_motion import image_search_initial
-                initial=image_search_initial(anchor,old,cam,p,search_motion,config)
-                q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history,static_geometry=False,search_initial=initial)
-            else:q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history)
-            valid&=(q[:,0]>=3)&(q[:,0]<b.shape[1]-3)&(q[:,1]>=3)&(q[:,1]<b.shape[0]-3)
-        else:q,fb,valid=_lk(a,b,p)
-        if not len(p):return dict(v,reason='RGB_tracks_missing')
-        _,_,photo,residual=measured_patch_support(a,b,p,q,valid,config)
-        if correspondence_cache is not None:
-            correspondence_cache[cache_key]=(p,q,fb,valid,motion,depth_seed_diagnostics,photo,residual)
-    else:
-        p,q,fb,valid,motion,depth_seed_diagnostics,photo,residual=cached
-        v['depth_feature_seeding']=depth_seed_diagnostics
+    a,b=gray_image(old),gray_image(cam);mask=np.zeros(a.shape,np.uint8);mask[region_slices(obs.region,a.shape)]=255
+    p=cv2.goodFeaturesToTrack(a,maxCorners=96,qualityLevel=.01,minDistance=4,mask=mask,blockSize=5)
+    if p is None:return dict(v,reason='RGB_tracks_missing')
+    p=p[:,0];p=p[_inside(p,obs.region)]
+    from .correspondence_recovery import retain_depth_points
+    p,depth_seed_diagnostics=retain_depth_points(p,depth_history,old,config,obs.region)
+    v['depth_feature_seeding']=depth_seed_diagnostics
+    motion=None
+    if config.ego_motion_mode != 'off':
+        from .ego_motion import track_with_prediction
+        if config.multi_hypothesis_tracking:
+            from .search_motion import image_search_initial
+            initial=image_search_initial(anchor,old,cam,p,search_motion,config)
+            q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history,static_geometry=False,search_initial=initial)
+        else:q,fb,valid,motion=track_with_prediction(old,cam,p,config,depth_history)
+        valid&=(q[:,0]>=3)&(q[:,0]<b.shape[1]-3)&(q[:,1]>=3)&(q[:,1]<b.shape[0]-3)
+    else:q,fb,valid=_lk(a,b,p)
+    if not len(p):return dict(v,reason='RGB_tracks_missing')
+    _,_,photo,residual=measured_patch_support(a,b,p,q,valid,config)
     inside=_inside(q,projection.region);measured=photo&valid&(residual<=.04);selected=measured&inside
     n=int(selected.sum());total=len(p)
     v.update(total_tracks=total,measured_tracks=int(measured.sum()),tracks=n,
@@ -131,11 +122,7 @@ def _measure_view(anchor,target,old,cam,validator,config,depth_history=None,sear
     descriptor=_aligned_descriptor(b,matrix,obs.region,validator)
     appearance=validator.residual(obs.descriptor,descriptor)
     if not np.isfinite(appearance) or appearance>.18:
-        return dict(v,status='contradicted',reason='motion_aligned_appearance_conflict',
-            source_points=pp.tolist(),current_points=qq.tolist(),fb_error_px=fb[selected].tolist(),
-            patch_residual=residual[selected].tolist(),motion_matrix=matrix.tolist(),
-            affine_residual_px=errors.tolist(),descriptor_residual=appearance,
-            source_quadrants=quadrants(pp,obs.region),current_quadrants=quadrants(qq,projection.region))
+        return dict(v,status='contradicted',reason='motion_aligned_appearance_conflict')
     return dict(v,status='supported',reason='measured_motion_observed_crop',
         source_points=pp.tolist(),current_points=qq.tolist(),fb_error_px=fb[selected].tolist(),
         patch_residual=residual[selected].tolist(),motion_matrix=matrix.tolist(),affine_residual_px=errors.tolist(),
