@@ -59,7 +59,7 @@ def assignment_edge_alternatives(pairs, costs):
     return result
 
 
-def associate(anchors, predictions, timestamp, config):
+def associate(anchors, predictions, timestamp, config, motion_priors=None, identity_only_rows=()):
     """Same legal gates as scalar matching, with curves sampled once per input."""
     costs = np.full((len(anchors), len(predictions)), np.inf)
     groups = {}
@@ -72,7 +72,7 @@ def associate(anchors, predictions, timestamp, config):
             except ValueError:
                 pass
     for i, old in enumerate(anchors):
-        if timestamp - old.source_timestamp > config.max_state_age_s:
+        if timestamp - old.source_timestamp > (config.association_track_ttl_s if i in identity_only_rows else config.max_state_age_s):
             continue
         try:
             g = predict_geometry(old, timestamp)
@@ -100,6 +100,10 @@ def associate(anchors, predictions, timestamp, config):
                     # uncertainty additionally consumes that gate's budget.
                     uncertainty=3*np.sqrt(np.linalg.eigvalsh(covariance).max())
                     distances=np.where(distances+uncertainty<=config.association_gate_m,distances,np.inf)
+            if motion_priors and i in motion_priors:
+                center, uncertainty = motion_priors[i]
+                distances = np.linalg.norm(centers-center, axis=1)
+                distances = np.where(distances+uncertainty <= config.association_gate_m, distances, np.inf)
             legal = (~np.any(ratios > config.box_size_ratio, axis=1)
                      & (distances <= config.association_gate_m))
             costs[i, np.asarray(indices)[legal]] = distances[legal]

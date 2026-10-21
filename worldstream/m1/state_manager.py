@@ -605,6 +605,11 @@ class WorldStateManager:
                 post_perception_physical_certifications=[], commit_total_ms=(perf_counter()-start)*1000)
             return precheck_result
         anchors = list(self.store.anchors.values())
+        association_priors, dormant_rows = {}, set()
+        if self.config.association_track_prior:
+            from .association_tracks import candidates as track_candidates
+            anchors, association_priors, dormant_rows = track_candidates(
+                self.store, frame, self.config, full_outputs.source)
         candidates = []
         malformed = 0
         for index, pred in enumerate(full_outputs.anchors):
@@ -632,7 +637,16 @@ class WorldStateManager:
         selected = sorted(candidates, key=selection_key)[:self.config.max_anchors]
         predictions = [pred for _, pred in selected]
         assoc_start = perf_counter()
-        pairs, costs = associate(anchors, predictions, frame.timestamp, self.config)
+        pairs, costs = associate(anchors, predictions, frame.timestamp, self.config,
+                                 association_priors, dormant_rows)
+        if self.config.association_track_prior:
+            for i, old in enumerate(anchors):
+                if (old.scene_id != frame.scene_id or old.source_state_epoch != self.store.generation
+                        or old.source_execution_signature != frame.execution_signature
+                        or old.evidence_origin != full_outputs.source):
+                    costs[i] = np.inf
+            from .association import legal_assignment
+            pairs = legal_assignment(costs)
         ambiguities = association_ambiguities(pairs, costs, self.config.association_ambiguity_margin_m)
         accepted_pairs = []
         rejected_pairs = []
@@ -663,6 +677,12 @@ class WorldStateManager:
             from .association_observation import refine
             accepted_pairs,visual_edges,visual_diagnostics=refine(
                 anchors,predictions,costs,accepted_pairs,frame,self.store.last_timestamp,
+                self.config,self.validator)
+        track_edges = set(); track_diagnostics = None
+        if self.config.association_track_prior:
+            from .association_tracks import refine as refine_tracks
+            accepted_pairs, track_edges, track_diagnostics = refine_tracks(
+                anchors,predictions,costs,accepted_pairs,dormant_rows,self.store,frame,
                 self.config,self.validator)
         identity_costs=costs
         search_hypotheses={};search_counts=dict(status='Not Run')
@@ -864,6 +884,22 @@ class WorldStateManager:
                     if descriptor is not None:
                         a.observation_support[cid] = AnchorObservation(cid, p.region, immutable_array(descriptor),
                                                                       camera.timestamp, p.coverage)
+            if self.config.association_track_prior:
+                from .association_tracks import publish as publish_track
+                candidate_prior = next((old for i,old in enumerate(anchors)
+                                        if (i,j) in accepted_pairs),None)
+                row = next((i for i,old in enumerate(anchors) if old is candidate_prior),None)
+                reliable = (candidate_prior is None or (row,j) in track_edges
+                    or (np.isfinite(costs[row]).sum()==1 and np.isfinite(costs[:,j]).sum()==1))
+                if row in dormant_rows:
+                    # Identity recovery creates NEW observed state; no historical
+                    # lease, feature, verifier or physical certificate is restored.
+                    a.last_verified_timestamp=None; a.last_verified_source_frame=None
+                    a.last_certified_timestamp=None; a.certified_observation_count=0
+                    a.identity_link_qualified=False; a.physical_certification=None
+                    a.association_basis='uncertified_dormant_identity_recovery'
+                    a.associated_feature_ids=[]; a.history_observations=1
+                publish_track(self.store,a,candidate_prior,frame,self.config,reliable)
             self.store.anchors[aid] = a
             committed.append(aid)
         for row in identity_results:
@@ -872,6 +908,10 @@ class WorldStateManager:
                 row['target_anchor_id']=committed[j]
                 row['target_state_version']=state_geometry_version(self.store.anchors[committed[j]])
         self.store.prune(frame.timestamp)
+        if self.config.association_track_prior:
+            from .association_tracks import prune as prune_tracks
+            track_diagnostics.update(prune_tracks(self.store,frame.timestamp,self.config))
+            track_diagnostics['motion_priors']=len(association_priors)
         # Per-anchor observation records have known crop provenance; branch records remain
         # conservative. Only computed feature slots advance their own versions.
         from .state_types import ComputedFeature
@@ -996,6 +1036,8 @@ class WorldStateManager:
             self.last_commit_diagnostics.pop('state_update_ms')
         # Keep precheck_result frozen at the historical snapshot for M2; current versions are
         # available in store.feature_versions(), not silently substituted into old candidates.
+        if track_diagnostics is not None:
+            self.last_commit_diagnostics['association_tracks'] = track_diagnostics
         if dq_diagnostics is not None:
             self.last_commit_diagnostics['dqtrack'] = dq_diagnostics
         if visual_diagnostics is not None:

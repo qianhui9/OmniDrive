@@ -123,9 +123,23 @@ class M1Config:
     dqtrack_policy_qualification_path: Optional[str] = None
     dqtrack_policy_qualification_sha256: Optional[str] = None
 
+    association_track_prior: bool = False  # identity hypothesis only, opt-in
+    association_track_frames: int = 8
+    association_track_limit: int = 256
+    association_track_ttl_s: float = 3.0
+    association_track_bytes: int = 4 * 1024 * 1024
+
     association_observation_guard: bool = False  # commit-only, experimental RGB disambiguation
 
     def __post_init__(self):
+        if type(self.association_track_prior) is not bool:
+            raise ValueError('association_track_prior must be boolean')
+        for name, minimum in [('association_track_frames', 3), ('association_track_limit', 1), ('association_track_bytes', 1024)]:
+            if type(getattr(self, name)) is not int or getattr(self, name) < minimum:
+                raise ValueError('Invalid bounded association history: '+name)
+        import math
+        if not math.isfinite(self.association_track_ttl_s) or not 0 < self.association_track_ttl_s <= 10:
+            raise ValueError('Invalid association track TTL')
         if type(self.association_observation_guard) is not bool:
             raise ValueError("association_observation_guard must be boolean")
         if self.dqtrack_association_policy not in ("conservative", "calibrated_tiebreak"):
