@@ -638,7 +638,7 @@ class WorldStateManager:
         predictions = [pred for _, pred in selected]
         assoc_start = perf_counter()
         pairs, costs = associate(anchors, predictions, frame.timestamp, self.config,
-                                 association_priors, dormant_rows)
+                                 None, dormant_rows)
         if self.config.association_track_prior:
             for i, old in enumerate(anchors):
                 if (old.scene_id != frame.scene_id or old.source_state_epoch != self.store.generation
@@ -683,7 +683,8 @@ class WorldStateManager:
             from .association_tracks import refine as refine_tracks
             accepted_pairs, track_edges, track_diagnostics = refine_tracks(
                 anchors,predictions,costs,accepted_pairs,dormant_rows,self.store,frame,
-                self.config,self.validator)
+                self.config,self.validator,history=self._identity_history,priors=association_priors,
+                selected=selected,origin=full_outputs.source)
         identity_costs=costs
         search_hypotheses={};search_counts=dict(status='Not Run')
         if self.config.search_dynamic_motion:
@@ -899,7 +900,7 @@ class WorldStateManager:
                     a.identity_link_qualified=False; a.physical_certification=None
                     a.association_basis='uncertified_dormant_identity_recovery'
                     a.associated_feature_ids=[]; a.history_observations=1
-                publish_track(self.store,a,candidate_prior,frame,self.config,reliable)
+                publish_track(self.store,a,candidate_prior,frame,self.config,reliable,self._pending_digest)
             self.store.anchors[aid] = a
             committed.append(aid)
         for row in identity_results:
@@ -962,7 +963,7 @@ class WorldStateManager:
                 if old is not None and e.dense_source_map is not None:
                     self._surface_history[cid]=(copy.copy(old),frame.cameras[cid].timestamp,immutable_array(e.dense_source_map))
         old_cameras=self._previous_cameras
-        if self.config.temporal_visibility or self.config.local_support:
+        if self.config.temporal_visibility or self.config.local_support or self.config.association_track_prior:
             # Own only one bounded grayscale frame per camera, from actual computation.
             # precheck never replaces this source with an uncomputed/verified frame.
             from .temporal_visibility import gray_image
@@ -994,7 +995,7 @@ class WorldStateManager:
                     self.config,dict(scene_id=frame.scene_id,frame_id=frame.frame_id,frame_digest=self._pending_digest,
                         epoch=self.store.generation,execution_signature=frame.execution_signature,
                         commit_version=self.store.commit_count),additional_exclusion=dynamic_mask)
-        if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
+        if self.config.association_track_prior or (self.config.identity_continuity and self.config.identity_method.startswith('temporal')):
             # Only actual successful commits enter this bounded tuple. A failed
             # transaction cannot append an image or advance a source timestamp.
             from .identity_temporal import camera_snapshot_digest
@@ -1005,7 +1006,8 @@ class WorldStateManager:
                 commit_version=self.store.commit_count,depth_history=copy.deepcopy(self._depth_history),
                 anchors={aid:copy.deepcopy(self.store.anchors[aid]) for aid in committed if aid in self.store.anchors})
             self._identity_history=tuple(r for r in self._identity_history
-                if 0<frame.timestamp-r['timestamp']<=(2*self.config.max_frame_gap_s if self.config.search_dynamic_motion else min(self.config.max_state_age_s,1.)))+(record,)
+                if 0<frame.timestamp-r['timestamp']<=(self.config.association_track_ttl_s if self.config.association_track_prior else
+                    2*self.config.max_frame_gap_s if self.config.search_dynamic_motion else min(self.config.max_state_age_s,1.)))+(record,)
             self._identity_history=self._identity_history[-self.config.identity_history_frames:]
         self._previous_frame_id=frame.frame_id
         self._previous_frame_digest=self._pending_digest
@@ -1037,6 +1039,9 @@ class WorldStateManager:
         # Keep precheck_result frozen at the historical snapshot for M2; current versions are
         # available in store.feature_versions(), not silently substituted into old candidates.
         if track_diagnostics is not None:
+            track_diagnostics['image_history_frames']=len(self._identity_history)
+            images={id(c.image):c.image for h in self._identity_history for c in h['cameras'].values()}
+            track_diagnostics['image_history_bytes']=sum(a.nbytes for a in images.values())
             self.last_commit_diagnostics['association_tracks'] = track_diagnostics
         if dq_diagnostics is not None:
             self.last_commit_diagnostics['dqtrack'] = dq_diagnostics

@@ -128,13 +128,19 @@ class M1Config:
     association_track_limit: int = 256
     association_track_ttl_s: float = 3.0
     association_track_bytes: int = 4 * 1024 * 1024
+    association_diagnostics: bool = False
+    association_diagnostic_limit: int = 128
+    association_diagnostic_bytes: int = 64 * 1024
+    association_measurement_limit: int = 64
 
     association_observation_guard: bool = False  # commit-only, experimental RGB disambiguation
 
     def __post_init__(self):
+        if type(self.association_diagnostics) is not bool:
+            raise ValueError('association_diagnostics must be boolean')
         if type(self.association_track_prior) is not bool:
             raise ValueError('association_track_prior must be boolean')
-        for name, minimum in [('association_track_frames', 3), ('association_track_limit', 1), ('association_track_bytes', 1024)]:
+        for name, minimum in [('association_track_frames', 3), ('association_track_limit', 1), ('association_track_bytes', 1024), ('association_diagnostic_limit', 0), ('association_diagnostic_bytes', 1024), ('association_measurement_limit', 0)]:
             if type(getattr(self, name)) is not int or getattr(self, name) < minimum:
                 raise ValueError('Invalid bounded association history: '+name)
         import math

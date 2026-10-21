@@ -40,7 +40,16 @@ def test_fast_prediction_after_reliable_seed(config,make_frame,make_prediction):
     m=WorldStateManager(replace(config,association_track_prior=True))
     original=None
     for n,t in enumerate((100,100.1,100.2,100.7)):
-        ids=commit(m,make_frame(t=t),[make_prediction((t-100)*5)])
+        # Real measured texture displacement, not a moving box over unchanged RGB.
+        import cv2
+        from worldstream.m1.geometry import box_geometry
+        frame=make_frame(t=t)
+        frame.cameras['front'].intrinsic[0,0]=40.;frame.cameras['front'].intrinsic[1,1]=40.
+        frame.cameras['front'].image=cv2.warpAffine(frame.cameras['front'].image,
+            np.array([[1.,0.,(t-100)*20],[0.,1.,0.]]),(120,100))
+        pred=make_prediction((t-100)*5)
+        pred.geometry_world=box_geometry(pred.geometry_world.center,[6.,6.,2.])
+        ids=commit(m,frame,[pred])
         original=original or ids[0]
         assert ids==[original]
     assert len(m.store.association_tracks[original]['samples'])==4
@@ -50,11 +59,13 @@ def test_fast_prediction_after_reliable_seed(config,make_frame,make_prediction):
 def test_dormant_restore_no_old_feature_or_certification(config,make_frame,make_prediction):
     cfg=replace(config,association_track_prior=True,max_state_age_s=.6,uncertainty_px=0.)
     m=WorldStateManager(cfg)
+    from worldstream.m1.geometry import box_geometry
+    pred=make_prediction();pred.geometry_world=box_geometry(pred.geometry_world.center,[4.,4.,2.])
     for n in range(3):
-        aid=commit(m,make_frame(t=100+n*.25),[make_prediction()])[0]
+        aid=commit(m,make_frame(t=100+n*.25),[pred])[0]
     commit(m,make_frame(t=101.25),[])
     assert aid not in m.store.anchors and aid in m.store.association_tracks
-    ids=commit(m,make_frame(t=101.5),[make_prediction()])
+    ids=commit(m,make_frame(t=101.5),[pred])
     assert ids==[aid]
     a=m.store.anchors[aid]
     assert a.association_basis=='uncertified_dormant_identity_recovery'

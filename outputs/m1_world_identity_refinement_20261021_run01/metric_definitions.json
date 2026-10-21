@@ -1,0 +1,11 @@
+{
+  "legacy_gt_gap_count": "Alias of fragments: ordinal gaps between uniquely scored observations of a GT instance, independent of predicted identity.",
+  "identity_switches": "LEGACY: identity changes between successive scored observations of the same GT instance, even across GT/scoring gaps; kept for comparison to 258.",
+  "continuous_identity_switches": "Identity changes between consecutive sensor-supported uniquely scored frames; GT absence, unsupported annotations or partial-oracle ambiguity breaks the comparison.",
+  "predicted_track_fragments": "After >=1 sensor-supported GT-visible frame with no legal class/size/1m prediction, a scored observation returns under a DIFFERENT ID in the same visibility run. Immediate ID changes count only as switches; the same surviving ID is bridged_visible_gaps. Ambiguous oracle matches and absent/unsupported GT reset the visibility run.",
+  "effective_recall": "correct/eligible: unchanged previous-and-current uniquely scored GT intersection (969).",
+  "association_coverage": "accepted/candidates: unchanged 4646 selected predictions after scene initial frames.",
+  "wrong_association_rate": "wrong/scored; unknown accepted relations are excluded from scored, never considered correct.",
+  "recovery": "Score an actually recovered anchor against its last scored historical GT label, independently of immediate-previous-frame legacy scoring. Report correct/wrong/unknown only for applied recoveries. Absence/support gaps are proxies, not verified occlusion episodes.",
+  "preflight_note": "saved_scoring_preflight.json validates historical identity reconstruction. Its preliminary fragmentation counts predate the surviving-ID bridge refinement; final comparable new metrics are main_method per-scene saved_continuity_metrics and analysis.json.saved_new_metrics."
+}
