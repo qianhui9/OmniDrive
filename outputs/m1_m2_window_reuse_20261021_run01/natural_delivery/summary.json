@@ -1,0 +1,196 @@
+{
+  "original": {
+    "requests": 120,
+    "scenes": 3,
+    "E2E_wall_ms": {
+      "p50": 2826.1414191219956,
+      "p95": 2900.1818413147703
+    },
+    "M1_time_ms": {
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "candidate_block_windows": null,
+    "verified_exact_block_windows": null,
+    "dirty_hint_block_windows": null,
+    "unknown_block_windows": null,
+    "actual_skipped_block_computations": 0,
+    "actual_reused_spatial_windows": 0,
+    "executed_prefix_block_windows": null,
+    "fallback_reasons": {
+      "none": 120
+    },
+    "prefix_fallback_reasons": {},
+    "peak_allocated_GiB": 15.295317649841309,
+    "quality_checks": 0,
+    "quality_pass": null,
+    "snapshot_reads": 0,
+    "physical_certifications": 0,
+    "max_feature_abs": null,
+    "M2_validation_ms": null,
+    "M2_execution_ms": null,
+    "M2_wall_ms": null,
+    "M1_M2_adapter_ms": null,
+    "M1_M2_state_read_ms": null
+  },
+  "source_linked_window_exact": {
+    "requests": 120,
+    "scenes": 3,
+    "E2E_wall_ms": {
+      "p50": 3585.23955300916,
+      "p95": 6128.423881449271
+    },
+    "M1_time_ms": {
+      "p50": 680.1274509634823,
+      "p95": 3240.633246360812
+    },
+    "candidate_block_windows": 2300,
+    "verified_exact_block_windows": 0,
+    "dirty_hint_block_windows": 220,
+    "unknown_block_windows": 12960,
+    "actual_skipped_block_computations": 0,
+    "actual_reused_spatial_windows": 0,
+    "executed_prefix_block_windows": 12960,
+    "fallback_reasons": {
+      "m1_full_refresh": 12,
+      "none": 108
+    },
+    "prefix_fallback_reasons": {
+      "m1_full_refresh": 24,
+      "insufficient_stable_windows": 216
+    },
+    "peak_allocated_GiB": 15.429846286773682,
+    "quality_checks": 120,
+    "quality_pass": true,
+    "snapshot_reads": 120,
+    "physical_certifications": 0,
+    "max_feature_abs": 0.0,
+    "M2_validation_ms": {
+      "p50": 7.364875520579517,
+      "p95": 8.136665285564959
+    },
+    "M2_execution_ms": {
+      "p50": 480.4901044117287,
+      "p95": 483.3719458547421
+    },
+    "M2_wall_ms": {
+      "p50": 501.2564994394779,
+      "p95": 503.39631001697853
+    },
+    "M1_M2_adapter_ms": {
+      "p50": 3.032293519936502,
+      "p95": 3.716447460465133
+    },
+    "M1_M2_state_read_ms": {
+      "p50": 32.74861548561603,
+      "p95": 66.18279231479391
+    },
+    "M1_world_anchor_history_equal": true,
+    "same_M1_full_pairing": {
+      "pairs": 120,
+      "p50_improvement_percent": -1.3047644669294265,
+      "median_paired_delta_ms": -49.11449900828302,
+      "median_paired_improvement_percent": -1.2657656544912719,
+      "interpretation": "Descriptive paired timing; zero actual reuse cannot establish reuse acceleration"
+    }
+  },
+  "source_linked_window_auto": {
+    "requests": 120,
+    "scenes": 3,
+    "E2E_wall_ms": {
+      "p50": 3574.8778715496883,
+      "p95": 6191.803094313946
+    },
+    "M1_time_ms": {
+      "p50": 673.3991825021803,
+      "p95": 3350.0201206305064
+    },
+    "candidate_block_windows": 2300,
+    "verified_exact_block_windows": 0,
+    "dirty_hint_block_windows": 220,
+    "unknown_block_windows": 12960,
+    "actual_skipped_block_computations": 0,
+    "actual_reused_spatial_windows": 0,
+    "executed_prefix_block_windows": 12960,
+    "fallback_reasons": {
+      "m1_full_refresh": 12,
+      "no_valid_cache": 60,
+      "no_measured_beneficial_count": 22,
+      "validation_cost_exceeds_window_saving": 26
+    },
+    "prefix_fallback_reasons": {
+      "m1_full_refresh": 24,
+      "no_valid_cache": 120,
+      "no_measured_beneficial_count": 44,
+      "validation_cost_exceeds_window_saving": 52
+    },
+    "peak_allocated_GiB": 15.429846286773682,
+    "quality_checks": 120,
+    "quality_pass": true,
+    "snapshot_reads": 120,
+    "physical_certifications": 0,
+    "max_feature_abs": 0.0,
+    "M2_validation_ms": {
+      "p50": 2.2977044573053718,
+      "p95": 5.648885166738182
+    },
+    "M2_execution_ms": {
+      "p50": 255.0314669497311,
+      "p95": 482.54883209010586
+    },
+    "M2_wall_ms": {
+      "p50": 271.37293899431825,
+      "p95": 497.35253654653206
+    },
+    "M1_M2_adapter_ms": {
+      "p50": 0.1987804425880313,
+      "p95": 3.50093626184389
+    },
+    "M1_M2_state_read_ms": {
+      "p50": 32.66465698834509,
+      "p95": 67.81471261056139
+    },
+    "M1_world_anchor_history_equal": true,
+    "same_M1_full_pairing": {
+      "pairs": 120,
+      "p50_improvement_percent": -1.0119841145392787,
+      "median_paired_delta_ms": -39.55832635983825,
+      "median_paired_improvement_percent": -1.0849768784844689,
+      "interpretation": "Descriptive paired timing; zero actual reuse cannot establish reuse acceleration"
+    }
+  },
+  "full_maintain": {
+    "requests": 120,
+    "scenes": 3,
+    "E2E_wall_ms": {
+      "p50": 3539.063115022145,
+      "p95": 6216.717437468469
+    },
+    "M1_time_ms": {
+      "p50": 685.235608019866,
+      "p95": 3360.01999292057
+    },
+    "candidate_block_windows": null,
+    "verified_exact_block_windows": null,
+    "dirty_hint_block_windows": null,
+    "unknown_block_windows": null,
+    "actual_skipped_block_computations": 0,
+    "actual_reused_spatial_windows": 0,
+    "executed_prefix_block_windows": null,
+    "fallback_reasons": {
+      "none": 120
+    },
+    "prefix_fallback_reasons": {},
+    "peak_allocated_GiB": 15.295317649841309,
+    "quality_checks": 120,
+    "quality_pass": true,
+    "snapshot_reads": 0,
+    "physical_certifications": 0,
+    "max_feature_abs": 0.0,
+    "M2_validation_ms": null,
+    "M2_execution_ms": null,
+    "M2_wall_ms": null,
+    "M1_M2_adapter_ms": null,
+    "M1_M2_state_read_ms": null
+  }
+}

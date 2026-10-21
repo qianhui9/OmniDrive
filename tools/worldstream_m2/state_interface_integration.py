@@ -21,6 +21,24 @@ from .rearchitecture.common import arrays, memory, compare, quality_pass
 from .refine_integration import planning_metric
 
 
+def archive_sources(destination, sources, repository_root=None):
+    """Snapshot one read per file; absolute paths must never replace originals."""
+    repository_root=Path(repository_root or Path(__file__).resolve().parents[2]).resolve()
+    manifest={}
+    for source in sources:
+        source=Path(source).resolve()
+        relative=source.relative_to(repository_root)
+        payload=source.read_bytes()
+        target=Path(destination)/'source'/relative
+        if target.resolve()==source:
+            raise ValueError('Archive destination aliases its input source')
+        target.parent.mkdir(parents=True,exist_ok=True)
+        target.write_bytes(payload)
+        manifest[str(relative)]=hashlib.sha256(payload).hexdigest()
+    write_json(Path(destination)/'source_manifest.json',manifest)
+    return manifest
+
+
 @torch.no_grad()
 def profile_zero_camera_cost(backbone, images, path):
     """Measure this exact signature; task qualification is initially withheld."""
@@ -61,19 +79,31 @@ def main():
     p.add_argument("--scenes", type=int, default=2)
     p.add_argument("--repeats", type=int, default=2)
     p.add_argument("--warmup", type=int, default=1)
-    p.add_argument("--case", choices=["natural", "repeat"], default="natural")
+    p.add_argument("--warmup-frames",type=int,default=None,
+        help="Optional shorter warmup per scene/arm; measured sequences keep all --frames")
+    p.add_argument("--case", choices=["natural", "repeat", "local"], default="natural")
     p.add_argument("--replay-protocol", help="Use the existing replay scenes and first samples")
+    p.add_argument("--window-study", action="store_true",
+        help="Pair same-M1 full execution with strict source-linked window Exact and Auto")
+    p.add_argument("--window-cost-table", default="outputs/module2_refinement/break_even_results.json")
     p.add_argument("--camera-cost-table", default="outputs/module2_rearchitecture/camera_costs.json")
     p.add_argument("--qualify-zero-camera-cost", action="store_true",
         help="Fresh zero-update-only feature/cost/full-task probe before Auto; never qualifies partial updates")
     p.add_argument("--output", default="outputs/module1_state_interface_rearchitecture/cuda_integration")
     args = p.parse_args()
+    if args.warmup_frames is not None and not 1<=args.warmup_frames<=args.frames:
+        p.error("--warmup-frames must be between 1 and --frames")
     dest = Path(args.output)
     dest.mkdir(parents=True, exist_ok=False)
     if not torch.cuda.is_available():
         write_json(dest/"status.json", dict(status="Not Run", reason="CUDA unavailable in this execution context"))
         raise SystemExit("CUDA unavailable; no full-model results generated")
     torch.set_num_threads(1)
+    if args.window_study:
+        # Compare both arms under the same FP32 math policy. TF32 GEMM changes
+        # with packed batch shape and failed the frozen full-task quality gate.
+        torch.backends.cuda.matmul.allow_tf32=False
+        torch.backends.cudnn.allow_tf32=False
     import cv2
     cv2.setNumThreads(1)
     model, dataset = load()
@@ -96,6 +126,10 @@ def main():
     if not groups or any(len(ids) != args.frames for ids in groups.values()):
         raise ValueError("Requested complete continuous sequences are unavailable")
     modes = ["original", "strict_exact", "source_linked_exact", "source_linked_on_demand", "full_maintain"]
+    if args.window_study:
+        modes = ["original", "source_linked_window_exact", "source_linked_window_auto", "full_maintain"]
+        if args.qualify_zero_camera_cost:
+            raise ValueError("Window study cannot qualify camera costs")
     if args.qualify_zero_camera_cost:
         if args.case != "repeat":
             raise ValueError("Zero-update qualification requires controlled repeated images")
@@ -108,10 +142,11 @@ def main():
         service="persistent_state for all M1 arms; original=current_output",
         quality_thresholds="existing frozen module2_rearchitecture targets; unchanged",
         language="original greedy generation, seed 0",
+        tf32=dict(matmul=torch.backends.cuda.matmul.allow_tf32,cudnn=torch.backends.cudnn.allow_tf32),
         timing="scatter outside wall; M1/M2/cache/heads/memory/LLM and diagnostic CPU feature copies inside"))
     sources = [*Path("worldstream/m1").glob("*.py"), *Path("worldstream/m2").glob("*.py"),
         Path(__file__), Path("projects/mmdet3d_plugin/models/detectors/petr3d.py")]
-    write_json(dest/"source_manifest.json",{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources})
+    archive_sources(dest,sources)
     runs, quality, refs = [], [], {}
     captured = []
     original_extract = model.extract_img_feat
@@ -126,6 +161,7 @@ def main():
         for i in (0,1,2,5,11,23) if i < len(model.img_backbone.blocks)]
     for rep in range(args.warmup + args.repeats):
         for scene, ids in groups.items():
+            refs.clear()  # Only the paired current sequence is needed; bound host memory.
             # Collect the current baseline oracle first; rotate the remaining arms.
             arms = modes[1:]
             order = (["original", "source_linked_zero_probe"] + [m for m in arms if m != "source_linked_zero_probe"]
@@ -145,22 +181,30 @@ def main():
                     model.m1_manager = WorldStateManager(settings)
                     if mode != "full_maintain":
                         model.m2_runtime = IncrementalVisionRuntime(model.img_backbone, dict(
-                            mode="exact" if mode == "source_linked_zero_probe" else "auto",
-                            reuse_boundary="window" if mode == "strict_exact" else "camera",
+                            mode="exact" if mode in ("source_linked_zero_probe", "source_linked_window_exact") else "auto",
+                            cache_capture="always" if mode == "source_linked_window_exact" else "adaptive",
+                            reuse_boundary="window" if mode == "strict_exact" or mode.startswith("source_linked_window_") else "camera",
                             state_interface="legacy" if mode == "strict_exact" else "source_linked",
                             cheap_gate=mode == "source_linked_on_demand", m1_service="maintain",
-                            cost_table="outputs/module2/break_even_results.json",
+                            cost_table=args.window_cost_table if args.window_study else "outputs/module2/break_even_results.json",
                             camera_cost_table=args.camera_cost_table))
+                        if args.window_study:
+                            model.m2_runtime.stage_observer=lambda i,x:raw_stages.update({i:x.detach()}) if i in (0,1,2,5,11,23) else None
                 model.save_path = str(dest/f"{args.case}_{scene}_{mode}_{rep}"/"language") + "/"
                 baseline_image, frames = None, []
                 torch.cuda.reset_peak_memory_stats()
-                for ordinal, index in enumerate(ids):
+                sequence=ids[:args.warmup_frames] if rep<args.warmup and args.warmup_frames else ids
+                for ordinal, index in enumerate(sequence):
                     from mmcv.parallel import collate, scatter
                     batch = scatter(collate([dataset[index]], samples_per_gpu=1), [torch.cuda.current_device()])[0]
-                    if args.case == "repeat":
+                    if args.case in ("repeat", "local"):
                         if baseline_image is None:
                             baseline_image = batch["img"][0].clone()
                         batch["img"][0].copy_(baseline_image)
+                        if args.case == "local" and ordinal:
+                            # A single current-input pixel in camera zero changes;
+                            # all metadata and all downstream tasks still execute.
+                            batch["img"][0].reshape(-1,*batch["img"][0].shape[-3:])[0,:,0,0] += ordinal*.125
                     if args.qualify_zero_camera_cost and fresh_costs is None:
                         fresh_costs = profile_zero_camera_cost(model.img_backbone,
                             batch['img'][0].reshape(-1, *batch['img'][0].shape[-3:]),
@@ -192,7 +236,7 @@ def main():
                         q['executed_intermediate_EVA'] = {str(i):error_location(
                             torch.from_numpy(x),torch.from_numpy(refs[key]['stages'][i]))
                             for i,x in current['stages'].items()}
-                        q['intermediate_scope'] = 'Executed blocks only; whole-camera cache hits produce no new intermediate tensors'
+                        q['intermediate_scope'] = 'Observed executed/reconstructed prefix and executed full blocks; camera hits have no new intermediate tensors'
                         quality.append(q)
                     diag = copy.deepcopy(model.m2_runtime.last_diagnostics) if model.m2_runtime else {}
                     if mode == "source_linked_zero_probe" and diag.get('recomputed_cameras', 0) not in (0, 6):

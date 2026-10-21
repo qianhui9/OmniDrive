@@ -56,10 +56,42 @@ class DependencyPlanner:
         return plans
 
     def cacheable_prefix(self):
+        # Window flags alone do not prove independence: a replacement norm or
+        # attention module can mix spatial windows while retaining the weights.
+        from projects.mmdet3d_plugin.models.backbones.eva_vit import (
+            EVAViT,PatchEmbed,Block,Attention,SwiGLU,DropPath,VisionRotaryEmbeddingFast)
+        from projects.mmdet3d_plugin.models.utils.attention import FlashAttention
+        self.rejection_reason=None
+        def reject():
+            self.rejection_reason='unsupported_model_topology'
+            return []
+        def plain(module, allowed):
+            for child in module.modules():
+                if (type(child) not in allowed or
+                        getattr(child.forward,'__func__',None) is not type(child).forward):
+                    return False
+                if isinstance(child,torch.nn.LayerNorm) and len(child.normalized_shape)!=1:
+                    return False
+            return True
+        if (type(self.backbone) is not EVAViT or
+                getattr(self.backbone.forward,'__func__',None) is not EVAViT.forward or
+                not plain(self.backbone.patch_embed,{PatchEmbed,torch.nn.Conv2d})):
+            return reject()
+        for block in self.backbone.blocks:
+            if (type(block) is not Block or type(block.attn) is not Attention or
+                    type(block.mlp) is not SwiGLU or
+                    type(block.norm1) is not torch.nn.LayerNorm or
+                    type(block.norm2) is not torch.nn.LayerNorm):
+                return reject()
+        allowed={Block,Attention,SwiGLU,DropPath,VisionRotaryEmbeddingFast,FlashAttention,
+            torch.nn.Linear,torch.nn.LayerNorm,torch.nn.Identity,torch.nn.SiLU,torch.nn.Dropout}
         result = []
         for i, block in enumerate(self.backbone.blocks):
             if not block.window_size or block.use_residual_block:
                 break
+            if (not plain(block,allowed) or
+                    getattr(block._forward,'__func__',None) is not Block._forward):
+                return reject()
             result.append(i)
         return result
 

@@ -1,0 +1,39 @@
+{
+  "args": {
+    "frames": 4,
+    "scenes": 1,
+    "repeats": 1,
+    "warmup": 0,
+    "warmup_frames": null,
+    "case": "local",
+    "replay_protocol": null,
+    "window_study": true,
+    "window_cost_table": "outputs/module2_refinement/break_even_results.json",
+    "camera_cost_table": "outputs/module2_rearchitecture/camera_costs.json",
+    "qualify_zero_camera_cost": false,
+    "output": "outputs/m1_m2_window_reuse_20261021_run01/local_delivery"
+  },
+  "groups": {
+    "01452fbfbf4543af8acdfd3e8a1ee806": [
+      1269,
+      1270,
+      1271,
+      1272
+    ]
+  },
+  "modes": [
+    "original",
+    "source_linked_window_exact",
+    "source_linked_window_auto",
+    "full_maintain"
+  ],
+  "population": "exploratory_reused_population",
+  "service": "persistent_state for all M1 arms; original=current_output",
+  "quality_thresholds": "existing frozen module2_rearchitecture targets; unchanged",
+  "language": "original greedy generation, seed 0",
+  "tf32": {
+    "matmul": false,
+    "cudnn": false
+  },
+  "timing": "scatter outside wall; M1/M2/cache/heads/memory/LLM and diagnostic CPU feature copies inside"
+}

@@ -1,6 +1,12 @@
 """Only the immediately preceding frame and early independent block outputs live here."""
 import copy
 import math
+import torch
+
+
+class NonFiniteCacheError(RuntimeError):
+    """A non-finite input or prefix cannot become a reusable source."""
+
 class StateCache:
     def __init__(self, budget_bytes):
         self.budget_bytes = budget_bytes
@@ -18,12 +24,15 @@ class StateCache:
 
     def commit(self, images, outputs, context, signature, output_stride=None, sources=None):
         """Publish a single completed forward atomically; retained outputs are immutable."""
+        finite=[torch.isfinite(value).all() for value in [images,*outputs.values()]]
+        if not torch.stack(finite).all().item():
+            raise NonFiniteCacheError('nonfinite_cache_features')
         owned_images = images.detach().clone()
         owned_context = copy.deepcopy(context)
         owned_sources = copy.deepcopy(sources) if sources is not None else {
             i: [dict(computation_frame_id=context['frame_id'], computation_timestamp=context.get('timestamp'),
                 computation_version=self.version+1, camera_id=context['camera_ids'][j//(len(values)//len(images))],
-                producer_layer=i, dependency_scope='closed_window_prefix') for j in range(len(values))]
+                producer_layer=i, dependency_scope='closed_window_prefix',task_quality_certified=True) for j in range(len(values))]
             for i,values in outputs.items()}
         self.images = owned_images
         self.outputs = outputs
@@ -48,6 +57,10 @@ class StateCache:
             return 'shape_unsupported'
         if self.input_stride != tuple(images.stride()):
             return 'execution_signature_mismatch'
+        if self.context.get('coordinate_space') != context.get('coordinate_space'):
+            return 'preprocessing_geometry_mismatch'
+        if self.context.get('state_epoch') != context.get('state_epoch'):
+            return 'cache_state_epoch_mismatch'
         if self.context['scene_id'] != context['scene_id']:
             return 'scene_change'
         if self.context['camera_ids'] != context['camera_ids']:

@@ -1,6 +1,7 @@
 """Exact prefix reuse, cheap M1 admission, and cache-preserving full execution."""
 from time import perf_counter
 import copy
+import math
 import torch
 from .config import M2Config
 from .cost_model import CostModel, cost_key
@@ -8,11 +9,15 @@ from .dependency_planner import DependencyPlanner, patch_updates, exact_pixel_ch
 from .m1_adapter import invalidation_mask, cpu_window_opportunity, computation_admission
 from .packing import partition
 from .scheduler import Scheduler
-from .state_cache import StateCache
+from .state_cache import StateCache, NonFiniteCacheError
 from .window_executor import WindowExecutor
 from .cheap_admission import CheapAdmission
 from .camera_executor import CameraExecutor,numeric_details
 from .execution_policy import validation_budget,optimistic_window_saving
+
+
+def _finite_time(value):
+    return isinstance(value,(int,float)) and math.isfinite(value)
 
 
 class IncrementalVisionRuntime:
@@ -48,14 +53,17 @@ class IncrementalVisionRuntime:
         """
         if not self.config.enabled or self.config.state_interface!='source_linked':
             return self.forward(images,getattr(manager,'last_result',None),manager,context)
+        read_start=perf_counter()
         try:
             result=manager.export_m2_inputs(expected_context=context)
         except (AttributeError,RuntimeError,ValueError,TypeError,KeyError):
             self.reset()
-            output,diagnostics=self._dense(images,'m1_snapshot_unavailable')
+            output,diagnostics=self._dense(images,'m1_snapshot_unavailable',context)
             diagnostics.update(m1_snapshot_read=False,actual_reused_cameras=0,cache_hits=0)
             return output,diagnostics
+        read_ms=(perf_counter()-read_start)*1000
         output,diagnostics=self.forward(images,result,manager,context)
+        diagnostics["M1_M2_state_read_ms"]=read_ms
         diagnostics.update(m1_snapshot_read=True,
             m1_snapshot_epoch=result.diagnostics.get('state_epoch'),
             m1_world_state_count=len(result.diagnostics.get('world_state_snapshot',[])),
@@ -89,7 +97,9 @@ class IncrementalVisionRuntime:
                         b.attn.scale,b.norm1.eps,b.norm2.eps) for b in self.model.blocks)
         p=self.model.patch_embed.proj
         geometry=(p.kernel_size,p.stride,p.padding,p.dilation,self.model.pretrain_use_cls_token)
-        return (context.get('execution_signature'),tensors,topology,geometry,numeric_details(self.model),torch.is_autocast_enabled(),
+        graph=tuple((type(module),getattr(module.forward,'__func__',module.forward))
+            for module in self.model.modules())
+        return (context.get('execution_signature'),self.config.mode,tensors,topology,graph,geometry,numeric_details(self.model),torch.is_autocast_enabled(),
                 torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_tf32,
                 torch.backends.cudnn.allow_tf32,torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic,
                 torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
@@ -116,13 +126,23 @@ class IncrementalVisionRuntime:
 
     def _dense(self, images, reason, context=None, capture=False, signature=None):
         # This frame still executes exactly once. Hooks observe its ORIGINAL forward.
+        dense_start=perf_counter()
+        if context is None:context=getattr(self,'_execution_context',{})
         self.cache.clear();self.executor.clear()
         outputs={};handles=[];stages=[]
-        if capture:
-            for i in self.prefix:
-                def save(module, inputs, out, i=i):
-                    outputs[i]=partition(out,self.model.blocks[i].window_size)[0].detach()
-                handles.append(self.model.blocks[i].register_forward_hook(save))
+        for i in self.prefix:
+            def save(module, inputs, out, i=i):
+                size=module.window_size
+                b,h,w,_=out.shape
+                per_camera=((h+size-1)//size)*((w+size-1)//size)
+                total=b*per_camera
+                stages.append(dict(block=i,updated_windows=total,total_windows=total,
+                    executed_windows=total,reused_windows=0,mode='full',fallback_reason=reason,
+                    per_camera={cid:dict(total_windows=per_camera,executed_windows=per_camera,reused_windows=0)
+                        for cid in (context or {}).get('camera_ids',[])}))
+                if capture:
+                    outputs[i]=partition(out,size)[0].detach()
+            handles.append(self.model.blocks[i].register_forward_hook(save))
         if self.stage_observer is not None:
             for i,block in enumerate(self.model.blocks):
                 handles.append(block.register_forward_hook(
@@ -131,16 +151,24 @@ class IncrementalVisionRuntime:
             features=self.model(images)
         finally:
             for handle in handles:handle.remove()
+        publication_error=None
         if capture:
-            self.cache.commit(images,outputs,context,signature,features[0].stride())
-            for i in self.prefix:
-                total=outputs[i].shape[0]
-                stages.append(dict(block=i,updated_windows=total,total_windows=total,
-                    executed_windows=total,reused_windows=0,mode='full',fallback_reason=reason))
+            try:
+                self.cache.commit(images,outputs,context,signature,features[0].stride())
+            except RuntimeError as error:
+                self.cache.clear();self.executor.clear()
+                capture=False;publication_error=('nonfinite_cache_features' if isinstance(error,NonFiniteCacheError)
+                    else 'cache_publication_failed')
         self.last_diagnostics=dict(mode='full',fallback_reason=reason,stages=stages,
             cache_bytes=self.cache.bytes,cache_version=self.cache.version,
             cache_saved=capture,cache_source_frame=context['frame_id'] if capture else None,
+            M2_execution_ms=(perf_counter()-dense_start)*1000,
             actual_skipped_windows=0,cost_table_status=self.scheduler.costs.status,
+            task_quality_certified=(self.config.mode=='auto' and self.conditional_executor is None
+                and publication_error!='nonfinite_cache_features'),verified_exact_windows=0,
+            cache_publication_error=publication_error,
+            per_camera_windows={cid:dict(executed_windows=sum(v['per_camera'].get(cid,{}).get('executed_windows',0) for v in stages),reused_windows=0)
+                for cid in (context or {}).get('camera_ids',[])},
             cache_capture_reason=None if capture else (getattr(self,'_capture_skip',None) or reason))
         return features,self.last_diagnostics
 
@@ -155,14 +183,17 @@ class IncrementalVisionRuntime:
                 diagnostics=dict(transaction_status=computation_state.diagnostics.get('transaction_status'),
                     execution_signature=computation_state.execution_signature))
         start = perf_counter()
+        self._adapter_diagnostics={}
+        self._execution_context=execution_context or {}
         active_cache = (self.conditional_executor.cache if self.conditional_executor is not None else
             self.camera_executor.cache if self.config.reuse_boundary == 'camera' else self.cache)
         previous_context = dict(active_cache.context or {})
         lineage = (active_cache.sources if isinstance(active_cache.sources,list) else
             [s for values in active_cache.sources.values() for s in values])
-        computation_times = [s['computation_timestamp'] for s in lineage if s.get('computation_timestamp') is not None]
+        computation_times = [s['computation_timestamp'] for s in lineage if _finite_time(s.get('computation_timestamp'))]
         value, diagnostics = self._execute_forward(current_images,m1_result,m1_state,execution_context)
         context = execution_context or {}
+        diagnostics.update(self._adapter_diagnostics)
         diagnostics['cache_context'] = {k: copy.deepcopy(context.get(k)) for k in
             ('scene_id','frame_id','timestamp','camera_ids','execution_signature','coordinate_space','state_epoch')}
         diagnostics['state_interface'] = self.config.state_interface
@@ -177,13 +208,20 @@ class IncrementalVisionRuntime:
                     p.kernel_size[1]*self.model.blocks[i].window_size] for i in self.prefix}
                 diagnostics['prefix_dependency_footprints'] = self.planner.input_footprints(*current_images.shape[-2:])
         diagnostics['recomputed_windows'] = sum(s.get('executed_windows',0) for s in diagnostics.get('stages',[]))
-        diagnostics['cache_hits'] = diagnostics.get('actual_skipped_windows',0) + diagnostics.get('actual_reused_cameras',0)
+        diagnostics['cache_hits'] = (diagnostics.get('actual_reused_cameras',0) if self.config.reuse_boundary=='camera'
+                                     else diagnostics.get('actual_skipped_windows',0))
+        diagnostics['actual_skipped_block_computations'] = sum(
+            s.get('reused_windows',0) for s in diagnostics.get('stages',[]))
+        diagnostics['window_count_scope'] = 'block_window_pairs_in_cacheable_prefix'
         diagnostics.setdefault('reuse_mode','exact' if diagnostics['cache_hits'] else 'full')
         diagnostics['source_mismatch'] = bool('mismatch' in (diagnostics.get('fallback_reason') or ''))
         now,old = context.get('timestamp'),previous_context.get('timestamp')
-        diagnostics['cache_verification_age'] = now-old if now is not None and old is not None else None
-        diagnostics['source_age'] = now-min(computation_times) if now is not None and computation_times else None
-        diagnostics.setdefault('M2_validation_ms', None)
+        diagnostics['cache_verification_age'] = now-old if _finite_time(now) and _finite_time(old) else None
+        diagnostics['source_age'] = now-min(computation_times) if _finite_time(now) and computation_times else None
+        diagnostics.setdefault('M2_validation_ms', max(0.,(perf_counter()-start)*1000-
+            (diagnostics.get('M2_execution_ms') or 0.)))
+        diagnostics['actual_reused_spatial_windows'] = next(
+            (s['reused_windows'] for s in diagnostics.get('stages',[]) if 'reused_windows' in s),0)
         diagnostics.setdefault('M2_execution_ms', None)
         bundle = getattr(m1_result,'computation_state',None)
         if bundle is not None:
@@ -195,18 +233,26 @@ class IncrementalVisionRuntime:
                 diagnostics['candidate_cameras'] = int(masks.any(axis=(1,2)).sum())
                 p = self.model.patch_embed.proj
                 window = self.model.blocks[0].window_size
-                diagnostics['candidate_windows'] = int((~cpu_window_opportunity(masks,p,window)).sum())
-                diagnostics['complete_candidate_windows'] = int(cpu_window_opportunity(~masks,p,window).sum())
+                sizes=[self.model.blocks[i].window_size for i in self.prefix]
+                diagnostics['candidate_windows'] = sum(int((~cpu_window_opportunity(masks,p,size)).sum()) for size in sizes)
+                diagnostics['complete_candidate_windows'] = sum(int(cpu_window_opportunity(~masks,p,size).sum()) for size in sizes)
+                for name,key in [('dirty_hint_windows','dirty_hint_mask'),('unknown_windows','unknown_mask')]:
+                    values=np.stack([decode_mask(bundle.refresh_contract[cid][key]) for cid in context['camera_ids']])
+                    diagnostics[name]=sum(int((~cpu_window_opportunity(values,p,size)).sum()) for size in sizes)
             except (KeyError,ValueError,TypeError):
                 diagnostics['candidate_windows'] = None
         diagnostics['M2_wall_ms'] = (perf_counter()-start)*1000
-        diagnostics['timing_scope'] = 'host_wall_no_added_cuda_synchronize'
+        diagnostics['timing_scope'] = 'host_wall_including_required_validation_and_publication_syncs'
         self.last_diagnostics = diagnostics
         return value, diagnostics
 
     def _execute_forward(self,current_images,m1_result=None,m1_state=None,execution_context=None):
         try:
             context=execution_context or {}
+            if (self.config.enabled and context.get('timestamp') is not None
+                    and not isinstance(context['timestamp'],(int,float))):
+                self.reset()
+                return self._dense(current_images,'invalid_execution_timestamp')
             if (self.config.enabled and self.config.state_interface == 'source_linked'
                     and getattr(m1_result,'diagnostics',{}).get('transaction_status') == 'aborted'):
                 self.reset()
@@ -268,14 +314,21 @@ class IncrementalVisionRuntime:
             return self._dense(images,'shape_unsupported')
         prefix=self.planner.cacheable_prefix()
         if prefix!=self.prefix:self.reset();self.prefix=prefix
-        if not self.prefix:return self._dense(images,'global_dependency')
+        if not self.prefix:return self._dense(images,self.planner.rejection_reason or 'global_dependency')
         p=self.model.patch_embed.proj
         if p.padding!=(0,0) or p.dilation!=(1,1) or p.stride!=p.kernel_size:
             return self._dense(images,'shape_unsupported')
+        if context.get('timestamp') is not None and not _finite_time(context['timestamp']):
+            return self._dense(images,'invalid_execution_timestamp')
         if self.cache.budget_bytes==0:return self._dense(images,'memory_budget')
         if self.config.state_interface == 'source_linked':
+            adapter_start=perf_counter()
+            admission_details={}
             invalid,reason=computation_admission(getattr(m1_result,'computation_state',None),context,images,self.cache,
-                getattr(m1_result,'full_refresh_hint',False))
+                getattr(m1_result,'full_refresh_hint',False),selective_camera=True,details=admission_details,
+                window_footprints=self.planner.input_footprints(*images.shape[-2:]))
+            adapter_ms=(perf_counter()-adapter_start)*1000
+            self._adapter_diagnostics=dict(admission_details,M1_M2_adapter_ms=adapter_ms)
         else:
             invalid,reason=invalidation_mask(m1_result,m1_state,context,images,device=False,
                 rejection_footprint=(*p.kernel_size,self.model.blocks[0].window_size))
@@ -326,6 +379,9 @@ class IncrementalVisionRuntime:
                 measured=self.scheduler.costs.lookup(key,len(ids))
                 strategy=measured.get('packing_backend','spatial') if measured else 'spatial'
                 sparse,fallback=self.scheduler.choose(key,len(ids),total)
+                if (sparse and 0 < len(ids) < total and x.is_cuda and x.dtype==torch.float32
+                        and torch.backends.cuda.matmul.allow_tf32):
+                    sparse,fallback=False,'uncertified_tf32_partial_window_execution'
                 if sparse:
                     x,packed=self.executor.execute(block,x,self.cache.outputs[i],ids,strategy=strategy)
                 else:
@@ -338,11 +394,17 @@ class IncrementalVisionRuntime:
                 next_sources[i] = [dict(computation_frame_id=context['frame_id'],
                     computation_timestamp=context.get('timestamp'), computation_version=self.cache.version+1,
                     camera_id=context['camera_ids'][j//(total//len(images))],
-                    producer_layer=i, dependency_scope='closed_window_prefix')
+                    producer_layer=i, dependency_scope='closed_window_prefix',
+                    task_quality_certified=(not sparse or len(ids)==total or
+                        (self.config.mode=='auto' and bool(measured and measured.get('quality_certified')))))
                     if j in computed_ids else copy.deepcopy(self.cache.sources[i][j]) for j in range(total)]
                 stages.append(dict(block=i,updated_windows=len(ids),total_windows=total,
                     executed_windows=len(ids) if sparse else total,reused_windows=total-len(ids) if sparse else 0,
                     mode='packed' if sparse else 'full',fallback_reason=fallback,
+                    per_camera={cid:dict(total_windows=total//len(images),
+                        executed_windows=sum(j in computed_ids for j in range(c* (total//len(images)),(c+1)*(total//len(images)))),
+                        reused_windows=sum(j not in computed_ids for j in range(c* (total//len(images)),(c+1)*(total//len(images)))))
+                        for c,cid in enumerate(context['camera_ids'])},
                     packing_backend=strategy if sparse else None,
                     source_frame=self.cache.context['frame_id'] if sparse else None,
                     source_version=self.cache.version if sparse else None))
@@ -356,14 +418,35 @@ class IncrementalVisionRuntime:
         if expected_stride is not None and tuple(result.stride())!=expected_stride:
             aligned=torch.empty_strided(result.shape,expected_stride,dtype=result.dtype,device=result.device)
             aligned.copy_(result);result=aligned
-        self.cache.commit(images,next_outputs,context,signature,result.stride(),next_sources)
+        saved=True;publication_error=None
+        try:
+            self.cache.commit(images,next_outputs,context,signature,result.stride(),next_sources)
+        except RuntimeError as error:
+            self.cache.clear();self.executor.clear()
+            saved=False;publication_error=('nonfinite_cache_features' if isinstance(error,NonFiniteCacheError)
+                else 'cache_publication_failed')
+            for units in next_sources.values():
+                for source in units:
+                    if source['computation_frame_id']==context['frame_id']:
+                        source['computation_version']=None
+                        if publication_error=='nonfinite_cache_features':source['task_quality_certified']=False
         skipped=sum(s.get('reused_windows',0) for s in stages)
         self.last_diagnostics=dict(mode='incremental' if skipped else 'full',stages=stages,
-            cache_bytes=self.cache.bytes,cache_version=self.cache.version,cache_saved=True,
+            cache_bytes=self.cache.bytes,cache_version=self.cache.version,cache_saved=saved,
+            cache_publication_error=publication_error,
+            task_quality_certified=self.config.mode=='auto' and publication_error!='nonfinite_cache_features' and all(source.get('task_quality_certified',True)
+                for units in next_sources.values() for source in units),
             cost_table_status=self.scheduler.costs.status,
             actual_skipped_windows=skipped,patch_embedding='full',
             output_window_provenance=copy.deepcopy(next_sources),
             verified_exact_windows=sum(plan.updated.numel()-len(ids) for plan,ids in zip(plans,ids_by_block)),
             M2_validation_ms=validation_ms, M2_execution_ms=(perf_counter()-execution_start)*1000,
             evidence='same_coordinate_exact_input_and_dependency_closure',m1_transformer_certificate_used=False)
+        if self.config.state_interface == 'source_linked':
+            self.last_diagnostics.update(admission_details)
+            self.last_diagnostics['M1_M2_adapter_ms']=adapter_ms
+        self.last_diagnostics['per_camera_windows']={cid:dict(
+            executed_windows=sum(s.get('per_camera',{}).get(cid,{}).get('executed_windows',0) for s in stages),
+            reused_windows=sum(s.get('per_camera',{}).get(cid,{}).get('reused_windows',0) for s in stages))
+            for cid in context['camera_ids']}
         return [result],self.last_diagnostics
