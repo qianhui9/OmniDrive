@@ -113,6 +113,7 @@ def main():
     p.add_argument('--infos')
     p.add_argument('--data-root')
     p.add_argument('--scene')
+    p.add_argument('--scene-list',help='Frozen protocol JSON: development entries with scene_id and samples')
     p.add_argument('--frames',type=int,default=2)
     a=p.parse_args()
     output=Path(a.output).resolve();output.mkdir(parents=True,exist_ok=False)
@@ -154,9 +155,28 @@ def main():
         report.update(status='strict_load_passed',parameter_tensors=len(weights))
         model.eval()
         if a.run or a.check_data:
-            if not all((a.infos,a.data_root,a.scene)) or not 1<=a.frames<=40:
+            if not all((a.infos,a.data_root,a.scene or a.scene_list)) or not 1<=a.frames<=40:
                 raise ValueError('Run needs infos/data-root/scene and 1..40 frames')
-            run_export(model,cfg,a,output,report)
+            if a.scene_list:
+                protocol=json.loads(Path(a.scene_list).read_text())
+                specs=protocol['development']
+                if not 1<=len(specs)<=8 or sum(len(s['samples']) for s in specs)>320:
+                    raise ValueError('Explicit development budget: <=8 scenes and <=320 frames')
+                if len({s['scene_id'] for s in specs})!=len(specs):raise ValueError('Duplicate scenes')
+                scene_reports=[]
+                for spec in specs:
+                    if not 1<=len(spec['samples'])<=80:raise ValueError('Bounded continuous scenes only')
+                    import copy
+                    sub=copy.copy(a);sub.scene=spec['scene_id'];sub.frames=len(spec['samples'])
+                    sub.expected_tokens=spec['samples']
+                    folder=output/sub.scene;folder.mkdir()
+                    item=dict(actual_inference=False,run_id=report['run_id'],checkpoint_sha256=report['checkpoint_sha256'])
+                    run_export(model,cfg,sub,folder,item)
+                    (folder/'run_report.json').write_text(json.dumps(item,indent=2))
+                    scene_reports.append(dict(scene_id=sub.scene,**item))
+                    print('exported',sub.scene,len(item.get('frames',[])),flush=True)
+                report.update(status='multiscene_exported',actual_inference=a.run,scenes=scene_reports)
+            else:run_export(model,cfg,a,output,report)
     except Exception as exc:
         import traceback
         report.update(status='failed',error=repr(exc),traceback=traceback.format_exc())
@@ -173,7 +193,7 @@ def wait_for_gpu(timeout):
     while True:
         processes=subprocess.check_output(['nvidia-smi','--id=0','--query-compute-apps=pid',
                                            '--format=csv,noheader,nounits'],text=True).strip()
-        if not processes:return
+        if not processes or all(row.strip()==str(os.getpid()) for row in processes.splitlines()):return
         print('GPU 0 occupied; waiting without stopping other processes',flush=True)
         if time.monotonic()>=deadline:raise TimeoutError('GPU occupied; no inference started')
         time.sleep(min(10,max(0,deadline-time.monotonic())))
@@ -194,10 +214,16 @@ def run_export(model,cfg,args,output,report):
     report['infos_sha256']=file_sha(args.infos)
     data_cfg=cfg.data.test.copy()
     data_cfg.update(data_root=str(Path(args.data_root).resolve()),ann_file=str(Path(args.infos).resolve()),test_mode=True)
-    dataset=build_dataset(data_cfg)
+    if not hasattr(model,'_dqtrack_replay_dataset'):
+        model._dqtrack_replay_dataset=build_dataset(data_cfg)
+        model._dqtrack_all_infos=list(model._dqtrack_replay_dataset.data_infos)
+    dataset=model._dqtrack_replay_dataset
+    dataset.data_infos=list(model._dqtrack_all_infos)
     sequence=sorted((i for i in dataset.data_infos if i['scene_token']==args.scene),key=lambda i:i['timestamp'])
     if not sequence:raise ValueError('Scene absent from official infos')
     dataset.data_infos=sequence[:args.frames]
+    if hasattr(args,'expected_tokens') and [i['token'] for i in dataset.data_infos]!=args.expected_tokens:
+        raise ValueError('Frozen sample sequence disagrees with official infos')
     samples=json.loads((Path(args.data_root)/'v1.0-trainval/sample.json').read_text())
     samples={row['token']:row for row in samples}
     for index,info in enumerate(dataset.data_infos):
@@ -230,7 +256,11 @@ def run_export(model,cfg,args,output,report):
         return
     wait_for_gpu(args.gpu_wait_seconds)
     if cfg.get('fp16'):wrap_fp16_model(model)
+    # Explicit reset for every scene, including repeated runs of the same scene.
+    model.test_detector=None;model.test_tracker=None;model.scene_token=None
+    model.max_track_id=0
     model.det2track=model.det2track.cuda()
+    torch.cuda.reset_peak_memory_stats()
     model=MMDataParallel(model.cuda(),device_ids=[0])
     # Load the dependency-light exporter without importing OmniDrive's projects namespace.
     path=Path(__file__).resolve().parents[2]/'worldstream/m1/dqtrack_export.py'
@@ -243,17 +273,18 @@ def run_export(model,cfg,args,output,report):
         with torch.no_grad():prediction=model(return_loss=False,rescale=True,**data)
         report['actual_inference']=True
         torch.cuda.synchronize()
+        forward_ms=(time.perf_counter()-start)*1000
         if len(prediction)!=1:raise ValueError('One chronological sample per call required')
         rows,diagnostics=exporter.export_frame(prediction[0],info,dataset.track_classes,
                                                config_factory('detection_cvpr_2019').class_range)
         token=info['token'];results[token]=rows
         frames[token]=dict(sample_token=token,scene_id=info['scene_token'],timestamp=info['timestamp']/1e6)
-        counts.append(dict(sample_token=token,elapsed_ms=(time.perf_counter()-start)*1000,**diagnostics))
+        counts.append(dict(sample_token=token,forward_ms=forward_ms,elapsed_ms=(time.perf_counter()-start)*1000,**diagnostics))
     payload=dict(results=results,m1_manifest=dict(run_id=report['run_id'],coordinate_system='world',
         size_order='wlh',timestamp_unit='seconds',model_config=str(Path(args.source_root)/args.config),
         checkpoint_sha256=report['checkpoint_sha256'],frames=frames))
     (output/'normalized_tracking.json').write_text(json.dumps(payload,allow_nan=False))
-    report.update(status='exported',actual_inference=True,frames=counts,
+    report.update(status='exported',actual_inference=True,frames=counts,peak_gpu_allocated_bytes=torch.cuda.max_memory_allocated(),peak_gpu_reserved_bytes=torch.cuda.max_memory_reserved(),
                   data_split='exposed_development_smoke',independent_validation=False)
 
 

@@ -1,0 +1,1980 @@
+{
+  "status": "multiscene_exported",
+  "actual_inference": true,
+  "inference_attempted": false,
+  "run_id": "ffb9053b-2129-42f4-a884-733ec04a78a3",
+  "source_root": "/data/qh/phdCode/work4/DQTrack-main",
+  "arguments": {
+    "source_root": "/data/qh/phdCode/work4/DQTrack-main",
+    "checkpoint": "/data/qh/phdCode/work4/models/DQTrack/model_val/detr3d_res101_size_900_1600_finetune_amota_36_7.pth",
+    "output": "outputs/m1_dqtrack_policy_20261021/dqtrack",
+    "config": "projects/configs/dqtrack/detr3d_r101_size_900_1600_dq.py",
+    "run": true,
+    "check_data": false,
+    "gpu_wait_seconds": 60,
+    "infos": "/data/qh/phdCode/work4/models/DQTrack/infos/track_cat_10_infos_val.pkl",
+    "data_root": "/data/qh/phdCode/work4/OmniDrive/data/nuscenes",
+    "scene": null,
+    "scene_list": "outputs/m1_dqtrack_policy_20261021/protocol.json",
+    "frames": 2
+  },
+  "config_sha256": "7a1f41e1ba5cbc7b3ffb55afdc843dfa676e6c0558ff8b53febc45ac435e7e1b",
+  "checkpoint_sha256": "93213fa9896ba1d161976c26fd512dc9e25f45c70c5d63c2dade31e90a8ec3d4",
+  "resolved_model": {
+    "type": "DETR3DTrackerDQ",
+    "use_grid_mask": false,
+    "tracker_cfg": {
+      "track_frame": 3,
+      "num_track": 300,
+      "num_query": 900,
+      "num_cams": 6,
+      "num_sweeps": 1,
+      "embed_dims": 256,
+      "ema_decay": 0.5,
+      "train_det_only": false,
+      "train_track_only": true,
+      "class_dict": {
+        "all_classes": [
+          "car",
+          "truck",
+          "construction_vehicle",
+          "bus",
+          "trailer",
+          "barrier",
+          "motorcycle",
+          "bicycle",
+          "pedestrian",
+          "traffic_cone"
+        ],
+        "track_classes": [
+          "car",
+          "truck",
+          "bus",
+          "trailer",
+          "motorcycle",
+          "bicycle",
+          "pedestrian"
+        ]
+      },
+      "pos_cfg": {
+        "pos_trans": "ffn",
+        "fuse_type": "sum",
+        "final_trans": "linear"
+      },
+      "query_trans": {
+        "with_att": true,
+        "with_pos": true,
+        "min_channels": 256,
+        "drop_rate": 0.0
+      },
+      "track_aug": {
+        "drop_prob": 0,
+        "fp_ratio": 0.2
+      },
+      "ema_drop": 0.0,
+      "class_spec": true,
+      "eval_det_only": false,
+      "velo_error": [
+        6,
+        6,
+        6,
+        5,
+        12,
+        5,
+        5
+      ],
+      "assign_method": "hungarian",
+      "det_thres": 0.2,
+      "new_born_thres": 0.2,
+      "asso_thres": 0.1,
+      "miss_thres": 7
+    },
+    "img_backbone": {
+      "type": "ResNet",
+      "depth": 101,
+      "num_stages": 4,
+      "out_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "frozen_stages": 1,
+      "norm_cfg": {
+        "type": "BN2d",
+        "requires_grad": false
+      },
+      "norm_eval": true,
+      "style": "caffe",
+      "dcn": {
+        "type": "DCNv2",
+        "deform_groups": 1,
+        "fallback_on_stride": false
+      },
+      "stage_with_dcn": [
+        false,
+        false,
+        true,
+        true
+      ]
+    },
+    "img_neck": {
+      "type": "FPN",
+      "in_channels": [
+        256,
+        512,
+        1024,
+        2048
+      ],
+      "out_channels": 256,
+      "start_level": 1,
+      "add_extra_convs": "on_output",
+      "num_outs": 4,
+      "relu_before_extra_convs": true
+    },
+    "pts_bbox_head": {
+      "type": "Detr3DHead",
+      "num_query": 900,
+      "num_classes": 10,
+      "in_channels": 256,
+      "sync_cls_avg_factor": true,
+      "with_box_refine": true,
+      "as_two_stage": false,
+      "transformer": {
+        "type": "Detr3DTransformer",
+        "decoder": {
+          "type": "Detr3DTransformerDecoder",
+          "num_layers": 6,
+          "return_intermediate": true,
+          "transformerlayers": {
+            "type": "DetrTransformerDecoderLayer",
+            "attn_cfgs": [
+              {
+                "type": "MultiheadAttention",
+                "embed_dims": 256,
+                "num_heads": 8,
+                "dropout": 0.1
+              },
+              {
+                "type": "Detr3DCrossAttenRaw",
+                "pc_range": [
+                  -51.2,
+                  -51.2,
+                  -5.0,
+                  51.2,
+                  51.2,
+                  3.0
+                ],
+                "num_points": 1,
+                "embed_dims": 256
+              }
+            ],
+            "feedforward_channels": 512,
+            "ffn_dropout": 0.1,
+            "operation_order": [
+              "self_attn",
+              "norm",
+              "cross_attn",
+              "norm",
+              "ffn",
+              "norm"
+            ]
+          }
+        }
+      },
+      "bbox_coder": {
+        "type": "NMSFreeCoder",
+        "post_center_range": [
+          -61.2,
+          -61.2,
+          -10.0,
+          61.2,
+          61.2,
+          10.0
+        ],
+        "pc_range": [
+          -51.2,
+          -51.2,
+          -5.0,
+          51.2,
+          51.2,
+          3.0
+        ],
+        "max_num": 300,
+        "voxel_size": [
+          0.2,
+          0.2,
+          8
+        ],
+        "num_classes": 10
+      },
+      "positional_encoding": {
+        "type": "SinePositionalEncoding",
+        "num_feats": 128,
+        "normalize": true,
+        "offset": -0.5
+      },
+      "loss_cls": {
+        "type": "FocalLoss",
+        "use_sigmoid": true,
+        "gamma": 2.0,
+        "alpha": 0.25,
+        "loss_weight": 2.0
+      },
+      "loss_bbox": {
+        "type": "L1Loss",
+        "loss_weight": 0.25
+      },
+      "loss_iou": {
+        "type": "GIoULoss",
+        "loss_weight": 0.0
+      }
+    },
+    "bbox_coder": {
+      "type": "DETRTrack3DCoder",
+      "post_center_range": [
+        -61.2,
+        -61.2,
+        -10.0,
+        61.2,
+        61.2,
+        10.0
+      ],
+      "pc_range": [
+        -51.2,
+        -51.2,
+        -5.0,
+        51.2,
+        51.2,
+        3.0
+      ],
+      "max_num": 300
+    },
+    "loss_cfg": {
+      "type": "DualQueryMatcher",
+      "num_classes": 10,
+      "class_dict": {
+        "all_classes": [
+          "car",
+          "truck",
+          "construction_vehicle",
+          "bus",
+          "trailer",
+          "barrier",
+          "motorcycle",
+          "bicycle",
+          "pedestrian",
+          "traffic_cone"
+        ],
+        "track_classes": [
+          "car",
+          "truck",
+          "bus",
+          "trailer",
+          "motorcycle",
+          "bicycle",
+          "pedestrian"
+        ]
+      },
+      "code_weights": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.2,
+        0.2
+      ],
+      "assigner": {
+        "type": "HungarianAssigner3D",
+        "cls_cost": {
+          "type": "FocalLossCost",
+          "weight": 2.0
+        },
+        "reg_cost": {
+          "type": "BBox3DL1Cost",
+          "weight": 0.25
+        },
+        "iou_cost": {
+          "type": "IoUCost",
+          "weight": 0.0
+        },
+        "pc_range": [
+          -51.2,
+          -51.2,
+          -5.0,
+          51.2,
+          51.2,
+          3.0
+        ]
+      },
+      "loss_cls": {
+        "type": "FocalLoss",
+        "use_sigmoid": true,
+        "gamma": 2.0,
+        "alpha": 0.25,
+        "loss_weight": 2.0
+      },
+      "loss_bbox": {
+        "type": "L1Loss",
+        "loss_weight": 0.25
+      },
+      "loss_asso": {
+        "type": "CrossEntropyLoss",
+        "use_sigmoid": false,
+        "loss_weight": 1.0
+      },
+      "loss_me": {
+        "type": "CategoricalCrossEntropyLoss",
+        "loss_weight": 1.0
+      }
+    },
+    "train_cfg": {
+      "pts": {
+        "grid_size": [
+          512,
+          512,
+          1
+        ],
+        "voxel_size": [
+          0.2,
+          0.2,
+          8
+        ],
+        "point_cloud_range": [
+          -51.2,
+          -51.2,
+          -5.0,
+          51.2,
+          51.2,
+          3.0
+        ],
+        "out_size_factor": 4,
+        "assigner": {
+          "type": "HungarianAssigner3D",
+          "cls_cost": {
+            "type": "FocalLossCost",
+            "weight": 2.0
+          },
+          "reg_cost": {
+            "type": "BBox3DL1Cost",
+            "weight": 0.25
+          },
+          "iou_cost": {
+            "type": "IoUCost",
+            "weight": 0.0
+          },
+          "pc_range": [
+            -51.2,
+            -51.2,
+            -5.0,
+            51.2,
+            51.2,
+            3.0
+          ]
+        }
+      }
+    }
+  },
+  "torch_version": "1.13.1+cu117",
+  "source_sha256": {
+    "extra_tools/data_converter/nuscenes_converter_track.py": "7eb8e8cc07968b6edcb75ae4347edb1ce04632c8e99300fe305a3d9ab2379ed0",
+    "extra_tools/setup.py": "32b039468d87bc0f378c616fe70bd07aedb2f85d11bdbc459e76e891cb79d558",
+    "extra_tools/test.py": "85e437bbd1208a93c60a85c8076dca60d01eb26e5c532199af66a8c7d1488306",
+    "extra_tools/tracking/eval_task.py": "d435843dedbc1afd8afc438e6a4ca145d5bbef46cb7987e414abce41762d746f",
+    "extra_tools/train.py": "a81242cd0856ce3e21e3a0d7923cc564e05466166028fe453edaae3f7f0faff6",
+    "projects/configs/dqtrack/bevstereo_r101_fb3_size_512_1408_dq.py": "b1f2110c31e1fa8cc909ba5458fcb9a789df94e8a95a824a64bde758b09318af",
+    "projects/configs/dqtrack/bevstereo_r50_fb3_size_512_1408_dq.py": "923734a7c722af204747c1e6945832f7e4a4a044612e0fca730c83f6f5965c16",
+    "projects/configs/dqtrack/detr3d_r101_size_900_1600_dq.py": "7a1f41e1ba5cbc7b3ffb55afdc843dfa676e6c0558ff8b53febc45ac435e7e1b",
+    "projects/configs/dqtrack/petrv2_vov99_fb3_320_800_dq.py": "d515bbb75a12310711f8fca752a7fc2cc8cce47f8a99049b7338b90faaceb90a",
+    "projects/configs/dqtrack/uvtr_r101_size_900_1600_dq.py": "0ad586d08629cee809f983b4f0845b9867bcaccdce372518c9c44f89ebae72f1",
+    "projects/mmdet3d_plugin/__init__.py": "3b4350a5260ac346b195eb9e199ecc4210db338e6225521de28476bf979b3b6d",
+    "projects/mmdet3d_plugin/core/bbox/assigners/__init__.py": "9765b4eb371ab92b56e934af6e45d5958c780e0c147ebbaefda44f27ffcf828b",
+    "projects/mmdet3d_plugin/core/bbox/assigners/hungarian_assigner_3d.py": "c581f2b83fe3b74b4cb21b76d2cb24b1e3c46d08db17286cce8e9d783c79c4ec",
+    "projects/mmdet3d_plugin/core/bbox/coders/__init__.py": "ea9918c80ebd30e976475cf88d2852857fe3fddf088bf4e988b576039e657383",
+    "projects/mmdet3d_plugin/core/bbox/coders/detr_track_coder.py": "c097e8e48e89b623c51eefdac722cfd3136919113abf7f6c1f680ec7dccdaec1",
+    "projects/mmdet3d_plugin/core/bbox/coders/nms_free_coder.py": "d955237994b4536e44fada5f1fa1bafd3b2c4ddd24423b0ae1b718513e75851d",
+    "projects/mmdet3d_plugin/core/bbox/match_costs/__init__.py": "40ac90fcc6638f6efcddb38be08aec3504ba326a302366e94b2959796185c1b3",
+    "projects/mmdet3d_plugin/core/bbox/match_costs/match_cost.py": "a2045cbe63db7014d86ac1d9e0cb0183b0aa9f2c1da9de6168901b5f535407cb",
+    "projects/mmdet3d_plugin/core/bbox/util.py": "7fefcf33b295b803d4ff1ed178e2d9043609dd97cc25e0223b1e248e4cfc7095",
+    "projects/mmdet3d_plugin/core/merge_all_augs.py": "db27262b47d57b632629c91b11770c7b7fdd3492d0ded4e09db3d20a07be905d",
+    "projects/mmdet3d_plugin/core/track/instances.py": "6e29554f74d9dab9cbd3dd7a5b585b63a92f1ec72754b50ca019677d68e35e8d",
+    "projects/mmdet3d_plugin/datasets/__init__.py": "65d5d4859b875a4411014a0267bad11421765c5f126d13bc082f7c995ca657ac",
+    "projects/mmdet3d_plugin/datasets/builder.py": "f2d28ba62da9daea586c7c3d0d0b43676052b5445dc42e2a96f53cdc48fa65b9",
+    "projects/mmdet3d_plugin/datasets/dataset_wrappers.py": "e0f755e5e6e7deb977d46d6d29a3836baf7a40c3b1cb05428e5277995ed9508a",
+    "projects/mmdet3d_plugin/datasets/nuscenes_dataset.py": "aa3a9aa843184f03f48a6ee859d4fb7ef3f30e012292ee6e22e4e6c885c275f9",
+    "projects/mmdet3d_plugin/datasets/nuscenes_dataset_petr_track.py": "1ad58e65cf8c8f7861f3956a5bd1136548111f58e0d582f754e5e9f0d4a065cb",
+    "projects/mmdet3d_plugin/datasets/nuscenes_dataset_track.py": "05228665569772a756b8bbdb7f59b61c7794716c8d67aae1a5a8e5b88161441a",
+    "projects/mmdet3d_plugin/datasets/pipelines/__init__.py": "8a8a4550ef858cec11a0db26e3e19c86253cec9f8346cfaa255922355c7dc983",
+    "projects/mmdet3d_plugin/datasets/pipelines/formatting.py": "f9fb179c2faceb56cd0872404fbfee26c8fe02124016319a5e7daaf9e4da548a",
+    "projects/mmdet3d_plugin/datasets/pipelines/loading_3d.py": "08c0b30fafe3aa37539a934894fc88852099b8b2534fdc9487191d151a9ba203",
+    "projects/mmdet3d_plugin/datasets/pipelines/transform_3d.py": "f9327c3845629f223aaf7adbbf648cd29347162b72dd9947ae75d481d0c5f15b",
+    "projects/mmdet3d_plugin/models/backbones/__init__.py": "92129dbb7e627f4afe0d5ded49d58e1361bbfbdec875ff21a3c5745537ce71c5",
+    "projects/mmdet3d_plugin/models/backbones/vovnet.py": "0eb1f6eb0d091f835a3f14cf4f2db5e5c362d2fe3963a3b7b4e80edb5b09c733",
+    "projects/mmdet3d_plugin/models/detectors/__init__.py": "931de295941f7b77b1a2cc1e1615b72b30d3d69d6bcdf4c485fae211581cda93",
+    "projects/mmdet3d_plugin/models/detectors/detr3d.py": "bf7df40b896105dacc27e8f13657776aaec2a9281783a7c9db2346fb9bbfcf6b",
+    "projects/mmdet3d_plugin/models/detectors/petr3d.py": "c24177aba935953f2e8f39b3a935765147688eaafde7c19d690c44a95c27c3d8",
+    "projects/mmdet3d_plugin/models/detectors/uvtr.py": "c455a3af5ea74f11d84b0055860a15a29922b1bae739108add11452897252357",
+    "projects/mmdet3d_plugin/models/losses/__init__.py": "b909ed89b836e8bf4d555d19c10562e797650c671e59328a8428c42e0d600cb0",
+    "projects/mmdet3d_plugin/models/losses/categorical_cross_entroy.py": "c6ecfac5b49eedbcfa6763944e6efa24e81e04dc922ba1784c4fd4dd7f5458a3",
+    "projects/mmdet3d_plugin/models/losses/dual_query_matcher.py": "9773731b51bc1d483e069447f111d4dc19b0d2bdaaf4157d9b3e588dd8c2a231",
+    "projects/mmdet3d_plugin/models/necks/__init__.py": "c9dde0baf3684ee367dd00c4987019ec2806437c60c0c5ff1d2bd990fbb71547",
+    "projects/mmdet3d_plugin/models/necks/cp_fpn.py": "8cde6d2e94e38558c162af3412e9114df6b3ce1c11b8adac21baaf81f4cc0e25",
+    "projects/mmdet3d_plugin/models/ops/voxel_pooling/__init__.py": "daef4ba2483f192a0a6860306caee7aa6768c397f0482a426475e42f27a69992",
+    "projects/mmdet3d_plugin/models/ops/voxel_pooling/voxel_pooling.py": "bf1bccb95e25f8aec368554f79baeaa9116ad5f73364e947920573c222c5d881",
+    "projects/mmdet3d_plugin/models/track_head/__init__.py": "ae9f7dce5e8a2973f9153d79fc43b0dbcd0ccf39406616c2be30287550dbb1ee",
+    "projects/mmdet3d_plugin/models/track_head/detr3d_head.py": "c77d0c8e8aff5b6c440061d540e747488cc10dd9679429b156cc91e7b110d7a9",
+    "projects/mmdet3d_plugin/models/track_head/petrv2_track_dnhead.py": "9471f7e9a2c8c424037239b9d09da3687f7219f7f6b27a14c49d0a9a8c885a2d",
+    "projects/mmdet3d_plugin/models/track_head/petrv2_track_head.py": "cc8d7ab9cf8d9dea3d22d0812bc77bd2ebc5c831a50dba1a3a16231b7f80dc3c",
+    "projects/mmdet3d_plugin/models/track_head/stereo_track_head.py": "f6e0ae84a3ac56b67b4935a95cca8d037da94746cb35757f54435ddad3ad959e",
+    "projects/mmdet3d_plugin/models/track_head/uvtr_track_head.py": "dffa549eda28c46c602bbc93de59cbe8f995a1933a1550d7e3c9dbf33f8d3b82",
+    "projects/mmdet3d_plugin/models/trackers/__init__.py": "a111a51b935258abbbbc70322a03bad97eb05d6343b4535dce9adf75ac55b07c",
+    "projects/mmdet3d_plugin/models/trackers/detr3d_tracker_dq.py": "630bcf7c7f7d81cf5d21759533267ee17c6e9ca6f156c9e01140d24c746fda01",
+    "projects/mmdet3d_plugin/models/trackers/petr_tracker_dq.py": "9d8a040bae7be61eccc9a4f082f835ac8adf2065dcea0569f2613157d48c64b4",
+    "projects/mmdet3d_plugin/models/trackers/stereo_tracker_dq.py": "3fcb91a93ee21a025dac0e5f2823b7a22b5c68f6e991cd60c1f67b6a782f112a",
+    "projects/mmdet3d_plugin/models/trackers/uvtr_tracker_dq.py": "7b7e7db7ae8de893ac96c30e75adef2fbc64a8e92c7c25640fc2de3fc5408a2f",
+    "projects/mmdet3d_plugin/models/utils/__init__.py": "f9af689a8b0e435dc3bfaa66c6181c7480e63981f3a4a7c8944a284dfb731f0f",
+    "projects/mmdet3d_plugin/models/utils/detr3d_transformer.py": "dffa9bfb48e9f01bbc598511097918dcd52a02878c800895cbf144df0503af5f",
+    "projects/mmdet3d_plugin/models/utils/grid_mask.py": "d086cdcc4f5c9ee156ddf0ff74404b5202d8b0e198b7968b83be754233e373d3",
+    "projects/mmdet3d_plugin/models/utils/petr_transformer.py": "c3291e341b08b61e80b7a52b4e3b35fdc04c450fd5793805dd8d79094fbd7667",
+    "projects/mmdet3d_plugin/models/utils/positional_encoding.py": "cf72ae920146d571a355ec0bbae247f65388cc31b29ebf33cf65df008ef00b0d",
+    "projects/mmdet3d_plugin/models/utils/stereo_depth.py": "319698a393b1cf5260c3e98d11aa3eb4b2b571d78428b98853ce0750b0d7a999",
+    "projects/mmdet3d_plugin/models/utils/stereo_viewtrans.py": "8f032da68ae3d45d371e5015de6b10e026baeff03b44b6abaee46894286901f6",
+    "projects/mmdet3d_plugin/models/utils/track_dq_utils.py": "f5bf57efcc41f16f751e4ba18cde1d0bca835bd85a6aa479136ff8129a7ea537",
+    "projects/mmdet3d_plugin/models/utils/uni3d_detr.py": "69edf06aad3c0d1cad481cdcf9d0956e4b32fa4bd2b9d99f8452a831cf48ab99",
+    "projects/mmdet3d_plugin/models/utils/uni3d_track_detr.py": "35a2d11725c42591f29a3fdc60db897b637d34428607db4a41e45f1f6e3a560a",
+    "projects/mmdet3d_plugin/models/utils/uni3d_viewtrans.py": "0836e234e64caf7f67128f4479d6c37192fb09fa258fb2c8b8c9f81909c7b86f"
+  },
+  "selected_imports": [
+    "core.bbox.assigners.hungarian_assigner_3d",
+    "core.bbox.coders.nms_free_coder",
+    "core.bbox.coders.detr_track_coder",
+    "core.bbox.match_costs.match_cost",
+    "models.utils.detr3d_transformer",
+    "models.losses.categorical_cross_entroy",
+    "models.losses.dual_query_matcher",
+    "models.track_head.detr3d_head",
+    "models.trackers.detr3d_tracker_dq",
+    "datasets.nuscenes_dataset_track",
+    "datasets.pipelines.loading_3d",
+    "datasets.pipelines.formatting",
+    "datasets.pipelines.transform_3d"
+  ],
+  "cpu_check_override": "category lookup allocation device only; no parameter changes",
+  "checkpoint_loader": "restricted tensor/primitive pickle; four allowed globals",
+  "parameter_tensors": 982,
+  "scenes": [
+    {
+      "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+      "actual_inference": true,
+      "run_id": "ffb9053b-2129-42f4-a884-733ec04a78a3",
+      "checkpoint_sha256": "93213fa9896ba1d161976c26fd512dc9e25f45c70c5d63c2dade31e90a8ec3d4",
+      "infos_sha256": "b2d781ecdcd06b216b0b4225235748ec3652ee215347808fd5d8a6b50c6f8e8f",
+      "inference_attempted": true,
+      "status": "exported",
+      "frames": [
+        {
+          "sample_token": "d5324133e1d241658a7b763831b3af2e",
+          "forward_ms": 779.3628580402583,
+          "elapsed_ms": 781.0745208989829,
+          "input_tracks": 13,
+          "exported": 13,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "0f5cbb909e9544dd861dc2ff63ac4d13",
+          "forward_ms": 179.0659900289029,
+          "elapsed_ms": 180.1979229785502,
+          "input_tracks": 9,
+          "exported": 9,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "da74550a10a8408299d7e6b1735963ae",
+          "forward_ms": 174.5281640905887,
+          "elapsed_ms": 175.773321185261,
+          "input_tracks": 10,
+          "exported": 10,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "cf86af90b622499b8214df0024a6ea29",
+          "forward_ms": 174.2918868549168,
+          "elapsed_ms": 175.52333185449243,
+          "input_tracks": 10,
+          "exported": 10,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "901cfd30cb2a4fdba55095f9ec0fed34",
+          "forward_ms": 175.3778918646276,
+          "elapsed_ms": 176.89930484630167,
+          "input_tracks": 13,
+          "exported": 13,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5c9d217c4af14c608c7b5f9469dd488b",
+          "forward_ms": 174.39591395668685,
+          "elapsed_ms": 175.65446090884507,
+          "input_tracks": 10,
+          "exported": 10,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "ae3d3b5cb4424e7ab501a5d6f0a4980a",
+          "forward_ms": 175.01249792985618,
+          "elapsed_ms": 176.36041203513741,
+          "input_tracks": 11,
+          "exported": 11,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "a7795dcadad44c1c85fa27eef18366f6",
+          "forward_ms": 174.61583903059363,
+          "elapsed_ms": 175.90015404857695,
+          "input_tracks": 10,
+          "exported": 10,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "cffb959327ac42ad866a5f8829e18187",
+          "forward_ms": 174.72673393785954,
+          "elapsed_ms": 176.08516803011298,
+          "input_tracks": 11,
+          "exported": 11,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "7693424bd4b04229b08c578b256a7de4",
+          "forward_ms": 175.80307112075388,
+          "elapsed_ms": 177.3500421550125,
+          "input_tracks": 13,
+          "exported": 13,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "48ea4572f95c47a083efa79997c4a506",
+          "forward_ms": 176.224275957793,
+          "elapsed_ms": 177.56693391129375,
+          "input_tracks": 11,
+          "exported": 11,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "604a8ce58d0b4f94a93db370813edf94",
+          "forward_ms": 175.95901805907488,
+          "elapsed_ms": 177.5021879002452,
+          "input_tracks": 13,
+          "exported": 13,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "160fa0f8e77b41409a98341093a7cace",
+          "forward_ms": 175.79602706246078,
+          "elapsed_ms": 177.40825191140175,
+          "input_tracks": 13,
+          "exported": 13,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "09e58f5b8acb45a9a9c8c186895efa59",
+          "forward_ms": 177.2593839559704,
+          "elapsed_ms": 179.15196297690272,
+          "input_tracks": 17,
+          "exported": 17,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "47fce09b77e44bb1810cedd61628ab1f",
+          "forward_ms": 177.94761690311134,
+          "elapsed_ms": 179.84497896395624,
+          "input_tracks": 17,
+          "exported": 17,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "eaad6827a3c44cdab111ea7d912c9947",
+          "forward_ms": 179.84698014333844,
+          "elapsed_ms": 182.10307299159467,
+          "input_tracks": 21,
+          "exported": 21,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "88a6b5e35eb44deba6b1065d74b0a3c4",
+          "forward_ms": 181.2971499748528,
+          "elapsed_ms": 183.6461320053786,
+          "input_tracks": 22,
+          "exported": 22,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "8ae5818912bf4a8db24b1690d83034ac",
+          "forward_ms": 183.12761606648564,
+          "elapsed_ms": 185.71465299464762,
+          "input_tracks": 24,
+          "exported": 24,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "023a58306058440988b0ca496bdf9c2e",
+          "forward_ms": 183.45684418454766,
+          "elapsed_ms": 185.77398103661835,
+          "input_tracks": 22,
+          "exported": 22,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9ce5d3ae2cce4a0aaea1626e752f65d9",
+          "forward_ms": 185.41562487371266,
+          "elapsed_ms": 188.04360297508538,
+          "input_tracks": 25,
+          "exported": 25,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "59a27b7fc76541ea92d79f7d4c62a2ec",
+          "forward_ms": 185.85272203199565,
+          "elapsed_ms": 188.270848011598,
+          "input_tracks": 23,
+          "exported": 23,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "c0efe2319882495b9d13add1d352bee4",
+          "forward_ms": 188.4026147890836,
+          "elapsed_ms": 191.2885708734393,
+          "input_tracks": 28,
+          "exported": 28,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "72fe05b8fd804c7eb2edba7554f1f796",
+          "forward_ms": 191.72356999479234,
+          "elapsed_ms": 194.7993307840079,
+          "input_tracks": 30,
+          "exported": 30,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "dce33c96ffdb4802a69f6d7d530a4f09",
+          "forward_ms": 193.8338379841298,
+          "elapsed_ms": 197.05695286393166,
+          "input_tracks": 32,
+          "exported": 32,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "b2fecdf10a404d94a049c91f20eaddf3",
+          "forward_ms": 195.95832889899611,
+          "elapsed_ms": 199.47630492970347,
+          "input_tracks": 35,
+          "exported": 35,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "dac52a02f54c4677b0a6b4a28e2c56a1",
+          "forward_ms": 195.50484092906117,
+          "elapsed_ms": 198.94974399358034,
+          "input_tracks": 34,
+          "exported": 34,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "fd612e8660e74196af7da7e6487e5d53",
+          "forward_ms": 195.93085278756917,
+          "elapsed_ms": 199.24201490357518,
+          "input_tracks": 33,
+          "exported": 33,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "22189c1013dc4263b23764258e8f0c21",
+          "forward_ms": 199.47706419043243,
+          "elapsed_ms": 203.15741817466915,
+          "input_tracks": 37,
+          "exported": 37,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "22ce804db92749a1aee3a08ffbecfbbd",
+          "forward_ms": 200.47336188144982,
+          "elapsed_ms": 204.05138796195388,
+          "input_tracks": 36,
+          "exported": 36,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "2cdbffa384a5478babff79039cac4e75",
+          "forward_ms": 200.21839602850378,
+          "elapsed_ms": 203.91030609607697,
+          "input_tracks": 37,
+          "exported": 37,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "e2c7c91b4ea2462090d866539ff6b9e5",
+          "forward_ms": 203.77868483774364,
+          "elapsed_ms": 207.78501988388598,
+          "input_tracks": 41,
+          "exported": 41,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "aee1e33b4ca74ae4a761fa072f92b577",
+          "forward_ms": 206.26691193319857,
+          "elapsed_ms": 210.25575487874448,
+          "input_tracks": 40,
+          "exported": 40,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "717c45682e15432f9862e47775b9b80f",
+          "forward_ms": 202.3722471203655,
+          "elapsed_ms": 205.58306598104537,
+          "input_tracks": 32,
+          "exported": 32,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "2e743b1fb9a34383b88bec3e7792ad2a",
+          "forward_ms": 196.84786908328533,
+          "elapsed_ms": 199.35309910215437,
+          "input_tracks": 22,
+          "exported": 22,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "05e8bcefb9e442ceb0c8d16b745974e0",
+          "forward_ms": 198.49697896279395,
+          "elapsed_ms": 201.26652484759688,
+          "input_tracks": 27,
+          "exported": 27,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "b43de5e578944891bf9433166bd974c2",
+          "forward_ms": 199.2280171252787,
+          "elapsed_ms": 202.18998822383583,
+          "input_tracks": 27,
+          "exported": 27,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "0ba00e2623814934b1b00ec2b461a125",
+          "forward_ms": 198.37702391669154,
+          "elapsed_ms": 201.01409894414246,
+          "input_tracks": 25,
+          "exported": 25,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "2ce065a0fa9e4e4da888abc18fa100c8",
+          "forward_ms": 186.99277890846133,
+          "elapsed_ms": 188.50231589749455,
+          "input_tracks": 13,
+          "exported": 13,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "67b146ff35ba4f84b3e6276a8e8ff65a",
+          "forward_ms": 186.37734302319586,
+          "elapsed_ms": 187.87073204293847,
+          "input_tracks": 13,
+          "exported": 13,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "21971c1ec4644d608f8c08bbfd4059f7",
+          "forward_ms": 187.8937550354749,
+          "elapsed_ms": 189.6642509382218,
+          "input_tracks": 16,
+          "exported": 16,
+          "range_filtered": 0,
+          "rejected": []
+        }
+      ],
+      "peak_gpu_allocated_bytes": 1457511424,
+      "peak_gpu_reserved_bytes": 2233466880,
+      "data_split": "exposed_development_smoke",
+      "independent_validation": false
+    },
+    {
+      "scene_id": "dce6f3f2bf6b4859abcf3268581969d3",
+      "actual_inference": true,
+      "run_id": "ffb9053b-2129-42f4-a884-733ec04a78a3",
+      "checkpoint_sha256": "93213fa9896ba1d161976c26fd512dc9e25f45c70c5d63c2dade31e90a8ec3d4",
+      "infos_sha256": "b2d781ecdcd06b216b0b4225235748ec3652ee215347808fd5d8a6b50c6f8e8f",
+      "inference_attempted": true,
+      "status": "exported",
+      "frames": [
+        {
+          "sample_token": "2fb7b5d1eab24b13abb4e0703850dba9",
+          "forward_ms": 170.4339669086039,
+          "elapsed_ms": 171.209747903049,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "e23f762b990846e693a7b0f6308f51d0",
+          "forward_ms": 174.72815699875355,
+          "elapsed_ms": 175.80533702857792,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "88a95c50f2d24db0a17a95417252e2ef",
+          "forward_ms": 175.8400071412325,
+          "elapsed_ms": 176.98354017920792,
+          "input_tracks": 9,
+          "exported": 9,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "7e619b436bb74d21a2a18a5b44a5e44c",
+          "forward_ms": 174.50864589773118,
+          "elapsed_ms": 175.28190091252327,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "7380c8cf21ab4b609c3f47e80c7c5b11",
+          "forward_ms": 173.94088790751994,
+          "elapsed_ms": 174.55776501446962,
+          "input_tracks": 3,
+          "exported": 3,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "14994efceb384860a0f8664c0b0d6a1d",
+          "forward_ms": 174.7349777724594,
+          "elapsed_ms": 175.4427389241755,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "a474fc3cae054873a4db787ed25e497a",
+          "forward_ms": 175.13285716995597,
+          "elapsed_ms": 176.02618806995451,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "2f3e07dddeb9482ea9994adbd1049e7a",
+          "forward_ms": 175.17487984150648,
+          "elapsed_ms": 175.95253279432654,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "04d4b4a43c1d465e96f3de26b50a9a97",
+          "forward_ms": 174.7763070743531,
+          "elapsed_ms": 175.47597899101675,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "27ab30ff89bf4051aa154178677b9da7",
+          "forward_ms": 174.44587196223438,
+          "elapsed_ms": 175.1437671482563,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "4739e7db16554b498a08a5d3b5a41d66",
+          "forward_ms": 175.44233589433134,
+          "elapsed_ms": 176.13182100467384,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9fd8ae00df104af290529a90cc5068b4",
+          "forward_ms": 175.782754085958,
+          "elapsed_ms": 176.66075192391872,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5d3f6413624549ceb9e44d0977a75c8d",
+          "forward_ms": 175.2688519190997,
+          "elapsed_ms": 176.2226507999003,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "73f2ed16c23143e19f798a52c715e2f6",
+          "forward_ms": 176.40621215105057,
+          "elapsed_ms": 177.54771513864398,
+          "input_tracks": 9,
+          "exported": 9,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "10bf5ad3053e4675b34667b07128a5bb",
+          "forward_ms": 176.7684060614556,
+          "elapsed_ms": 178.08177904225886,
+          "input_tracks": 11,
+          "exported": 11,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "f5064bc8ce2c43e5b954121c4835dc14",
+          "forward_ms": 176.30057805217803,
+          "elapsed_ms": 177.83120507374406,
+          "input_tracks": 13,
+          "exported": 13,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "7fafcee5a8d1453397d168c3f9568564",
+          "forward_ms": 177.24446905776858,
+          "elapsed_ms": 178.85953607037663,
+          "input_tracks": 14,
+          "exported": 14,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9db96db5511f4779b712aeff927c3836",
+          "forward_ms": 178.12296096235514,
+          "elapsed_ms": 179.83312089927495,
+          "input_tracks": 15,
+          "exported": 15,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "f5f00651ff3947a097422b5261a4edae",
+          "forward_ms": 178.84371802210808,
+          "elapsed_ms": 180.81585806794465,
+          "input_tracks": 18,
+          "exported": 18,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "0f546bbb1e9048a1b84f70fb4aedf9a0",
+          "forward_ms": 179.19238400645554,
+          "elapsed_ms": 181.32909713312984,
+          "input_tracks": 20,
+          "exported": 20,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "fe2427d40c2741a5a41207cd031c27ba",
+          "forward_ms": 180.04463403485715,
+          "elapsed_ms": 182.2584350593388,
+          "input_tracks": 21,
+          "exported": 21,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "301fdcd061724fbfb38097670b218596",
+          "forward_ms": 180.43126910924911,
+          "elapsed_ms": 182.38407210446894,
+          "input_tracks": 18,
+          "exported": 18,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "6acef3a544ed49ae97d935700d8a5d89",
+          "forward_ms": 180.98289007321,
+          "elapsed_ms": 183.11541713774204,
+          "input_tracks": 20,
+          "exported": 20,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "d903747f29c74016a3a702959cf43429",
+          "forward_ms": 181.0281511861831,
+          "elapsed_ms": 182.9044020269066,
+          "input_tracks": 17,
+          "exported": 17,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "8938bdb987574314ac81e4e310a3f774",
+          "forward_ms": 181.37490516528487,
+          "elapsed_ms": 183.44292510300875,
+          "input_tracks": 19,
+          "exported": 19,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "15bdb20042cc43b8bf06fce36e9e501d",
+          "forward_ms": 184.07684192061424,
+          "elapsed_ms": 186.58436206169426,
+          "input_tracks": 24,
+          "exported": 24,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "b21b443198bc4552ba7593a471abda1f",
+          "forward_ms": 184.93165913969278,
+          "elapsed_ms": 187.41204007528722,
+          "input_tracks": 24,
+          "exported": 24,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "7805fe90851940b195c31d3d5062329e",
+          "forward_ms": 185.46267203055322,
+          "elapsed_ms": 188.00585810095072,
+          "input_tracks": 24,
+          "exported": 24,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "3b8d799305e54bfd8da165f83a75a2d0",
+          "forward_ms": 185.89950492605567,
+          "elapsed_ms": 188.584916992113,
+          "input_tracks": 26,
+          "exported": 26,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "10fd939580824717b063600f37b4c126",
+          "forward_ms": 185.7501280028373,
+          "elapsed_ms": 188.47860605455935,
+          "input_tracks": 25,
+          "exported": 25,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5018e6c1e4a44d1d9057b468f1f91c21",
+          "forward_ms": 185.25962391868234,
+          "elapsed_ms": 187.9113398026675,
+          "input_tracks": 26,
+          "exported": 26,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "3305d168dd014161bb434bccceaa88e4",
+          "forward_ms": 183.91304113902152,
+          "elapsed_ms": 186.41771306283772,
+          "input_tracks": 24,
+          "exported": 24,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "d5a6cd99d1bb4be38b49d0f47b139cab",
+          "forward_ms": 183.3391000982374,
+          "elapsed_ms": 185.87002414278686,
+          "input_tracks": 24,
+          "exported": 24,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5d48687c6ffa4b14ad9d87e4b10bafd0",
+          "forward_ms": 188.9725998044014,
+          "elapsed_ms": 192.4861439038068,
+          "input_tracks": 33,
+          "exported": 33,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "38b446951ae14bc9bad64c6fdd341ae5",
+          "forward_ms": 188.69460909627378,
+          "elapsed_ms": 191.59107911400497,
+          "input_tracks": 28,
+          "exported": 28,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "0d0f1e7f3aaa4fbb931f1f5aecc3b9d8",
+          "forward_ms": 186.5116418339312,
+          "elapsed_ms": 188.81639279425144,
+          "input_tracks": 22,
+          "exported": 22,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "73550331af2e48fd8679ad97178ff356",
+          "forward_ms": 187.02786695212126,
+          "elapsed_ms": 189.55308897420764,
+          "input_tracks": 22,
+          "exported": 22,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "049128c8492345b6afa210ec37080165",
+          "forward_ms": 188.01701092161238,
+          "elapsed_ms": 190.61391497962177,
+          "input_tracks": 23,
+          "exported": 23,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "fae5f53a595c445d8228ca7006fddc14",
+          "forward_ms": 187.6700958237052,
+          "elapsed_ms": 189.993989886716,
+          "input_tracks": 22,
+          "exported": 22,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "047604500ac04e4086ed7f4c48439f52",
+          "forward_ms": 187.86729499697685,
+          "elapsed_ms": 190.27100107632577,
+          "input_tracks": 23,
+          "exported": 23,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "00a9b6fdf99143c4aabaaca13004c2be",
+          "forward_ms": 189.4951278809458,
+          "elapsed_ms": 192.25213793106377,
+          "input_tracks": 27,
+          "exported": 27,
+          "range_filtered": 0,
+          "rejected": []
+        }
+      ],
+      "peak_gpu_allocated_bytes": 1458531328,
+      "peak_gpu_reserved_bytes": 2233466880,
+      "data_split": "exposed_development_smoke",
+      "independent_validation": false
+    },
+    {
+      "scene_id": "9f1f69646d644e35be4fe0122a8b91ef",
+      "actual_inference": true,
+      "run_id": "ffb9053b-2129-42f4-a884-733ec04a78a3",
+      "checkpoint_sha256": "93213fa9896ba1d161976c26fd512dc9e25f45c70c5d63c2dade31e90a8ec3d4",
+      "infos_sha256": "b2d781ecdcd06b216b0b4225235748ec3652ee215347808fd5d8a6b50c6f8e8f",
+      "inference_attempted": true,
+      "status": "exported",
+      "frames": [
+        {
+          "sample_token": "adce54dcf6404d37bd170ffc4c2a7836",
+          "forward_ms": 171.8883670400828,
+          "elapsed_ms": 172.90384997613728,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "3613b5ea52bc46d0966fede34be89d38",
+          "forward_ms": 175.54608406499028,
+          "elapsed_ms": 176.69873894192278,
+          "input_tracks": 8,
+          "exported": 8,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "c0f6cef97fa44973afe8ed8e18e652c3",
+          "forward_ms": 175.99656991660595,
+          "elapsed_ms": 176.87312280759215,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "895d801ecf3e40019e43a0d5b80bb453",
+          "forward_ms": 174.82240800745785,
+          "elapsed_ms": 175.50771590322256,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "18f10858b2b1410f8485ffa35253033d",
+          "forward_ms": 174.4158510118723,
+          "elapsed_ms": 175.12221401557326,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "2d72c60d65f84eae91bb4e5b2486b366",
+          "forward_ms": 174.3577509187162,
+          "elapsed_ms": 175.0657658558339,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "3d2ce1b79d1c45e5b7db4f26f411bb86",
+          "forward_ms": 175.32486096024513,
+          "elapsed_ms": 176.39717203564942,
+          "input_tracks": 8,
+          "exported": 8,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9a7a58e327f04340ae8f9ec098a58418",
+          "forward_ms": 176.29294283688068,
+          "elapsed_ms": 177.97084990888834,
+          "input_tracks": 15,
+          "exported": 15,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "575d8e57b2de436b805fd6befde3edd7",
+          "forward_ms": 178.64821385592222,
+          "elapsed_ms": 180.56757003068924,
+          "input_tracks": 17,
+          "exported": 17,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "14d8b49233574552ae43c6f49172ea16",
+          "forward_ms": 179.96836709789932,
+          "elapsed_ms": 182.18753207474947,
+          "input_tracks": 21,
+          "exported": 21,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5973a055a6ac40e9934cfce8afa82fbe",
+          "forward_ms": 180.36764115095139,
+          "elapsed_ms": 182.42053501307964,
+          "input_tracks": 19,
+          "exported": 19,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "1220f9a205ae44418fcce91722e1e601",
+          "forward_ms": 180.7601109612733,
+          "elapsed_ms": 183.09057806618512,
+          "input_tracks": 22,
+          "exported": 22,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9b3ff4bc3d1d46a19ddae004ec9c0ae5",
+          "forward_ms": 183.04921686649323,
+          "elapsed_ms": 185.83963299170136,
+          "input_tracks": 27,
+          "exported": 27,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "692096a37e2c43b3b1aaaa06b0a9666b",
+          "forward_ms": 183.49041091278195,
+          "elapsed_ms": 186.02929101325572,
+          "input_tracks": 25,
+          "exported": 25,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "0c97832dafd24fce9a0e4935664dc824",
+          "forward_ms": 184.52493799850345,
+          "elapsed_ms": 187.16515018604696,
+          "input_tracks": 26,
+          "exported": 26,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "ca37a1ae2ef1461d9c3dadf826e78706",
+          "forward_ms": 186.7882360238582,
+          "elapsed_ms": 189.92805504240096,
+          "input_tracks": 31,
+          "exported": 31,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9a1174901ea1401a9972a44616214c9b",
+          "forward_ms": 188.05838888511062,
+          "elapsed_ms": 191.1686749663204,
+          "input_tracks": 31,
+          "exported": 31,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "6e147994a5e3493d86a928a612ff5791",
+          "forward_ms": 187.3063608072698,
+          "elapsed_ms": 190.20253396593034,
+          "input_tracks": 27,
+          "exported": 27,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "4a1972f8731b4cdea40fc69a38a735b1",
+          "forward_ms": 186.67386914603412,
+          "elapsed_ms": 189.32429212145507,
+          "input_tracks": 26,
+          "exported": 26,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "a4be46a1e7d24df3b14fe5322c65df71",
+          "forward_ms": 187.50919494777918,
+          "elapsed_ms": 190.16923499293625,
+          "input_tracks": 26,
+          "exported": 26,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "d02a787e344d40d78b57593a31fe1813",
+          "forward_ms": 191.18418800644577,
+          "elapsed_ms": 194.438389968127,
+          "input_tracks": 33,
+          "exported": 33,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "1994ad9682bd4175b244af0be3e09417",
+          "forward_ms": 185.1887279190123,
+          "elapsed_ms": 187.30023689568043,
+          "input_tracks": 20,
+          "exported": 20,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "802619f6fb5940608483cb29fc1beab6",
+          "forward_ms": 180.22380699403584,
+          "elapsed_ms": 181.4656739588827,
+          "input_tracks": 10,
+          "exported": 10,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "b24eea3e5ebd423fafe109de526cb484",
+          "forward_ms": 183.67513292469084,
+          "elapsed_ms": 185.5452109593898,
+          "input_tracks": 17,
+          "exported": 17,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "6e90bc3643d94c0fa0edf8795f8c8aa3",
+          "forward_ms": 185.46251999214292,
+          "elapsed_ms": 187.60556587949395,
+          "input_tracks": 20,
+          "exported": 20,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5512cfa9df6842f89062f97cdefa378d",
+          "forward_ms": 177.61873081326485,
+          "elapsed_ms": 178.48397395573556,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "6ea8ed46a7e04a10abfa6acd5290ea09",
+          "forward_ms": 177.6930191554129,
+          "elapsed_ms": 178.57049615122378,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "1db65e17354d4873bd22d3186e7dfcdf",
+          "forward_ms": 178.8616708945483,
+          "elapsed_ms": 179.80945203453302,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "d0a9cf1d37cd414584f676826a1f400a",
+          "forward_ms": 178.19724092260003,
+          "elapsed_ms": 179.15924289263785,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "21e50bd8b149409a9791a74acf49a676",
+          "forward_ms": 178.2630318775773,
+          "elapsed_ms": 179.32020383886993,
+          "input_tracks": 8,
+          "exported": 8,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "459ac79bafdf4b88913f981c1fa71b2c",
+          "forward_ms": 177.36194911412895,
+          "elapsed_ms": 178.324188105762,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "e05526aafa644218b37ab46567a6e776",
+          "forward_ms": 177.39909002557397,
+          "elapsed_ms": 178.25860995799303,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9260fb448a3a49c0be2d174e01157940",
+          "forward_ms": 177.0211209077388,
+          "elapsed_ms": 178.01809194497764,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5abd3d15e63c44a8a8189a6e70a496ef",
+          "forward_ms": 175.98316818475723,
+          "elapsed_ms": 176.92334903404117,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "44a799dcf8cd4393aaa748e1bcd96d58",
+          "forward_ms": 175.5899719428271,
+          "elapsed_ms": 176.39391985721886,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "addc85df1c34465090f92fa811ecaac6",
+          "forward_ms": 175.90005486272275,
+          "elapsed_ms": 176.85524793341756,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "7483e0aca67b4ed79c12f553d5123923",
+          "forward_ms": 174.77715807035565,
+          "elapsed_ms": 175.5474009551108,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "79aee76081974fe18eff436a020ce606",
+          "forward_ms": 175.22910400293767,
+          "elapsed_ms": 175.92613794840872,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "c359678db3e0441397c0d631f98ec7e1",
+          "forward_ms": 175.19323714077473,
+          "elapsed_ms": 175.90021900832653,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "8cf0dfa0d78f469e8b10760332954028",
+          "forward_ms": 176.13501218147576,
+          "elapsed_ms": 176.94187513552606,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        }
+      ],
+      "peak_gpu_allocated_bytes": 1458531328,
+      "peak_gpu_reserved_bytes": 2233466880,
+      "data_split": "exposed_development_smoke",
+      "independent_validation": false
+    },
+    {
+      "scene_id": "07aed9dae37340a997535ad99138e243",
+      "actual_inference": true,
+      "run_id": "ffb9053b-2129-42f4-a884-733ec04a78a3",
+      "checkpoint_sha256": "93213fa9896ba1d161976c26fd512dc9e25f45c70c5d63c2dade31e90a8ec3d4",
+      "infos_sha256": "b2d781ecdcd06b216b0b4225235748ec3652ee215347808fd5d8a6b50c6f8e8f",
+      "inference_attempted": true,
+      "status": "exported",
+      "frames": [
+        {
+          "sample_token": "94cd383effba4e688570233a060a13f4",
+          "forward_ms": 173.64414897747338,
+          "elapsed_ms": 174.5509069878608,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "2a86b2b0a481470a83c81f4d2b514276",
+          "forward_ms": 174.85191416926682,
+          "elapsed_ms": 175.55771209299564,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "2da362aa50914fb69f1206e4161c2b49",
+          "forward_ms": 174.41294598393142,
+          "elapsed_ms": 175.1955880317837,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9019e415f3864cee8db416c9b6154fec",
+          "forward_ms": 175.32440111972392,
+          "elapsed_ms": 176.11066717654467,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "b4a22db7d3a2450f936d22248f139efb",
+          "forward_ms": 175.34412699751556,
+          "elapsed_ms": 176.1267469264567,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "fa4978c3e74f4d288f1daed5909dc6ee",
+          "forward_ms": 175.42006098665297,
+          "elapsed_ms": 176.1234449222684,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "dcdbd1100ef14eb0b00e272bc01b8b21",
+          "forward_ms": 174.77264488115907,
+          "elapsed_ms": 175.55253789760172,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "fee2ac7d0102464a94b6bc788be71be4",
+          "forward_ms": 175.70515512488782,
+          "elapsed_ms": 176.5840200241655,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5c9e4d30d07a4df0b20056d97659c6b8",
+          "forward_ms": 175.62549095600843,
+          "elapsed_ms": 176.63880693726242,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "4a74ff52d7fa4336bdd80958bd483e5b",
+          "forward_ms": 175.60727894306183,
+          "elapsed_ms": 176.5620349906385,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "a07a94dd9a3243fca35da0c4cb10187a",
+          "forward_ms": 178.51013294421136,
+          "elapsed_ms": 179.5255420729518,
+          "input_tracks": 7,
+          "exported": 7,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "3c260dca3274465eaf38dd6c0a7d7872",
+          "forward_ms": 177.36420198343694,
+          "elapsed_ms": 178.47537202760577,
+          "input_tracks": 8,
+          "exported": 8,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "601b60a6d7bb4663ae79c872cb25da63",
+          "forward_ms": 177.1830387879163,
+          "elapsed_ms": 178.39393392205238,
+          "input_tracks": 9,
+          "exported": 9,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "b7eb72af006b4110a0c899e556b993e0",
+          "forward_ms": 176.5466840006411,
+          "elapsed_ms": 177.69140400923789,
+          "input_tracks": 9,
+          "exported": 9,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "c2557bfc50864f6dacd4605abb639406",
+          "forward_ms": 175.8906110189855,
+          "elapsed_ms": 176.98839493095875,
+          "input_tracks": 8,
+          "exported": 8,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "a7753324e1e44e4598ed2b9a9c26c4c1",
+          "forward_ms": 175.47855293378234,
+          "elapsed_ms": 176.34159000590444,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "8b3bb59e6d0e4da69b314c10d6b35be8",
+          "forward_ms": 175.63711781986058,
+          "elapsed_ms": 176.32454098202288,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5a8784d1f99d45a4973e7c89d444ef3c",
+          "forward_ms": 175.65218987874687,
+          "elapsed_ms": 176.33372102864087,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "08d4e366f727495a91c8d1e33f4257c9",
+          "forward_ms": 174.60532300174236,
+          "elapsed_ms": 175.02243304625154,
+          "input_tracks": 1,
+          "exported": 1,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "83c7c252af754edb82e3e6e4a5f42100",
+          "forward_ms": 174.44959399290383,
+          "elapsed_ms": 174.94918103329837,
+          "input_tracks": 2,
+          "exported": 2,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "c31f7047ff4b44e2b92dbaa782fc18a2",
+          "forward_ms": 175.49708392471075,
+          "elapsed_ms": 176.17315496318042,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "db0478dec0824052b9ee6b77571148e5",
+          "forward_ms": 175.40134792216122,
+          "elapsed_ms": 175.9408249054104,
+          "input_tracks": 2,
+          "exported": 2,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "62c4690878a04a909a6c48a4e2c22d42",
+          "forward_ms": 175.67425104789436,
+          "elapsed_ms": 176.1802788823843,
+          "input_tracks": 2,
+          "exported": 2,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "23b9b43726284aaa9789e42a7eddbfc8",
+          "forward_ms": 175.77106901444495,
+          "elapsed_ms": 176.36729404330254,
+          "input_tracks": 3,
+          "exported": 3,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "0f67be8de20c464182465c716113743e",
+          "forward_ms": 175.04403996281326,
+          "elapsed_ms": 175.6234799977392,
+          "input_tracks": 3,
+          "exported": 3,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "7ceeb5f1f6864b03a8f72fca507acdee",
+          "forward_ms": 174.83336082659662,
+          "elapsed_ms": 175.32395687885582,
+          "input_tracks": 2,
+          "exported": 2,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "a4354e58aaaa454493ec48f11176530c",
+          "forward_ms": 174.95585302822292,
+          "elapsed_ms": 175.47072796151042,
+          "input_tracks": 2,
+          "exported": 2,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "d31fd9e576a54fdb871ee5941c471199",
+          "forward_ms": 174.52794197015464,
+          "elapsed_ms": 175.13276799581945,
+          "input_tracks": 3,
+          "exported": 3,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "6c0c3cb4fb0448c28a94f8fedfd99b7a",
+          "forward_ms": 175.75855902396142,
+          "elapsed_ms": 176.4542970340699,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "f744fa7229364b55b5f80dc0a8029a1d",
+          "forward_ms": 175.90491892769933,
+          "elapsed_ms": 176.67469684965909,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "71be574ac1a04c6f979c29d7c2367fba",
+          "forward_ms": 175.25458591990173,
+          "elapsed_ms": 175.890380050987,
+          "input_tracks": 3,
+          "exported": 3,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "e4995f237a50412ab90166cd6761d048",
+          "forward_ms": 175.09181308560073,
+          "elapsed_ms": 175.88215693831444,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "b3c9c259eff64b86969cc7176cb8c436",
+          "forward_ms": 175.20642885938287,
+          "elapsed_ms": 175.78714503906667,
+          "input_tracks": 3,
+          "exported": 3,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "f5be8cc937e74e84b8d73e2074658382",
+          "forward_ms": 175.11231009848416,
+          "elapsed_ms": 175.8131270762533,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "fc5f2295a1f648e5adfbee155413abf0",
+          "forward_ms": 175.38980394601822,
+          "elapsed_ms": 176.21480813249946,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "0072eb21de8e4f18bbe20e7b91037b6b",
+          "forward_ms": 174.68851315788925,
+          "elapsed_ms": 175.38561602123082,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "9ecf0f528ca24c2cb88c8abac9556765",
+          "forward_ms": 174.6825110167265,
+          "elapsed_ms": 175.38675596006215,
+          "input_tracks": 4,
+          "exported": 4,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5f1f75dcaa7e49f98ff5ff564245c5ab",
+          "forward_ms": 175.42349291034043,
+          "elapsed_ms": 176.31680006161332,
+          "input_tracks": 6,
+          "exported": 6,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "5c813f2401f340e8832d14ec3e613dc7",
+          "forward_ms": 175.57533597573638,
+          "elapsed_ms": 176.36251007206738,
+          "input_tracks": 5,
+          "exported": 5,
+          "range_filtered": 0,
+          "rejected": []
+        },
+        {
+          "sample_token": "43e2717b9adc44ba97080cdc052f3f25",
+          "forward_ms": 175.61732791364193,
+          "elapsed_ms": 176.75520107150078,
+          "input_tracks": 9,
+          "exported": 9,
+          "range_filtered": 0,
+          "rejected": []
+        }
+      ],
+      "peak_gpu_allocated_bytes": 1458531328,
+      "peak_gpu_reserved_bytes": 2233466880,
+      "data_split": "exposed_development_smoke",
+      "independent_validation": false
+    }
+  ]
+}

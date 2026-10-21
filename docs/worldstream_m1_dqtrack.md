@@ -4,6 +4,9 @@
 
 初轮检查记录保留在 `outputs/m1_dqtrack_bridge_20261021/experiment_report.md`。源码已接入并完成两帧真实 DQTrack 推理，续报见 [源码接入文档](worldstream_m1_dqtrack_source.md) 和 `outputs/m1_dqtrack_source_20261021/experiment_report.md`；仍无独立风险收益结论。
 
+
+后续四场景连续序列、受资格限制的身份辅助原型及否定性验证结论见 [策略开发验证](worldstream_m1_dqtrack_policy.md)。默认 off 与原 conservative Hint 保持不变，本轮未发布可启用的校准产物。
+
 ## 模式与关联边界
 
 - `off`：不访问结果路径；原关联、认证及默认审计结构保持原行为。新增空字段不进入旧事务 digest。

@@ -585,6 +585,10 @@ class WorldStateManager:
             0., self.last_commit_diagnostics['commit_total_ms'] - core_ms)
         return result
 
+    def _dqtrack_policy_profile(self):
+        from .dqtrack_policy import qualified_profile
+        return qualified_profile(self.config)
+
     def _commit(self, frame, full_outputs, precheck_result):
         start = perf_counter()
         if not self.config.enabled:
@@ -707,6 +711,17 @@ class WorldStateManager:
                     rejected_pairs.append(dict(anchor_id=anchors[i].anchor_id,
                         prediction_index=selected[j][0], reasons=['external_tracking_identity_conflict'],
                         certified=False))
+        dq_profile=None;dq_tiebreak_edges=set()
+        if self.config.dqtrack_mode=='hint' and self.config.dqtrack_association_policy=='calibrated_tiebreak':
+            dq_profile,qualification=self._dqtrack_policy_profile()
+            dq_diagnostics['policy_qualification']=qualification
+            if dq_profile is not None:
+                from .dqtrack_policy import propose
+                accepted_pairs,dq_tiebreak_edges,policy_diagnostics=propose(
+                    anchors,predictions,accepted_pairs,costs,dq_hints,frame,self.store.last_timestamp,
+                    self.config,dq_profile)
+                dq_diagnostics['policy']=policy_diagnostics
+                if policy_diagnostics['status']=='inactive':dq_profile=None
         if (len({i for i,j in accepted_pairs})!=len(accepted_pairs)
                 or len({j for i,j in accepted_pairs})!=len(accepted_pairs)):
             raise ValueError('Association must be one-to-one before updating state')
@@ -766,6 +781,11 @@ class WorldStateManager:
                     a.certified_observation_count=0;a.history_observations=1
             if self.config.dqtrack_mode == 'hint':
                 a.external_tracking = copy.deepcopy(dq_hints.get(j, {}))
+                if dq_profile is not None:
+                    from .dqtrack_policy import recent_metadata
+                    a.external_tracking=recent_metadata(prior,dq_hints.get(j),frame.timestamp,dq_profile)
+                if prior is not None and edge in dq_tiebreak_edges:
+                    a.association_basis='uncertified_dqtrack_identity_tiebreak'
                 if prior is not None and edge in dq_edges and not a.identity_link_qualified:
                     a.association_basis = 'uncertified_dqtrack_corroborated_geometry'
             a.association_count = prior.association_count + 1 if prior else 0

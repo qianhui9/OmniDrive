@@ -119,7 +119,15 @@ class M1Config:
     dqtrack_mode: str = "off"
     dqtrack_results_path: Optional[str] = None
 
+    dqtrack_association_policy: str = "conservative"
+    dqtrack_policy_qualification_path: Optional[str] = None
+    dqtrack_policy_qualification_sha256: Optional[str] = None
+
     def __post_init__(self):
+        if self.dqtrack_association_policy not in ("conservative", "calibrated_tiebreak"):
+            raise ValueError("Unknown DQTrack association policy")
+        if bool(self.dqtrack_policy_qualification_path)!=bool(self.dqtrack_policy_qualification_sha256):
+            raise ValueError("DQTrack policy qualification requires a pinned digest")
         if self.dqtrack_mode not in ("off", "shadow", "hint"):
             raise ValueError("Invalid DQTrack mode")
         for key in ('persistent_depth_tracks','multi_hypothesis_tracking','search_dynamic_motion','aligned_observation_recovery'):

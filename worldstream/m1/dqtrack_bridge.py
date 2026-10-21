@@ -121,7 +121,7 @@ def corroborated_edges(anchors, hints, accepted_pairs, costs):
     for i, j in accepted_pairs:
         hint = hints.get(j)
         old = anchors[i].external_tracking
-        if not hint or not old or not np.isfinite(costs[i, j]):
+        if not hint or not old or old.get('status')=='recent_only' or not np.isfinite(costs[i, j]):
             continue
         key = (hint['namespace'], hint['tracking_id'])
         if (old.get('namespace'), old.get('tracking_id')) != key:
@@ -142,7 +142,7 @@ def identity_conflicts(anchors, hints, pairs):
     for i, j in pairs:
         old = anchors[i].external_tracking
         hint = hints.get(j)
-        if (old and hint and old.get('namespace') == hint['namespace']
+        if (old and hint and old.get('status')!='recent_only' and old.get('namespace') == hint['namespace']
                 and old.get('tracking_id') != hint['tracking_id']):
             conflicts.add((i, j))
     return conflicts
