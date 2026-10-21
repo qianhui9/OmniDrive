@@ -171,12 +171,3 @@ def score_run(root,output,runtime_config=None,m1_config=None):
         label_table_sha256={str(p):sha(p) for p in [Path('data/nuscenes/v1.0-trainval')/n for n in ('sample_annotation.json','instance.json','category.json')]},
         qualification_generated=False)
     (out/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
-
-
-def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
-    p.add_argument('--runtime-config');p.add_argument('--m1-config')
-    a=p.parse_args();score_run(a.root,a.output,a.runtime_config,a.m1_config)
-
-
-if __name__=='__main__':main()

@@ -213,9 +213,3 @@ def evaluate():
         actual_gate_vs_replay=replay_comparisons,
         critical_scope='New gate only removes anchor certification; dense local pixel evidence is separate and unchanged. Original critical invalidation masks remain comparator, not newly inferred physical ownership.',
         original_critical_recall=original['critical_change_recall'],online_gt_used=False))
-
-
-if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--diagnose',action='store_true');args=parser.parse_args()
-    if args.diagnose:diagnose()
-    else:evaluate()

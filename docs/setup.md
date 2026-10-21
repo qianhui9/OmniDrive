@@ -86,7 +86,7 @@ CPU cores 4/5 are faulty on this server. Prefix execution commands with
 ```bash
 conda activate OmniDrive
 taskset -c 0-3,6-31 python -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q
-taskset -c 0-3,6-31 bash tools/system_optimization/finalize_v2.sh
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.verify_final_route
 ```
 
-The finalizer resumes the authorized second-round experiment; existing measurement directories are never overwritten.
+The sole supported research route and execution boundaries are documented in [the final route](worldstream_final_route.md).

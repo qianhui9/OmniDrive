@@ -30,7 +30,7 @@ class WorldStateManager:
         if self.config.association_observation_guard:retired.append('association_observation_guard')
         if self.config.search_dynamic_motion:retired.append('search_dynamic_motion')
         if self.config.identity_tracking_policy!='shadow':retired.append('identity_tracking_policy (use shadow for independent physical evidence)')
-        if self.config.dqtrack_mode=='hint':retired.append('dqtrack_mode=hint (use shadow)')
+        if self.config.dqtrack_mode!='off':retired.append('DQTrack retired; dqtrack_mode must be off')
         if self.config.dqtrack_policy_qualification_path:retired.append('dqtrack_policy_qualification_path')
         if self.config.dqtrack_association_policy!='conservative':retired.append('dqtrack_association_policy (use conservative)')
         if retired:raise ValueError('Retired identity-assignment branches: '+', '.join(retired))
@@ -593,10 +593,6 @@ class WorldStateManager:
             0., self.last_commit_diagnostics['commit_total_ms'] - core_ms)
         return result
 
-    def _associate(self, *args, **kwargs):
-        """Default allocation; offline subclasses may study policies on legal edges."""
-        return associate(*args, **kwargs)
-
     def _commit(self, frame, full_outputs, precheck_result):
         start = perf_counter()
         if not self.config.enabled:
@@ -645,14 +641,10 @@ class WorldStateManager:
         predictions = [pred for _, pred in selected]
         assoc_start = perf_counter()
         track_diagnostics={}
-        pairs, costs = self._associate(anchors,predictions,frame.timestamp,self.config,
+        pairs, costs = associate(anchors,predictions,frame.timestamp,self.config,
             association_priors,dormant_rows,source_context=(frame,self.store.generation,full_outputs.source),
             diagnostics=track_diagnostics)
         accepted_pairs=tuple(pairs)  # The ONLY identity allocation; immutable below.
-        dq_diagnostics=None
-        if self.config.dqtrack_mode=='shadow':
-            from .dqtrack_bridge import align
-            _,dq_diagnostics=align(frame,predictions,self.config)
         temporal_proposals={};proposal_certificates={}
         identity_protocol=None
         if self.config.identity_continuity and self.config.identity_method.startswith('temporal'):
@@ -948,8 +940,6 @@ class WorldStateManager:
             images={id(c.image):c.image for h in self._identity_history for c in h['cameras'].values()}
             track_diagnostics['image_history_bytes']=sum(a.nbytes for a in images.values())
             self.last_commit_diagnostics['association_tracks'] = track_diagnostics
-        if dq_diagnostics is not None:
-            self.last_commit_diagnostics['dqtrack'] = dq_diagnostics
         return precheck_result
 
     def export_m2_inputs(self, expected_context=None):

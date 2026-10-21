@@ -188,7 +188,3 @@ def run(args):
     write(dest/'completion.json',dict(complete=True,rows=len(rows),weights_versions_unchanged=True,
         policies=policies,baseline='unmodified original generate, max_new_tokens 320',
         note='Post-divergence logit errors compare different generated histories and are not same-input numerical errors'))
-
-
-if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--output',default='outputs/module3_refinement/numerical_01');run(p.parse_args())

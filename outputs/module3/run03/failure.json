@@ -1,8 +1,0 @@
-{
-  "status": "incomplete_cuda_oom",
-  "valid_for_final_latency_table": false,
-  "recorded_frames": 119,
-  "reason": "Experiment instance.generate closure retained its own bound runtime and GPU cache across mode transitions",
-  "fix": "ExperimentRuntime class override, explicit cache reset and gc outside timed sequence; lifetime regression test",
-  "production_runtime_had_no_instance_wrapper": true
-}

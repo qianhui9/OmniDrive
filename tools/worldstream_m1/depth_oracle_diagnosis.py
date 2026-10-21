@@ -145,11 +145,3 @@ def run(root,output):
     (out/'summary.json').write_text(json.dumps(dict(scenes=summaries,micro=micro,
         macro={name:distribution([s['arms'][name]['measured']['correspondence_accuracy'] for s in summaries]) for name in totals},
         no_online_state_or_certificate_modified=True,anchor_support_counterfactual='Not Run: low-level offline correspondence diagnostic does not commit or certify Anchors'),indent=2)+'\n')
-
-
-def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
-    a=p.parse_args();cv2.setNumThreads(1);run(a.root,a.output)
-
-
-if __name__=='__main__':main()

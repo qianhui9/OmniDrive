@@ -20,21 +20,9 @@ prediction/gates/allocation; there is no recovery algorithm. A reappearing ID
 receives new actual state without old verification times, features or certificates.
 History publication and pruning remain inside the existing atomic transaction.
 
-The primary config is `configs/worldstream_m1_world_identity.yaml`. The
-`association_track_prior` switch controls bounded history, not another allocator.
-With it disabled, the same allocator uses current stored anchors and the same
-predictor's conservative short-history rule.
-
-Retired assignment options fail explicitly when constructing a manager:
-`association_observation_guard=True`, `search_dynamic_motion=True`, identity
-tracking policies other than `shadow`, DQTrack `hint`/`calibrated_tiebreak`, and
-DQTrack identity-policy qualification files. External `shadow` observations and
-independent physical measurement/issuer/validator functions remain available.
-Old hint/search YAMLs have been migrated; removed detailed-diagnostic config
-fields are no longer accepted. There is no fallback to an old assignment path.
-
-Validation and version boundary: see
-`outputs/m1_world_identity_single_path_20261021_run01/experiment_report.md`.
-Only one real cached replay was run. It exposed unsafe dormant matches; the
-final common time-error budget was corrected and unit-tested afterwards.
-Final real-data quality is **not validated** and deployment acceptance is No-Go.
+The sole recommended integrated entry and current validation boundary are
+documented in [the final route](worldstream_final_route.md).
+`configs/worldstream_m1_final.yaml` uses the current ordinary A defaults;
+`association_track_prior` remains false. Independent physical verification and
+the unified allocator remain intact. DQTrack modes other than off are rejected;
+there is no external identity/shadow producer or offline B/C wrapper.

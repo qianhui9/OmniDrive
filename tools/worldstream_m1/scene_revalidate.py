@@ -54,19 +54,3 @@ def validate_rows(rows,context=None):
             assert cert['evidence_provenance']['risk_qualification_sha256'],'qualification missing'
         seen_frames.add(p['frame_id']);last_time=p['timestamp'];counts['frames']+=1
     return dict(status='PASS',scene_id=scene,log_token=log,checks=dict(counts))
-
-
-def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
-    a=p.parse_args();root=Path(a.root);out=Path(a.output)
-    if out.exists():raise ValueError('Choose fresh verification output')
-    traces=sorted((root/'scenes').glob('*/repeat_*.jsonl')) or sorted((root/'scenes').glob('*/m1_state.jsonl'))
-    ctx=log_context_from_root('data/nuscenes');results=[]
-    for trace in traces:
-        result=validate_rows([json.loads(x) for x in trace.read_text().splitlines()],ctx)
-        results.append(dict(trace=str(trace),sha256=sha(trace),**result))
-    out.write_text(json.dumps(dict(schema='prior_committed_version_ledger_v1',validator_sha256=sha(__file__),
-        context_sha256=ctx.digest,traces=results,all_pass=bool(results) and all(x['status']=='PASS' for x in results)),indent=2)+'\n')
-
-
-if __name__=='__main__':main()

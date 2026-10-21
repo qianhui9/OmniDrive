@@ -114,11 +114,3 @@ def score_run(root,output):
         label_table_sha256={str(p):sha(p) for p in [Path('data/nuscenes/v1.0-trainval')/n for n in
             ('sample_annotation.json','instance.json','category.json')]})
     (out/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
-
-
-def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);p.add_argument('--output',required=True)
-    a=p.parse_args();score_run(a.root,a.output)
-
-
-if __name__=='__main__':main()

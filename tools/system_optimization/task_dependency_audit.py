@@ -196,10 +196,3 @@ def inventory(root, data_root, previous):
         '', '复现：`taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.system_optimization.task_dependency_audit`']
     (root/'task_dependency_audit.md').write_text('\n'.join(lines)+'\n')
     return result
-
-
-if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--output',default='outputs/system_optimization_v4')
-    p.add_argument('--data-root',default='data/nuscenes');p.add_argument('--previous',default='outputs/system_optimization_v3')
-    args=p.parse_args();r=inventory(args.output,args.data_root,args.previous)
-    print(json.dumps(dict(gate_a=r['gate_a'],vqa_screening=r['vqa_screening']),ensure_ascii=False))

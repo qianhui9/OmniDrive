@@ -303,13 +303,3 @@ original 仅提供当前模型输出；M1 各臂维护持久状态。strict_exac
         report=root/'experiment_report.md'
         report.write_text(report.read_text().replace('## 先前 CPU 阶段记录',
             '![GPU E2E latency](figures/gpu_e2e.png)\n\n## 先前 CPU 阶段记录',1))
-
-
-if __name__=="__main__":
-    import argparse
-    parser=argparse.ArgumentParser()
-    parser.add_argument('--root',default='outputs/module1_state_interface_rearchitecture')
-    parser.add_argument('--gpu-dir')
-    parser.add_argument('--supplement-dir')
-    args=parser.parse_args()
-    apply(args.root,args.gpu_dir,args.supplement_dir)

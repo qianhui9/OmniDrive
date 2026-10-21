@@ -103,8 +103,3 @@ def run(root):
         for r in records:
             for e in r['events']:f.write(json.dumps(dict(scene=r['scene'],mode=r['mode'],**e))+'\n')
     return value
-
-
-if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--root',default='outputs/system_optimization_v4');a=p.parse_args()
-    print(json.dumps(run(a.root)['modes'],indent=2))

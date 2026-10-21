@@ -45,25 +45,3 @@ def projection_crosscheck(info, prepared=None):
         expected = direct[good, :2] / direct[good, 2:3]
         errors[cid] = float(np.max(np.abs(uv[good] - expected))) if good.any() else None
     return errors
-
-
-def main():
-    p = argparse.ArgumentParser()
-    p.add_argument('--infos', default='data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl')
-    p.add_argument('--output', default='outputs/module1/environment.json')
-    args = p.parse_args()
-    import torch, cv2, scipy, mmcv, mmdet, mmdet3d
-    infos = select_infos(args.infos, limit=2)
-    result = {'torch': torch.__version__, 'cuda_available': torch.cuda.is_available(),
-        'opencv': cv2.__version__, 'numpy': np.__version__, 'scipy': scipy.__version__,
-        'mmcv': mmcv.__version__, 'mmdet': mmdet.__version__, 'mmdet3d': mmdet3d.__version__,
-        'camera_order': list(infos[0]['cams']),
-        'projection_crosscheck_max_abs_error_px': projection_crosscheck(infos[0]),
-        'weights': {str(p): p.stat().st_size for p in Path('ckpts').glob('*.pth')},
-        'sample_ids': [i['token'] for i in infos],
-        'interval_s': (infos[1]['timestamp']-infos[0]['timestamp'])/1e6}
-    write_json(args.output, result)
-    print(json.dumps(result, indent=2))
-
-
-if __name__ == '__main__': main()

@@ -87,13 +87,3 @@ def evaluate_run(path):
     from .io_utils import write_json
     write_json(path/'validity_metrics.json', result)
     return result
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--run-dir', required=True)
-    args = parser.parse_args()
-    print(json.dumps(evaluate_run(args.run_dir), indent=2))
-
-
-if __name__ == '__main__': main()

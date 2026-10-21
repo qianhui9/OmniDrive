@@ -6,8 +6,17 @@ from pathlib import Path
 def read_artifact(path):
     if not path:
         return {}
-    with Path(path).open() as handle:
-        return json.load(handle)
+    try:
+        with Path(path).open() as handle:
+            artifact = json.load(handle)
+        if not isinstance(artifact, dict) or not isinstance(artifact.get('approved', []), list):
+            return {}
+        if not all(isinstance(row, dict) for row in artifact.get('approved', [])):
+            return {}
+        return artifact
+    except (OSError, ValueError, TypeError):
+        # Missing/malformed evidence never grants an optimization.
+        return {}
 
 
 class Scheduler:
