@@ -1,3 +1,5 @@
+> **2026-10-21 当前代码说明：** 以下正文保留历史实验记录。生产管理器现已拒绝 `hint` 和非 conservative 策略，默认仍为 `off`，旧文中的在线启用方式与 ResearchManager 不再适用。最新三组研究使用独立离线入口 `tools.worldstream_m1.dqtrack_three_way_eval`，复用缓存和事务，不授予任何在线资格；用法见 [三组离线实验](worldstream_m1_dqtrack_three_way.md)。
+
 # DQTrack → M1 可选关联桥接
 
 默认 `off`。模型入口 `Petr3D` 在初始化创建 `WorldStateManager`，前向前建立 Frame 并 precheck；真实检测与地图输出经 `outputs_from_model()` 变成世界坐标候选，随后 commit。桥接仅在 `_commit()` 完成候选合法性筛选之后执行，不在适配器、precheck 或历史证据生产器中读当前跟踪结果。原检测器、Head memory、VLM、M2/M3 执行策略不变。

@@ -1,3 +1,5 @@
+> **2026-10-21 当前代码说明：** 以下正文保留历史实验记录。生产管理器现已拒绝 `hint` 和非 conservative 策略，默认仍为 `off`，旧文中的在线启用方式与 ResearchManager 不再适用。最新三组研究使用独立离线入口 `tools.worldstream_m1.dqtrack_three_way_eval`，复用缓存和事务，不授予任何在线资格；用法见 [三组离线实验](worldstream_m1_dqtrack_three_way.md)。
+
 # DQTrack–M1 身份辅助策略开发验证
 
 当前结论：**维持默认 off，保留原 conservative Hint；不发布 calibrated_tiebreak 校准资格。** 四个已暴露开发场景、161 帧真实数据中，研究消歧策略未产生满足全部约束的新关联，不能减少错误延续；保守 Hint 相比几何基线还损失了两次正确延续。完整证据与场景/指标表见 `outputs/m1_dqtrack_policy_20261021/experiment_report.md`。

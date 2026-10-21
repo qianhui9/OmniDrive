@@ -593,6 +593,10 @@ class WorldStateManager:
             0., self.last_commit_diagnostics['commit_total_ms'] - core_ms)
         return result
 
+    def _associate(self, *args, **kwargs):
+        """Default allocation; offline subclasses may study policies on legal edges."""
+        return associate(*args, **kwargs)
+
     def _commit(self, frame, full_outputs, precheck_result):
         start = perf_counter()
         if not self.config.enabled:
@@ -641,7 +645,7 @@ class WorldStateManager:
         predictions = [pred for _, pred in selected]
         assoc_start = perf_counter()
         track_diagnostics={}
-        pairs, costs = associate(anchors,predictions,frame.timestamp,self.config,
+        pairs, costs = self._associate(anchors,predictions,frame.timestamp,self.config,
             association_priors,dormant_rows,source_context=(frame,self.store.generation,full_outputs.source),
             diagnostics=track_diagnostics)
         accepted_pairs=tuple(pairs)  # The ONLY identity allocation; immutable below.
