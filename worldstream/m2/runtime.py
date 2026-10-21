@@ -40,6 +40,28 @@ class IncrementalVisionRuntime:
         self.camera_executor.reset()
         if self.conditional_executor is not None:self.conditional_executor.reset()
 
+    def forward_from_m1(self, images, manager, context):
+        """Read this transaction's defensive snapshot; failed reads run full EVA.
+
+        World identity/geometry is diagnostic, never a pixel equality receipt.
+        The existing source-linked adapter and exact comparison own admission.
+        """
+        if not self.config.enabled or self.config.state_interface!='source_linked':
+            return self.forward(images,getattr(manager,'last_result',None),manager,context)
+        try:
+            result=manager.export_m2_inputs(expected_context=context)
+        except (AttributeError,RuntimeError,ValueError,TypeError,KeyError):
+            self.reset()
+            output,diagnostics=self._dense(images,'m1_snapshot_unavailable')
+            diagnostics.update(m1_snapshot_read=False,actual_reused_cameras=0,cache_hits=0)
+            return output,diagnostics
+        output,diagnostics=self.forward(images,result,manager,context)
+        diagnostics.update(m1_snapshot_read=True,
+            m1_snapshot_epoch=result.diagnostics.get('state_epoch'),
+            m1_world_state_count=len(result.diagnostics.get('world_state_snapshot',[])),
+            world_identity_authorized_pixel_reuse=False)
+        return output,diagnostics
+
     def pre_m1_admission(self, images, context):
         """Reject before M1 only; the selected service owns any explicit reset."""
         if not self.config.cheap_gate:

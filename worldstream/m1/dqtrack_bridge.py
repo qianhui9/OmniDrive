@@ -133,7 +133,7 @@ def corroborated_edges(anchors, hints, accepted_pairs, costs):
     return result
 
 
-def identity_conflicts(anchors, hints, pairs):
+def identity_conflicts(anchors, hints, pairs, frame=None, last_timestamp=None, max_age=1.):
     """Contradictory aligned IDs veto an uncertified continuation in hint mode.
 
     A missing hint or a new run namespace is unknown, not a contradiction.
@@ -142,6 +142,24 @@ def identity_conflicts(anchors, hints, pairs):
     for i, j in pairs:
         old = anchors[i].external_tracking
         hint = hints.get(j)
+        if frame is not None:
+            # Unknown, short-lived or retained hints cannot establish a conflict.
+            # Bind historical evidence to the actual latest state observation.
+            anchor = anchors[i]
+            if (not old or not hint or old.get('status')!='aligned'
+                    or hint.get('status')!='aligned'
+                    or old.get('frame_id')!=anchor.source_frame_id
+                    or old.get('timestamp')!=anchor.source_timestamp
+                    or anchor.source_timestamp!=last_timestamp
+                    or not 0<frame.timestamp-anchor.source_timestamp<=max_age
+                    or hint.get('timestamp')!=frame.timestamp or hint.get('frame_id')!=frame.frame_id
+                    or old.get('aligned_observations',1)<2
+                    or old.get('expires_at',-np.inf)<frame.timestamp):
+                continue
+            key=(old.get('namespace'),old.get('tracking_id'))
+            if sum((a.external_tracking.get('namespace'),a.external_tracking.get('tracking_id'))==key
+                   for a in anchors)!=1:
+                continue
         if (old and hint and old.get('status')!='recent_only' and old.get('namespace') == hint['namespace']
                 and old.get('tracking_id') != hint['tracking_id']):
             conflicts.add((i, j))

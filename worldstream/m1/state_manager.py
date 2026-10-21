@@ -658,6 +658,12 @@ class WorldStateManager:
             dq_edges = corroborated_edges(anchors, dq_hints, accepted_pairs, costs)
             dq_diagnostics['consistent_associations'] = len(dq_edges)
         geometric_pairs=list(accepted_pairs)
+        visual_edges=set();visual_diagnostics=None
+        if self.config.association_observation_guard:
+            from .association_observation import refine
+            accepted_pairs,visual_edges,visual_diagnostics=refine(
+                anchors,predictions,costs,accepted_pairs,frame,self.store.last_timestamp,
+                self.config,self.validator)
         identity_costs=costs
         search_hypotheses={};search_counts=dict(status='Not Run')
         if self.config.search_dynamic_motion:
@@ -699,7 +705,9 @@ class WorldStateManager:
             accepted_pairs=measured+[(i,j) for i,j in accepted_pairs if i not in measured_rows and j not in measured_cols]
         if self.config.dqtrack_mode != 'off':
             from .dqtrack_bridge import identity_conflicts
-            conflicts = identity_conflicts(anchors, dq_hints, accepted_pairs)
+            conflicts = identity_conflicts(anchors, dq_hints, accepted_pairs,
+                frame=frame if self.config.association_observation_guard else None,
+                last_timestamp=self.store.last_timestamp, max_age=self.config.max_state_age_s)
             dq_diagnostics['identity_conflicts'] = [dict(anchor_id=anchors[i].anchor_id,
                 prediction_index=selected[j][0]) for i,j in sorted(conflicts)]
             if self.config.dqtrack_mode == 'hint':
@@ -781,13 +789,16 @@ class WorldStateManager:
                     a.certified_observation_count=0;a.history_observations=1
             if self.config.dqtrack_mode == 'hint':
                 a.external_tracking = copy.deepcopy(dq_hints.get(j, {}))
-                if dq_profile is not None:
+                if dq_profile is not None or self.config.association_observation_guard:
                     from .dqtrack_policy import recent_metadata
-                    a.external_tracking=recent_metadata(prior,dq_hints.get(j),frame.timestamp,dq_profile)
+                    a.external_tracking=recent_metadata(prior,dq_hints.get(j),frame.timestamp,
+                        dq_profile or dict(max_hint_age_s=self.config.max_state_age_s))
                 if prior is not None and edge in dq_tiebreak_edges:
                     a.association_basis='uncertified_dqtrack_identity_tiebreak'
                 if prior is not None and edge in dq_edges and not a.identity_link_qualified:
                     a.association_basis = 'uncertified_dqtrack_corroborated_geometry'
+            if prior is not None and edge in visual_edges and not a.identity_link_qualified:
+                a.association_basis='uncertified_visual_geometry'
             a.association_count = prior.association_count + 1 if prior else 0
             a.association_history = ((prior.association_history if prior else []) + [dict(
                 frame_id=frame.frame_id, timestamp=frame.timestamp, source_epoch=self.store.generation,
@@ -987,12 +998,36 @@ class WorldStateManager:
         # available in store.feature_versions(), not silently substituted into old candidates.
         if dq_diagnostics is not None:
             self.last_commit_diagnostics['dqtrack'] = dq_diagnostics
+        if visual_diagnostics is not None:
+            self.last_commit_diagnostics['association_observation'] = visual_diagnostics
         return precheck_result
 
-    def export_m2_inputs(self):
+    def export_m2_inputs(self, expected_context=None):
         if self.last_result is None or self.last_result.diagnostics.get('transaction_status') == 'aborted':
             raise RuntimeError("Call precheck first")
-        return copy.deepcopy(self.last_result)
+        if expected_context is not None:
+            r=self.last_result
+            if (r.scene_id!=expected_context.get('scene_id') or r.frame_id!=expected_context.get('frame_id')
+                    or r.timestamp!=expected_context.get('timestamp')
+                    or r.diagnostics.get('execution_signature')!=expected_context.get('execution_signature')
+                    or r.diagnostics.get('state_epoch')!=expected_context.get('state_epoch')
+                    or r.diagnostics.get('transaction_status')!='pending'
+                    or self.store.source_digest()!=self._pending_source_digest):
+                raise RuntimeError('M1 snapshot does not match the pending M2 request')
+        result=copy.deepcopy(self.last_result)
+        if expected_context is not None:
+            result.diagnostics['world_state_snapshot'] = [dict(
+                anchor_id=a.anchor_id, state_version=a.state_version, scene_id=a.scene_id,
+                source_frame_id=a.source_frame_id, source_timestamp=a.source_timestamp,
+                state_epoch=a.source_state_epoch, center_world=a.geometry_world.center.tolist(),
+                age_s=result.timestamp-a.source_timestamp, max_age_s=self.config.max_state_age_s,
+                uncertainty_m=a.geometry_uncertainty,
+                lifecycle='expired' if result.timestamp-a.source_timestamp>self.config.max_state_age_s else
+                    'temporarily_missing' if a.source_timestamp!=self.store.last_timestamp else 'historical_observation',
+                association_basis=a.association_basis, identity_link_qualified=a.identity_link_qualified,
+                physical_geometry_certified=False, pixel_reuse_authorized=False)
+                for a in self.store.anchors.values()]
+        return result
 
     def export_state_audit(self):
         """Current committed lifecycle; precheck observations remain separately scoped."""

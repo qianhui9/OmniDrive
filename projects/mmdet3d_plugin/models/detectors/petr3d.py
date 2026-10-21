@@ -202,9 +202,14 @@ class Petr3D(MVXTwoStageDetector):
                 img = self.grid_mask(img)
 
             if getattr(self, 'm2_runtime', None) is not None and not self.training:
-                img_feats, self.m2_diagnostics = self.m2_runtime.forward(
-                    img, self.m1_manager.last_result if self.m1_manager else None,
-                    self.m1_manager, self._m2_context)
+                if hasattr(self.m2_runtime, 'forward_from_m1'):
+                    img_feats, self.m2_diagnostics = self.m2_runtime.forward_from_m1(
+                        img, self.m1_manager, self._m2_context)
+                else:
+                    # Preserve the existing injected-runtime protocol.
+                    img_feats, self.m2_diagnostics = self.m2_runtime.forward(
+                        img, self.m1_manager.last_result if self.m1_manager else None,
+                        self.m1_manager, self._m2_context)
             else:
                 img_feats = self.img_backbone(img)
             if isinstance(img_feats, dict):

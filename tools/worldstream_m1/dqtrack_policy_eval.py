@@ -57,10 +57,11 @@ def rates(c):
 
 
 def evaluate_scene(batches,annotations,config,path,method,profile):
-    mode='off' if method=='geometry' else 'shadow' if method=='shadow' else 'hint'
+    mode='off' if method in ('geometry','guard_geometry') else 'shadow' if method=='shadow' else 'hint'
     cls=ResearchManager if method=='research_tiebreak' else WorldStateManager
     cfg=replace(config,dqtrack_mode=mode,dqtrack_results_path=str(path),logging=False,
-                dqtrack_association_policy='calibrated_tiebreak' if cls is ResearchManager else 'conservative')
+                dqtrack_association_policy='calibrated_tiebreak' if cls is ResearchManager else 'conservative',
+                association_observation_guard=method in ('guard_geometry','guard_hint'))
     manager=cls(cfg)
     if cls is ResearchManager:manager.research_profile=profile
     counters={k:0 for k in ('accepted','candidates','correct','wrong','scored','unknown','eligible',
@@ -151,7 +152,8 @@ def evaluate_scene(batches,annotations,config,path,method,profile):
         previous=current
         traces.append(dict(frame_id=frame.frame_id,scene_id=frame.scene_id,edges=edge_rows,
             certified=list(manager.get_current_certifications().certified_anchor_ids),
-            pairs=d['association_pairs'],dqtrack=bd,m1_ms=times[-1]))
+            pairs=d['association_pairs'],dqtrack=bd,m1_ms=times[-1],
+            association_observation=d.get('association_observation')))
     return dict(metrics=rates(counters),strata={k:rates(v) for k,v in groups.items()},
         m1=percentiles(times),bridge=percentiles(bridge_times),traces=traces,
         difficulty=dict(gt_observations=total_gt_visible,occluded_observations=occluded,
@@ -177,6 +179,8 @@ def main():
     p.add_argument('--data-root',default='data/nuscenes')
     p.add_argument('--config',default='configs/worldstream_m1_balanced.yaml')
     p.add_argument('--min-score',type=float,default=.5)
+    p.add_argument('--methods',nargs='+',choices=['geometry','shadow','conservative','research_tiebreak',
+        'guard_geometry','guard_hint'],default=['geometry','shadow','conservative','research_tiebreak'])
     a=p.parse_args();output=Path(a.output);output.mkdir(parents=True,exist_ok=False)
     protocol=json.loads(Path(a.protocol).read_text())
     # Profile is frozen before this program loads any GT evaluation labels.
@@ -193,14 +197,14 @@ def main():
         scene=spec['scene_id'];folder=output/scene;folder.mkdir()
         batches=[(frame_from_info(by_token[t],a.data_root),candidates[t]) for t in spec['samples']]
         results[scene]={}
-        for method in ('geometry','shadow','conservative','research_tiebreak'):
+        for method in a.methods:
             result=evaluate_scene(batches,annotations,config,Path(a.dqtrack_root)/scene/'normalized_tracking.json',method,profile)
             with (folder/(method+'.json')).open('x') as f:json.dump(json_value(result),f,allow_nan=False)
             results[scene][method]={k:v for k,v in result.items() if k!='traces'}
             print(scene,method,result['metrics'],flush=True)
     summary=dict(protocol_sha256=hashlib.sha256(Path(a.protocol).read_bytes()).hexdigest(),profile=profile,
         deployment_decision='NOT_QUALIFIED_NO_INDEPENDENT_SCENES',scenes=results,methods={})
-    for method in ('geometry','shadow','conservative','research_tiebreak'):
+    for method in a.methods:
         rows=[r[method] for r in results.values()];counts={k:sum(r['metrics'].get(k,0) for r in rows)
             for k,v in rows[0]['metrics'].items() if isinstance(v,int)}
         summary['methods'][method]=dict(metrics=rates(counts),wrong_rate_scene_bootstrap=scene_bootstrap(rows))
