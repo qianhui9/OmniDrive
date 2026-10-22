@@ -7,8 +7,8 @@ from time import perf_counter
 import torch
 
 from tools.worldstream_m1.identity_metrics import ContinuityMetrics, possible_instances
-from tools.worldstream_m1.world_identity_eval import strict_labels
-from tools.worldstream_m123.stateful_opportunity.common import diagnostic_json
+from tools.worldstream_m1.identity_metrics import strict_labels
+from .common import diagnostic_json
 from .metrics import ratio
 
 
@@ -76,6 +76,7 @@ class Observer:
         self.events, self.native_generations, self.commits, self.reuses = [], [], [], []
         self.backbone_cameras = 0
         self.window_attention_batches = Counter()
+        self.prefill_generations = []
         self.handles = []
         if hasattr(model.img_backbone, 'register_forward_pre_hook'):
             # Wrapping forward changes the topology identity that M2 verifies.
@@ -94,9 +95,13 @@ class Observer:
             runtime = model.m2_runtime
             if runtime is not None and runtime.config.reuse_boundary == 'window':
                 for i in runtime.prefix:
-                    def observe_windows(module, args, i=i):
-                        self.window_attention_batches[i] += len(args[0])
-                    self.handles.append(model.img_backbone.blocks[i].attn.register_forward_pre_hook(observe_windows))
+                    attention=model.img_backbone.blocks[i].attn
+                    if attention.flash_attn:
+                        def observe_windows(module,args,i=i):
+                            self.window_attention_batches[i]+=len(args[0])
+                        self.handles.append(attention.inner_attn.register_forward_pre_hook(observe_windows))
+                if not all(model.img_backbone.blocks[i].attn.flash_attn for i in runtime.prefix):
+                    runtime.executor.attention_observer=lambda count:self.window_attention_batches.update({runtime.executing_block:count})
         else:
             self.wrap(model.img_backbone, 'forward', 'eva_native')
         self.wrap(model.pts_bbox_head, 'forward', 'detection')
@@ -120,17 +125,29 @@ class Observer:
             model.m1_manager.commit = commit
             self.wrap(model.m1_manager, 'commit', 'm1_commit')
         if model.m2_runtime is not None:
-            executor = model.m2_runtime.camera_executor
-            original = executor.forward
-
+            original=model.m2_runtime.forward_from_m1
             @wraps(original)
-            def camera(*args, **kwargs):
-                result, diag = original(*args, **kwargs)
-                if diag.get('actual_reused_cameras', 0):
-                    self.reuses.append((args[0], result[0], copy.deepcopy(diag)))
-                return result, diag
-            executor.forward = camera
-            self.wrap(model.m2_runtime, 'forward_from_m1', 'm2_total')
+            def windows(*args,_original=original,**kwargs):
+                result,diag=_original(*args,**kwargs)
+                if diag.get('actual_skipped_windows',0):
+                    self.reuses.append((args[0],result[0],copy.deepcopy(diag)))
+                return result,diag
+            model.m2_runtime.forward_from_m1=windows
+            self.wrap(model.m2_runtime,'forward_from_m1','m2_total')
+        if model.m3_runtime is not None:
+            executor=model.m3_runtime.executor
+            original=executor.generate
+            @wraps(original)
+            def prefill(*args,_original=original,**kwargs):
+                start,end=(torch.cuda.Event(enable_timing=True) for _ in range(2));start.record()
+                tick=perf_counter();result,diag=_original(*args,**kwargs);wall=(perf_counter()-tick)*1000;end.record()
+                output=result.sequences if hasattr(result,'sequences') else result
+                self.prefill_generations.append(dict(output=output,host_wall_ms=wall,
+                    input_tokens=diag['input_tokens'],generated_tokens=output.shape[-1]-1,
+                    start=start,end=end))
+                self.events.append(('prefill_executor_generate',start,end,wall))
+                return result,diag
+            executor.generate=prefill
 
     def wrap(self, obj, attribute, name, dynamic=False, generation=False):
         original = getattr(obj, attribute)
@@ -139,7 +156,7 @@ class Observer:
         def call(*args, **kwargs):
             label = name
             if dynamic:
-                label = 'prefill' if kwargs.get('past_key_values') is None else 'decode'
+                label = 'prefill' if kwargs.get('inputs_embeds') is not None or kwargs.get('past_key_values') is None else 'decode'
             if name == 'eva_native':
                 self.backbone_cameras += len(args[0])
             start, end = (torch.cuda.Event(enable_timing=True) for _ in range(2))
@@ -164,6 +181,7 @@ class Observer:
     def clear(self):
         self.events.clear()
         self.native_generations.clear()
+        self.prefill_generations.clear()
         self.commits.clear()
         self.reuses.clear()
         self.backbone_cameras = 0

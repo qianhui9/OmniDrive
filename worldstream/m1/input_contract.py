@@ -49,3 +49,17 @@ def frame_digest(frame):
                       camera.visibility_mask, camera.geometry_support_mask, camera.raw_intrinsic):
             add(value)
     return digest.hexdigest()
+
+
+def camera_snapshot_digest(camera):
+    """Bind immutable measured camera inputs for an atomic transaction."""
+    import hashlib
+    import numpy as np
+    digest=hashlib.sha256(repr((camera.camera_id,camera.coordinate_space,camera.timestamp,camera.timing_reliable)).encode())
+    for value in (camera.image,camera.intrinsic,camera.world_to_camera,camera.raw_to_image,camera.raw_intrinsic):
+        if value is None:
+            digest.update(b'None;')
+        else:
+            value=np.ascontiguousarray(value)
+            digest.update(repr((value.shape,str(value.dtype))).encode());digest.update(value.tobytes())
+    return digest.hexdigest()

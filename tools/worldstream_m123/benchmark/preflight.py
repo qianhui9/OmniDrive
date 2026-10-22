@@ -9,16 +9,15 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from tools.worldstream_m123.stateful_opportunity.common import sha256, write
+from .common import sha256, write
 
 BASELINE = 'projects/configs/OmniDrive/mask_eva_lane_det_vlm.py'
 FINAL = 'projects/configs/OmniDrive/worldstream_m123_auto.py'
 PROTECTED = [BASELINE, FINAL, 'configs/worldstream_m1_final.yaml',
-             'outputs/final_route/camera_costs.json',
              'outputs/final_route/window_costs.json',
-             'outputs/final_route/m3_cost_table.json',
-             'outputs/final_route/m3_quality_certificate.json',
-             'outputs/final_route/summary.json', 'outputs/final_route/verification.json']
+             'outputs/final_route/m3_prefill_costs.json',
+             'outputs/final_route/m3_prefill_quality.json',
+             'outputs/final_route/m3_state_quality.json']
 
 
 def command(args):

@@ -124,9 +124,6 @@ class EvidenceIssuer:
 def certify_physical_evidence(anchor, current_anchor, frame, evidence=None, issuer=None,
                               source_frame_digest=None, protocol_digest=None, claim=CONTINUITY_CLAIM):
     """Validate the named limited claim; centre/distance/velocity stay unapproved."""
-    from .identity_continuity import IDENTITY_CLAIM, certify_identity_evidence
-    if claim==IDENTITY_CLAIM:
-        return certify_identity_evidence(anchor,current_anchor,frame,evidence,issuer,source_frame_digest,protocol_digest)
     reasons=[];provenance=dict(same_sensor_RGB=True,independent_sensor=False,
                                geometry_attributes_certified=False,motion_attributes_certified=False)
     if claim!=CONTINUITY_CLAIM:reasons.append('unsupported_claim_requires_calibrated_metric_or_motion_bounds')

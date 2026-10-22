@@ -10,7 +10,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from tools.worldstream_m123.stateful_opportunity.common import write
+from .common import write
 from .metrics import distribution, finite_metrics, quality_summary
 from .report import read_json, read_rows
 

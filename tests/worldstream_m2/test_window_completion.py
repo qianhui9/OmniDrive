@@ -4,7 +4,7 @@ import pytest
 import torch
 
 from worldstream.m2 import IncrementalVisionRuntime
-from worldstream.m2.cost_model import CostModel, cost_key
+from worldstream.m2.cost_model import CostModel, cost_key, SCHEMA_VERSION
 from worldstream.m2.packing import partition
 from worldstream.m2.state_cache import StateCache
 from worldstream.m2.window_executor import WindowExecutor
@@ -63,16 +63,18 @@ def test_window_cache_owns_outputs_and_rejects_over_budget_atomically():
 
 @torch.no_grad()
 @pytest.mark.parametrize('target',['images','outputs'])
-def test_window_cache_mutation_forces_native_refresh(eva,context,target):
-    runtime=IncrementalVisionRuntime(eva,dict(mode='exact',cache_capture='always'))
+def test_window_cache_mutation_forces_native_refresh(admitted_runtime,context,target):
+    from .test_source_linked_admission import cold,bundle_for
+    runtime=admitted_runtime
     x=torch.randn(2,3,40,40)
-    runtime.forward(x,execution_context=context)
+    cold(runtime,x,context)
     if target=='images':runtime.cache.images.add_(1)
     else:runtime.cache.outputs[0].zero_()
-    out,d=runtime.forward(x,execution_context=dict(context,frame_id='1'))
+    ctx=dict(context,frame_id='1',timestamp=1.1)
+    out,d=runtime.forward(x,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
     assert d['fallback_reason']=='cache_storage_modified'
     assert d['actual_skipped_windows']==0
-    assert torch.equal(out[0],eva(x)[0])
+    assert torch.equal(out[0],runtime.model(x)[0])
 
 
 def test_window_cost_key_includes_inner_normalization(eva):
@@ -86,82 +88,63 @@ def test_window_cost_key_includes_inner_normalization(eva):
 def test_invalid_window_costs_cannot_admit(eva,tmp_path,fault):
     key=cost_key(eva.blocks[0],torch.zeros(2,10,10,32),0)
     row=dict(key=key,block=0,updated=1,incremental_gpu_ms=.1,full_gpu_ms=1.,
-             incremental_wall_ms=.1,full_wall_ms=1.,quality_certified=True)
+             incremental_wall_ms=.1,full_wall_ms=1.,quality_certified=True,numerical_verified=True)
     if fault=='nan':row['full_wall_ms']=float('nan')
     if fault=='negative':row['incremental_wall_ms']=-1.
     if fault=='bool_count':row['updated']=True
     if fault=='wrong_block':row['block']=1
     if fault=='string_quality':row['quality_certified']='false'
     path=tmp_path/'cost.json'
-    path.write_text(json.dumps(dict(schema_version=2,records=[row],formal_quality_policy=dict(approved_counts=[1]))))
+    path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,records=[row],formal_quality_policy=dict(approved_counts=[1]))))
     costs=CostModel(str(path))
     assert costs.beneficial(key,1)[0] is False
     if fault!='string_quality':assert costs.status=='invalid_cost_table'
 
 
 @torch.no_grad()
-def test_benchmark_hooks_preserve_window_topology_and_observe_real_batches(eva,context,monkeypatch):
+@pytest.mark.parametrize('approved',[True,False])
+def test_auto_requires_matching_cost_and_quality(eva,context,tmp_path,approved):
+    from .test_source_linked_admission import cold,bundle_for
+    from projects.mmdet3d_plugin.models.backbones.eva_vit import get_abs_pos
+    image=torch.randn(2,3,40,40);changed=image.clone();changed[0,:,0,0]+=.1
+    runtime=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
+    cold(runtime,image,context)
+    x=eva.patch_embed(changed)
+    x=x+get_abs_pos(eva.pos_embed,eva.pretrain_use_cls_token,x.shape[1:3])
+    records=[]
+    for i in runtime.prefix:
+        records.append(dict(key=cost_key(eva.blocks[i],x,i),block=i,updated=1,numerical_verified=True,
+            quality_certified=True,incremental_gpu_ms=.1,full_gpu_ms=1.,incremental_wall_ms=.1,full_wall_ms=1.))
+        x,_=runtime.executor.execute(eva.blocks[i],x,runtime.cache.outputs[i],torch.tensor([0]))
+    # These synthetic costs are unit fixtures; they are never deployment evidence.
+    path=tmp_path/'synthetic_costs.json'
+    path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,records=records,
+        formal_quality_policy=dict(approved_counts=[1] if approved else []))))
+    runtime.costs=CostModel(str(path));ctx=dict(context,frame_id='1',timestamp=1.1)
+    out,d=runtime.forward(changed,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
+    assert d['actual_skipped_windows']==(34 if approved else 0)
+    assert torch.allclose(out[0],eva(changed)[0],atol=3e-6,rtol=3e-6)
+
+
+@torch.no_grad()
+def test_benchmark_observer_does_not_change_eva_topology(eva,context,monkeypatch):
     from types import SimpleNamespace as NS
     from tools.worldstream_m123.benchmark.observe import Observer
     from worldstream.m3 import visual_state
+    from .test_source_linked_admission import cold,bundle_for
     class Event:
         def __init__(self,**kw):pass
         def record(self):pass
     monkeypatch.setattr(torch.cuda,'Event',Event)
     monkeypatch.setattr(visual_state,'base_model',lambda m:m)
-    runtime=IncrementalVisionRuntime(eva,dict(mode='exact',cache_capture='always'))
+    runtime=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
+    monkeypatch.setattr(runtime.costs,'beneficial',lambda key,count:(True,None))
     noop=lambda *a,**k:None
     model=NS(img_backbone=eva,pts_bbox_head=NS(forward=noop),map_head=NS(forward=noop),
         lm_head=NS(forward=noop,generate=noop),m1_manager=None,m2_runtime=runtime,m3_runtime=None)
-    observer=Observer(model)
-    assert runtime.planner.cacheable_prefix()==[0,1]
-    image=torch.randn(2,3,40,40)
-    runtime.forward(image,execution_context=context)
+    observer=Observer(model);assert runtime.planner.cacheable_prefix()==[0,1]
+    x=torch.randn(2,3,40,40);cold(runtime,x,context)
     assert sum(observer.window_attention_batches.values())==36
-    observer.clear();image[0,:,0,0]+=.1
-    _,diag=runtime.forward(image,execution_context=dict(context,frame_id='1'))
-    assert diag['actual_skipped_windows']==34
-    assert sum(observer.window_attention_batches.values())==2
-    assert observer.backbone_cameras==0
-
-
-@torch.no_grad()
-@pytest.mark.parametrize('approved',[True,False])
-def test_window_auto_requires_matching_cost_and_quality_before_packing(eva,context,tmp_path,approved):
-    from projects.mmdet3d_plugin.models.backbones.eva_vit import get_abs_pos
-    image=torch.randn(2,3,40,40)
-    changed=image.clone();changed[0,:,0,0]+=.1
-    probe=IncrementalVisionRuntime(eva,dict(mode='exact',cache_capture='always'))
-    probe.forward(image,execution_context=context)
-    inputs={}
-    probe.stage_observer=lambda i,out:inputs.update({i+1:out.detach()})
-    probe.forward(changed,execution_context=dict(context,frame_id='1'))
-    x=eva.patch_embed(changed)
-    inputs[0]=x+get_abs_pos(eva.pos_embed,eva.pretrain_use_cls_token,x.shape[1:3])
-    # Synthetic costs are fixtures for admission, never measured evidence.
-    records=[dict(key=cost_key(eva.blocks[i],inputs[i],i),block=i,updated=1,
-        incremental_gpu_ms=.1,full_gpu_ms=1.,incremental_wall_ms=.1,full_wall_ms=1.,
-        quality_certified=True) for i in probe.prefix]
-    path=tmp_path/'synthetic_unit_test_costs.json'
-    path.write_text(json.dumps(dict(schema_version=2,records=records,
-        formal_quality_policy=dict(approved_counts=[1] if approved else []))))
-    runtime=IncrementalVisionRuntime(eva,dict(mode='auto',cache_capture='always',cost_table=str(path)))
-    runtime.forward(image,execution_context=context)
-    out,d=runtime.forward(changed,execution_context=dict(context,frame_id='1'))
-    assert d['actual_skipped_windows']==(34 if approved else 0)
-    assert all(s['mode']==('packed' if approved else 'full') for s in d['stages'][:2])
-    assert torch.allclose(out[0],eva(changed)[0],atol=3e-6,rtol=3e-6)
-
-
-@torch.no_grad()
-def test_legacy_window_model_adapter_carries_bound_m1_time(eva,context):
-    from worldstream.m1 import WorldStateManager
-    from .test_live_m1_snapshot import frame_for
-    manager=WorldStateManager()
-    ctx=dict(context,timestamp=100.)
-    image=torch.zeros(2,3,40,40,dtype=torch.uint8)
-    manager.precheck(frame_for(image,ctx))
-    runtime=IncrementalVisionRuntime(eva,dict(mode='exact',cache_capture='always'))
-    _,d=runtime.forward_from_m1(image.float(),manager,context)
-    assert d['cache_context']['timestamp']==100.
-    assert runtime.cache.context['timestamp']==100.
+    observer.clear();x[0,:,0,0]+=.1;ctx=dict(context,frame_id='1',timestamp=1.1)
+    _,d=runtime.forward(x,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
+    assert d['actual_skipped_windows']==34 and sum(observer.window_attention_batches.values())==2

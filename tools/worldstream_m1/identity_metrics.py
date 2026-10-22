@@ -82,3 +82,20 @@ class SavedAssociations:
         self.previous=mapping
         self.continuity.update(annotations,{identity:aid for aid,identity in mapping.items()},possible)
         return dict(self.continuity.counts)
+
+
+def strict_labels(predictions,annotations,gate=1.):
+    """Offline partial oracle: unique class/size/1m edges in BOTH directions."""
+    from worldstream.m1.association import legal_assignment
+    costs=np.full((len(predictions),len(annotations)),np.inf)
+    for i,p in enumerate(predictions):
+        for j,a in enumerate(annotations):
+            if p.semantic_class!=a['class'] or not a['has_sensor_support']:continue
+            if p.geometry_world.size is None:continue
+            ratios=np.maximum(p.geometry_world.size/a['geometry'].size,a['geometry'].size/p.geometry_world.size)
+            if np.any(ratios>2):continue
+            distance=np.linalg.norm(p.geometry_world.center-a['geometry'].center)
+            if distance<=gate:costs[i,j]=distance
+    finite=np.isfinite(costs)
+    return {i:annotations[j]['instance_id'] for i,j in legal_assignment(costs)
+            if finite[i].sum()==1 and finite[:,j].sum()==1}

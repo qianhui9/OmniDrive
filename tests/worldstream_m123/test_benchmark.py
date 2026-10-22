@@ -84,18 +84,14 @@ def test_observer_keeps_commit_and_camera_delegates_separate(monkeypatch):
     def native_commit(frame, outputs, result):
         called.append('commit')
         return 42
-    def native_camera(*a, **kw):
-        called.append('camera')
-        return [0], dict(actual_reused_cameras=0)
     forward = lambda *a, **kw: None
     model = NS(img_backbone=NS(forward=forward), pts_bbox_head=NS(forward=forward),
         map_head=NS(forward=forward), lm_head=NS(generate=forward, forward=forward),
         m3_runtime=None, m1_manager=NS(precheck=forward, commit=native_commit),
-        m2_runtime=NS(camera_executor=NS(forward=native_camera), forward_from_m1=forward))
+        m2_runtime=None)
     observer = Observer(model)
     assert model.m1_manager.commit('frame', NS(anchors=[]), 'precheck') == 42
-    model.m2_runtime.camera_executor.forward([])
-    assert called == ['commit', 'camera']
+    assert called == ['commit']
     assert observer.commits == [('frame', [], 'precheck')]
 
 
@@ -148,12 +144,12 @@ def test_window_report_counts_actual_admission_and_attention_batches():
     from tools.worldstream_m123.benchmark.report import module_summary
     row=dict(condition='B3',native_eva_cameras=0,
         observed_window_attention_batches={'0':1,'1':1},m2=dict(cache_boundary='window',
-            actual_skipped_windows=34,verified_exact_windows=34,cache_bytes=100,
+            actual_skipped_windows=34,verified_exact_windows=34,cache_bytes=100,M2_validation_ms=0.,
             stages=[dict(total_windows=18,executed_windows=1,reused_windows=17)]*2))
     m2=module_summary([row],[],{})['B3']['m2']
     assert m2['boundary']=='window' and m2['admitted_frames']==1
     assert m2['actual_reused_windows']==34 and m2['executed_prefix_windows']==2
     assert m2['observed_attention_window_batches']==2 and m2['window_skip_audit']=='PASS'
-    assert m2['actual_reused_cameras'] is None
+    assert 'actual_reused_cameras' not in m2
     row['observed_window_attention_batches']['1']=18
     assert module_summary([row],[],{})['B3']['m2']['window_skip_audit']=='FAIL'

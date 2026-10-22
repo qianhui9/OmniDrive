@@ -5,10 +5,8 @@ from .geometry import state_geometry_version
 
 def attach_observation_funnel(manager, anchor, camera, projection, occluded, validation):
     cid=camera.camera_id;obs=anchor.observation_support.get(cid)
-    record=next((r for r in manager._identity_history if r['frame_id']==anchor.source_frame_id),None)
-    old=(record['cameras'].get(cid) if record else manager._previous_cameras.get(cid)
-         if anchor.source_frame_id==manager._previous_frame_id else None)
-    source_digest=record['frame_digest'] if record else manager._previous_frame_digest if old is not None else None
+    old=manager._previous_cameras.get(cid) if anchor.source_frame_id==manager._previous_frame_id else None
+    source_digest=manager._previous_frame_digest if old is not None else None
     e=manager.last_evidence.get(cid);checks={}
     def check(name,value,reason):
         value=None if value is None else bool(value)

@@ -15,7 +15,7 @@ import sys
 import time
 from zoneinfo import ZoneInfo
 
-from tools.worldstream_m123.stateful_opportunity.common import write
+from .common import write
 from .preflight import inventory
 from .report import generate, read_json
 

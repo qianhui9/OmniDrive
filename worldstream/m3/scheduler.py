@@ -1,109 +1,52 @@
-"""Measured lookup tables and frozen task certificates, no weighted scoring."""
+"""Independent exact-prefill and historical-text evidence; no approximate policy."""
 import json
+import math
 from pathlib import Path
 
 
 def read_artifact(path):
-    if not path:
-        return {}
+    if not path:return {}
     try:
-        with Path(path).open() as handle:
-            artifact = json.load(handle)
-        if not isinstance(artifact, dict) or not isinstance(artifact.get('approved', []), list):
-            return {}
-        if not all(isinstance(row, dict) for row in artifact.get('approved', [])):
-            return {}
-        return artifact
-    except (OSError, ValueError, TypeError):
-        # Missing/malformed evidence never grants an optimization.
-        return {}
+        value=json.loads(Path(path).read_text())
+        if not isinstance(value,dict) or not isinstance(value.get('approved',[]),list):return {}
+        return value if all(isinstance(r,dict) for r in value.get('approved',[])) else {}
+    except (OSError,ValueError,TypeError):return {}
 
 
 class Scheduler:
-    def __init__(self, config):
-        self.config = config
-        self.costs = read_artifact(config.cost_table)
-        self.quality = read_artifact(config.quality_certificate)
+    def __init__(self,config):
+        self.config=config
+        self.costs=read_artifact(config.cost_table)
+        self.quality=read_artifact(config.quality_certificate)
+        self.state_quality=read_artifact(config.state_quality_certificate)
 
-    def common_seed_allowed(self,inputs,prefix,context,generation_key):
-        """A new execution plan needs its own whole-workload evidence, not an
-        old first-question cache row or a global average speedup.
-        """
-        if self.config.offline_experiment:return True,'explicit_common_prefix_experiment'
-        if prefix<self.config.min_prefix_tokens or not generation_key:return False,'uncertified_common_prefix'
-        def compatible(row):
-            return (row.get('strategy')=='independent_common_prefix'
-                and bool(context.get('model_version')) and row.get('model_version')==context['model_version']
-                and bool(context.get('execution_key')) and row.get('execution_key')==context['execution_key']
-                and row.get('generation_key')==generation_key
-                and row.get('input_tokens')==[x.length for x in inputs]
-                and row.get('prefix_tokens')==prefix
-                and row.get('protocol_sha256') and row.get('evidence_sha256'))
-        quality=any(compatible(row) and row.get('frozen_targets_pass') is True
-            and row.get('heldout_samples',0)>0 and row.get('calibration_scenes') and row.get('heldout_scenes')
-            and not set(row['calibration_scenes'])&set(row['heldout_scenes']) for row in self.quality.get('approved',[]))
-        cost=any(compatible(row) and row.get('includes_cold_capture_and_maintenance') is True
-            and row.get('baseline_ms',0)>row.get('optimized_including_overhead_ms',float('inf'))
-            and 0<row.get('cache_bytes',float('inf'))<=self.config.memory_budget_mb*1024**2
-            for row in self.costs.get('approved',[]))
-        return (True,'shape_generation_quality_and_net_cost_verified') if quality and cost else (False,'no_independent_common_prefix_quality_and_cost_evidence')
+    @staticmethod
+    def compatible(row,context,strategy):
+        return (row.get('strategy')==strategy and context.get('model_version')
+            and row.get('model_version')==context['model_version'] and context.get('execution_key')
+            and row.get('execution_key')==context['execution_key'] and row.get('evidence_sha256')
+            and row.get('protocol_sha256'))
 
-    def compact_allowed(self, selection, context):
-        if not selection['approximate']:
-            return False, selection['reason']
-        if self.config.offline_experiment:
-            return True, 'offline_approximation_experiment'
-        if selection['task'] in ('unknown', 'global_safety'):
-            return False, 'uncertified_or_safety_task'
-        certificate = self.quality
-        key = (context.get('model_version'), selection['method'], self.config.keep_ratio, selection['task'])
-        for row in certificate.get('approved', []):
-            if (row.get('model_version'), row.get('selector'), row.get('keep_ratio'), row.get('task')) == key:
-                if (key[0] and row.get('frozen_targets_pass') is True and row.get('heldout_samples', 0) > 0
-                        and row.get('execution_key') == context.get('execution_key') and context.get('execution_key')
-                        and row.get('protocol_sha256') and row.get('evidence_sha256')):
-                    return True, 'heldout_quality_certificate'
-        return False, 'no_frozen_task_quality_certificate'
+    def prefix_allowed(self,expanded,prefix,context,overhead_ms):
+        if prefix<self.config.min_prefix_tokens:return False,'short_or_missing_prefix'
+        def same(row):
+            return (self.compatible(row,context,'exact_prefill') and row.get('input_tokens')==expanded.length
+                and row.get('prefix_tokens')==prefix and row.get('dtype')==str(expanded.embeddings.dtype)
+                and row.get('generation_key')==context.get('generation_key'))
+        quality=any(same(r) and r.get('tokens_equal') is True and r.get('rng_equal') is True
+            and r.get('scores_close') is True and r.get('heldout_samples',0)>0 for r in self.quality.get('approved',[]))
+        cost=any(same(r) and type(r.get('baseline_ms')) in (int,float) and math.isfinite(r['baseline_ms'])
+            and type(r.get('optimized_ms')) in (int,float) and math.isfinite(r['optimized_ms'])
+            and r['baseline_ms']>r['optimized_ms']+overhead_ms for r in self.costs.get('approved',[]))
+        return (True,'exact_prefill_quality_and_cost_verified') if quality and cost else (False,'prefix_evidence_unavailable')
 
-    def capture_allowed(self, expanded, context, questions):
-        """Auto capture only when measured amortization includes the cold store."""
-        for row in self.costs.get('approved', []):
-            if (context.get('model_version') and row.get('model_version') == context['model_version']
-                    and row.get('execution_key') == context.get('execution_key') and context.get('execution_key')
-                    and row.get('input_tokens') == expanded.length
-                    and row.get('cold_capture_profitable') is True
-                    and row.get('min_questions', float('inf')) <= questions
-                    and row.get('exact_greedy_pass') is True and row.get('evidence_sha256')):
-                return True
-        return False
-
-    def compact_cost_allowed(self, selection, context):
-        for row in self.costs.get('approved', []):
-            if (row.get('strategy') == 'compact' and context.get('model_version')
-                    and row.get('model_version') == context['model_version']
-                    and row.get('execution_key') == context.get('execution_key') and context.get('execution_key')
-                    and row.get('selector') == selection['method'] and row.get('task') == selection['task']
-                    and row.get('original_visual_tokens') == selection['original_tokens']
-                    and row.get('selected_visual_tokens') == selection['selected_tokens']
-                    and row.get('baseline_ms', 0) > row.get('optimized_including_overhead_ms', float('inf'))
-                    and row.get('evidence_sha256')):
-                return True
-        return False
-
-    def prefix_allowed(self, expanded, prefix, context, overhead_ms):
-        if prefix < self.config.min_prefix_tokens:
-            return False, 'short_or_missing_prefix'
-        if self.config.mode in ('exact', 'combined') and self.config.offline_experiment:
-            return True, 'explicit_exact_experiment'
-        for row in self.costs.get('approved', []):
-            if (row.get('model_version') == context.get('model_version') and context.get('model_version')
-                    and row.get('execution_key') == context.get('execution_key') and context.get('execution_key')
-                    and row.get('device') == str(expanded.embeddings.device)
-                    and row.get('dtype') == str(expanded.embeddings.dtype)
-                    and row.get('input_tokens') == expanded.length
-                    and row.get('prefix_tokens') == prefix
-                    and row.get('exact_greedy_pass') is True
-                    and row.get('baseline_ms', 0) > row.get('optimized_ms', float('inf')) + overhead_ms
-                    and row.get('evidence_sha256')):
-                return True, 'measured_net_benefit'
-        return False, 'no_compatible_profitable_cost_measurement'
+    def state_allowed(self,retrieval,context):
+        for r in self.state_quality.get('approved',[]):
+            if (self.compatible(r,context,'verified_history_augment') and r.get('task')==retrieval['task']
+                    and retrieval.get('m1_protocol_sha256')
+                    and r.get('m1_protocol_sha256')==retrieval['m1_protocol_sha256']
+                    and r.get('current_visual_complete') is True and r.get('frozen_targets_pass') is True
+                    and r.get('heldout_samples',0)>0 and r.get('heldout_scenes') and r.get('calibration_scenes')
+                    and not set(r['heldout_scenes'])&set(r['calibration_scenes'])):
+                return True,'independent_historical_context_quality_verified'
+        return False,'historical_context_quality_unverified'

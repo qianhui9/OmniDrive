@@ -1,0 +1,455 @@
+{
+  "B1": {
+    "status": "NOT_RUN",
+    "m1": null,
+    "m2": null,
+    "m3": null
+  },
+  "B2": {
+    "status": "NOT_RUN",
+    "m1": null,
+    "m2": null,
+    "m3": null
+  },
+  "B3": {
+    "status": "MEASURED",
+    "m1": {
+      "status": "MEASURED",
+      "event_counts": {
+        "committed": 1140,
+        "associated": 961,
+        "created": 179,
+        "expired": 66,
+        "valid_history": 45,
+        "history_candidates": 1036,
+        "transactions_committed": 12,
+        "physical_candidates": 0,
+        "precheck_physical_evaluations": 1082,
+        "precheck_physical_producer_available": 0
+      },
+      "resets": {
+        "scene_change": 1
+      },
+      "effective_verified_states": [
+        0,
+        7,
+        7,
+        6,
+        6,
+        6,
+        7,
+        6,
+        0,
+        0,
+        0,
+        0
+      ],
+      "state_age_s": {
+        "n": 1261,
+        "mean": 0.061296591391930215,
+        "p50": 0.0,
+        "p95": 0.5003311634063721,
+        "maximum": 0.9997749328613281,
+        "total": 77.295001745224
+      },
+      "retained_state_events": 121,
+      "physical_phase_counts": {
+        "post_perception_commit_only": 12
+      },
+      "valid_history_fraction": 0.04343629343629344,
+      "physical_rejection_reasons": {
+        "measured_foreground_ownership_missing": 1082,
+        "measured_identity_correspondence_missing": 1082,
+        "independent_identity_missing": 1082,
+        "independent_foreground_ownership_missing": 1082,
+        "calibrated_localization_bound_missing": 1082,
+        "independent_motion_evidence_missing": 1082,
+        "observation_not_supported": 1037
+      },
+      "invalidation_reasons": {
+        "motion_unknown": 178,
+        "no_reliable_view": 343,
+        "temporal_support_insufficient": 70,
+        "projected_occlusion": 393,
+        "observation_mismatch": 235,
+        "no_historical_observation": 8,
+        "temporal_source_missing": 2
+      },
+      "historical_age_s": {
+        "n": 1082,
+        "mean": 0.5080002517664939,
+        "p50": 0.4998779296875,
+        "p95": 0.5004358291625977,
+        "maximum": 0.9997749328613281,
+        "total": 549.6562724113464
+      },
+      "physical_zero_explanation": "Independent physical producer/evidence missing in precheck; post-perception certification had no qualified candidates",
+      "latency_ms": {
+        "physical_certification_ms": {
+          "n": 12,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0,
+          "total": 0.0
+        },
+        "association_ms": {
+          "n": 12,
+          "mean": 7.655226955345522,
+          "p50": 8.272097446024418,
+          "p95": 8.983272535260767,
+          "maximum": 9.066618978977203,
+          "total": 91.86272346414626
+        },
+        "state_update_ms": {
+          "n": 12,
+          "mean": 28.278949670493603,
+          "p50": 27.868009521625936,
+          "p95": 30.797703901771456,
+          "maximum": 31.501485034823418,
+          "total": 339.34739604592323
+        },
+        "commit_history_copy_ms": {
+          "n": 12,
+          "mean": 6.990566830306004,
+          "p50": 6.986141437664628,
+          "p95": 7.279288524296135,
+          "maximum": 7.350611966103315,
+          "total": 83.88680196367204
+        },
+        "commit_total_ms": {
+          "n": 12,
+          "mean": 126.44509982783347,
+          "p50": 86.60426642745733,
+          "p95": 318.4450289700177,
+          "maximum": 593.0021970998496,
+          "total": 1517.3411979340017
+        },
+        "snapshot_fork_ms": {
+          "n": 12,
+          "mean": 3.0592131855276725,
+          "p50": 3.2223594607785344,
+          "p95": 4.161987418774515,
+          "maximum": 4.250005120411515,
+          "total": 36.71055822633207
+        },
+        "cache_provenance_receipt_ms": {
+          "n": 12,
+          "mean": 0.4127883003093302,
+          "p50": 0.40710088796913624,
+          "p95": 0.4454491659998894,
+          "maximum": 0.459941104054451,
+          "total": 4.953459603711963
+        },
+        "transaction_and_frame_binding_ms": {
+          "n": 12,
+          "mean": 90.50781760985653,
+          "p50": 51.39239190611988,
+          "p95": 281.68104649521376,
+          "maximum": 555.9262870810926,
+          "total": 1086.0938113182783
+        },
+        "output_adapter_including_transfers_ms": {
+          "n": 12,
+          "mean": 8.231630374211818,
+          "p50": 8.116307551972568,
+          "p95": 9.030530380550772,
+          "maximum": 9.738167049363256,
+          "total": 98.77956449054182
+        },
+        "output_gpu_to_cpu_transfer_ms": {
+          "n": 12,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0,
+          "total": 0.0
+        },
+        "m1_total_including_adapters_ms": {
+          "n": 12,
+          "mean": 334.31764690127847,
+          "p50": 309.0359546476975,
+          "p95": 548.5766412923109,
+          "maximum": 830.1246899645776,
+          "total": 4011.8117628153414
+        },
+        "precheck_projection": {
+          "n": 12,
+          "mean": 8.513253123965114,
+          "p50": 8.966933004558086,
+          "p95": 10.03565670689568,
+          "maximum": 10.502636898308992,
+          "total": 102.15903748758137
+        },
+        "precheck_observation_validation": {
+          "n": 12,
+          "mean": 38.98189183867847,
+          "p50": 41.27587436232716,
+          "p95": 47.53835052251815,
+          "maximum": 50.92072184197605,
+          "total": 467.78270206414163
+        },
+        "precheck_unexplained_regions": {
+          "n": 12,
+          "mean": 6.841145843888323,
+          "p50": 6.820573005825281,
+          "p95": 6.996778957545757,
+          "maximum": 7.092560874298215,
+          "total": 82.09375012665987
+        },
+        "precheck_temporal_correspondence": {
+          "n": 12,
+          "mean": 31.519700579034787,
+          "p50": 33.792138448916376,
+          "p95": 36.69704988133162,
+          "maximum": 37.49685944058001,
+          "total": 378.2364069484174
+        },
+        "precheck_visibility_verification": {
+          "n": 12,
+          "mean": 2.5970704931144915,
+          "p50": 1.338647329248488,
+          "p95": 6.888881081249565,
+          "maximum": 6.943613989278674,
+          "total": 31.164845917373896
+        },
+        "precheck_geometry_support": {
+          "n": 12,
+          "mean": 21.482012157017987,
+          "p50": 25.70831833872944,
+          "p95": 26.47122915368527,
+          "maximum": 27.025790885090828,
+          "total": 257.78414588421583
+        },
+        "precheck_precheck_total": {
+          "n": 12,
+          "mean": 186.35439626329267,
+          "p50": 200.61193208675832,
+          "p95": 210.96477506216615,
+          "maximum": 215.34891799092293,
+          "total": 2236.252755159512
+        },
+        "precheck_computation_state_build": {
+          "n": 12,
+          "mean": 14.79847589507699,
+          "p50": 17.0008665882051,
+          "p95": 17.38116474589333,
+          "maximum": 17.428994877263904,
+          "total": 177.58171074092388
+        },
+        "precheck_dense_flow": {
+          "n": 12,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0,
+          "total": 0.0
+        },
+        "precheck_dense_validation": {
+          "n": 12,
+          "mean": 0.0,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0,
+          "total": 0.0
+        },
+        "precheck_transaction_and_frame_binding": {
+          "n": 12,
+          "mean": 50.04912306321785,
+          "p50": 51.975623006001115,
+          "p95": 61.09157713362947,
+          "maximum": 61.3948788959533,
+          "total": 600.5894767586142
+        },
+        "precheck_snapshot_fork": {
+          "n": 12,
+          "mean": 3.4768415692572794,
+          "p50": 3.554529044777155,
+          "p95": 4.770764126442373,
+          "maximum": 4.931258037686348,
+          "total": 41.72209883108735
+        },
+        "precheck_input_adapter_including_transfers": {
+          "n": 12,
+          "mean": 13.286520435940474,
+          "p50": 13.289305032230914,
+          "p95": 13.426155259367079,
+          "maximum": 13.43122310936451,
+          "total": 159.4382452312857
+        },
+        "precheck_input_gpu_to_cpu_transfer": {
+          "n": 12,
+          "mean": 2.081769402138889,
+          "p50": 2.0810324931517243,
+          "p95": 2.0984781556762755,
+          "maximum": 2.1019394043833017,
+          "total": 24.981232825666666
+        }
+      },
+      "association_by_experiment": {
+        "B3_language_final": {
+          "counts": {
+            "frames": 12,
+            "candidates": 1025,
+            "eligible": 159,
+            "accepted": 961,
+            "scored": 156,
+            "correct": 156,
+            "wrong": 0,
+            "unknown": 805
+          },
+          "continuity": {
+            "predicted_track_fragments": 1,
+            "continuous_identity_switches": 3,
+            "scored_visible": 188,
+            "visible_known_missed": 253,
+            "ambiguous_visible": 112,
+            "bridged_visible_gaps": 1
+          },
+          "association_precision": 1.0,
+          "wrong_association_rate": 0.0,
+          "effective_recall": 0.9811320754716981,
+          "association_coverage": 0.937560975609756,
+          "alignment_precision": null,
+          "alignment_recall": null,
+          "alignment_numerator": 0,
+          "alignment_denominator": 0,
+          "scope": "Offline partial Oracle: unique class/size/1m matching; not standard MOT. GT never enters online decisions.",
+          "candidate_definition": "selected predictions on scene frames after the first",
+          "alignment_status": "NOT_AVAILABLE: no independently scored alignment denominator"
+        }
+      },
+      "transaction_failures": "See each worker status; only returned successful commits appear in these rows",
+      "cuda_separable_status": "NOT_AVAILABLE: state management runs on CPU; transfer timing retained separately"
+    },
+    "m2": {
+      "status": "MEASURED",
+      "boundary": "window",
+      "frames": 12,
+      "prefix_window_requests": 1296,
+      "executed_prefix_windows": 1296,
+      "actual_reused_windows": 0,
+      "saved_attention_windows": 0,
+      "pointwise_window_work": 1296,
+      "actual_skipped_block_computations": 0,
+      "observed_attention_window_batches": 1296,
+      "admitted_frames": 0,
+      "window_skip_audit": "PASS",
+      "reuse_rate": 0.0,
+      "fallback_reasons": {
+        "m1_full_refresh": 2,
+        "no_valid_cache": 10
+      },
+      "cache_creations": 0,
+      "peak_cache_bytes": 0,
+      "quality_status": "See independent operator validation and paired task outputs",
+      "validation_ms": {
+        "n": 12,
+        "mean": 1.6359979247984786,
+        "p50": 1.6109209973365068,
+        "p95": 1.77213636925444,
+        "maximum": 1.7763180658221245,
+        "total": 19.631975097581744
+      },
+      "saved_compute_status": "Attention window counts only; pointwise work is explicitly retained"
+    },
+    "m3": {
+      "status": "MEASURED",
+      "requests": 12,
+      "cache_candidates": 11,
+      "admitted": 0,
+      "cache_hits": 0,
+      "native_generations": 0,
+      "prefill_executor_requests": 12,
+      "full_prefill_requests": 12,
+      "actual_optimized_requests": 0,
+      "actual_reused_prefix_lengths": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "historical_context_requests": 0,
+      "fallback_reasons": {
+        "short_or_missing_prefix": 1,
+        "prefix_evidence_unavailable": 11
+      },
+      "native_count_audit": "PASS",
+      "reused_prefix_tokens": 0,
+      "actual_input_tokens": 6893,
+      "generated_tokens": 948,
+      "generated_tokens_per_second": 36.22352546688911,
+      "generate_call_ms": {
+        "n": 12,
+        "mean": 2180.9031280572526,
+        "p50": 838.2838000543416,
+        "p95": 8384.858122456353,
+        "maximum": 8400.001354981214,
+        "total": 26170.83753668703
+      },
+      "quality": {
+        "questions": 12,
+        "valid_gt": 12,
+        "missing_gt": 0,
+        "answer_exact_match": 0.0,
+        "token_f1": 0.35992463179992296,
+        "numeric_questions": 2,
+        "numeric_count_match": 0.0,
+        "numeric_mae": null,
+        "numeric_mae_denominator": 0
+      },
+      "by_task": {
+        "global_safety": {
+          "questions": 1,
+          "valid_gt": 1,
+          "missing_gt": 0,
+          "answer_exact_match": 0.0,
+          "token_f1": 0.5084745762711864,
+          "numeric_questions": 0,
+          "numeric_count_match": null,
+          "numeric_mae": null,
+          "numeric_mae_denominator": 0
+        },
+        "object_relation": {
+          "questions": 2,
+          "valid_gt": 2,
+          "missing_gt": 0,
+          "answer_exact_match": 0.0,
+          "token_f1": 0.35625,
+          "numeric_questions": 0,
+          "numeric_count_match": null,
+          "numeric_mae": null,
+          "numeric_mae_denominator": 0
+        },
+        "unknown": {
+          "questions": 9,
+          "valid_gt": 9,
+          "missing_gt": 0,
+          "answer_exact_match": 0.0,
+          "token_f1": 0.3442356672586543,
+          "numeric_questions": 2,
+          "numeric_count_match": 0.0,
+          "numeric_mae": null,
+          "numeric_mae_denominator": 0
+        }
+      },
+      "scheduler_host_overhead_ms": {
+        "n": 12,
+        "mean": 14.59107146365568,
+        "p50": 14.469987596385181,
+        "p95": 16.037959384266287,
+        "maximum": 16.275826143100858,
+        "total": 175.09285756386817
+      },
+      "scheduler_scope": "M3 runtime host wall minus nested PrefillExecutor generate host wall; no CUDA times subtracted"
+    }
+  }
+}

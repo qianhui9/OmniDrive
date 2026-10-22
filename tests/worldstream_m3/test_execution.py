@@ -4,10 +4,16 @@ import torch
 from transformers import StoppingCriteria, StoppingCriteriaList
 from worldstream.m3 import M3Runtime, expand_input, CarrierLayout
 from worldstream.m3.visual_state import execution_signature
-from worldstream.m3.carrier_selector import select_carriers
 from worldstream.m3.prefix_matcher import exact_lcp
 from worldstream.m3.prefix_kv_cache import PrefixKVCache
 from worldstream.m3.prefill_executor import PrefillExecutor
+
+
+def qualified_runtime(**kw):
+    # Unit fixture for suffix execution. No measured certificates are fabricated.
+    runtime=M3Runtime(kw)
+    runtime.scheduler.prefix_allowed=lambda expanded,prefix,context,overhead:(prefix>=runtime.config.min_prefix_tokens,'unit_fixture')
+    return runtime
 
 
 def expanded(llm, carriers, ids=None, **kw):
@@ -68,7 +74,7 @@ def test_visual_change_only_text_prefix_reusable(llm, carriers):
 
 @pytest.mark.parametrize('sample', [False, True])
 def test_greedy_sampling_tokens_logits_and_no_prefill_replay(llm, carriers, context, sample):
-    runtime = M3Runtime(dict(mode='exact', offline_experiment=True, min_prefix_tokens=2))
+    runtime = qualified_runtime(min_prefix_tokens=2)
     questions = [torch.tensor([1, 3, -200, 4, 5]), torch.tensor([1, 3, -200, 7, 6, 8])]
     kw = dict(do_sample=sample, max_new_tokens=6, return_dict_in_generate=True, output_scores=True)
     if sample:
@@ -156,13 +162,9 @@ def test_real_peft_adapter_isolation(llm, carriers):
     assert x.length == 11
 
 
-def test_beam_search_stays_native(llm, carriers, context):
-    ids = torch.tensor([1, -200, 4])
-    expected = llm.generate(inputs=ids[None], images=carriers, num_beams=2, max_new_tokens=3)
-    actual, diag = M3Runtime(dict(mode='exact', offline_experiment=True)).generate(
-        llm, [ids], carriers, context=context, num_beams=2, max_new_tokens=3)
-    assert torch.equal(expected, actual[0])
-    assert diag['reason'] == 'unsupported_execution_contract'
+def test_beam_search_contract_explicitly_rejected(llm,carriers,context):
+    with pytest.raises(ValueError,match='Unsupported'):
+        M3Runtime().generate(llm,[torch.tensor([1,-200,4])],carriers,context=context,num_beams=2,max_new_tokens=3)
 
 
 def test_text_only_exact_generation_and_right_padding(llm):
@@ -193,15 +195,15 @@ def test_partial_prefix_keeps_cache_owned(llm, carriers):
     assert all(torch.equal(a,b) for x,y in zip(original,cache.entry.kv) for a,b in zip(x,y))
 
 
-def test_runtime_full_unchanged(llm, carriers):
+def test_runtime_full_unchanged(llm, carriers,context):
     ids = torch.tensor([1, -200, 3])
     torch.manual_seed(19); expected = llm.generate(inputs=ids[None], images=carriers, do_sample=True, max_new_tokens=5)
-    torch.manual_seed(19); actual, diag = M3Runtime(dict(mode='full')).generate(llm, [ids], carriers, do_sample=True, max_new_tokens=5)
-    assert torch.equal(expected, actual[0]) and diag['mode'] == 'full'
+    torch.manual_seed(19); actual, diag = M3Runtime().generate(llm, [ids], carriers, context=context, do_sample=True, max_new_tokens=5)
+    assert torch.equal(expected, actual[0]) and diag['mode'] == 'exact_prefill'
 
 
 def test_scene_camera_lifecycle(llm, carriers, context):
-    runtime = M3Runtime(dict(mode='exact', offline_experiment=True, cross_frame=True, min_prefix_tokens=1))
+    runtime = qualified_runtime(min_prefix_tokens=1)
     ids = [torch.tensor([1, -200, 3])]
     for changes in ({}, {'scene_id': 'other'}, {'camera_ids': ['back']}, {'timestamp': 0.}):
         _, diag = runtime.generate(llm, ids, carriers, context=dict(context, **changes), max_new_tokens=2)
@@ -209,7 +211,7 @@ def test_scene_camera_lifecycle(llm, carriers, context):
 
 
 def test_cross_frame_text_then_current_visual_reuse(llm, carriers, context):
-    runtime = M3Runtime(dict(mode='exact', offline_experiment=True, cross_frame=True, min_prefix_tokens=1))
+    runtime = qualified_runtime(min_prefix_tokens=1)
     ids = [torch.tensor([1, 3, -200, 4, 5]), torch.tensor([1, 3, -200, 6, 5])]
     runtime.generate(llm, ids, carriers, context=context, max_new_tokens=2)
     changed = carriers.clone(); changed[0, 0, 0] += 1
@@ -223,14 +225,15 @@ def test_cross_frame_text_then_current_visual_reuse(llm, carriers, context):
 def test_uncalibrated_auto_native_fallback(llm, carriers, context):
     runtime = M3Runtime()
     _, diag = runtime.generate(llm, [torch.tensor([1, -200, 4])], carriers, context=context, max_new_tokens=2)
-    assert diag['reason'] == 'no_calibrated_policy' and runtime.cache.entry is None
+    assert diag['requests'][0]['reused_tokens']==0 and diag['requests'][0]['executor']=='PrefillExecutor'
+    assert runtime.cache.entry is not None
 
 
-def test_invalid_lifecycle_falls_back(llm, carriers, context):
-    runtime = M3Runtime(dict(mode='exact', offline_experiment=True))
-    for changes in ({'timestamp': float('nan')}, {'camera_ids': ['front', 'front']}, {'scene_id': ''}):
-        _, diag = runtime.generate(llm, [torch.tensor([1, -200, 4])], carriers, context=dict(context, **changes), max_new_tokens=2)
-        assert diag['reason'] == 'missing_lifecycle'
+def test_invalid_lifecycle_explicitly_rejected(llm,carriers,context):
+    runtime=M3Runtime()
+    for changes in ({'timestamp':float('nan')},{'camera_ids':['front','front']},{'scene_id':''}):
+        with pytest.raises(ValueError,match='lifecycle'):
+            runtime.generate(llm,[torch.tensor([1,-200,4])],carriers,context=dict(context,**changes),max_new_tokens=2)
 
 
 def test_eos_and_stopping(llm, carriers):
@@ -244,21 +247,3 @@ def test_eos_and_stopping(llm, carriers):
     answer, _ = PrefillExecutor(PrefixKVCache(1024**2)).generate(llm, x, eos_token_id=None, max_new_tokens=8,
         stopping_criteria=StoppingCriteriaList([StopAtThree()]))
     assert answer.shape[1] <= 3
-
-
-def test_selection_order_ego_and_quality_gate(carriers, context):
-    from types import SimpleNamespace
-    layout = CarrierLayout(4, 1, 4)
-    state = SimpleNamespace(scene_id='s', last_timestamp=1.)
-    for method in ('task', 'topk', 'random'):
-        selection = select_carriers(carriers, layout, 'distance of car in front', method, .5,
-                                    world_state=state, context=context)
-        ids = selection.indices.tolist()
-        assert ids == sorted(set(ids)) and 4 in ids and len(ids) < 9
-    full = select_carriers(carriers, layout, 'is it safe?', 'task', .5, world_state=state, context=context)
-    assert full.indices.numel() == 9
-    stale = select_carriers(carriers, layout, 'distance of car', 'task', .5, world_state=state, context=dict(context, timestamp=2.))
-    assert stale.indices.numel() == 9
-    from worldstream.m3.scheduler import Scheduler
-    from worldstream.m3.config import M3Config
-    assert not Scheduler(M3Config()).compact_allowed(selection.diagnostics, context)[0]

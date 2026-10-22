@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "scope": "12 sequential keyframes, one scene, one measured pass after one warmup; no full split claim",
+  "baseline": "B0_language",
+  "mainline": "B3_language_final",
+  "checks": {
+    "frame_identity_and_seed": true,
+    "question_identity": true,
+    "detection_map_exact_outputs": true,
+    "generated_token_identity": true,
+    "full_prefill_executor_only": true,
+    "window_attention_accounting": true,
+    "m1_scene_ledger": true,
+    "strict_weights": true
+  },
+  "frames": 12,
+  "per_frame_detection_map_equal": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "per_question_generated_tokens_equal": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "retained_development_failure": "B3_language: retired depth-history export reference, fixed and covered by ledger regression",
+  "aggregate_audit_status": "FAIL",
+  "aggregate_audit_failures": [
+    "B3_language:completed",
+    "B3_language:sequence_exact"
+  ]
+}

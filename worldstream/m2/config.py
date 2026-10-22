@@ -1,46 +1,21 @@
-"""Opt-in, inference-only incremental EVA configuration."""
+"""The sole M2 contract: source-linked window Auto with maintained M1 state."""
 from dataclasses import dataclass
-
 
 @dataclass(frozen=True)
 class M2Config:
     enabled: bool = True
-    mode: str = 'auto'  # exact forces legal sparse execution for experiments
+    mode: str = 'auto'
+    reuse_boundary: str = 'window'
+    state_interface: str = 'source_linked'
+    m1_service: str = 'maintain'
     memory_budget_mb: int = 512
     cost_table: str = ''
-    cache_capture: str = 'adaptive'  # always / adaptive / never
-    cheap_gate: bool = False
-    m1_service: str = 'maintain'  # maintain / reset_on_reject / output_only
-    reuse_boundary: str = 'window'  # window / camera
-    camera_cost_table: str = ''
-    state_interface: str = 'legacy'  # legacy / source_linked
-    camera_selective_invalidation: bool = True
-    experimental_exact_lease_separation: bool = False
-    experimental_conditional_reuse: bool = False
-    conditional_max_patch_error: float = 0.0
-    conditional_cost_table: str = ''
-    conditional_packing_optimization: bool = False
+    cache_capture: str = 'adaptive'
 
     def __post_init__(self):
-        import math
-        if not math.isfinite(self.conditional_max_patch_error) or self.conditional_max_patch_error<0:
-            raise ValueError('Invalid conditional feature residual threshold')
-        if self.experimental_conditional_reuse and (self.reuse_boundary!='window' or self.state_interface!='source_linked'):
-            raise ValueError('Conditional research path requires source-linked window boundary')
-        if self.experimental_exact_lease_separation and (
-                self.reuse_boundary != 'camera' or self.state_interface != 'source_linked'):
-            raise ValueError('Experimental lease separation requires source-linked camera boundary')
-        if self.state_interface not in ('legacy', 'source_linked'):
-            raise ValueError('Unknown M1 state interface')
-        if self.mode not in ('auto', 'exact'):
-            raise ValueError('M2 mode must be auto or exact')
-        if self.memory_budget_mb < 0:
-            raise ValueError('Negative cache budget')
-        if self.cache_capture not in ('adaptive', 'always', 'never'):
-            raise ValueError('Invalid cache capture policy')
-        if self.m1_service not in ('maintain','reset_on_reject','output_only'):
-            raise ValueError('Invalid M1 service contract')
-        if self.m1_service != 'maintain' and not self.cheap_gate:
-            raise ValueError('On-demand M1 service requires the rejection gate')
-        if self.reuse_boundary not in ('window','camera'):
-            raise ValueError('Unknown visual reuse boundary')
+        if (self.mode!='auto' or self.reuse_boundary!='window' or self.state_interface!='source_linked' or self.m1_service!='maintain'):
+            raise ValueError('M2 supports only source-linked window Auto with maintained M1 state')
+        if type(self.memory_budget_mb) is not int or self.memory_budget_mb<0:
+            raise ValueError('Invalid cache budget')
+        if self.cache_capture not in ('adaptive','always','never'):
+            raise ValueError('Invalid capture policy')

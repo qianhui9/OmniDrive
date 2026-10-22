@@ -22,6 +22,7 @@ class StateCache:
         self.input_stride = None
         self.sources = {}
         self.storage_revision = None
+        self.metadata_revision = None
 
     @staticmethod
     def _revision(images, outputs):
@@ -45,6 +46,7 @@ class StateCache:
                 computation_version=self.version+1, camera_id=context['camera_ids'][j//(len(values)//len(images))],
                 producer_layer=i, dependency_scope='closed_window_prefix',task_quality_certified=True) for j in range(len(values))]
             for i,values in outputs.items()}
+        metadata_revision = repr((owned_context,owned_sources))
         self.images = owned_images
         self.outputs = owned_outputs
         self.context = owned_context
@@ -54,6 +56,7 @@ class StateCache:
         if output_stride is not None:self.output_stride = tuple(output_stride)
         self.version += 1
         self.storage_revision = self._revision(self.images, self.outputs)
+        self.metadata_revision = metadata_revision
 
     @property
     def bytes(self):
@@ -63,6 +66,8 @@ class StateCache:
     def mismatch(self, images, context, signature):
         if self.images is None:
             return 'no_valid_cache'
+        if self.metadata_revision != repr((self.context,self.sources)):
+            return 'cache_metadata_modified'
         if self.storage_revision is not None and self.storage_revision != self._revision(self.images, self.outputs):
             return 'cache_storage_modified'
         if self.signature != signature:

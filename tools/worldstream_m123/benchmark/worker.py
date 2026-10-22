@@ -15,8 +15,8 @@ from time import perf_counter
 import numpy as np
 import torch
 
-from tools.worldstream_m123.stateful_opportunity.common import diagnostic_json, sha256, write
-from tools.worldstream_m3.experiment import ground_truth, typed_digest
+from .common import diagnostic_json, sha256, write
+from .common import ground_truth, typed_digest
 from worldstream.m3.task_conditioner import task_type
 from .metrics import answer_quality, distribution, quality_summary, validate_sequence, finite_metrics
 from .preflight import BASELINE, FINAL
@@ -240,6 +240,7 @@ def run(args):
             peak_gpu_reserved_bytes=torch.cuda.max_memory_reserved(),
             m2=copy.deepcopy(getattr(model, 'm2_diagnostics', None)),
             m3=copy.deepcopy(getattr(model, 'm3_diagnostics', None)),
+            frozen_verified_history_states=len(getattr(getattr(model,'m3_verified_state',None),'records',())),
             output_digest=typed_digest({k: v for k, v in result.items() if k != 'text_out'}),
             timing_scope='Single sequential request: dataset access/preprocess, collate/H2D, model including language and native answer write, CPU result materialization. Audit serialization and counterfactual checks excluded.',
             gpu_scope='CUDA events on default stream; includes host submission gaps, not sum of active kernel durations. Nested stage spans must not be added.')
@@ -258,30 +259,31 @@ def run(args):
             row['m1_physical_phase'] = audit['commit'].get('physical_certification_phase')
             append(dest/'m1_state.jsonl', audit)
         if args.condition in ('B2', 'B3'):
-            if (row['m2'] or {}).get('cache_boundary') == 'window':
-                executed = sum(s.get('executed_windows', 0) for s in row['m2'].get('stages', []))
-                if executed != sum(observer.window_attention_batches.values()):
-                    raise RuntimeError('M2 window counters disagree with actual attention window batches')
-            else:
-                actual = (row['m2'] or {}).get('actual_reused_cameras', 0)
-                if actual + observer.backbone_cameras != len(info['cams']):
-                    raise RuntimeError('M2 reported camera skips disagree with observed native EVA calls')
+            executed=sum(s.get('executed_windows',0) for s in row['m2'].get('stages',[]))
+            if executed!=sum(observer.window_attention_batches.values()):
+                raise RuntimeError('M2 window counters disagree with actual attention batches')
         gt = ground_truth(info['token'])
         for qi, answer in enumerate(result['text_out']):
             quality = answer_quality(answer['A'][0], gt.get(answer['Q']))
             native = observer.native_generations[qi] if qi < len(observer.native_generations) else None
+            observed = native or (observer.prefill_generations[qi] if qi<len(observer.prefill_generations) else None)
+            m3_request=(row['m3'] or {}).get('requests',[])
+            detail=m3_request[qi] if qi<len(m3_request) else {}
             qrow = dict(condition=args.condition, workload=args.workload, repeat=args.repeat,
                 measurement_set=args.measurement_set,
                 scene_id=info['scene_token'], frame_id=info['token'], question_index=qi,
                 question=answer['Q'], answer=answer['A'][0], reference=gt.get(answer['Q']), quality=quality,
                 task_type=task_type(answer['Q']),
                 native_generation_executed=native is not None,
-                host_generate_call_ms=native['host_wall_ms'] if native else None,
-                gpu_generate_stream_span_ms=native['start'].elapsed_time(native['end']) if native else None,
-                input_tokens=native['input_tokens'] if native else None,
-                generated_tokens=native['generated_tokens'] if native else None,
-                token_ids=native['output'].detach().cpu().tolist() if native else None,
-                m3_reason=(row['m3'] or {}).get('reason'))
+                host_generate_call_ms=observed['host_wall_ms'] if observed else None,
+                gpu_generate_stream_span_ms=observed['start'].elapsed_time(observed['end']) if observed else None,
+                input_tokens=observed['input_tokens'] if observed else None,
+                generated_tokens=observed['generated_tokens'] if observed else None,
+                token_ids=observed['output'].detach().cpu().tolist() if observed else None,
+                prefill_executor_executed=native is None and observed is not None,
+                reused_prefix_length=detail.get('reused_tokens',0),
+                historical_context_admitted=detail.get('state_retrieval',{}).get('admitted',False),
+                m3_reason=detail.get('prefix_admission') or (row['m3'] or {}).get('reason'))
             questions.append(qrow)
             append(dest/'per_question_metrics.jsonl', qrow)
         for images, reused, diagnostics in observer.reuses:
@@ -333,7 +335,7 @@ def run(args):
             (dest/'map_evaluation_error.log').write_text(traceback.format_exc())
     if model.m1_manager is not None:
         from tools.worldstream_m1.scene_metrics import summarize_scene
-        from tools.worldstream_m1.scene_revalidate import validate_rows
+        from tools.worldstream_m1.scene_metrics import validate_rows
         from .report import read_rows
         scene_rows = {}
         for row in read_rows(dest/'m1_state.jsonl'):

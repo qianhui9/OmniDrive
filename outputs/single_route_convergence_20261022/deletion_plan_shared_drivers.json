@@ -1,0 +1,1580 @@
+{
+  "scope": "tracked source/config/test files only; no outputs/data/weights deletion",
+  "protected_untracked": [
+    "outputs/m3_state_guided_verified_decode/"
+  ],
+  "files": [
+    {
+      "path": "configs/worldstream_m1_final.yaml",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 189,
+      "sha256": "474107997b318b922c4d86b925df0bcf76f36ac4d0c4f7b37713f107bf5e1087",
+      "callers": [
+        "docs/worldstream_m1_single_path.md",
+        "projects/configs/OmniDrive/worldstream_m123_auto.py",
+        "tools/worldstream_m123/benchmark/preflight.py",
+        "tools/worldstream_m123/benchmark/recover.py"
+      ],
+      "config_dependents": [
+        "projects/configs/OmniDrive/worldstream_m123_auto.py"
+      ],
+      "test_dependents": []
+    },
+    {
+      "path": "projects/configs/OmniDrive/worldstream_m123_auto.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2793,
+      "sha256": "e9ffab683440210d075dc9f355cb7e621088d3d560e911e76293b5f14f939f2d",
+      "callers": [
+        "README.md",
+        "docs/worldstream_benchmark.md",
+        "docs/worldstream_final_route.md",
+        "docs/worldstream_m2_window.md",
+        "tests/worldstream_m123/test_final_route.py",
+        "tools/verify_final_route.py",
+        "tools/worldstream_m123/benchmark/preflight.py",
+        "tools/worldstream_m2/window_validate.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_final_route.py"
+      ]
+    },
+    {
+      "path": "tests/worldstream_m1/conftest.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1685,
+      "sha256": "c0208b15e2bdaffe9e4678b22b656caf9eef7981a18dfabe619cdd736fe8411b",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_association.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1930,
+      "sha256": "3119ea2d3619fa21cc2a387e75de0948684c3444924ce2f591bf19599571ee67",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_evidence_contract.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4068,
+      "sha256": "6f0e44985d4c9baa267c4f2e961ed8d2eb4e0a23924e56117f7c842b23b94c48",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_fact_certifier.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 3798,
+      "sha256": "27cd5c0cf64eff6e53dd550468bc400cb72e9c42addbd455355483577595bc81",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_geometry.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4335,
+      "sha256": "4c87d8bc7c4e5be58ec750cd7fe0513cbfa3f9d42ffabd85b04eee38ad640785",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_integration.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 6623,
+      "sha256": "9f7aef2c3074f29078ff35078b2c51abf7ab4b1bbdfc1e195ef7022e17d6947e",
+      "callers": [
+        "tests/worldstream_m1/test_source_linked_state.py",
+        "tests/worldstream_m3/test_integration.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_source_linked_state.py",
+        "tests/worldstream_m3/test_integration.py"
+      ]
+    },
+    {
+      "path": "tests/worldstream_m1/test_optimization.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 5377,
+      "sha256": "164bac48ba7e797169942cbe092894c5951b8710f829074b59501fed1015944c",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_refinement.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 6438,
+      "sha256": "61a1d342b8ec146c001f690bc0075ef88de585ccca278b0262abb3173a047000",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_source_linked_state.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 10288,
+      "sha256": "1becd0c68fffba14b73d84124e0e714a30844d9a43cc6fe8766ca8db9aed335e",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_state_store.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 8029,
+      "sha256": "fbdda1ee7fc8e7aadf34f89605fcc582661a846f5d0ce2c5a8086b88573b105e",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_task_facts.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2236,
+      "sha256": "9694847c162d2b8f18bc954360730dc0b47b722b891fca491b457e6dbec97af5",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m1/test_validation.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 3486,
+      "sha256": "a55e8f522e5ad4880072a1d907e28717ba8656db7b4090625f6fd39cfd797d30",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m123/test_benchmark.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7227,
+      "sha256": "649c9a9ade6a0915c3632e2efe718cc8e82d95b7daff8bd1b2147750f580a7cd",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m123/test_final_route.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 3295,
+      "sha256": "b9ae33c3b1067634c13cebfc949b8b89f9501d0761ffc1de52b1f2c3031b89b2",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m2/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m2/conftest.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 591,
+      "sha256": "4ee7f2b33142f7850a064173ef51b0b15c831c36b9a0675d6d3d43f653b7bf25",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m2/test_computation_source.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 5045,
+      "sha256": "fa64d34910b0218ef6c4d059ddd71f4b2fa8cae4b2aa060f6e96ff5be30cc6ac",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m2/test_dependency.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1496,
+      "sha256": "a339cf7f16bd6c0c1dd50f3c286745b2ce32f45b6725c3b7f4218934d51359a9",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m2/test_execution.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7375,
+      "sha256": "a9013238d6e6604412842acaf14078200bb754b61d28cf464374b8d72f0e2a38",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m2/test_live_m1_snapshot.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2980,
+      "sha256": "260a99c583cee03642f223e66a9a1c936d09c1545ea6f36ab47b8883598f7709",
+      "callers": [
+        "docs/worldstream_m2_window.md",
+        "tests/worldstream_m2/test_window_completion.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_window_completion.py"
+      ]
+    },
+    {
+      "path": "tests/worldstream_m2/test_refinement.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 6721,
+      "sha256": "aac2bfbfb1819619746b9f953785421c221c60633dc553e5187f6fff227dc194",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m2/test_source_linked_admission.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7806,
+      "sha256": "e77e812bf4c1df56d06432cae9756b7f8fdee794b2f7c731472d34d088c7dd47",
+      "callers": [
+        "tests/worldstream_m2/test_window_local_admission.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_window_local_admission.py"
+      ]
+    },
+    {
+      "path": "tests/worldstream_m2/test_window_completion.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7683,
+      "sha256": "5aafb154c9c09eb1cf2e28834cb21a1917ba2a78a16d08d855dae88dbd16d897",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m2/test_window_local_admission.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 13190,
+      "sha256": "056d769f37feaf063526f14dbf8980234a8b1fb4608f3ae1df2081d7bce9831b",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m3/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 81,
+      "sha256": "d107cca7c61b1d1bab0967ebbd59f3a9cedcee9e9bf76ac050a56ad618461554",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m3/conftest.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1713,
+      "sha256": "fef7b270366c1e2ae4f0ae78a5ea52109472405c61449533e4791eaa6af8d011",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m3/test_code_signature.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 993,
+      "sha256": "4262679577569520f4e1fcfba87ffc23207cba94a60410cb2eeb78faab6915cc",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m3/test_execution.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 12746,
+      "sha256": "47cc993e09a6a40e93641dccb8876c187d0abe1b562995c618498b6e47807036",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m3/test_integration.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1965,
+      "sha256": "8c6cf9723ba1957ef6cf92952e844f88a3b435cb8d911f7a313ba2b85c786c81",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m3/test_prefix_budget_precheck.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1371,
+      "sha256": "fe36ad0aa5bc878049725bb1310ba7e4105b30ec084a48d342aeb8ff75e16086",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tests/worldstream_m3/test_sequence_identity.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1879,
+      "sha256": "5e9222fd12904dbe10b3cb50ef970a9e13404d1639c35200ca71465a58523363",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/__init__.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 82,
+      "sha256": "6878c07978104bbd21ef50b9e0f7cbf1516d06cf38a01558c68e4ac35c9169ae",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/audit.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 537,
+      "sha256": "cdd331f9cb2da1279361bde95aa0fbf019a00dfb7727db9a30523a200cfbbc40",
+      "callers": [
+        "tools/system_optimization/physical_oracle.py",
+        "tools/system_optimization/profile_analysis.py",
+        "tools/system_optimization/report.py",
+        "tools/system_optimization/streaming_replay.py",
+        "tools/system_optimization/task_dependency_audit.py",
+        "tools/system_optimization/v2_checks.py",
+        "tools/system_optimization/v2_costs.py",
+        "tools/system_optimization/v3_costs.py",
+        "tools/system_optimization/v3_physical.py",
+        "tools/worldstream_m123/benchmark/finish.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/compact_context.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 5432,
+      "sha256": "717dee5540f100b6d50ab638dbba493c33ece6fbe4bf920bea360644dc1e6ee4",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/identity.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 3765,
+      "sha256": "3c26ae7f6cbf4a1cef13066e52a0b8c4923546c896caf1199a25f1e776791158",
+      "callers": [
+        "tools/system_optimization/physical_oracle.py",
+        "tools/system_optimization/v3_physical.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/physical_oracle.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 1633,
+      "sha256": "f21efe6ea515693f8ce4315aa73c6a9790ae3b7757c0502f44c718301d76f4ac",
+      "callers": [
+        "tools/system_optimization/v3_physical.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/profile_analysis.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 6328,
+      "sha256": "9c533f4a0905a236229a7aeb5a1f2fe425d18ce09aa0e676c7114ad8ac0101f1",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/report.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 22764,
+      "sha256": "00bf0d6b34235c7f1ae508fb45c454afd03b345a913d54cc0d109a8b9c37619d",
+      "callers": [
+        "tests/worldstream_m123/test_benchmark.py",
+        "tools/worldstream_m123/benchmark/audit.py",
+        "tools/worldstream_m123/benchmark/finish.py",
+        "tools/worldstream_m123/benchmark/recover.py",
+        "tools/worldstream_m123/benchmark/run.py",
+        "tools/worldstream_m123/benchmark/worker.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_benchmark.py"
+      ]
+    },
+    {
+      "path": "tools/system_optimization/streaming_replay.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 6852,
+      "sha256": "e4bdaab27bc3464cf0750257716c5c406c36aa3d7733542322901c447859b74e",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/task_dependency_audit.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 15989,
+      "sha256": "0d3fb338c38fe1ddcf5f2c937759849e6334d68d3da9df140c1b24f07b866cb1",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/v2_checks.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 2029,
+      "sha256": "852861f66e3325210c74c0c1aebf58d7ca71ab057dc67451a5fa1792fec58346",
+      "callers": [
+        "tools/system_optimization/v2_costs.py",
+        "tools/system_optimization/v3_costs.py",
+        "tools/system_optimization/v3_physical.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/v2_costs.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 4987,
+      "sha256": "00d5e69996e0319629c692edf10aa4c71d07e533da0aa1005fdf3a271b09dc9e",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/v3_costs.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 5727,
+      "sha256": "8974e072e71c4aa88b5d33fe45c607db018cbfff949dc44b7e14927c56aaa42d",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/system_optimization/v3_physical.py",
+      "action": "delete_after_migration",
+      "reason": "Retire historical multi-strategy comparison; stable sequence checks moved into mainline benchmark",
+      "bytes": 16547,
+      "sha256": "3e2b271128938d64ec5b5373111e639c8864324f470465e2b6b43fd02687d66a",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m1/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 77,
+      "sha256": "1f5b89058e05a74646e1b44463d8b20ef7d71f1fc95755fb59aec2a5d00a1a4b",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m1/dataset.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 6313,
+      "sha256": "928cff5ccca77eb2b823dec39b32b485378b73968cffb6cd1216abcf94ee6f67",
+      "callers": [
+        "tests/worldstream_m1/test_geometry.py",
+        "tools/system_optimization/physical_oracle.py",
+        "tools/system_optimization/v3_physical.py",
+        "tools/worldstream_m123/benchmark/recover.py",
+        "tools/worldstream_m123/benchmark/worker.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_geometry.py"
+      ]
+    },
+    {
+      "path": "tools/worldstream_m1/identity_metrics.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 5194,
+      "sha256": "5cf5e141f728c3d778397278129d89e110ea8e4f24e47f89787884f5e6846af9",
+      "callers": [
+        "tools/worldstream_m123/benchmark/observe.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m1/io_utils.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2827,
+      "sha256": "479b139cc299d3ad0710d099149746f544acb3395688d351127df1606f5e70b0",
+      "callers": [
+        "tools/worldstream_m1/dataset.py",
+        "tools/worldstream_m123/benchmark/preflight.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m1/scene_metrics.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7723,
+      "sha256": "8483e09a161ce44835617c28dd92a2bf99de4eeac50f83e313f31547a8b2ed5a",
+      "callers": [
+        "tools/worldstream_m1/scene_protocol.py",
+        "tools/worldstream_m123/benchmark/worker.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m1/scene_protocol.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 5427,
+      "sha256": "1fbf88d770bc7411b71c084228a2df9714b9a727d5487d2289f95aee297a8879",
+      "callers": [
+        "tools/worldstream_m1/scene_metrics.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m123/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 78,
+      "sha256": "d855a4632f3aea92878bf519fad25e3aa06a43e13e2c0533754b8d760b67ef23",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 71,
+      "sha256": "1c8d9ebbcd3d1f82cfe7d03190d5b126b0585a519490d42e157630ed0a5c7167",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/audit.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4374,
+      "sha256": "54339a702477fdf9a9029ad1a8396aac9ba7364e9684610ae0ebcfd8d5f6fc92",
+      "callers": [
+        "tools/system_optimization/physical_oracle.py",
+        "tools/system_optimization/profile_analysis.py",
+        "tools/system_optimization/report.py",
+        "tools/system_optimization/streaming_replay.py",
+        "tools/system_optimization/task_dependency_audit.py",
+        "tools/system_optimization/v2_checks.py",
+        "tools/system_optimization/v2_costs.py",
+        "tools/system_optimization/v3_costs.py",
+        "tools/system_optimization/v3_physical.py",
+        "tools/worldstream_m123/benchmark/finish.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/finish.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4746,
+      "sha256": "4f93a4da25ef8bf68a2b84066fb2806a66980d74266974a7f83dc9e65c151e68",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/metrics.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 5110,
+      "sha256": "9f342f7a0d6e005b8c9f9677d6735e578fe4ac400136afbc5d5206725b85b56b",
+      "callers": [
+        "tests/worldstream_m123/test_benchmark.py",
+        "tools/worldstream_m123/benchmark/observe.py",
+        "tools/worldstream_m123/benchmark/preflight.py",
+        "tools/worldstream_m123/benchmark/recover.py",
+        "tools/worldstream_m123/benchmark/report.py",
+        "tools/worldstream_m123/benchmark/worker.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_benchmark.py"
+      ]
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/observe.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 9110,
+      "sha256": "0bb9a7552d8a55bfcc41f69dff69917a9afdb5a0f31c5256482db9620309cbef",
+      "callers": [
+        "tests/worldstream_m123/test_benchmark.py",
+        "tests/worldstream_m2/test_window_completion.py",
+        "tools/worldstream_m123/benchmark/recover.py",
+        "tools/worldstream_m123/benchmark/worker.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_benchmark.py",
+        "tests/worldstream_m2/test_window_completion.py"
+      ]
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/preflight.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 9235,
+      "sha256": "10df1a74c8bb5be18006599fceb2124feafc6194a845eff4563215990fc3a455",
+      "callers": [
+        "tools/worldstream_m123/benchmark/run.py",
+        "tools/worldstream_m123/benchmark/worker.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/recover.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 6050,
+      "sha256": "1a244bcf132c6a48edf4a1f01c67de781e2f7dddda5f281b08a6f1f6820d3e44",
+      "callers": [
+        "tools/worldstream_m123/benchmark/finish.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/report.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 29270,
+      "sha256": "c7bb994b6fe8720763cc27238a374dc6b12d955805b5c3f9ea2aa9662ea27d62",
+      "callers": [
+        "docs/worldstream_benchmark.md",
+        "tests/worldstream_m123/test_benchmark.py",
+        "tools/worldstream_m123/benchmark/audit.py",
+        "tools/worldstream_m123/benchmark/finish.py",
+        "tools/worldstream_m123/benchmark/recover.py",
+        "tools/worldstream_m123/benchmark/run.py",
+        "tools/worldstream_m123/benchmark/worker.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_benchmark.py"
+      ]
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/run.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 10258,
+      "sha256": "cd08ef20b8c8407a05636c7f5ce38c6a3ce8c69e48ce4fd358624109ae3ce179",
+      "callers": [
+        "docs/worldstream_benchmark.md"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m123/benchmark/worker.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 21340,
+      "sha256": "d87aacea7970aab67b66e30e4e2a128b817024ddb765f75a4a01382746349c6b",
+      "callers": [
+        "tests/worldstream_m123/test_benchmark.py",
+        "tools/worldstream_m123/benchmark/recover.py",
+        "tools/worldstream_m123/benchmark/run.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_benchmark.py"
+      ]
+    },
+    {
+      "path": "tools/worldstream_m2/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m2/common.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1167,
+      "sha256": "dc200a6c7483b82b7c315339b62031b4388aa3f720b0df8f2d2ce3fb30e38223",
+      "callers": [
+        "tools/worldstream_m123/benchmark/audit.py",
+        "tools/worldstream_m123/benchmark/finish.py",
+        "tools/worldstream_m123/benchmark/observe.py",
+        "tools/worldstream_m123/benchmark/preflight.py",
+        "tools/worldstream_m123/benchmark/recover.py",
+        "tools/worldstream_m123/benchmark/report.py",
+        "tools/worldstream_m123/benchmark/run.py",
+        "tools/worldstream_m123/benchmark/worker.py",
+        "tools/worldstream_m2/rearchitecture/common.py",
+        "tools/worldstream_m2/window_validate.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m2/rearchitecture/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 84,
+      "sha256": "0167e089dc4351dde2d968c01091733a52d71ac857e28d5515fbcec68f1cdbb4",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m2/rearchitecture/common.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2829,
+      "sha256": "aacc81dad7a7364e2c60b8b75ae54a454b93cd39077e65085d7d2a15cbc5de9a",
+      "callers": [
+        "tools/worldstream_m123/benchmark/audit.py",
+        "tools/worldstream_m123/benchmark/finish.py",
+        "tools/worldstream_m123/benchmark/observe.py",
+        "tools/worldstream_m123/benchmark/preflight.py",
+        "tools/worldstream_m123/benchmark/recover.py",
+        "tools/worldstream_m123/benchmark/report.py",
+        "tools/worldstream_m123/benchmark/run.py",
+        "tools/worldstream_m123/benchmark/worker.py",
+        "tools/worldstream_m2/window_validate.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "tools/worldstream_m2/window_validate.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7473,
+      "sha256": "469388e58922b3feae02d4305c69aed09e8a1cb0b826f117cab3cc70303b5aa9",
+      "callers": [
+        "docs/worldstream_m2_window.md"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 64,
+      "sha256": "45a73c30c0d8642c65f727ed8d380a8bebe363f83f7fa3efa71b034b79eb57c2",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/code_signature.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2724,
+      "sha256": "929196947aed1629afed217b46c2c8987fce432c5bbc7a67df4b3fce8ab25c45",
+      "callers": [
+        "tests/worldstream_m3/test_code_signature.py",
+        "worldstream/m3/visual_state.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m3/test_code_signature.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 662,
+      "sha256": "1b8a50942f7c861820b2c325025a0274fed2a00c7e4b96ae10e9d398e1eb69ce",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m1/association.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7857,
+      "sha256": "8c85f422de2365e9359135193bd62c1153316a2c3356081480f6238462098856",
+      "callers": [
+        "tests/worldstream_m1/test_association.py",
+        "tests/worldstream_m1/test_evidence_contract.py",
+        "tests/worldstream_m1/test_optimization.py",
+        "tools/worldstream_m1/identity_metrics.py",
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_association.py",
+        "tests/worldstream_m1/test_evidence_contract.py",
+        "tests/worldstream_m1/test_optimization.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/computation_state.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 10182,
+      "sha256": "283ca2da1dd0af5e2635669f2cd8fba43353b8eb2b6e941c58cb0b7fbbefc667",
+      "callers": [
+        "tests/worldstream_m1/test_source_linked_state.py",
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_source_linked_state.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/config.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7187,
+      "sha256": "61736457f13f024716d221a84bc9d8a82c31a38c4c5b57dbf90121ad3cb8e76f",
+      "callers": [
+        "tests/worldstream_m123/test_final_route.py",
+        "tests/worldstream_m3/test_execution.py",
+        "tools/verify_final_route.py",
+        "worldstream/m1/__init__.py",
+        "worldstream/m1/state_manager.py",
+        "worldstream/m2/__init__.py",
+        "worldstream/m2/runtime.py",
+        "worldstream/m3/__init__.py",
+        "worldstream/m3/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_final_route.py",
+        "tests/worldstream_m3/test_execution.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/fact_certifier.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7434,
+      "sha256": "212448b64c35c1512575d16ab0fff8ebc2705ae9d39e32dbdfeec1641aa39b65",
+      "callers": [
+        "tests/worldstream_m1/test_fact_certifier.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_fact_certifier.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/geometry.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 10209,
+      "sha256": "a887f721795cc2a7b160161b9430ca3ba8657f2142babc70fb3e833cb3f02428",
+      "callers": [
+        "data_utils/nuscmap_extractor.py",
+        "data_utils/utils.py",
+        "evaluation/map_api.py",
+        "projects/mmdet3d_plugin/datasets/pipelines/transform_3d.py",
+        "tests/worldstream_m1/conftest.py",
+        "tests/worldstream_m1/test_association.py",
+        "tests/worldstream_m1/test_geometry.py",
+        "tests/worldstream_m1/test_optimization.py",
+        "tests/worldstream_m1/test_refinement.py",
+        "tests/worldstream_m1/test_validation.py",
+        "tools/data_converter/nuscenes_converter.py",
+        "tools/system_optimization/physical_oracle.py",
+        "tools/system_optimization/v3_physical.py",
+        "tools/worldstream_m1/dataset.py",
+        "worldstream/m1/association.py",
+        "worldstream/m1/computation_state.py",
+        "worldstream/m1/geometry_support.py",
+        "worldstream/m1/novelty_detector.py",
+        "worldstream/m1/observation_diagnostics.py",
+        "worldstream/m1/observation_validator.py",
+        "worldstream/m1/omnidrive_adapter.py",
+        "worldstream/m1/physical_certifier.py",
+        "worldstream/m1/provenance.py",
+        "worldstream/m1/state_manager.py",
+        "worldstream/m1/state_store.py",
+        "worldstream/m1/task_facts.py",
+        "worldstream/m3/world_state.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/conftest.py",
+        "tests/worldstream_m1/test_association.py",
+        "tests/worldstream_m1/test_geometry.py",
+        "tests/worldstream_m1/test_optimization.py",
+        "tests/worldstream_m1/test_refinement.py",
+        "tests/worldstream_m1/test_validation.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/geometry_support.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4907,
+      "sha256": "c0b09781b03707469c3d31f9ef2626b9e11828ab403c466a161e2df42b403f55",
+      "callers": [
+        "worldstream/m1/temporal_visibility.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m1/input_contract.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 3002,
+      "sha256": "a29a9d7b3c8676982cd01c30bce51297822fdbcb4e07dec9d34b80ac6a383ab8",
+      "callers": [
+        "worldstream/m1/physical_certifier.py",
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m1/mask_codec.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1155,
+      "sha256": "16414f4ed88f62dc3cb6df0118b9d124404c1113731a0af19e8dbc210450e464",
+      "callers": [
+        "tests/worldstream_m1/test_refinement.py",
+        "tests/worldstream_m1/test_source_linked_state.py",
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_source_linked_admission.py",
+        "tests/worldstream_m2/test_window_local_admission.py",
+        "tools/worldstream_m1/scene_metrics.py",
+        "worldstream/m1/computation_state.py",
+        "worldstream/m1/novelty_detector.py",
+        "worldstream/m2/m1_adapter.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_refinement.py",
+        "tests/worldstream_m1/test_source_linked_state.py",
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_source_linked_admission.py",
+        "tests/worldstream_m2/test_window_local_admission.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/novelty_detector.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 3766,
+      "sha256": "38f4bf5b95c21a1fc1ef86e5265cec7261f1704326528444a86510d1a3e59c3b",
+      "callers": [
+        "tests/worldstream_m1/test_refinement.py",
+        "tests/worldstream_m1/test_source_linked_state.py",
+        "tests/worldstream_m1/test_validation.py",
+        "worldstream/m1/state_manager.py",
+        "worldstream/m2/m1_adapter.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_refinement.py",
+        "tests/worldstream_m1/test_source_linked_state.py",
+        "tests/worldstream_m1/test_validation.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/observation_diagnostics.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 5751,
+      "sha256": "f41fff4aed4add9b6c0fd419a4baf67a0e1dd4f58176802f7bf3238cbeb69df4",
+      "callers": [
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m1/observation_validator.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4236,
+      "sha256": "2ea4ef930557864f7ccd6b4aeeb6eaa333cfc1edb607aca32628a53adf9fde96",
+      "callers": [
+        "tests/worldstream_m1/test_validation.py",
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_validation.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/omnidrive_adapter.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 8266,
+      "sha256": "7893aac781439b2ab896d85f8c9873291967124c75701375197f85a25e6f89d2",
+      "callers": [
+        "projects/mmdet3d_plugin/models/detectors/petr3d.py",
+        "tests/worldstream_m1/test_integration.py",
+        "tools/system_optimization/compact_context.py",
+        "tools/worldstream_m1/dataset.py",
+        "tools/worldstream_m123/benchmark/recover.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_integration.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/physical_certifier.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 15749,
+      "sha256": "399e495f444ffdebab5332c13ff2739439416a9c0ea64dc3b434abbf2e94a6b6",
+      "callers": [
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m1/provenance.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7238,
+      "sha256": "6c0ca1d3b503b7b3efe65719ae9c67e957f05f43916a573ab1c52177e85b537c",
+      "callers": [
+        "tests/worldstream_m2/test_computation_source.py",
+        "worldstream/m1/state_manager.py",
+        "worldstream/m1/state_store.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_computation_source.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/source_context.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 3126,
+      "sha256": "60eec9b1ded806b3924b73f5b520d2268ed053da75ff07db7234e09d9b7314a0",
+      "callers": [
+        "tools/worldstream_m1/dataset.py",
+        "worldstream/m1/omnidrive_adapter.py",
+        "worldstream/m1/physical_certifier.py",
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m1/state_manager.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 44114,
+      "sha256": "b3d25954021bf6c760c8b4d02b52ef976971713ffe5fbb2fc2ecb9cfd935ae81",
+      "callers": [
+        "tools/verify_final_route.py",
+        "worldstream/m1/__init__.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m1/state_store.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 8731,
+      "sha256": "e00d9701928aa31aba2936d77bca3273110d7b77128f0bc23165382f3ff2ec55",
+      "callers": [
+        "tests/worldstream_m1/test_state_store.py",
+        "tests/worldstream_m2/test_computation_source.py",
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_state_store.py",
+        "tests/worldstream_m2/test_computation_source.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/state_types.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 11348,
+      "sha256": "f218981eaea9abb38470e66d6af77bcb59cfe2e14a794e3a4d72048b12c169d0",
+      "callers": [
+        "tests/worldstream_m1/test_task_facts.py",
+        "tests/worldstream_m2/test_computation_source.py",
+        "tests/worldstream_m2/test_source_linked_admission.py",
+        "tests/worldstream_m2/test_window_local_admission.py",
+        "tools/system_optimization/v3_physical.py",
+        "tools/worldstream_m1/io_utils.py",
+        "worldstream/m1/__init__.py",
+        "worldstream/m1/computation_state.py",
+        "worldstream/m1/geometry.py",
+        "worldstream/m1/input_contract.py",
+        "worldstream/m1/omnidrive_adapter.py",
+        "worldstream/m1/physical_certifier.py",
+        "worldstream/m1/provenance.py",
+        "worldstream/m1/state_manager.py",
+        "worldstream/m1/state_store.py",
+        "worldstream/m1/temporal_visibility.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_task_facts.py",
+        "tests/worldstream_m2/test_computation_source.py",
+        "tests/worldstream_m2/test_source_linked_admission.py",
+        "tests/worldstream_m2/test_window_local_admission.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/task_facts.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4107,
+      "sha256": "a4e2746a789ff84a018ab555d7c1a48c7bb415ef9b55cbfa5a37730920f4e0c5",
+      "callers": [
+        "tests/worldstream_m1/test_fact_certifier.py",
+        "tests/worldstream_m1/test_task_facts.py",
+        "worldstream/m1/fact_certifier.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_fact_certifier.py",
+        "tests/worldstream_m1/test_task_facts.py"
+      ]
+    },
+    {
+      "path": "worldstream/m1/temporal_visibility.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 6242,
+      "sha256": "041363938d1c174a6cd44047243cb7080be63b4757e5e5aab89f24714c8de287",
+      "callers": [
+        "tests/worldstream_m1/test_refinement.py",
+        "tools/system_optimization/v3_physical.py",
+        "worldstream/m1/computation_state.py",
+        "worldstream/m1/observation_validator.py",
+        "worldstream/m1/state_manager.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m1/test_refinement.py"
+      ]
+    },
+    {
+      "path": "worldstream/m2/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 202,
+      "sha256": "12c762498afcba80f9639f0bff8086944e699fd16e1d965c4e460077becbdf43",
+      "callers": [
+        "tools/worldstream_m2/rearchitecture/common.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m2/config.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 928,
+      "sha256": "5a9d3717407d0993653cc3e04f282a9b648e7f68da6542de128fd6094f664203",
+      "callers": [
+        "tests/worldstream_m123/test_final_route.py",
+        "tests/worldstream_m3/test_execution.py",
+        "tools/verify_final_route.py",
+        "worldstream/m1/__init__.py",
+        "worldstream/m1/state_manager.py",
+        "worldstream/m2/__init__.py",
+        "worldstream/m2/runtime.py",
+        "worldstream/m3/__init__.py",
+        "worldstream/m3/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_final_route.py",
+        "tests/worldstream_m3/test_execution.py"
+      ]
+    },
+    {
+      "path": "worldstream/m2/cost_model.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 5252,
+      "sha256": "148dfaf5e13b04bbe5b6a3e6f9c8e771b2cefc292b1a181b05a66ecd4dd12b44",
+      "callers": [
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_window_completion.py",
+        "tools/worldstream_m2/window_validate.py",
+        "worldstream/m2/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_window_completion.py"
+      ]
+    },
+    {
+      "path": "worldstream/m2/dependency_planner.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 5855,
+      "sha256": "e05f348d56cff98b02c060c4d314b82289adabfc586ed1ddcb734a14b68227a2",
+      "callers": [
+        "tests/worldstream_m2/test_dependency.py",
+        "tests/worldstream_m2/test_refinement.py",
+        "tools/worldstream_m2/window_validate.py",
+        "worldstream/m2/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_dependency.py",
+        "tests/worldstream_m2/test_refinement.py"
+      ]
+    },
+    {
+      "path": "worldstream/m2/m1_adapter.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 8089,
+      "sha256": "8b6292190c6a93f45a6ea41f8a2a739d7f897eab4da007bc04355fa3751f01df",
+      "callers": [
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_source_linked_admission.py",
+        "worldstream/m2/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_source_linked_admission.py"
+      ]
+    },
+    {
+      "path": "worldstream/m2/packing.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2583,
+      "sha256": "38ca01bfc43ea3978099202ed0defdb41c1ed74d8c3becd181728c2dc6e1c45a",
+      "callers": [
+        "tests/worldstream_m2/test_dependency.py",
+        "tests/worldstream_m2/test_execution.py",
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_window_completion.py",
+        "worldstream/m2/dependency_planner.py",
+        "worldstream/m2/window_executor.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_dependency.py",
+        "tests/worldstream_m2/test_execution.py",
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_window_completion.py"
+      ]
+    },
+    {
+      "path": "worldstream/m2/runtime.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 10241,
+      "sha256": "bbd0761884ad8f4daff74e2d5c27814830b65c5bd47c33233e8f83f2e609223f",
+      "callers": [
+        "deploy/test_trtllm.py",
+        "tools/system_optimization/v2_costs.py",
+        "tools/verify_final_route.py",
+        "worldstream/m2/__init__.py",
+        "worldstream/m3/__init__.py"
+      ],
+      "config_dependents": [
+        "projects/configs/OmniDrive/eva_base_tinyllama.py",
+        "projects/configs/OmniDrive/mask_eva_lane_det_vlm.py"
+      ],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m2/state_cache.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4506,
+      "sha256": "b400d52fc75ec21eecd4b93b1b5e9d3f8895dc390870896e6abaeeee31e57285",
+      "callers": [
+        "tests/worldstream_m2/test_source_linked_admission.py",
+        "tests/worldstream_m2/test_window_completion.py",
+        "tests/worldstream_m2/test_window_local_admission.py",
+        "worldstream/m2/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_source_linked_admission.py",
+        "tests/worldstream_m2/test_window_completion.py",
+        "tests/worldstream_m2/test_window_local_admission.py"
+      ]
+    },
+    {
+      "path": "worldstream/m2/window_executor.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 4185,
+      "sha256": "25a4814f3229b3c473094b2415a2dbd48372b208e1e764ed966f2c3e42f7c437",
+      "callers": [
+        "tests/worldstream_m2/test_execution.py",
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_window_completion.py",
+        "tools/worldstream_m2/window_validate.py",
+        "worldstream/m2/cost_model.py",
+        "worldstream/m2/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m2/test_execution.py",
+        "tests/worldstream_m2/test_refinement.py",
+        "tests/worldstream_m2/test_window_completion.py"
+      ]
+    },
+    {
+      "path": "worldstream/m3/__init__.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 301,
+      "sha256": "385a5078d3a883d874ff8573614e4c3664f2ad0e2ac212839b28bc356df55570",
+      "callers": [],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m3/config.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 818,
+      "sha256": "20a554fc7c168bfd6ea99c8cc2f62cfda10e33ae5d1ba82a5787d686e692ad78",
+      "callers": [
+        "tests/worldstream_m123/test_final_route.py",
+        "tests/worldstream_m3/test_execution.py",
+        "tools/verify_final_route.py",
+        "worldstream/m1/__init__.py",
+        "worldstream/m1/state_manager.py",
+        "worldstream/m2/__init__.py",
+        "worldstream/m2/runtime.py",
+        "worldstream/m3/__init__.py",
+        "worldstream/m3/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_final_route.py",
+        "tests/worldstream_m3/test_execution.py"
+      ]
+    },
+    {
+      "path": "worldstream/m3/prefill_executor.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 7658,
+      "sha256": "b70bece7c99b1c8461a0fb0f4834106c3647756ca8f1107b4f42735d21c68635",
+      "callers": [
+        "tests/worldstream_m3/test_execution.py",
+        "worldstream/m3/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m3/test_execution.py"
+      ]
+    },
+    {
+      "path": "worldstream/m3/prefix_kv_cache.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2116,
+      "sha256": "78eaa6b46b765318760fbcdc1ab9504e86ca5840859d83a97d6d61509f749192",
+      "callers": [
+        "tests/worldstream_m3/test_execution.py",
+        "tests/worldstream_m3/test_prefix_budget_precheck.py",
+        "worldstream/m3/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m3/test_execution.py",
+        "tests/worldstream_m3/test_prefix_budget_precheck.py"
+      ]
+    },
+    {
+      "path": "worldstream/m3/prefix_matcher.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 1057,
+      "sha256": "8e818025cc1dbb06fc1d666e1050e27d3a049cf41c021608d0abd67f0333ecc7",
+      "callers": [
+        "tests/worldstream_m3/test_execution.py",
+        "worldstream/m3/prefix_kv_cache.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m3/test_execution.py"
+      ]
+    },
+    {
+      "path": "worldstream/m3/runtime.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 6605,
+      "sha256": "669f134a208a9d0047d00a1d61090f4413cab547f771f41ba2501128fe611538",
+      "callers": [
+        "deploy/test_trtllm.py",
+        "tools/system_optimization/v2_costs.py",
+        "tools/verify_final_route.py",
+        "worldstream/m2/__init__.py",
+        "worldstream/m3/__init__.py"
+      ],
+      "config_dependents": [
+        "projects/configs/OmniDrive/eva_base_tinyllama.py",
+        "projects/configs/OmniDrive/mask_eva_lane_det_vlm.py"
+      ],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m3/scheduler.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 2904,
+      "sha256": "e41a98d0e2547d521d1f8385d2c35080d71f13e8c4e1e12305430e2b8fa4cfe8",
+      "callers": [
+        "tests/worldstream_m123/test_final_route.py",
+        "tests/worldstream_m3/test_execution.py",
+        "worldstream/m3/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m123/test_final_route.py",
+        "tests/worldstream_m3/test_execution.py"
+      ]
+    },
+    {
+      "path": "worldstream/m3/task_conditioner.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 579,
+      "sha256": "3a85eb00cb67509fcbb16ed2043fa0e8cb9a15b501ea2609aea3ad098117e985",
+      "callers": [
+        "tools/worldstream_m123/benchmark/worker.py",
+        "worldstream/m3/world_state.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    },
+    {
+      "path": "worldstream/m3/visual_state.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 8217,
+      "sha256": "375c13ffdbae430c6cb36ef9a5e2ee73fd2791480274885765af7e1c5330372d",
+      "callers": [
+        "tests/worldstream_m3/test_execution.py",
+        "tests/worldstream_m3/test_prefix_budget_precheck.py",
+        "tools/worldstream_m123/benchmark/observe.py",
+        "worldstream/m3/__init__.py",
+        "worldstream/m3/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": [
+        "tests/worldstream_m3/test_execution.py",
+        "tests/worldstream_m3/test_prefix_budget_precheck.py"
+      ]
+    },
+    {
+      "path": "worldstream/m3/world_state.py",
+      "action": "keep",
+      "reason": "Core mainline implementation, correctness/quality validation, or common measurement utility",
+      "bytes": 9773,
+      "sha256": "ee888ea199cd3d10f3defec9555a85ff36973335288c3be0eaaa4cf673ad558f",
+      "callers": [
+        "projects/mmdet3d_plugin/models/detectors/petr3d.py",
+        "worldstream/m3/runtime.py"
+      ],
+      "config_dependents": [],
+      "test_dependents": []
+    }
+  ]
+}

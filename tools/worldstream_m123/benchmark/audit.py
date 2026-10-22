@@ -3,7 +3,7 @@ import argparse
 from collections import Counter
 from pathlib import Path
 
-from tools.worldstream_m123.stateful_opportunity.common import sha256, write
+from .common import sha256, write
 from .report import read_json, read_rows
 
 
@@ -24,15 +24,14 @@ def audit(root, hash_checkpoint=False):
                 and not validation.get('unexpected_keys') and not validation.get('shape_mismatches'),
             unique_frames=len({r['frame_id'] for r in rows}) == len(rows),
             sequence_exact=[r['frame_id'] for r in rows] == sequence.get('tokens'),
-            six_camera_accounting=all((r.get('m2') or {}).get('actual_reused_cameras', 0)+r['native_eva_cameras'] == 6
-                for r in rows if (r.get('m2') or {}).get('cache_boundary') != 'window'),
+            native_baseline_camera_accounting=all(r['native_eva_cameras']==6 for r in rows if not r.get('m2')),
             window_execution_accounting=all(sum(r.get('observed_window_attention_batches', {}).values()) ==
                 sum(s.get('executed_windows',0) for s in r['m2'].get('stages',[]))
                 for r in rows if (r.get('m2') or {}).get('cache_boundary') == 'window'),
             matched_question_frames=all(q['frame_id'] in {r['frame_id'] for r in rows} for q in questions),
             one_real_question_per_frame=len(questions) == len(rows),
             gt_coverage=all(q['quality'] is not None for q in questions if q['workload'] == 'language'),
-            zero_approval_native_fallback=all(q['native_generation_executed'] for q in questions))
+            same_executor_accounting=all(q['native_generation_executed'] or q.get('prefill_executor_executed',False) for q in questions))
         if (dest/'m1_scene_integrity.json').is_file():
             scenes = read_json(dest/'m1_scene_integrity.json')
             checks['m1_scene_ledger'] = all(x.get('ledger', {}).get('status') == 'PASS' and 'metrics' in x for x in scenes.values())

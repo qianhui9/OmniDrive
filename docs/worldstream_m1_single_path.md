@@ -1,28 +1,11 @@
-# M1 single identity allocation
+# M1 普通 A 与来源绑定
 
-`WorldStateManager._commit()` reads source-bound active/dormant inputs through
-`association_tracks.candidates()`. Each object is predicted once by
-`association_tracks.predict()`. The resulting centres/budgets enter
-`association.associate()` directly. It builds one legal distance matrix, rejects
-unresolved endpoint competition, and calls `unmatched_assignment()` once.
-The returned pairs are frozen as a tuple before observation/physical evidence
-processing. No later producer can replace, add or veto an identity pair.
+唯一配置为 `configs/worldstream_m1_final.yaml`，由 `worldstream_m123_auto.py` 使用。正式配置启用时序可见性、局部观测支持和 source-linked 状态接口；世界坐标变换、有限状态历史及一次全局分配保持在原主线。
 
-Prediction uses continuous bounded history (median slopes and residual/scatter),
-otherwise the latest observed centre or an independently qualified existing
-physical motion prediction. Unqualified prediction budgets include declared
-position uncertainty plus `velocity_uncertainty_mps * observation_age`. A fit
-adds measured residual/scatter. Exceeding the fixed geometric budget rejects the
-candidate. Neither the fit nor an ordinary identity is a physical certificate.
+Precheck 在私有 pending Store 验证实际历史源的相机观测，不替换已经提交的观测时间。M2 读取本帧绑定的防御性快照，独立比较实际模型输入；身份或几何关联从不签发神经特征相等证明。
 
-Dormant records contain geometry/source metadata only. They pass the same
-prediction/gates/allocation; there is no recovery algorithm. A reappearing ID
-receives new actual state without old verification times, features or certificates.
-History publication and pruning remain inside the existing atomic transaction.
+Commit 检查场景、时间、epoch、帧摘要、执行签名、历史来源摘要及事务期限，成功后原子发布真实 Detection/Map 输出。失败不会发布部分状态。新检测只产生新观测版本，不继承旧物理证书。有效状态数表示历史观测支持，不代表物理身份认证数。
 
-The sole recommended integrated entry and current validation boundary are
-documented in [the final route](worldstream_final_route.md).
-`configs/worldstream_m1_final.yaml` uses the current ordinary A defaults;
-`association_track_prior` remains false. Independent physical verification and
-the unified allocator remain intact. DQTrack modes other than off are rejected;
-there is no external identity/shadow producer or offline B/C wrapper.
+M3 冻结 `pending Store` 中已经通过本帧观测验证的历史记录；冻结内容带状态版本及完整性摘要。Commit 后仍使用冻结副本，不能由当前新状态替换。文本中的位置明确属于历史观测先验，不冒充当前测量或已认证物理真值；历史增强仍需要独立任务质量批准。
+
+DQTrack B/C、Shadow/Hint、实验身份消歧及其生产者/驱动已删除。未知配置字段显式报错，保留通用几何、观测、来源、物理拒绝和事务正确性测试。

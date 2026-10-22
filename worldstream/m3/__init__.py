@@ -1,4 +1,4 @@
-"""State-conditioned LLM execution (approximate selection and exact KV isolated)."""
+"""Trusted historical augmentation with complete current vision and exact prefill."""
 from .config import M3Config
 from .runtime import M3Runtime
 from .visual_state import CarrierLayout, ExpandedInput, expand_input

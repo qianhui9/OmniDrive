@@ -59,8 +59,7 @@ def assignment_edge_alternatives(pairs, costs):
     return result
 
 
-def associate(anchors, predictions, timestamp, config, motion_priors=None, identity_only_rows=(),
-              source_context=None, diagnostics=None):
+def associate(anchors, predictions, timestamp, config, source_context=None, diagnostics=None):
     """Same legal gates as scalar matching, with curves sampled once per input."""
     costs = np.full((len(anchors), len(predictions)), np.inf)
     groups = {}
@@ -73,7 +72,7 @@ def associate(anchors, predictions, timestamp, config, motion_priors=None, ident
             except ValueError:
                 pass
     for i, old in enumerate(anchors):
-        if timestamp - old.source_timestamp > (config.association_track_ttl_s if i in identity_only_rows else config.max_state_age_s):
+        if timestamp - old.source_timestamp > config.max_state_age_s:
             continue
         if source_context is not None:
             frame,epoch,origin=source_context
@@ -95,13 +94,9 @@ def associate(anchors, predictions, timestamp, config, motion_priors=None, ident
             sizes = np.asarray([predictions[j].geometry_world.size for j in indices])
             centers = np.asarray([predictions[j].geometry_world.center for j in indices])
             ratios = np.maximum(g.size / sizes, sizes / g.size)
-            if motion_priors is not None and i in motion_priors:
-                motion=motion_priors[i]
-            elif timestamp==old.source_timestamp and source_context is None:
-                motion=(g.center,0.)  # same-frame external observation alignment
-            else:
-                from .association_tracks import predict
-                motion=predict(old,timestamp,config)
+            age=timestamp-old.source_timestamp
+            uncertainty=old.geometry_uncertainty+config.velocity_uncertainty_mps*age
+            motion=(g.center,uncertainty) if np.isfinite(uncertainty) and 0<=age<=config.max_state_age_s and 0<=uncertainty<=config.association_gate_m else None
             if motion is None:continue
             center,uncertainty=motion
             distances=np.linalg.norm(np.asarray(center)-centers,axis=1)

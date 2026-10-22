@@ -77,7 +77,7 @@ class Petr3D(MVXTwoStageDetector):
                  m2_config=None,
                  m3_enable=False,
                  m3_config=None,
-                 stream_config=None):
+                 ):
         super(Petr3D, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
                              img_backbone, pts_backbone, img_neck, pts_neck,
@@ -147,10 +147,6 @@ class Petr3D(MVXTwoStageDetector):
             self.lm_head = load_model(lm_head, use_lora, frozen)
 
         self.test_flag = False
-        self.stream_runtime = None
-        if stream_config is not None:
-            from worldstream.runtime import UnifiedRuntime
-            self.stream_runtime = UnifiedRuntime(stream_config)
         self.m3_runtime = None
         if m3_enable:
             from worldstream.m3 import M3Runtime
@@ -486,8 +482,7 @@ class Petr3D(MVXTwoStageDetector):
 
         generated_text = []
         m3 = getattr(self, 'm3_runtime', None) if not getattr(self, 'training', False) else None
-        if self.with_lm_head and (getattr(getattr(self, 'stream_runtime', None), 'active', False)
-                or m3 is not None or not os.path.exists(self.save_path+img_metas[0]['sample_idx'])):
+        if self.with_lm_head and (m3 is not None or not os.path.exists(self.save_path+img_metas[0]['sample_idx'])):
             mmcv.mkdir_or_exist(self.save_path)
             vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
             m3_answers = None
@@ -498,12 +493,11 @@ class Petr3D(MVXTwoStageDetector):
                 m3_answers, self.m3_diagnostics = m3.generate(
                     lm_head=self.lm_head, input_ids_list=data['input_ids'][0],
                     vision_carriers=vision_embeded,
-                    world_state=getattr(self.m1_manager, 'store', None),
                     verified_state=getattr(self, 'm3_verified_state', None),
                     tokenizer=self.tokenizer,
-                    visual_execution=getattr(getattr(self, 'm2_runtime', None), 'last_diagnostics', None),
                     context=dict(scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']),
                         state_epoch=getattr(getattr(self.m1_manager,'store',None),'generation',None),
+                        state_version=getattr(getattr(self,'m3_verified_state',None),'state_version',None),
                         state_execution_signature=getattr(getattr(self.m1_manager,'store',None),'execution_signature',None),
                         timestamp=timestamp, camera_ids=list(meta.get('cam_infos', {})) or
                         [os.path.basename(os.path.dirname(f)) for f in meta['filename']]),
@@ -535,12 +529,7 @@ class Petr3D(MVXTwoStageDetector):
     
     def simple_test(self, img_metas, **data):
         """Test function without augmentaiton."""
-        runtime = getattr(self, 'stream_runtime', None)
-        if runtime is not None and not runtime.active:
-            return runtime.execute(self, img_metas, data,
-                lambda: self.simple_test(img_metas, **data))
         m1_observer = None
-        pending_precheck = False
         if getattr(self, 'm2_runtime', None) is not None:
             meta = img_metas[0]
             self._m2_context = dict(scene_id=str(meta['scene_token']),
@@ -548,25 +537,9 @@ class Petr3D(MVXTwoStageDetector):
                 camera_ids=list(meta.get('cam_infos', {})) or
                     [os.path.basename(os.path.dirname(f)) for f in meta['filename']],
                 coordinate_space='preprocessed_image')
-            if (getattr(self.m2_runtime.config, 'reuse_boundary', 'window') == 'camera'
-                    or getattr(self.m2_runtime.config, 'state_interface', 'legacy') == 'source_linked'):
-                self._m2_context['timestamp'] = float(data['timestamp'].reshape(-1)[0])
+            self._m2_context['timestamp'] = float(data['timestamp'].reshape(-1)[0])
         self.m3_verified_state = None
         run_m1 = self.m1_manager is not None
-        if run_m1 and hasattr(getattr(self, 'm2_runtime', None), 'pre_m1_admission'):
-            admission = self.m2_runtime.pre_m1_admission(data['img'], self._m2_context)
-            service = self.m2_runtime.config.m1_service
-            self.m1_admission_diagnostics = dict(admission, service=service)
-            if admission['reject'] and service != 'maintain':
-                # This is an explicit loss of WorldState continuity. No stale
-                # anchor, pending precheck, feature version or source image survives.
-                # StreamPETR memory remains current and executes below as usual.
-                self.m1_manager.reset(self._m2_context['scene_id'])
-                if service == 'output_only':
-                    run_m1 = False
-                    self.m1_manager.last_commit_diagnostics = dict(
-                        m1_total_including_adapters_ms=0., service='output_only',
-                        state_reset=True, world_history_preserved=False)
         if run_m1:
             from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result, measure_transfers
             import hashlib
@@ -575,32 +548,17 @@ class Petr3D(MVXTwoStageDetector):
             with measure_transfers() as input_transfers:
                 frame = frame_from_model(img_metas, data, settings,
                                          getattr(self, 'm1_source_context', None))
-            if runtime is not None and runtime.active and runtime.config.reuse_m1_signature:
-                suffix=runtime.m1_signature_suffix(self)
-            else:
-                parameter_signature=[(name,tuple(p.shape),str(p.dtype),str(p.device),p._version) for name,p in self.named_parameters()]
-                execution_policy=(getattr(self,'training',False),torch.is_autocast_enabled(),
-                    torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32,
-                    torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
-                    torch.are_deterministic_algorithms_enabled())
-                suffix=repr(parameter_signature)+repr(execution_policy)
+            parameter_signature=[(name,tuple(p.shape),str(p.dtype),str(p.device),p._version) for name,p in self.named_parameters()]
+            execution_policy=(getattr(self,'training',False),torch.is_autocast_enabled(),
+                torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32,
+                torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+                torch.are_deterministic_algorithms_enabled())
+            suffix=repr(parameter_signature)+repr(execution_policy)
             frame.execution_signature = hashlib.sha256((frame.execution_signature+suffix).encode()).hexdigest()
             adapter_ms = (time.perf_counter() - adapter_start) * 1000
-            pending_precheck=bool(runtime is not None and runtime.active and runtime._overlap_active)
-            if pending_precheck:
-                # Adapter owns CPU snapshots; only full EVA may run while the
-                # worker exclusively owns the mutable M1 manager/store.
-                if getattr(self,'m2_runtime',None) is not None:raise RuntimeError('Overlap cannot depend on unverified M2 state')
-                runtime.precheck_async(self.m1_manager,frame)
-                precheck=None
-            else:
-                validate_observation = not (settings.source_linked_state
-                    and getattr(self, 'm1_admission_diagnostics', {}).get('reject', False))
-                precheck=(self.m1_manager.precheck_with_observation(frame, validate_observation)
-                    if settings.source_linked_state else self.m1_manager.precheck(frame))
+            precheck=self.m1_manager.precheck_with_observation(frame, True)
             def publish_precheck():
-                if (getattr(self,'m3_runtime',None) is not None
-                        and getattr(getattr(self.m3_runtime,'config',None),'state_context','none')!='none'):
+                if getattr(self,'m3_runtime',None) is not None:
                     from worldstream.m3.world_state import freeze_verified_state
                     self.m3_verified_state=freeze_verified_state(self.m1_manager,frame)
                 if getattr(self,'m2_runtime',None) is not None:self._m2_context.update(execution_signature=frame.execution_signature)
@@ -609,7 +567,7 @@ class Petr3D(MVXTwoStageDetector):
                 precheck.diagnostics['timings_ms']['input_adapter_including_transfers']=adapter_ms
                 precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer']=input_transfers['gpu_to_cpu_transfer_ms']
                 precheck.diagnostics['input_gpu_to_cpu_transfer_bytes']=input_transfers.get('gpu_to_cpu_transfer_bytes')
-            if not pending_precheck:publish_precheck()
+            publish_precheck()
 
             def m1_observer(boxes, lanes, features):
                 output_start = time.perf_counter()
@@ -618,12 +576,6 @@ class Petr3D(MVXTwoStageDetector):
                 if getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck:
                     outputs.execution_receipt = self.m2_diagnostics
                 output_ms = (time.perf_counter() - output_start) * 1000
-                if getattr(getattr(getattr(self,'m3_runtime',None),'config',None),'post_perception',False):
-                    from worldstream.m3.post_perception import post_verify
-                    task_start=time.perf_counter()
-                    with torch.autograd.profiler.record_function('stream/post_perception_task_verification'):
-                        self.m3_verified_state=post_verify(self.m3_verified_state,frame,outputs)
-                    self.m3_post_verification_ms=(time.perf_counter()-task_start)*1000
                 self.m1_manager.commit(frame, outputs, precheck)
                 self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
                 self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_ms'] = output_transfers['gpu_to_cpu_transfer_ms']
@@ -638,9 +590,6 @@ class Petr3D(MVXTwoStageDetector):
 
         try:
             data['img_feats'] = self.extract_img_feat(data['img'])
-            if pending_precheck:
-                precheck=runtime.join_precheck()
-                publish_precheck()
             bbox_list = [dict() for i in range(len(img_metas))]
             if m1_observer is None:
                 bbox_pts, generated_text, lane_results = self.simple_test_pts(img_metas, **data)
@@ -649,11 +598,6 @@ class Petr3D(MVXTwoStageDetector):
                     img_metas, _m1_observer=m1_observer, **data)
         except Exception:
             if run_m1:
-                if pending_precheck:
-                    try:
-                        runtime.join_precheck()
-                    except Exception:
-                        pass
                 self.m1_manager.abort_pending()
             raise
         for result_dict, pts_bbox in zip(bbox_list, bbox_pts):

@@ -17,7 +17,6 @@ class StateStore:
         self.generation += 1
         self.scene_id = scene_id
         self.anchors = {}
-        self.association_tracks = {}
         self.features = {}
         self.provenance = {}
         self.tensor_bytes = 0
@@ -38,7 +37,6 @@ class StateStore:
         mutable anchor metadata so failed verification/commit cannot leak writes.
         """
         staged = copy.copy(self)
-        staged.association_tracks = copy.deepcopy(self.association_tracks)
         staged.anchors = {}
         for key, anchor in self.anchors.items():
             value = copy.copy(anchor)
@@ -85,14 +83,14 @@ class StateStore:
         metadata = {aid:asdict(a) for aid,a in self.anchors.items()}
         for row in metadata.values():
             if not row['external_tracking']:
-                row.pop('external_tracking')  # preserve legacy off/shadow transaction digests
+                row.pop('external_tracking')
         feature_metadata = {}
         for fid,r in self.features.items():
             feature_metadata[fid] = {f.name:getattr(r,f.name) for f in fields(r) if f.name!='tensor'}
             if isinstance(r.tensor,np.ndarray):
                 feature_metadata[fid]['tensor_sha256'] = hashlib.sha256(r.tensor.tobytes()).hexdigest()
         value=(self.generation,self.scene_id,self.execution_signature,self.next_anchor_id,sorted(self.committed_frame_ids),
-               self.last_timestamp,self.commit_count,anchors,features,metadata,feature_metadata,self.association_tracks,
+               self.last_timestamp,self.commit_count,anchors,features,metadata,feature_metadata,
                {k:asdict(v) for k,v in self.provenance.items()})
         return hashlib.sha256(json.dumps(json_value(value),sort_keys=True,allow_nan=False).encode()).hexdigest()
 

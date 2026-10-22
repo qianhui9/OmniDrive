@@ -113,15 +113,6 @@ def test_cached_camera_projection_equivalent(config,make_frame,make_anchor):
         assert np.allclose(normal.uv,cached.uv,equal_nan=True)
 
 
-def test_feature_oracle_bilinear_alignment():
-    from tools.worldstream_m1.evaluate_feature_oracle import bilinear,errors
-    yy,xx=np.mgrid[:3,:4]
-    f=np.stack([xx,yy],axis=-1)
-    values,valid=bilinear(f,np.array([[8.,8.],[24.,24.],[32.,24.]]),(48,64))
-    assert valid.all()
-    assert np.allclose(values,[[0,0],[1,1],[1.5,1]])
-    l2,cos=errors(np.array([[1.,2.]]),np.array([[1.,2.]]))
-    assert l2[0]==0 and np.isclose(cos[0],1)
 
 
 def test_exact_mask_roundtrip_and_export(config,make_frame,make_prediction):

@@ -7,7 +7,6 @@ import torch
 from mmcv import Config
 from worldstream.m1 import M1Config, WorldStateManager
 from worldstream.m2.config import M2Config
-from worldstream.m2.camera_executor import CameraExecutor
 from worldstream.m3 import M3Runtime
 from worldstream.m3.scheduler import Scheduler
 from worldstream.m3.config import M3Config
@@ -18,14 +17,16 @@ ENTRY='projects/configs/OmniDrive/worldstream_m123_auto.py'
 def test_final_configuration_and_baseline_heads():
     cfg=Config.fromfile(ENTRY);base=Config.fromfile('projects/configs/OmniDrive/mask_eva_lane_det_vlm.py')
     m1=M1Config.load(cfg.model.m1_config);expected=M1Config()
-    assert {k:v for k,v in asdict(m1).items() if k not in ('logging','visualization')}=={k:v for k,v in asdict(expected).items() if k not in ('logging','visualization')}
+    assert {k:v for k,v in asdict(m1).items() if k not in ('logging','visualization','temporal_visibility','local_support','source_linked_state')}=={k:v for k,v in asdict(expected).items() if k not in ('logging','visualization','temporal_visibility','local_support','source_linked_state')}
+    assert m1.temporal_visibility and m1.local_support and m1.source_linked_state
     WorldStateManager(m1)
     m2=M2Config(**cfg.model.m2_config);m3=M3Config(**cfg.model.m3_config)
     assert cfg.model.m1_enable and cfg.model.m2_enable and cfg.model.m3_enable
     assert m2.mode==m3.mode=='auto' and m2.m1_service=='maintain'
     assert m2.reuse_boundary=='window' and m2.cost_table
-    assert not m2.experimental_conditional_reuse and not m2.experimental_exact_lease_separation
-    assert not m3.offline_experiment and not m3.batched_decode and m3.state_context=='none'
+    assert m2.state_interface=='source_linked'
+    assert m3.state_context=='augment'
+    assert not hasattr(m3,'selector') and not hasattr(m3,'batched_decode')
     for key in ('img_backbone','pts_bbox_head','map_head','lm_head','tokenizer'):
         if key in base.model:assert cfg.model[key]==base.model[key]
     for path in (m2.cost_table,m3.cost_table,m3.quality_certificate):assert Path(path).is_file()
@@ -45,14 +46,14 @@ def test_final_m2_native_fallback():
         image=torch.zeros(1,3,40,40)
         value,d=executor.forward(image,execution_context=dict(scene_id='s',frame_id='f',camera_ids=['front']))
         reference=model(image)
-    assert torch.equal(reference[0],value[0]) and d['mode']=='full' and d['actual_skipped_windows']==0
+    assert torch.equal(reference[0],value[0]) and d['mode']=='full_update' and d['actual_skipped_windows']==0
     assert d['cache_boundary']=='window' and d['cacheable_blocks']==[0,1]
     assert d['global_barrier_block']==2 and not d['cache_saved']
 
 
 @pytest.mark.parametrize('mode',['hint','shadow'])
 def test_retired_external_identity_modes_rejected(mode):
-    with pytest.raises(ValueError):WorldStateManager(M1Config(dqtrack_mode=mode))
+    with pytest.raises(TypeError):WorldStateManager(M1Config(dqtrack_mode=mode))
 
 
 @pytest.mark.parametrize('content',[None,'broken','[]','{"approved": "invalid"}'])
@@ -61,3 +62,10 @@ def test_missing_or_invalid_m3_evidence_fails_closed(tmp_path,content):
     if content is not None:path.write_text(content)
     scheduler=Scheduler(M3Config(cost_table=str(path),quality_certificate=str(path)))
     assert scheduler.costs==scheduler.quality=={}
+
+
+def test_only_one_formal_entry_and_no_alternate_runtime_files():
+    assert list(Path('projects/configs/OmniDrive').glob('worldstream_*.py'))==[Path(ENTRY)]
+    for name in ('worldstream/m2/camera_executor.py','worldstream/m2/conditional_prefix.py',
+                 'worldstream/m3/carrier_selector.py','worldstream/m3/batched_executor.py'):
+        assert not Path(name).exists()

@@ -4,7 +4,9 @@ Physical/observation validity is not a Transformer or task-quality certificate.
 No ground truth, current detector output, or anchor-to-query mapping is accepted.
 """
 from dataclasses import dataclass
+from pathlib import Path
 import json
+import hashlib
 import re
 import numpy as np
 from .task_conditioner import task_type
@@ -19,16 +21,29 @@ class VerifiedWorldState:
     execution_signature: str
     records: tuple
     diagnostics: dict
+    state_version: int = 0
+    content_sha256: str = ''
+
+    def __post_init__(self):
+        object.__setattr__(self,'content_sha256',snapshot_digest(self))
+
+
+def snapshot_digest(state):
+    payload=(state.scene_id,state.frame_id,state.timestamp,state.state_epoch,
+             state.execution_signature,state.state_version,state.records,state.diagnostics)
+    return hashlib.sha256(json.dumps(payload,sort_keys=True,allow_nan=False).encode()).hexdigest()
 
 
 def freeze_verified_state(manager, frame):
-    result=manager.last_result;store=manager.store
+    result=manager.last_result;store=getattr(manager,'_pending_store',None)
     records=[]
-    if (result is None or result.scene_id!=frame.scene_id or result.frame_id!=frame.frame_id
+    if (store is None or result is None or result.scene_id!=frame.scene_id or result.frame_id!=frame.frame_id
             or result.timestamp!=frame.timestamp or store.scene_id!=frame.scene_id
             or getattr(manager,'_pending',None)!=(frame.scene_id,frame.frame_id,frame.timestamp,frame.execution_signature)
-            or result.diagnostics.get('execution_signature')!=frame.execution_signature):
-        return VerifiedWorldState(frame.scene_id,frame.frame_id,frame.timestamp,store.generation,
+            or result.diagnostics.get('execution_signature')!=frame.execution_signature
+            or manager.store.source_digest()!=manager._pending_source_digest
+            or manager._history_digest()!=manager._pending_history_digest):
+        return VerifiedWorldState(frame.scene_id,frame.frame_id,frame.timestamp,manager.store.generation,
             frame.execution_signature,(),dict(reason='stale_or_missing_precheck'))
     from worldstream.m1.geometry import predict_geometry,valid_transform
     if not valid_transform(frame.ego_to_world):
@@ -44,8 +59,8 @@ def freeze_verified_state(manager, frame):
         # Observation geometry cannot legalize an annotation/oracle commit.
         # Unknown historical origins stay unknown and are not task inputs.
         if anchor.evidence_origin not in ('actual_perception','historical_full_model_detection_replay'):continue
-        if anchor.source_execution_signature not in (None,frame.execution_signature):continue
-        if anchor.source_state_epoch not in (None,store.generation):continue
+        if anchor.source_execution_signature!=frame.execution_signature:continue
+        if anchor.source_state_epoch!=store.generation:continue
         cameras=sorted(cid for cid,c in check.get('cameras',{}).items() if c.get('valid'))
         if not cameras:continue
         g=predict_geometry(anchor,frame.timestamp)
@@ -65,6 +80,8 @@ def freeze_verified_state(manager, frame):
         records.append(dict(anchor_id=aid,anchor_type=anchor.anchor_type,semantic_class=anchor.semantic_class,
             center_ego_m=center.tolist(),geometry_ego_m=((world_to_ego[:3,:3]@g.points.T).T+world_to_ego[:3,3]).tolist(),
             velocity_ego_mps=velocity,source_timestamp=anchor.source_timestamp,
+            geometry_kind='historical_observation_prior_verified_by_current_temporal_support',
+            physical_geometry_certified=False,current_visual_required=True,
             verified_timestamp=frame.timestamp,source_frame=anchor.source_frame_id,
             source_frame_reason=None if anchor.source_frame_id is not None else 'Unknown historical source frame',
             source_state_epoch=anchor.source_state_epoch,
@@ -76,24 +93,33 @@ def freeze_verified_state(manager, frame):
         source='M1 history before current perception commit',thresholds_provisional=result.diagnostics.get('thresholds_provisional',True),
         residual_threshold_calibrated=result.diagnostics.get('residual_threshold_calibrated',False),
         total_history_anchors=len(store.anchors),verified_history_anchors=len(records),
-        complete_scene_coverage=False,task_quality_certified=False))
+        complete_scene_coverage=False,task_quality_certified=False,
+        max_state_age_s=manager.config.max_state_age_s,
+        m1_protocol_sha256=hashlib.sha256(json.dumps(manager.config.to_dict(),sort_keys=True).encode()+Path(__file__).read_bytes()).hexdigest()),state_version=store.commit_count)
 
 
 def query_world_state(state,question,context):
     """Simple dependency filters; partial history never establishes absence/counts."""
-    if state is not None and state.diagnostics.get('stage')=='post_perception':
-        from .post_perception import local_query
-        return local_query(state,question,context)
     task=task_type(question);q=question.lower()
     def reject(reason):return dict(admitted=False,reason=reason,task=task,records=[],text='')
     if state is None:return reject('no_frozen_verified_history')
+    try:
+        if state.content_sha256!=snapshot_digest(state):return reject('historical_snapshot_modified')
+    except (ValueError,TypeError):return reject('historical_snapshot_invalid')
     if (state.scene_id!=str(context.get('scene_id')) or state.frame_id!=str(context.get('frame_id'))
             or state.timestamp!=context.get('timestamp')
             or state.state_epoch!=context.get('state_epoch')
+            or state.state_version!=context.get('state_version')
             or state.execution_signature!=context.get('state_execution_signature')):return reject('stale_state_context')
     if task in ('global_safety','unknown'):return reject('full_scene_task_requires_visual')
     if re.search(r'\b(how many|any|no |all |count|number|none|absence)\b',q):return reject('partial_history_cannot_establish_count_or_absence')
-    records=[r for r in state.records if r['anchor_type']==('map' if task=='map' else 'object')]
+    records=[r for r in state.records if r['anchor_type']==('map' if task=='map' else 'object')
+        and r.get('source_state_epoch')==state.state_epoch
+        and r.get('source_execution_signature')==state.execution_signature
+        and r.get('source_frame') and r['source_frame']!=state.frame_id
+        and r.get('verified_timestamp')==state.timestamp
+        and isinstance(r.get('source_timestamp'),(int,float))
+        and 0<state.timestamp-r['source_timestamp']<=state.diagnostics.get('max_state_age_s',1.0)]
     if re.search(r'\b(speed|moving|motion|velocity)\b',q):records=[r for r in records if r['velocity_ego_mps'] is not None]
     classes={'pedestrian':'pedestrian','truck':'truck','bus':'bus','car':'car','bicycle':'bicycle','motorcycle':'motorcycle'}
     requested={v for k,v in classes.items() if re.search(r'\b'+k+r's?\b',q)}
@@ -109,9 +135,10 @@ def query_world_state(state,question,context):
     payload=dict(source='verified historical M1 observations; incomplete scene coverage',
         frame_id=state.frame_id,timestamp=state.timestamp,state_epoch=state.state_epoch,
         execution_signature=state.execution_signature,records=records)
-    return dict(admitted=True,reason='offline_verified_history_candidate',task=task,records=records,
+    return dict(admitted=True,reason='verified_history_candidate_requires_task_quality',task=task,records=records,
         text='\nHistorical world-state context (partial observations, unknown is not absent):\n'+json.dumps(payload,separators=(',',':'))+'\n',
-        complete_scene_coverage=False,task_quality_certified=False)
+        complete_scene_coverage=False,task_quality_certified=False,
+        m1_protocol_sha256=state.diagnostics.get('m1_protocol_sha256'))
 
 
 def insert_state_context(ids,text,tokenizer,max_added_tokens=512):

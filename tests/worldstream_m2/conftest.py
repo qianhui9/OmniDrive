@@ -14,4 +14,14 @@ def eva():
 @pytest.fixture
 def context():
     return dict(scene_id='scene', frame_id='0', camera_ids=['front', 'back'],
-                execution_signature='test', coordinate_space='preprocessed_image')
+                execution_signature='test', coordinate_space='preprocessed_image',timestamp=1.,state_epoch=1)
+
+
+@pytest.fixture
+def admitted_runtime(eva,monkeypatch):
+    from worldstream.m2 import IncrementalVisionRuntime
+    runtime=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
+    # Unit fixture only: isolate execution/source contracts from measured cost
+    # certification. No mocked costs are written to deployment artifacts.
+    monkeypatch.setattr(runtime.costs,'beneficial',lambda key,count:(True,None))
+    return runtime

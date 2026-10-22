@@ -1,4 +1,57 @@
 from dataclasses import replace
+
+
+def test_window_computation_source_does_not_advance_on_verification(config,make_frame):
+    cfg=replace(config,source_linked_state=True,temporal_visibility=True,local_support=True,
+                max_state_age_s=3.,full_refresh_interval=100)
+    manager=WorldStateManager(cfg);snapshots=[]
+    for i in range(5):
+        frame=make_frame(100.+.5*i);result=manager.precheck(frame)
+        snapshots.extend(r for r in result.computation_state.source_records
+            if i in (3,4) and r['feature_id']=='eva_prefix:0:0')
+        origin,version=(0,1) if i<2 else (2,3)
+        h,w=frame.cameras['front'].image.shape[:2]
+        receipt=dict(cache_saved=True,cache_boundary='window',cache_version=i+1,
+            cache_context=dict(frame_id=frame.frame_id,execution_signature=frame.execution_signature),
+            prefix_window_geometry={0:[h,w]},output_window_provenance={0:[dict(camera_id='front',
+                computation_frame_id=str(100.+origin*.5),computation_timestamp=100.+origin*.5,
+                computation_version=version,producer_layer=0)]})
+        manager.commit(frame,FullOutputs([],execution_receipt=receipt),result)
+    assert [r['computation_frame_id'] for r in snapshots]==['101.0','101.0']
+    assert [r['computation_version'] for r in snapshots]==[3,3]
+    assert [r['source_cache_version'] for r in snapshots]==[3,4]
+
+
+def test_frozen_task_history_reads_verified_pending_snapshot_before_commit(config,make_frame,make_prediction):
+    from worldstream.m3.world_state import freeze_verified_state,query_world_state
+    from worldstream.m1.geometry import box_geometry
+    cfg=replace(config,source_linked_state=True,temporal_visibility=True,local_support=True)
+    manager=WorldStateManager(cfg);prediction=make_prediction()
+    prediction.geometry_world=box_geometry([0,0,10],[6,6,2])
+    manager.initialize(make_frame(),FullOutputs([prediction]))
+    frame=make_frame(100.5);result=manager.precheck(frame)
+    assert result.valid_anchor_ids
+    frozen=freeze_verified_state(manager,frame)
+    assert frozen.records and frozen.state_version==1
+    assert frozen.records[0]['source_frame']=='100.0'
+    manager.commit(frame,FullOutputs([prediction]),result)
+    assert frozen.records[0]['source_frame']=='100.0' and manager.store.commit_count==2
+    assert frozen.records[0]['physical_geometry_certified'] is False
+
+
+def test_committed_source_ledger_and_scene_metrics_use_mainline_state(config,make_frame,make_prediction):
+    import copy
+    from tools.worldstream_m1.scene_metrics import validate_rows,summarize_scene
+    manager=WorldStateManager(replace(config,source_linked_state=True,temporal_visibility=True,local_support=True))
+    rows=[]
+    for timestamp in (100.,100.5):
+        frame=make_frame(timestamp);result=manager.precheck(frame)
+        manager.commit(frame,FullOutputs([make_prediction()]),result)
+        rows.append(dict(precheck=result.to_dict(),commit=copy.deepcopy(manager.last_commit_diagnostics),
+                         committed_state=manager.export_state_audit()))
+    assert validate_rows(rows)['status']=='PASS'
+    metrics=summarize_scene(rows)
+    assert metrics['counts']['frames']==2 and metrics['counts']['certified_anchor_events']==0
 import numpy as np
 import pytest
 from worldstream.m1 import WorldStateManager, FullOutputs, ComputedFeature
@@ -46,7 +99,7 @@ def test_committed_observation_without_computation(config,make_frame):
 
 
 def test_deferred_validation_maintains_committed_history(config,make_frame):
-    cfg=replace(config,source_linked_state=True,local_support=True,temporal_visibility=True,dense_local_support=True)
+    cfg=replace(config,source_linked_state=True,local_support=True,temporal_visibility=True)
     m=WorldStateManager(cfg)
     for i in range(4):
         frame=make_frame(100.+i*.5);result=m.precheck_with_observation(frame,validate_observation=False)
@@ -68,51 +121,15 @@ def test_source_metadata_is_snapshot(config,make_frame):
     assert r.full_refresh_hint and all(s["computation_frame_id"] is None for s in r.computation_state.source_records)
 
 
-def test_atomic_commit_keeps_computation_source(config,make_frame,make_prediction):
-    cfg=replace(config,source_linked_state=True,local_support=True,temporal_visibility=True)
-    m=WorldStateManager(cfg)
-    feature=ComputedFeature("backbone","backbone",(1,),"float32","cpu","eva",
-        source_camera_ids=["front"],dependency_scope="full_camera")
-    def receipt(frame,version,reused=False):
-        return dict(cache_saved=True,cache_boundary='camera',cache_version=version,actual_reused_cameras=int(reused),
-            cache_context=dict(frame_id=frame.frame_id,execution_signature=frame.execution_signature),
-            output_camera_provenance=[dict(camera_id="front",computation_frame="100.0",
-                computation_timestamp=100.,computation_version=1,
-                verification_frame=frame.frame_id)])
-    a=make_frame();r=m.precheck(a)
-    m.commit(a,FullOutputs([make_prediction()],[feature],execution_receipt=receipt(a,1)),r)
-    b=make_frame(100.5);r=m.precheck(b)
-    assert all(x["computation_frame_id"]!=b.frame_id for x in r.computation_state.source_records)
-    m.commit(b,FullOutputs([make_prediction()],[feature],execution_receipt=receipt(b,2,True)),r)
-    assert m.store.features["backbone"].source_frame_id==a.frame_id
-    c=make_frame(101.);r=m.precheck(c)
-    source=next(s for s in r.computation_state.source_records if s["feature_id"]=="backbone")
-    assert source["source_frame_id"]==b.frame_id
-    assert source["computation_frame_id"]==a.frame_id
-    assert source["source_cache_version"]==2 and source["computation_version"]==1
-    assert source["computation_available"]
-    m.abort_pending()
-    assert m._computation_receipt["cache_version"]==2
 
 
-def test_source_mode_keeps_shadow_ids(config,make_frame,make_prediction):
-    base=replace(config,local_support=True,temporal_visibility=True,identity_continuity=True,
-        identity_method="temporal_object",identity_tracking_policy="shadow")
-    old,new=WorldStateManager(base),WorldStateManager(replace(base,source_linked_state=True))
-    for i in range(4):
-        for manager in (old,new):
-            f=make_frame(100.+i*.5);r=manager.precheck(f)
-            manager.commit(f,FullOutputs([make_prediction()]),r)
-        assert list(old.store.anchors)==list(new.store.anchors)
-        assert old.last_commit_diagnostics.get("identity_continuity")==new.last_commit_diagnostics.get("identity_continuity")
-        assert old.get_current_certifications().certified_anchor_ids==new.get_current_certifications().certified_anchor_ids==()
 
 
 def test_original_entry_source_mode_output_parity(tmp_path,config):
     import importlib.util
     from pathlib import Path
     import torch
-    from tools.worldstream_m1.model_smoke import digest
+    from tools.worldstream_m123.benchmark.common import typed_digest as digest
     spec=importlib.util.spec_from_file_location("state_interface_entry",Path("tests/worldstream_m1/test_integration.py"))
     helpers=importlib.util.module_from_spec(spec);spec.loader.exec_module(helpers)
     base=helpers.make_model(tmp_path/"base",None)
@@ -145,29 +162,3 @@ def test_prefix_cache_does_not_fabricate_final_backbone(config,make_frame):
     assert prefix["computation_available"]
     assert prefix["source_region"]==[(0,0,120,100)]
     assert prefix["computation_frame_id"]==a.frame_id
-
-
-def test_camera_producer_version_stays_stable_after_recompute_and_reuse(config,make_frame):
-    cfg=replace(config,source_linked_state=True,local_support=True,temporal_visibility=True,
-        max_state_age_s=3.,full_refresh_interval=100)
-    m=WorldStateManager(cfg)
-    feature=ComputedFeature("backbone","backbone",(1,),"float32","cpu","eva",source_camera_ids=["front"])
-    snapshots=[]
-    for i in range(5):
-        frame=make_frame(100.+i*.5)
-        result=m.precheck(frame)
-        record=next((s for s in result.computation_state.source_records if s["feature_id"]=="backbone"),None)
-        if i in (3,4):snapshots.append(record)
-        origin,producer_version,reused=(0,1,i==1) if i<2 else (2,3,i>2)
-        receipt=dict(cache_saved=True,cache_boundary="camera",cache_version=i+1,
-            actual_reused_cameras=int(reused),
-            cache_context=dict(frame_id=frame.frame_id,execution_signature=frame.execution_signature),
-            output_camera_provenance=[dict(camera_id="front",computation_frame=str(100.+origin*.5),
-                computation_timestamp=100.+origin*.5,computation_version=producer_version,
-                source_cache_version=producer_version,verification_frame=frame.frame_id)])
-        m.commit(frame,FullOutputs([], [feature],execution_receipt=receipt),result)
-    assert [s["computation_frame_id"] for s in snapshots]==["101.0","101.0"]
-    assert [s["computation_version"] for s in snapshots]==[3,3]
-    assert [s["computation_version_namespace"] for s in snapshots]==["m2_camera_execution"]*2
-    assert [s["feature_record_version"] for s in snapshots]==[2,2]
-    assert [s["source_cache_version"] for s in snapshots]==[3,4]

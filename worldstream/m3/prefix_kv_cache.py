@@ -8,17 +8,6 @@ def kv_bytes(kv):
     return sum(t.numel() * t.element_size() for layer in kv for t in layer)
 
 
-def minimum_native_prefix_bytes(model,expanded,length):
-    """Rejection-only lower bound for inspected floating legacy LLaMA KV.
-
-    Native FP16/BF16/FP32 keys/values use at least two bytes per element.
-    Last logits are omitted, so this never approves a cache allocation.
-    """
-    cfg=model.config
-    heads=getattr(cfg,'num_key_value_heads',cfg.num_attention_heads)
-    return expanded.prefix(length).nbytes+length*cfg.num_hidden_layers*heads*(cfg.hidden_size//cfg.num_attention_heads)*2*2
-
-
 def clone_kv(kv, length):
     if not isinstance(kv, (tuple, list)) or any(len(layer) != 2 for layer in kv):
         raise ValueError('Only Transformers 4.31 legacy Llama K/V tuples are supported')
@@ -41,15 +30,26 @@ class PrefixKVCache:
     def __init__(self, budget_bytes):
         self.budget_bytes = int(budget_bytes)
         self.entry = None
+        self.revision = None
 
     def reset(self):
         self.entry = None
+        self.revision = None
+
+    @staticmethod
+    def _revision(entry):
+        tensors=[getattr(entry.expanded,n) for n in
+            ('embeddings','token_ids','position_ids','attention_mask','visual_mask')]
+        tensors += [t for layer in entry.kv for t in layer]+[entry.last_logits]
+        return (tuple((t.data_ptr(),t._version,tuple(t.shape),tuple(t.stride()),t.dtype,t.device) for t in tensors),
+                repr((entry.expanded.scope,entry.expanded.signature,entry.expanded.source,entry.prefix_lineage)))
 
     @property
     def nbytes(self):
         return self.entry.nbytes if self.entry else 0
 
     def match(self, expanded):
+        if self.entry is not None and self.revision!=self._revision(self.entry):self.reset()
         return exact_lcp(self.entry.expanded, expanded) if self.entry else 0
 
     def put(self, expanded, kv, logits, prefix_lineage=()):
@@ -59,16 +59,17 @@ class PrefixKVCache:
         if size > self.budget_bytes:
             self.reset()
             return False
-        self.reset()
-        self.entry = CacheEntry(expanded.prefix(expanded.length, clone=True), clone_kv(kv, expanded.length),
-                                logits[:, -1:].detach().clone(), expanded.source, size, tuple(prefix_lineage))
+        try:
+            entry = CacheEntry(expanded.prefix(expanded.length, clone=True), clone_kv(kv, expanded.length),
+                              logits[:, -1:].detach().clone(), expanded.source, size, tuple(prefix_lineage))
+            revision=self._revision(entry)
+        except torch.cuda.OutOfMemoryError:
+            self.reset()
+            return False
+        self.entry,self.revision=entry,revision
         return True
 
-    def branch(self, length, read_only=False):
+    def branch(self, length):
         if self.entry is None or not 0 < length <= self.entry.expanded.length:
             raise ValueError('Invalid cache branch')
-        if read_only:
-            # Internal loan, only after the executor certifies the installed
-            # out-of-place torch.cat attention implementation. Never public COW.
-            return tuple(tuple(t[..., :length, :].detach() for t in layer) for layer in self.entry.kv)
         return clone_kv(self.entry.kv, length)

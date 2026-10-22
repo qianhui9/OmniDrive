@@ -1,0 +1,76 @@
+{
+  "status": "FAIL",
+  "failures": [
+    "B3_language:completed",
+    "B3_language:sequence_exact"
+  ],
+  "experiments": {
+    "B0_language": {
+      "checks": {
+        "completed": true,
+        "strict_weights": true,
+        "unique_frames": true,
+        "sequence_exact": true,
+        "native_baseline_camera_accounting": true,
+        "window_execution_accounting": true,
+        "matched_question_frames": true,
+        "one_real_question_per_frame": true,
+        "gt_coverage": true,
+        "same_executor_accounting": true
+      },
+      "frames": 12,
+      "questions": 12,
+      "scenes": 1,
+      "native_generations": 12,
+      "m3_reasons": {
+        "null": 12
+      }
+    },
+    "B3_language": {
+      "checks": {
+        "completed": false,
+        "strict_weights": true,
+        "unique_frames": true,
+        "sequence_exact": false,
+        "native_baseline_camera_accounting": true,
+        "window_execution_accounting": true,
+        "matched_question_frames": true,
+        "one_real_question_per_frame": true,
+        "gt_coverage": true,
+        "same_executor_accounting": true
+      },
+      "frames": 0,
+      "questions": 0,
+      "scenes": 0,
+      "native_generations": 0,
+      "m3_reasons": {}
+    },
+    "B3_language_final": {
+      "checks": {
+        "completed": true,
+        "strict_weights": true,
+        "unique_frames": true,
+        "sequence_exact": true,
+        "native_baseline_camera_accounting": true,
+        "window_execution_accounting": true,
+        "matched_question_frames": true,
+        "one_real_question_per_frame": true,
+        "gt_coverage": true,
+        "same_executor_accounting": true,
+        "m1_scene_ledger": true
+      },
+      "frames": 12,
+      "questions": 12,
+      "scenes": 1,
+      "native_generations": 0,
+      "m3_reasons": {
+        "short_or_missing_prefix": 1,
+        "prefix_evidence_unavailable": 11
+      }
+    }
+  },
+  "protected_unchanged": {},
+  "checkpoint": null,
+  "official_full_validation": "NOT_RUN",
+  "scope": "PASS reconciles the experiments actually run; it never means blocked full validation completed"
+}

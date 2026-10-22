@@ -1,79 +1,57 @@
-# 正式路线可复现评测
+# 单一主线运行与验证
 
-入口为 `tools.worldstream_m123.benchmark.run`。算法仍使用唯一正式配置
-`projects/configs/OmniDrive/worldstream_m123_auto.py`。B1/B2 仅为进程内配置覆盖。
-不会修改 checkpoint、原配置、成本表、质量证书或数据集，不提交或推送代码。
+唯一正式入口是 `projects/configs/OmniDrive/worldstream_m123_auto.py`。Python 使用 `/home/qh/miniconda3/envs/OmniDrive/bin/python`，所有代码执行以 `taskset -c 0-3,6-31` 启动，子进程继承亲和性，避开故障 CPU 4/5。GPU 被其他任务使用时等待，不终止其他进程。无需安装依赖、替换权重或改写数据。
+
+正式顺序为 M1 Precheck → M2 窗口 → 原 Detection/Map → M1 Commit → M3 历史质量门控与精确 Prefill → 原 Decode。M2 的 miss 是同一窗口执行器的全量更新；M3 的 miss 是同一 PrefillExecutor 的 `reuse_length=0`。不支持的契约明确报错。
+
+## 回归与静态审计
+
+```bash
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m pytest -q tests
+
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.verify_final_route
+```
+
+静态审计默认另存至 `outputs/single_route_convergence_20261022/route_verification/`，引用本次 tests.log，不覆盖旧清理审计。逐文件删除计划由 `tools/audit_single_route.py` 生成；该工具只写计划，不删除文件。实际删除记录含逐文件 SHA 和原因，且不包含 outputs/data/ckpts。
+
+## 真实服务短测
+
+输出目录必须是新目录，现有 checkpoint 为 `ckpts/iter_10548.pth`。以下使用实际 Conv/VQA 问题、完整当前视觉载体和原采样配置，按场景/时间顺序运行：
 
 ```bash
 taskset -c 0-3,6-31 env HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
   OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=4 \
   /home/qh/miniconda3/envs/OmniDrive/bin/python \
-  -m tools.worldstream_m123.benchmark.run \
-  --checkpoint ckpts/iter_10548.pth \
-  --subset 320 --timing-frames 48 --repeats 3 --warmup 3
+  -m tools.worldstream_m123.benchmark.worker \
+  --output outputs/service_new/experiments/B3_language \
+  --run-root outputs/service_new --condition B3 --workload language \
+  --limit 12 --warmup 1 --measurement-set smoke
 ```
 
-需要 GPU 设备访问权限；受限执行环境内的 CUDA 不可用不意味着宿主 GPU 故障。
-每个实验启动前检查 GPU；有其他计算任务时只等待，不结束其他用户的进程。
-输出写入新的 `outputs/final_route/benchmark/run_时间戳/`。
+`B0` 是原始模型的独立参考，只用于相同样本、相同预处理和种子的质量/延迟对照，不是第二条研究路线。模块归因仅使用同一配置的临时开关，不增加正式配置。
 
-默认实验包括：
+`tools/test.py --eval bbox` 不能自动证明语言流程已执行；实际问题、原生/PrefillExecutor 调用及生成 token 必须记录。当前原配置 planning 请求可能没有语言问题，完整服务验证使用上面的 language workload。
 
-- 若官方 GT 完整性通过：B0/B3 全量 validation，保留生产 planning 生成路径。
-- B0/B1/B2/B3 各 320 帧模块归因：真实 Conv/VQA，每帧一个确定选择的有效标注问题。
-- 四个条件在固定前 48 帧上各重复计时三次，每次重新加载同一 checkpoint 并预热。
+每帧记录 M1 有效历史观测数、冻结历史数、M2 更新/复用 Attention 窗口与完整点积工作、M3 真实复用前缀长度、完整请求延迟、CUDA stream span、显存及真实 GT 评分。CUDA event span 含主机提交空隙，不等于所有 kernel 活跃时间之和；嵌套跨度不相加推断端到端。
 
-每个序列按 scene token、场景内时间排序；场景边界清除检测/地图 temporal memory
-及 M2/M3 缓存，M1 在原生 precheck 中执行场景重置。B0 与其余条件使用同一测试
-预处理，补齐正式 M1 所需的只读相机元数据。完整有效配置保存为 JSON，未另存永久配置。
-随机种子由帧 token 确定，相同问题在不同条件与重复中使用相同生成参数和随机数种子。
+## 数值与生成等价性
 
-评测先检查所有验证图像、问答文件和地图资源，记录文件 SHA256；检查 nuScenes
-原始 `sample.anns` 与 `sample_annotation.sample_token` 反向链接，并进一步实例化官方
-NuScenes SDK，验证其自动重建后的链接、validation token 集和 `load_gt` 实际结果。
-原始 JSON 链接差异仅是诊断信息；只有官方 SDK 实际 GT 不完整时，全量主实验记为
-`NOT_RUN`、官方指标记为 `NOT_AVAILABLE`，仍执行真实连续数据上的模块和效率诊断。
-不会自动修复或复制重写 GT，不会用历史结果补齐缺失数字。
-
-权重载入要求所有模型 state_dict 键和形状完整匹配；仅允许忽略**实际注册为非持久
-buffer** 的 RoPE `cos_cached`/`sin_cached`。这些是当前 Transformers 重新计算的缓存，
-原生 mmcv 加载也会忽略。所有例外键均记录，缺失参数或其他多余键使实验失败。
-
-`tools/test.py` 当前单卡非分布式入口及 `--out` 有断言，独立 worker 直接调用相同
-dataset、模型 forward、原生生成、M1/M2/M3 runtime；没有重写算法。
-地图使用项目现有 OpenLaneV2 评估器，修复仅限驱动采集其返回值，未改 dataset.evaluate。
-
-计时范围：
-
-- `model_ms`：模型 forward 起止 CUDA 同步，包含生产路径内语言答案写盘。
-- `request_ms`：同步后开始，涵盖 dataset 读取与预处理、collate、H2D、model_ms 和结果 CPU 化。
-- 审计日志序列化、GT 离线评分、实际复用反事实检查不计入 request_ms。
-- CUDA event 字段为默认流事件跨度，包含 host 提交间隙；不能称为活跃 kernel 总时间。
-  prefill/decode、M2、M3 等存在包含关系，不能直接相加。
-
-M1 使用原有 `strict_labels`、`ContinuityMetrics`、`summarize_scene` 和 `validate_rows`。
-GT 仅在真实模型提交结束后用于离线评分；不再次运行 M1 来替代在线结果。
-这属于唯一类别/尺寸/1m 匹配的部分 Oracle 评估，不是标准 MOT。
-所有比率保留分子、分母，零分母写 `null`。
-
-M2 相机复用数必须与真实 EVA 相机执行数相加等于输入相机数。
-只有发生实际复用才运行同输入的完整 EVA 正确性检查，保存容差和误差。
-无真实复用时不发布“复用质量通过”。历史成本表只作为准入证据保存，不能充当本次加速。
-
-M3 使用生产 Auto；空成本/质量批准列表会产生真实原生回退。
-问题数来自实际输出，原生生成数来自真实 `lm_head.generate` 调用，不能从空 diagnostics
-列表推断没有语言请求。GT 缺失的 planning 输出不计回答正确率。
-当前正式表下无优化路径，因此可直接保存所有原生 token 并和 B0 配对比较。
-
-生成或更新已有运行报告：
+窗口验证命令见 `docs/worldstream_m2_window.md`。完整 Prefill 与原生生成参考的独立验证如下：
 
 ```bash
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python \
-  -m tools.worldstream_m123.benchmark.report \
-  --run-dir outputs/final_route/benchmark/run_YYYYMMDD_HHMMSS
+taskset -c 0-3,6-31 env HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+  OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=4 \
+  /home/qh/miniconda3/envs/OmniDrive/bin/python \
+  -m tools.worldstream_m123.benchmark.prefill_validate \
+  --output outputs/prefill_validation_new
 ```
 
-运行同一目录会保留已完成或失败的实验，不覆盖其预测。失败尝试也保存在运行目录。
-需要重试时使用新的运行目录，避免将不同代码版本的结果混在一个配对集合。
-报告包含完整范围、attribution/efficiency 区分、原始计数、延迟分布、配对差异和场景
-bootstrap 95% 区间；只有一个配对场景时区间为 `null`。
+该验证工具保留原生 generate 作为对照，仅调用同一个 PrefillExecutor 检查完整 Prefill、相同全前缀和受控改变一个末尾 token 的局部前缀。比较 greedy/sampling token、logits 与 RNG，不写生产批准，也不构成历史文本增强质量认证。
+
+当前 M2 全部受控情形位级一致。M3 完整 Prefill/相同全前缀通过严格检查；局部前缀生成 token 一致但 logits 未通过严格检查，因此不授予对应正式复用。历史增强需要独立的任务质量、M1 协议和部署模型证据；KV 精确匹配不能替代此证据。当前成本/质量批准为空。
+
+## 本次结果边界
+
+`outputs/single_route_convergence_20261022/experiment_report.md` 汇总 12 帧成功配对、4 帧自然视觉验证、受控窗口数值验证与前缀生成对照。成功配对的 Detection/Map 输出和生成 token 逐帧一致，主线当前没有真实复用收益。历史增强没有适用问题，不声称其已通过任务质量验证。完整验证集官方精度未运行。
+
+开发短测中出现过一次审计导出引用退役字段的失败，已修复并新增账本回归；失败记录保留在 service/experiments/B3_language，成功主线为 B3_language_final。service/audit.json 会如实保留此失败，成功配对检查单独见 paired_service_validation.json。以前按用户要求停止的长时评测没有恢复。

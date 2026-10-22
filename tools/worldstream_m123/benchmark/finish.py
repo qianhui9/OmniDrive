@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 
-from tools.worldstream_m123.stateful_opportunity.common import sha256, write
+from .common import sha256, write
 from .audit import audit
 from .report import generate, read_json
 

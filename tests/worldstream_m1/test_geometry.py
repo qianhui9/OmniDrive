@@ -58,7 +58,7 @@ def test_local_real_lidar2img_crosscheck():
     path = Path('data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl')
     if not path.is_file(): pytest.skip('local nuScenes data unavailable')
     from tools.worldstream_m1.dataset import select_infos
-    from tools.worldstream_m1.inspect_pipeline import projection_crosscheck
+    from tools.worldstream_m1.dataset import projection_crosscheck
     errors = projection_crosscheck(select_infos(path, limit=1)[0])
     assert len(errors) == 6
     assert max(e for e in errors.values() if e is not None) < 1e-5

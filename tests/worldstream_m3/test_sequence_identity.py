@@ -1,5 +1,5 @@
 import pytest
-from tools.system_optimization.identity import token_index,resolve_sequence,validate_sequence
+from tools.worldstream_m123.benchmark.sequence import token_index,resolve_sequence,validate_sequence
 
 
 def info(token,t,scene='s',position=None):

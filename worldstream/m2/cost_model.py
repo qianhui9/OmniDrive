@@ -5,7 +5,7 @@ import weakref
 import math
 import torch
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 _fingerprints = weakref.WeakKeyDictionary()
 
 
@@ -27,7 +27,8 @@ def block_fingerprint(block):
 def cost_key(block, x, block_index=None):
     """Content fingerprint prevents reuse across same-shape different checkpoints."""
     props = torch.cuda.get_device_properties(x.device) if x.is_cuda else None
-    payload = dict(schema=SCHEMA_VERSION, block_index=block_index,
+    from .window_executor import NUMERICAL_POLICY
+    payload = dict(schema=SCHEMA_VERSION,numerical_policy=NUMERICAL_POLICY,block_index=block_index,
         torch=torch.__version__,cuda=torch.version.cuda,
         gpu=(props.name,props.major,props.minor,props.total_memory) if props else 'cpu',
         input_shape=list(x.shape), input_stride=list(x.stride()),dtype=str(x.dtype),
@@ -90,6 +91,8 @@ class CostModel:
         record=self.lookup(key,count)
         if record is None:
             return False,'unprofiled_cost'
+        if record.get('numerical_verified') is not True:
+            return False,'window_numerical_evidence_missing'
         if record.get('quality_certified') is not True:
             return False,record.get('quality_rejection_reason','numerical_quality_unverified')
         good=(record['incremental_gpu_ms']<record['full_gpu_ms']

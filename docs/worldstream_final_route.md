@@ -1,40 +1,21 @@
-# OmniDrive 唯一研究主线
+# OmniDrive 单一研究主线
 
-唯一推荐集成入口是 `projects/configs/OmniDrive/worldstream_m123_auto.py`。结果与本次清理审计统一放在 `outputs/final_route/`。其他保留配置只作为继承基础或现有回归测试的兼容夹具，不是并列推荐入口。
+研究目标：**World-Referenced Stateful VLM Serving with Dependency-Aligned GPU Execution and Efficient Semantic Consumption**。
 
-M1 使用当前单主线的普通 A 关联：有限状态/历史、统一运动预测、合法几何代价矩阵、一次全局一对一分配、实际观测更新及原子提交。最终 YAML 使用当前默认算法参数，只关闭日志/可视化。`dqtrack_mode="off"`；B/C 离线包装、外部身份元数据决策、Shadow、Hint 及其工具已经退役，非 off 模式显式拒绝。普通关联不签发物理认证，源绑定、场景/epoch/时间检查、回滚和物理证据验证均保留。
+唯一正式入口：`projects/configs/OmniDrive/worldstream_m123_auto.py`，直接继承原始 `mask_eva_lane_det_vlm.py`，保持权重、EVA、Detection/Map、LoRA、Tokenizer 和原始 Decode。其他 worldstream 模型配置及替代执行器已退役。原始 OmniDrive 配置保留作独立参考基线。
 
-模型先构造当前帧并进行 M1 precheck，M2 使用该历史快照、当前精确图像输入和独立计算来源决定 EVA 复用或完整执行。Detection/Map 继续执行，实际输出再交给 M1 commit；语言生成通过 M3 Auto 或原生 generate 执行。最终 M3 `state_context=none`，不会把 M1 身份或未认证事实注入语言上下文。提交后的新状态不能偷偷替换已交给 M2 的历史快照。
+执行顺序固定为：M1 Precheck → M2 窗口级视觉执行 → 原始 Detection/Map → M1 Commit → M3 可信历史增强与精确 Prefill → 原始 Decode。M2 与 M3 的历史快照均在当前 Commit 之前冻结；M3 在 Commit 后消费冻结副本，不读取新提交状态冒充历史。
 
-2026-10-22 起，按用户要求，正式 M2 改为 **window Auto**，继承 `worldstream_m2_window_auto.py`。实际图像像素差异与 M1 失效区域经 patch 感受野和窗口依赖闭包传播，只执行需要更新的窗口，将结果与未变化窗口缓存拼回。当前 EVA 的独立前缀为 block 0、1；block 2 的全局注意力是边界，其后所有 block 仍原生执行。patch embedding 仍完整执行。窗口来源、原子发布、预算、修改检测、场景/epoch/模型/布局验证均保留。
+M1 只有普通 A 的几何门控、一次全局一对一分配与实际观测更新。正式配置开启 `temporal_visibility`、`local_support`、`source_linked_state`。场景、时间、epoch、执行签名、来源摘要、过期及原子事务检查保留。DQTrack、Shadow/Hint、身份消歧、深度搜索及替代身份历史策略不再提供配置开关。普通关联及观测支持不签发物理身份或几何真值认证。
 
-窗口 Auto 使用独立 `outputs/final_route/window_costs.json`，初始批准计数为空；相机成本证据不转移到窗口路径，未校准或未通过下游质量验证时回退。当前真实 GPU 实验中，完全相同输入的窗口复用保持位级一致；局部 packed 重算存在超过严格容差的 FP32/FlashAttention 差异，未授予生产批准。Exact 仅作为显式实验模式，不代表获得数值/任务质量认证。复现命令及结果见 `docs/worldstream_m2_window.md`。
+M2 只有 `window/source_linked/maintain`。完整像素比较与 Patch 感受野、窗口闭包决定更新集；M1 dirty hints 只能增加更新。缓存未命中、来源失效、强制刷新或准入不足，都将同一个 WindowExecutor 的更新集扩大至全部窗口。没有 camera/conditional 缓存执行器，也没有 Exact 绕过模式。Patch Embedding 与 block 2 起的全局依赖部分完整执行。
 
-历史记录：此前正式 M2 为 camera Auto。原 camera 成本表迁移与 SHA 保留记录仍有效，`camera_costs.json` 原字节保留，camera 配置继续用于兼容回归；本次没有改写该表及既有清理审计。它不再是当前推荐入口的 M2 执行边界。
+局部窗口数值差异已定位至打包改变 GEMM 形状，FP32 误差经 FP16 FlashAttention 放大。当前唯一执行器保留原生 QKV、输出投影、归一化与 MLP 的完整形状，仅增量执行独立窗口 Attention；零更新 block 可整体复用。真实 GPU 单窗口、边缘、多相机验证均达到位级一致。统计严格区分复用输出窗口、跳过 Attention 与仍执行的点积工作量，不把局部复用声称为整 block 全部省去。窗口成本表单独维护；旧相机证据不迁移，未获数值、任务质量与成本准入时全量更新。
 
-M3 使用原 Auto 默认生成语义，原成本表与质量表分别按字节迁移至 `m3_cost_table.json`、`m3_quality_certificate.json`。两表 approved 均为空，因此不授予新增优化，执行原生生成回退。缺失、损坏或结构非法的证据表按空证据处理；请求/模型/生成模式/执行键不匹配也不能获得许可。未修改原模型、LoRA、Tokenizer、生成长度、检测或地图配置。离线策略实现中仍被运行时和正确性测试依赖的辅助模块保留，不代表获得在线许可。
+M3 只有完整当前视觉载体、经过来源与任务质量门控的历史文本补充，以及精确扩展输入前缀/KV 复用。历史不可用于替代当前视觉；缺失、不适用或未获独立质量批准时保留原问题与完整载体，不添加历史文本。前缀未命中或未获准入时 `reuse_length=0`，继续使用同一个 PrefillExecutor；不调用原生 `lm_head.generate()` 作为运行时回退。不支持的模型/生成契约显式报错。原生 generate 仅在关闭扩展的独立基线和等价性验证工具中作为参考。
 
-运行前需要现有部署权重、原数据、现有环境及可用 GPU。窗口实现已完成真实权重的 2 帧集成短测（另有 1 帧预热），M1 提交、窗口 Attention 计数及原生语言生成通过检查，Auto 未发生复用。这只是执行路径验证，不是全量精度或最终组合加速结果。记录见 `outputs/m2_window_incremental_20261022_run01/experiment_report.md`。以下全量评估命令本次未执行：
+完整 Prefill 在真实模型与相同种子下通过 token、logits、RNG 对照；完整相同前缀也通过。受控局部前缀的 token 与 RNG 一致，但 logits 超过严格容差，因此当前不授予正式局部前缀复用。历史文本质量与 KV 匹配分别认证；两者不能相互代替。当前部署批准表保持为空。
 
-```bash
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python \
- tools/test.py projects/configs/OmniDrive/worldstream_m123_auto.py \
- /absolute/path/to/deployed_checkpoint.pth --launcher none --eval bbox
-```
+本次删除计划、逐文件调用方、删除记录、测试及真实测量保存在 `outputs/single_route_convergence_20261022/`。旧结果及 `outputs/m3_state_guided_verified_decode/` 保留作历史证据，不作为当前路线的测量值。完整验证集任务精度与历史文本增强的独立质量，只有实际测量并通过后才可声明。
 
-配置、接口和原生回退验证可在 CPU 执行：
-
-```bash
-taskset -c 0-3,6-31 env OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 \
- /home/qh/miniconda3/envs/OmniDrive/bin/python -m pytest \
- tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 tests/worldstream_m123 -q
-
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python \
- -m tools.verify_final_route \
- --output-dir outputs/m2_window_incremental_20261022_run01/route_verification \
- --tests-log outputs/m2_window_incremental_20261022_run01/tests.log
-```
-
-`outputs/final_route/verification.json` 保留清理当时的审计，其中 NOT_RUN 不覆盖后续短测；窗口阶段的验证单独保存在上述新目录。历史 A/B/C 仅支持不采用 DQTrack 的选择，不作为当前集成路线的性能值。先前可评分开发数据中 B/C 没有改善正确延续、错误延续或身份切换，C 没有实际满足完整映射条件的消歧边。
-
-删除前已经生成逐文件 cleanup_plan；保留完整物理/事务/M1→M2/缓存/质量门控/原生回退测试，仅移除专用于退役 DQTrack 的测试。无法确定可删、仍有测试依赖的工具保留为兼容辅助函数，并移除其旧 main 驱动。历史结果的已跟踪文件已清理，必要证据原字节保留。任务开始前已有的未跟踪目录 `outputs/m3_state_guided_verified_decode/` 和 Git 忽略的旧文件按用户保护要求保留，记录在审计清单；这些不作为正式结果或推荐入口。没有执行 git clean、删除数据/权重、提交或推送。
+运行和数值验证命令见 `docs/worldstream_benchmark.md` 与 `docs/worldstream_m2_window.md`。

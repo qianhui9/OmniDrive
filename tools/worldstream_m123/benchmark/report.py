@@ -5,7 +5,7 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from tools.worldstream_m123.stateful_opportunity.common import sha256, write
+from .common import sha256, write
 from .metrics import compare, distribution, paired_scene_ci, quality_summary, ratio
 
 
@@ -89,6 +89,7 @@ def module_summary(rows, questions, workers):
         identities = {name: x.get('metrics', {}).get('m1') for name, x in workers.items()
                       if x.get('args', {}).get('condition') == condition and x.get('metrics', {}).get('m1')}
         m1 = dict(status='MEASURED', event_counts=dict(counts), resets=dict(resets),
+            effective_verified_states=[r.get('m1_valid_anchors',0) for r in rr],
             state_age_s=distribution(v for r in rr for v in r.get('m1_state_ages_s', [])),
             retained_state_events=sum(r.get('m1_retained_states', 0) for r in rr),
             physical_phase_counts=dict(Counter(str(r.get('m1_physical_phase')) for r in rr)),
@@ -105,49 +106,28 @@ def module_summary(rows, questions, workers):
         m2rows = [r for r in rr if r.get('m2') is not None]
         m2 = dict(status='NOT_RUN', frames=0)
         if m2rows:
-            reused = sum(r['m2'].get('actual_reused_cameras', 0) for r in m2rows)
-            native = sum(r['native_eva_cameras'] for r in m2rows)
-            checks = [v for r in m2rows for v in r.get('m2_reuse_checks', [])]
-            m2 = dict(status='MEASURED', frames=len(m2rows), camera_requests=6*len(m2rows),
-                candidate_cameras=sum(r['m2'].get('candidate_cameras', 0) for r in m2rows),
-                exact_verified_cameras=sum(r['m2'].get('verified_exact_cameras', 0) for r in m2rows),
-                eligible_exact_cameras=sum(r['m2'].get('eligible_exact_cameras', 0) for r in m2rows),
-                admitted_frames=sum(r['m2'].get('mode') == 'camera_reuse' for r in m2rows),
-                actual_reused_cameras=reused, observed_native_eva_cameras=native,
-                camera_skip_audit='PASS' if reused+native == 6*len(m2rows) else 'FAIL',
-                reuse_rate=ratio(reused, 6*len(m2rows)),
-                fallback_reasons=dict(Counter(r['m2'].get('fallback_reason') or 'admitted' for r in m2rows)),
+            if any(r['m2'].get('cache_boundary')!='window' for r in m2rows):
+                raise ValueError('Retired camera diagnostics must use their saved historical report')
+            window_stages=[s for r in m2rows for s in r['m2'].get('stages',[]) if 'total_windows' in s]
+            total=sum(s['total_windows'] for s in window_stages)
+            executed=sum(s['executed_windows'] for s in window_stages)
+            skipped=sum(s['reused_windows'] for s in window_stages)
+            observed=sum(sum(r.get('observed_window_attention_batches',{}).values()) for r in m2rows)
+            m2=dict(status='MEASURED',boundary='window',frames=len(m2rows),
+                prefix_window_requests=total,executed_prefix_windows=executed,actual_reused_windows=skipped,
+                saved_attention_windows=skipped,
+                pointwise_window_work=sum(s.get('pointwise_window_work',0) for s in window_stages),
+                actual_skipped_block_computations=sum(r['m2'].get('actual_skipped_block_computations',0) for r in m2rows),
+                observed_attention_window_batches=observed,
+                admitted_frames=sum(r['m2'].get('actual_skipped_windows',0)>0 for r in m2rows),
+                window_skip_audit='PASS' if executed+skipped==total and observed==executed else 'FAIL',
+                reuse_rate=ratio(skipped,total),
+                fallback_reasons=dict(Counter(r['m2'].get('full_update_reason') or 'keyed_stage_admission' for r in m2rows)),
                 cache_creations=sum(bool(r['m2'].get('cache_saved')) for r in m2rows),
-                cache_reset_reasons=dict(Counter(r['m2']['global_cache_reset_reason'] for r in m2rows if r['m2'].get('global_cache_reset_reason'))),
-                peak_cache_bytes=max(r['m2'].get('cache_bytes', 0) for r in m2rows),
-                quality_comparisons=len(checks), exact_equal=sum(v['exact'] for v in checks),
-                quality_status='MEASURED' if checks else 'NOT_MEASURED: no actual reuse',
-                quality_errors=dict(maximum=max((v['max_abs'] for v in checks), default=None),
-                    sample_mean=distribution(v['mean_abs'] for v in checks),
-                    sample_p95=distribution(v['p95_abs'] for v in checks)),
-                validation_ms=distribution(r['m2']['M2_validation_ms'] for r in m2rows if 'M2_validation_ms' in r['m2']),
-                skipped_compute_ms=0. if reused == 0 else None,
-                saved_compute_status='MEASURED_ZERO: no EVA cameras skipped' if reused == 0 else 'NOT_MEASURED: requires paired native counterfactual timing',
-                net_overhead='Measured by paired B2 minus B1 request times below; historical calibration is excluded')
-            m2['boundary']='camera'
-            if all(r['m2'].get('cache_boundary')=='window' for r in m2rows):
-                window_stages=[s for r in m2rows for s in r['m2'].get('stages',[]) if 'total_windows' in s]
-                total=sum(s['total_windows'] for s in window_stages)
-                executed=sum(s['executed_windows'] for s in window_stages)
-                skipped=sum(s['reused_windows'] for s in window_stages)
-                observed=sum(sum(r.get('observed_window_attention_batches',{}).values()) for r in m2rows)
-                m2.update(boundary='window',actual_reused_cameras=None,camera_skip_audit='NOT_APPLICABLE: window boundary',
-                    exact_verified_cameras=None,eligible_exact_cameras=None,
-                    candidate_windows=sum(r['m2'].get('candidate_windows') or 0 for r in m2rows),
-                    verified_exact_windows=sum(r['m2'].get('verified_exact_windows',0) for r in m2rows),
-                    admitted_frames=sum(r['m2'].get('actual_skipped_windows',0)>0 for r in m2rows),
-                    prefix_window_requests=total,executed_prefix_windows=executed,actual_reused_windows=skipped,
-                    observed_attention_window_batches=observed,
-                    window_skip_audit='PASS' if executed+skipped==total and observed==executed else 'FAIL',
-                    reuse_rate=ratio(skipped,total),
-                    quality_status='NOT_MEASURED: native feature counterfactual requires separate window validation',
-                    skipped_compute_ms=0. if not skipped else None,
-                    saved_compute_status='MEASURED_ZERO' if not skipped else 'NOT_MEASURED: use paired native timing')
+                peak_cache_bytes=max(r['m2'].get('cache_bytes',0) for r in m2rows),
+                quality_status='See independent operator validation and paired task outputs',
+                validation_ms=distribution(r['m2']['M2_validation_ms'] for r in m2rows),
+                saved_compute_status='Attention window counts only; pointwise work is explicitly retained')
         m3rows = [r for r in rr if r.get('m3') is not None]
         m3 = dict(status='NOT_RUN', requests=None)
         if m3rows:
@@ -157,9 +137,13 @@ def module_summary(rows, questions, workers):
                 admitted=sum(d.get('reused_tokens', 0) > 0 or d.get('selection', {}).get('admitted', False) for d in details),
                 cache_hits=sum(d.get('reused_tokens', 0) > 0 for d in details),
                 native_generations=sum(q['native_generation_executed'] for q in qq),
-                actual_optimized_requests=sum(not q['native_generation_executed'] for q in qq),
+                prefill_executor_requests=sum(q.get('prefill_executor_executed',False) for q in qq),
+                full_prefill_requests=sum(q.get('prefill_executor_executed',False) and q.get('reused_prefix_length',0)==0 for q in qq),
+                actual_optimized_requests=sum(q.get('reused_prefix_length',0)>0 for q in qq),
+                actual_reused_prefix_lengths=[q.get('reused_prefix_length',0) for q in qq],
+                historical_context_requests=sum(q.get('historical_context_admitted',False) for q in qq),
                 fallback_reasons=dict(Counter(q.get('m3_reason') or 'per_request_diagnostics' for q in qq)),
-                native_count_audit='PASS' if len(qq) == sum(q['native_generation_executed'] for q in qq)+sum(not q['native_generation_executed'] for q in qq) else 'FAIL',
+                native_count_audit='PASS' if len(qq)==sum(q['native_generation_executed'] for q in qq)+sum(q.get('prefill_executor_executed',False) for q in qq) else 'FAIL',
                 reused_prefix_tokens=sum(d.get('reused_tokens', 0) for d in details),
                 actual_input_tokens=sum(q.get('input_tokens') or 0 for q in qq),
                 generated_tokens=sum(q.get('generated_tokens') or 0 for q in qq),
@@ -169,9 +153,9 @@ def module_summary(rows, questions, workers):
                 quality=quality_summary(qq),
                 by_task={t: quality_summary([q for q in qq if q['task_type'] == t]) for t in sorted({q['task_type'] for q in qq})},
                 scheduler_host_overhead_ms=distribution(
-                    r['stages']['m3_auto_total']['host_wall_ms']-r['stages'].get('native_generation', {}).get('host_wall_ms', 0.)
+                    r['stages']['m3_auto_total']['host_wall_ms']-r['stages'].get('prefill_executor_generate', {}).get('host_wall_ms', 0.)
                     for r in m3rows if 'm3_auto_total' in r['stages']),
-                scheduler_scope='M3 runtime host wall minus nested native generate host wall; no CUDA times subtracted')
+                scheduler_scope='M3 runtime host wall minus nested PrefillExecutor generate host wall; no CUDA times subtracted')
         result[condition] = dict(status='MEASURED', m1=m1, m2=m2, m3=m3)
     return result
 
@@ -332,10 +316,7 @@ def generate(root):
         for name, identity in m1['association_by_experiment'].items():
             lines.append(f'- {name} 关联精度 {fmt(identity["association_precision"])}，错误率 {fmt(identity["wrong_association_rate"])}，有效召回 {fmt(identity["effective_recall"])}，覆盖 {fmt(identity["association_coverage"])}；分子/分母 `{identity["counts"]}`；连续性 `{identity["continuity"]}`。')
         if m2['status'] == 'MEASURED':
-            if m2.get('boundary')=='window':
-                lines.append(f'- M2 窗口级：实际复用 {m2["actual_reused_windows"]}/{m2["prefix_window_requests"]} 个 block-window，执行 {m2["executed_prefix_windows"]} 个，实际 attention batch 计数 {m2["observed_attention_window_batches"]}，审计 {m2["window_skip_audit"]}。拒绝原因 `{m2["fallback_reasons"]}`。')
-            else:
-                lines.append(f'- M2：实际复用 {m2["actual_reused_cameras"]}/{m2["camera_requests"]} 相机，原生 EVA {m2["observed_native_eva_cameras"]} 相机，跳过审计 {m2["camera_skip_audit"]}；真实复用质量比较 {m2["quality_comparisons"]} 例。拒绝原因 `{m2["fallback_reasons"]}`。')
+            lines.append(f'- M2 窗口级：实际复用 {m2["actual_reused_windows"]}/{m2["prefix_window_requests"]} 个输出窗口，执行 Attention {m2["executed_prefix_windows"]} 个，实际 Attention batch {m2["observed_attention_window_batches"]}，审计 {m2["window_skip_audit"]}；点积窗口工作量 {m2["pointwise_window_work"]}。拒绝原因 `{m2["fallback_reasons"]}`。')
         if m3['status'] == 'MEASURED':
             lines.append(f'- M3：请求 {m3["requests"]}，候选 {m3["cache_candidates"]}，准入 {m3["admitted"]}，命中 {m3["cache_hits"]}，原生生成 {m3["native_generations"]}，实际优化 {m3["actual_optimized_requests"]}；原因 `{m3["fallback_reasons"]}`。调度额外 host wall 平均 {fmt(m3["scheduler_host_overhead_ms"]["mean"])} ms。')
     lines += ['', '## 阶段瓶颈（独立阶段跨度，不相加推断端到端）', '']
@@ -346,8 +327,8 @@ def generate(root):
     lines += ['', '## 四个问题的证据边界', '',
         '1. 整体精度：只有全量官方评测完成且 GT 完整时才能判断；本次可用范围和配对效率数值如上。',
         '2. M1：上列部分 Oracle 关联与连续性来自真实提交；独立物理认证、对齐分母及标准 MOT 指标分别报告，不互相替代。',
-        '3. M2：只将真实跳过的 EVA 相机计入复用。零复用时跳过计算时间为零；净影响使用配对 B2/B1 实测差值。',
-        '4. M3：空批准表走正式 Auto 原生回退。语言质量只对有效 GT 评分；净影响使用配对 B3/B2，联合影响使用 B3/B0。',
+        '3. M2：按真实 Attention 窗口和复用输出窗口计数，完整点积工作量另列。零复用不宣称节省。',
+        '4. M3：空批准表使用相同 PrefillExecutor 的完整 Prefill。历史增强与前缀复用独立认证，语言质量仅对有效 GT 评分。',
         '5. 瓶颈：stage_latency.csv 提供本次原生 EVA、检测、地图、prefill/decode 和模块跨度；未取得数据的阶段标记缺失，不使用历史微基准补齐。', '',
         '## 失败和未完成记录', '',
         '详细状态见 status.json、plan.json、各实验 failure.log 和 raw_logs；失败实验的部分测量保留。', '',

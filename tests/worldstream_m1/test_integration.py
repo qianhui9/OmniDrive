@@ -85,7 +85,7 @@ def inputs(timestamp=100.):
 def test_disabled_and_observe_only_equal_at_real_entry(tmp_path, config, refinement):
     from dataclasses import replace
     config = replace(config, temporal_visibility=refinement, local_support=refinement)
-    from tools.worldstream_m1.model_smoke import digest
+    from tools.worldstream_m123.benchmark.common import typed_digest as digest
     baseline = make_model(tmp_path/'baseline', None)
     enabled = make_model(tmp_path/'observe', WorldStateManager(config))
     for timestamp in (100., 100.5):
@@ -131,7 +131,7 @@ def test_bad_calibration_is_conservative(config, make_frame, make_prediction, in
 def test_live_config_preserves_exact_base_test_processing():
     from mmcv import Config
     base = Config.fromfile('projects/configs/OmniDrive/mask_eva_lane_det_vlm.py')
-    enabled = Config.fromfile('projects/configs/OmniDrive/worldstream_m1_observe.py')
+    enabled = Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py')
     a, b = base.data.test.pipeline, enabled.data.test.pipeline
     copied = b.copy()
     copied[-1]['transforms'][-1]['meta_keys'] = a[-1]['transforms'][-1]['meta_keys']
