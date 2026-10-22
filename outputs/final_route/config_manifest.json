@@ -2,7 +2,7 @@
   "entry": "projects/configs/OmniDrive/worldstream_m123_auto.py",
   "inheritance": [
     "projects/configs/OmniDrive/worldstream_m123_auto.py",
-    "projects/configs/OmniDrive/worldstream_m2_camera_auto.py",
+    "projects/configs/OmniDrive/worldstream_m2_window_auto.py",
     "projects/configs/OmniDrive/worldstream_m1_coverage_observe.py",
     "projects/configs/OmniDrive/worldstream_m1_observe.py",
     "projects/configs/OmniDrive/mask_eva_lane_det_vlm.py",
@@ -10,8 +10,8 @@
     "projects/configs/OmniDrive/../../../mmdetection3d/configs/_base_/default_runtime.py"
   ],
   "sha256": {
-    "projects/configs/OmniDrive/worldstream_m123_auto.py": "2a55fca8983dd1b025e351cf8c7e4261965022cb6cd6c3bedb339e427f0e2fe5",
-    "projects/configs/OmniDrive/worldstream_m2_camera_auto.py": "631c06cb8fecfe769de08155b1e39296141b942934dc43c1f798bb3b6254e912",
+    "projects/configs/OmniDrive/worldstream_m123_auto.py": "e4814010ce127c2b2838dc6514e0a10609daf40dd51b522da61973cf2e3577db",
+    "projects/configs/OmniDrive/worldstream_m2_window_auto.py": "59d9547e0e08bfe8b31eb88e7f4d065d821d8027b4851306c60008b81a6d6356",
     "projects/configs/OmniDrive/worldstream_m1_coverage_observe.py": "5be512db8d564c894b769fdaf140b22039b13e612d7d3ae7be15f2945fe6de41",
     "projects/configs/OmniDrive/worldstream_m1_observe.py": "a849bf69d681b0fbe4040978b9c2682bbe25da0a46b58a06bfbe8038fbcf3e22",
     "projects/configs/OmniDrive/mask_eva_lane_det_vlm.py": "6b8ab7bb4a41696f8819c93bb0dc1b8bf82d5b4c0c2ddacc81297a87dc6c748a",
@@ -143,12 +143,12 @@
     "enabled": true,
     "mode": "auto",
     "memory_budget_mb": 512,
-    "cost_table": "",
+    "cost_table": "outputs/final_route/window_costs.json",
     "cache_capture": "adaptive",
     "cheap_gate": true,
     "m1_service": "maintain",
-    "reuse_boundary": "camera",
-    "camera_cost_table": "outputs/final_route/camera_costs.json",
+    "reuse_boundary": "window",
+    "camera_cost_table": "",
     "state_interface": "legacy",
     "camera_selective_invalidation": true,
     "experimental_exact_lease_separation": false,
@@ -197,15 +197,10 @@
       "sha256": "ad85bae8b3ab0b493ab93599601fe026a5e00981f84b2fbd3d4cde4710611cb8"
     }
   ],
-  "M2_approved_profiles": [
-    {
-      "changed_cameras": 0,
-      "key": "{\"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"boundary\": \"eva_camera\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"dtype\": \"torch.float32\", \"flash\": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"model\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"patch\": [[16, 16], [16, 16], [0, 0], [1, 1]], \"pretrain_use_cls_token\": true, \"schema\": 1, \"shape\": [6, 3, 640, 640], \"stride\": [1228800, 409600, 640, 1], \"tf32\": [false, true], \"topology\": [[16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06]], \"torch\": \"1.13.1+cu117\"}"
-    },
-    {
-      "changed_cameras": 0,
-      "key": "{\"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"boundary\": \"eva_camera\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"dtype\": \"torch.float32\", \"flash\": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"model\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"numeric_details\": [[null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06]], \"patch\": [[16, 16], [16, 16], [0, 0], [1, 1]], \"pretrain_use_cls_token\": true, \"schema\": 1, \"shape\": [6, 3, 640, 640], \"stride\": [1228800, 409600, 640, 1], \"tf32\": [false, true], \"topology\": [[16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06]], \"torch\": \"1.13.1+cu117\"}"
-    }
-  ],
+  "M2_active_cost_table": {
+    "path": "outputs/final_route/window_costs.json",
+    "sha256": "13e9fc0152a2d21f2cd1a113b6542f7b5e2cb6bea4b988cc112aa5d8c78310f5"
+  },
+  "M2_approved_profiles": [],
   "M3_approved_rows": 0
 }

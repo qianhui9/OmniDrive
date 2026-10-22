@@ -2,6 +2,7 @@
 import hashlib
 import json
 import weakref
+import math
 import torch
 
 SCHEMA_VERSION = 2
@@ -32,9 +33,16 @@ def cost_key(block, x, block_index=None):
         input_shape=list(x.shape), input_stride=list(x.stride()),dtype=str(x.dtype),
         window=block.window_size, heads=block.attn.num_heads, flash=block.attn.flash_attn,
         scale=block.attn.scale, norm_eps=[block.norm1.eps,block.norm2.eps],
+        attention_softmax_scale=getattr(getattr(block.attn,'inner_attn',None),'softmax_scale',None),
+        attention_fp16_enabled=getattr(getattr(block.attn,'inner_attn',None),'fp16_enabled',None),
+        inner_norm_eps=getattr(block.attn.inner_attn_ln,'eps',None),
+        mlp_norm_eps=getattr(block.mlp.ffn_ln,'eps',None),
         model_version=block_fingerprint(block), autocast=torch.is_autocast_enabled(),
         autocast_dtype=str(torch.get_autocast_gpu_dtype()),
-        tf32=[torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32])
+        tf32=[torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32],
+        cudnn=[torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic],
+        reduced_precision_reduction=torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+        deterministic_algorithms=torch.are_deterministic_algorithms_enabled())
     return json.dumps(payload,sort_keys=True)
 
 
@@ -49,10 +57,19 @@ class CostModel:
                     self.status='cost_schema_mismatch'
                     return
                 records=data['records']
+                if not isinstance(records,list):raise ValueError('records must be a list')
                 for record in records:
                     key=json.loads(record['key'])
                     if key['schema']!=SCHEMA_VERSION or not isinstance(key['block_index'],int):
                         raise ValueError('Missing per-block identity')
+                    if type(record['updated']) is not int or record['updated'] < 0:
+                        raise ValueError('Invalid updated window count')
+                    if record.get('block') != key['block_index']:
+                        raise ValueError('Block identity mismatch')
+                    for name in ('incremental_gpu_ms','full_gpu_ms','incremental_wall_ms','full_wall_ms'):
+                        value=record[name]
+                        if type(value) not in (float,int) or not math.isfinite(value) or value<0:
+                            raise ValueError('Invalid measured window cost')
                 policy=data.get('formal_quality_policy')
                 approved=set(policy.get('approved_counts',[])) if isinstance(policy,dict) else set()
                 self.records=[]
@@ -73,7 +90,7 @@ class CostModel:
         record=self.lookup(key,count)
         if record is None:
             return False,'unprofiled_cost'
-        if not record.get('quality_certified',False):
+        if record.get('quality_certified') is not True:
             return False,record.get('quality_rejection_reason','numerical_quality_unverified')
         good=(record['incremental_gpu_ms']<record['full_gpu_ms']
               and record['incremental_wall_ms']<record['full_wall_ms'])

@@ -52,7 +52,16 @@ class IncrementalVisionRuntime:
         The existing source-linked adapter and exact comparison own admission.
         """
         if not self.config.enabled or self.config.state_interface!='source_linked':
-            return self.forward(images,getattr(manager,'last_result',None),manager,context)
+            result=getattr(manager,'last_result',None)
+            # The legacy detector supplies time explicitly for camera reuse.
+            # Window reuse also needs the bound transaction time to reject
+            # out-of-order frames and report actual source ages.
+            if (self.config.enabled and self.config.reuse_boundary=='window'
+                    and context.get('timestamp') is None and result is not None
+                    and result.scene_id==context.get('scene_id')
+                    and result.frame_id==context.get('frame_id')):
+                context=dict(context,timestamp=result.timestamp)
+            return self.forward(images,result,manager,context)
         read_start=perf_counter()
         try:
             result=manager.export_m2_inputs(expected_context=context)
@@ -198,6 +207,11 @@ class IncrementalVisionRuntime:
             ('scene_id','frame_id','timestamp','camera_ids','execution_signature','coordinate_space','state_epoch')}
         diagnostics['state_interface'] = self.config.state_interface
         diagnostics['cache_boundary'] = self.config.reuse_boundary
+        if self.config.reuse_boundary == 'window':
+            diagnostics['cacheable_blocks'] = list(self.prefix)
+            diagnostics['global_barrier_block'] = len(self.prefix) if len(self.prefix)<len(self.model.blocks) else None
+            diagnostics['execution_scope'] = 'independent_window_prefix; remaining blocks execute natively'
+            diagnostics['partial_window_numerics_require_quality_evidence'] = True
         if diagnostics.get('cache_saved'):
             if self.config.reuse_boundary == 'camera':
                 diagnostics.setdefault('output_camera_provenance',copy.deepcopy(active_cache.sources))

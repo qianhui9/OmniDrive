@@ -63,3 +63,8 @@ taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.verif
 完整增删改清单 file_changes.csv；删除前清单 cleanup_plan.json；保留清单 retained_files.json；必要表与来源 artifact_manifest.json；最终配置链 config_manifest.json；代码版本及 SHA source_manifest.json；真实结果边界 summary.json / verification.json。关键文档 docs/worldstream_final_route.md，README 只推荐该入口。
 
 工程主线收敛与 CPU 正确性验证通过。完整模型性能与质量未运行，不能发布新的加速/质量结论；M3 无审批记录仍回退，M2 仅满足原严格 profile 才可能实际复用。所有改动保留供用户审阅，未提交或推送。
+
+
+## 实际评测运行 run_20261021_233721
+
+[评测报告与当前状态](benchmark/run_20261021_233721/report.md)。真实评测由持久控制器继续执行；完整结果以该目录 status.json 为准。该链接不代表全量评估已完成，原清理审计记录保留。

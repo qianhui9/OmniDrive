@@ -1,0 +1,1011 @@
+{
+  "commit": "43536d31548ec0efdad9bd4a950279a423d04fef",
+  "initial_git_status": "?? outputs/final_route/benchmark/\n?? outputs/m3_state_guided_verified_decode/\n?? tools/worldstream_m123/benchmark/\n",
+  "seed": 0,
+  "config_files": {
+    "B0": "projects/configs/OmniDrive/mask_eva_lane_det_vlm.py",
+    "B3": "projects/configs/OmniDrive/worldstream_m123_auto.py"
+  },
+  "preflight": {
+    "checkpoint": {
+      "exists": true,
+      "resolved": "/data/qh/phdCode/work4/OmniDrive/ckpts/iter_10548.pth",
+      "bytes": 19155008764,
+      "sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d"
+    },
+    "resources": {
+      "ckpts/iter_10548.pth": {
+        "exists": true,
+        "resolved": "/data/qh/phdCode/work4/OmniDrive/ckpts/iter_10548.pth",
+        "bytes": 19155008764,
+        "sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d"
+      },
+      "data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl": {
+        "exists": true,
+        "resolved": "/data/qh/nuscenes/v1.0-trainval/nuscenes2d_ego_temporal_infos_val.pkl",
+        "bytes": 246282431,
+        "sha256": "f432aa166d0f6c0ffe9dd22fb92352ec02d02709f87d7c28dd7095351b1bfba7"
+      },
+      "data/nuscenes/data_dict_sample.pkl": {
+        "exists": true,
+        "resolved": "/data/qh/nuscenes/v1.0-trainval/data_dict_sample.pkl",
+        "bytes": 345429373,
+        "sha256": "1e141ecf8829ea442a5bd90b2e26229987d69020562166dcf4b6577409b219dc"
+      },
+      "data/nuscenes/data_dict_subset_B_val.pkl": {
+        "exists": true,
+        "resolved": "/data/qh/nuscenes/v1.0-trainval/data_dict_subset_B_val.pkl",
+        "bytes": 59131914,
+        "sha256": "6358379714dd0885b65c22f7811da4d31d3df93eabe8b8d6e8844867875361a9"
+      }
+    },
+    "dataset": {
+      "split": "val",
+      "version": "v1.0-trainval",
+      "frames": 6019,
+      "scenes": 150,
+      "camera_requests": 36114,
+      "missing_images": 0,
+      "missing_image_examples": [],
+      "missing_question_files": {},
+      "question_pairs": {
+        "conv/val": 48108,
+        "vqa/val": 24081
+      },
+      "tables": {
+        "scene": {
+          "exists": true,
+          "sha256": "bdc3211bfbfda652d5e9dab73c45c7132925ca84f869bf45e8e14edeafb1d20b"
+        },
+        "sample": {
+          "exists": true,
+          "sha256": "4a67f9a6c8dcc03c30f90ac598408645f2f2f1b6b98a226a13a7bd1acc4d106b",
+          "rows": 34149,
+          "annotation_links": 192370
+        },
+        "sample_annotation": {
+          "exists": true,
+          "sha256": "1f4f3835cb86f4efe49ccad3ae6f5f6a2d068422696de564c5892b5b06bea2a9"
+        },
+        "instance": {
+          "exists": true,
+          "sha256": "8f8b19496ce45353874714ce23a9df7f47f48cb6203df2dd456ea0247d146461"
+        },
+        "category": {
+          "exists": true,
+          "sha256": "30f64fb175e5bd7db99892d90f9034481bca491f26600c5c0d1a56106b198dfe"
+        },
+        "validation_annotation_integrity": {
+          "status": "PASS",
+          "sdk_runtime_validation": true,
+          "frames": 6019,
+          "official_frames": 6019,
+          "missing_tokens": [],
+          "extra_tokens": [],
+          "affected_frames": 0,
+          "linked_annotations": 192041,
+          "reverse_annotations": 192041,
+          "official_detection_gt_boxes": 187528,
+          "initialization_seconds": 33.821107387542725
+        },
+        "raw_annotation_link_audit": {
+          "status": "FAIL",
+          "affected_frames": 5987,
+          "linked_annotations": 31756,
+          "reverse_annotations": 192041,
+          "examples": [
+            "000681a060c04755a1537cf83b53ba57",
+            "000868a72138448191b4092f75ed7776",
+            "0017c2623c914571a1ff2a37f034ffd7",
+            "00185acff6094c4da3858d78bf462b94",
+            "0018da40529f48678419d44d09da5369",
+            "0046092508b14f40a86760d11f9896bb",
+            "005cfc5e77bc4b60a28499a1fed536c5",
+            "005d3e821c4e4e0ab03f1ea1dcbf9cc8",
+            "006cbdb235c64999b6f5cfbb63ec88c4",
+            "006d520cb38a457fb11e4bf1600a6eb2"
+          ],
+          "consequence": "Raw JSON diagnostic only; official SDK rebuilds links. Initial blocking inference corrected by actual official SDK validation."
+        }
+      },
+      "ordered_token_sha256": "e189fcdfdb685df401f5b7c092f2ea9368b9b3c058d184f437ab7625c6d656cf"
+    },
+    "cuda_available": true,
+    "cuda_kernel_witness": {
+      "value": 510720.0,
+      "expected": 510720.0,
+      "passed": true
+    },
+    "nvidia_smi": {
+      "command": [
+        "nvidia-smi",
+        "--query-gpu=index,name,memory.used,memory.total,driver_version",
+        "--format=csv,noheader"
+      ],
+      "returncode": 0,
+      "output": "0, NVIDIA GeForce RTX 3090, 18 MiB, 24576 MiB, 580.173.02\n"
+    },
+    "environment": {
+      "python": "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+      "python_version": "3.9.25",
+      "torch": "1.13.1+cu117",
+      "cuda_build": "11.7",
+      "packages": {
+        "torch": "1.13.1+cu117",
+        "mmcv-full": "1.6.2",
+        "mmdet": "2.28.2",
+        "mmdet3d": "1.0.0rc6",
+        "transformers": "4.31.0",
+        "numpy": "1.23.4",
+        "nuscenes-devkit": "1.1.11",
+        "flash-attn": "2.5.6"
+      },
+      "affinity": [
+        0,
+        1,
+        2,
+        3,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "gpu": "NVIDIA GeForce RTX 3090"
+    },
+    "calibration": {
+      "outputs/final_route/camera_costs.json": {
+        "sha256": "5b298bf441f8e87a3e67067e8e195e9fb07ab68d0bac2f08bacb8d7183b41c98",
+        "content": {
+          "schema_version": 1,
+          "records": [
+            {
+              "key": "{\"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"boundary\": \"eva_camera\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"dtype\": \"torch.float32\", \"flash\": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"model\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"patch\": [[16, 16], [16, 16], [0, 0], [1, 1]], \"pretrain_use_cls_token\": true, \"schema\": 1, \"shape\": [6, 3, 640, 640], \"stride\": [1228800, 409600, 640, 1], \"tf32\": [false, true], \"topology\": [[16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06]], \"torch\": \"1.13.1+cu117\"}",
+              "changed_cameras": 0,
+              "reuse_wall_ms": 1.8875704845413566,
+              "full_wall_ms": 491.81924609001726,
+              "reuse_gpu_ms": 1.8786559700965881,
+              "full_gpu_ms": 491.7990417480469,
+              "quality_certified": true,
+              "reuse": {
+                "gpu_ms": 1.8786559700965881,
+                "wall_ms": 1.8875704845413566,
+                "gpu_p95_ms": 1.93223677277565,
+                "wall_p95_ms": 1.9442252232693136,
+                "gpu_samples_ms": [
+                  1.9548159837722778,
+                  1.854464054107666,
+                  1.8575359582901,
+                  1.9046399593353271,
+                  1.8821120262145996,
+                  1.8882559537887573,
+                  1.8803199529647827,
+                  1.8769919872283936,
+                  1.8677760362625122,
+                  1.87391996383667
+                ],
+                "wall_samples_ms": [
+                  1.96885596960783,
+                  1.8634959124028683,
+                  1.8661778885871172,
+                  1.91412097774446,
+                  1.8912239465862513,
+                  1.8969601951539516,
+                  1.889372942969203,
+                  1.8857680261135101,
+                  1.877135131508112,
+                  1.8829011823982
+                ]
+              },
+              "full": {
+                "gpu_ms": 491.7990417480469,
+                "wall_ms": 491.81924609001726,
+                "gpu_p95_ms": 492.2991455078125,
+                "wall_p95_ms": 492.31579893967137,
+                "gpu_samples_ms": [
+                  490.78271484375,
+                  491.7698669433594,
+                  490.71820068359375,
+                  491.8865966796875,
+                  490.79193115234375,
+                  491.82720947265625,
+                  492.46514892578125,
+                  492.09625244140625,
+                  491.7708740234375,
+                  492.0494079589844
+                ],
+                "wall_samples_ms": [
+                  490.82414992153645,
+                  491.7930231895298,
+                  490.74201798066497,
+                  491.9099290855229,
+                  490.810323972255,
+                  491.84546899050474,
+                  492.48147406615317,
+                  492.11330711841583,
+                  491.7923619505018,
+                  492.0741398818791
+                ]
+              }
+            },
+            {
+              "key": "{\"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"boundary\": \"eva_camera\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"dtype\": \"torch.float32\", \"flash\": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"model\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"patch\": [[16, 16], [16, 16], [0, 0], [1, 1]], \"pretrain_use_cls_token\": true, \"schema\": 1, \"shape\": [6, 3, 640, 640], \"stride\": [1228800, 409600, 640, 1], \"tf32\": [false, true], \"topology\": [[16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06]], \"torch\": \"1.13.1+cu117\"}",
+              "changed_cameras": 1,
+              "reuse_wall_ms": 92.61934540700167,
+              "full_wall_ms": 492.1940949279815,
+              "reuse_gpu_ms": 92.61004638671875,
+              "full_gpu_ms": 492.17279052734375,
+              "quality_certified": false,
+              "reuse": {
+                "gpu_ms": 92.61004638671875,
+                "wall_ms": 92.61934540700167,
+                "gpu_p95_ms": 93.70424613952636,
+                "wall_p95_ms": 93.71400405652821,
+                "gpu_samples_ms": [
+                  92.59315490722656,
+                  94.455810546875,
+                  92.66697692871094,
+                  92.3862075805664,
+                  92.6187515258789,
+                  92.48153686523438,
+                  92.51942443847656,
+                  92.6013412475586,
+                  92.65033721923828,
+                  92.7856674194336
+                ],
+                "wall_samples_ms": [
+                  92.60445414111018,
+                  94.4657928775996,
+                  92.67741697840393,
+                  92.39542600698769,
+                  92.6277618855238,
+                  92.4908600281924,
+                  92.52835717052221,
+                  92.61092892847955,
+                  92.65909809619188,
+                  92.79515105299652
+                ]
+              },
+              "full": {
+                "gpu_ms": 492.17279052734375,
+                "wall_ms": 492.1940949279815,
+                "gpu_p95_ms": 493.3223419189453,
+                "wall_p95_ms": 493.33777013234794,
+                "gpu_samples_ms": [
+                  490.4580993652344,
+                  493.2362365722656,
+                  490.7745361328125,
+                  493.1379089355469,
+                  491.2854919433594,
+                  493.0600891113281,
+                  491.1861877441406,
+                  493.3927917480469,
+                  490.9967346191406,
+                  493.12255859375
+                ],
+                "wall_samples_ms": [
+                  490.4772371519357,
+                  493.25169902294874,
+                  490.78867491334677,
+                  493.1569369509816,
+                  491.3062339182943,
+                  493.0819559376687,
+                  491.2107470445335,
+                  493.4081919491291,
+                  491.01353785954416,
+                  493.1399680208415
+                ]
+              }
+            },
+            {
+              "key": "{\"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"boundary\": \"eva_camera\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"dtype\": \"torch.float32\", \"flash\": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"model\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"patch\": [[16, 16], [16, 16], [0, 0], [1, 1]], \"pretrain_use_cls_token\": true, \"schema\": 1, \"shape\": [6, 3, 640, 640], \"stride\": [1228800, 409600, 640, 1], \"tf32\": [false, true], \"topology\": [[16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06]], \"torch\": \"1.13.1+cu117\"}",
+              "changed_cameras": 3,
+              "reuse_wall_ms": 253.9927678881213,
+              "full_wall_ms": 492.20266204793006,
+              "reuse_gpu_ms": 253.9820785522461,
+              "full_gpu_ms": 492.16563415527344,
+              "quality_certified": false,
+              "reuse": {
+                "gpu_ms": 253.9820785522461,
+                "wall_ms": 253.9927678881213,
+                "gpu_p95_ms": 255.05681381225585,
+                "wall_p95_ms": 255.06777410628274,
+                "gpu_samples_ms": [
+                  254.52645874023438,
+                  253.6161346435547,
+                  255.17050170898438,
+                  253.15093994140625,
+                  253.8145294189453,
+                  254.14962768554688,
+                  254.91786193847656,
+                  253.1768341064453,
+                  253.27206420898438,
+                  254.17420959472656
+                ],
+                "wall_samples_ms": [
+                  254.5470290351659,
+                  253.6254790611565,
+                  255.18119288608432,
+                  253.1625679694116,
+                  253.82478395476937,
+                  254.16075182147324,
+                  254.92915115319192,
+                  253.1870068050921,
+                  253.2824499066919,
+                  254.18392405845225
+                ]
+              },
+              "full": {
+                "gpu_ms": 492.16563415527344,
+                "wall_ms": 492.20266204793006,
+                "gpu_p95_ms": 492.70742950439455,
+                "wall_p95_ms": 492.73321501677856,
+                "gpu_samples_ms": [
+                  492.052490234375,
+                  491.5343017578125,
+                  492.62176513671875,
+                  491.0981140136719,
+                  492.5930480957031,
+                  491.5107727050781,
+                  492.72406005859375,
+                  491.747314453125,
+                  492.2787780761719,
+                  492.6871032714844
+                ],
+                "wall_samples_ms": [
+                  492.1003410127014,
+                  491.5604048874229,
+                  492.64908605255187,
+                  491.1154101137072,
+                  492.61400289833546,
+                  491.53289990499616,
+                  492.7501939237118,
+                  491.76453496329486,
+                  492.30498308315873,
+                  492.71246301941574
+                ]
+              }
+            },
+            {
+              "key": "{\"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"boundary\": \"eva_camera\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"dtype\": \"torch.float32\", \"flash\": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"model\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"patch\": [[16, 16], [16, 16], [0, 0], [1, 1]], \"pretrain_use_cls_token\": true, \"schema\": 1, \"shape\": [6, 3, 640, 640], \"stride\": [1228800, 409600, 640, 1], \"tf32\": [false, true], \"topology\": [[16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06]], \"torch\": \"1.13.1+cu117\"}",
+              "changed_cameras": 5,
+              "reuse_wall_ms": 412.4085914809257,
+              "full_wall_ms": 491.65359151083976,
+              "reuse_gpu_ms": 412.3985900878906,
+              "full_gpu_ms": 491.6346893310547,
+              "quality_certified": false,
+              "reuse": {
+                "gpu_ms": 412.3985900878906,
+                "wall_ms": 412.4085914809257,
+                "gpu_p95_ms": 413.4136901855469,
+                "wall_p95_ms": 413.42390563804656,
+                "gpu_samples_ms": [
+                  411.69903564453125,
+                  412.6935119628906,
+                  413.71136474609375,
+                  412.1825256347656,
+                  412.92681884765625,
+                  412.19378662109375,
+                  412.3197326660156,
+                  413.04986572265625,
+                  412.4774475097656,
+                  412.09234619140625
+                ],
+                "wall_samples_ms": [
+                  411.7113871034235,
+                  412.70351805724204,
+                  413.7220270931721,
+                  412.1927600353956,
+                  412.9370111040771,
+                  412.20382298342884,
+                  412.32997085899115,
+                  413.05953497067094,
+                  412.4872121028602,
+                  412.10171300917864
+                ]
+              },
+              "full": {
+                "gpu_ms": 491.6346893310547,
+                "wall_ms": 491.65359151083976,
+                "gpu_p95_ms": 492.43831939697264,
+                "wall_p95_ms": 492.4633556045592,
+                "gpu_samples_ms": [
+                  491.6398010253906,
+                  491.56097412109375,
+                  491.66131591796875,
+                  491.2783508300781,
+                  492.0944519042969,
+                  491.62957763671875,
+                  492.1139221191406,
+                  490.3433532714844,
+                  492.7037353515625,
+                  491.31622314453125
+                ],
+                "wall_samples_ms": [
+                  491.6611141525209,
+                  491.58294685184956,
+                  491.67729006148875,
+                  491.2946231197566,
+                  492.1102928929031,
+                  491.6460688691586,
+                  492.13483394123614,
+                  490.3669459745288,
+                  492.73214605636895,
+                  491.3364560343325
+                ]
+              }
+            },
+            {
+              "key": "{\"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"boundary\": \"eva_camera\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"dtype\": \"torch.float32\", \"flash\": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"model\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"patch\": [[16, 16], [16, 16], [0, 0], [1, 1]], \"pretrain_use_cls_token\": true, \"schema\": 1, \"shape\": [6, 3, 640, 640], \"stride\": [1228800, 409600, 640, 1], \"tf32\": [false, true], \"topology\": [[16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06]], \"torch\": \"1.13.1+cu117\"}",
+              "changed_cameras": 6,
+              "reuse_wall_ms": 492.86633846350014,
+              "full_wall_ms": 491.8594460468739,
+              "reuse_gpu_ms": 492.8486328125,
+              "full_gpu_ms": 491.8302459716797,
+              "quality_certified": false,
+              "reuse": {
+                "gpu_ms": 492.8486328125,
+                "wall_ms": 492.86633846350014,
+                "gpu_p95_ms": 493.3970458984375,
+                "wall_p95_ms": 493.43987450702116,
+                "gpu_samples_ms": [
+                  493.65093994140625,
+                  492.85528564453125,
+                  492.73846435546875,
+                  493.0640869140625,
+                  492.3000183105469,
+                  492.84197998046875,
+                  492.56549072265625,
+                  492.9935302734375,
+                  492.4405822753906,
+                  493.08673095703125
+                ],
+                "wall_samples_ms": [
+                  493.70755697600543,
+                  492.8711960092187,
+                  492.75260185822845,
+                  493.08132799342275,
+                  492.3172409180552,
+                  492.8614809177816,
+                  492.58741294033825,
+                  493.0197182111442,
+                  492.46332608163357,
+                  493.11270704492927
+                ]
+              },
+              "full": {
+                "gpu_ms": 491.8302459716797,
+                "wall_ms": 491.8594460468739,
+                "gpu_p95_ms": 492.51209716796876,
+                "wall_p95_ms": 492.5560397328809,
+                "gpu_samples_ms": [
+                  490.9453125,
+                  492.62591552734375,
+                  491.0704650878906,
+                  491.84051513671875,
+                  490.4140930175781,
+                  492.2050476074219,
+                  492.2295227050781,
+                  491.8199768066406,
+                  490.8779602050781,
+                  492.37298583984375
+                ],
+                "wall_samples_ms": [
+                  490.987712983042,
+                  492.6866991445422,
+                  491.09636107459664,
+                  491.86298600398004,
+                  490.43897609226406,
+                  492.2317729797214,
+                  492.25862114690244,
+                  491.8559060897678,
+                  490.90399499982595,
+                  492.39634489640594
+                ]
+              }
+            },
+            {
+              "key": "{\"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"boundary\": \"eva_camera\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"dtype\": \"torch.float32\", \"flash\": [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true], \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"model\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"numeric_details\": [[null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06], [null, true, null, 1e-06]], \"patch\": [[16, 16], [16, 16], [0, 0], [1, 1]], \"pretrain_use_cls_token\": true, \"schema\": 1, \"shape\": [6, 3, 640, 640], \"stride\": [1228800, 409600, 640, 1], \"tf32\": [false, true], \"topology\": [[16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [16, false, 0.125, 1e-06, 1e-06], [0, false, 0.125, 1e-06, 1e-06]], \"torch\": \"1.13.1+cu117\"}",
+              "changed_cameras": 0,
+              "quality_certified": true,
+              "reuse_wall_ms": 1.9600300583988428,
+              "full_wall_ms": 484.7039415035397,
+              "reuse_gpu_ms": 1.951200008392334,
+              "full_gpu_ms": 484.67254638671875,
+              "reuse": {
+                "gpu_ms": 1.951200008392334,
+                "wall_ms": 1.9600300583988428,
+                "gpu_p95_ms": 2.076857662200928,
+                "wall_p95_ms": 2.1027847076766193,
+                "gpu_samples_ms": [
+                  2.083712100982666,
+                  2.0684800148010254,
+                  2.0203518867492676,
+                  1.943295955657959,
+                  1.9895039796829224,
+                  1.9517439603805542,
+                  1.9425280094146729,
+                  1.938431978225708,
+                  1.9466240406036377,
+                  1.9506560564041138
+                ],
+                "wall_samples_ms": [
+                  2.1033401135355234,
+                  2.1021058782935143,
+                  2.029579831287265,
+                  1.95148098282516,
+                  1.997360959649086,
+                  1.9609760493040085,
+                  1.9514579325914383,
+                  1.9477210007607937,
+                  1.9556190818548203,
+                  1.9590840674936771
+                ]
+              },
+              "full": {
+                "gpu_ms": 484.67254638671875,
+                "wall_ms": 484.7039415035397,
+                "gpu_p95_ms": 485.1185638427734,
+                "wall_p95_ms": 485.1443806430325,
+                "gpu_samples_ms": [
+                  484.4952697753906,
+                  483.21331787109375,
+                  485.11181640625,
+                  484.5140075683594,
+                  484.28851318359375,
+                  484.98980712890625,
+                  485.12408447265625,
+                  484.8691101074219,
+                  484.34893798828125,
+                  484.8310852050781
+                ],
+                "wall_samples_ms": [
+                  484.5601150300354,
+                  483.2503190264106,
+                  485.1373510900885,
+                  484.54438615590334,
+                  484.32266898453236,
+                  485.03629001788795,
+                  485.1501320954412,
+                  484.8872448783368,
+                  484.36478595249355,
+                  484.847767977044
+                ]
+              },
+              "qualification": "Existing exact full-model repeat evidence plus fresh 16-frame baseline native-memory recheck; remeasured with explicit actual Flash scale/inner norm policy before final balanced Auto tests"
+            }
+          ],
+          "repeat_full_task_exact": true,
+          "qualification": "only all-camera identical requests approved; partial camera shape variation is experimental",
+          "final_numeric_policy_explicit": true,
+          "final_balanced_full_model_pass": true
+        }
+      },
+      "outputs/final_route/m3_cost_table.json": {
+        "sha256": "d80a9199717199907817e514d037d4f3414b3ec282ae4fd79a17a6494fb221e2",
+        "content": {
+          "approved": [],
+          "reason": "No automatically published per-workload production calibration",
+          "evidence": "outputs/module3_refinement/performance_results.json"
+        }
+      },
+      "outputs/final_route/m3_quality_certificate.json": {
+        "sha256": "ad85bae8b3ab0b493ab93599601fe026a5e00981f84b2fbd3d4cde4710611cb8",
+        "content": {
+          "approved": [],
+          "reason": "Frozen failures and/or missing independent task/generation coverage; no threshold relaxation",
+          "evidence": "outputs/module3_refinement/quality_results.json"
+        }
+      }
+    },
+    "protected_hashes": {
+      "projects/configs/OmniDrive/mask_eva_lane_det_vlm.py": "6b8ab7bb4a41696f8819c93bb0dc1b8bf82d5b4c0c2ddacc81297a87dc6c748a",
+      "projects/configs/OmniDrive/worldstream_m123_auto.py": "2a55fca8983dd1b025e351cf8c7e4261965022cb6cd6c3bedb339e427f0e2fe5",
+      "configs/worldstream_m1_final.yaml": "722aae1b179a8b224023f576bb5493a34c4210bcc5b72489fb4324288ed419a8",
+      "outputs/final_route/camera_costs.json": "5b298bf441f8e87a3e67067e8e195e9fb07ab68d0bac2f08bacb8d7183b41c98",
+      "outputs/final_route/m3_cost_table.json": "d80a9199717199907817e514d037d4f3414b3ec282ae4fd79a17a6494fb221e2",
+      "outputs/final_route/m3_quality_certificate.json": "ad85bae8b3ab0b493ab93599601fe026a5e00981f84b2fbd3d4cde4710611cb8",
+      "outputs/final_route/summary.json": "7d7fc280b8ed82cae16451a5b84a019e60ca79624e2be82ae8e72ab861fc0a19",
+      "outputs/final_route/verification.json": "86876fc20a7746b623e5e943fd276f790f5c1b8e19d8a373bab76774d80dd52d"
+    },
+    "source_hashes": {
+      "configs/worldstream_m1.yaml": "9802d248e95b3a9613b705c6ea59340df6e2f070e6484ede26dfd76f7d7d5144",
+      "configs/worldstream_m11_diagnostics.yaml": "5af20a185f8703828267a94a972de53f46ca6fd5158f78fa49441f2be7f76571",
+      "configs/worldstream_m121_a.yaml": "6f0fa7835bdbdcfea06bc1575a27ef765398659af4a1d4285a4d78c03613e3cc",
+      "configs/worldstream_m121_aligned.yaml": "660de6b0c3cb10cbd9e448252ac1fcc14308f45a5ce85b5d530258b2f16ac701",
+      "configs/worldstream_m121_b.yaml": "4d5f2cc65dc27cc99a860b886d1d55efad58b479b45e9c3c06b95a5bcddfbfba",
+      "configs/worldstream_m121_baseline.yaml": "5c3adfc7643bbbc06eddc2fde20722fb79db4948ac5f4792b3849d39cfa32891",
+      "configs/worldstream_m121_c.yaml": "3d007d45efd634fdfe9436f14d9bea2e8b99e57bd8cc396d50d8b0978e9f05fd",
+      "configs/worldstream_m121_old_b.yaml": "a66eebb04f1fdf449dc4277fcdea6387c283d8d4d7381088c5a894ab9d0deaf3",
+      "configs/worldstream_m12_a.yaml": "9f7268372a737a3a4605c1542fdbb399e2df122dce28997133017a2fefef17bc",
+      "configs/worldstream_m12_b.yaml": "b5541c9d708c38855a3cf47a21d2f691da661facb411488f4cf8ee9db695d48b",
+      "configs/worldstream_m12_baseline.yaml": "afb00230b15e421a80c82549603be4bb8ac3afa4b731410cdbea19164df7ff7c",
+      "configs/worldstream_m12_c.yaml": "13e0f337639d26c49f025c30a493384f62775a971d0de88b698489d734675165",
+      "configs/worldstream_m1_balanced.yaml": "c950c1530c260c09146219324fe2cfc07f1b12dd0cdfb8959931f4e0fe0d4b87",
+      "configs/worldstream_m1_correspondence_recovery.yaml": "10dafccea6e13f2f93c1ade90c27b0ed1c9de001cfa3129529cccdf44500bf33",
+      "configs/worldstream_m1_coverage.yaml": "a29abfda6c3b2c15751e0e71363f4a55b869928487455d88aa3c3222f179f1e4",
+      "configs/worldstream_m1_effective.yaml": "547041fa325216ce80baf8884a82cba57e3da307766ab30678890f1de2dc7c61",
+      "configs/worldstream_m1_engineering_frozen.yaml": "4983d8e1c1d2c57fb83c819c5fe3b5b18edcfa6f36b710b5962a9d5c6b6fc3da",
+      "configs/worldstream_m1_evidence.yaml": "28f5da587ff04539ced1e79fcbce565551e7a336f950dabd0980a2519224c5f1",
+      "configs/worldstream_m1_final.yaml": "722aae1b179a8b224023f576bb5493a34c4210bcc5b72489fb4324288ed419a8",
+      "configs/worldstream_m1_final_validation.yaml": "c6f1acdbe1cad4f2e64ca69829752ea377004dffa74c9b2b84a6cc9d4694a5c5",
+      "configs/worldstream_m1_identity_surface.yaml": "35fdf489be1bdbd1c9fda3b628199ad05cff9a0f3ca81eb099f1f6777fe3a6bd",
+      "configs/worldstream_m1_independent.yaml": "91c53343d72f70a9e18c659bb99a673989f8dd716cda362390c17a6888bfa4c4",
+      "configs/worldstream_m1_physical_observability.yaml": "c4c803b1258b011eae38ebe465dcde397aa6d11fc82fc50bb57d8d248ed097c7",
+      "configs/worldstream_m1_quality_coverage.yaml": "029dae730cde4309afb03b273560265d5ef7169eee675c47c399d0ac0cdc805a",
+      "configs/worldstream_m1_quality_coverage_refinement.yaml": "c93d50f57077d4789317cc35aad2fe07df48bc214e6fcca2298ade5dca188d7b",
+      "configs/worldstream_m1_refinement.yaml": "52bcb725da38c388cd58f511ff3f139a6e50265a1a857213e2ff0748ae480193",
+      "configs/worldstream_m1_source_linked_state.yaml": "dc79aa1512302637b9e0be4c08b4bc30e9386ee6119672ac873448ee975ec08b",
+      "configs/worldstream_m1_source_state_refined.yaml": "3b06b5c869f0471eee41a36e245a95c76975d50d07a4c60294f0620d15042ee0",
+      "configs/worldstream_m1_world_identity.yaml": "91f240fda7174c112c30239ce312a24d5e7be2396fab711612b16e3b43030b09",
+      "projects/configs/OmniDrive/eva_base_tinyllama.py": "e837bd54d1e32b2d6054bbd0a65962abf587f08c2f08f90776c715a4ca599c7e",
+      "projects/configs/OmniDrive/mask_eva_lane_det_vlm.py": "6b8ab7bb4a41696f8819c93bb0dc1b8bf82d5b4c0c2ddacc81297a87dc6c748a",
+      "projects/configs/OmniDrive/worldstream_m123_auto.py": "2a55fca8983dd1b025e351cf8c7e4261965022cb6cd6c3bedb339e427f0e2fe5",
+      "projects/configs/OmniDrive/worldstream_m1_coverage_observe.py": "5be512db8d564c894b769fdaf140b22039b13e612d7d3ae7be15f2945fe6de41",
+      "projects/configs/OmniDrive/worldstream_m1_effective.py": "fa9792695299303445863ba5bbe2fc2d726a43d4477fcfdb25c1edcdb6431e67",
+      "projects/configs/OmniDrive/worldstream_m1_observe.py": "a849bf69d681b0fbe4040978b9c2682bbe25da0a46b58a06bfbe8038fbcf3e22",
+      "projects/configs/OmniDrive/worldstream_m2_camera_auto.py": "631c06cb8fecfe769de08155b1e39296141b942934dc43c1f798bb3b6254e912",
+      "projects/configs/OmniDrive/worldstream_m2_camera_on_demand.py": "7d772d81952d2588545bca06fe0754483c44ad421097792fadd16ee95d501e49",
+      "projects/configs/OmniDrive/worldstream_m2_camera_output_only.py": "0c4e9fe580085769d6748c283c082d683682ff643d264bbfeeffc45f345016fd",
+      "projects/mmdet3d_plugin/__init__.py": "cbc4c1d243ea114b40e1b1ba935019290b44452d9027a19b0a68b42ed9ee9dc9",
+      "projects/mmdet3d_plugin/core/apis/__init__.py": "7a209c53952b6058fb83f16b472652b78f9facd420f5df15edc229e648b87b34",
+      "projects/mmdet3d_plugin/core/apis/mmdet_train.py": "6bd65c0850e858d594ce4334fdb729334a9ec36e0638e420c1ae0f1e121198b3",
+      "projects/mmdet3d_plugin/core/apis/test.py": "276b64759f7a3a9473ccc1ff6cc7713f4d3bfc8860eea42d2f51983c20ce2eef",
+      "projects/mmdet3d_plugin/core/apis/train.py": "073ffdcd997fe5d2a5154d9751d65be2f0adcd4f1ec62c0cf3966b2bc7e4870a",
+      "projects/mmdet3d_plugin/core/bbox/assigners/__init__.py": "de6ab4c595192fef59ef3a230935885e662ab0cb042195ed66911ec1d2561266",
+      "projects/mmdet3d_plugin/core/bbox/assigners/hungarian_assigner_2d.py": "c1d63671fcbb209ef85c2ee2b812ac7dea6fcb98edb2ce764ec5df3737f265d0",
+      "projects/mmdet3d_plugin/core/bbox/assigners/hungarian_assigner_3d.py": "d88b5e30ed139cf1ad71cc6c20f004c01aa2e215eb672db0679877345e211b01",
+      "projects/mmdet3d_plugin/core/bbox/assigners/map_assigner.py": "3d4581f4ee9a871b3fcb5592560995d9808908be22d433b024719b5f1933a198",
+      "projects/mmdet3d_plugin/core/bbox/coders/__init__.py": "32905361de28ea2eeea43d56c08bbbda6b38237f53422f4ff6bab7638927a46e",
+      "projects/mmdet3d_plugin/core/bbox/coders/nms_free_coder.py": "4e4eb88d1b110d392d664f737fe8d558e0484dde24b5cab20d00e5383d53361c",
+      "projects/mmdet3d_plugin/core/bbox/match_costs/__init__.py": "40ac90fcc6638f6efcddb38be08aec3504ba326a302366e94b2959796185c1b3",
+      "projects/mmdet3d_plugin/core/bbox/match_costs/match_cost.py": "6aa2e7727342bc194f92a7f4c0b63394eb1529ce38933f701354fef3f03747fd",
+      "projects/mmdet3d_plugin/core/bbox/util.py": "29becfde1e5881e5a4aac87e56fd9167c2cd897e7b49d4964578e1cd38a17d12",
+      "projects/mmdet3d_plugin/core/evaluation/__init__.py": "f2bf99095c9fe232bde6c2e26dd94097dfbc6f6407270e31d72b669a828a5c05",
+      "projects/mmdet3d_plugin/core/evaluation/eval_hooks.py": "1459d912886660fb352b6ad1ca6bf6d7d3b1ab0168c6805fc360ccf4bb215a4f",
+      "projects/mmdet3d_plugin/core/hook/__init__.py": "37789eda5d6422f2d5bad7ca56ab4f2e726c3f8d880195e0e07d1d9f634ee4b2",
+      "projects/mmdet3d_plugin/core/hook/optimizer.py": "0b568ecee52102ec2317754eb81aca08b2e138c3b10adc772513c56974c83174",
+      "projects/mmdet3d_plugin/datasets/__init__.py": "8190ec16689f400639bf114627265d81d96a28d99ca798ff0ef40bf1b6b23380",
+      "projects/mmdet3d_plugin/datasets/builder.py": "29e6e5b46235bca039b6453d92d51bde086d226a4055715cea2da1b0352c4589",
+      "projects/mmdet3d_plugin/datasets/nuscenes_dataset.py": "e9911ed44e12c0b64836f90a14d61ac6abcaa5ff8d814e57fac6a16a6f85d1fb",
+      "projects/mmdet3d_plugin/datasets/pipelines/__init__.py": "1d79a1a6ba798e1f04345dbe9403b147c2db0cdd3d51be78e7336dfbb29fe232",
+      "projects/mmdet3d_plugin/datasets/pipelines/formating.py": "ddf60bfe84fb606d931004e86d1eced624a9784b0d79d803cb27a8ea7c108530",
+      "projects/mmdet3d_plugin/datasets/pipelines/transform_3d.py": "3d820810fc460d56dd4678229475961cc9be01a02a4c893ea1b6a86e1278fa04",
+      "projects/mmdet3d_plugin/datasets/samplers/__init__.py": "876e3903040fe619fe89651c659b1564a0438bac6535196ac9ca8309ced23be4",
+      "projects/mmdet3d_plugin/datasets/samplers/distributed_sampler.py": "7f7537d43df5d4b7a59df59064d8e32751e057d7ef61c8e64ea1f859d3e7bac7",
+      "projects/mmdet3d_plugin/datasets/samplers/group_sampler.py": "5fdc05ccb8c08f5be169d551f3817b9bf60d98cc45a2168b6cd5788790c29909",
+      "projects/mmdet3d_plugin/datasets/samplers/sampler.py": "d697a3314b2be1ec00f40db37e260c0e506f750e9420a58de4fafbfb7c23dde9",
+      "projects/mmdet3d_plugin/datasets/utils/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "projects/mmdet3d_plugin/datasets/utils/constants.py": "05caa532060f61b30cada5ba23da0f4bf640c898298913f768653583482e5901",
+      "projects/mmdet3d_plugin/datasets/utils/conversation.py": "5afe31bc49b0878b2adb4f1f5f16e1b138eaeec134e93ec3c65869cee28356ed",
+      "projects/mmdet3d_plugin/datasets/utils/data_utils.py": "cbae98b596372fc7aaceabb0d63860800bbf7142720a72e858ff8364e721c6c9",
+      "projects/mmdet3d_plugin/models/backbones/__init__.py": "5c9217b2e34cca56ac8fa2e0ce2dd2de0f82590d0d6c1bdb7ab79141a31e4ba1",
+      "projects/mmdet3d_plugin/models/backbones/eva_vit.py": "c8f80c38e7023c734ef35c6460637a098547bcf585f9ec2a5f861727157b8535",
+      "projects/mmdet3d_plugin/models/backbones/vovnet.py": "0eb1f6eb0d091f835a3f14cf4f2db5e5c362d2fe3963a3b7b4e80edb5b09c733",
+      "projects/mmdet3d_plugin/models/backbones/vovnetcp.py": "5d7d411be7ffd3064608c032c30a42c924bcb42da1cde05a515f72f84d37b4e4",
+      "projects/mmdet3d_plugin/models/dense_heads/__init__.py": "3abeeea12653f82439516455cc8e891ce8ab746ca0ba3ed08a3e0dda4ccb5c30",
+      "projects/mmdet3d_plugin/models/dense_heads/focal_head.py": "f8c9e6cc747908f7acb1ff4eb9d4b071731d66f4d3db9c53bf10a93e991eb4ec",
+      "projects/mmdet3d_plugin/models/dense_heads/llava_arch.py": "65c8208c5088c49972ced9a04e70d83909217e8b1dac5c567a1d75846ca4ab14",
+      "projects/mmdet3d_plugin/models/dense_heads/llava_llama.py": "f888dd7ff03094af1a3f3220367ef6c0c3fd3386dd7441e6759fe8c4b6879a92",
+      "projects/mmdet3d_plugin/models/dense_heads/petr_head_map.py": "e6163bfa67c095d7b459db5b1be8debadafabbb9a81b63f94d81cde1bbe40685",
+      "projects/mmdet3d_plugin/models/dense_heads/streampetr_head.py": "719983f6e87c5bafbc9b6637c5276e8d3392bb3a54846054feb2e6264839acf3",
+      "projects/mmdet3d_plugin/models/detectors/__init__.py": "86f10ee47219f558f663777e2d6aa4db3dde10793c59bf09f2382b343c4959f7",
+      "projects/mmdet3d_plugin/models/detectors/petr3d.py": "bf0600db0396364f4445d1f98b89e1bd6e113a7b177373090d32c8bbe428c936",
+      "projects/mmdet3d_plugin/models/losses/__init__.py": "5ddf0644a1239559369cb59fa4c8510e14586e1228db827efc18d94e128474e3",
+      "projects/mmdet3d_plugin/models/losses/map_loss.py": "dc9ac001f5b9716d225748e95650ca997fbbcadbb50730584e75e01cdad0168f",
+      "projects/mmdet3d_plugin/models/necks/__init__.py": "b9b464871a45d23d40ac081df5e1d4109a3805c4ab682ecf34762d9af2e74861",
+      "projects/mmdet3d_plugin/models/necks/cp_fpn.py": "e230d78ac9ab246c89b7a862a9c08c5578bf52465c5eafece3d468fe2e8959c6",
+      "projects/mmdet3d_plugin/models/utils/__init__.py": "32c6d39f6c5465199b30832b43a555c31d28e7157ba9ea7d4e9c1edef6ff4882",
+      "projects/mmdet3d_plugin/models/utils/attention.py": "a96852b14fda6b019d5d890f08cb11597dc3c2d45470216f26439a99358ddc6d",
+      "projects/mmdet3d_plugin/models/utils/grid_mask.py": "d086cdcc4f5c9ee156ddf0ff74404b5202d8b0e198b7968b83be754233e373d3",
+      "projects/mmdet3d_plugin/models/utils/layer_decay_optimizer_constructor.py": "656d96da672df0adb3a7e637d22fcd85a31d789778295d686e119391b87be76b",
+      "projects/mmdet3d_plugin/models/utils/misc.py": "4c8f9dd0508fd049badda31abab25970e209ae512da247e9efdf464a8ed18650",
+      "projects/mmdet3d_plugin/models/utils/petr_transformer.py": "3634b3752b024a9c8eb7513acdd27fb0d01ab84225dd0e740dfc6be1aa75271b",
+      "projects/mmdet3d_plugin/models/utils/positional_encoding.py": "7efb0d0656cadc42d632af7d99611c1201a78c9536119e9cacc6a1f6a3f9688d",
+      "tools/worldstream_m123/benchmark/__init__.py": "1c8d9ebbcd3d1f82cfe7d03190d5b126b0585a519490d42e157630ed0a5c7167",
+      "tools/worldstream_m123/benchmark/metrics.py": "b8921809857656af2f72d60d04ccb9adce8201504ade75615c9a89b578739485",
+      "tools/worldstream_m123/benchmark/preflight.py": "990265f23876376b345530baf287c96f77efe5ee299d6a56a8ca9384021373b9",
+      "worldstream/__init__.py": "45a73c30c0d8642c65f727ed8d380a8bebe363f83f7fa3efa71b034b79eb57c2",
+      "worldstream/code_signature.py": "929196947aed1629afed217b46c2c8987fce432c5bbc7a67df4b3fce8ab25c45",
+      "worldstream/execution.py": "c6e68f46182d4fc4b7b0dda563d3d54239a0235337f105181bee7b14b646ec6f",
+      "worldstream/m1/__init__.py": "1b8a50942f7c861820b2c325025a0274fed2a00c7e4b96ae10e9d398e1eb69ce",
+      "worldstream/m1/association.py": "ca500b634838fde2cbea40e7185446b08b922dae9d2f0664fd593b4b98b9fc30",
+      "worldstream/m1/association_tracks.py": "de5fcd83f41f05c3fbb9eb3270a20b60513df36472cfd2cfcac2970f16223ace",
+      "worldstream/m1/bidirectional_geometry.py": "71b4dae6d46b04a859ff513b232511ec2897583ee3b84213348ca61545f7661d",
+      "worldstream/m1/computation_state.py": "f708206e4808943a5618af122e4de55feee9dc3df39bc5bdc682627ae49ba356",
+      "worldstream/m1/config.py": "67522af6c1b543e858d7acb4067415b4ddc90f079064614a9e58a82b59fba697",
+      "worldstream/m1/correspondence_recovery.py": "e94dca70b19fbbda3bb0f46ddbdf02d1ec1a636445daac5a9e48bdceaadc4a4f",
+      "worldstream/m1/dense_support.py": "143b54bf666308c8fa6dd2fcca918fad639f5e26cb8583cef69da50d1327f605",
+      "worldstream/m1/ego_motion.py": "454b36c1506241742c2c7efdbae0f45314fba17f2b997033e8ec596a932a0091",
+      "worldstream/m1/fact_certifier.py": "212448b64c35c1512575d16ab0fff8ebc2705ae9d39e32dbdfeec1641aa39b65",
+      "worldstream/m1/foreground_correspondence.py": "18d93b29366e3fe939e6680588b41d0c78dd3adc8069db7f1806d4196f37d448",
+      "worldstream/m1/geometry.py": "1a1cff21ac3d489b890aece9e9315af959271b347868778b9fa3381eedc05ec6",
+      "worldstream/m1/geometry_adaptive_patch.py": "f1859951afcd861fa9ff7242dada82bdc422a31508b88e9a85a64c20c06e2061",
+      "worldstream/m1/geometry_support.py": "d26c4239f5b5b2f329f74d21bde74e1582e510c18ef187d33e01f1efb2ae9fab",
+      "worldstream/m1/identity_continuity.py": "0c1f6a5750dd6f1b2a7f26c4b74f72ce7c67a7b12612af9d7b0c9884ee959b56",
+      "worldstream/m1/identity_object.py": "855cb13c021d54456f9a15c039bb1b1738192bde7328047089c1d32aecee0a3b",
+      "worldstream/m1/identity_temporal.py": "88a1ca34a7819c169954ec1ab1351403a606f67c2fba814dd06e6fcd0ae0c452",
+      "worldstream/m1/input_contract.py": "2d5c7ebe8b62850ed2c448facdfcbd8e838acd9489fd3082ba8436441d9228f2",
+      "worldstream/m1/local_surface.py": "d1ebc6ce625e9c26fc09ba30d0afb3178abc928ecdc357f29d98ec7318753c14",
+      "worldstream/m1/mask_codec.py": "16414f4ed88f62dc3cb6df0118b9d124404c1113731a0af19e8dbc210450e464",
+      "worldstream/m1/measurement_cache.py": "7366d18bdcf175deba06c476a024f3ba223f3c291b922c8b34e82cdbac1878c2",
+      "worldstream/m1/novelty_detector.py": "fe1cfc9ae9b3c7d5d19e696832f69cbd36fa92f19d144c4356ce6736b9387299",
+      "worldstream/m1/observation_diagnostics.py": "f41fff4aed4add9b6c0fd419a4baf67a0e1dd4f58176802f7bf3238cbeb69df4",
+      "worldstream/m1/observation_refinement.py": "9b302a6755b26cbcb1b0c2da817366bad6c73994925bc3ce38b3b32a20b79909",
+      "worldstream/m1/observation_validator.py": "1c4a3a53a396ea25809bb543d8844d7709694f1ebb6f871e2a59ab9917c0ebd5",
+      "worldstream/m1/omnidrive_adapter.py": "3b8b796ee16a7c4e4bd6e547542521fb9741cbd24100b478d19c1581d64b4653",
+      "worldstream/m1/physical_certifier.py": "1d0160ee5507426c735a6fe463e5ed15bfd1b07fdb5ad7166163a6b519463e57",
+      "worldstream/m1/provenance.py": "6c0ca1d3b503b7b3efe65719ae9c67e957f05f43916a573ab1c52177e85b537c",
+      "worldstream/m1/search_motion.py": "e4f8c79ea30eb64f71b2b4195d486beb15bef07fafbca2649b8f523ed22f9c56",
+      "worldstream/m1/source_context.py": "60eec9b1ded806b3924b73f5b520d2268ed053da75ff07db7234e09d9b7314a0",
+      "worldstream/m1/state_manager.py": "c0bea555b481afef97cff733f423e67d9f85d67a81833e08ae6f6d3d3ad17ab8",
+      "worldstream/m1/state_store.py": "6865c1adc1e5514d2eff2b6d5690dcf4464d2f59e1576a1a857e7b32d487125f",
+      "worldstream/m1/state_types.py": "f218981eaea9abb38470e66d6af77bcb59cfe2e14a794e3a4d72048b12c169d0",
+      "worldstream/m1/surface_consensus.py": "7c63acdeafb5f45ac1f4f3dfda3b3208b7c251299f1bdd8670f1fdada192509c",
+      "worldstream/m1/surface_observability.py": "3d700e6d5487ea72ffbc0cc2af7d08204c61b96aa8cc25b2409b58b726659318",
+      "worldstream/m1/surface_visibility.py": "9508920cc4b23b9f16dd3fc0d7d3216675a1bc4417411239e57130b3f1733005",
+      "worldstream/m1/surface_visibility_constraints.py": "5db767c0a602dcbfb535feba44611273f9cb2ecdd1eaf0fb72b0fcaf6cadd56e",
+      "worldstream/m1/task_facts.py": "a4e2746a789ff84a018ab555d7c1a48c7bb415ef9b55cbfa5a37730920f4e0c5",
+      "worldstream/m1/temporal_visibility.py": "1e627f8bd573ad996ff23f6a405c4414abd619949015d9847a2e3297a100b409",
+      "worldstream/m1/world_motion.py": "26dc069d3441d847c3e68131dc31f64ead256fe6b5c3532a84612e44192e428e",
+      "worldstream/m2/__init__.py": "12c762498afcba80f9639f0bff8086944e699fd16e1d965c4e460077becbdf43",
+      "worldstream/m2/approximate_probe.py": "18903842704464fa1d67ff87bfc0309315ce40dbc8e376a4b312db8f700f3e43",
+      "worldstream/m2/camera_executor.py": "5afeed479460e559b7a9252ecbdc1f220466010b854246cf3fad3f026f2cd221",
+      "worldstream/m2/camera_feature_cache.py": "38645ce48b8adba596be79e260e965ba984b635d9cefcfb0b2aa5d72ee6e3506",
+      "worldstream/m2/cheap_admission.py": "46d306e1c4cce6b0fce520a4118825f3e25821b2f473566f49e4538ecbc9391d",
+      "worldstream/m2/conditional_prefix.py": "cee76708d0160585ad26808aa73f9f0d93091c8df9f6c98aed2dc3599197b393",
+      "worldstream/m2/config.py": "f4bf1e2bf17f54b3dee884cadaaa02cd90016ea2985ed8d847cc93aaaa5de586",
+      "worldstream/m2/cost_model.py": "6c51eaafe89325f3ef5d8ef96223b52814edd779aa04372e5298decb17c9a15d",
+      "worldstream/m2/dependency_planner.py": "e05f348d56cff98b02c060c4d314b82289adabfc586ed1ddcb734a14b68227a2",
+      "worldstream/m2/execution_policy.py": "d86c9f0bd1714885f6b971ccf8d397322c267450fe83399feca70ed17cf8d8cd",
+      "worldstream/m2/m1_adapter.py": "eb8fa76da42dbb7e2fabcd630069be1a073aad5917e4e841df53d25e888622d3",
+      "worldstream/m2/packing.py": "38ca01bfc43ea3978099202ed0defdb41c1ed74d8c3becd181728c2dc6e1c45a",
+      "worldstream/m2/profiler.py": "e765e3f3e780e1c94164e81b4259ba5b89dc4b65ff2e47a893a7a0e8f0694db2",
+      "worldstream/m2/runtime.py": "8c84f1fea6735ccd9272b1d6a35b5cd82897b26fadbd23b6633bbfc7f5913a67",
+      "worldstream/m2/scheduler.py": "672c1b91618fb299c01ecd1661d8b41c8e182dcc291983b220e38e1960b024a8",
+      "worldstream/m2/source_alignment.py": "17a63956900bffbc1b9cc65e0c0709a267cc3ccbafbcb7e5d0c9088d05e234e9",
+      "worldstream/m2/state_cache.py": "d779939d973229a717d829dec9951f8c8f25efbcc44bede8a4fecf9a86897b86",
+      "worldstream/m2/window_executor.py": "b450aff152bfc26cc33a343b59dd58e3f1ddeaebad82cc25e6e2d8238c7691c1",
+      "worldstream/m3/__init__.py": "385a5078d3a883d874ff8573614e4c3664f2ad0e2ac212839b28bc356df55570",
+      "worldstream/m3/batched_executor.py": "2b8324be10fdd9bbbae95f58d0009ec8f9d80ad8009609ecc415fedcd07b73e2",
+      "worldstream/m3/carrier_selector.py": "2838aa074fc814d3287e5b31e9334d4f74f67b38f173d19faf2ef09eb4d15471",
+      "worldstream/m3/config.py": "17dd63a6c362189003dd7f70448061f745e15570fa6cbc6872a5fa9e1eb5545f",
+      "worldstream/m3/native_decode.py": "9f61a9d1af82e5e00ebe4502c76075dd6f347c0103539465f853529c843b1a8c",
+      "worldstream/m3/numerics.py": "92cdfea13e2174a39e505ec34577be3203c6353b8a6d942ede9fe1d168797092",
+      "worldstream/m3/post_perception.py": "de8b872f7ba84bf45d6554c5f71bc186e48d42992c1efed8532e353fd69019f6",
+      "worldstream/m3/prefill_executor.py": "4f5ac8e50423af8bfea15bf4719035e037017034583f51debd3b674de2133973",
+      "worldstream/m3/prefix_kv_cache.py": "37f920315660f15353ce98c0981f99fd510bf5dc6f19260d9381476fd30bf413",
+      "worldstream/m3/prefix_matcher.py": "8e818025cc1dbb06fc1d666e1050e27d3a049cf41c021608d0abd67f0333ecc7",
+      "worldstream/m3/projection_precision.py": "56a3e3e99cb4eb661f154e685446d2a3f5c7653fb460209ea5087e9b2122f1d3",
+      "worldstream/m3/runtime.py": "97ed411da99079bd86ce0866ce260c0365818dfe9aecbddcf95c1c72e7385121",
+      "worldstream/m3/scheduler.py": "bd668b699ef12ac494c239172365cb4ee9796f57fe08b589fd6b3f4b5a50f7aa",
+      "worldstream/m3/task_conditioner.py": "3a85eb00cb67509fcbb16ed2043fa0e8cb9a15b501ea2609aea3ad098117e985",
+      "worldstream/m3/visual_state.py": "375c13ffdbae430c6cb36ef9a5e2ee73fd2791480274885765af7e1c5330372d",
+      "worldstream/m3/world_state.py": "d2d10ba7126da12cb4048965083c3486770d41ed2e5edcbd86c469a78d20f4fe",
+      "worldstream/overlap.py": "ab6d102b2027d7a1afb1521ca5091f6317657379eea725871c92657cdf443d12",
+      "worldstream/runtime.py": "3a650822cb461009ca9be5f7d1a44bc32c21318df6f84733f95d2e557ba7b84e"
+    },
+    "blockers": []
+  },
+  "commands": [
+    {
+      "argv": [
+        "/tmp/omnidrive_preflight_run.py"
+      ],
+      "cwd": "/data/qh/phdCode/work4/OmniDrive"
+    },
+    {
+      "argv": [
+        "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/run.py",
+        "--run-dir",
+        "outputs/final_route/benchmark/run_20261021_233721",
+        "--subset",
+        "320",
+        "--timing-frames",
+        "48",
+        "--repeats",
+        "3",
+        "--warmup",
+        "3",
+        "--regression-log",
+        "/tmp/omnidrive_final_benchmark_tests.log"
+      ],
+      "cwd": "/data/qh/phdCode/work4/OmniDrive"
+    },
+    {
+      "argv": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-m",
+        "tools.worldstream_m123.benchmark.worker",
+        "--output",
+        "outputs/final_route/benchmark/run_20261021_233721/experiments/B0_attribution_language",
+        "--run-root",
+        "outputs/final_route/benchmark/run_20261021_233721",
+        "--checkpoint",
+        "ckpts/iter_10548.pth",
+        "--condition",
+        "B0",
+        "--workload",
+        "language",
+        "--limit",
+        "320",
+        "--repeat",
+        "0",
+        "--warmup",
+        "3",
+        "--measurement-set",
+        "attribution",
+        "--seed",
+        "0"
+      ],
+      "cwd": "/data/qh/phdCode/work4/OmniDrive"
+    },
+    {
+      "argv": [
+        "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/run.py",
+        "--run-dir",
+        "outputs/final_route/benchmark/run_20261021_233721",
+        "--subset",
+        "320",
+        "--timing-frames",
+        "48",
+        "--repeats",
+        "3",
+        "--warmup",
+        "3"
+      ],
+      "cwd": "/data/qh/phdCode/work4/OmniDrive"
+    },
+    {
+      "argv": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-m",
+        "tools.worldstream_m123.benchmark.worker",
+        "--output",
+        "outputs/final_route/benchmark/run_20261021_233721/experiments/B0_full_planning",
+        "--run-root",
+        "outputs/final_route/benchmark/run_20261021_233721",
+        "--checkpoint",
+        "ckpts/iter_10548.pth",
+        "--condition",
+        "B0",
+        "--workload",
+        "planning",
+        "--limit",
+        "0",
+        "--repeat",
+        "0",
+        "--warmup",
+        "3",
+        "--measurement-set",
+        "main",
+        "--seed",
+        "0"
+      ],
+      "cwd": "/data/qh/phdCode/work4/OmniDrive"
+    },
+    {
+      "argv": [
+        "taskset",
+        "-c",
+        "0-3,6-31",
+        "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+        "-m",
+        "tools.worldstream_m123.benchmark.worker",
+        "--output",
+        "outputs/final_route/benchmark/run_20261021_233721/experiments/B3_full_planning",
+        "--run-root",
+        "outputs/final_route/benchmark/run_20261021_233721",
+        "--checkpoint",
+        "ckpts/iter_10548.pth",
+        "--condition",
+        "B3",
+        "--workload",
+        "planning",
+        "--limit",
+        "0",
+        "--repeat",
+        "0",
+        "--warmup",
+        "3",
+        "--measurement-set",
+        "main",
+        "--seed",
+        "0"
+      ],
+      "cwd": "/data/qh/phdCode/work4/OmniDrive"
+    }
+  ],
+  "precision": "Unchanged configuration; no forced autocast, TF32 or fp16 policy",
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "num_beams": 1,
+    "max_new_tokens": 320,
+    "use_cache": true
+  },
+  "benchmark_source_hashes_at_launch": {
+    "tools/worldstream_m123/benchmark/preflight.py": "990265f23876376b345530baf287c96f77efe5ee299d6a56a8ca9384021373b9",
+    "tools/worldstream_m123/benchmark/observe.py": "1fe2d998d6323ea5e0a741c0d91bf6ad040a75a25f69abf953e34e3348bf33dc",
+    "tools/worldstream_m123/benchmark/metrics.py": "ce9fe2b36056719967115d7432846ff7c9a0dffac61c1daa30d38699c4dbcf44",
+    "tools/worldstream_m123/benchmark/__init__.py": "1c8d9ebbcd3d1f82cfe7d03190d5b126b0585a519490d42e157630ed0a5c7167",
+    "tools/worldstream_m123/benchmark/worker.py": "b72152ef30407907d6a309b682c4fc9e57b1b6485dbab73fec24fc5aa920a32e",
+    "tools/worldstream_m123/benchmark/report.py": "79cfc064de452628362e37840b4def1af2d6c589040969fef68c23a4fc59ac24",
+    "tools/worldstream_m123/benchmark/run.py": "8bf479a42d3bd46be0cca22a5528a54d8dfcc71c84c723078e817887c175ca34"
+  },
+  "preliminary_attempts": [
+    {
+      "name": "omnidrive_benchmark_smoke_b3_v2",
+      "status": {
+        "status": "FAILED",
+        "error": "Traceback (most recent call last):\n  File \"/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/worker.py\", line 340, in main\n    run(args)\n  File \"/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/worker.py\", line 177, in run\n    model(return_loss=False, rescale=True, **data)\n  File \"/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/torch/nn/modules/module.py\", line 1194, in _call_impl\n    return forward_call(*input, **kwargs)\n  File \"/data/qh/phdCode/work4/OmniDrive/projects/mmdet3d_plugin/models/detectors/petr3d.py\", line 367, in forward\n    return self.forward_test(**data)\n  File \"/data/qh/phdCode/work4/OmniDrive/projects/mmdet3d_plugin/models/detectors/petr3d.py\", line 456, in forward_test\n    return self.simple_test(img_metas[0], **data)\n  File \"/data/qh/phdCode/work4/OmniDrive/projects/mmdet3d_plugin/models/detectors/petr3d.py\", line 648, in simple_test\n    bbox_pts, generated_text, lane_results = self.simple_test_pts(\n  File \"/data/qh/phdCode/work4/OmniDrive/projects/mmdet3d_plugin/models/detectors/petr3d.py\", line 485, in simple_test_pts\n    _m1_observer(bbox_results, lane_results, observed_features)\n  File \"/data/qh/phdCode/work4/OmniDrive/projects/mmdet3d_plugin/models/detectors/petr3d.py\", line 627, in m1_observer\n    self.m1_manager.commit(frame, outputs, precheck)\n  File \"/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/observe.py\", line 122, in call\n    result = original(*args, **kwargs)\n  File \"/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/observe.py\", line 89, in commit\n    value = original(frame, outputs, result)\n  File \"/data/qh/phdCode/work4/OmniDrive/worldstream/m2/camera_executor.py\", line 71, in forward\n    cache=self.cache;n=len(images)\nTypeError: object of type 'Frame' has no len()\n",
+        "integrity": "NOT_VALIDATED"
+      }
+    },
+    {
+      "name": "omnidrive_benchmark_smoke_b3_v3",
+      "status": {
+        "status": "COMPLETED",
+        "measured_frames": 2,
+        "full_validation": false,
+        "integrity": "PASS",
+        "official_status": "NOT_RUN: subset"
+      }
+    },
+    {
+      "name": "omnidrive_benchmark_smoke_b3",
+      "status": {
+        "status": "FAILED",
+        "error": "Traceback (most recent call last):\n  File \"/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/worker.py\", line 325, in main\n    run(args)\n  File \"/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/worker.py\", line 135, in run\n    model = load_model(cfg, args.checkpoint, dest)\n  File \"/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/benchmark/worker.py\", line 89, in load_model\n    raise RuntimeError('Strict checkpoint compatibility failed; see checkpoint_validation.json')\nRuntimeError: Strict checkpoint compatibility failed; see checkpoint_validation.json\n",
+        "integrity": "NOT_VALIDATED"
+      }
+    }
+  ],
+  "preflight_correction": "Actual official SDK validated complete GT; original raw-link audit retained separately.",
+  "postprocessing_repairs": [
+    {
+      "reason": "Undefined official per-class metrics become null; OpenLane ISO3166 metadata corrected",
+      "inference_rerun": false,
+      "source_hashes": {
+        "tools/worldstream_m123/benchmark/preflight.py": "5fb2463c4954bb4b43e5f9336a506b400445fa0dde69bb356be2cce83c63e109",
+        "tools/worldstream_m123/benchmark/audit.py": "7edd42c1b203445e8b3d410eed9a713d0293777252dfce5575d57cc613a406ae",
+        "tools/worldstream_m123/benchmark/observe.py": "d4e07e92aa03a6001710340e78a3f44b397181d27b80a438697350751c674fcd",
+        "tools/worldstream_m123/benchmark/recover.py": "8a9e3b5753250113c802b354d0cc71fedc3672e3e56a9f4ca4f16e7148670ec6",
+        "tools/worldstream_m123/benchmark/metrics.py": "9f342f7a0d6e005b8c9f9677d6735e578fe4ac400136afbc5d5206725b85b56b",
+        "tools/worldstream_m123/benchmark/__init__.py": "1c8d9ebbcd3d1f82cfe7d03190d5b126b0585a519490d42e157630ed0a5c7167",
+        "tools/worldstream_m123/benchmark/worker.py": "47643fe4f9beeecca08d04ae6afaf12fffd02c5674ec4b2a8c13a833f5896595",
+        "tools/worldstream_m123/benchmark/finish.py": "c39dfd1b9001f692e31c735e6e122b749c58e381f1d9a2800315ff66abc05a4a",
+        "tools/worldstream_m123/benchmark/report.py": "5046bc33717a181053da565c546896d1d570fe8646c3485ec08706b4ea82e566",
+        "tools/worldstream_m123/benchmark/run.py": "03a0efbc531a9460beadd38d4af7fa19e02e15581d42e3db2cbbc7d841150f33"
+      }
+    }
+  ]
+}

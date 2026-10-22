@@ -1,5 +1,5 @@
 """The sole recommended route: ordinary M1 + admitted M2/M3 Auto/native fallback."""
-_base_ = ['./worldstream_m2_camera_auto.py']
+_base_ = ['./worldstream_m2_window_auto.py']
 model = dict(
     m1_config='configs/worldstream_m1_final.yaml',
     m3_enable=True,

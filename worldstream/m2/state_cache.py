@@ -21,13 +21,24 @@ class StateCache:
         self.output_stride = None
         self.input_stride = None
         self.sources = {}
+        self.storage_revision = None
+
+    @staticmethod
+    def _revision(images, outputs):
+        return tuple((name, value.data_ptr(), value._version, tuple(value.shape),
+                      tuple(value.stride()), value.dtype, value.device)
+                     for name,value in [('images',images)]+[(f'block:{i}',t) for i,t in sorted(outputs.items())])
 
     def commit(self, images, outputs, context, signature, output_stride=None, sources=None):
         """Publish a single completed forward atomically; retained outputs are immutable."""
+        needed = sum(t.numel()*t.element_size() for t in [images, *outputs.values()])
+        if needed > self.budget_bytes:
+            raise RuntimeError('window_cache_budget_exceeded')
         finite=[torch.isfinite(value).all() for value in [images,*outputs.values()]]
         if not torch.stack(finite).all().item():
             raise NonFiniteCacheError('nonfinite_cache_features')
         owned_images = images.detach().clone()
+        owned_outputs = {i: value.detach().clone() for i,value in outputs.items()}
         owned_context = copy.deepcopy(context)
         owned_sources = copy.deepcopy(sources) if sources is not None else {
             i: [dict(computation_frame_id=context['frame_id'], computation_timestamp=context.get('timestamp'),
@@ -35,13 +46,14 @@ class StateCache:
                 producer_layer=i, dependency_scope='closed_window_prefix',task_quality_certified=True) for j in range(len(values))]
             for i,values in outputs.items()}
         self.images = owned_images
-        self.outputs = outputs
+        self.outputs = owned_outputs
         self.context = owned_context
         self.sources = owned_sources
         self.signature = signature
         self.input_stride = tuple(images.stride())
         if output_stride is not None:self.output_stride = tuple(output_stride)
         self.version += 1
+        self.storage_revision = self._revision(self.images, self.outputs)
 
     @property
     def bytes(self):
@@ -51,6 +63,8 @@ class StateCache:
     def mismatch(self, images, context, signature):
         if self.images is None:
             return 'no_valid_cache'
+        if self.storage_revision is not None and self.storage_revision != self._revision(self.images, self.outputs):
+            return 'cache_storage_modified'
         if self.signature != signature:
             return 'execution_signature_mismatch'
         if self.images.shape != images.shape or self.images.device != images.device or self.images.dtype != images.dtype:

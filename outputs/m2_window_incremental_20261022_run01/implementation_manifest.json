@@ -1,0 +1,40 @@
+{
+  "python": "3.9.25",
+  "interpreter": "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+  "torch": "1.13.1+cu117",
+  "cuda": "11.7",
+  "cpu_affinity": "0-3,6-31",
+  "entry": "projects/configs/OmniDrive/worldstream_m123_auto.py",
+  "m2": {
+    "mode": "auto",
+    "reuse_boundary": "window",
+    "cheap_gate": true,
+    "m1_service": "maintain",
+    "memory_budget_mb": 512,
+    "cost_table": "outputs/final_route/window_costs.json"
+  },
+  "source_sha256": {
+    "worldstream/m2/runtime.py": "5798aada323ff5dded139d205fefcf3a9d581ac2cfa40df754f9b0ddfecd84a9",
+    "worldstream/m2/window_executor.py": "62b0b8d4480a1c54f5627d2cd5d75ba6945b52d7a60e5265bb7c90fbfb48874a",
+    "worldstream/m2/state_cache.py": "b400d52fc75ec21eecd4b93b1b5e9d3f8895dc390870896e6abaeeee31e57285",
+    "worldstream/m2/cost_model.py": "8a346f53bb0d5b2f69ff1333714a81c5adf65b757fed4601e541b01733cfe33b",
+    "worldstream/m2/dependency_planner.py": "e05f348d56cff98b02c060c4d314b82289adabfc586ed1ddcb734a14b68227a2",
+    "worldstream/m2/m1_adapter.py": "eb8fa76da42dbb7e2fabcd630069be1a073aad5917e4e841df53d25e888622d3",
+    "projects/configs/OmniDrive/worldstream_m123_auto.py": "e4814010ce127c2b2838dc6514e0a10609daf40dd51b522da61973cf2e3577db",
+    "projects/configs/OmniDrive/worldstream_m2_window_auto.py": "59d9547e0e08bfe8b31eb88e7f4d065d821d8027b4851306c60008b81a6d6356",
+    "configs/worldstream_m1_final.yaml": "722aae1b179a8b224023f576bb5493a34c4210bcc5b72489fb4324288ed419a8",
+    "outputs/final_route/window_costs.json": "13e9fc0152a2d21f2cd1a113b6542f7b5e2cb6bea4b988cc112aa5d8c78310f5",
+    "outputs/final_route/camera_costs.json": "5b298bf441f8e87a3e67067e8e195e9fb07ab68d0bac2f08bacb8d7183b41c98",
+    "outputs/final_route/m3_cost_table.json": "d80a9199717199907817e514d037d4f3414b3ec282ae4fd79a17a6494fb221e2",
+    "outputs/final_route/m3_quality_certificate.json": "ad85bae8b3ab0b493ab93599601fe026a5e00981f84b2fbd3d4cde4710611cb8",
+    "tools/worldstream_m2/window_validate.py": "469388e58922b3feae02d4305c69aed09e8a1cb0b826f117cab3cc70303b5aa9",
+    "tests/worldstream_m2/test_window_completion.py": "5aafb154c9c09eb1cf2e28834cb21a1917ba2a78a16d08d855dae88dbd16d897",
+    "tools/worldstream_m123/benchmark/observe.py": "9d04d221fd032593e8bd9fb47d5b246cd2a02b6dc92a5f854cb9d0bb60e00d32",
+    "tools/worldstream_m123/benchmark/worker.py": "30e226fccd467cb64edaed90aae77467036f5d747af5d66531164355a4fe632f",
+    "tools/worldstream_m123/benchmark/report.py": "65a6c9640146d41def4064e21fac528c81a9ad3772da465a28d9fb85b6ea8e3e",
+    "tools/worldstream_m123/benchmark/audit.py": "ef9b2533b9761969cc61dd5500123200de124dbc72b09eebb74006687e2a0295"
+  },
+  "formal_smoke_source_snapshot": "formal_auto_smoke/benchmark_source_hashes.json",
+  "production_approvals_added": 0,
+  "stopped_prior_benchmark_resumed": false
+}

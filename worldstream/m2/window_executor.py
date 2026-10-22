@@ -9,7 +9,9 @@ def packed_forward(block, windows, valid):
     # EVA normalizes BEFORE padding. LayerNorm bias at padded slots must remain zero.
     normalized = block.norm1(windows) * valid
     x = windows + block.drop_path(block.attn(normalized))
-    return x + block.drop_path(block.mlp(block.norm2(x)))
+    # Native EVA crops attention padding BEFORE the residual/MLP. These
+    # synthetic positions must not become nonzero cached activations.
+    return (x + block.drop_path(block.mlp(block.norm2(x)))).masked_fill(~valid.bool(), 0)
 
 
 class WindowExecutor:
@@ -18,12 +20,26 @@ class WindowExecutor:
         self.spatial = SpatialWindowGather()
 
     def execute(self, block, x, cached_windows, ids, naive=False, strategy='spatial'):
+        if torch.is_grad_enabled() or any(m.training for m in block.modules()):
+            raise ValueError('Window execution is inference-only')
+        if not block.window_size or block.use_residual_block:
+            raise ValueError('Window execution requires independent non-shifted windows')
+        if x.ndim != 4 or ids.ndim != 1 or ids.dtype != torch.long:
+            raise ValueError('Expected BHWC features and one-dimensional int64 window IDs')
         size = block.window_size
         h,w = x.shape[1:3]
         padded = ((h+size-1)//size*size,(w+size-1)//size*size)
+        expected = (x.shape[0]*(padded[0]//size)*(padded[1]//size), size, size, x.shape[-1])
+        if (tuple(cached_windows.shape) != expected or cached_windows.device != x.device
+                or cached_windows.dtype != x.dtype):
+            raise ValueError('Cached windows do not match the current feature grid')
         if len(ids) == 0:
-            # No clone needed: caller cannot mutate a previous frame through this view.
-            return unpartition(cached_windows, size, padded, x.shape[1:3]), cached_windows
+            output = unpartition(cached_windows, size, padded, x.shape[1:3])
+            # For a single window unpartition can return an alias. A caller
+            # modifying this frame's result must not corrupt retained state.
+            if output.data_ptr() == cached_windows.data_ptr():
+                output = output.clone()
+            return output, cached_windows
         if strategy=='original':
             windows,_=partition(x,size)
             valid,_=partition(torch.ones_like(x[...,:1]),size)

@@ -1,0 +1,210 @@
+{
+  "experiments": {
+    "B0_full_planning": {
+      "status": "COMPLETED",
+      "measured_frames": 6019,
+      "full_validation": true,
+      "integrity": "PASS",
+      "official_status": "MEASURED",
+      "recovered_after_serialization_failure": true
+    },
+    "B3_full_planning": {
+      "status": "STOPPED_BY_USER",
+      "reason": "Explicit user request",
+      "last_reported_progress": {
+        "completed_frames": 4250,
+        "target_frames": 6019,
+        "questions": 4250,
+        "latest_request_ms": 3180.5914980359375
+      },
+      "raw_outputs_preserved": true,
+      "integrity": "NOT_VALIDATED"
+    },
+    "B0_attribution_language": {
+      "status": "COMPLETED",
+      "measured_frames": 320,
+      "full_validation": false,
+      "integrity": "PASS",
+      "official_status": "NOT_RUN: subset"
+    }
+  },
+  "plan": {
+    "full_validation": {
+      "status": "PENDING",
+      "reason": null,
+      "conditions": [
+        "B0",
+        "B3"
+      ],
+      "expected_frames": 6019
+    },
+    "subset_frames": 320,
+    "timing_repeats": 3,
+    "warmup_frames": 3,
+    "timing_frames": 48,
+    "jobs": [
+      {
+        "name": "B0_full_planning",
+        "condition": "B0",
+        "workload": "planning",
+        "limit": 0,
+        "repeat": 0,
+        "measurement_set": "main"
+      },
+      {
+        "name": "B3_full_planning",
+        "condition": "B3",
+        "workload": "planning",
+        "limit": 0,
+        "repeat": 0,
+        "measurement_set": "main"
+      },
+      {
+        "name": "B0_attribution_language",
+        "condition": "B0",
+        "workload": "language",
+        "limit": 320,
+        "repeat": 0,
+        "measurement_set": "attribution"
+      },
+      {
+        "name": "B1_attribution_language",
+        "condition": "B1",
+        "workload": "language",
+        "limit": 320,
+        "repeat": 0,
+        "measurement_set": "attribution"
+      },
+      {
+        "name": "B2_attribution_language",
+        "condition": "B2",
+        "workload": "language",
+        "limit": 320,
+        "repeat": 0,
+        "measurement_set": "attribution"
+      },
+      {
+        "name": "B3_attribution_language",
+        "condition": "B3",
+        "workload": "language",
+        "limit": 320,
+        "repeat": 0,
+        "measurement_set": "attribution"
+      },
+      {
+        "name": "B0_subset_language_r0",
+        "condition": "B0",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 0,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B1_subset_language_r0",
+        "condition": "B1",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 0,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B2_subset_language_r0",
+        "condition": "B2",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 0,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B3_subset_language_r0",
+        "condition": "B3",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 0,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B0_subset_language_r1",
+        "condition": "B0",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 1,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B1_subset_language_r1",
+        "condition": "B1",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 1,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B2_subset_language_r1",
+        "condition": "B2",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 1,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B3_subset_language_r1",
+        "condition": "B3",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 1,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B0_subset_language_r2",
+        "condition": "B0",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 2,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B1_subset_language_r2",
+        "condition": "B1",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 2,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B2_subset_language_r2",
+        "condition": "B2",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 2,
+        "measurement_set": "efficiency"
+      },
+      {
+        "name": "B3_subset_language_r2",
+        "condition": "B3",
+        "workload": "language",
+        "limit": 48,
+        "repeat": 2,
+        "measurement_set": "efficiency"
+      }
+    ],
+    "task_definition": "Real Conv/VQA question, round-robin question index, native production sampling",
+    "caveat": "Sequential first scenes sorted by token; representative coverage is described, not a random statistical sample"
+  },
+  "protected_unchanged": {
+    "projects/configs/OmniDrive/mask_eva_lane_det_vlm.py": true,
+    "projects/configs/OmniDrive/worldstream_m123_auto.py": true,
+    "configs/worldstream_m1_final.yaml": true,
+    "outputs/final_route/camera_costs.json": true,
+    "outputs/final_route/m3_cost_table.json": true,
+    "outputs/final_route/m3_quality_certificate.json": true,
+    "outputs/final_route/summary.json": true,
+    "outputs/final_route/verification.json": true
+  },
+  "measured_frames": 6339,
+  "measured_questions": 6339,
+  "complete": false,
+  "official_detection_available": true,
+  "status": "STOPPED_BY_USER",
+  "automatic_continuation": false
+}
