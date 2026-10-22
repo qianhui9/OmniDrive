@@ -7,6 +7,10 @@ import torch
 class NonFiniteCacheError(RuntimeError):
     """A non-finite input or prefix cannot become a reusable source."""
 
+
+class CachePublicationError(RuntimeError):
+    """Expected resource failure; programming/interface errors must propagate."""
+
 class StateCache:
     def __init__(self, budget_bytes):
         self.budget_bytes = budget_bytes
@@ -15,6 +19,7 @@ class StateCache:
 
     def clear(self):
         self.images = None
+        self.block0_input = None
         self.outputs = {}
         self.context = None
         self.signature = None
@@ -25,55 +30,59 @@ class StateCache:
         self.metadata_revision = None
 
     @staticmethod
-    def _revision(images, outputs):
+    def _revision(images, block0_input, outputs):
         return tuple((name, value.data_ptr(), value._version, tuple(value.shape),
                       tuple(value.stride()), value.dtype, value.device)
-                     for name,value in [('images',images)]+[(f'block:{i}',t) for i,t in sorted(outputs.items())])
+                     for name,value in [('images',images),('block0_input',block0_input)]+[(f'block:{i}',t) for i,t in sorted(outputs.items())])
 
-    def commit(self, images, outputs, context, signature, output_stride=None, sources=None):
+    def commit(self, images, outputs, context, signature, output_stride=None, sources=None, *, block0_input):
         """Publish a single completed forward atomically; retained outputs are immutable."""
-        needed = sum(t.numel()*t.element_size() for t in [images, *outputs.values()])
+        values = [images, block0_input, *outputs.values()]
+        needed = sum(t.numel()*t.element_size() for t in values)
         if needed > self.budget_bytes:
-            raise RuntimeError('window_cache_budget_exceeded')
-        finite=[torch.isfinite(value).all() for value in [images,*outputs.values()]]
+            raise CachePublicationError('window_cache_budget_exceeded')
+        finite=[torch.isfinite(value).all() for value in values]
         if not torch.stack(finite).all().item():
             raise NonFiniteCacheError('nonfinite_cache_features')
         owned_images = images.detach().clone()
+        owned_input = block0_input.detach().clone()
         owned_outputs = {i: value.detach().clone() for i,value in outputs.items()}
         owned_context = copy.deepcopy(context)
         owned_sources = copy.deepcopy(sources) if sources is not None else {
             i: [dict(computation_frame_id=context['frame_id'], computation_timestamp=context.get('timestamp'),
                 computation_version=self.version+1, camera_id=context['camera_ids'][j//(len(values)//len(images))],
-                producer_layer=i, dependency_scope='closed_window_prefix',task_quality_certified=True) for j in range(len(values))]
+                producer_layer=i, dependency_scope='closed_window_prefix',task_quality_certified=False) for j in range(len(values))]
             for i,values in outputs.items()}
-        metadata_revision = repr((owned_context,owned_sources))
-        self.images = owned_images
-        self.outputs = owned_outputs
-        self.context = owned_context
-        self.sources = owned_sources
-        self.signature = signature
-        self.input_stride = tuple(images.stride())
-        if output_stride is not None:self.output_stride = tuple(output_stride)
-        self.version += 1
-        self.storage_revision = self._revision(self.images, self.outputs)
-        self.metadata_revision = metadata_revision
+        input_stride = tuple(images.stride())
+        output_stride = tuple(output_stride) if output_stride is not None else None
+        storage_revision = self._revision(owned_images, owned_input, owned_outputs)
+        metadata_revision = repr((owned_context,owned_sources,signature,input_stride,output_stride,self.version+1))
+        # All potentially failing work precedes publication, including ownership,
+        # metadata cloning and integrity bookkeeping.
+        (self.images,self.block0_input,self.outputs,self.context,self.sources,self.signature,
+         self.input_stride,self.output_stride,self.version,self.storage_revision,self.metadata_revision) = (
+            owned_images,owned_input,owned_outputs,owned_context,owned_sources,signature,
+            input_stride,output_stride,self.version+1,storage_revision,metadata_revision)
 
     @property
     def bytes(self):
-        values = list(self.outputs.values()) + ([self.images] if self.images is not None else [])
+        values = list(self.outputs.values()) + ([self.images,self.block0_input] if self.images is not None else [])
         return sum(x.numel()*x.element_size() for x in values)
 
-    def mismatch(self, images, context, signature):
-        if self.images is None:
+    def mismatch(self, images, context, signature, block0_input):
+        if self.images is None or self.block0_input is None:
             return 'no_valid_cache'
-        if self.metadata_revision != repr((self.context,self.sources)):
+        if self.metadata_revision != repr((self.context,self.sources,self.signature,self.input_stride,self.output_stride,self.version)):
             return 'cache_metadata_modified'
-        if self.storage_revision is not None and self.storage_revision != self._revision(self.images, self.outputs):
+        if self.storage_revision is not None and self.storage_revision != self._revision(self.images,self.block0_input,self.outputs):
             return 'cache_storage_modified'
         if self.signature != signature:
             return 'execution_signature_mismatch'
         if self.images.shape != images.shape or self.images.device != images.device or self.images.dtype != images.dtype:
             return 'shape_unsupported'
+        if (self.block0_input.shape != block0_input.shape or self.block0_input.device != block0_input.device
+                or self.block0_input.dtype != block0_input.dtype or self.block0_input.stride() != block0_input.stride()):
+            return 'execution_signature_mismatch'
         if self.input_stride != tuple(images.stride()):
             return 'execution_signature_mismatch'
         if self.context.get('coordinate_space') != context.get('coordinate_space'):

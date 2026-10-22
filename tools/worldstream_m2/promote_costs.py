@@ -1,0 +1,139 @@
+"""Explicit, evidence-bound production admission for offline M2 candidates.
+
+Task assessment contract: m2_window_task_quality_v1. This is an independent
+assessment of real task reports, never an output of window_validate.
+"""
+import argparse
+import copy
+import hashlib
+import json
+import os
+from pathlib import Path
+import tempfile
+
+from .window_validate import sha256
+from worldstream.m2.cost_model import CostModel, SCHEMA_VERSION
+
+
+def checked_artifact(base, evidence):
+    path=(base/evidence['path']).resolve()
+    if not path.is_file() or sha256(path)!=evidence['sha256']:
+        raise ValueError('Missing or modified evidence: '+str(path))
+    return path
+
+
+def promote_candidate(candidate_path, quality_path, live_keys, counts, approved_by, output):
+    """Validate a concrete researcher selection before atomically writing it."""
+    candidate_path=Path(candidate_path).resolve();quality_path=Path(quality_path).resolve()
+    output=Path(output)
+    data=json.loads(candidate_path.read_text());quality=json.loads(quality_path.read_text())
+    if data.get('schema_version')!=SCHEMA_VERSION:raise ValueError('Candidate schema mismatch')
+    if not counts or any(type(c) is not int or c<0 for c in counts) or not approved_by.strip():
+        raise ValueError('Explicit counts and researcher identity required')
+    if (quality.get('schema')!='m2_window_task_quality_v1' or quality.get('independent') is not True
+            or quality.get('status')!='passed' or not quality.get('assessor')
+            or quality.get('candidate_sha256')!=sha256(candidate_path)):
+        raise ValueError('Independent candidate-bound task assessment required')
+    selected=[r for r in data['records'] if r['updated'] in counts]
+    if set(counts)!={r['updated'] for r in selected}:raise ValueError('Unmeasured requested count')
+    for record in selected:
+        key=record['key'];count=record['updated']
+        if key not in live_keys:raise ValueError('Current formal model/executor signature mismatch')
+        identity=json.loads(key)
+        if identity.get('backbone_version')!=data.get('backbone_fingerprint'):
+            raise ValueError('Backbone identity missing or mismatched')
+        evidence=record.get('numerical_evidence',{})
+        path=checked_artifact(candidate_path.parent,evidence)
+        validation=json.loads(path.read_text())
+        if (evidence.get('sha256')!=data.get('validation_sha256')
+                or validation.get('backbone_fingerprint')!=identity['backbone_version']
+                or validation.get('numerical_policy')!=identity['numerical_policy']
+                or record.get('numerical_verified') is not True):
+            raise ValueError('Numerical validation missing or mismatched')
+        cases={r['case']:r for r in validation['natural']+validation['controlled_microbenchmarks']}
+        for name in record.get('evidence_cases',[]):
+            case=cases.get(name,{})
+            if case.get('difference',{}).get('exact') is not True or not any(
+                    s['block']==record['block'] and s['updated_windows']==count for s in case.get('stages',[])):
+                raise ValueError('Scenario/count numerical evidence missing')
+        if not record.get('evidence_cases'):raise ValueError('No validated scenarios')
+        assessments=[r for r in quality.get('records',[]) if r.get('key')==key and r.get('updated')==count]
+        if len(assessments)!=1:raise ValueError('Per-signature/count task evidence missing')
+        if not set(record['evidence_cases']).issubset(assessments[0].get('covered_cases',[])):
+            raise ValueError('Task assessment does not cover the validated scenarios')
+        tasks=assessments[0].get('tasks',{})
+        for task in ('detection','map','vlm'):
+            assessment=tasks.get(task,{})
+            if assessment.get('status')!='passed' or not assessment.get('evaluator') or not assessment.get('metrics'):
+                raise ValueError('Required downstream task not passed: '+task)
+            checked_artifact(quality_path.parent,assessment)
+        for row in record.get('measurements',[record]):
+            if (row.get('numerical_verified') is not True or
+                    not row['incremental_gpu_ms']<row['full_gpu_ms'] or
+                    not row['incremental_wall_ms']<row['full_wall_ms']):
+                raise ValueError('GPU and wall benefit required in every covered case')
+        record['quality_certified']=True
+        record.pop('quality_rejection_reason',None)
+        record['approval']=dict(approved_by=approved_by,candidate=str(candidate_path),
+            key_sha256=hashlib.sha256(key.encode()).hexdigest(),updated=count,
+            candidate_sha256=sha256(candidate_path),quality_report=str(quality_path),
+            quality_report_sha256=sha256(quality_path),numerical_evidence=str(path),
+            numerical_evidence_sha256=sha256(path))
+    result=dict(schema_version=SCHEMA_VERSION,records=copy.deepcopy(selected),
+        formal_quality_policy=dict(approved_counts=sorted(set(counts))),production_ready=True)
+    # Refuse accidental replacement of previous research approvals. An empty
+    # deployment table may be initialized; a new path may always be used.
+    if output.exists():
+        old=json.loads(output.read_text())
+        if old.get('records') or old.get('formal_quality_policy',{}).get('approved_counts'):
+            raise ValueError('Refusing to overwrite nonempty approvals; use a new table path')
+    output.parent.mkdir(parents=True,exist_ok=True)
+    temporary=None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w',dir=output.parent,delete=False) as handle:
+            temporary=Path(handle.name)
+            json.dump(result,handle,indent=2,allow_nan=False);handle.flush();os.fsync(handle.fileno())
+        costs=CostModel(str(temporary))
+        if any(not costs.beneficial(r['key'],r['updated'])[0] for r in selected):
+            raise ValueError('Candidate fails production cost parser')
+        os.replace(temporary,output);temporary=None
+    finally:
+        if temporary is not None:temporary.unlink(missing_ok=True)
+    return result
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--candidate',required=True)
+    parser.add_argument('--quality-report',required=True)
+    parser.add_argument('--checkpoint',default='ckpts/iter_10548.pth')
+    parser.add_argument('--approved-counts',type=int,nargs='+',required=True)
+    parser.add_argument('--approved-by',required=True)
+    parser.add_argument('--confirm-approval',action='store_true',required=True)
+    parser.add_argument('--output',required=True)
+    args=parser.parse_args()
+    import torch
+    from .common import backbone
+    from worldstream.m2.cost_model import cost_key
+    from worldstream.m2.dependency_planner import DependencyPlanner,block0_input
+    candidate=json.loads(Path(args.candidate).read_text())
+    selected=[r for r in candidate['records'] if r['updated'] in args.approved_counts]
+    if not selected:parser.error('No measured records selected')
+    model=backbone(args.checkpoint);planner=DependencyPlanner(model)
+    prefix=planner.cacheable_prefix()
+    if planner.rejection_reason:raise ValueError(planner.rejection_reason)
+    keys=set()
+    # Recreate formal preprocessing geometry from the config, rather than trust
+    # candidate-supplied shapes. Load exact weights and inspect current keys.
+    from mmcv import Config
+    cfg=Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py')
+    resize=next(n for n in cfg.test_pipeline if n['type']=='ResizeMultiview3D')['img_scale']
+    with torch.no_grad():
+        x=block0_input(model,torch.zeros(6,3,resize[1],resize[0],device='cuda'))
+        for i in prefix:
+            keys.add(cost_key(model.blocks[i],x,i,model=model));x=model.blocks[i](x)
+    result=promote_candidate(args.candidate,args.quality_report,keys,args.approved_counts,args.approved_by,args.output)
+    print(json.dumps(dict(output=args.output,approved_counts=result['formal_quality_policy']['approved_counts'])))
+
+
+if __name__=='__main__':main()

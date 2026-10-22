@@ -3,6 +3,7 @@ import hashlib
 import json
 import weakref
 import math
+from pathlib import Path
 import torch
 
 SCHEMA_VERSION = 3
@@ -24,7 +25,7 @@ def block_fingerprint(block):
     return result
 
 
-def cost_key(block, x, block_index=None):
+def cost_key(block, x, block_index=None, model=None):
     """Content fingerprint prevents reuse across same-shape different checkpoints."""
     props = torch.cuda.get_device_properties(x.device) if x.is_cuda else None
     from .window_executor import NUMERICAL_POLICY
@@ -38,7 +39,13 @@ def cost_key(block, x, block_index=None):
         attention_fp16_enabled=getattr(getattr(block.attn,'inner_attn',None),'fp16_enabled',None),
         inner_norm_eps=getattr(block.attn.inner_attn_ln,'eps',None),
         mlp_norm_eps=getattr(block.mlp.ffn_ln,'eps',None),
-        model_version=block_fingerprint(block), autocast=torch.is_autocast_enabled(),
+        model_version=block_fingerprint(block),
+        backbone_version=block_fingerprint(model) if model is not None else None,
+        backbone_geometry=(dict(kernel=model.patch_embed.proj.kernel_size,stride=model.patch_embed.proj.stride,
+            padding=model.patch_embed.proj.padding,dilation=model.patch_embed.proj.dilation,
+            cls_token=model.pretrain_use_cls_token,
+            topology=[(b.window_size,b.use_residual_block) for b in model.blocks]) if model is not None else None),
+        change_detection='exact_block0_input',autocast=torch.is_autocast_enabled(),
         autocast_dtype=str(torch.get_autocast_gpu_dtype()),
         tf32=[torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32],
         cudnn=[torch.backends.cudnn.benchmark,torch.backends.cudnn.deterministic],
@@ -50,6 +57,8 @@ def cost_key(block, x, block_index=None):
 class CostModel:
     def __init__(self, path=''):
         self.records=[]
+        self.production_ready=False
+        self._evidence_hashes={}
         self.status='unprofiled_cost'
         if path:
             try:
@@ -59,6 +68,7 @@ class CostModel:
                     return
                 records=data['records']
                 if not isinstance(records,list):raise ValueError('records must be a list')
+                identities=set()
                 for record in records:
                     key=json.loads(record['key'])
                     if key['schema']!=SCHEMA_VERSION or not isinstance(key['block_index'],int):
@@ -67,22 +77,45 @@ class CostModel:
                         raise ValueError('Invalid updated window count')
                     if record.get('block') != key['block_index']:
                         raise ValueError('Block identity mismatch')
+                    identity=(record['key'],record['updated'])
+                    if identity in identities:raise ValueError('Duplicate window cost identity')
+                    identities.add(identity)
                     for name in ('incremental_gpu_ms','full_gpu_ms','incremental_wall_ms','full_wall_ms'):
                         value=record[name]
                         if type(value) not in (float,int) or not math.isfinite(value) or value<0:
                             raise ValueError('Invalid measured window cost')
                 policy=data.get('formal_quality_policy')
-                approved=set(policy.get('approved_counts',[])) if isinstance(policy,dict) else set()
+                counts=policy.get('approved_counts',[]) if isinstance(policy,dict) else []
+                if any(type(c) is not int or c<0 for c in counts):raise ValueError('Invalid approvals')
+                approved=set(counts)
+                self.production_ready=data.get('production_ready') is True
                 self.records=[]
                 for record in records:
                     record=dict(record)
-                    if record['updated'] not in approved:
+                    if record['updated'] not in approved or not self.production_ready:
                         record['quality_certified']=False
                         record.setdefault('quality_rejection_reason','downstream_quality_unverified')
                     self.records.append(record)
                 self.status='ready'
             except (OSError,ValueError,KeyError,TypeError,AttributeError):
                 self.status='invalid_cost_table'
+
+    def _approval_valid(self,record):
+        approval=record.get('approval',{})
+        if (not isinstance(approval,dict) or not isinstance(approval.get('approved_by'),str) or
+                not approval['approved_by'].strip() or type(approval.get('updated')) is not int or
+                approval.get('key_sha256')!=hashlib.sha256(record['key'].encode()).hexdigest() or
+                approval.get('updated')!=record['updated']):
+            return False
+        for name in ('candidate','quality_report','numerical_evidence'):
+            path=approval.get(name);expected=approval.get(name+'_sha256')
+            if not isinstance(path,str) or not isinstance(expected,str):return False
+            cache_key=(path,expected)
+            if cache_key not in self._evidence_hashes:
+                try:self._evidence_hashes[cache_key]=hashlib.sha256(Path(path).read_bytes()).hexdigest()==expected
+                except OSError:self._evidence_hashes[cache_key]=False
+            if not self._evidence_hashes[cache_key]:return False
+        return True
 
     def lookup(self,key,count):
         return next((r for r in self.records if r['key']==key and r['updated']==count),None)
@@ -95,6 +128,12 @@ class CostModel:
             return False,'window_numerical_evidence_missing'
         if record.get('quality_certified') is not True:
             return False,record.get('quality_rejection_reason','numerical_quality_unverified')
+        if not self._approval_valid(record):
+            return False,'production_approval_evidence_missing'
         good=(record['incremental_gpu_ms']<record['full_gpu_ms']
               and record['incremental_wall_ms']<record['full_wall_ms'])
         return good,None if good else 'estimated_cost_not_beneficial'
+
+    def has_beneficial(self,key):
+        """Bootstrap capture only for this model/layout with an admitted scale."""
+        return any(r['key']==key and self.beneficial(key,r['updated'])[0] for r in self.records)

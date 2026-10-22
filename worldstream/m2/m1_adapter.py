@@ -5,7 +5,7 @@ from worldstream.m1.mask_codec import decode_mask
 def computation_admission(bundle, context, images, cache, force_refresh=False, details=None, window_footprints=None):
     """Validate metadata; return dirty hints only, NEVER an equality mask.
 
-    Unknown is eligible for full independent Exact comparison. Candidate pixels
+    Unknown is eligible for full independent exact feature comparison. Candidate pixels
     get exactly the same full comparison. No warp enters the execution path.
     """
     from worldstream.m1.novelty_detector import validate_refresh_partition
@@ -55,7 +55,7 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
         timestamp = source.get('computation_timestamp')
         if not isinstance(timestamp, (int, float)) or not np.isfinite(timestamp) or (not 0 < bundle.timestamp - timestamp):
             return (None, 'm1_computation_source_expired')
-        if bundle.timestamp - timestamp > horizon and (not False):
+        if bundle.timestamp - timestamp > horizon:
             camera_index = index // len(footprints)
             (x0, y0, x1, y1) = footprints[index % len(footprints)]['input_region']
             local_expired[camera_index, y0:y1, x0:x1] = True
@@ -80,7 +80,7 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
             if record.get('source_camera_id') != cid or not record.get('computation_available'):
                 continue
             computed_time = record.get('computation_timestamp')
-            if True and str(record.get('feature_id', '')).startswith('eva_prefix:'):
+            if str(record.get('feature_id', '')).startswith('eva_prefix:'):
                 try:
                     (_, block, index) = record['feature_id'].split(':')
                     producer = cache.sources[int(block)][int(index)]
@@ -90,7 +90,7 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
                     return (None, 'm1_computation_source_mismatch')
             if record.get('execution_signature') != bundle.execution_signature or record.get('computation_frame_id') == bundle.frame_id or (not isinstance(computed_time, (int, float))) or (not np.isfinite(computed_time)) or (not 0 < bundle.timestamp - computed_time) or (record.get('source_cache_version') not in (None, cache.version)):
                 return (None, 'm1_computation_source_mismatch')
-            if bundle.timestamp - computed_time > horizon and (not False) and (not (True and str(record.get('feature_id', '')).startswith('eva_prefix:'))):
+            if bundle.timestamp - computed_time > horizon and not str(record.get('feature_id', '')).startswith('eva_prefix:'):
                 camera_reasons[cid] = 'm1_computation_source_expired'
         if contract.get('full_refresh_hint'):
             return (None, 'm1_full_refresh')
@@ -98,13 +98,13 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
             return (None, 'preprocessing_geometry_unavailable')
         try:
             (dirty, candidate, unknown) = [decode_mask(contract[key]) for key in ('dirty_hint_mask', 'reuse_candidate_mask', 'unknown_mask')]
-        except Exception:
+        except (ValueError,TypeError,KeyError,IndexError):
             return (None, 'invalid_refresh_contract')
         if dirty.shape != tuple(images.shape[-2:]) or not validate_refresh_partition(dirty, candidate, unknown):
             return (None, 'invalid_refresh_contract')
-        if True and cid in camera_reasons:
+        if cid in camera_reasons:
             dirty = np.ones_like(dirty)
-        elif True and dirty.any():
+        elif dirty.any():
             camera_reasons[cid] = 'm1_dirty_camera_observation'
         dirty = dirty | local_expired[len(masks)]
         masks.append(dirty)

@@ -1,3 +1,4 @@
+from worldstream.m2.state_cache import CachePublicationError
 import pytest
 import torch
 from worldstream.m2 import IncrementalVisionRuntime,M2Config
@@ -25,7 +26,8 @@ def test_identical_windows_skip_attention_and_pointwise(admitted_runtime,context
     rt=admitted_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
     ctx=dict(context,frame_id='1',timestamp=1.1)
     out,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert d['actual_skipped_windows']==d['actual_skipped_block_computations']==36
+    assert d['actual_skipped_windows']==d['skipped_pointwise_window_work']==36
+    assert d['actual_skipped_block_computations']==2
     assert all(s['pointwise_window_work']==0 for s in d['stages'][:2])
     assert torch.equal(out[0],rt.model(x)[0])
 
@@ -50,7 +52,7 @@ def test_every_miss_uses_same_all_window_execution(eva,context,monkeypatch,cause
 def test_cache_publication_failure_returns_completed_result_once(eva,context,monkeypatch):
     rt=IncrementalVisionRuntime(eva,dict(cache_capture='always'));calls=[]
     handle=eva.blocks[-1].register_forward_hook(lambda *a:calls.append(1))
-    def fail(*a,**k):raise RuntimeError('injected allocation failure')
+    def fail(*a,**k):raise CachePublicationError('injected allocation failure')
     monkeypatch.setattr(rt.cache,'commit',fail)
     out,d=cold(rt,torch.ones(2,3,40,40),context);handle.remove()
     assert len(calls)==1 and not d['cache_saved'] and not rt.cache.bytes

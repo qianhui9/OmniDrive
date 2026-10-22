@@ -5,7 +5,7 @@ model = dict(
     m1_config='configs/worldstream_m1_final.yaml',
     m2_enable=True,
     m2_config=dict(mode='auto', reuse_boundary='window', state_interface='source_linked',
-        m1_service='maintain', memory_budget_mb=512,
+        m1_service='maintain', memory_budget_mb=512, cache_capture='adaptive',
         cost_table='outputs/final_route/window_costs.json'),
     m3_enable=True,
     m3_config=dict(mode='auto', state_context='augment', memory_budget_mb=512,

@@ -25,3 +25,16 @@ def admitted_runtime(eva,monkeypatch):
     # certification. No mocked costs are written to deployment artifacts.
     monkeypatch.setattr(runtime.costs,'beneficial',lambda key,count:(True,None))
     return runtime
+
+
+def synthetic_approval(tmp_path,key,count):
+    """Synthetic unit artifacts, confined to pytest's temporary directory."""
+    import hashlib
+    artifact=tmp_path/'synthetic_evidence.txt'
+    artifact.write_text('UNIT TEST ONLY: not a deployment quality assessment')
+    digest=hashlib.sha256(artifact.read_bytes()).hexdigest()
+    return dict(approved_by='synthetic_unit_fixture',updated=count,
+        key_sha256=hashlib.sha256(key.encode()).hexdigest(),
+        candidate=str(artifact),candidate_sha256=digest,
+        quality_report=str(artifact),quality_report_sha256=digest,
+        numerical_evidence=str(artifact),numerical_evidence_sha256=digest)

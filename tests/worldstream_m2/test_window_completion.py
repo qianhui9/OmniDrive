@@ -1,4 +1,5 @@
 """Window execution owns canonical activations and rejects stale calibration."""
+from .conftest import synthetic_approval
 import json
 import pytest
 import torch
@@ -52,12 +53,12 @@ def test_window_executor_checks_contract_before_zero_update(eva):
 def test_window_cache_owns_outputs_and_rejects_over_budget_atomically():
     cache=StateCache(2000);images=torch.ones(1,3,4,4);out={0:torch.ones(1,4,4,8)}
     ctx=dict(frame_id='0',camera_ids=['front'])
-    cache.commit(images,out,ctx,'signature')
+    cache.commit(images,out,ctx,'signature',block0_input=torch.ones(1,1,1,8))
     out[0].zero_();out.clear()
     assert cache.outputs[0].count_nonzero()==128
     old=(cache.images,cache.outputs,cache.context,cache.version)
     with pytest.raises(RuntimeError,match='budget'):
-        cache.commit(images,{0:torch.ones(1000)},ctx,'signature')
+        cache.commit(images,{0:torch.ones(1000)},ctx,'signature',block0_input=torch.ones(1,1,1,8))
     assert (cache.images,cache.outputs,cache.context,cache.version)==old
 
 
@@ -113,13 +114,14 @@ def test_auto_requires_matching_cost_and_quality(eva,context,tmp_path,approved):
     x=x+get_abs_pos(eva.pos_embed,eva.pretrain_use_cls_token,x.shape[1:3])
     records=[]
     for i in runtime.prefix:
-        records.append(dict(key=cost_key(eva.blocks[i],x,i),block=i,updated=1,numerical_verified=True,
+        records.append(dict(key=cost_key(eva.blocks[i],x,i,model=eva),block=i,updated=1,numerical_verified=True,
             quality_certified=True,incremental_gpu_ms=.1,full_gpu_ms=1.,incremental_wall_ms=.1,full_wall_ms=1.))
         x,_=runtime.executor.execute(eva.blocks[i],x,runtime.cache.outputs[i],torch.tensor([0]))
+    for row in records:row['approval']=synthetic_approval(tmp_path,row['key'],row['updated'])
     # These synthetic costs are unit fixtures; they are never deployment evidence.
     path=tmp_path/'synthetic_costs.json'
     path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,records=records,
-        formal_quality_policy=dict(approved_counts=[1] if approved else []))))
+        production_ready=True,formal_quality_policy=dict(approved_counts=[1] if approved else []))))
     runtime.costs=CostModel(str(path));ctx=dict(context,frame_id='1',timestamp=1.1)
     out,d=runtime.forward(changed,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
     assert d['actual_skipped_windows']==(34 if approved else 0)

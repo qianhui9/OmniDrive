@@ -7,13 +7,36 @@ from .packing import window_mask, partition, unpartition
 
 def patch_updates(invalid_pixels, projection):
     """Any invalid pixel in the full Conv2d receptive field invalidates a token."""
-    return F.max_pool2d(invalid_pixels[:, None].float(), projection.kernel_size,
-                        projection.stride, projection.padding, projection.dilation)[:, 0].bool()
+    if invalid_pixels.ndim != 3 or invalid_pixels.dtype != torch.bool:
+        raise ValueError('Expected boolean NHW preprocessed-image mask')
+    # Explicit padding handles valid Conv2d configurations whose dilated
+    # receptive field exceeds max_pool2d's stricter padding limit.
+    ph,pw=projection.padding
+    pixels=F.pad(invalid_pixels[:,None].float(),(pw,pw,ph,ph))
+    return F.max_pool2d(pixels,projection.kernel_size,projection.stride,
+                        0,projection.dilation)[:,0].bool()
 
 
 def exact_pixel_changes(current, previous):
     # NaNs are always invalid. No tolerance, image warp or centre-point test.
     return (current != previous).any(1) | ~torch.isfinite(current).all(1)
+
+
+def block0_input(backbone, images):
+    """The actual native BHWC boundary, computed exactly once per request."""
+    from projects.mmdet3d_plugin.models.backbones.eva_vit import get_abs_pos
+    x = backbone.patch_embed(images)
+    if backbone.pos_embed is not None:
+        x = x + get_abs_pos(backbone.pos_embed, backbone.pretrain_use_cls_token, x.shape[1:3])
+    return x
+
+
+def exact_token_changes(current, previous):
+    """Exact equality at Block 0; non-finite tokens always need computation."""
+    if (current.ndim != 4 or current.shape != previous.shape or
+            current.device != previous.device or current.dtype != previous.dtype):
+        raise ValueError('Expected matching BHWC Block 0 inputs')
+    return (current != previous).any(-1) | ~torch.isfinite(current).all(-1)
 
 
 @dataclass
@@ -75,7 +98,8 @@ class DependencyPlanner:
             return True
         if (type(self.backbone) is not EVAViT or
                 getattr(self.backbone.forward,'__func__',None) is not EVAViT.forward or
-                not plain(self.backbone.patch_embed,{PatchEmbed,torch.nn.Conv2d})):
+                not plain(self.backbone.patch_embed,{PatchEmbed,torch.nn.Conv2d}) or
+                self.backbone.patch_embed.proj.padding_mode!='zeros'):
             return reject()
         for block in self.backbone.blocks:
             if (type(block) is not Block or type(block.attn) is not Attention or

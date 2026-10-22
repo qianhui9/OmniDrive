@@ -1,4 +1,5 @@
 """Window computation ages remain distinct from a fresh verification time."""
+from worldstream.m2.state_cache import CachePublicationError
 import pytest
 import torch
 from .test_source_linked_admission import cold,bundle_for
@@ -30,7 +31,7 @@ def test_external_lineage_mutation_forces_all_window_update(admitted_runtime,con
 @torch.no_grad()
 def test_failed_publication_preserves_output_lineage(admitted_runtime,context,monkeypatch):
     rt=admitted_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
-    def fail(*a,**kw):raise RuntimeError('injected publication failure')
+    def fail(*a,**kw):raise CachePublicationError('injected publication failure')
     monkeypatch.setattr(rt.cache,'commit',fail)
     ctx=dict(context,frame_id='1',timestamp=1.1)
     _,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
