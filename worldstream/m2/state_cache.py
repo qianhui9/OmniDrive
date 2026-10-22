@@ -28,6 +28,9 @@ class StateCache:
         self.sources = {}
         self.storage_revision = None
         self.metadata_revision = None
+        self.region_states = []
+        self.window_ages = {}
+        self.descriptors = None
 
     @staticmethod
     def _revision(images, block0_input, outputs):
@@ -35,9 +38,12 @@ class StateCache:
                       tuple(value.stride()), value.dtype, value.device)
                      for name,value in [('images',images),('block0_input',block0_input)]+[(f'block:{i}',t) for i,t in sorted(outputs.items())])
 
-    def commit(self, images, outputs, context, signature, output_stride=None, sources=None, *, block0_input):
+    def commit(self, images, outputs, context, signature, output_stride=None, sources=None, *, block0_input,
+               region_states=(), window_ages=None, descriptors=None):
         """Publish a single completed forward atomically; retained outputs are immutable."""
-        values = [images, block0_input, *outputs.values()]
+        window_ages = window_ages or {}
+        values = [images, block0_input, *outputs.values(), *window_ages.values()]
+        if descriptors is not None: values.append(descriptors)
         needed = sum(t.numel()*t.element_size() for t in values)
         if needed > self.budget_bytes:
             raise CachePublicationError('window_cache_budget_exceeded')
@@ -48,6 +54,9 @@ class StateCache:
         owned_input = block0_input.detach().clone()
         owned_outputs = {i: value.detach().clone() for i,value in outputs.items()}
         owned_context = copy.deepcopy(context)
+        owned_regions = copy.deepcopy(region_states)
+        owned_ages = {i:t.detach().clone() for i,t in window_ages.items()}
+        owned_descriptors = descriptors.detach().clone() if descriptors is not None else None
         owned_sources = copy.deepcopy(sources) if sources is not None else {
             i: [dict(computation_frame_id=context['frame_id'], computation_timestamp=context.get('timestamp'),
                 computation_version=self.version+1, camera_id=context['camera_ids'][j//(len(values)//len(images))],
@@ -55,26 +64,34 @@ class StateCache:
             for i,values in outputs.items()}
         input_stride = tuple(images.stride())
         output_stride = tuple(output_stride) if output_stride is not None else None
-        storage_revision = self._revision(owned_images, owned_input, owned_outputs)
-        metadata_revision = repr((owned_context,owned_sources,signature,input_stride,output_stride,self.version+1))
+        storage_revision = self._revision(owned_images, owned_input, owned_outputs) + self._policy_revision(owned_descriptors,owned_ages)
+        metadata_revision = repr((owned_context,owned_sources,signature,input_stride,output_stride,self.version+1,owned_regions))
         # All potentially failing work precedes publication, including ownership,
         # metadata cloning and integrity bookkeeping.
         (self.images,self.block0_input,self.outputs,self.context,self.sources,self.signature,
-         self.input_stride,self.output_stride,self.version,self.storage_revision,self.metadata_revision) = (
+         self.input_stride,self.output_stride,self.version,self.storage_revision,self.metadata_revision,
+         self.region_states,self.window_ages,self.descriptors) = (
             owned_images,owned_input,owned_outputs,owned_context,owned_sources,signature,
-            input_stride,output_stride,self.version+1,storage_revision,metadata_revision)
+            input_stride,output_stride,self.version+1,storage_revision,metadata_revision,
+            owned_regions,owned_ages,owned_descriptors)
+
+    @staticmethod
+    def _policy_revision(descriptors, ages):
+        values = ([descriptors] if descriptors is not None else []) + [t for _,t in sorted(ages.items())]
+        return tuple((t.data_ptr(),t._version,tuple(t.shape),str(t.dtype),str(t.device)) for t in values)
 
     @property
     def bytes(self):
         values = list(self.outputs.values()) + ([self.images,self.block0_input] if self.images is not None else [])
+        values += list(self.window_ages.values()) + ([self.descriptors] if self.descriptors is not None else [])
         return sum(x.numel()*x.element_size() for x in values)
 
     def mismatch(self, images, context, signature, block0_input):
         if self.images is None or self.block0_input is None:
             return 'no_valid_cache'
-        if self.metadata_revision != repr((self.context,self.sources,self.signature,self.input_stride,self.output_stride,self.version)):
+        if self.metadata_revision != repr((self.context,self.sources,self.signature,self.input_stride,self.output_stride,self.version,self.region_states)):
             return 'cache_metadata_modified'
-        if self.storage_revision is not None and self.storage_revision != self._revision(self.images,self.block0_input,self.outputs):
+        if self.storage_revision is not None and self.storage_revision != self._revision(self.images,self.block0_input,self.outputs)+self._policy_revision(self.descriptors,self.window_ages):
             return 'cache_storage_modified'
         if self.signature != signature:
             return 'execution_signature_mismatch'

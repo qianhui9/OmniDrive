@@ -32,6 +32,36 @@ def build_bundle(manager, frame, result, validate_observation=True):
     cache = receipt.get('cache_context') or {}
     bundle.diagnostics = dict(observed_source_frame_id=manager._previous_frame_id, observed_source_timestamp=manager.store.last_timestamp, source_cache_version=receipt.get('cache_version') if receipt.get('cache_saved') else None, cache_available=bool(receipt.get('cache_saved')), cache_frame_id=cache.get('frame_id'), full_refresh_hint=result.full_refresh_hint, validation_requested=validate_observation, transformer_dependency_certified=False, validity_lease_export_enabled=manager.config.validity_lease, lease_policy='existing_max_state_age_s_no_independent_lifecycle', state_service='maintain', observation_only=True)
     bundle.diagnostics['transaction_status'] = 'pending'
+    # Current detections do not exist at precheck. Export committed world tracks
+    # projected into this request, with their actual observation qualifications.
+    for aid, anchor in manager.store.anchors.items():
+        check = result.diagnostics.get('anchors', {}).get(aid, {})
+        for cid, view in check.get('cameras', {}).items():
+            region = view.get('predicted_region')
+            if region is None or not view.get('geometry_valid'):
+                continue
+            visibility = view.get('evidence', {}).get('visibility_status', 'unknown_observation')
+            bundle.region_states.append(dict(
+                camera_id=cid, track_id=aid, bbox_xyxy=list(region),
+                class_id=anchor.semantic_class,
+                # Geometry version changes on noisy detections; it is lineage,
+                # never a semantic-change certificate.
+                state_signature=(anchor.anchor_type, anchor.semantic_class),
+                source_state_version=anchor.state_version, confidence=anchor.source_score,
+                visible=True if visibility == 'observed_supported' else None,
+                occluded=True if visibility == 'occluded_hypothesis' else None,
+                visibility_status=visibility, event_flags=[],
+                world_position=anchor.geometry_world.center.tolist(),
+                velocity=anchor.velocity_world.tolist() if anchor.velocity_reliable and anchor.velocity_world is not None else None,
+                last_observed_time=anchor.last_actual_observation_timestamp,
+                valid_until=anchor.source_timestamp+manager.config.max_state_age_s,
+                track_birth_timestamp=anchor.track_birth_timestamp,
+                association_basis=anchor.association_basis,
+                identity_link_qualified=anchor.identity_link_qualified,
+                coordinate_space=frame.cameras[cid].coordinate_space,
+                state_source='committed_world_track_current_projection'))
+    bundle.region_events = [dict(track_id=aid, event='state_expired')
+                            for aid in result.diagnostics.get('expired_anchor_ids', [])]
     for (cid, camera) in frame.cameras.items():
         shape = camera.image.shape[:2]
         old = manager._previous_cameras.get(cid)

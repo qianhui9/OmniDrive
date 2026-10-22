@@ -1,5 +1,7 @@
 # M2 Transformer 窗口级增量执行：实现与验证
 
+> 本文保留历史精确执行结果。后续 WSGRR 实现、40 帧预算消融和实际任务短测见 [WSGRR 实验报告](../wsgrrr_20261022/experiment_report.md)。
+
 正式入口已从 camera Auto 改为 window Auto。实现能够执行 dirty-window gather → 原 EVA Attention/MLP → scatter → 全图重建；仅复用全局注意力之前的独立窗口前缀。当前生产窗口质量批准为空，Auto 保守回退；本报告没有声称真实连续流已获得加速。
 
 ## 实现范围

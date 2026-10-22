@@ -1,54 +1,82 @@
-# M2 精确特征比较与唯一窗口执行器
+# M2 世界状态引导的区域刷新（WSGRR）
 
-正式配置 `projects/configs/OmniDrive/worldstream_m123_auto.py` 固定 `mode=auto`、`reuse_boundary=window`、`state_interface=source_linked`、`m1_service=maintain`、`cache_capture=adaptive`。缓存缺失、来源失效、签名不匹配、成本未批准等情况将更新全部窗口，仍使用同一个 `WindowExecutor`。没有相机缓存、Token 输出缓存、近似阈值、图像补偿或第二个执行器。
+WSGRR 是唯一生产候选策略。正式配置保持 source-linked window Auto、维护 M1、自适应缓存和原成本批准表；没有批准时完整更新。`evaluate_offline()` / `evaluate_offline_from_m1()` 是明确的离线入口，使用相同 DependencyPlanner、StateCache 和 WindowExecutor。普通 M2Config 不提供绕过准入的开关。离线与生产缓存的执行签名不同。
 
-模型图像为 640×640，16×16 Patch 产生 40×40 Token；16×16 Token 窗口补齐到 48×48。六相机每 Block 54 个窗口，仅 Block 0、1 属于经过结构检查的独立前缀，共 108 个输出窗口。Patch Embedding 和 Block 2 起的后缀始终完整执行。
+## 实际 M1 数据与时间边界
 
-`dependency_planner.block0_input()` 完整执行原生 Patch Embedding 和位置嵌入，每个生产请求仅执行一次，并直接传给后续计算。`exact_token_changes()` 对 BHWC 张量逐元素精确比较，任一通道不同或当前 Token 非有限即更新。历史输入是上次完成请求的实际 Block 0 输入，既不是图像采样，也不是 M1 的复用许可。`exact_pixel_changes()` 只保留在离线对照中，生产代码不调用。
+`precheck → computation_state.build_bundle → export_m2_inputs → runtime` 传递 `ComputationStateBundle.region_states` 和 `region_events`。区域来自已提交 WorldAnchor 在当前相机的真实投影，使用当前预处理 intrinsic 和 camera-time pose。只导出通过已有投影有效性检查的区域，不把图像差分转换成对象。
 
-M1 的 dirty、局部来源过期区域仍是预处理图像 NHW 掩码，经卷积真实 kernel/stride/padding/dilation 的感受野传播后与特征变化 Token 取并集。unknown 同样经过 M2 自己的精确比较。依赖规划沿真实窗口拓扑闭包；跨窗口残差或全局 Attention 结束可缓存前缀。非零 padding mode 等无法证明的结构直接拒绝初始化。
+字段包括 camera_id、anchor_id 对应的 track_id、bbox_xyxy、semantic_class 对应的 class_id、(anchor_type, semantic_class) 状态摘要、source_state_version、source_score、观测支持/遮挡假设、世界中心、仅在 velocity_reliable 时导出的速度、最后实际观测时间、出生时间、关联依据与身份可靠性。visible=True 只表示 M1 RGB 观测支持；occluded=True 是既有深度重叠遮挡假设，其余使用 None。几何版本是来源信息，不能把其每次变化当成语义突变。
 
-原生 FP32 GEMM 的归约随形状变化，Q/K 转 FP16 后可能放大误差。因此局部更新保留原始 QKV、投影和 MLP 形状，仅 gather/scatter 选定窗口的 Attention。只有整 Block 零更新时才能跳过其全部点积。`reused_windows` 是复用的输出窗口数；`attention_windows` 是实际 Attention 窗口；`pointwise_window_work` 与 `pointwise_tokens` 单列完整点积处理规模，`actual_skipped_block_computations` 按整 Block 计数，`skipped_pointwise_window_work` 单列零更新时跳过的窗口等价点积工作。六相机有更新时 QKV／投影处理全部 54 个补齐窗口（13,824 个 Token），MLP 处理原网格 9,600 个 Token；不能把输出复用数当作整 Block 计算节省。
+当前帧 Detection/Map 结果在视觉计算后 commit 才产生，因此区域状态是历史检测在当前相机的预测投影。M1 几何关联 ID 没有独立物理身份认证；检测速度目前也没有可靠运动认证，通常不会导出。当前没有信号灯状态、确认消失、可靠语义突变生产者。本实现不声称覆盖这些语义。状态寿命到期来自真实 expired_anchor_ids，导出 state_expired；单帧缺席不产生 disappeared。首次进入某相机的已知历史投影标记 region_entered；出生时间支持时才标记 appeared。
 
-`StateCache.commit(..., block0_input=...)` 在发布前完成预算、有限值检查、所有张量和上下文／来源元数据的独立复制及版本记录。新特征、原有输入和各 Block 输出全部计入预算。失败不发布半个请求；运行时对预算、非有限值、CUDA 分配失败清除缓存并返回已完成的输出，接口或编程错误直接抛出。缓存版本、张量 `_version`、地址／布局及上下文／来源元数据变化使缓存失效，且先于 M1 解引用检查。
+## 选择与依赖
 
-成本键包含完整 EVA 权重和缓冲区指纹、Block 指纹、拓扑／Patch 几何、Torch/CUDA/GPU、输入形状与布局、数值策略和精度上下文。旧键不能用于新路线。生产准入需要精确键／规模记录、数值证据、独立下游质量、双时间收益、明确批准及仍可读取且哈希相同的证据文件。自适应缓存仅在当前键有获批且划算的规模时捕获：第一个完整请求建立缓存，后续请求才能复用；候选记录本身不触发捕获。
+每路 640×640 经真实 16×16 Conv2d 产生 40×40 Token，16×16 Token 窗口补齐到 48×48；六相机每 Block 54 个窗口。只有经过结构检查的 Block 0、1 独立窗口前缀缓存，Block 2 起全部执行。不同窗口大小也通过真实拓扑传播闭包。
 
-离线测量不依赖生产批准，复用现有工具，输出目录必须不存在：
+每帧只执行一次 block0_input。区域到 Token 的映射逐轴检查真实 kernel、stride、padding、dilation 的采样位置是否与图像区域相交。事件影响区域为旧、新 bbox 各自膨胀 margin 后的并集。固定图像位置缓存不支持对象输出搬移。
+
+必须刷新来源：显式 M1 事件、状态摘要变化、已知身份关联资格失效、有效观测在遮挡假设后重现、明显 bbox 位移或中心跨窗口、局部计算/观测租约失效、年龄达到上限、当前非有限 Token。bbox 各坐标变化最大值达到 16 像素视为明显位移；中心根据真实 Conv2d 几何定位窗口。普通单像素 bbox 边缘变化不会直接成为必须刷新事件。全局上下文、模型/策略签名、缓存来源/版本失效以及 M1 full_refresh_hint 仍完整更新。
+
+普通评分：
+
+```
+V = clamp(1 - cosine(mean_valid_tokens(x0_window), cached_descriptor), 0, 2)
+A = min((frames_since_actual_refresh + 1) / max_reuse_frames, 1)
+U = mean_valid_tokens(mean_receptive_field(dirty_hint OR unknown))
+S = drift_weight * V + age_weight * A + uncertainty_weight * U
+```
+
+窗口 padding 不参与描述平均。描述只在对应 Block 0 窗口实际重算时更新，反映相对计算来源的累积漂移；Block 0 输入本身保存每次成功请求的当前值，用于离线精确对照。每个 Block 单独记录实际刷新年龄。相等零向量漂移为 0，零/非零向量漂移为 1。
+
+默认参数：ordinary_budget=3 / 相机，max_reuse_frames=8，region_margin_px=8，movement_threshold_px=16，权重 (1, 0.25, 0.25)，score_threshold=0.05。普通候选满足评分阈值后按分数降序、年龄降序、camera-major 窗口索引升序选取。必须集合不占普通预算，可以超过预算。这些参数只是未校准研究起点，真实来源租约可早于八帧失效，不会为提高复用而放宽。
+
+选定窗口经 plan_windows 转为 Token，再走同一 plan 依赖闭包。成本拒绝导致某 Block 扩为完整执行时，后续前缀也相应扩展。保持一个 WindowExecutor，QKV、投影、MLP 的原生全形状与精度不变，只减少独立窗口 Attention；全局依赖后缀全部执行。输出窗口复用率不能当作总计算减少率。
+
+## 原子缓存和成本准入
+
+StateCache 同时提交图像、当前 Block 0 输入、各层窗口输出及逐窗口实际计算来源、区域快照、各层窗口年龄、Block 0 描述、上下文/时间戳/签名。分配、复制、预算和有限性检查全部成功后一次发布。失败不发布混合版本；运行时已知资源失败清空缓存，编程错误传播。区域元数据和描述/年龄张量也纳入修改检测。普通列表缺席保留历史区域，直到 M1 明确过期/消失事件或缓存重置。
+
+缓存签名和正式成本键绑定全部关键策略参数、模型和数值上下文；旧精确路线成本不能授权 WSGRR。批准需要对应模型/策略/规模的成本、独立 Detection/Map/VLM 质量报告及可验证证据哈希。离线调用不更新批准表，cache_capture=always 本身不绕过生产成本门槛。
+
+## 离线复现
+
+```bash
+taskset -c 0-3,6-31 env OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 \
+  /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m2.window_validate \
+  --wsgrr --frames 40 --repeats 3 --warmup 1 --budgets 2 3 4 6 9 \
+  --m1-predictions /path/to/actual_full_model/results_nusc.json \
+  --output outputs/wsgrr_new
+```
+
+真实连续关键帧按 scene/time 排序；可用 --scene 指定场景。真实全模型预测只在每帧 M1 commit 时回放，不能以标注对象 ID 代替跟踪；标注类别只用于离线覆盖率描述。各实验独立维护 M1 与 M2 提交链。
+
+- A：旧精确 Block 0 比较与 dirty/source 约束，离线基线。
+- B：区域漂移、年龄和局部优先级，不使用对象事件、无普通数量预算。
+- C：加入 M1 真实区域关联和事件，仍无普通数量预算。
+- D：完整 WSGRR，测试各预算。
+
+frames.jsonl 保存各层执行/复用窗口、必须/普通集合、事件区域及漏刷数、漂移/年龄/评分、精确 Token 变化率和实际选中 Token 比例、原生特征误差、墙钟/CUDA 流跨度样本、M1 precheck/read 与评分/执行/发布的 host 时间。视觉管线含 embedding、校验、选择、前缀、完整后缀、发布和诊断；M1 precheck/read 单列。CUDA event span 包含 host 提交间隙，不等于活跃 kernel 时间；host 分段未经独立同步，不是 GPU kernel 时间。
+
+--profile-block-costs 额外测量对应实际输入的纯 Block 成本，生成 window_costs_provisional.json；始终 production_ready=false / approved_counts=[]。近似候选记录定量误差，不要求位级相同。独立清单 m2_window_task_quality_v1 的每条记录除 tasks、covered_cases 等既有字段外，还必须给出独立评估的 feature_error_limits={max_abs,mean_abs}。promote_costs 同时要求所有覆盖案例块级与净视觉管线 wall/GPU 收益，不会自动选择容差或批准。晋升工具只匹配当前正式配置的完整策略键，研究预算不能偷偷覆盖默认预算。
+
+该 profiling 开关同时在前序 CUDA 完成后重新测量同一缓存负载的 StateCache.commit，记录 synchronized_cache_publication。运行时未同步的 publication host 时间会包含等待前序算子完成的开销，不能视为纯复制成本。
+
+没有 --wsgrr 时保留旧精确校准工具，用于原生对照，不能作为 WSGRR 正式批准证据。
+
+实际下游任务 smoke 复用全模型 benchmark worker：
 
 ```bash
 taskset -c 0-3,6-31 env HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
-  OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=4 \
-  /home/qh/miniconda3/envs/OmniDrive/bin/python \
-  -m tools.worldstream_m2.window_validate \
-  --output outputs/window_validation_new --frames 4 --warmup 3 --repeats 10
+  OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 \
+  /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.benchmark.worker \
+  --output outputs/wsgrr_tasks_new --run-root outputs/wsgrr_task_run \
+  --condition B2 --workload language --limit 8 --warmup 1 \
+  --offline-wsgrr D --window-budget 3
 ```
 
-自然帧按 scene/timestamp 排序，仅比较同场景严格递增时间的相邻帧。覆盖相同输入、单窗口、填充边缘、所有相机同时变化，以及默认 2/4/8/27/53/54 个窗口规模；可用 `--counts` 指定其他规模。实际规模始终来自依赖闭包，每个可缓存 Block 都测量。每个样本用 CUDA 同步、预热、交替顺序的配对计时，保留中位数及全部原始样本。
+B2 保留真实 M1 和原生语言生成，避免混入 M3。使用同输入 B0 作对照。短测预测差异/问答指标不能替代官方完整验证集或独立质量评估。完整集评估遵循原 benchmark 标注完整性检查和真实 Detection/Map evaluator。
 
-`results.json` 单列像素变化率、旧像素感受野 Token 率、新特征 Token 率、窗口更新率、视觉管线 wall/GPU 时间以及缓存发布时间和字节数。视觉管线包括完整 embedding、比较／闭包、窗口执行、完整后缀；纯 Block 测量排除加载、embedding、比较、发布和任务头。缓存发布单独同步测量，不将两个中位数相加当作实际完整请求延迟。GPU event 为流跨度，包含提交间隙，不是 kernel 活跃时间总和。M1、Detection、Map、完整 VLM 服务的配对端到端时间没有测量时明确标记 `NOT_MEASURED`。
+两个短测完成后，可用 window_validate 的 `--compare-task-runs BASELINE目录 CANDIDATE目录 --output 比较.json` 对齐 sample token，输出实际 Detection/Map 预测距离和回答差异；这些一致性指标不会标记为官方质量认证。
 
-`window_costs_provisional.json` 按键／规模汇总，保留每个场景的块级成本、数值差异和样本，取保守成本案例且要求所有覆盖案例位级相等。始终 `quality_certified=false`、`approved_counts=[]`、`production_ready=false`，不会改写正式表。
-
-晋升分三步：
-
-1. 完成上述数值／成本验证，保留候选和 `results.json`。
-2. 独立完成对应键、规模与场景的 Detection、Map、完整 VLM 评估，由研究人员出具 `m2_window_task_quality_v1` 评估清单。历史无复用的 smoke、一部分预测哈希一致、EVA 位级相同均不能替代它。
-3. 明确选定规模并执行晋升命令。工具重新加载正式权重、按当前正式六相机几何构造实际键，逐条检查证据、所有场景的 wall/GPU 收益和质量清单，再原子写出批准表。仅允许初始化空表；已有批准使用新路径，防止覆盖。
-
-```bash
-taskset -c 0-3,6-31 env HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
-  /home/qh/miniconda3/envs/OmniDrive/bin/python \
-  -m tools.worldstream_m2.promote_costs \
-  --candidate outputs/window_validation_new/window_costs_provisional.json \
-  --quality-report /path/to/independent_task_assessment.json \
-  --checkpoint ckpts/iter_10548.pth \
-  --approved-counts 0 --approved-by researcher_name --confirm-approval \
-  --output outputs/final_route/window_costs.json
-```
-
-上述命令只是满足条件后的操作示例；当前没有质量评估清单，不能实际晋升。可只批准有证据的规模；未列出的规模即使更小也不能推断批准。生产进程需要重新加载新表（重建 runtime／重启服务）。
-
-独立质量清单的契约（字段说明，不是已通过的报告）：顶层 `schema="m2_window_task_quality_v1"`、`independent=true`、`status="passed"`、`assessor` 和候选文件 `candidate_sha256`；`records` 每项含原始字符串 `key`、整数 `updated`、覆盖候选场景名称的 `covered_cases` 和 `tasks`。`tasks` 必须包含 `detection`、`map`、`vlm`，每项包含 `status="passed"`、`evaluator`、非空实际 `metrics`、实际评测产物 `path` 和 `sha256`。相对路径相对于质量清单；数值证据路径相对于候选。清单是独立评估者对实际任务评测的判断，不由视觉校准程序自动生成。批准表保存候选／数值／质量清单的绝对路径和哈希，部署时需要保留这些文件。
-
-2026-10-22 本次实测见 `outputs/m2_feature_boundary_20261022_run02/experiment_report.md`。自然帧没有降低窗口更新比例；只有完全相同输入在本次视觉管线测得收益。正式批准依然为空，所有规模待独立质量认证；非零局部规模还未满足成本条件。历史记录保留不覆盖。
+本次实测见 outputs/wsgrrr_20261022/experiment_report.md，历史实验目录不覆盖。

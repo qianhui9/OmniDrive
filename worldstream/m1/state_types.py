@@ -288,6 +288,8 @@ class ComputationStateBundle:
     observation_links: Dict[str, dict] = field(default_factory=dict)
     refresh_contract: Dict[str, dict] = field(default_factory=dict)
     diagnostics: Dict[str, Any] = field(default_factory=dict)
+    region_states: List[dict] = field(default_factory=list)
+    region_events: List[dict] = field(default_factory=list)
 
     def to_dict(self):
         return json_value(asdict(self))

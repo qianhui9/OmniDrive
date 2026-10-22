@@ -1,13 +1,26 @@
-"""Validate source-linked M1 hints; exact Transformer equality belongs to M2."""
+"""Validate source-linked M1 provenance; separate safety from ordinary evidence."""
 import numpy as np
 from worldstream.m1.mask_codec import decode_mask
 
-def computation_admission(bundle, context, images, cache, force_refresh=False, details=None, window_footprints=None):
-    """Validate metadata; return dirty hints only, NEVER an equality mask.
 
-    Unknown is eligible for full independent exact feature comparison. Candidate pixels
-    get exactly the same full comparison. No warp enters the execution path.
-    """
+def valid_region_states(bundle, cameras):
+    seen=set()
+    try:
+        for row in bundle.region_states:
+            key=(row['camera_id'],row['track_id']);box=np.asarray(row['bbox_xyxy'],dtype=float)
+            if (key in seen or key[0] not in cameras or not isinstance(key[1],str)
+                    or box.shape!=(4,) or not np.isfinite(box).all()
+                    or box[2]<=box[0] or box[3]<=box[1]
+                    or row.get('coordinate_space')!='preprocessed_image'
+                    or 'state_signature' not in row
+                    or not isinstance(row.get('event_flags',[]),(tuple,list))):return False
+            seen.add(key)
+        return all(isinstance(e,dict) and isinstance(e.get('track_id'),str)
+                   and isinstance(e.get('event'),str) for e in bundle.region_events)
+    except (KeyError,TypeError,ValueError):return False
+
+def computation_admission(bundle, context, images, cache, force_refresh=False, details=None, window_footprints=None):
+    """Return mandatory source-invalid pixels; dirty/unknown remain priority only."""
     from worldstream.m1.novelty_detector import validate_refresh_partition
     if bundle is None:
         return (None, 'missing_computation_state')
@@ -19,6 +32,8 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
         return (None, 'm1_context_mismatch')
     if context.get('state_epoch') is not None and context['state_epoch'] != bundle.state_epoch:
         return (None, 'm1_state_epoch_mismatch')
+    if not valid_region_states(bundle,context.get('camera_ids',())):
+        return (None,'invalid_region_state')
     if force_refresh or bundle.diagnostics.get('full_refresh_hint'):
         return (None, 'm1_full_refresh')
     if context.get('coordinate_space') != 'preprocessed_image':
@@ -39,6 +54,7 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
     if not horizons or any((not isinstance(v, (float, int)) or not np.isfinite(v) or v < 0 for v in horizons)):
         return (None, 'm1_invalid_lease')
     camera_reasons = {}
+    uncertainty = []
     local_expired = np.zeros((len(images), *images.shape[-2:]), dtype=bool)
     source_positions = {id(source): (block, index) for (block, units) in cache.sources.items() for (index, source) in enumerate(units)}
     for source in window_sources:
@@ -102,12 +118,12 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
             return (None, 'invalid_refresh_contract')
         if dirty.shape != tuple(images.shape[-2:]) or not validate_refresh_partition(dirty, candidate, unknown):
             return (None, 'invalid_refresh_contract')
+        uncertainty.append((dirty | unknown).astype(np.float32))
+        mandatory = local_expired[len(masks)].copy()
         if cid in camera_reasons:
-            dirty = np.ones_like(dirty)
-        elif dirty.any():
-            camera_reasons[cid] = 'm1_dirty_camera_observation'
-        dirty = dirty | local_expired[len(masks)]
-        masks.append(dirty)
+            mandatory[:] = True
+        masks.append(mandatory)
     if details is not None:
         details.update(camera_reasons=camera_reasons, force_recompute_cameras=[bool(m.any()) for m in masks], expired_source_pixels=int(local_expired.sum()), )
+        details['_uncertainty_pixels'] = np.stack(uncertainty)
     return (np.stack(masks), None)

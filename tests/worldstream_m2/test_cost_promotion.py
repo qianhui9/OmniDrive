@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 import torch
 from worldstream.m2.cost_model import cost_key, block_fingerprint, CostModel, SCHEMA_VERSION
+from worldstream.m2 import M2Config
 from tools.worldstream_m2.promote_costs import promote_candidate
 from tools.worldstream_m2.window_validate import sha256
 
@@ -61,3 +62,30 @@ def test_promotion_requires_all_evidence(tmp_path,eva,fault):
     else:
         with pytest.raises(ValueError):promote_candidate(candidate,quality,keys,counts,'unit_tester',output)
         assert not output.exists()
+
+
+@pytest.mark.parametrize('fault',['none','limits','error','pipeline','nonfinite'])
+def test_wsgrr_approval_uses_independent_errors_tasks_and_net_cost(tmp_path,eva,fault):
+    candidate,quality,_,_=evidence(tmp_path,eva)
+    data=json.loads(candidate.read_text());assessment=json.loads(quality.read_text())
+    validation_path=tmp_path/'validation.json';validation=json.loads(validation_path.read_text())
+    validation['validation_kind']='wsgrr_quantitative_v1'
+    validation['controlled_microbenchmarks'][0]['difference']=dict(exact=False,max_abs=.4,mean_abs=.01)
+    if fault=='nonfinite':validation['controlled_microbenchmarks'][0]['difference']['max_abs']=float('nan')
+    write(validation_path,validation)
+    key=cost_key(eva.blocks[0],torch.zeros(2,10,10,32),0,model=eva,refresh_policy=M2Config().refresh_signature())
+    row=data['records'][0];row['key']=key
+    row.update(pipeline_incremental_wall_ms=.2,pipeline_full_wall_ms=1.,
+        pipeline_incremental_gpu_ms=.2,pipeline_full_gpu_ms=1.)
+    if fault=='pipeline':row['pipeline_incremental_wall_ms']=2.
+    row['numerical_evidence']['sha256']=data['validation_sha256']=sha256(validation_path)
+    record=assessment['records'][0];record['key']=key
+    if fault!='limits':record['feature_error_limits']=dict(max_abs=.3 if fault=='error' else .5,mean_abs=.02)
+    write(candidate,data);assessment['candidate_sha256']=sha256(candidate);write(quality,assessment)
+    dest=tmp_path/'wsgrr_approval.json'
+    if fault=='none':
+        promote_candidate(candidate,quality,{key},[0],'synthetic_fixture',dest)
+        assert CostModel(str(dest)).beneficial(key,0)[0]
+    else:
+        with pytest.raises(ValueError):promote_candidate(candidate,quality,{key},[0],'synthetic_fixture',dest)
+        assert not dest.exists()

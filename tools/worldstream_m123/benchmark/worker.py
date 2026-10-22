@@ -153,6 +153,18 @@ def run(args):
     if not torch.cuda.is_available():
         raise RuntimeError('CUDA unavailable')
     model = load_model(cfg, args.checkpoint, dest)
+    if getattr(args,'offline_wsgrr',None):
+        from functools import partial
+        from dataclasses import replace
+        if args.condition!='B2' or model.m2_runtime is None:
+            raise ValueError('Offline WSGRR task evaluation requires B2 (M1 + M2, native VLM)')
+        runtime=model.m2_runtime
+        runtime.config=replace(runtime.config,ordinary_budget=args.window_budget,cache_capture='always')
+        # Explicit offline tool entry only. No deployment configuration can
+        # select this path or bypass the production cost/quality checks.
+        runtime.forward_from_m1=partial(runtime.evaluate_offline_from_m1,variant=args.offline_wsgrr)
+        write(dest/'offline_experiment.json',dict(variant=args.offline_wsgrr,budget=args.window_budget,
+            production_approvals_added=0,quality_certified=False))
     if args.validate_only:
         write(dest/'status.json', dict(status='COMPLETED', checkpoint_validation='PASS', measured_frames=0))
         return
@@ -386,6 +398,8 @@ def main():
     parser.add_argument('--measurement-set', choices=['main', 'attribution', 'efficiency', 'smoke'], default='smoke')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--validate-only', action='store_true')
+    parser.add_argument('--offline-wsgrr',choices=['A','B','C','D'],help='Explicit unapproved task experiment, B2 only')
+    parser.add_argument('--window-budget',type=int,default=3)
     args = parser.parse_args()
     try:
         run(args)

@@ -30,8 +30,8 @@ def bundle_for(runtime,context):
 
 @torch.no_grad()
 @pytest.mark.parametrize('fault',['scene','frame','time','epoch','signature','source','cache_version','mask'])
-def test_invalid_source_expands_to_full_update(admitted_runtime,context,fault):
-    runtime=admitted_runtime;x=torch.randn(2,3,40,40);cold(runtime,x,context)
+def test_invalid_source_expands_to_full_update(exact_runtime,context,fault):
+    runtime=exact_runtime;x=torch.randn(2,3,40,40);cold(runtime,x,context)
     ctx=dict(context,frame_id='1',timestamp=1.1);bundle=bundle_for(runtime,ctx)
     if fault=='scene':bundle.scene_id='other'
     if fault=='frame':bundle.frame_id='other'
@@ -47,8 +47,8 @@ def test_invalid_source_expands_to_full_update(admitted_runtime,context,fault):
 
 
 @torch.no_grad()
-def test_unknown_change_is_compared_and_dirty_hint_only_expands(admitted_runtime,context):
-    runtime=admitted_runtime;x=torch.randn(2,3,40,40);cold(runtime,x,context)
+def test_unknown_change_is_compared_and_dirty_hint_only_expands(exact_runtime,context):
+    runtime=exact_runtime;x=torch.randn(2,3,40,40);cold(runtime,x,context)
     ctx=dict(context,frame_id='1',timestamp=1.1);bundle=bundle_for(runtime,ctx)
     # Independent image comparison discovers this change despite all-unknown M1.
     x[0,:,0,0]+=.1

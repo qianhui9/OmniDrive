@@ -6,8 +6,8 @@ from .test_source_linked_admission import cold,bundle_for
 
 
 @torch.no_grad()
-def test_unchanged_window_keeps_actual_computation_source(admitted_runtime,context):
-    rt=admitted_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
+def test_unchanged_window_keeps_actual_computation_source(exact_runtime,context):
+    rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
     ctx=dict(context,frame_id='1',timestamp=1.1);x[0,:,0,0]+=.1
     _,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
     source=d['output_window_provenance'][0]
@@ -19,8 +19,8 @@ def test_unchanged_window_keeps_actual_computation_source(admitted_runtime,conte
 
 @torch.no_grad()
 @pytest.mark.parametrize('field',['camera_id','producer_layer','computation_version','computation_frame_id'])
-def test_external_lineage_mutation_forces_all_window_update(admitted_runtime,context,field):
-    rt=admitted_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
+def test_external_lineage_mutation_forces_all_window_update(exact_runtime,context,field):
+    rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
     rt.cache.sources[0][0][field]='forged'
     ctx=dict(context,frame_id='1',timestamp=1.1)
     out,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
@@ -29,8 +29,8 @@ def test_external_lineage_mutation_forces_all_window_update(admitted_runtime,con
 
 
 @torch.no_grad()
-def test_failed_publication_preserves_output_lineage(admitted_runtime,context,monkeypatch):
-    rt=admitted_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
+def test_failed_publication_preserves_output_lineage(exact_runtime,context,monkeypatch):
+    rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
     def fail(*a,**kw):raise CachePublicationError('injected publication failure')
     monkeypatch.setattr(rt.cache,'commit',fail)
     ctx=dict(context,frame_id='1',timestamp=1.1)

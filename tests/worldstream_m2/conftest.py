@@ -27,6 +27,15 @@ def admitted_runtime(eva,monkeypatch):
     return runtime
 
 
+@pytest.fixture
+def exact_runtime(eva):
+    """Legacy operator/equality regressions use the explicit offline A baseline."""
+    from worldstream.m2 import IncrementalVisionRuntime
+    runtime=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
+    runtime.forward=lambda images,**kwargs:runtime.evaluate_offline(images,variant='A',**kwargs)
+    return runtime
+
+
 def synthetic_approval(tmp_path,key,count):
     """Synthetic unit artifacts, confined to pytest's temporary directory."""
     import hashlib

@@ -9,8 +9,8 @@ from .test_source_linked_admission import cold,bundle_for
 
 @torch.no_grad()
 @pytest.mark.parametrize('pixel',[(0,0),(39,39),(17,17)])
-def test_selected_windows_match_original_eva(admitted_runtime,context,pixel):
-    rt=admitted_runtime;x=torch.randn(2,3,40,40)
+def test_selected_windows_match_original_eva(exact_runtime,context,pixel):
+    rt=exact_runtime;x=torch.randn(2,3,40,40)
     first,d=cold(rt,x,context);assert torch.equal(first[0],rt.model(x)[0])
     x[0,:,pixel[0],pixel[1]]+=.1
     ctx=dict(context,frame_id='1',timestamp=1.1)
@@ -22,8 +22,8 @@ def test_selected_windows_match_original_eva(admitted_runtime,context,pixel):
 
 
 @torch.no_grad()
-def test_identical_windows_skip_attention_and_pointwise(admitted_runtime,context):
-    rt=admitted_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
+def test_identical_windows_skip_attention_and_pointwise(exact_runtime,context):
+    rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
     ctx=dict(context,frame_id='1',timestamp=1.1)
     out,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
     assert d['actual_skipped_windows']==d['skipped_pointwise_window_work']==36
@@ -76,8 +76,8 @@ def test_zero_budget_keeps_same_complete_forward_without_cache(eva,context):
 
 
 @torch.no_grad()
-def test_bounded_window_lifetime_and_computation_age(admitted_runtime,context):
-    rt=admitted_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
+def test_bounded_window_lifetime_and_computation_age(exact_runtime,context):
+    rt=exact_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
     size=rt.cache.bytes
     for i in range(1,20):
         ctx=dict(context,frame_id=str(i),timestamp=1.+.01*i)
@@ -89,8 +89,8 @@ def test_bounded_window_lifetime_and_computation_age(admitted_runtime,context):
 
 
 @torch.no_grad()
-def test_execution_oom_is_not_retried_by_another_algorithm(admitted_runtime,context,monkeypatch):
-    rt=admitted_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context);calls=[]
+def test_execution_oom_is_not_retried_by_another_algorithm(exact_runtime,context,monkeypatch):
+    rt=exact_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context);calls=[]
     def oom(*a,**kw):calls.append(1);raise torch.cuda.OutOfMemoryError('injected')
     monkeypatch.setattr(rt.executor,'execute',oom)
     ctx=dict(context,frame_id='1',timestamp=1.1)
@@ -101,8 +101,8 @@ def test_execution_oom_is_not_retried_by_another_algorithm(admitted_runtime,cont
 
 @torch.no_grad()
 @pytest.mark.parametrize('mutation',['weight','rotary_buffer','numeric_policy','camera_order'])
-def test_changed_execution_never_reuses_prior_window_outputs(admitted_runtime,context,monkeypatch,mutation):
-    rt=admitted_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
+def test_changed_execution_never_reuses_prior_window_outputs(exact_runtime,context,monkeypatch,mutation):
+    rt=exact_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
     ctx=dict(context,frame_id='1',timestamp=1.1)
     if mutation=='weight':rt.model.blocks[0].attn.q_proj.weight.add_(.01)
     if mutation=='rotary_buffer':rt.model.rope_win.freqs_cos.add_(.01)

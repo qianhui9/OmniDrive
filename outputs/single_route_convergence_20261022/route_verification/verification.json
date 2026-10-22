@@ -7,7 +7,7 @@
   "live_temporal_source_binding": true,
   "baseline_heads_unchanged": true,
   "no_imports_to_deleted_modules": true,
-  "compiled_files": 109,
+  "compiled_files": 111,
   "deleted_source_files": 187,
   "regression_summary": "231 passed, 1 skipped, 19 warnings in 5.71s",
   "tests_log": "outputs/single_route_convergence_20261022/tests.log",
@@ -86,7 +86,15 @@
     "m1_service": "maintain",
     "memory_budget_mb": 512,
     "cost_table": "outputs/final_route/window_costs.json",
-    "cache_capture": "adaptive"
+    "cache_capture": "adaptive",
+    "ordinary_budget": 3,
+    "max_reuse_frames": 8,
+    "region_margin_px": 8,
+    "movement_threshold_px": 16.0,
+    "drift_weight": 1.0,
+    "age_weight": 0.25,
+    "uncertainty_weight": 0.25,
+    "score_threshold": 0.05
   },
   "M3": {
     "mode": "auto",

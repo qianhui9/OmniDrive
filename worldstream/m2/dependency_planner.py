@@ -52,6 +52,20 @@ class DependencyPlanner:
     def __init__(self, backbone):
         self.backbone = backbone
 
+    @staticmethod
+    def windows_to_tokens(selected, shape, size):
+        n,h,w=shape
+        hp,wp=(h+size-1)//size*size,(w+size-1)//size*size
+        if selected.dtype != torch.bool or selected.numel()!=n*(hp//size)*(wp//size):
+            raise ValueError('Selected windows do not match the actual token grid')
+        packed=selected[:,None,None,None].expand(-1,size,size,1)
+        return unpartition(packed,size,(hp,wp),(h,w))[...,0]
+
+    def plan_windows(self, selected, shape, stop_after=None):
+        # Always pass through the same real topology closure, including different
+        # window sizes, residual boundaries and global barriers.
+        return self.plan(self.windows_to_tokens(selected,shape,self.backbone.blocks[0].window_size),stop_after)
+
     def plan(self, updates, stop_after=None):
         plans = []
         last_size = None

@@ -6,7 +6,8 @@ import numpy as np
 import pytest
 import torch
 from worldstream.m1.mask_codec import encode_mask
-from worldstream.m2 import IncrementalVisionRuntime
+from worldstream.m2 import IncrementalVisionRuntime,M2Config
+from dataclasses import replace
 from worldstream.m2.dependency_planner import block0_input, exact_token_changes, DependencyPlanner, patch_updates
 from worldstream.m2.state_cache import StateCache, NonFiniteCacheError, CachePublicationError
 from worldstream.m2.cost_model import CostModel, cost_key, SCHEMA_VERSION
@@ -30,18 +31,19 @@ def test_embedding_once_and_no_pixel_route(admitted_runtime,context,monkeypatch)
     runtime=admitted_runtime;image=torch.randn(2,3,40,40);calls=[]
     handle=runtime.model.patch_embed.register_forward_hook(lambda *a:calls.append(1))
     cold(runtime,image,context)
-    def fail(*a):raise AssertionError('Production must not compare pixels')
+    def fail(*a):raise AssertionError('Production must not compare pixels or exact tokens')
     monkeypatch.setattr('worldstream.m2.dependency_planner.exact_pixel_changes',fail)
+    monkeypatch.setattr('worldstream.m2.runtime.exact_token_changes',fail)
     ctx=dict(context,frame_id='1',timestamp=1.1)
     _,diag=runtime.forward(image,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
     handle.remove()
-    assert len(calls)==2 and diag['actual_skipped_windows']==36
+    assert len(calls)==2 and diag['actual_skipped_windows']==24
     assert torch.equal(runtime.cache.block0_input,block0_input(runtime.model,image))
 
 
 @torch.no_grad()
-def test_pixel_change_in_embedding_nullspace_is_exactly_reusable(admitted_runtime,context):
-    rt=admitted_runtime
+def test_pixel_change_in_embedding_nullspace_is_exactly_reusable(exact_runtime,context):
+    rt=exact_runtime
     # A legal actual convolution which ignores channel 2, no approximate test.
     rt.model.patch_embed.proj.weight[:,2].zero_()
     image=torch.randn(2,3,40,40);cold(rt,image,context)
@@ -53,8 +55,8 @@ def test_pixel_change_in_embedding_nullspace_is_exactly_reusable(admitted_runtim
 
 
 @torch.no_grad()
-def test_dirty_receptive_field_union_in_token_coordinates(admitted_runtime,context):
-    rt=admitted_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
+def test_dirty_receptive_field_union_in_token_coordinates(exact_runtime,context):
+    rt=exact_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
     image[0,:,0,0]+=.2
     ctx=dict(context,frame_id='1',timestamp=1.1);bundle=bundle_for(rt,ctx)
     dirty=np.zeros((40,40),bool);dirty[39,39]=True
@@ -127,7 +129,7 @@ def test_programming_errors_are_not_suppressed(admitted_runtime,context,monkeypa
 def test_adaptive_capture_bootstraps_only_approved_compatible_scales(eva,context,tmp_path,state):
     image=torch.randn(2,3,40,40);x=block0_input(eva,image);records=[]
     for i in [0,1]:
-        records.append(dict(key=cost_key(eva.blocks[i],x,i,model=eva),block=i,updated=0,
+        records.append(dict(key=cost_key(eva.blocks[i],x,i,model=eva,refresh_policy=M2Config().refresh_signature()),block=i,updated=6,
             numerical_verified=state!='no_numerics',quality_certified=True,
             incremental_gpu_ms=2. if state=='unbeneficial' else .1,full_gpu_ms=1.,incremental_wall_ms=.1,full_wall_ms=1.))
         x=eva.blocks[i](x)
@@ -137,16 +139,16 @@ def test_adaptive_capture_bootstraps_only_approved_compatible_scales(eva,context
             key=json.loads(row['key']);key['backbone_version']='wrong';row['key']=json.dumps(key,sort_keys=True)
     path=tmp_path/'costs.json';path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,
         records=[] if state=='missing' else records,production_ready=True,
-        formal_quality_policy=dict(approved_counts=[] if state=='unapproved' else [0]))))
+        formal_quality_policy=dict(approved_counts=[] if state=='unapproved' else [6]))))
     rt=IncrementalVisionRuntime(eva,dict(cost_table=str(path)))
     _,diag=cold(rt,image,context)
     assert diag['cache_saved']==(state=='approved')
     if state=='approved':
         ctx=dict(context,frame_id='1',timestamp=1.1)
         out,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-        assert diag['actual_skipped_windows']==36 and torch.equal(out[0],eva(image)[0])
-        # Only zero is approved; local changes cannot borrow its approval.
-        image[0,:,0,0]+=.1;ctx=dict(context,frame_id='2',timestamp=1.2)
+        assert diag['actual_skipped_windows']==24 and torch.equal(out[0],eva(image)[0])
+        # Different selected scale cannot borrow the six-window approval.
+        rt.config=replace(rt.config,ordinary_budget=4);ctx=dict(context,frame_id='2',timestamp=1.2)
         _,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
         assert diag['actual_skipped_windows']==0
 
