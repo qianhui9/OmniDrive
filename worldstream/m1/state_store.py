@@ -78,9 +78,23 @@ class StateStore:
                  for cid,obs in a.observation_support.items()]))
         features=[(fid,r.computation_version,r.computation_timestamp,r.source_anchor_ids,r.source_camera_ids,
                    r.source_region,getattr(r.tensor,'_version',None),self._nbytes(r.tensor)) for fid,r in self.features.items()]
-        from dataclasses import asdict
+        from dataclasses import is_dataclass
+        def digest_tree(value):
+            # The old asdict -> ndarray.tolist -> JSON path copied every
+            # descriptor and formatted each float just to hash it. Bind the
+            # complete array bytes, dtype and shape without that replication.
+            # No pointer/version memoization: in-place mutations remain visible.
+            if isinstance(value,np.ndarray):
+                if value.dtype.hasobject:
+                    return dict(ndarray_objects=digest_tree(value.tolist()),dtype=str(value.dtype),shape=list(value.shape))
+                return dict(ndarray_sha256=hashlib.sha256(np.ascontiguousarray(value).tobytes()).hexdigest(),
+                    dtype=str(value.dtype),shape=list(value.shape))
+            if is_dataclass(value):return {f.name:digest_tree(getattr(value,f.name)) for f in fields(value)}
+            if isinstance(value,dict):return {k:digest_tree(v) for k,v in value.items()}
+            if isinstance(value,(list,tuple)):return [digest_tree(v) for v in value]
+            return value
         # Bind all mutable metadata, not only geometry and tensor allocation size.
-        metadata = {aid:asdict(a) for aid,a in self.anchors.items()}
+        metadata = {aid:digest_tree(a) for aid,a in self.anchors.items()}
         for row in metadata.values():
             if not row['external_tracking']:
                 row.pop('external_tracking')
@@ -89,9 +103,9 @@ class StateStore:
             feature_metadata[fid] = {f.name:getattr(r,f.name) for f in fields(r) if f.name!='tensor'}
             if isinstance(r.tensor,np.ndarray):
                 feature_metadata[fid]['tensor_sha256'] = hashlib.sha256(r.tensor.tobytes()).hexdigest()
-        value=(self.generation,self.scene_id,self.execution_signature,self.next_anchor_id,sorted(self.committed_frame_ids),
+        value=('typed_ndarray_metadata_v2',self.generation,self.scene_id,self.execution_signature,self.next_anchor_id,sorted(self.committed_frame_ids),
                self.last_timestamp,self.commit_count,anchors,features,metadata,feature_metadata,
-               {k:asdict(v) for k,v in self.provenance.items()})
+               {k:digest_tree(v) for k,v in self.provenance.items()})
         return hashlib.sha256(json.dumps(json_value(value),sort_keys=True,allow_nan=False).encode()).hexdigest()
 
     @staticmethod

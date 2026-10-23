@@ -50,7 +50,7 @@ def region_tokens(region, camera, shape, projection, image_hw, margin=0, device=
 
 
 def select_regions(x0, cache, bundle, context, projection, size, config,
-                   uncertainty_pixels, mandatory_tokens, *, events=True, budget=True):
+                   uncertainty_pixels, mandatory_tokens, *, events=True, budget=True,window_targets=None):
     shape = x0.shape[:3]; device = x0.device
     descriptions = pooled_descriptors(x0, size)
     drift = cosine_drift(descriptions, cache.descriptors)
@@ -67,24 +67,42 @@ def select_regions(x0, cache, bundle, context, projection, size, config,
     evidence = pooled_descriptors(token_evidence[...,None], size).flatten()
     old = {(r['camera_id'], r['track_id']): r for r in cache.region_states}
     snapshot = copy.deepcopy(old)
+    if not events:
+        snapshot={key:r for key,r in snapshot.items() if r.get('valid_until',math.inf)>=bundle.timestamp}
     event_rows = []
+    # Region geometry and state events are CPU data. Rasterize their tiny Token
+    # grids on CPU instead of issuing arange/nonzero/D2H work per object on CUDA.
+    kh,kw=projection.kernel_size;sh,sw=projection.stride
+    ph,pw=projection.padding;dh,dw=projection.dilation
+    height,width=uncertainty_pixels.shape[-2:]
+    ys=np.arange(shape[1])[:,None]*sh-ph+np.arange(kh)*dh
+    xs=np.arange(shape[2])[:,None]*sw-pw+np.arange(kw)*dw
+    per_camera=((shape[1]+size-1)//size)*((shape[2]+size-1)//size)
+    region_required=np.zeros(len(x0)*per_camera,dtype=bool)
     cameras = {cid: i for i, cid in enumerate(context['camera_ids'])}
     def mask_for(r):
-        return region_tokens(r['bbox_xyxy'], cameras[r['camera_id']], shape,
-                             projection, uncertainty_pixels.shape[-2:], config.region_margin_px, device)
+        x0,y0,x1,y1=r['bbox_xyxy'];m=config.region_margin_px
+        x0,y0=max(0,x0-m),max(0,y0-m);x1,y1=min(width,x1+m),min(height,y1+m)
+        xx=((xs>=math.floor(x0))&(xs<math.ceil(x1))&(xs>=0)&(xs<width)).any(1)
+        yy=((ys>=math.floor(y0))&(ys<math.ceil(y1))&(ys>=0)&(ys<height)).any(1)
+        tokens=yy[:,None]&xx[None,:]
+        hp,wp=(shape[1]+size-1)//size*size,(shape[2]+size-1)//size*size
+        tokens=np.pad(tokens,((0,hp-shape[1]),(0,wp-shape[2])))
+        windows=tokens.reshape(hp//size,size,wp//size,size).any((1,3)).reshape(-1)
+        result=np.zeros(shape[0]*per_camera,dtype=bool)
+        offset=cameras[r['camera_id']]*per_camera;result[offset:offset+per_camera]=windows
+        return result
     def add_event(key, names, current=None):
-        nonlocal mandatory
-        affected = torch.zeros(shape, device=device, dtype=torch.bool)
+        affected = np.zeros(len(x0)*per_camera,dtype=bool)
         for r in (old.get(key), current):
             if r is not None:
                 affected |= mask_for(r)
-        windows = window_mask(affected, size)
-        mandatory |= windows
+        region_required[:] |= affected
         event_rows.append(dict(camera_id=key[0], track_id=key[1], events=sorted(names),
             previous_bbox=copy.deepcopy(old.get(key,{}).get('bbox_xyxy')),
             current_bbox=copy.deepcopy(current.get('bbox_xyxy')) if current is not None else None,
             class_id=(current or old.get(key,{})).get('class_id'),
-            windows=windows.nonzero().flatten().tolist()))
+            windows=np.flatnonzero(affected).tolist()))
     if events:
         current_keys={(r['camera_id'],r['track_id']) for r in bundle.region_states}
         for key,prior in old.items():
@@ -132,21 +150,26 @@ def select_regions(x0, cache, bundle, context, projection, size, config,
             snapshot[key] = copy.deepcopy(row)
     score = (config.drift_weight*drift + config.age_weight*(ages.float()/config.max_reuse_frames).clamp(max=1)
              + config.uncertainty_weight*evidence)
-    selected = mandatory.clone()
-    per_camera = selected.numel()//len(x0)
+    mandatory |= torch.as_tensor(region_required,device=device)
     # CPU ordering is deterministic for score/age ties, including CUDA inputs.
-    scores, age_values = score.tolist(), ages.tolist()
+    scores,age_values,required,drift_values,evidence_values=torch.stack([
+        score,ages.float(),mandatory.float(),drift,evidence]).cpu().tolist()
+    age_values=list(map(int,age_values));required=np.asarray(required,dtype=bool)
+    selected=required.copy()
     for camera in range(len(x0)):
         ids = [i for i in range(camera*per_camera,(camera+1)*per_camera)
-               if not mandatory[i] and scores[i] >= config.score_threshold]
+               if not required[i] and (window_targets is not None or scores[i] >= config.score_threshold)]
         ids.sort(key=lambda i: (-scores[i], -age_values[i], i))
-        if budget:
+        if window_targets is not None:
+            ids=ids[:max(0,window_targets[camera]-int(required[camera*per_camera:(camera+1)*per_camera].sum()))]
+        elif budget:
             ids = ids[:config.ordinary_budget]
         selected[ids] = True
-    return selected, descriptions, list(snapshot.values()), dict(
-        mandatory_windows=int(mandatory.sum()), ordinary_windows=int((selected & ~mandatory).sum()),
-        mandatory_window_ids=mandatory.nonzero().flatten().tolist(),
-        ordinary_window_ids=(selected & ~mandatory).nonzero().flatten().tolist(),
-        drift=drift.tolist(), ages=age_values, uncertainty=evidence.tolist(), scores=scores,
+    return torch.as_tensor(selected,device=device), descriptions, list(snapshot.values()), dict(
+        mandatory_windows=int(required.sum()), ordinary_windows=int((selected & ~required).sum()),
+        mandatory_window_ids=np.flatnonzero(required).tolist(),
+        ordinary_window_ids=np.flatnonzero(selected & ~required).tolist(),
+        drift=drift_values, ages=age_values, uncertainty=evidence_values, scores=scores,
         event_regions=event_rows, region_state_count=len(bundle.region_states),
+        offline_total_window_targets=window_targets,
         event_affected_windows=sum(len(e['windows']) for e in event_rows), event_missed_windows=0)

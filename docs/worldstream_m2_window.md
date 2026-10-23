@@ -31,7 +31,7 @@ S = drift_weight * V + age_weight * A + uncertainty_weight * U
 
 默认参数：ordinary_budget=3 / 相机，max_reuse_frames=8，region_margin_px=8，movement_threshold_px=16，权重 (1, 0.25, 0.25)，score_threshold=0.05。普通候选满足评分阈值后按分数降序、年龄降序、camera-major 窗口索引升序选取。必须集合不占普通预算，可以超过预算。这些参数只是未校准研究起点，真实来源租约可早于八帧失效，不会为提高复用而放宽。
 
-选定窗口经 plan_windows 转为 Token，再走同一 plan 依赖闭包。成本拒绝导致某 Block 扩为完整执行时，后续前缀也相应扩展。保持一个 WindowExecutor，QKV、投影、MLP 的原生全形状与精度不变，只减少独立窗口 Attention；全局依赖后缀全部执行。输出窗口复用率不能当作总计算减少率。
+选定窗口经 plan_windows 转为 Token，再走同一 plan 依赖闭包。成本拒绝导致某 Block 扩为完整执行时，后续前缀也相应扩展。保持一个 WindowExecutor；全局依赖后缀全部执行。初版 v1 保持全形状 QKV/投影/MLP。后续 v2 在部分更新时只对选定窗口执行 QKV/Attention/投影，仅对其真实有效 Token 执行 MLP，严格还原原生 padding；完整更新调用原生 Block。精度类型没有变化，但 GEMM 形状变化可能改变浮点舍入，数值策略和缓存/成本签名已升级，必须重新认证。实际优化与正式精度证据见 `worldstream_m2_followup.md`；窗口复用率仍不能当作总计算减少率。
 
 ## 原子缓存和成本准入
 
@@ -80,3 +80,5 @@ B2 保留真实 M1 和原生语言生成，避免混入 M3。使用同输入 B0 
 两个短测完成后，可用 window_validate 的 `--compare-task-runs BASELINE目录 CANDIDATE目录 --output 比较.json` 对齐 sample token，输出实际 Detection/Map 预测距离和回答差异；这些一致性指标不会标记为官方质量认证。
 
 本次实测见 outputs/wsgrrr_20261022/experiment_report.md，历史实验目录不覆盖。
+
+后续归因与真实精度/性能复测见 `outputs/wsgrrr_20261022_followup/`。`NoM1Region` 及 `NoM1RegionMatched` 只在显式离线 API/工具中可用，生产配置不提供这些策略。前者保留普通预算 3 和所有基础来源/年龄/非有限值约束；后者额外接受 D3 每相机实际执行数量，作为位置选择的计算量控制，安全刷新不得被数量目标截断。必须报告其实际数量与目标不一致的帧，不能把名义预算当作实际等算力。

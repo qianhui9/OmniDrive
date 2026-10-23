@@ -558,13 +558,33 @@ class WorldStateManager:
             self.last_commit_diagnostics.pop('state_update_ms')
         return precheck_result
 
-    def export_m2_inputs(self, expected_context=None):
+    def export_m2_inputs(self, expected_context=None, computation_only=False):
         if self.last_result is None or self.last_result.diagnostics.get('transaction_status') == 'aborted':
             raise RuntimeError('Call precheck first')
         if expected_context is not None:
             r = self.last_result
             if r.scene_id != expected_context.get('scene_id') or r.frame_id != expected_context.get('frame_id') or r.timestamp != expected_context.get('timestamp') or (r.diagnostics.get('execution_signature') != expected_context.get('execution_signature')) or (r.diagnostics.get('state_epoch') != expected_context.get('state_epoch')) or (r.diagnostics.get('transaction_status') != 'pending') or (self.store.source_digest() != self._pending_source_digest):
                 raise RuntimeError('M1 snapshot does not match the pending M2 request')
+        if computation_only:
+            # M2 consumes the source/lease/region contract, not the dense RGB
+            # correspondences or M1 audit arrays. Keep the same pending-state
+            # checks above and defensively own every exported mutable field.
+            from .state_types import M1Result
+            r=self.last_result
+            bundle=copy.copy(r.computation_state)
+            if bundle is not None:
+                bundle.source_records=copy.deepcopy(bundle.source_records)
+                bundle.refresh_contract=copy.deepcopy(bundle.refresh_contract)
+                bundle.region_states=copy.deepcopy(bundle.region_states)
+                bundle.region_events=copy.deepcopy(bundle.region_events)
+                bundle.diagnostics=copy.deepcopy(bundle.diagnostics)
+                bundle.observation_links={cid:{key:copy.deepcopy(link[key]) for key in
+                    ('source_frame_id','source_camera_id','source_timestamp','validity_lease') if key in link}
+                    for cid,link in bundle.observation_links.items()}
+            return M1Result(r.scene_id,r.frame_id,r.timestamp,full_refresh_hint=r.full_refresh_hint,
+                computation_state=bundle,diagnostics=dict(snapshot_scope='m2_computation_only',
+                    **{key:copy.deepcopy(r.diagnostics[key]) for key in
+                       ('state_epoch','execution_signature','transaction_status') if key in r.diagnostics}))
         result = copy.deepcopy(self.last_result)
         if expected_context is not None:
             result.diagnostics['world_state_snapshot'] = [dict(anchor_id=a.anchor_id, state_version=a.state_version, scene_id=a.scene_id, source_frame_id=a.source_frame_id, source_timestamp=a.source_timestamp, state_epoch=a.source_state_epoch, center_world=a.geometry_world.center.tolist(), age_s=result.timestamp - a.source_timestamp, max_age_s=self.config.max_state_age_s, uncertainty_m=a.geometry_uncertainty, lifecycle='expired' if result.timestamp - a.source_timestamp > self.config.max_state_age_s else 'temporarily_missing' if a.source_timestamp != self.store.last_timestamp else 'historical_observation', association_basis=a.association_basis, identity_link_qualified=a.identity_link_qualified, physical_geometry_certified=False, pixel_reuse_authorized=False) for a in self.store.anchors.values()]

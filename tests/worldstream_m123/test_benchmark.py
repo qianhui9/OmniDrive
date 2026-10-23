@@ -87,12 +87,14 @@ def test_observer_keeps_commit_and_camera_delegates_separate(monkeypatch):
     forward = lambda *a, **kw: None
     model = NS(img_backbone=NS(forward=forward), pts_bbox_head=NS(forward=forward),
         map_head=NS(forward=forward), lm_head=NS(generate=forward, forward=forward),
-        m3_runtime=None, m1_manager=NS(precheck=forward, commit=native_commit),
+        m3_runtime=None, m1_manager=NS(precheck=forward, precheck_with_observation=forward, commit=native_commit),
         m2_runtime=None)
     observer = Observer(model)
     assert model.m1_manager.commit('frame', NS(anchors=[]), 'precheck') == 42
     assert called == ['commit']
     assert observer.commits == [('frame', [], 'precheck')]
+    model.m1_manager.precheck_with_observation('frame',validate_observation=True)
+    assert sum(label=='m1_precheck' for label, *_ in observer.events)==1
 
 
 def test_zero_continuity_events_are_retained_with_null_association_rates():

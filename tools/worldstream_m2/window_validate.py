@@ -25,6 +25,8 @@ def sha256(path):
 def summary(samples):
     return dict(wall_ms=float(np.median([s[0] for s in samples])),
         gpu_span_ms=float(np.median([s[1] for s in samples])),repeats=len(samples),
+        wall_p95_ms=float(np.percentile([s[0] for s in samples],95)),
+        gpu_span_p95_ms=float(np.percentile([s[1] for s in samples],95)),
         statistic='median',wall_samples_ms=[s[0] for s in samples],
         gpu_span_samples_ms=[s[1] for s in samples])
 
@@ -168,16 +170,18 @@ def run_wsgrr(args):
     missing=[i['token'] for i in infos if i['token'] not in predictions]
     if missing:raise ValueError('Missing actual M1 replay predictions: '+str(missing))
     model=backbone(args.checkpoint)
-    specs=[('A','A',3),('B','B',3),('C','C',3)]+[('D'+str(b),'D',b) for b in args.budgets]
+    specs=([('D3','D',3),('NoM1Region','NoM1Region',3)] if getattr(args,'followup',False) else
+           [('A','A',3),('B','B',3),('C','C',3)]+[('D'+str(b),'D',b) for b in args.budgets])
     runtimes={name:IncrementalVisionRuntime(model,dict(cache_capture='always',ordinary_budget=b)) for name,_,b in specs}
     managers={name:WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml')) for name,_,_ in specs}
-    rows=[];cost_records=[];previous=None;old_info=None
+    rows=[];native_rows=[];cost_records=[];previous=None;old_info=None
     # The model kernels are warmed before any reported frames.
     for index,info in enumerate(infos):
         sample=dataset[index]
         image=torch.from_numpy(np.stack(sample['img']).transpose(0,3,1,2).copy()).cuda()
         x0=block0_input(model,image)
         native_output,dense=measure_call(lambda:model(image)[0],args.repeats,args.warmup)
+        native_rows.append(dict(ordinal=index,frame_id=info['token'],scene_id=info['scene_token'],timing=dense))
         norm=sample['img_norm_cfg'];cameras={}
         for c,(cid,cam) in enumerate(info['cams'].items()):
             rgb=sample['img'][c]*np.asarray(norm['std'])+np.asarray(norm['mean'])
@@ -190,15 +194,22 @@ def run_wsgrr(args):
             quaternion_transform(info['ego2global_rotation'],info['ego2global_translation']),cameras,'wsgrr_offline_real_v1')
         continuous=old_info is not None and old_info['scene_token']==info['scene_token']
         exact_ratio=float(exact_token_changes(x0,previous).float().mean()) if continuous else 1.
-        for name,variant,budget in specs:
+        for name,variant,budget in (specs if index%2==0 else list(reversed(specs))):
             rt=runtimes[name];manager=managers[name]
             if not continuous:rt.reset()
             tick=perf_counter();result=manager.precheck(frame);precheck_ms=(perf_counter()-tick)*1000
             context=dict(scene_id=frame.scene_id,frame_id=frame.frame_id,timestamp=frame.timestamp,
                 execution_signature=frame.execution_signature,state_epoch=result.diagnostics['state_epoch'],
                 coordinate_space='preprocessed_image',camera_ids=list(cameras))
-            tick=perf_counter();snapshot=manager.export_m2_inputs(expected_context=context)
+            tick=perf_counter();snapshot=manager.export_m2_inputs(expected_context=context,computation_only=True)
             read_ms=(perf_counter()-tick)*1000
+            if getattr(args,'followup_profile',False) and name=='D3' and index==1:
+                import cProfile,io,pstats
+                profiler=cProfile.Profile();profiler.enable()
+                manager.export_m2_inputs(expected_context=context,computation_only=True)
+                profiler.disable();profiler.dump_stats(str(out/'m1_export_cpu.prof'))
+                stream=io.StringIO();pstats.Stats(profiler,stream=stream).sort_stats('cumtime').print_stats(50)
+                (out/'m1_export_cpu.txt').write_text(stream.getvalue())
             source_cache=rt.cache
             block_inputs={}
             execute=rt.executor.execute
@@ -216,6 +227,13 @@ def run_wsgrr(args):
             rt.executor.execute=execute
             output,diag=measured
             next_cache=rt.cache
+            if getattr(args,'followup_profile',False) and name=='D3' and index==1:
+                from .profiling import profile_call
+                rt.cache=source_cache
+                # Profiling mutates this shallow copy only; selected history and
+                # the measured publication remain exactly the ones above.
+                profile_call(rt,candidate,out/'profile_output')
+                rt.cache=next_cache
             delta=difference(output[0],native_output)
             outputs=prediction_outputs(predictions[info['token']],manager.config)
             outputs.execution_receipt=diag
@@ -230,6 +248,7 @@ def run_wsgrr(args):
                 selected_token_update_ratio=token_ratio,stages=diag['stages'],region_refresh=diag['region_refresh'],
                 full_update_reason=diag['full_update_reason'],difference=delta,
                 incremental=timing,native=dense,M1_precheck_ms=precheck_ms,M1_state_read_ms=read_ms,
+                M1_precheck_components_ms=result.diagnostics.get('timings_ms',{}),
                 region_scoring_host_ms=diag['M2_region_scoring_ms'],window_and_suffix_host_ms=diag['M2_window_and_suffix_ms'],
                 cache_publication_host_ms=diag['M2_cache_publication_ms'],cache_saved=diag['cache_saved'],
                 m1_regions=len(snapshot.computation_state.region_states),
@@ -280,7 +299,8 @@ def run_wsgrr(args):
     result=dict(aggregate=aggregate,frames=len(infos),sample_tokens=[i['token'] for i in infos],
         timestamp_span_s=(infos[-1]['timestamp']-infos[0]['timestamp'])/1e6,
         checkpoint=args.checkpoint,backbone_fingerprint=block_fingerprint(model),numerical_policy=NUMERICAL_POLICY,
-        validation_kind='wsgrr_quantitative_v1',natural=rows,controlled_microbenchmarks=[],m1_predictions=args.m1_predictions,
+        validation_kind='wsgrr_quantitative_v1',natural=rows,native_measurements=native_rows,
+        controlled_microbenchmarks=[],m1_predictions=args.m1_predictions,
         m1_prediction_sha256=sha256(args.m1_predictions),production_approvals_added=0,production_ready=False,
         downstream_quality='PENDING independent Detection, Map, full VLM evaluation',
         coverage=dict(classes=sorted({str(n) for i in infos for n in i.get('gt_names',[])}),
@@ -456,6 +476,8 @@ if __name__=='__main__':
     parser.add_argument('--m1-predictions',help='Actual full-model results_nusc.json for historical M1 commit replay')
     parser.add_argument('--profile-block-costs',action='store_true',help='Retain provisional per-block costs for independent assessment')
     parser.add_argument('--compare-task-runs',nargs=2,metavar=('BASELINE','CANDIDATE'),help='Compare completed full-model task runs; --output is a JSON file')
+    parser.add_argument('--followup-profile',action='store_true',help='Offline torch.profiler/cProfile attribution on frame 1, D3')
+    parser.add_argument('--followup',action='store_true',help='Offline paired D3/NoM1Region nominal-budget experiment (same source safety)')
     args=parser.parse_args()
     if args.frames<2 or args.repeats<3 or args.warmup<1:parser.error('Need frames>=2, repeats>=3, warmup>=1')
     if args.compare_task_runs:

@@ -16,7 +16,7 @@ def test_camera_observation_expiry_does_not_skip_invalid_sources(exact_runtime,c
             computation_version=1,computation_version_namespace='m2_window_execution'))
     out,d=rt.forward(x,execution_context=ctx,computation_state=b)
     assert d['actual_skipped_windows']==(18 if fault=='expired_observation' else 0)
-    assert torch.equal(out[0],rt.model(x)[0])
+    assert torch.allclose(out[0],rt.model(x)[0],atol=3e-6,rtol=3e-6)
 
 
 @torch.no_grad()

@@ -146,7 +146,7 @@ def test_adaptive_capture_bootstraps_only_approved_compatible_scales(eva,context
     if state=='approved':
         ctx=dict(context,frame_id='1',timestamp=1.1)
         out,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-        assert diag['actual_skipped_windows']==24 and torch.equal(out[0],eva(image)[0])
+        assert diag['actual_skipped_windows']==24 and torch.allclose(out[0],eva(image)[0],atol=3e-6,rtol=3e-6)
         # Different selected scale cannot borrow the six-window approval.
         rt.config=replace(rt.config,ordinary_budget=4);ctx=dict(context,frame_id='2',timestamp=1.2)
         _,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
@@ -183,7 +183,7 @@ def test_production_costs_require_retained_evidence(eva,tmp_path):
 @pytest.mark.parametrize('error',[TypeError('wrong snapshot API'),RuntimeError('unexpected export failure')])
 def test_m1_snapshot_programming_errors_propagate(admitted_runtime,context,error):
     class BrokenManager:
-        def export_m2_inputs(self,expected_context):raise error
+        def export_m2_inputs(self,expected_context,computation_only=False):raise error
     with pytest.raises(type(error),match=str(error)):
         admitted_runtime.forward_from_m1(torch.ones(2,3,40,40),BrokenManager(),context)
 

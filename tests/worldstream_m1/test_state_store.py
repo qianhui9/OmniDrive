@@ -143,3 +143,17 @@ def test_replaced_branch_provenance_drops_unmatched_anchor_link(config, make_fra
     manager.commit(make_frame(100.5), FullOutputs([make_prediction()], [feature]), result)
     assert unmatched in manager.store.anchors
     assert 'object_carrier' not in manager.store.anchors[unmatched].associated_feature_ids
+
+
+def test_source_digest_binds_array_contents_shape_dtype_and_object_values(config,make_frame,make_prediction):
+    manager=WorldStateManager(config);manager.initialize(make_frame(),FullOutputs([make_prediction()]))
+    anchor=next(iter(manager.store.anchors.values()))
+    array=np.arange(4,dtype=np.int64)
+    anchor.external_tracking={'numeric':array,'objects':np.array([{'count':1}],dtype=object)}
+    first=manager.store.source_digest()
+    array[0]=12;assert manager.store.source_digest()!=first
+    array[0]=0;assert manager.store.source_digest()==first
+    anchor.external_tracking['numeric']=array.reshape(2,2);assert manager.store.source_digest()!=first
+    anchor.external_tracking['numeric']=array.view(np.float64);assert manager.store.source_digest()!=first
+    anchor.external_tracking['numeric']=array
+    anchor.external_tracking['objects'][0]['count']=2;assert manager.store.source_digest()!=first

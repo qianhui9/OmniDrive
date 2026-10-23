@@ -1,0 +1,72 @@
+{
+  "status": "COMPLETED",
+  "frames": 8,
+  "questions": 8,
+  "full_validation": false,
+  "warmup_frames": 1,
+  "request_ms": {
+    "n": 8,
+    "mean": 2696.990997355897,
+    "p50": 1797.3887753905728,
+    "p95": 6855.332742666356,
+    "maximum": 9395.111430902034,
+    "total": 21575.927978847176
+  },
+  "model_ms": {
+    "n": 8,
+    "mean": 2548.6990712815896,
+    "p50": 1648.955650976859,
+    "p95": 6709.1420436627195,
+    "maximum": 9250.331413932145,
+    "total": 20389.592570252717
+  },
+  "quality": {
+    "questions": 8,
+    "valid_gt": 8,
+    "missing_gt": 0,
+    "answer_exact_match": 0.0,
+    "token_f1": 0.3378673842786473,
+    "numeric_questions": 1,
+    "numeric_count_match": 0.0,
+    "numeric_mae": null,
+    "numeric_mae_denominator": 0
+  },
+  "m1": {
+    "counts": {
+      "frames": 8,
+      "candidates": 644,
+      "eligible": 96,
+      "accepted": 613,
+      "scored": 96,
+      "correct": 96,
+      "wrong": 0,
+      "unknown": 517
+    },
+    "continuity": {
+      "predicted_track_fragments": 0,
+      "continuous_identity_switches": 0,
+      "scored_visible": 121,
+      "visible_known_missed": 175,
+      "ambiguous_visible": 77,
+      "bridged_visible_gaps": 0
+    },
+    "association_precision": 1.0,
+    "wrong_association_rate": 0.0,
+    "effective_recall": 1.0,
+    "association_coverage": 0.9518633540372671,
+    "alignment_precision": null,
+    "alignment_recall": null,
+    "alignment_numerator": 0,
+    "alignment_denominator": 0,
+    "scope": "Offline partial Oracle: unique class/size/1m matching; not standard MOT. GT never enters online decisions.",
+    "candidate_definition": "selected predictions on scene frames after the first",
+    "alignment_status": "NOT_AVAILABLE: no independently scored alignment denominator"
+  },
+  "official_detection": null,
+  "official_map": null,
+  "official_status": "NOT_RUN: subset",
+  "m1_scene_integrity": {
+    "01452fbfbf4543af8acdfd3e8a1ee806": "PASS"
+  },
+  "undefined_metric_paths": []
+}

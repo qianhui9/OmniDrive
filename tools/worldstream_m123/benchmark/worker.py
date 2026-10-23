@@ -116,7 +116,7 @@ def reset(model):
             runtime.reset()
 
 
-def map_evaluate(dataset, outputs, dest):
+def map_evaluate(dataset, outputs, dest, workers=0):
     """Call the existing OpenLane evaluator, whose values dataset.evaluate drops."""
     from openlanev2.centerline.evaluation import evaluate
     predictions = dict(method='OmniDrive', authors=[], **{'e-mail': '', 'institution / company': '',
@@ -127,7 +127,10 @@ def map_evaluate(dataset, outputs, dest):
                                          confidence=float(score)) for i, (lane, score) in enumerate(zip(lanes, scores))],
                     traffic_element=[], topology_lclc=np.zeros((300, 300)), topology_lcte=np.zeros((300, 0)))
         predictions['results'][info['lane_info']] = dict(predictions=pred)
-    value = evaluate(ground_truth=dataset.lane_anno_file, predictions=predictions)
+    if workers:
+        from tools.worldstream_m2.map_eval import evaluate_map
+        value=evaluate_map(dataset.lane_anno_file,predictions,workers)
+    else:value = evaluate(ground_truth=dataset.lane_anno_file, predictions=predictions)
     value, unavailable = finite_metrics(value)
     write(dest/'map_metric_unavailability.json', dict(paths=unavailable, reason='Official evaluator returned a nonfinite value'))
     write(dest/'map_metrics.json', value)
@@ -144,6 +147,7 @@ def run(args):
     write(dest/'invocation.json', vars(args))
     write(dest/'worker_pid.json', dict(pid=os.getpid()))
     write(dest/'benchmark_source_hashes.json', {str(p): sha256(p) for p in Path('tools/worldstream_m123/benchmark').glob('*.py')})
+    write(dest/'m1_m2_source_hashes.json',{str(p):sha256(p) for directory in ('worldstream/m1','worldstream/m2') for p in Path(directory).glob('*.py')})
     cfg = effective_config(args.condition, args.workload, dest)
     importlib.import_module('projects.mmdet3d_plugin')
     random.seed(args.seed)
@@ -162,7 +166,31 @@ def run(args):
         runtime.config=replace(runtime.config,ordinary_budget=args.window_budget,cache_capture='always')
         # Explicit offline tool entry only. No deployment configuration can
         # select this path or bypass the production cost/quality checks.
-        runtime.forward_from_m1=partial(runtime.evaluate_offline_from_m1,variant=args.offline_wsgrr)
+        if args.offline_wsgrr=='NoM1RegionMatched':
+            if not args.window_targets:raise ValueError('Matched-compute control requires the D3 per-frame target file')
+            target_rows=[json.loads(s) for s in Path(args.window_targets).read_text().splitlines()]
+            targets={}
+            for row in target_rows:
+                diag=row['m2'];stage=diag['stages'][0];cameras=diag['cache_context']['camera_ids']
+                per_camera=stage['total_windows']//len(cameras)
+                targets[row['frame_id']]=(cameras,[sum(j//per_camera==c for j in stage['executed_window_ids']) for c in range(len(cameras))])
+            def matched(images,manager,context,_runtime=runtime,_targets=targets):
+                cameras,counts=_targets[context['frame_id']]
+                if cameras!=context['camera_ids']:raise ValueError('Matched schedule camera identities differ')
+                return _runtime.evaluate_offline_from_m1(images,manager,context,variant='NoM1RegionMatched',window_targets=counts)
+            runtime.forward_from_m1=matched
+        else:runtime.forward_from_m1=partial(runtime.evaluate_offline_from_m1,variant=args.offline_wsgrr)
+        if getattr(args,'force_full_frame',None):
+            if args.offline_wsgrr!='D':raise ValueError('Visual counterfactual requires offline D')
+            original=runtime.forward_from_m1
+            def force_frame(images,manager,context,_runtime=runtime,_original=original):
+                if context['frame_id'] not in args.force_full_frame:return _original(images,manager,context)
+                snapshot=manager.export_m2_inputs(expected_context=context,computation_only=True)
+                snapshot.computation_state.diagnostics['full_refresh_hint']=True
+                result,diag=_runtime.evaluate_offline(images,variant='D',m1_result=snapshot,execution_context=context)
+                diag['offline_counterfactual']='full_current_visual_prefix; candidate head history retained'
+                return result,diag
+            runtime.forward_from_m1=force_frame
         write(dest/'offline_experiment.json',dict(variant=args.offline_wsgrr,budget=args.window_budget,
             production_approvals_added=0,quality_certified=False))
     if args.validate_only:
@@ -180,7 +208,7 @@ def run(args):
     observer = Observer(model)
     # Annotation reverse links are only exposed to the offline scorer below.
     scorer = None
-    if model.m1_manager is not None:
+    if model.m1_manager is not None and not getattr(args,'perception_only',False):
         from tools.worldstream_m1.dataset import load_oracle
         scorer = IdentityScorer(load_oracle(selected, 'data/nuscenes'))
     frames, questions, outputs = [], [], []
@@ -190,6 +218,7 @@ def run(args):
         data = scatter(collate([sample], samples_per_gpu=1), [0])[0]
         if args.workload == 'language':
             select_question(data, ordinal, args.questions_per_frame)
+        if getattr(args,'perception_only',False):clear_questions(data)
         with torch.no_grad():
             model(return_loss=False, rescale=True, **data)
         torch.cuda.synchronize()
@@ -226,6 +255,7 @@ def run(args):
         data = scatter(collate([sample], samples_per_gpu=1), [0])[0]
         if args.workload == 'language':
             select_question(data, ordinal, args.questions_per_frame)
+        if getattr(args,'perception_only',False):clear_questions(data)
         torch.cuda.synchronize()
         model_tick = perf_counter()
         a, b = (torch.cuda.Event(enable_timing=True) for _ in range(2))
@@ -256,7 +286,12 @@ def run(args):
             output_digest=typed_digest({k: v for k, v in result.items() if k != 'text_out'}),
             timing_scope='Single sequential request: dataset access/preprocess, collate/H2D, model including language and native answer write, CPU result materialization. Audit serialization and counterfactual checks excluded.',
             gpu_scope='CUDA events on default stream; includes host submission gaps, not sum of active kernel durations. Nested stage spans must not be added.')
-        if observer.commits:
+        if model.m1_manager is not None:
+            # Existing CPU timers; read outside request timing without copying
+            # dense M1 audit/observation arrays into a 6019-frame result file.
+            row['m1_cpu_timings_ms']=dict(model.m1_manager.last_result.diagnostics.get('timings_ms',{}))
+            row['m1_commit_timings_ms']={k:v for k,v in model.m1_manager.last_commit_diagnostics.items() if k.endswith('_ms')}
+        if observer.commits and not getattr(args,'perception_only',False):
             frame, anchors, audit = m1_record(model, observer.commits[-1])
             row['m1_edges'] = scorer.update(frame, anchors, audit['commit'])
             row['m1_commit'] = audit['commit']
@@ -298,7 +333,7 @@ def run(args):
                 m3_reason=detail.get('prefix_admission') or (row['m3'] or {}).get('reason'))
             questions.append(qrow)
             append(dest/'per_question_metrics.jsonl', qrow)
-        for images, reused, diagnostics in observer.reuses:
+        for images, reused, diagnostics in ([] if getattr(args,'perception_only',False) else observer.reuses):
             # Counterfactual correctness check on ACTUAL reuse only. Restore
             # sampling RNG and run it outside production latency measurements.
             rng = torch.cuda.get_rng_state()
@@ -327,8 +362,8 @@ def run(args):
         request_ms=distribution(r['request_ms'] for r in frames),
         model_ms=distribution(r['model_ms'] for r in frames), quality=quality_summary(questions),
         m1=scorer.summary() if scorer else None, official_detection=None, official_map=None,
-        official_status='NOT_RUN: subset' if not full else 'PENDING')
-    if full:
+        official_status='NOT_RUN: subset' if not full else ('PENDING_CPU_EVALUATION' if getattr(args,'perception_only',False) else 'PENDING'))
+    if full and not getattr(args,'perception_only',False):
         preflight = json.loads((Path(args.run_root)/'preflight.json').read_text())
         integrity = preflight['dataset']['tables'].get('validation_annotation_integrity', {})
         if integrity.get('status') == 'PASS':
@@ -342,10 +377,10 @@ def run(args):
         else:
             summary['official_status'] = 'NOT_AVAILABLE: sample.anns disagrees with annotation reverse links'
         try:
-            summary['official_map'] = map_evaluate(dataset, outputs, dest)
+            summary['official_map'] = map_evaluate(dataset, outputs, dest,workers=8 if getattr(args,'perception_only',False) else 0)
         except Exception:
             (dest/'map_evaluation_error.log').write_text(traceback.format_exc())
-    if model.m1_manager is not None:
+    if model.m1_manager is not None and not getattr(args,'perception_only',False):
         from tools.worldstream_m1.scene_metrics import summarize_scene
         from tools.worldstream_m1.scene_metrics import validate_rows
         from .report import read_rows
@@ -366,6 +401,23 @@ def run(args):
     ledger_pass = all(x == 'PASS' for x in summary.get('m1_scene_integrity', {}).values())
     write(dest/'status.json', dict(status='COMPLETED', measured_frames=len(frames),
         full_validation=full, integrity='PASS' if ledger_pass else 'FAIL', official_status=summary['official_status']))
+    if full and getattr(args,'perception_only',False):
+        # Release this GPU process before CPU-only official evaluation. This
+        # never shortens a reported inference timing or substitutes predictions.
+        import subprocess,sys
+        environment=dict(os.environ,CUDA_VISIBLE_DEVICES='')
+        command=[sys.executable,'-m','tools.worldstream_m2.task_quality','--run',str(dest),'--output',str(dest/'official_eval')]
+        with (dest/'official_eval.log').open('w') as handle:
+            child=subprocess.Popen(command,stdout=handle,stderr=subprocess.STDOUT,env=environment,start_new_session=True)
+        write(dest/'official_eval_child.json',dict(pid=child.pid,command=command,
+            scope='CPU-only official evaluator on actual complete predictions; final status is official_eval/status.json'))
+
+
+def clear_questions(data):
+    """Explicit Detection/Map-only evaluation; heads and their state are unchanged."""
+    from mmcv.parallel import DataContainer
+    data['input_ids'][0][0]=[]
+    data['img_metas'][0][0]['vlm_labels']=DataContainer([],stack=False)
 
 
 def select_question(data, ordinal, limit):
@@ -398,8 +450,11 @@ def main():
     parser.add_argument('--measurement-set', choices=['main', 'attribution', 'efficiency', 'smoke'], default='smoke')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--validate-only', action='store_true')
-    parser.add_argument('--offline-wsgrr',choices=['A','B','C','D'],help='Explicit unapproved task experiment, B2 only')
+    parser.add_argument('--offline-wsgrr',choices=['A','B','C','D','NoM1Region','NoM1RegionMatched'],help='Explicit unapproved task experiment, B2 only')
     parser.add_argument('--window-budget',type=int,default=3)
+    parser.add_argument('--perception-only',action='store_true',help='Explicit official Detection/Map run with no language questions; no feature counterfactual/audit scorer (done in paired task runs)')
+    parser.add_argument('--window-targets',help='D3 per_frame_metrics.jsonl; cardinalities only for the explicit NoM1RegionMatched control')
+    parser.add_argument('--force-full-frame',action='append',default=[],help='Explicit offline D counterfactual sample token; never a production option')
     args = parser.parse_args()
     try:
         run(args)

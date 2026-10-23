@@ -250,3 +250,65 @@ def test_cuda_wsgrr_runtime_preserves_shapes_sources_and_approximate_output(eva,
     assert (out[0]-rt.model(image)[0]).abs().mean()>0
     assert rt.cache.descriptors.is_cuda and rt.cache.window_ages[0].is_cuda
     assert d['actual_skipped_windows']==28 and not d['window_reuse_quality_certified']
+
+
+@torch.no_grad()
+def test_no_m1_region_is_offline_only_and_retains_safety_expiry(rt,context):
+    rt.config=replace(rt.config,ordinary_budget=1,max_reuse_frames=2)
+    image=torch.randn(2,3,40,40)
+    step(rt,image,context,0,[region()],variant='NoM1Region')
+    _,d=step(rt,image,context,1,[region(event_flags=['state_jump'])],variant='NoM1Region')
+    assert d['region_refresh']['mandatory_windows']==0 and d['region_refresh']['ordinary_windows']==2
+    _,d=step(rt,image,context,2,[region(event_flags=['state_jump'])],variant='NoM1Region')
+    assert d['region_refresh']['mandatory_windows']==16
+    with pytest.raises(ValueError):M2Config(mode='NoM1Region')
+
+
+@torch.no_grad()
+def test_compact_m1_export_preserves_contract_and_owns_metadata(context):
+    from worldstream.m1 import WorldStateManager,M1Config,FullOutputs
+    from .test_live_m1_snapshot import frame_for
+    manager=WorldStateManager(M1Config(source_linked_state=True,temporal_visibility=True,local_support=True))
+    image=torch.randint(0,255,(2,3,40,40),dtype=torch.uint8)
+    frame=frame_for(image,context);r=manager.precheck(frame);manager.commit(frame,FullOutputs([]),r)
+    ctx=dict(context,frame_id='1',timestamp=1.1);r=manager.precheck(frame_for(image,ctx));ctx['state_epoch']=r.diagnostics['state_epoch']
+    compact=manager.export_m2_inputs(ctx,computation_only=True);full=manager.export_m2_inputs(ctx)
+    assert compact.computation_state.refresh_contract==full.computation_state.refresh_contract
+    assert compact.computation_state.region_states==full.computation_state.region_states
+    assert compact.diagnostics['snapshot_scope']=='m2_computation_only'
+    compact.computation_state.refresh_contract.clear()
+    assert manager.last_result.computation_state.refresh_contract
+    with pytest.raises(RuntimeError):manager.export_m2_inputs(dict(ctx,frame_id='forged'),computation_only=True)
+
+
+@torch.no_grad()
+def test_compact_executor_only_projects_selected_windows_and_valid_mlp_tokens(eva,monkeypatch):
+    from worldstream.m2.window_executor import WindowExecutor
+    from worldstream.m2.packing import partition
+    import torch.nn.functional as F
+    block=eva.blocks[0];x=torch.randn(2,10,10,32)
+    cache=partition(block(x),4)[0];seen=[];native=F.linear
+    def observe(input,weight,bias=None):
+        if weight is block.attn.q_proj.weight:seen.append(('qkv',tuple(input.shape)))
+        if weight is block.mlp.w1.weight:seen.append(('mlp',tuple(input.shape)))
+        return native(input,weight,bias)
+    monkeypatch.setattr(F,'linear',observe)
+    output,packed=WindowExecutor().execute(block,x,cache,torch.tensor([8,17]))
+    assert ('qkv',(2,16,32)) in seen and ('mlp',(8,32)) in seen
+    assert torch.allclose(output,block(x),atol=3e-6,rtol=3e-6)
+    assert packed[[8,17],2:].eq(0).all()
+
+
+@torch.no_grad()
+def test_matched_offline_control_never_overrides_safety(rt,context):
+    rt.config=replace(rt.config,max_reuse_frames=2)
+    image=torch.randn(2,3,40,40)
+    def run(i):
+        ctx=dict(context,frame_id=str(i),timestamp=1+i*.01)
+        b=bundle_for(rt,ctx) if i else ComputationStateBundle(ctx['scene_id'],ctx['frame_id'],ctx['timestamp'],ctx['state_epoch'],ctx['execution_signature'],diagnostics={'full_refresh_hint':True})
+        return rt.evaluate_offline(image,variant='NoM1RegionMatched',execution_context=ctx,computation_state=b,window_targets=[2,4])[1]
+    run(0);d=run(1)
+    assert d['stages'][0]['executed_windows']==6
+    d=run(2)
+    assert d['region_refresh']['mandatory_windows']==12
+    assert d['stages'][0]['executed_windows']>=12

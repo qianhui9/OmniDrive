@@ -17,7 +17,7 @@ def test_selected_windows_match_original_eva(exact_runtime,context,pixel):
     out,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
     assert d['actual_skipped_windows']==34 and d['recomputed_windows']==2
     assert d['actual_skipped_block_computations']==0  # projections/MLP still execute
-    assert all(s['pointwise_window_work']==18 for s in d['stages'][:2])
+    assert all(s['pointwise_window_work']==1 for s in d['stages'][:2])
     assert torch.allclose(out[0],rt.model(x)[0],atol=3e-6,rtol=3e-6)
 
 

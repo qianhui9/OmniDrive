@@ -1,0 +1,125 @@
+{
+  "schema_version": 3,
+  "records": [
+    {
+      "key": "{\"attention_fp16_enabled\": true, \"attention_softmax_scale\": null, \"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"backbone_geometry\": {\"cls_token\": true, \"dilation\": [1, 1], \"kernel\": [16, 16], \"padding\": [0, 0], \"stride\": [16, 16], \"topology\": [[16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false]]}, \"backbone_version\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"block_index\": 0, \"change_detection\": \"wsgrr_v1\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"deterministic_algorithms\": false, \"dtype\": \"torch.float32\", \"flash\": true, \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"heads\": 16, \"inner_norm_eps\": null, \"input_shape\": [6, 40, 40, 1024], \"input_stride\": [1638400, 40, 1, 1600], \"mlp_norm_eps\": 1e-06, \"model_version\": \"3fbebed9ceb0012e6a8266683ccfe6e5e732b7fd61d331eaea1950d7c8d74433\", \"norm_eps\": [1e-06, 1e-06], \"numerical_policy\": \"native_pointwise_shapes_selected_attention_v1\", \"reduced_precision_reduction\": true, \"refresh_policy\": [\"wsgrr_v1\", 3, 8, 8, 16.0, 1.0, 0.25, 0.25, 0.05], \"scale\": 0.125, \"schema\": 3, \"tf32\": [false, true], \"torch\": \"1.13.1+cu117\", \"window\": 16}",
+      "block": 0,
+      "updated": 37,
+      "numerical_verified": true,
+      "difference": {
+        "exact": false,
+        "max_abs": 5.787075519561768,
+        "mean_abs": 0.018520453944802284
+      },
+      "quality_certified": false,
+      "quality_rejection_reason": "downstream_quality_unverified",
+      "incremental_gpu_ms": 21.72934341430664,
+      "full_gpu_ms": 20.278303146362305,
+      "incremental_wall_ms": 21.74242096953094,
+      "full_wall_ms": 20.298789953812957,
+      "pipeline_incremental_wall_ms": 499.83973894268274,
+      "pipeline_full_wall_ms": 477.29526786133647,
+      "pipeline_incremental_gpu_ms": 499.8236083984375,
+      "pipeline_full_gpu_ms": 477.2628479003906,
+      "evidence_cases": [
+        "D3_1"
+      ],
+      "numerical_evidence": {
+        "path": "results.json",
+        "sha256": "9d37521ddf84138f1428b75eddb3211b6810d6f43ad3f4659db74891b3c7ad28"
+      },
+      "measurements": [
+        {
+          "key": "{\"attention_fp16_enabled\": true, \"attention_softmax_scale\": null, \"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"backbone_geometry\": {\"cls_token\": true, \"dilation\": [1, 1], \"kernel\": [16, 16], \"padding\": [0, 0], \"stride\": [16, 16], \"topology\": [[16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false]]}, \"backbone_version\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"block_index\": 0, \"change_detection\": \"wsgrr_v1\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"deterministic_algorithms\": false, \"dtype\": \"torch.float32\", \"flash\": true, \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"heads\": 16, \"inner_norm_eps\": null, \"input_shape\": [6, 40, 40, 1024], \"input_stride\": [1638400, 40, 1, 1600], \"mlp_norm_eps\": 1e-06, \"model_version\": \"3fbebed9ceb0012e6a8266683ccfe6e5e732b7fd61d331eaea1950d7c8d74433\", \"norm_eps\": [1e-06, 1e-06], \"numerical_policy\": \"native_pointwise_shapes_selected_attention_v1\", \"reduced_precision_reduction\": true, \"refresh_policy\": [\"wsgrr_v1\", 3, 8, 8, 16.0, 1.0, 0.25, 0.25, 0.05], \"scale\": 0.125, \"schema\": 3, \"tf32\": [false, true], \"torch\": \"1.13.1+cu117\", \"window\": 16}",
+          "block": 0,
+          "updated": 37,
+          "numerical_verified": true,
+          "difference": {
+            "exact": false,
+            "max_abs": 5.787075519561768,
+            "mean_abs": 0.018520453944802284
+          },
+          "quality_certified": false,
+          "quality_rejection_reason": "downstream_quality_unverified",
+          "incremental_gpu_ms": 21.72934341430664,
+          "full_gpu_ms": 20.278303146362305,
+          "incremental_wall_ms": 21.74242096953094,
+          "full_wall_ms": 20.298789953812957,
+          "pipeline_incremental_wall_ms": 499.83973894268274,
+          "pipeline_full_wall_ms": 477.29526786133647,
+          "pipeline_incremental_gpu_ms": 499.8236083984375,
+          "pipeline_full_gpu_ms": 477.2628479003906,
+          "evidence_cases": [
+            "D3_1"
+          ],
+          "numerical_evidence": {
+            "path": "results.json"
+          }
+        }
+      ]
+    },
+    {
+      "key": "{\"attention_fp16_enabled\": true, \"attention_softmax_scale\": null, \"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"backbone_geometry\": {\"cls_token\": true, \"dilation\": [1, 1], \"kernel\": [16, 16], \"padding\": [0, 0], \"stride\": [16, 16], \"topology\": [[16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false]]}, \"backbone_version\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"block_index\": 1, \"change_detection\": \"wsgrr_v1\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"deterministic_algorithms\": false, \"dtype\": \"torch.float32\", \"flash\": true, \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"heads\": 16, \"inner_norm_eps\": null, \"input_shape\": [6, 40, 40, 1024], \"input_stride\": [1638400, 40, 1, 1600], \"mlp_norm_eps\": 1e-06, \"model_version\": \"8c6e039d079c3727a905a3908ba5f185f95462b67d83c11f3d35a074b890ef7e\", \"norm_eps\": [1e-06, 1e-06], \"numerical_policy\": \"native_pointwise_shapes_selected_attention_v1\", \"reduced_precision_reduction\": true, \"refresh_policy\": [\"wsgrr_v1\", 3, 8, 8, 16.0, 1.0, 0.25, 0.25, 0.05], \"scale\": 0.125, \"schema\": 3, \"tf32\": [false, true], \"torch\": \"1.13.1+cu117\", \"window\": 16}",
+      "block": 1,
+      "updated": 37,
+      "numerical_verified": true,
+      "difference": {
+        "exact": true,
+        "max_abs": 0.0,
+        "mean_abs": 0.0
+      },
+      "quality_certified": false,
+      "quality_rejection_reason": "downstream_quality_unverified",
+      "incremental_gpu_ms": 21.731840133666992,
+      "full_gpu_ms": 20.200416564941406,
+      "incremental_wall_ms": 21.741655888035893,
+      "full_wall_ms": 20.210286835208535,
+      "pipeline_incremental_wall_ms": 499.83973894268274,
+      "pipeline_full_wall_ms": 477.29526786133647,
+      "pipeline_incremental_gpu_ms": 499.8236083984375,
+      "pipeline_full_gpu_ms": 477.2628479003906,
+      "evidence_cases": [
+        "D3_1"
+      ],
+      "numerical_evidence": {
+        "path": "results.json",
+        "sha256": "9d37521ddf84138f1428b75eddb3211b6810d6f43ad3f4659db74891b3c7ad28"
+      },
+      "measurements": [
+        {
+          "key": "{\"attention_fp16_enabled\": true, \"attention_softmax_scale\": null, \"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"backbone_geometry\": {\"cls_token\": true, \"dilation\": [1, 1], \"kernel\": [16, 16], \"padding\": [0, 0], \"stride\": [16, 16], \"topology\": [[16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false]]}, \"backbone_version\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"block_index\": 1, \"change_detection\": \"wsgrr_v1\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"deterministic_algorithms\": false, \"dtype\": \"torch.float32\", \"flash\": true, \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"heads\": 16, \"inner_norm_eps\": null, \"input_shape\": [6, 40, 40, 1024], \"input_stride\": [1638400, 40, 1, 1600], \"mlp_norm_eps\": 1e-06, \"model_version\": \"8c6e039d079c3727a905a3908ba5f185f95462b67d83c11f3d35a074b890ef7e\", \"norm_eps\": [1e-06, 1e-06], \"numerical_policy\": \"native_pointwise_shapes_selected_attention_v1\", \"reduced_precision_reduction\": true, \"refresh_policy\": [\"wsgrr_v1\", 3, 8, 8, 16.0, 1.0, 0.25, 0.25, 0.05], \"scale\": 0.125, \"schema\": 3, \"tf32\": [false, true], \"torch\": \"1.13.1+cu117\", \"window\": 16}",
+          "block": 1,
+          "updated": 37,
+          "numerical_verified": true,
+          "difference": {
+            "exact": true,
+            "max_abs": 0.0,
+            "mean_abs": 0.0
+          },
+          "quality_certified": false,
+          "quality_rejection_reason": "downstream_quality_unverified",
+          "incremental_gpu_ms": 21.731840133666992,
+          "full_gpu_ms": 20.200416564941406,
+          "incremental_wall_ms": 21.741655888035893,
+          "full_wall_ms": 20.210286835208535,
+          "pipeline_incremental_wall_ms": 499.83973894268274,
+          "pipeline_full_wall_ms": 477.29526786133647,
+          "pipeline_incremental_gpu_ms": 499.8236083984375,
+          "pipeline_full_gpu_ms": 477.2628479003906,
+          "evidence_cases": [
+            "D3_1"
+          ],
+          "numerical_evidence": {
+            "path": "results.json"
+          }
+        }
+      ]
+    }
+  ],
+  "validation_sha256": "9d37521ddf84138f1428b75eddb3211b6810d6f43ad3f4659db74891b3c7ad28",
+  "backbone_fingerprint": "a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543",
+  "formal_quality_policy": {
+    "approved_counts": []
+  },
+  "production_ready": false
+}

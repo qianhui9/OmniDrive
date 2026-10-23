@@ -1,15 +1,14 @@
-"""One window executor, preserving native pointwise arithmetic geometry.
+"""One independent-window executor. Native full blocks, compact partial work.
 
-Native EVA FP32 GEMMs change their reduction algorithm with batch shape; casting
-Q/K to FP16 then amplifies the difference. QKV/projection and MLP therefore retain
-the original shapes. Only selected independent attention windows execute. This is
-reported explicitly: cached output windows do not imply skipped pointwise GEMMs.
+Partial GEMM shapes may change FP32 rounding before native FlashAttention casts;
+this is a versioned numerical policy, validated quantitatively against native EVA.
+No new dtype conversion, attention approximation, or cross-window reuse is used.
 """
 import torch
 import torch.nn.functional as F
 from .packing import partition, unpartition
 
-NUMERICAL_POLICY = 'native_pointwise_shapes_selected_attention_v1'
+NUMERICAL_POLICY = 'selected_window_qkv_projection_valid_token_mlp_v2'
 
 
 class WindowExecutor:
@@ -50,40 +49,49 @@ class WindowExecutor:
             raise ValueError('Window IDs must be unique and within the feature grid')
         if not len(ids):
             return self._grid(cached_windows,size,padded,x),cached_windows
+        if len(ids)==count:
+            # Avoid gather/zero-fill/scatter overhead when there is no reuse.
+            updated=block(x)
+            if self.attention_observer is not None:self.attention_observer(count)
+            return updated,partition(updated,size)[0]
         a=block.attn
-        normalized,_=partition(block.norm1(x),size)
-        tokens=normalized.view(count,-1,x.shape[-1]);n=size*size
-        # Exactly the original F.linear dimensions, bias handling and RoPE order.
+        shortcut,_=partition(x,size)
+        shortcut=shortcut.index_select(0,ids)
+        valid,_=partition(torch.ones_like(x[...,:1],dtype=torch.bool),size)
+        valid=valid.index_select(0,ids)
+        # Native normalizes real tokens BEFORE window padding. Learned norm
+        # biases must not create nonzero normalized virtual padding tokens.
+        normalized=block.norm1(shortcut).masked_fill(~valid,0)
+        tokens=normalized.view(len(ids),-1,x.shape[-1]);n=size*size
         q=F.linear(tokens,a.q_proj.weight,a.q_bias)
         k=F.linear(tokens,a.k_proj.weight,None)
         v=F.linear(tokens,a.v_proj.weight,a.v_bias)
-        q=q.reshape(count,n,a.num_heads,-1).permute(0,2,1,3)
-        k=k.reshape(count,n,a.num_heads,-1).permute(0,2,1,3)
-        v=v.reshape(count,n,a.num_heads,-1).permute(0,2,1,3)
+        q=q.reshape(len(ids),n,a.num_heads,-1).permute(0,2,1,3)
+        k=k.reshape(len(ids),n,a.num_heads,-1).permute(0,2,1,3)
+        v=v.reshape(len(ids),n,a.num_heads,-1).permute(0,2,1,3)
         q=a.rope(q).type_as(v);k=a.rope(k).type_as(v)
         if a.flash_attn:
-            q=q.permute(0,2,1,3).index_select(0,ids)
-            k=k.permute(0,2,1,3).index_select(0,ids)
-            v=v.permute(0,2,1,3).index_select(0,ids)
+            q=q.permute(0,2,1,3)
+            k=k.permute(0,2,1,3)
+            v=v.permute(0,2,1,3)
             selected,_=a.inner_attn(q,torch.stack([k,v],dim=2),key_padding_mask=None,causal=False)
             selected=selected.reshape(len(ids),n,-1)
         else:
-            q=(q*a.scale).index_select(0,ids)
-            k=k.index_select(0,ids);v=v.index_select(0,ids)
+            q=q*a.scale
             weights=(q@k.transpose(-2,-1)).softmax(dim=-1).type_as(tokens)
             selected=(weights@v).transpose(1,2).reshape(len(ids),n,-1)
         if self.attention_observer is not None:self.attention_observer(len(ids))
-        attention=selected.new_zeros(count,n,selected.shape[-1])
-        attention.index_copy_(0,ids,selected)
-        attention=a.proj(a.inner_attn_ln(attention)).view(count,size,size,x.shape[-1])
-        attention=unpartition(attention,size,padded,(h,w))
-        updated=x+block.drop_path(attention)
-        updated=updated+block.drop_path(block.mlp(block.norm2(updated)))
-        packed,_=partition(updated,size)
-        if len(ids)==count:
-            return updated,packed
+        attention=a.proj(a.inner_attn_ln(selected)).view(len(ids),size,size,x.shape[-1])
+        updated=shortcut+block.drop_path(attention)
+        # MLP has no spatial dependence. Exclude virtual padding entirely rather
+        # than replacing the 40x40 native grid with a 48x48 packed MLP grid.
+        valid_tokens=valid[...,0]
+        values=updated[valid_tokens]
+        values=values+block.drop_path(block.mlp(block.norm2(values)))
+        packed=torch.zeros_like(updated)
+        packed[valid_tokens]=values
         output=cached_windows.clone()
-        output.index_copy_(0,ids,packed.index_select(0,ids))
+        output.index_copy_(0,ids,packed)
         return self._grid(output,size,padded,x),output
 
     def clear(self):

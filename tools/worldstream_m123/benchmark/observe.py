@@ -112,7 +112,9 @@ class Observer:
         if model.m3_runtime is not None:
             self.wrap(model.m3_runtime, 'generate', 'm3_auto_total')
         if model.m1_manager is not None:
-            self.wrap(model.m1_manager, 'precheck', 'm1_precheck')
+            # The deployed detector calls precheck_with_observation directly.
+            # Wrapping the shared implementation also covers precheck(), once.
+            self.wrap(model.m1_manager, 'precheck_with_observation', 'm1_precheck')
             native_commit = model.m1_manager.commit
 
             @wraps(native_commit)

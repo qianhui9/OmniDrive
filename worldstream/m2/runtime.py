@@ -52,21 +52,21 @@ class IncrementalVisionRuntime:
     def forward_from_m1(self,images,manager,context):
         return self._from_m1(images,manager,context)
 
-    def evaluate_offline_from_m1(self,images,manager,context,*,variant='D'):
-        return self._from_m1(images,manager,context,variant)
+    def evaluate_offline_from_m1(self,images,manager,context,*,variant='D',window_targets=None):
+        return self._from_m1(images,manager,context,variant,window_targets)
 
-    def _from_m1(self,images,manager,context,offline=None):
+    def _from_m1(self,images,manager,context,offline=None,window_targets=None):
         tick=perf_counter()
         if manager is None:snapshot=None
         else:
-            try:snapshot=manager.export_m2_inputs(expected_context=context)
+            try:snapshot=manager.export_m2_inputs(expected_context=context,computation_only=True)
             except RuntimeError as error:
                 if str(error) not in ('Call precheck first','M1 snapshot does not match the pending M2 request'):
                     raise
                 snapshot=None
         read_ms=(perf_counter()-tick)*1000
         if offline:
-            result,diag=self.evaluate_offline(images,variant=offline,m1_result=snapshot,execution_context=context)
+            result,diag=self.evaluate_offline(images,variant=offline,m1_result=snapshot,execution_context=context,window_targets=window_targets)
         else:result,diag=self.forward(images,m1_result=snapshot,execution_context=context)
         diag.update(m1_snapshot_read=snapshot is not None,M1_M2_state_read_ms=read_ms,
                     world_identity_authorized_pixel_reuse=False)
@@ -75,16 +75,21 @@ class IncrementalVisionRuntime:
     def forward(self,images,m1_result=None,m1_state=None,execution_context=None,computation_state=None):
         return self._forward(images,m1_result,execution_context,computation_state)
 
-    def evaluate_offline(self,images,*,variant='D',m1_result=None,execution_context=None,computation_state=None):
+    def evaluate_offline(self,images,*,variant='D',m1_result=None,execution_context=None,computation_state=None,window_targets=None):
         """Explicit research entry; no cost table mutation or production approval.
 
         A/B/C are ablations only. Production forward always uses complete WSGRR.
         A runtime/cache cannot cross the offline/production signature boundary.
         """
-        if variant not in ('A','B','C','D'):raise ValueError('Unknown offline ablation')
-        return self._forward(images,m1_result,execution_context,computation_state,variant)
+        if variant not in ('A','B','C','D','NoM1Region','NoM1RegionMatched'):raise ValueError('Unknown offline ablation')
+        if variant=='NoM1RegionMatched':
+            if (not isinstance(window_targets,list) or len(window_targets)!=len(images)
+                    or any(type(v) is not int or v<0 for v in window_targets)):
+                raise ValueError('Explicit per-camera offline total targets required')
+        elif window_targets is not None:raise ValueError('Total targets belong only to the offline matched-compute control')
+        return self._forward(images,m1_result,execution_context,computation_state,variant,window_targets)
 
-    def _forward(self,images,m1_result,execution_context,computation_state,offline=None):
+    def _forward(self,images,m1_result,execution_context,computation_state,offline=None,window_targets=None):
         start=perf_counter();context=dict(execution_context or {})
         if any(m.training for m in self.model.modules()) or torch.is_grad_enabled():
             raise ValueError('M2 window execution is inference-only')
@@ -138,13 +143,14 @@ class IncrementalVisionRuntime:
             else:
                 selected,descriptors,region_states,refresh=select_regions(x0,self.cache,bundle,context,
                     self.model.patch_embed.proj,self.model.blocks[0].window_size,self.config,
-                    uncertainty,mandatory,events=offline!='B',budget=offline not in ('B','C'))
+                    uncertainty,mandatory,events=offline not in ('B','NoM1Region','NoM1RegionMatched'),
+                    budget=offline not in ('B','C'),window_targets=window_targets)
                 plans=self.planner.plan_windows(selected,x0.shape[:3],stop_after=len(self.prefix))
         else:plans=None
         scoring_ms=(perf_counter()-scoring_start)*1000
         validation_ms=(perf_counter()-start)*1000
         execution_start=perf_counter()
-        features,stages,outputs,sources,capture_eligible=self._execute(x0,context,plans,reason,offline)
+        features,stages,outputs,sources,capture_eligible,executed_ids=self._execute(x0,context,plans,reason,offline)
         execution_ms=(perf_counter()-execution_start)*1000
         if self.prefix:
             if plans is None:
@@ -164,7 +170,7 @@ class IncrementalVisionRuntime:
                 ages={}
                 for s in stages:
                     if s['block'] not in self.prefix:continue
-                    i=s['block'];updated=torch.as_tensor(s['executed_window_ids'],device=x0.device,dtype=torch.long)
+                    i=s['block'];updated=executed_ids[i]
                     age=(self.cache.window_ages[i]+1).clone() if plans is not None else torch.zeros(s['total_windows'],device=x0.device,dtype=torch.long)
                     age[updated]=0;ages[i]=age
                 if self.prefix:
@@ -188,8 +194,8 @@ class IncrementalVisionRuntime:
             cache_boundary='window',state_interface='source_linked',cacheable_blocks=list(self.prefix),
             global_barrier_block=len(self.prefix),patch_embedding='full_once',change_detection='exact_block0_input' if offline=='A' else 'wsgrr_v1',numerical_policy=NUMERICAL_POLICY,
             offline_experiment=bool(offline),offline_variant=offline,refresh_policy=self.config.refresh_signature(),region_refresh=refresh,
-            pointwise_execution='native_full_shapes_when_attention_updates',
-            window_count_scope='cached_prefix_output_windows; partial savings cover attention only',
+            pointwise_execution='selected_window_qkv_projection_and_valid_token_mlp',
+            window_count_scope='cached_prefix_output_windows; pointwise work reported separately',
             stages=stages,actual_skipped_windows=skipped,cache_hits=skipped,
             actual_skipped_block_computations=sum(1 for s in stages if s.get('executed_windows')==0),
             skipped_pointwise_window_work=sum(s.get('total_windows',0) for s in stages if s.get('executed_windows')==0),
@@ -208,7 +214,7 @@ class IncrementalVisionRuntime:
         return [features],diag
 
     def _execute(self,x,context,plans,reason,offline=None):
-        stages=[];outputs={};sources={};capture_eligible=False
+        stages=[];outputs={};sources={};capture_eligible=False;executed_ids={}
         for i,block in enumerate(self.model.blocks):
             if i not in self.prefix:
                 x=block(x);stages.append(dict(block=i,mode='full',reason='global_dependency'))
@@ -227,18 +233,22 @@ class IncrementalVisionRuntime:
                         expanded=self.planner.plan(torch.ones(x.shape[:3],device=x.device,dtype=torch.bool),stop_after=len(self.prefix))
                         for later in range(i+1,len(self.prefix)):plans[later]=expanded[later]
                 self.executing_block=i
+                executed_ids[i]=ids
                 cached=self.cache.outputs.get(i) if len(ids)<total else None
                 x,packed=self.executor.execute(block,x,cached,ids)
-                outputs[i]=packed;computed=set(ids.tolist());per_camera=total//len(x)
+                outputs[i]=packed;id_values=ids.tolist();computed=set(id_values);per_camera=total//len(x)
+                rows=(x.shape[1]+size-1)//size;cols=(x.shape[2]+size-1)//size
+                valid_tokens=sum(min(size,x.shape[1]-(j%per_camera//cols)*size)*
+                    min(size,x.shape[2]-(j%cols)*size) for j in id_values)
                 sources[i]=[dict(computation_frame_id=context.get('frame_id'),computation_timestamp=context.get('timestamp'),
                     computation_version=self.cache.version+1,camera_id=context['camera_ids'][j//per_camera],
                     producer_layer=i,dependency_scope='closed_window_prefix',task_quality_certified=False)
                     if j in computed else copy.deepcopy(self.cache.sources[i][j]) for j in range(total)]
                 stages.append(dict(block=i,total_windows=total,updated_windows=len(ids),executed_windows=len(ids),
                     planned_windows=int(plans[i].updated.sum()) if plans is not None else total,
-                    executed_window_ids=ids.tolist(),
+                    executed_window_ids=id_values,
                     reused_windows=total-len(ids),mode='windows',full_update_reason=why,attention_windows=len(ids),
-                    pointwise_tokens=len(x)*x.shape[1]*x.shape[2] if len(ids) else 0,
-                    pointwise_window_work=total if len(ids) else 0))
+                    pointwise_tokens=valid_tokens,qkv_tokens=len(ids)*size*size,
+                    pointwise_window_work=len(ids)))
             if self.stage_observer is not None:self.stage_observer(i,x)
-        return x.permute(0,3,1,2),stages,outputs,sources,capture_eligible
+        return x.permute(0,3,1,2),stages,outputs,sources,capture_eligible,executed_ids
