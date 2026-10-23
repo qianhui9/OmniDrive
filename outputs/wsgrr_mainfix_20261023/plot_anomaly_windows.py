@@ -20,7 +20,7 @@ def frame(path):
             row=json.loads(line)
             if row['frame_id']==TOKEN:return row['m2']
     raise ValueError('Missing actual anomaly frame')
-old=frame(ROOT.parent/'wsgrrr_20261022_followup/D3_full/per_frame_metrics.jsonl')
+old=frame(ROOT/'references/wsgrrr_20261022_followup/D3_full/per_frame_metrics.jsonl')
 new=frame(ROOT/'main_full/per_frame_metrics.jsonl')
 cfg=Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py')
 cfg.data.test.test_mode=True

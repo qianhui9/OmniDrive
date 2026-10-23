@@ -7,7 +7,7 @@ import numpy as np
 from tools.worldstream_m1.io_utils import read_prediction_subset
 
 ROOT=Path(__file__).resolve().parent
-OLD=ROOT.parent/'wsgrrr_20261022_followup/Native_full/official_eval'
+OLD=ROOT/'references/wsgrrr_20261022_followup/Native_full/official_eval'
 NEW=ROOT/'main_full/official_eval'
 CLASSES=('car','bicycle','pedestrian','motorcycle')
 def rows(path):

@@ -192,7 +192,7 @@ mATE、mASE、mAOE、mAVE、mAAE 越低越好。Detection mAP 的相对损失由
 
 关键图像风险导出遗漏与旧范围撤销已修复，预算、年龄、来源与依赖约束通过回归和连续审计；正式 Detection 损失显著改善。但没有预先批准的生产精度容忍阈值，且部分场景仍有明显下降、Native 自身也有错误，不能自动认定质量可接受。部分窗口执行器的既有浮点差异仍在，M1 总开销与全局后缀成本仍大，净加速目标未达成。生产批准表和正式配置均未修改。
 
-开发过程中一次未完成推理在 1220 帧中止以补齐空框/越界/非有限范围撤销；记录保存在 `main_full_pre_boundaryfix/`，没有正式评分，未用于最终指标。本报告全量结果均来自最终冻结代码的完整 `main_full/`；其他开发失败/中断见 `attempts.json`。
+开发过程中一次未完成推理在 1220 帧中止以补齐空框/越界/非有限范围撤销；该目录已按后续清理要求删除（见 `cleanup_manifest.json`），此次运行没有正式评分，未用于最终指标。本报告全量结果均来自最终冻结代码的完整 `main_full/`；其他开发失败/中断见 `attempts.json`。
 
 ## 仪器化变更记录
 
@@ -203,3 +203,8 @@ mATE、mASE、mAOE、mAVE、mAAE 越低越好。Detection mAP 的相对损失由
 | 本目录 `summarize.py`、`finish_validation.py`、`run_main_validation.py`、`verify_native_reuse.py`、`plot_anomaly_windows.py`、`diagnose_final_anomaly.py`、`final_evidence.py`、`build_report.py`、`residual_detection_audit.py` | 新建离线脚本 | 从真实记录汇总、串行执行必要复测、来源哈希核验、实际窗口可视化 |
 
 所有测试和实验以 `taskset -c 0-3,6-31` 启动，子进程继承亲和性；使用 `OmniDrive` 指定解释器。未停止其他用户进程。历史输出、生产批准表及正式配置保持原样。开发失败和中断原因见 `attempts.json`，相应日志保留。
+
+
+## 输出整理（2026-10-23）
+
+按用户后续清理要求，其他实验输出及本实验中断/开发阶段目录已删除。当前完整验证、40帧连续测试、请求测试、回归及异常诊断结果保留。本实验使用的 Native 与旧 D3 对照证据移至 `references/wsgrrr_20261022_followup/`；分析脚本已更新读取路径，原始运行记录中的历史路径不改写，迁移对应关系与 SHA256 见 `cleanup_manifest.json`。M1 回放与 Native 格式化预测的 SHA256 相同，仅保留后者；后续回放可使用 `references/wsgrrr_20261022_followup/Native_full/official_eval/detection/pts_bbox/results_nusc.json`。生产配置引用的 4 个准入 JSON 在 `../final_route/` 原路径保留，内容未修改。

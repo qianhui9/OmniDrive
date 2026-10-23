@@ -11,7 +11,7 @@ from worldstream.m1.omnidrive_adapter import quaternion_transform
 from worldstream.m1.geometry import transform_points
 
 ROOT=Path(__file__).resolve().parent
-OLD=ROOT.parent/'wsgrrr_20261022_followup'
+OLD=ROOT/'references/wsgrrr_20261022_followup'
 TOKEN='a7795dcadad44c1c85fa27eef18366f6'
 def read(path):return json.loads(path.read_text())
 def row(path):

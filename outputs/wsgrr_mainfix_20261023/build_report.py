@@ -100,7 +100,7 @@ start=text.index('## 正式 Detection、Map 结果') if '## 正式 Detection、M
 end=text.index('## 仪器化变更记录',start)
 text=text[:start]+'\n'.join(lines)+'\n'+text[end:]
 profile={}
-for name,path in [('before',ROOT.parent/'wsgrrr_20261022_followup/visual40_final'),('after',ROOT/'visual40_main')]:
+for name,path in [('before',ROOT/'references/wsgrrr_20261022_followup/visual40_final'),('after',ROOT/'visual40_main')]:
     profile[name]={r['name']:r for r in read(path/'profile_output/operators.json')['rows']}
 stages=[('Patch Embedding + Block0 输入','m2/block0_input'),('M1-M2 准入读取','m2/computation_admission'),
     ('评分与选择','m2/select_regions'),('依赖计划','m2/dependency_plan'),

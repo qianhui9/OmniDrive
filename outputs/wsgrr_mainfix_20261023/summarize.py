@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 
 ROOT=Path(__file__).resolve().parent
-OLD=ROOT.parent/'wsgrrr_20261022_followup'
+OLD=ROOT/'references/wsgrrr_20261022_followup'
 
 def read(path):return json.loads(Path(path).read_text())
 def rows(path):return [json.loads(s) for s in Path(path).read_text().splitlines()]

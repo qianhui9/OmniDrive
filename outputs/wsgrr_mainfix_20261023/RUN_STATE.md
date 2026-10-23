@@ -12,6 +12,6 @@ GPU 回归 333 passed（tests_gpu_final_boundaries.log）；真实 EVA 10 个执
 
 最终报告 experiment_report.md；机器汇总 summary.json；逐场景 paired_scenes.json；异常窗口 anomaly_window_trace.json；实际预测和GT异常 anomaly_prediction_diagnostics.json；四类残余案例 residual_detection_cases.json 及全部GT状态变化 residual_detection_gt_changes.json。
 
-开发阶段未完成的1220帧在 main_full_pre_boundaryfix/ 保留，没有完成正式评分，未用于最终结果。其他开发失败和中断见 attempts.json。不要删除历史或把开发结果冒充最终结果。
+开发阶段未完成的1220帧没有正式评分，未用于最终结果；相关开发目录已按用户后续清理要求删除，见 cleanup_manifest.json。开发失败和中断的简要记录见 attempts.json。
 
-运行约束：所有命令 taskset -c 0-3,6-31；Python /home/qh/miniconda3/envs/OmniDrive/bin/python；其他用户GPU任务只等待不停止。无关 outputs/m3_state_guided_verified_decode/ 未触碰。
+运行约束：所有命令 taskset -c 0-3,6-31；Python /home/qh/miniconda3/envs/OmniDrive/bin/python；其他用户GPU任务只等待不停止。后续用户授权清理其他实验输出，清理范围与保留项见 cleanup_manifest.json。
