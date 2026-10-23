@@ -133,7 +133,7 @@ class DependencyPlanner:
             result.append(i)
         return result
 
-    def input_footprints(self, height, width):
+    def input_footprints(self, height, width, *, verified_prefix=None):
         """Input dependency of each prefix window, including earlier windows/Conv2d.
 
         Virtual window/Conv padding has no observed input pixels. Global and
@@ -144,7 +144,7 @@ class DependencyPlanner:
         th=(height+2*ph-dh*(kh-1)-1)//sh+1
         tw=(width+2*pw-dw*(kw-1)-1)//sw+1
         result={}
-        for i in self.cacheable_prefix():
+        for i in self.cacheable_prefix() if verified_prefix is None else verified_prefix:
             ws=self.backbone.blocks[i].window_size;units=[]
             for y in range(0,th,ws):
                 for x in range(0,tw,ws):

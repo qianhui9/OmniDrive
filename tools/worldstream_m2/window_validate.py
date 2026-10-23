@@ -137,6 +137,43 @@ def change_metrics(image, previous, current_input, previous_input, projection, p
 
 
 @torch.no_grad()
+def audit_cache_transition(previous, current, diagnostic, frame_id, ordinary_budget):
+    """Offline checks after synchronized timing; never part of measured execution."""
+    if not diagnostic['cache_saved']:
+        return dict(checked=False, reason='cache_not_published')
+    checks={}
+    for stage in diagnostic['stages']:
+        block=stage['block']
+        if block not in current.outputs:continue
+        ids=stage['executed_window_ids'];total=stage['total_windows']
+        keep=torch.ones(total,device=current.outputs[block].device,dtype=torch.bool)
+        keep[ids]=False
+        checks[f'block_{block}_selected_ages_zero']=bool(current.window_ages[block][~keep].eq(0).all())
+        checks[f'block_{block}_selected_source_current']=all(
+            current.sources[block][j]['computation_frame_id']==frame_id for j in ids)
+        if previous.images is not None and diagnostic['full_update_reason'] is None:
+            checks[f'block_{block}_reused_ages_increment']=torch.equal(
+                current.window_ages[block][keep],previous.window_ages[block][keep]+1)
+            checks[f'block_{block}_reused_outputs_unchanged']=torch.equal(
+                current.outputs[block][keep],previous.outputs[block][keep])
+            checks[f'block_{block}_reused_sources_unchanged']=all(
+                current.sources[block][j]==previous.sources[block][j] for j in range(total) if j not in ids)
+            if block==0:
+                checks['reused_descriptors_unchanged']=torch.equal(current.descriptors[keep],previous.descriptors[keep])
+    refresh=diagnostic['region_refresh']
+    if refresh:
+        actual=set(diagnostic['stages'][0]['executed_window_ids'])
+        checks['mandatory_in_actual_execution']=set(refresh['mandatory_window_ids']).issubset(actual)
+        per_camera=diagnostic['stages'][0]['total_windows']//len(current.context['camera_ids'])
+        ordinary=refresh['ordinary_window_ids']
+        checks['per_camera_ordinary_budget']=all(
+            sum(c*per_camera<=j<(c+1)*per_camera for j in ordinary)<=ordinary_budget
+            for c in range(len(current.context['camera_ids'])))
+    if not all(checks.values()):raise AssertionError('Cache transition audit failed: '+str(checks))
+    return dict(checked=True, checks=checks)
+
+
+@torch.no_grad()
 def run_wsgrr(args):
     """Continuous committed-cache evaluation using the production runtime/executor.
 
@@ -170,7 +207,8 @@ def run_wsgrr(args):
     missing=[i['token'] for i in infos if i['token'] not in predictions]
     if missing:raise ValueError('Missing actual M1 replay predictions: '+str(missing))
     model=backbone(args.checkpoint)
-    specs=([('D3','D',3),('NoM1Region','NoM1Region',3)] if getattr(args,'followup',False) else
+    specs=([('D3','D',3)] if getattr(args,'main_only',False) else
+           [('D3','D',3),('NoM1Region','NoM1Region',3)] if getattr(args,'followup',False) else
            [('A','A',3),('B','B',3),('C','C',3)]+[('D'+str(b),'D',b) for b in args.budgets])
     runtimes={name:IncrementalVisionRuntime(model,dict(cache_capture='always',ordinary_budget=b)) for name,_,b in specs}
     managers={name:WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml')) for name,_,_ in specs}
@@ -197,7 +235,15 @@ def run_wsgrr(args):
         for name,variant,budget in (specs if index%2==0 else list(reversed(specs))):
             rt=runtimes[name];manager=managers[name]
             if not continuous:rt.reset()
+            precheck_profile=None
+            if getattr(args,'followup_profile',False) and name=='D3' and index==1:
+                import cProfile,io,pstats
+                precheck_profile=cProfile.Profile();precheck_profile.enable()
             tick=perf_counter();result=manager.precheck(frame);precheck_ms=(perf_counter()-tick)*1000
+            if precheck_profile is not None:
+                precheck_profile.disable();precheck_profile.dump_stats(str(out/'m1_precheck_cpu.prof'))
+                stream=io.StringIO();pstats.Stats(precheck_profile,stream=stream).sort_stats('cumtime').print_stats(60)
+                (out/'m1_precheck_cpu.txt').write_text(stream.getvalue())
             context=dict(scene_id=frame.scene_id,frame_id=frame.frame_id,timestamp=frame.timestamp,
                 execution_signature=frame.execution_signature,state_epoch=result.diagnostics['state_epoch'],
                 coordinate_space='preprocessed_image',camera_ids=list(cameras))
@@ -249,11 +295,16 @@ def run_wsgrr(args):
                 full_update_reason=diag['full_update_reason'],difference=delta,
                 incremental=timing,native=dense,M1_precheck_ms=precheck_ms,M1_state_read_ms=read_ms,
                 M1_precheck_components_ms=result.diagnostics.get('timings_ms',{}),
+                M1_precheck_profiled=precheck_profile is not None,
                 region_scoring_host_ms=diag['M2_region_scoring_ms'],window_and_suffix_host_ms=diag['M2_window_and_suffix_ms'],
                 cache_publication_host_ms=diag['M2_cache_publication_ms'],cache_saved=diag['cache_saved'],
                 m1_regions=len(snapshot.computation_state.region_states),
                 region_states=snapshot.computation_state.region_states,
                 real_m1_expiry_events=snapshot.computation_state.region_events,
+                image_uncertainty_regions=snapshot.computation_state.uncertainty_regions,
+                window_ages_after={i:t.cpu().tolist() for i,t in next_cache.window_ages.items()},
+                output_window_provenance=diag['output_window_provenance'],
+                cache_transition_audit=audit_cache_transition(source_cache,next_cache,diag,frame.frame_id,budget),
                 m1_replay_source='historical_full_model_detection_replay',
                 downstream_quality='NOT_MEASURED: replay supplies states, not candidate task predictions')
             rows.append(row)
@@ -478,7 +529,9 @@ if __name__=='__main__':
     parser.add_argument('--compare-task-runs',nargs=2,metavar=('BASELINE','CANDIDATE'),help='Compare completed full-model task runs; --output is a JSON file')
     parser.add_argument('--followup-profile',action='store_true',help='Offline torch.profiler/cProfile attribution on frame 1, D3')
     parser.add_argument('--followup',action='store_true',help='Offline paired D3/NoM1Region nominal-budget experiment (same source safety)')
+    parser.add_argument('--main-only',action='store_true',help='Only current WSGRR D3 and paired Native timing; no ablations or budget scan')
     args=parser.parse_args()
+    if args.main_only and (not args.wsgrr or args.followup):parser.error('--main-only requires --wsgrr and excludes --followup')
     if args.frames<2 or args.repeats<3 or args.warmup<1:parser.error('Need frames>=2, repeats>=3, warmup>=1')
     if args.compare_task_runs:
         compare_task_runs(*args.compare_task_runs,args.output)

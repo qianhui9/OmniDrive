@@ -45,7 +45,7 @@ def cost_key(block, x, block_index=None, model=None, refresh_policy=None):
             padding=model.patch_embed.proj.padding,dilation=model.patch_embed.proj.dilation,
             cls_token=model.pretrain_use_cls_token,
             topology=[(b.window_size,b.use_residual_block) for b in model.blocks]) if model is not None else None),
-        change_detection='wsgrr_v1', refresh_policy=refresh_policy,
+        change_detection=refresh_policy[0] if refresh_policy else 'wsgrr_v1', refresh_policy=refresh_policy,
         autocast=torch.is_autocast_enabled(),
         autocast_dtype=str(torch.get_autocast_gpu_dtype()),
         tf32=[torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32],

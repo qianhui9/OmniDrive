@@ -64,7 +64,7 @@ def test_promotion_requires_all_evidence(tmp_path,eva,fault):
         assert not output.exists()
 
 
-@pytest.mark.parametrize('fault',['none','limits','error','pipeline','nonfinite'])
+@pytest.mark.parametrize('fault',['none','limits','error','pipeline','nonfinite','old_policy'])
 def test_wsgrr_approval_uses_independent_errors_tasks_and_net_cost(tmp_path,eva,fault):
     candidate,quality,_,_=evidence(tmp_path,eva)
     data=json.loads(candidate.read_text());assessment=json.loads(quality.read_text())
@@ -73,7 +73,9 @@ def test_wsgrr_approval_uses_independent_errors_tasks_and_net_cost(tmp_path,eva,
     validation['controlled_microbenchmarks'][0]['difference']=dict(exact=False,max_abs=.4,mean_abs=.01)
     if fault=='nonfinite':validation['controlled_microbenchmarks'][0]['difference']['max_abs']=float('nan')
     write(validation_path,validation)
-    key=cost_key(eva.blocks[0],torch.zeros(2,10,10,32),0,model=eva,refresh_policy=M2Config().refresh_signature())
+    policy=M2Config().refresh_signature()
+    if fault=='old_policy':policy=('wsgrr_v1',)+policy[1:]
+    key=cost_key(eva.blocks[0],torch.zeros(2,10,10,32),0,model=eva,refresh_policy=policy)
     row=data['records'][0];row['key']=key
     row.update(pipeline_incremental_wall_ms=.2,pipeline_full_wall_ms=1.,
         pipeline_incremental_gpu_ms=.2,pipeline_full_gpu_ms=1.)

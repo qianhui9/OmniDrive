@@ -577,6 +577,7 @@ class WorldStateManager:
                 bundle.refresh_contract=copy.deepcopy(bundle.refresh_contract)
                 bundle.region_states=copy.deepcopy(bundle.region_states)
                 bundle.region_events=copy.deepcopy(bundle.region_events)
+                bundle.uncertainty_regions=copy.deepcopy(bundle.uncertainty_regions)
                 bundle.diagnostics=copy.deepcopy(bundle.diagnostics)
                 bundle.observation_links={cid:{key:copy.deepcopy(link[key]) for key in
                     ('source_frame_id','source_camera_id','source_timestamp','validity_lease') if key in link}

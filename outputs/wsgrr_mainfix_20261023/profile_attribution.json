@@ -1,0 +1,398 @@
+{
+  "before": {
+    "source": "outputs/wsgrrr_20261022_followup/visual40_final/profile_output/operators.json",
+    "named_scopes": [
+      {
+        "name": "m2/topology_check",
+        "calls": 3,
+        "cpu_total_us": 454,
+        "self_cpu_us": 454,
+        "cuda_total_us": 0,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -276,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "m2/signature",
+        "calls": 1,
+        "cpu_total_us": 1310,
+        "self_cpu_us": 1310,
+        "cuda_total_us": 0,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "m2/block0_input",
+        "calls": 1,
+        "cpu_total_us": 1894,
+        "self_cpu_us": 505,
+        "cuda_total_us": 4205,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -45875200
+      },
+      {
+        "name": "m2/computation_admission",
+        "calls": 1,
+        "cpu_total_us": 9067,
+        "self_cpu_us": 9067,
+        "cuda_total_us": 0,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "cudaMemcpyAsync",
+        "calls": 42,
+        "cpu_total_us": 25892,
+        "self_cpu_us": 25892,
+        "cuda_total_us": 454,
+        "self_cuda_us": 454,
+        "self_cpu_memory_bytes": 0,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "cudaStreamSynchronize",
+        "calls": 26,
+        "cpu_total_us": 421567,
+        "self_cpu_us": 421567,
+        "cuda_total_us": 279,
+        "self_cuda_us": 279,
+        "self_cpu_memory_bytes": 0,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "m2/select_regions",
+        "calls": 1,
+        "cpu_total_us": 5585,
+        "self_cpu_us": 4293,
+        "cuda_total_us": 2885,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -1364,
+        "self_cuda_memory_bytes": -134666240
+      },
+      {
+        "name": "m2/dependency_plan",
+        "calls": 1,
+        "cpu_total_us": 165,
+        "self_cpu_us": 75,
+        "cuda_total_us": 255,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -65024
+      },
+      {
+        "name": "m2/execution_and_lineage",
+        "calls": 1,
+        "cpu_total_us": 42809,
+        "self_cpu_us": 1233,
+        "cuda_total_us": 512202,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -924,
+        "self_cuda_memory_bytes": -3006466560
+      },
+      {
+        "name": "prefix/0/qkv",
+        "calls": 3,
+        "cpu_total_us": 165,
+        "self_cpu_us": 15,
+        "cuda_total_us": 2906,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -12,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "prefix/0/attention",
+        "calls": 1,
+        "cpu_total_us": 254,
+        "self_cpu_us": 134,
+        "cuda_total_us": 443,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -77596160
+      },
+      {
+        "name": "prefix/0/output_projection",
+        "calls": 1,
+        "cpu_total_us": 48,
+        "self_cpu_us": 9,
+        "cuda_total_us": 930,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "prefix/0/mlp",
+        "calls": 1,
+        "cpu_total_us": 141,
+        "self_cpu_us": 47,
+        "cuda_total_us": 5742,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -345996800
+      },
+      {
+        "name": "prefix/1/qkv",
+        "calls": 3,
+        "cpu_total_us": 125,
+        "self_cpu_us": 16,
+        "cuda_total_us": 4503,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -540,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "prefix/1/attention",
+        "calls": 1,
+        "cpu_total_us": 195,
+        "self_cpu_us": 109,
+        "cuda_total_us": 444,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -268,
+        "self_cuda_memory_bytes": -77595648
+      },
+      {
+        "name": "prefix/1/output_projection",
+        "calls": 1,
+        "cpu_total_us": 46,
+        "self_cpu_us": 7,
+        "cuda_total_us": 927,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "prefix/1/mlp",
+        "calls": 1,
+        "cpu_total_us": 292,
+        "self_cpu_us": 50,
+        "cuda_total_us": 6202,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -345962496
+      },
+      {
+        "name": "cache/commit",
+        "calls": 1,
+        "cpu_total_us": 2956,
+        "self_cpu_us": 1587,
+        "cuda_total_us": 1721,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -67567616
+      },
+      {
+        "name": "cudaDeviceSynchronize",
+        "calls": 2,
+        "cpu_total_us": 8,
+        "self_cpu_us": 8,
+        "cuda_total_us": 0,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": 0,
+        "self_cuda_memory_bytes": 0
+      }
+    ],
+    "suffix_blocks": 22,
+    "suffix_cuda_ms": 472.777,
+    "caveat": "Single instrumented frame; nested totals overlap. Different selected-window counts prevent causal speed comparisons."
+  },
+  "after": {
+    "source": "outputs/wsgrr_mainfix_20261023/visual40_main/profile_output/operators.json",
+    "named_scopes": [
+      {
+        "name": "m2/topology_check",
+        "calls": 1,
+        "cpu_total_us": 106,
+        "self_cpu_us": 106,
+        "cuda_total_us": 0,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "m2/signature",
+        "calls": 1,
+        "cpu_total_us": 1154,
+        "self_cpu_us": 1154,
+        "cuda_total_us": 0,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "m2/block0_input",
+        "calls": 1,
+        "cpu_total_us": 797,
+        "self_cpu_us": 77,
+        "cuda_total_us": 4175,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -268,
+        "self_cuda_memory_bytes": -45875200
+      },
+      {
+        "name": "m2/computation_admission",
+        "calls": 1,
+        "cpu_total_us": 8331,
+        "self_cpu_us": 8331,
+        "cuda_total_us": 0,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "cudaMemcpyAsync",
+        "calls": 39,
+        "cpu_total_us": 34557,
+        "self_cpu_us": 34557,
+        "cuda_total_us": 479,
+        "self_cuda_us": 304,
+        "self_cpu_memory_bytes": 0,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "cudaStreamSynchronize",
+        "calls": 25,
+        "cpu_total_us": 413926,
+        "self_cpu_us": 413926,
+        "cuda_total_us": 2928,
+        "self_cuda_us": 2928,
+        "self_cpu_memory_bytes": 0,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "m2/select_regions",
+        "calls": 1,
+        "cpu_total_us": 5378,
+        "self_cpu_us": 4073,
+        "cuda_total_us": 1403,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -1564,
+        "self_cuda_memory_bytes": -134722048
+      },
+      {
+        "name": "m2/dependency_plan",
+        "calls": 1,
+        "cpu_total_us": 158,
+        "self_cpu_us": 74,
+        "cuda_total_us": 18,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -55296
+      },
+      {
+        "name": "m2/execution_and_lineage",
+        "calls": 1,
+        "cpu_total_us": 50985,
+        "self_cpu_us": 1014,
+        "cuda_total_us": 527346,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -876,
+        "self_cuda_memory_bytes": -3710602752
+      },
+      {
+        "name": "prefix/0/qkv",
+        "calls": 3,
+        "cpu_total_us": 131,
+        "self_cpu_us": 16,
+        "cuda_total_us": 3818,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -12,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "prefix/0/attention",
+        "calls": 1,
+        "cpu_total_us": 245,
+        "self_cpu_us": 124,
+        "cuda_total_us": 1644,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -154141696
+      },
+      {
+        "name": "prefix/0/output_projection",
+        "calls": 1,
+        "cpu_total_us": 33,
+        "self_cpu_us": 8,
+        "cuda_total_us": 1510,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "prefix/0/mlp",
+        "calls": 1,
+        "cpu_total_us": 132,
+        "self_cpu_us": 48,
+        "cuda_total_us": 8317,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -468318208
+      },
+      {
+        "name": "prefix/1/qkv",
+        "calls": 3,
+        "cpu_total_us": 103,
+        "self_cpu_us": 15,
+        "cuda_total_us": 3862,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -276,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "prefix/1/attention",
+        "calls": 1,
+        "cpu_total_us": 169,
+        "self_cpu_us": 82,
+        "cuda_total_us": 6204,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -154141696
+      },
+      {
+        "name": "prefix/1/output_projection",
+        "calls": 1,
+        "cpu_total_us": 37,
+        "self_cpu_us": 14,
+        "cuda_total_us": 4015,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": 0
+      },
+      {
+        "name": "prefix/1/mlp",
+        "calls": 1,
+        "cpu_total_us": 295,
+        "self_cpu_us": 40,
+        "cuda_total_us": 8147,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -563704320
+      },
+      {
+        "name": "cache/commit",
+        "calls": 1,
+        "cpu_total_us": 2993,
+        "self_cpu_us": 1599,
+        "cuda_total_us": 1719,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": -4,
+        "self_cuda_memory_bytes": -63345664
+      },
+      {
+        "name": "cudaDeviceSynchronize",
+        "calls": 2,
+        "cpu_total_us": 5,
+        "self_cpu_us": 5,
+        "cuda_total_us": 0,
+        "self_cuda_us": 0,
+        "self_cpu_memory_bytes": 0,
+        "self_cuda_memory_bytes": 0
+      }
+    ],
+    "suffix_blocks": 22,
+    "suffix_cuda_ms": 471.127,
+    "caveat": "Single instrumented frame; nested totals overlap. Different selected-window counts prevent causal speed comparisons."
+  }
+}

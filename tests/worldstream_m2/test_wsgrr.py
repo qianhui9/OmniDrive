@@ -41,7 +41,7 @@ def test_stable_state_and_single_edge_pixel_are_not_mandatory(rt,context):
     image[0,:,7,7]+=.1
     _,d=step(rt,image,context,1,[region(bbox_xyxy=[1.,1.,8.,7.])])
     assert d['region_refresh']['mandatory_windows']==0 and d['recomputed_windows']==0
-    assert d['change_detection']=='wsgrr_v1'
+    assert d['change_detection']==rt.config.refresh_signature()[0]
 
 
 @torch.no_grad()

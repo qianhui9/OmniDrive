@@ -32,12 +32,39 @@ def build_bundle(manager, frame, result, validate_observation=True):
     cache = receipt.get('cache_context') or {}
     bundle.diagnostics = dict(observed_source_frame_id=manager._previous_frame_id, observed_source_timestamp=manager.store.last_timestamp, source_cache_version=receipt.get('cache_version') if receipt.get('cache_saved') else None, cache_available=bool(receipt.get('cache_saved')), cache_frame_id=cache.get('frame_id'), full_refresh_hint=result.full_refresh_hint, validation_requested=validate_observation, transformer_dependency_certified=False, validity_lease_export_enabled=manager.config.validity_lease, lease_policy='existing_max_state_age_s_no_independent_lifecycle', state_service='maintain', observation_only=True)
     bundle.diagnostics['transaction_status'] = 'pending'
+    projection_events = []
+    image_geometry = {cid: (valid_projection_camera(camera) and camera.timing_reliable
+        and camera.coordinate_space == 'preprocessed_image') for cid,camera in frame.cameras.items()}
     # Current detections do not exist at precheck. Export committed world tracks
     # projected into this request, with their actual observation qualifications.
     for aid, anchor in manager.store.anchors.items():
         check = result.diagnostics.get('anchors', {}).get(aid, {})
         for cid, view in check.get('cameras', {}).items():
             region = view.get('predicted_region')
+            camera = frame.cameras[cid]
+            box = np.asarray(region, dtype=float) if region is not None else np.empty(0)
+            local = (image_geometry[cid] and box.shape == (4,) and np.isfinite(box).all()
+                and 0 <= box[0] < box[2] <= camera.image.shape[1]
+                and 0 <= box[1] < box[3] <= camera.image.shape[0])
+            if local and (not view.get('geometry_valid') or not view.get('valid')):
+                bundle.uncertainty_regions.append(dict(camera_id=cid,
+                    source_track_id=aid, bbox_xyxy=box.tolist(), scope='region',
+                    mandatory=not bool(view.get('geometry_valid')),
+                    reason=view.get('reason', 'unverified_observation'),
+                    frame_id=frame.frame_id, timestamp=frame.timestamp,
+                    coordinate_space=camera.coordinate_space,
+                    world_identity_authorized=False))
+                if not view.get('geometry_valid'):
+                    projection_events.append(dict(track_id=aid, camera_id=cid,
+                        event='association_invalid', reason='current_geometry_invalid'))
+            elif not local and image_geometry[cid]:
+                # An unavailable object projection is not camera-source failure.
+                # Revoke its last known footprint; current pixel/source coverage
+                # is independently enforced by the existing refresh contract.
+                # Revokes only a matching previously cached image footprint. It
+                # does not invent a new current rectangle or prove disappearance.
+                projection_events.append(dict(track_id=aid, camera_id=cid,
+                    event='association_invalid', reason='current_projection_unavailable'))
             if region is None or not view.get('geometry_valid'):
                 continue
             visibility = view.get('evidence', {}).get('visibility_status', 'unknown_observation')
@@ -61,7 +88,7 @@ def build_bundle(manager, frame, result, validate_observation=True):
                 coordinate_space=frame.cameras[cid].coordinate_space,
                 state_source='committed_world_track_current_projection'))
     bundle.region_events = [dict(track_id=aid, event='state_expired')
-                            for aid in result.diagnostics.get('expired_anchor_ids', [])]
+                            for aid in result.diagnostics.get('expired_anchor_ids', [])] + projection_events
     for (cid, camera) in frame.cameras.items():
         shape = camera.image.shape[:2]
         old = manager._previous_cameras.get(cid)

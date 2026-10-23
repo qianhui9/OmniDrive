@@ -290,6 +290,9 @@ class ComputationStateBundle:
     diagnostics: Dict[str, Any] = field(default_factory=dict)
     region_states: List[dict] = field(default_factory=list)
     region_events: List[dict] = field(default_factory=list)
+    # Image-scoped risk evidence, never a qualified world association or reuse
+    # certificate. Kept separate from trusted geometric region states.
+    uncertainty_regions: List[dict] = field(default_factory=list)
 
     def to_dict(self):
         return json_value(asdict(self))

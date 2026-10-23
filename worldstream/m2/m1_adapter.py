@@ -15,6 +15,17 @@ def valid_region_states(bundle, cameras):
                     or 'state_signature' not in row
                     or not isinstance(row.get('event_flags',[]),(tuple,list))):return False
             seen.add(key)
+        for row in bundle.uncertainty_regions:
+            if (row.get('camera_id') not in cameras or row.get('coordinate_space') != 'preprocessed_image'
+                    or row.get('frame_id') != bundle.frame_id or row.get('timestamp') != bundle.timestamp
+                    or row.get('world_identity_authorized') is not False
+                    or type(row.get('mandatory')) is not bool):return False
+            if row.get('scope') == 'camera':
+                if row.get('bbox_xyxy') is not None or not row['mandatory']:return False
+            elif row.get('scope') == 'region':
+                box=np.asarray(row['bbox_xyxy'],dtype=float)
+                if (box.shape!=(4,) or not np.isfinite(box).all() or box[2]<=box[0] or box[3]<=box[1]):return False
+            else:return False
         return all(isinstance(e,dict) and isinstance(e.get('track_id'),str)
                    and isinstance(e.get('event'),str) for e in bundle.region_events)
     except (KeyError,TypeError,ValueError):return False

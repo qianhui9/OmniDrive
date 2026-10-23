@@ -22,7 +22,7 @@ class M2Config:
     score_threshold: float = 0.05
 
     def refresh_signature(self):
-        return ('wsgrr_v1', self.ordinary_budget, self.max_reuse_frames,
+        return ('wsgrr_image_uncertainty_v2', self.ordinary_budget, self.max_reuse_frames,
                 self.region_margin_px, self.movement_threshold_px, self.drift_weight,
                 self.age_weight, self.uncertainty_weight, self.score_threshold)
 

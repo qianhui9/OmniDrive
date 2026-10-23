@@ -14,6 +14,7 @@ import tempfile
 
 from .window_validate import sha256
 from worldstream.m2.cost_model import CostModel, SCHEMA_VERSION
+from worldstream.m2.config import M2Config
 
 
 def checked_artifact(base, evidence):
@@ -75,7 +76,7 @@ def promote_candidate(candidate_path, quality_path, live_keys, counts, approved_
                     value=cases[name].get('difference',{}).get(metric)
                     if type(value) not in (int,float) or not math.isfinite(value) or value>limit:
                         raise ValueError('Candidate exceeds independent feature error limits')
-            if tuple(identity.get('refresh_policy') or ())[:1] != ('wsgrr_v1',):
+            if tuple(identity.get('refresh_policy') or ())[:1] != M2Config().refresh_signature()[:1]:
                 raise ValueError('WSGRR policy-bound signature required')
         tasks=assessments[0].get('tasks',{})
         for task in ('detection','map','vlm'):

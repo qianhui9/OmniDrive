@@ -100,6 +100,7 @@ class IncrementalVisionRuntime:
         if len(cameras)!=len(images) or len(set(cameras))!=len(images):
             raise ValueError('One ordered camera identity is required per model input')
         bundle=computation_state if computation_state is not None else getattr(m1_result,'computation_state',None)
+        footprints=self.planner.input_footprints(*images.shape[-2:],verified_prefix=self.prefix)
         signature=(self.signature(context), 'offline_'+offline if offline else 'production')
         previous=copy.deepcopy(self.cache.context) if isinstance(self.cache.context,dict) else None
         source_times=[]
@@ -119,7 +120,7 @@ class IncrementalVisionRuntime:
         else:
             invalid,reason=computation_admission(bundle,context,images,self.cache,
                 getattr(m1_result,'full_refresh_hint',False),details=details,
-                window_footprints=self.planner.input_footprints(*images.shape[-2:]))
+                window_footprints=footprints)
         if reason is None and mismatch:reason=mismatch
         uncertainty=details.pop('_uncertainty_pixels',None)
         scoring_start=perf_counter();refresh={};descriptors=None;region_states=[]
@@ -171,14 +172,15 @@ class IncrementalVisionRuntime:
                 for s in stages:
                     if s['block'] not in self.prefix:continue
                     i=s['block'];updated=executed_ids[i]
-                    age=(self.cache.window_ages[i]+1).clone() if plans is not None else torch.zeros(s['total_windows'],device=x0.device,dtype=torch.long)
+                    age=self.cache.window_ages[i]+1 if plans is not None else torch.zeros(s['total_windows'],device=x0.device,dtype=torch.long)
                     age[updated]=0;ages[i]=age
                 if self.prefix:
                     size=self.model.blocks[0].window_size
                     current=descriptors if descriptors is not None else pooled_descriptors(x0,size)
                     if plans is not None:
                         descriptors=self.cache.descriptors.clone()
-                        ids=stages[0]['executed_window_ids'];descriptors[ids]=current[ids]
+                        ids=executed_ids[0]
+                        descriptors.index_copy_(0,ids,current.index_select(0,ids))
                     else:
                         descriptors=current
                         region_states=copy.deepcopy(getattr(bundle,'region_states',[]))
@@ -192,7 +194,7 @@ class IncrementalVisionRuntime:
         now=context.get('timestamp');old=(previous or {}).get('timestamp')
         diag=dict(mode='incremental' if skipped else 'full_update',full_update_reason=reason,fallback_reason=reason,
             cache_boundary='window',state_interface='source_linked',cacheable_blocks=list(self.prefix),
-            global_barrier_block=len(self.prefix),patch_embedding='full_once',change_detection='exact_block0_input' if offline=='A' else 'wsgrr_v1',numerical_policy=NUMERICAL_POLICY,
+            global_barrier_block=len(self.prefix),patch_embedding='full_once',change_detection='exact_block0_input' if offline=='A' else self.config.refresh_signature()[0],numerical_policy=NUMERICAL_POLICY,
             offline_experiment=bool(offline),offline_variant=offline,refresh_policy=self.config.refresh_signature(),region_refresh=refresh,
             pointwise_execution='selected_window_qkv_projection_and_valid_token_mlp',
             window_count_scope='cached_prefix_output_windows; pointwise work reported separately',
@@ -209,7 +211,7 @@ class IncrementalVisionRuntime:
             M2_validation_ms=validation_ms,M2_region_scoring_ms=scoring_ms,
             M2_window_and_suffix_ms=execution_ms,M2_cache_publication_ms=publication_ms,M2_wall_ms=(perf_counter()-start)*1000,
             prefix_window_geometry={i:[self.model.patch_embed.proj.kernel_size[j]*self.model.blocks[i].window_size for j in (0,1)] for i in self.prefix},
-            prefix_dependency_footprints=self.planner.input_footprints(*images.shape[-2:]))
+            prefix_dependency_footprints=footprints)
         diag.update(details);self.last_diagnostics=diag
         return [features],diag
 
