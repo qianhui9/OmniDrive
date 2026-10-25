@@ -46,6 +46,9 @@ def test_unqualified_history_keeps_original_ids_and_full_visual(llm,carriers,con
     answers,d=runtime.generate(llm,[ids],carriers,context=state_context(context),
         questions=['where is the car in front'],verified_state=fixture_state(),max_new_tokens=2)
     row=d['requests'][0]
+    assert d['runtime_entered'] and d['execution_completed']
+    assert not row['historical_text_consumed']
+    assert row['full_prefill'] and row['prefill_completed'] and row['decode_completed']
     assert row['state_retrieval']['reason']=='historical_context_quality_unverified'
     assert not row['state_retrieval']['admitted'] and row['current_visual_complete']
     assert captured[0].token_ids[0,0]==1 and captured[0].token_ids[0,-1]==4
@@ -66,5 +69,8 @@ def test_state_augmentation_preserves_every_current_carrier(llm,carriers,context
     _,d=runtime.generate(llm,[torch.tensor([1,-200,4])],carriers,context=state_context(context),
         questions=['where is the car in front'],verified_state=fixture_state(),tokenizer=Tokenizer(),max_new_tokens=2)
     assert d['requests'][0]['state_retrieval']['admitted']
+    assert d['runtime_entered'] and d['execution_completed']
+    assert d['requests'][0]['historical_text_consumed']
+    assert d['requests'][0]['full_prefill'] and d['requests'][0]['decode_completed']
     assert torch.equal(captured[0].embeddings[:,1:10],carriers)
     assert captured[0].token_ids[0,-3:].tolist()==[7,8,4]

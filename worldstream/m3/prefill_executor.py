@@ -81,6 +81,7 @@ class PrefillExecutor:
         branch_workspace_bytes = (sum(t[..., :reuse_length, :].numel() * t.element_size()
             for layer in self.cache.entry.kv for t in layer) if reuse_length else 0)
         diagnostics = dict(input_tokens=n, reused_tokens=reuse_length,
+            prefill_entered=False,prefill_completed=False,decode_completed=False,full_prefill=False,
             effective_prefill_tokens=n - reuse_length, forward_prefill_lengths=[],
             computed_source=list(self.cache.entry.computed_source) if reuse_length else list(expanded.source),
             suffix_computed_source=list(expanded.source))
@@ -88,6 +89,7 @@ class PrefillExecutor:
         events = []
 
         def first_forward():
+            diagnostics['prefill_entered'] = True
             tick = perf_counter()
             if profile and expanded.embeddings.is_cuda:
                 start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
@@ -125,12 +127,17 @@ class PrefillExecutor:
                 end.record()
                 events.append((start, end))
             diagnostics['prefill_including_cache_cpu_enqueue_ms'] = (perf_counter() - tick) * 1000
+            diagnostics['prefill_completed'] = True
+            diagnostics['full_prefill'] = reuse_length == 0
             return output
 
         facade = GenerationFacade(model, expanded, first_forward)
         tick = perf_counter()
         answer = facade.generate(inputs_embeds=expanded.embeddings,
             attention_mask=expanded.attention_mask, **generation)
+        if not diagnostics['prefill_completed']:
+            raise RuntimeError('M3 generation completed without PrefillExecutor prefill')
+        diagnostics['decode_completed'] = True
         if profile and expanded.embeddings.is_cuda:
             torch.cuda.synchronize(expanded.embeddings.device)
             diagnostics['prefill_including_cache_gpu_ms'] = sum(a.elapsed_time(b) for a, b in events)

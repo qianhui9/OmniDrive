@@ -88,6 +88,8 @@ def test_greedy_sampling_tokens_logits_and_no_prefill_replay(llm, carriers, cont
         for s, t in zip(a.scores, b.scores):
             torch.testing.assert_close(s, t, rtol=1e-5, atol=1e-6)
     second = diagnostics['requests'][1]
+    assert diagnostics['runtime_entered'] and diagnostics['execution_completed']
+    assert second['prefill_completed'] and second['decode_completed'] and not second['full_prefill']
     assert second['reused_tokens'] == 11
     assert second['forward_prefill_lengths'] == [3]
 

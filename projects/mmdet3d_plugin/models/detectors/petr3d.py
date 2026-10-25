@@ -77,6 +77,7 @@ class Petr3D(MVXTwoStageDetector):
                  m2_config=None,
                  m3_enable=False,
                  m3_config=None,
+                 worldstream_require_m123=False,
                  ):
         super(Petr3D, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
@@ -147,6 +148,7 @@ class Petr3D(MVXTwoStageDetector):
             self.lm_head = load_model(lm_head, use_lora, frozen)
 
         self.test_flag = False
+        self.worldstream_require_m123 = worldstream_require_m123
         self.m3_runtime = None
         if m3_enable:
             from worldstream.m3 import M3Runtime
@@ -198,6 +200,9 @@ class Petr3D(MVXTwoStageDetector):
                 img = self.grid_mask(img)
 
             if getattr(self, 'm2_runtime', None) is not None and not self.training:
+                trace = getattr(self, 'worldstream_execution', None)
+                if trace is not None:
+                    trace['m2']['runtime_entered'] = True
                 if hasattr(self.m2_runtime, 'forward_from_m1'):
                     img_feats, self.m2_diagnostics = self.m2_runtime.forward_from_m1(
                         img, self.m1_manager, self._m2_context)
@@ -488,6 +493,9 @@ class Petr3D(MVXTwoStageDetector):
             m3_answers = None
             if m3 is not None:
                 from worldstream.m3 import CarrierLayout
+                trace = getattr(self, 'worldstream_execution', None)
+                if trace is not None:
+                    trace['m3']['runtime_entered'] = True
                 meta = img_metas[0]
                 timestamp = float(data['timestamp'].reshape(-1)[0])
                 m3_answers, self.m3_diagnostics = m3.generate(
@@ -506,9 +514,11 @@ class Petr3D(MVXTwoStageDetector):
                         det_query.shape[1] - self.pts_bbox_head.num_extra, map_query.shape[1]),
                     do_sample=True, temperature=0.1, top_p=0.75, num_beams=1,
                     max_new_tokens=320, use_cache=True)
+                if m3_answers is None or len(m3_answers) != len(data['input_ids'][0]):
+                    raise RuntimeError('M3 must return one answer per question')
             for i, input_ids in enumerate(data['input_ids'][0]):
                 input_ids = input_ids.unsqueeze(0)
-                output_ids = m3_answers[i] if m3_answers is not None else self.lm_head.generate(
+                output_ids = m3_answers[i] if m3 is not None else self.lm_head.generate(
                     inputs=input_ids,
                     images=vision_embeded,
                     do_sample=True,
@@ -528,67 +538,96 @@ class Petr3D(MVXTwoStageDetector):
         return bbox_results, generated_text, lane_results
     
     def simple_test(self, img_metas, **data):
-        """Test function without augmentaiton."""
-        m1_observer = None
-        if getattr(self, 'm2_runtime', None) is not None:
-            meta = img_metas[0]
-            self._m2_context = dict(scene_id=str(meta['scene_token']),
-                frame_id=str(meta['sample_idx']),
-                camera_ids=list(meta.get('cam_infos', {})) or
-                    [os.path.basename(os.path.dirname(f)) for f in meta['filename']],
-                coordinate_space='preprocessed_image')
-            self._m2_context['timestamp'] = float(data['timestamp'].reshape(-1)[0])
-        self.m3_verified_state = None
+        """Run state precheck, vision/tasks, state commit, then semantic consumption."""
+        required = getattr(self, 'worldstream_require_m123', False)
+        trace = dict(scene_id=str(img_metas[0]['scene_token']),
+            frame_id=str(img_metas[0]['sample_idx']),
+            timestamp=float(data['timestamp'].reshape(-1)[0]), completed=False,
+            m1=dict(precheck_entered=False, precheck_completed=False,
+                    commit_entered=False, commit_completed=False, transaction_status='not_started'),
+            m2=dict(runtime_entered=False, execution_completed=False),
+            m3=dict(runtime_entered=False, execution_completed=False, requests=[]))
+        self.worldstream_execution = trace
+        # Per-request diagnostics must never inherit a previous request's success.
+        self.m2_diagnostics = self.m3_diagnostics = None
+        for name in ('m2_runtime', 'm3_runtime'):
+            runtime = getattr(self, name, None)
+            if runtime is not None and hasattr(runtime, 'last_diagnostics'):
+                runtime.last_diagnostics = {}
+        precheck = None
         run_m1 = self.m1_manager is not None
-        if run_m1:
-            from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result, measure_transfers
-            import hashlib
-            settings = self.m1_manager.config
-            adapter_start = time.perf_counter()
-            with measure_transfers() as input_transfers:
-                frame = frame_from_model(img_metas, data, settings,
-                                         getattr(self, 'm1_source_context', None))
-            parameter_signature=[(name,tuple(p.shape),str(p.dtype),str(p.device),p._version) for name,p in self.named_parameters()]
-            execution_policy=(getattr(self,'training',False),torch.is_autocast_enabled(),
-                torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32,
-                torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
-                torch.are_deterministic_algorithms_enabled())
-            suffix=repr(parameter_signature)+repr(execution_policy)
-            frame.execution_signature = hashlib.sha256((frame.execution_signature+suffix).encode()).hexdigest()
-            adapter_ms = (time.perf_counter() - adapter_start) * 1000
-            precheck=self.m1_manager.precheck_with_observation(frame, True)
-            def publish_precheck():
-                if getattr(self,'m3_runtime',None) is not None:
-                    from worldstream.m3.world_state import freeze_verified_state
-                    self.m3_verified_state=freeze_verified_state(self.m1_manager,frame)
-                if getattr(self,'m2_runtime',None) is not None:self._m2_context.update(execution_signature=frame.execution_signature)
-                if getattr(getattr(self,'m2_runtime',None),'config',None) is not None:
-                    self._m2_context['state_epoch'] = precheck.diagnostics.get('state_epoch')
-                precheck.diagnostics['timings_ms']['input_adapter_including_transfers']=adapter_ms
-                precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer']=input_transfers['gpu_to_cpu_transfer_ms']
-                precheck.diagnostics['input_gpu_to_cpu_transfer_bytes']=input_transfers.get('gpu_to_cpu_transfer_bytes')
-            publish_precheck()
-
-            def m1_observer(boxes, lanes, features):
-                output_start = time.perf_counter()
-                with measure_transfers() as output_transfers:
-                    outputs = outputs_from_model(frame, boxes, lanes, features, settings)
-                if getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck:
-                    outputs.execution_receipt = self.m2_diagnostics
-                output_ms = (time.perf_counter() - output_start) * 1000
-                self.m1_manager.commit(frame, outputs, precheck)
-                self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
-                self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_ms'] = output_transfers['gpu_to_cpu_transfer_ms']
-                self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_bytes'] = output_transfers.get('gpu_to_cpu_transfer_bytes')
-                self.m1_manager.last_commit_diagnostics['m1_total_including_adapters_ms'] = (
-                    adapter_ms + output_ms + precheck.diagnostics['timings_ms']['precheck_total']
-                    + self.m1_manager.last_commit_diagnostics['commit_total_ms']
-                    + self.m1_manager.last_commit_diagnostics.get('computation_source_metadata_ms', 0.))
-                if settings.logging and settings.log_path:
-                    append_result(settings.log_path, precheck, self.m1_manager.last_commit_diagnostics,
-                                  self.m1_manager.export_state_audit())
-
         try:
+            if required:
+                if (getattr(self, 'training', False) or not run_m1
+                        or not self.m1_manager.config.enabled
+                        or getattr(self, 'm2_runtime', None) is None
+                        or getattr(self, 'm3_runtime', None) is None
+                        or not self.with_pts_bbox or not self.with_map_head or not self.with_lm_head):
+                    raise RuntimeError('Formal WorldStream inference requires M1, M2, M3 and native task heads')
+                if len(data.get('input_ids', ())) != 1 or not len(data['input_ids'][0]):
+                    raise ValueError('Formal WorldStream VLM request requires at least one language prompt')
+            m1_observer = None
+            if getattr(self, 'm2_runtime', None) is not None:
+                meta = img_metas[0]
+                self._m2_context = dict(scene_id=str(meta['scene_token']),
+                    frame_id=str(meta['sample_idx']),
+                    camera_ids=list(meta.get('cam_infos', {})) or
+                        [os.path.basename(os.path.dirname(f)) for f in meta['filename']],
+                    coordinate_space='preprocessed_image')
+                self._m2_context['timestamp'] = float(data['timestamp'].reshape(-1)[0])
+            self.m3_verified_state = None
+            run_m1 = self.m1_manager is not None
+            if run_m1:
+                from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result, measure_transfers
+                import hashlib
+                settings = self.m1_manager.config
+                adapter_start = time.perf_counter()
+                with measure_transfers() as input_transfers:
+                    frame = frame_from_model(img_metas, data, settings,
+                                             getattr(self, 'm1_source_context', None))
+                parameter_signature=[(name,tuple(p.shape),str(p.dtype),str(p.device),p._version) for name,p in self.named_parameters()]
+                execution_policy=(getattr(self,'training',False),torch.is_autocast_enabled(),
+                    torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32,
+                    torch.get_autocast_gpu_dtype(),torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction,
+                    torch.are_deterministic_algorithms_enabled())
+                suffix=repr(parameter_signature)+repr(execution_policy)
+                frame.execution_signature = hashlib.sha256((frame.execution_signature+suffix).encode()).hexdigest()
+                adapter_ms = (time.perf_counter() - adapter_start) * 1000
+                trace['m1']['precheck_entered'] = True
+                precheck=self.m1_manager.precheck_with_observation(frame, True)
+                trace['m1'].update(precheck_completed=True,
+                    transaction_status=precheck.diagnostics.get('transaction_status'),
+                    full_refresh_reasons=precheck.diagnostics.get('full_refresh_reasons', []))
+                def publish_precheck():
+                    if getattr(self,'m3_runtime',None) is not None:
+                        from worldstream.m3.world_state import freeze_verified_state
+                        self.m3_verified_state=freeze_verified_state(self.m1_manager,frame)
+                    if getattr(self,'m2_runtime',None) is not None:self._m2_context.update(execution_signature=frame.execution_signature)
+                    if getattr(getattr(self,'m2_runtime',None),'config',None) is not None:
+                        self._m2_context['state_epoch'] = precheck.diagnostics.get('state_epoch')
+                    precheck.diagnostics['timings_ms']['input_adapter_including_transfers']=adapter_ms
+                    precheck.diagnostics['timings_ms']['input_gpu_to_cpu_transfer']=input_transfers['gpu_to_cpu_transfer_ms']
+                    precheck.diagnostics['input_gpu_to_cpu_transfer_bytes']=input_transfers.get('gpu_to_cpu_transfer_bytes')
+                publish_precheck()
+
+                def m1_observer(boxes, lanes, features):
+                    output_start = time.perf_counter()
+                    with measure_transfers() as output_transfers:
+                        outputs = outputs_from_model(frame, boxes, lanes, features, settings)
+                    if getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck:
+                        outputs.execution_receipt = self.m2_diagnostics
+                    output_ms = (time.perf_counter() - output_start) * 1000
+                    trace['m1']['commit_entered'] = True
+                    self.m1_manager.commit(frame, outputs, precheck)
+                    trace['m1'].update(commit_completed=True,
+                        transaction_status=precheck.diagnostics.get('transaction_status'))
+                    self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
+                    self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_ms'] = output_transfers['gpu_to_cpu_transfer_ms']
+                    self.m1_manager.last_commit_diagnostics['output_gpu_to_cpu_transfer_bytes'] = output_transfers.get('gpu_to_cpu_transfer_bytes')
+                    self.m1_manager.last_commit_diagnostics['m1_total_including_adapters_ms'] = (
+                        adapter_ms + output_ms + precheck.diagnostics['timings_ms']['precheck_total']
+                        + self.m1_manager.last_commit_diagnostics['commit_total_ms']
+                        + self.m1_manager.last_commit_diagnostics.get('computation_source_metadata_ms', 0.))
             data['img_feats'] = self.extract_img_feat(data['img'])
             bbox_list = [dict() for i in range(len(img_metas))]
             if m1_observer is None:
@@ -596,14 +635,54 @@ class Petr3D(MVXTwoStageDetector):
             else:
                 bbox_pts, generated_text, lane_results = self.simple_test_pts(
                     img_metas, _m1_observer=m1_observer, **data)
-        except Exception:
+            if required:
+                m2 = self.m2_diagnostics or {}
+                m3 = self.m3_diagnostics or {}
+                if (not trace['m1']['precheck_completed'] or not trace['m1']['commit_completed']
+                        or trace['m1']['transaction_status'] not in ('committed', 'rejected')
+                        or not trace['m2']['runtime_entered'] or not m2.get('execution_completed')
+                        or m2.get('executor') != 'WindowExecutor'
+                        or not trace['m3']['runtime_entered'] or not m3.get('execution_completed')
+                        or len(m3.get('requests', [])) != len(data['input_ids'][0])
+                        or any(r.get('executor') != 'PrefillExecutor' or not r.get('prefill_completed')
+                               or not r.get('decode_completed') for r in m3.get('requests', []))):
+                    raise RuntimeError('Formal WorldStream request bypassed or did not complete M1/M2/M3')
+            for result_dict, pts_bbox in zip(bbox_list, bbox_pts):
+                result_dict['pts_bbox'] = pts_bbox
+            bbox_list[0]['text_out'] = generated_text
+            bbox_list[0]['lane_results'] = lane_results
+            trace['completed'] = True
+            return bbox_list
+        except Exception as error:
+            trace['error'] = dict(type=type(error).__name__, message=str(error))
             if run_m1:
                 self.m1_manager.abort_pending()
             raise
-        for result_dict, pts_bbox in zip(bbox_list, bbox_pts):
-            result_dict['pts_bbox'] = pts_bbox
-        bbox_list[0]['text_out'] = generated_text
-        bbox_list[0]['lane_results'] = lane_results
-        return bbox_list
+        finally:
+            if precheck is not None:
+                trace['m1']['transaction_status'] = precheck.diagnostics.get('transaction_status')
+            # Reuse the existing runtime diagnostics and audit/benchmark sinks.
+            for name in ('m2', 'm3'):
+                if not trace[name]['runtime_entered']:
+                    continue
+                diag = getattr(self, name + '_diagnostics', None)
+                if diag is None:
+                    diag = getattr(getattr(self, name + '_runtime', None), 'last_diagnostics', {})
+                keys = ('execution_completed', 'actual_window_reuse', 'actual_skipped_windows',
+                        'full_recompute', 'full_recompute_reason', 'cache_publication_error', 'executor') if name == 'm2' else ('execution_completed',)
+                trace[name].update({k: diag[k] for k in keys if k in diag})
+                if name == 'm3':
+                    trace[name]['requests'] = [dict(
+                        request_index=r.get('request_index'),
+                        historical_text_consumed=r.get('historical_text_consumed', False),
+                        history_reason=r.get('state_retrieval', {}).get('reason'),
+                        reused_tokens=r.get('reused_tokens', 0), full_prefill=r.get('full_prefill', False),
+                        full_prefill_reason=r.get('full_prefill_reason'),
+                        prefill_completed=r.get('prefill_completed', False),
+                        decode_completed=r.get('decode_completed', False)) for r in diag.get('requests', [])]
+            if precheck is not None and settings.logging and settings.log_path:
+                # Commit precedes M3; serialize once after M3 to include the entire request.
+                commit_diag = self.m1_manager.last_commit_diagnostics if trace['m1']['commit_completed'] else {}
+                append_result(settings.log_path, precheck, commit_diag,
+                    self.m1_manager.export_state_audit(), experiment=dict(module_execution=trace))
 
-    

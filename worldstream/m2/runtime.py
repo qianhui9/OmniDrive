@@ -90,6 +90,7 @@ class IncrementalVisionRuntime:
         return self._forward(images,m1_result,execution_context,computation_state,variant,window_targets)
 
     def _forward(self,images,m1_result,execution_context,computation_state,offline=None,window_targets=None):
+        self.last_diagnostics=dict(runtime_entered=True,execution_completed=False)
         start=perf_counter();context=dict(execution_context or {})
         if any(m.training for m in self.model.modules()) or torch.is_grad_enabled():
             raise ValueError('M2 window execution is inference-only')
@@ -212,8 +213,13 @@ class IncrementalVisionRuntime:
             M2_window_and_suffix_ms=execution_ms,M2_cache_publication_ms=publication_ms,M2_wall_ms=(perf_counter()-start)*1000,
             prefix_window_geometry={i:[self.model.patch_embed.proj.kernel_size[j]*self.model.blocks[i].window_size for j in (0,1)] for i in self.prefix},
             prefix_dependency_footprints=footprints)
-        diag.update(details);self.last_diagnostics=diag
-        return [features],diag
+        full_reason = (reason or next((s.get('full_update_reason') for s in stages
+            if s.get('full_update_reason')), None) or 'all_windows_required') if not skipped else None
+        diag.update(runtime_entered=True,execution_completed=True,
+            actual_window_reuse=bool(skipped),full_recompute=not bool(skipped),
+            full_recompute_reason=full_reason,executor='WindowExecutor')
+        diag.update(details);self.last_diagnostics.update(diag)
+        return [features],self.last_diagnostics
 
     def _execute(self,x,context,plans,reason,offline=None):
         stages=[];outputs={};sources={};capture_eligible=False;executed_ids={}

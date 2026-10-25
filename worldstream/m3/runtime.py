@@ -21,6 +21,7 @@ class M3Runtime:
         self.executor=PrefillExecutor(self.cache)
         self.scheduler=Scheduler(self.config)
         self._scope=self._signature=self._timestamp=None
+        self.last_diagnostics={}
 
     def reset(self):
         self.cache.reset();self._scope=self._signature=self._timestamp=None
@@ -43,6 +44,8 @@ class M3Runtime:
 
     @torch.no_grad()
     def generate(self,lm_head,input_ids_list,vision_carriers,context=None,questions=None,layout=None,verified_state=None,tokenizer=None,**generation):
+        rows=[]
+        self.last_diagnostics=dict(runtime_entered=True,execution_completed=False,requests=rows)
         context=dict(context or {});context.setdefault('model_version',self.config.model_version)
         ids_list=list(input_ids_list);questions=list(questions) if questions is not None else ['']*len(ids_list)
         if len(questions)!=len(ids_list):raise ValueError('Question order must match input IDs')
@@ -64,7 +67,7 @@ class M3Runtime:
         context['generation_key']=hashlib.sha256(json.dumps(dict(defaults=base.generation_config.to_dict(),
             overrides=generation),sort_keys=True,default=repr).encode()).hexdigest()
         signature_ms=(perf_counter()-start)*1000
-        answers=[];rows=[]
+        answers=[]
         for index,(ids,question) in enumerate(zip(ids_list,questions)):
             retrieval=query_world_state(verified_state,question,context)
             retrieval=dict(retrieval)
@@ -90,10 +93,15 @@ class M3Runtime:
             prefix=matched if allowed else 0
             answer,diag=self.executor.generate(base,expanded,reuse_length=prefix,capture=True,
                 profile=context.get('profile',False),**generation)
-            diag.update(mode='prefix_prefill' if prefix else 'full_prefill',matched_prefix=matched,
+            reused=diag['reused_tokens']
+            diag.update(request_index=index,mode='prefix_prefill' if reused else 'full_prefill',matched_prefix=matched,
                 prefix_admission=reason,state_retrieval=retrieval,visual_tokens=int(expanded.visual_mask.sum()),
+                historical_text_consumed=bool(retrieval['admitted'] and diag['prefill_completed']),
+                full_prefill_reason=(reason if not prefix else 'prefix_adjusted_for_last_token_logits') if not reused else None,
                 current_visual_complete=True,preparation_cpu_ms=preparation_ms,match_cpu_ms=match_ms,
                 signature_cpu_ms=signature_ms/max(1,len(ids_list)),executor='PrefillExecutor')
             answers.append(answer);rows.append(diag)
-        return answers,dict(mode='exact_prefill',requests=rows,cache_bytes=self.cache.nbytes,config=asdict(self.config),
-                           effective_history_records=sum(len(r['state_retrieval']['records']) for r in rows if r['state_retrieval']['admitted']))
+        self.last_diagnostics.update(mode='exact_prefill',execution_completed=True,
+            cache_bytes=self.cache.nbytes,config=asdict(self.config),
+            effective_history_records=sum(len(r['state_retrieval']['records']) for r in rows if r['historical_text_consumed']))
+        return answers,self.last_diagnostics

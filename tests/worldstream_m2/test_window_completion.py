@@ -125,8 +125,47 @@ def test_auto_requires_matching_cost_and_quality(eva,context,tmp_path,approved):
     runtime.costs=CostModel(str(path));ctx=dict(context,frame_id='1',timestamp=1.1)
     out,d=runtime.forward(changed,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
     assert d['actual_skipped_windows']==(24 if approved else 0)
+    assert d['runtime_entered'] and d['execution_completed']
+    assert d['actual_window_reuse'] == approved
+    assert d['full_recompute'] == (not approved)
+    assert d['executor'] == 'WindowExecutor'
+    assert d['full_recompute_reason'] == (None if approved else 'downstream_quality_unverified')
     assert torch.isfinite(out[0]).all()
     if not approved:assert torch.equal(out[0],eva(changed)[0])
+
+
+@torch.no_grad()
+@pytest.mark.parametrize('fault', ['cost', 'miss', 'source', 'numerical', 'publication'])
+def test_full_recompute_uses_same_executor(eva, context, monkeypatch, fault):
+    from .test_source_linked_admission import cold, bundle_for
+    from worldstream.m2.state_cache import CachePublicationError
+    runtime = IncrementalVisionRuntime(eva, dict(cache_capture='always'))
+    image = torch.randn(2, 3, 40, 40)
+    cold(runtime, image, context)
+    ctx = dict(context, frame_id='1', timestamp=1.1)
+    bundle = bundle_for(runtime, ctx)
+    if fault == 'miss':runtime.cache.clear()
+    if fault == 'source':bundle.execution_signature = 'invalid'
+    if fault == 'numerical':
+        monkeypatch.setattr(runtime.costs, 'beneficial', lambda *a: (False, 'window_numerical_evidence_missing'))
+    if fault == 'publication':
+        def fail(*a, **kw):raise CachePublicationError('injected publication failure')
+        monkeypatch.setattr(runtime.cache, 'commit', fail)
+    calls = []
+    original = runtime.executor.execute
+    def observe(block, x, cached, ids):
+        calls.append((cached, len(ids)))
+        return original(block, x, cached, ids)
+    monkeypatch.setattr(runtime.executor, 'execute', observe)
+    out, d = runtime.forward(image, execution_context=ctx, computation_state=bundle)
+    assert d['runtime_entered'] and d['execution_completed'] and d['full_recompute']
+    assert not d['actual_window_reuse'] and d['full_recompute_reason']
+    assert calls == [(None, 18), (None, 18)]
+    assert torch.equal(out[0], eva(image)[0])
+    if fault == 'cost':assert d['full_recompute_reason'] == 'unprofiled_cost'
+    if fault == 'numerical':assert d['full_recompute_reason'] == 'window_numerical_evidence_missing'
+    if fault == 'publication':
+        assert d['cache_publication_error'] == 'cache_publication_failed' and not runtime.cache.outputs
 
 
 @torch.no_grad()

@@ -47,6 +47,8 @@ def effective_config(condition, workload, dest):
     common = Config.fromfile(FINAL)
     cfg.data.test.pipeline = copy.deepcopy(common.data.test.pipeline)
     if condition in ('B1', 'B2'):
+        # Existing offline ablations intentionally remove modules; only B3 is formal.
+        cfg.model.worldstream_require_m123 = False
         cfg.model.m3_enable = False
         if condition == 'B1':
             cfg.model.m2_enable = False
@@ -282,6 +284,7 @@ def run(args):
             peak_gpu_reserved_bytes=torch.cuda.max_memory_reserved(),
             m2=copy.deepcopy(getattr(model, 'm2_diagnostics', None)),
             m3=copy.deepcopy(getattr(model, 'm3_diagnostics', None)),
+            module_execution=copy.deepcopy(getattr(model, 'worldstream_execution', None)),
             frozen_verified_history_states=len(getattr(getattr(model,'m3_verified_state',None),'records',())),
             output_digest=typed_digest({k: v for k, v in result.items() if k != 'text_out'}),
             timing_scope='Single sequential request: dataset access/preprocess, collate/H2D, model including language and native answer write, CPU result materialization. Audit serialization and counterfactual checks excluded.',

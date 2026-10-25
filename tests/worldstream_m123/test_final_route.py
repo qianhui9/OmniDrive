@@ -22,6 +22,8 @@ def test_final_configuration_and_baseline_heads():
     WorldStateManager(m1)
     m2=M2Config(**cfg.model.m2_config);m3=M3Config(**cfg.model.m3_config)
     assert cfg.model.m1_enable and cfg.model.m2_enable and cfg.model.m3_enable
+    assert cfg.model.worldstream_require_m123
+    assert not base.model.get('worldstream_require_m123', False)
     assert m2.mode==m3.mode=='auto' and m2.m1_service=='maintain'
     assert m2.reuse_boundary=='window' and m2.cost_table
     assert m2.state_interface=='source_linked'

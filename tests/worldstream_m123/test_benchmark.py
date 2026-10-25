@@ -10,6 +10,20 @@ from tools.worldstream_m123.benchmark.metrics import (
 from tools.worldstream_m123.benchmark.report import generate
 
 
+@pytest.mark.parametrize('condition', ['B0', 'B1', 'B2', 'B3'])
+def test_formal_guard_does_not_change_independent_reference_or_existing_ablations(tmp_path, condition):
+    from mmcv import Config
+    from tools.worldstream_m123.benchmark.worker import effective_config
+    cfg = effective_config(condition, 'real', tmp_path)
+    assert cfg.model.get('worldstream_require_m123', False) == (condition == 'B3')
+    if condition == 'B0':
+        baseline = Config.fromfile('projects/configs/OmniDrive/mask_eva_lane_det_vlm.py')
+        for key in ('m1_enable', 'm2_enable', 'm3_enable'):
+            assert not cfg.model.get(key, False)
+        for key in ('img_backbone', 'pts_bbox_head', 'map_head', 'lm_head'):
+            assert cfg.model[key] == baseline.model[key]
+
+
 def test_missing_denominators_and_gt_are_not_accuracy_zero():
     assert ratio(0, 0) is None
     assert distribution([])['mean'] is None

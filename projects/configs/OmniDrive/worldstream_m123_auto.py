@@ -1,6 +1,7 @@
 """World-referenced stateful VLM serving: the only M1/M2/M3 route."""
 _base_ = ['./mask_eva_lane_det_vlm.py']
 model = dict(
+    worldstream_require_m123=True,
     m1_enable=True, m1_execution_mode='observe_only',
     m1_config='configs/worldstream_m1_final.yaml',
     m2_enable=True,
