@@ -97,7 +97,7 @@ class CostModel:
                         record['quality_certified']=False
                         record.setdefault('quality_rejection_reason','downstream_quality_unverified')
                     self.records.append(record)
-                self.status='ready'
+                self.status='ready' if self.records else 'empty_cost_table'
             except (OSError,ValueError,KeyError,TypeError,AttributeError):
                 self.status='invalid_cost_table'
 
@@ -124,7 +124,7 @@ class CostModel:
     def beneficial(self,key,count):
         record=self.lookup(key,count)
         if record is None:
-            return False,'unprofiled_cost'
+            return False,self.status if self.status in ('empty_cost_table','invalid_cost_table','cost_schema_mismatch') else 'unprofiled_cost'
         if record.get('numerical_verified') is not True:
             return False,'window_numerical_evidence_missing'
         if record.get('quality_certified') is not True:
@@ -138,3 +138,14 @@ class CostModel:
     def has_beneficial(self,key):
         """Bootstrap capture only for this model/layout with an admitted scale."""
         return any(r['key']==key and self.beneficial(key,r['updated'])[0] for r in self.records)
+
+    def assessment(self,key,count):
+        """Small audit of the exact proposed count; never authorizes another scale."""
+        record=self.lookup(key,count)
+        allowed,reason=self.beneficial(key,count)
+        return dict(cost_record_found=record is not None,
+            cost_key_matched=any(r['key']==key for r in self.records),
+            numerical_verified=bool(record and record.get('numerical_verified') is True),
+            quality_certified=bool(record and record.get('quality_certified') is True),
+            approval_valid=bool(record and self._approval_valid(record)),
+            beneficial=allowed,cost_rejection_reason=reason)

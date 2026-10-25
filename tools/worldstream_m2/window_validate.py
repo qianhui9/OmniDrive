@@ -146,6 +146,10 @@ def audit_cache_transition(previous, current, diagnostic, frame_id, ordinary_bud
         block=stage['block']
         if block not in current.outputs:continue
         ids=stage['executed_window_ids'];total=stage['total_windows']
+        checks[f'block_{block}_counts']=len(set(ids))==stage['executed_windows'] and stage['executed_windows']+stage['reused_windows']==total
+        checks[f'block_{block}_plan_consistency']=all(stage.get('selection_consistency',{}).values())
+        checks[f'block_{block}_mandatory_executed']=set(stage.get('mandatory_window_ids',[])).issubset(ids)
+        checks[f'block_{block}_source_versions']=all(0<s['computation_version']<=current.version for s in current.sources[block])
         keep=torch.ones(total,device=current.outputs[block].device,dtype=torch.bool)
         keep[ids]=False
         checks[f'block_{block}_selected_ages_zero']=bool(current.window_ages[block][~keep].eq(0).all())
@@ -200,9 +204,15 @@ def run_wsgrr(args):
         ('LoadMultiViewImageFromFiles','ResizeCropFlipRotImage','ResizeMultiview3D','NormalizeMultiviewImage','PadMultiViewImage')]
     dataset=build_dataset(cfg.data.test)
     dataset.data_infos.sort(key=lambda i:(i['scene_token'],i['timestamp']))
-    if args.scene:dataset.data_infos=[i for i in dataset.data_infos if i['scene_token']==args.scene]
+    scene=args.scene or dataset.data_infos[0]['scene_token']
+    if args.scene or getattr(args,'main_only',False):
+        dataset.data_infos=[i for i in dataset.data_infos if i['scene_token']==scene]
     infos=dataset.data_infos[:args.frames]
     if len(infos)<2:raise ValueError('Need a continuous sequence with >=2 frames')
+    if getattr(args,'main_only',False):
+        from tools.worldstream_m123.benchmark.sequence import validate_sequence
+        write(out/'sequence.json',dict(validate_sequence(infos,scene),requested_frames=args.frames,
+            actual_frames=len(infos),reduction_reason='selected scene has fewer frames than requested' if len(infos)<args.frames else None))
     predictions=read_prediction_subset(args.m1_predictions,{i['token'] for i in infos})
     missing=[i['token'] for i in infos if i['token'] not in predictions]
     if missing:raise ValueError('Missing actual M1 replay predictions: '+str(missing))
@@ -210,7 +220,7 @@ def run_wsgrr(args):
     specs=([('D3','D',3)] if getattr(args,'main_only',False) else
            [('D3','D',3),('NoM1Region','NoM1Region',3)] if getattr(args,'followup',False) else
            [('A','A',3),('B','B',3),('C','C',3)]+[('D'+str(b),'D',b) for b in args.budgets])
-    runtimes={name:IncrementalVisionRuntime(model,dict(cache_capture='always',ordinary_budget=b)) for name,_,b in specs}
+    runtimes={name:IncrementalVisionRuntime(model,{**dict(cfg.model.m2_config), 'ordinary_budget':b}) for name,_,b in specs}
     managers={name:WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml')) for name,_,_ in specs}
     rows=[];native_rows=[];cost_records=[];previous=None;old_info=None
     # The model kernels are warmed before any reported frames.
@@ -293,6 +303,12 @@ def run_wsgrr(args):
                 timestamp=frame.timestamp,continuous=continuous,exact_token_update_ratio=exact_ratio,
                 selected_token_update_ratio=token_ratio,stages=diag['stages'],region_refresh=diag['region_refresh'],
                 full_update_reason=diag['full_update_reason'],difference=delta,
+                actual_skipped_windows=diag['actual_skipped_windows'],actual_window_reuse=diag['actual_window_reuse'],
+                full_recompute=diag['full_recompute'],full_recompute_reason=diag['full_recompute_reason'],
+                cache_capture_decision=diag['cache_capture_decision'],cache_version=diag['cache_version'],
+                cache_mismatch_reason=diag['cache_mismatch_reason'],cache_miss_root_cause=diag['cache_miss_root_cause'],
+                cost_table_status=diag['cost_table_status'],cost_record_count=diag['cost_record_count'],
+                cost_production_ready=diag['cost_production_ready'],
                 incremental=timing,native=dense,M1_precheck_ms=precheck_ms,M1_state_read_ms=read_ms,
                 M1_precheck_components_ms=result.diagnostics.get('timings_ms',{}),
                 M1_precheck_profiled=precheck_profile is not None,
@@ -323,6 +339,8 @@ def run_wsgrr(args):
                     local_delta=difference(partial[0],full)
                     cost_records.append(dict(key=cost_key(block,x,i,model=model,refresh_policy=rt.config.refresh_signature()),
                         block=i,updated=len(ids),numerical_verified=all(np.isfinite(v) for k,v in local_delta.items() if k!='exact'),
+                        numerical_validation_scope='Finite local error only; independent quantitative limits and downstream quality still required',
+                        block_incremental=a,block_full=b,
                         difference=local_delta,quality_certified=False,quality_rejection_reason='downstream_quality_unverified',
                         incremental_gpu_ms=a['gpu_span_ms'],full_gpu_ms=b['gpu_span_ms'],
                         incremental_wall_ms=a['wall_ms'],full_wall_ms=b['wall_ms'],
@@ -337,7 +355,14 @@ def run_wsgrr(args):
         data=[r for r in rows if r['strategy']==name and r['continuous']]
         stages=[s for r in data for s in r['stages'] if 'total_windows' in s]
         updated=sum(s['executed_windows'] for s in stages);total=sum(s['total_windows'] for s in stages)
+        eligible=[r for r in data if r['full_update_reason'] is None and any(
+            s.get('selector_planned_windows',s.get('planned_windows',s.get('total_windows',0)))<s.get('total_windows',0)
+            for s in r['stages'] if 'total_windows' in s)]
         aggregate[name]=dict(frames=len(data),window_update_ratio=updated/total,reuse_ratio=1-updated/total,
+            eligible_partial_frames=len(eligible),eligible_reuse_frames=sum(r['actual_window_reuse'] for r in eligible),
+            eligible_reuse_frame_rate=sum(r['actual_window_reuse'] for r in eligible)/len(eligible) if eligible else None,
+            reuse_frames=sum(r['actual_window_reuse'] for r in data),
+            full_recompute_frames=sum(r['full_recompute'] for r in data),
             exact_token_update_ratio=float(np.mean([r['exact_token_update_ratio'] for r in data])),
             selected_token_update_ratio=float(np.mean([r['selected_token_update_ratio'] for r in data])),
             wall_ms=float(np.median([r['incremental']['wall_ms'] for r in data])),
@@ -348,6 +373,9 @@ def run_wsgrr(args):
             max_abs=max(r['difference']['max_abs'] for r in data),
             event_regions=sum(len(r['region_refresh'].get('event_regions',[])) for r in data))
     result=dict(aggregate=aggregate,frames=len(infos),sample_tokens=[i['token'] for i in infos],
+        requested_frames=args.frames,formal_config='projects/configs/OmniDrive/worldstream_m123_auto.py',
+        formal_cost_table=dict(path=cfg.model.m2_config.cost_table,sha256=sha256(cfg.model.m2_config.cost_table)),
+        eligibility_definition='Continuous frame with valid M1/cache admission, no full refresh, selector plans fewer than all windows in at least one prefix block',
         timestamp_span_s=(infos[-1]['timestamp']-infos[0]['timestamp'])/1e6,
         checkpoint=args.checkpoint,backbone_fingerprint=block_fingerprint(model),numerical_policy=NUMERICAL_POLICY,
         validation_kind='wsgrr_quantitative_v1',natural=rows,native_measurements=native_rows,

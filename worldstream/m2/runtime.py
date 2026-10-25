@@ -1,5 +1,6 @@
 """One window execution graph: cache misses expand to all-window updates."""
 import copy
+import hashlib
 import math
 from time import perf_counter
 import torch
@@ -29,9 +30,11 @@ class IncrementalVisionRuntime:
         self.cache=StateCache(self.config.memory_budget_mb*1024**2)
         self.stage_observer=None
         self.last_diagnostics={}
+        self._last_capture_decision=None
 
     def reset(self):
         self.cache.clear()
+        self._last_capture_decision=None
 
     def signature(self,context):
         tensors=tuple((n,t.data_ptr(),t._version,tuple(t.shape),str(t.dtype),str(t.device))
@@ -113,6 +116,7 @@ class IncrementalVisionRuntime:
         # Inspect storage/metadata before the adapter can dereference corrupted
         # lineage. A cache miss still validates M1's current publication context.
         mismatch=self.cache.mismatch(images,context,signature,x0) if valid else None
+        previous_capture=copy.deepcopy(self._last_capture_decision)
         if valid and mismatch is None:
             source_times=[s.get('computation_timestamp') for units in self.cache.sources.values() for s in units]
         if not valid:reason='invalid_execution_context'
@@ -160,11 +164,72 @@ class IncrementalVisionRuntime:
                     mandatory_window_ids=stages[0]['executed_window_ids'],ordinary_window_ids=[])
             missed=set(refresh.get('mandatory_window_ids',[]))-set(stages[0]['executed_window_ids'])
             refresh['event_missed_windows']=len(missed)
+            mandatory=set(refresh.get('mandatory_window_ids',[]))
+            ordinary=set(refresh.get('ordinary_window_ids',[]))
+            selected=mandatory|ordinary
+            actual=set(stages[0]['executed_window_ids'])
+            refresh['selection_consistency']=dict(
+                mandatory_ordinary_disjoint=not bool(mandatory & ordinary),
+                selected_in_execution=selected.issubset(actual),
+                mandatory_in_execution=mandatory.issubset(actual))
+            per_camera=stages[0]['total_windows']//len(cameras)
+            refresh['per_camera']=[dict(camera_id=cid,
+                mandatory_windows=sum(j//per_camera==c for j in mandatory),
+                ordinary_windows=sum(j//per_camera==c for j in ordinary),
+                executed_windows=sum(j//per_camera==c for j in actual),
+                reused_windows=per_camera-sum(j//per_camera==c for j in actual)) for c,cid in enumerate(cameras)]
+            # CPU metadata only: map initial selection through the already
+            # verified token dependency footprints, including different sizes.
+            first_size=self.model.blocks[0].window_size
+            cols=(x0.shape[2]+first_size-1)//first_size
+            def closure(ids,block):
+                result=set();units=footprints[block]
+                for c in range(len(cameras)):
+                    selected=[j%per_camera for j in ids if j//per_camera==c]
+                    for j,unit in enumerate(units):
+                        a,b,d,e=unit['token_region']
+                        if any((k%cols)*first_size<d and (k%cols+1)*first_size>a
+                            and (k//cols)*first_size<e and (k//cols+1)*first_size>b for k in selected):
+                            result.add(c*len(units)+j)
+                return result
+            for stage in stages:
+                if stage['block'] not in self.prefix:continue
+                required=closure(mandatory,stage['block'])
+                optional=closure(ordinary,stage['block'])-required
+                stage['mandatory_window_ids']=sorted(required)
+                stage['ordinary_window_ids']=sorted(optional)
+                for c,counts in enumerate(stage['per_camera']):
+                    n=counts['total_windows']
+                    counts['mandatory_windows']=sum(j//n==c for j in required)
+                    counts['ordinary_windows']=sum(j//n==c for j in optional)
+                stage['selection_consistency'].update(mandatory_in_execution=required.issubset(set(stage['executed_window_ids'])),
+                    mandatory_ordinary_disjoint=not bool(required&optional))
         skipped=sum(s.get('reused_windows',0) for s in stages)
-        capture=valid and self.config.enabled and self.config.cache_capture!='never'
-        capture &= bool(offline) or self.config.cache_capture=='always' or capture_eligible
-        capture &= reason not in ('missing_computation_state','m1_context_mismatch','m1_aborted_transaction',
-                                 'm1_state_epoch_mismatch','invalid_refresh_contract','invalid_region_state')
+        # A cache lifecycle mismatch can bypass the reuse adapter. Validate the
+        # current M1 publication context against an empty candidate cache before
+        # publishing fresh full-compute outputs; never dereference stale storage.
+        publication_source_reason=reason
+        if valid and mismatch not in (None,'no_valid_cache'):
+            _,publication_source_reason=computation_admission(bundle,context,images,StateCache(0),
+                getattr(m1_result,'full_refresh_hint',False),window_footprints=footprints)
+        refusals=[]
+        if not valid:refusals.append('invalid_execution_context')
+        if not self.config.enabled:refusals.append('disabled')
+        if self.config.cache_capture=='never':refusals.append('capture_policy_never')
+        if publication_source_reason not in (None,'no_valid_cache','m1_full_refresh'):
+            refusals.append(publication_source_reason)
+        if not self.prefix:refusals.append('no_cacheable_prefix')
+        if not offline and self.config.cache_capture=='adaptive' and not capture_eligible:
+            refusals.append('empty_cost_table' if not self.costs.records and self.costs.status=='empty_cost_table'
+                else self.costs.status if self.costs.status!='ready' else 'no_approved_beneficial_cost_record')
+        capture=not refusals
+        capture_decision=dict(policy=self.config.cache_capture,offline_experiment=bool(offline),
+            computation_succeeded=True,policy_allowed=capture,allowed=capture,attempted=capture,published=False,
+            rejection_reasons=refusals,reason=refusals[0] if refusals else
+                'offline_candidate_capture' if offline else
+                'explicit_capture_policy' if self.config.cache_capture=='always' else 'capture_eligible',
+            source_validation_reason=publication_source_reason,
+            beneficial_capture_scale_found=bool(capture_eligible))
         publication_error=None
         publication_start=perf_counter()
         if capture:
@@ -190,7 +255,11 @@ class IncrementalVisionRuntime:
             except (NonFiniteCacheError,CachePublicationError,torch.cuda.OutOfMemoryError) as error:
                 publication_error='nonfinite_cache_features' if isinstance(error,NonFiniteCacheError) else 'cache_publication_failed'
                 capture=False;self.cache.clear()
+                capture_decision.update(allowed=False,reason='publication_failed',publication_failure_reason=str(error),
+                    publication_failure_type=type(error).__name__)
         else:self.cache.clear()
+        capture_decision['published']=capture
+        self._last_capture_decision=copy.deepcopy(capture_decision)
         publication_ms=(perf_counter()-publication_start)*1000
         now=context.get('timestamp');old=(previous or {}).get('timestamp')
         diag=dict(mode='incremental' if skipped else 'full_update',full_update_reason=reason,fallback_reason=reason,
@@ -206,6 +275,10 @@ class IncrementalVisionRuntime:
             cache_bytes=self.cache.bytes,cache_version=self.cache.version,cache_saved=capture,
             cache_publication_error=publication_error,output_window_provenance=copy.deepcopy(sources),
             cache_context=copy.deepcopy(context),cost_table_status=self.costs.status,
+            cost_record_count=len(self.costs.records),cost_production_ready=self.costs.production_ready,
+            cache_capture_decision=capture_decision,cache_mismatch_reason=mismatch,
+            cache_miss_root_cause=((previous_capture or {}).get('publication_failure_reason') or
+                (previous_capture or {}).get('reason')) if mismatch=='no_valid_cache' else None,
             task_quality_certified=False,window_reuse_quality_certified=bool(skipped and not offline),m1_transformer_certificate_used=False,
             cache_verification_age=now-old if finite_time(now) and finite_time(old) else None,
             source_age=now-min(t for t in source_times if finite_time(t)) if finite_time(now) and any(finite_time(t) for t in source_times) else None,
@@ -223,6 +296,8 @@ class IncrementalVisionRuntime:
 
     def _execute(self,x,context,plans,reason,offline=None):
         stages=[];outputs={};sources={};capture_eligible=False;executed_ids={}
+        # Preserve the selector plan before cost rejection expands later closure.
+        original_plans=list(plans) if plans is not None else None
         for i,block in enumerate(self.model.blocks):
             if i not in self.prefix:
                 x=block(x);stages.append(dict(block=i,mode='full',reason='global_dependency'))
@@ -230,10 +305,17 @@ class IncrementalVisionRuntime:
                 size=block.window_size;total=len(x)*((x.shape[1]+size-1)//size)*((x.shape[2]+size-1)//size)
                 ids=plans[i].updated.nonzero(as_tuple=False).flatten() if plans is not None else torch.arange(total,device=x.device)
                 why=reason
+                planned_ids=list(range(total)) if len(ids)==total else ids.tolist()
+                selector_ids=(original_plans[i].updated.nonzero(as_tuple=False).flatten().tolist()
+                    if plans is not None and original_plans[i] is not plans[i] else planned_ids)
+                before_cost=len(ids)
                 key=cost_key(block,x,i,model=self.model,refresh_policy=self.config.refresh_signature()) if self.costs.records else None
-                capture_eligible |= key is not None and self.costs.has_beneficial(key)
+                eligible=key is not None and self.costs.has_beneficial(key)
+                capture_eligible |= eligible
+                assessment=self.costs.assessment(key,before_cost)
+                checked=len(ids)<total and not offline
                 if len(ids)<total and not offline:
-                    allowed,why=self.costs.beneficial(key,len(ids))
+                    allowed,why=assessment['beneficial'],assessment['cost_rejection_reason']
                     if not allowed:
                         ids=torch.arange(total,device=x.device)
                         # Actual upstream recomputation must close through later
@@ -244,7 +326,8 @@ class IncrementalVisionRuntime:
                 executed_ids[i]=ids
                 cached=self.cache.outputs.get(i) if len(ids)<total else None
                 x,packed=self.executor.execute(block,x,cached,ids)
-                outputs[i]=packed;id_values=ids.tolist();computed=set(id_values);per_camera=total//len(x)
+                outputs[i]=packed;id_values=list(range(total)) if len(ids)==total else planned_ids
+                computed=set(id_values);per_camera=total//len(x)
                 rows=(x.shape[1]+size-1)//size;cols=(x.shape[2]+size-1)//size
                 valid_tokens=sum(min(size,x.shape[1]-(j%per_camera//cols)*size)*
                     min(size,x.shape[2]-(j%cols)*size) for j in id_values)
@@ -253,10 +336,25 @@ class IncrementalVisionRuntime:
                     producer_layer=i,dependency_scope='closed_window_prefix',task_quality_certified=False)
                     if j in computed else copy.deepcopy(self.cache.sources[i][j]) for j in range(total)]
                 stages.append(dict(block=i,total_windows=total,updated_windows=len(ids),executed_windows=len(ids),
-                    planned_windows=int(plans[i].updated.sum()) if plans is not None else total,
+                    planned_windows=before_cost,planned_window_ids=planned_ids,
+                    selector_planned_windows=len(selector_ids),
+                    selector_planned_window_ids=selector_ids,
+                    cost_admission_checked=checked,cost_admission_applied=checked,
+                    cost_record_count=len(self.costs.records),capture_scale_beneficial=eligible,
+                    cost_key_sha256=hashlib.sha256(key.encode()).hexdigest() if key is not None else None,
+                    **assessment,
                     executed_window_ids=id_values,
                     reused_windows=total-len(ids),mode='windows',full_update_reason=why,attention_windows=len(ids),
                     pointwise_tokens=valid_tokens,qkv_tokens=len(ids)*size*size,
                     pointwise_window_work=len(ids)))
+                stage=stages[-1]
+                stage['selection_consistency']=dict(planned_in_execution=set(planned_ids).issubset(computed),
+                    selector_in_execution=set(selector_ids).issubset(computed),
+                    counts_match=len(computed)==len(ids) and len(ids)+stage['reused_windows']==total)
+                stage['per_camera']=[dict(camera_id=cid,total_windows=per_camera,
+                    selector_planned_windows=sum(j//per_camera==c for j in selector_ids),
+                    planned_windows=sum(j//per_camera==c for j in planned_ids),
+                    executed_windows=sum(j//per_camera==c for j in id_values),
+                    reused_windows=per_camera-sum(j//per_camera==c for j in id_values)) for c,cid in enumerate(context['camera_ids'])]
             if self.stage_observer is not None:self.stage_observer(i,x)
         return x.permute(0,3,1,2),stages,outputs,sources,capture_eligible,executed_ids
