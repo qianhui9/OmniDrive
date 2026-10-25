@@ -496,6 +496,7 @@ class Petr3D(MVXTwoStageDetector):
                 trace = getattr(self, 'worldstream_execution', None)
                 if trace is not None:
                     trace['m3']['runtime_entered'] = True
+                    trace['stage'] = 'm3_generation'
                 meta = img_metas[0]
                 timestamp = float(data['timestamp'].reshape(-1)[0])
                 m3_answers, self.m3_diagnostics = m3.generate(
@@ -507,6 +508,7 @@ class Petr3D(MVXTwoStageDetector):
                         state_epoch=getattr(getattr(self.m1_manager,'store',None),'generation',None),
                         state_version=getattr(getattr(self,'m3_verified_state',None),'state_version',None),
                         state_execution_signature=getattr(getattr(self.m1_manager,'store',None),'execution_signature',None),
+                        profile=getattr(self, 'worldstream_profile', False),
                         timestamp=timestamp, camera_ids=list(meta.get('cam_infos', {})) or
                         [os.path.basename(os.path.dirname(f)) for f in meta['filename']]),
                     questions=meta['vlm_labels'].data,
@@ -539,10 +541,12 @@ class Petr3D(MVXTwoStageDetector):
     
     def simple_test(self, img_metas, **data):
         """Run state precheck, vision/tasks, state commit, then semantic consumption."""
+        request_start = time.perf_counter()
         required = getattr(self, 'worldstream_require_m123', False)
         trace = dict(scene_id=str(img_metas[0]['scene_token']),
             frame_id=str(img_metas[0]['sample_idx']),
-            timestamp=float(data['timestamp'].reshape(-1)[0]), completed=False,
+            timestamp=float(data['timestamp'].reshape(-1)[0]), completed=False, stage='input_contract',
+            identity=getattr(self, 'worldstream_audit_identity', dict(status='unbound_by_launcher')),
             m1=dict(precheck_entered=False, precheck_completed=False,
                     commit_entered=False, commit_completed=False, transaction_status='not_started'),
             m2=dict(runtime_entered=False, execution_completed=False),
@@ -594,11 +598,17 @@ class Petr3D(MVXTwoStageDetector):
                 frame.execution_signature = hashlib.sha256((frame.execution_signature+suffix).encode()).hexdigest()
                 adapter_ms = (time.perf_counter() - adapter_start) * 1000
                 trace['m1']['precheck_entered'] = True
+                trace['stage'] = 'm1_precheck'
                 precheck=self.m1_manager.precheck_with_observation(frame, True)
                 trace['m1'].update(precheck_completed=True,
+                    state_epoch=precheck.diagnostics.get('state_epoch'),
+                    valid_states=len(precheck.valid_anchor_ids),
+                    expired_states=len(precheck.diagnostics.get('expired_anchor_ids', [])),
+                    historical_candidates=len(precheck.association_candidate_ids),
                     transaction_status=precheck.diagnostics.get('transaction_status'),
                     full_refresh_reasons=precheck.diagnostics.get('full_refresh_reasons', []))
                 def publish_precheck():
+                    trace['stage'] = 'history_snapshot'
                     if getattr(self,'m3_runtime',None) is not None:
                         from worldstream.m3.world_state import freeze_verified_state
                         self.m3_verified_state=freeze_verified_state(self.m1_manager,frame)
@@ -611,6 +621,7 @@ class Petr3D(MVXTwoStageDetector):
                 publish_precheck()
 
                 def m1_observer(boxes, lanes, features):
+                    trace['stage'] = 'm1_output_adapter'
                     output_start = time.perf_counter()
                     with measure_transfers() as output_transfers:
                         outputs = outputs_from_model(frame, boxes, lanes, features, settings)
@@ -618,6 +629,7 @@ class Petr3D(MVXTwoStageDetector):
                         outputs.execution_receipt = self.m2_diagnostics
                     output_ms = (time.perf_counter() - output_start) * 1000
                     trace['m1']['commit_entered'] = True
+                    trace['stage'] = 'm1_commit'
                     self.m1_manager.commit(frame, outputs, precheck)
                     trace['m1'].update(commit_completed=True,
                         transaction_status=precheck.diagnostics.get('transaction_status'))
@@ -628,7 +640,9 @@ class Petr3D(MVXTwoStageDetector):
                         adapter_ms + output_ms + precheck.diagnostics['timings_ms']['precheck_total']
                         + self.m1_manager.last_commit_diagnostics['commit_total_ms']
                         + self.m1_manager.last_commit_diagnostics.get('computation_source_metadata_ms', 0.))
+            trace['stage'] = 'm2_vision'
             data['img_feats'] = self.extract_img_feat(data['img'])
+            trace['stage'] = 'detection_map'
             bbox_list = [dict() for i in range(len(img_metas))]
             if m1_observer is None:
                 bbox_pts, generated_text, lane_results = self.simple_test_pts(img_metas, **data)
@@ -636,6 +650,7 @@ class Petr3D(MVXTwoStageDetector):
                 bbox_pts, generated_text, lane_results = self.simple_test_pts(
                     img_metas, _m1_observer=m1_observer, **data)
             if required:
+                trace['stage'] = 'execution_contract'
                 m2 = self.m2_diagnostics or {}
                 m3 = self.m3_diagnostics or {}
                 if (not trace['m1']['precheck_completed'] or not trace['m1']['commit_completed']
@@ -652,15 +667,23 @@ class Petr3D(MVXTwoStageDetector):
             bbox_list[0]['text_out'] = generated_text
             bbox_list[0]['lane_results'] = lane_results
             trace['completed'] = True
+            trace['stage'] = 'completed'
             return bbox_list
         except Exception as error:
-            trace['error'] = dict(type=type(error).__name__, message=str(error))
+            trace['error'] = dict(type=type(error).__name__, message=str(error), stage=trace['stage'])
             if run_m1:
                 self.m1_manager.abort_pending()
             raise
         finally:
+            # Host elapsed only: no CUDA synchronization in ordinary inference.
+            trace['host_elapsed_ms'] = (time.perf_counter() - request_start) * 1000
+            trace['timing_method'] = 'host wall; GPU completion synchronized only by profiling launcher'
             if precheck is not None:
                 trace['m1']['transaction_status'] = precheck.diagnostics.get('transaction_status')
+                trace['m1']['timings_ms'] = dict(precheck.diagnostics.get('timings_ms', {}))
+                if trace['m1']['commit_completed']:
+                    trace['m1']['commit_timings_ms'] = {k: v for k, v in
+                        self.m1_manager.last_commit_diagnostics.items() if k.endswith('_ms')}
             # Reuse the existing runtime diagnostics and audit/benchmark sinks.
             for name in ('m2', 'm3'):
                 if not trace[name]['runtime_entered']:
@@ -674,6 +697,7 @@ class Petr3D(MVXTwoStageDetector):
                 if name == 'm3':
                     trace[name]['requests'] = [dict(
                         request_index=r.get('request_index'),
+                        executor=r.get('executor'), matched_prefix=r.get('matched_prefix'),
                         historical_text_consumed=r.get('historical_text_consumed', False),
                         history_reason=r.get('state_retrieval', {}).get('reason'),
                         reused_tokens=r.get('reused_tokens', 0), full_prefill=r.get('full_prefill', False),

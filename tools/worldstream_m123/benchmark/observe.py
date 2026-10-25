@@ -127,6 +127,13 @@ class Observer:
             model.m1_manager.commit = commit
             self.wrap(model.m1_manager, 'commit', 'm1_commit')
         if model.m2_runtime is not None:
+            # Executor calls also cover partial windows that do not call block.forward.
+            # These wrappers are analysis-only and leave the executable topology intact.
+            self.wrap(model.m2_runtime.executor, 'execute', 'm2_window_block', window=True)
+            self.observe_module(model.img_backbone.patch_embed, 'm2_patch_embedding')
+            for i, block in enumerate(model.img_backbone.blocks):
+                if i not in model.m2_runtime.prefix:
+                    self.observe_module(block, f'm2_suffix_block_{i}')
             original=model.m2_runtime.forward_from_m1
             @wraps(original)
             def windows(*args,_original=original,**kwargs):
@@ -151,12 +158,27 @@ class Observer:
                 return result,diag
             executor.generate=prefill
 
-    def wrap(self, obj, attribute, name, dynamic=False, generation=False):
+    def observe_module(self, module, label):
+        stack = []
+        def start(module, args):
+            event = torch.cuda.Event(enable_timing=True)
+            event.record()
+            stack.append((event, perf_counter()))
+        def end(module, args, output):
+            event, tick = stack.pop()
+            stop = torch.cuda.Event(enable_timing=True)
+            stop.record()
+            self.events.append((label, event, stop, (perf_counter()-tick)*1000))
+        self.handles.extend([module.register_forward_pre_hook(start), module.register_forward_hook(end)])
+
+    def wrap(self, obj, attribute, name, dynamic=False, generation=False, window=False):
         original = getattr(obj, attribute)
 
         @wraps(original)
         def call(*args, **kwargs):
             label = name
+            if window:
+                label = f'm2_window_block_{self.model.m2_runtime.executing_block}'
             if dynamic:
                 label = 'prefill' if kwargs.get('inputs_embeds') is not None or kwargs.get('past_key_values') is None else 'decode'
             if name == 'eva_native':

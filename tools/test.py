@@ -205,6 +205,13 @@ def main():
     if fp16_cfg is not None:
         wrap_fp16_model(model)
     checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
+    if getattr(model, 'worldstream_require_m123', False):
+        # Bind once at load, outside every timed request; never hash weights per frame.
+        from tools.worldstream_m123.benchmark.common import sha256
+        model.worldstream_audit_identity = dict(config=args.config,
+            config_sha256=sha256(args.config), checkpoint=args.checkpoint,
+            checkpoint_sha256=sha256(args.checkpoint),
+            detector_source_sha256=sha256('projects/mmdet3d_plugin/models/detectors/petr3d.py'))
     if args.fuse_conv_bn:
         model = fuse_conv_bn(model)
     # old versions did not save class info in checkpoints, this walkaround is

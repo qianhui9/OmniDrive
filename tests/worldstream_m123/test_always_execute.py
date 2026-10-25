@@ -98,6 +98,11 @@ def test_formal_request_always_runs_all_modules(tmp_path, eva, llm, monkeypatch,
         trace = copy.deepcopy(model.worldstream_execution)
         traces.append(trace)
         assert trace['completed']
+        assert trace['stage'] == 'completed' and trace['host_elapsed_ms'] > 0
+        assert trace['m1']['state_epoch'] is not None
+        assert trace['m1']['valid_states'] >= 0 and trace['m1']['expired_states'] >= 0
+        assert trace['m1']['timings_ms']['precheck_total'] > 0
+        assert trace['m1']['commit_timings_ms']['commit_total_ms'] > 0
         assert all(trace['m1'][key] for key in
                    ('precheck_entered', 'precheck_completed', 'commit_entered', 'commit_completed'))
         assert trace['m1']['transaction_status'] == 'committed'
@@ -173,6 +178,8 @@ def test_request_trace_does_not_inherit_previous_success(tmp_path, eva, llm, mon
     assert trace['m1']['transaction_status'] == 'aborted'
     assert trace['m2']['runtime_entered'] and not trace['m2']['execution_completed']
     assert not trace['m3']['runtime_entered'] and not trace['completed']
+    assert trace['error']['stage'] == 'm2_vision'
+    assert 'commit_timings_ms' not in trace['m1']
 
 
 @torch.no_grad()
@@ -199,6 +206,9 @@ def test_failure_diagnostics_and_transaction_lifecycle(tmp_path, eva, llm, monke
         model.simple_test(meta, **data)
     trace = model.worldstream_execution
     assert not trace['completed'] and trace['error']
+    expected_stage = dict(vision='m2_vision', commit='m1_commit', generation='m3_generation',
+                          invalid_answers='m3_generation', publish='history_snapshot')[failure]
+    assert trace['error']['stage'] == expected_stage
     assert trace['m1']['precheck_completed']
     assert model.m1_manager._pending is None
     committed = failure in ('generation', 'invalid_answers')

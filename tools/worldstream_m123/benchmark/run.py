@@ -34,6 +34,59 @@ def wait_gpu(root):
         time.sleep(20)
 
 
+def run_execution_audit(args, root):
+    """One job through the existing worker; never schedules baselines or full split."""
+    from .audit import audit, execution_summary
+    dest = root/'experiments/B3_execution_audit'
+    if dest.exists() or (root/'preflight.json').exists():
+        raise FileExistsError('Execution audit requires a new run directory; existing evidence is preserved')
+    test_log = root/'raw_logs/regression_tests.log'
+    tests = ['taskset', '-c', '0-3,6-31', sys.executable, '-m', 'pytest', '-q', '-rs',
+             'tests/worldstream_m1', 'tests/worldstream_m2', 'tests/worldstream_m3', 'tests/worldstream_m123']
+    if args.regression_log:
+        shutil.copy2(args.regression_log, test_log)
+        passed = ' passed' in test_log.read_text() and ' failed' not in test_log.read_text()
+    else:
+        with test_log.open('w') as handle:
+            passed = subprocess.run(tests, stdout=handle, stderr=subprocess.STDOUT).returncode == 0
+    if not passed:
+        write(root/'driver_status.json', dict(status='FAILED', stage='unit_tests'))
+        return 1
+    # Check resources and dispatch a seeded CUDA kernel, not just import torch.
+    wait_gpu(root)
+    preflight = inventory(root, args.checkpoint, args.seed)
+    write(root/'plan.json', dict(mode='execution_audit', config='projects/configs/OmniDrive/worldstream_m123_auto.py',
+        conditions=['B3'], requested_frames=args.timing_frames, warmup=args.warmup,
+        full_validation=False, production_approvals_added=0,
+        task='One labelled Conv/VQA question per consecutive frame; native production generation unchanged',
+        timing='analysis-only CUDA Event stream spans and synchronized request wall clock'))
+    if preflight['blockers'] or args.preflight_only:
+        write(root/'driver_status.json', dict(status='NOT_RUN', blockers=preflight['blockers']))
+        return 2 if preflight['blockers'] else 0
+    command = ['taskset', '-c', '0-3,6-31', sys.executable, '-m', 'tools.worldstream_m123.benchmark.worker',
+        '--output', str(dest), '--run-root', str(root), '--condition', 'B3', '--workload', 'language',
+        '--checkpoint', args.checkpoint, '--limit', str(args.timing_frames), '--warmup', str(args.warmup),
+        '--seed', str(args.seed), '--measurement-set', 'smoke', '--execution-audit']
+    if args.scene:
+        command.extend(['--scene', args.scene])
+    manifest = read_json(root/'run_manifest.json')
+    manifest['commands'].extend([dict(argv=tests, reused_log=args.regression_log), dict(argv=command)])
+    write(root/'run_manifest.json', manifest)
+    write(root/'driver_status.json', dict(status='RUNNING', command=command))
+    with (root/'raw_logs/B3_execution_audit.log').open('w') as log:
+        child = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
+        while child.poll() is None:
+            time.sleep(10)
+            print('AUDIT_PROGRESS', read_json(dest/'progress.json'), flush=True)
+    summary = execution_summary(dest)
+    reconciliation = audit(root, hash_checkpoint=True)
+    passed = child.returncode == 0 and summary['status'] == reconciliation['status'] == 'PASS'
+    write(root/'driver_status.json', dict(status='COMPLETED' if passed else 'FAILED',
+        returncode=child.returncode, measured_frames=summary['frames'], audit=reconciliation['status']))
+    print('EXECUTION_REPORT', dest/'execution_report.md', flush=True)
+    return 0 if passed else 1
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run-dir')
@@ -45,8 +98,10 @@ def main():
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--regression-log', help='Reuse a completed regression log from this session')
     parser.add_argument('--preflight-only', action='store_true')
+    parser.add_argument('--execution-audit', action='store_true', help='Only B3, one short continuous scene, no baselines or full validation')
+    parser.add_argument('--scene', help='Optional scene token for execution-audit')
     args = parser.parse_args()
-    if args.subset < 1 or args.repeats < 1 or args.warmup < 1:
+    if args.subset < 1 or args.repeats < 1 or args.warmup < 1 or args.timing_frames < 1:
         parser.error('subset, repeats and warmup must be positive')
     affinity = set(os.sched_getaffinity(0))
     if affinity & {4, 5}:
@@ -61,6 +116,8 @@ def main():
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     lock.write(str(os.getpid()))
     lock.flush()
+    if args.execution_audit:
+        return run_execution_audit(args, root)
     # Preserve earlier snapshots; --run-dir resumes, never overwrites workers.
     if not (root/'preflight.json').is_file():
         preflight = inventory(root, args.checkpoint, args.seed)
@@ -174,6 +231,9 @@ def main():
     generate(root)
     index = Path('outputs/final_route/experiment_report.md')
     entry = f'\n\n## 实际评测运行 {root.name}\n\n结果与限制见 [{root.name}](benchmark/{root.name}/report.md)。逐实验状态、真实数值和未完成范围均保存在该目录，不替代此前清理审计记录。\n'
+    entry = f'\n\n## 实际评测运行 {root.name}\n\n结果与限制见 [{root.name}]({os.path.relpath(root / "report.md", index.parent)})。原始记录保留在该目录。\n'
+    if not index.exists():
+        index.write_text('# 正式路线实验报告索引\n\n历史执行契约见 [2026-10-25](../m123_execution_contract_20261025/experiment_report.md)。\n')
     if root.name not in index.read_text():
         with index.open('a') as handle:
             handle.write(entry)

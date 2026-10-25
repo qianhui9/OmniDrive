@@ -6,6 +6,21 @@
 
 ## 回归与静态审计
 
+本阶段只检查正式执行链，使用现有 runner 的短序列模式：
+
+```bash
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python \
+  -m tools.worldstream_m123.benchmark.run --execution-audit \
+  --run-dir outputs/m123_execution_audit_new \
+  --checkpoint ckpts/iter_10548.pth --timing-frames 32 --warmup 1
+```
+
+该模式仅调用一个 B3 worker，按场景/时间选择同一场景连续帧；不足 32 帧会记录实际帧数与原因。既有 language workload 每帧选择一个真实 Conv/VQA 问题，保持原图像预处理、完整视觉输入、权重和采样参数；planning 可能无问题，不能用于证明 Prefill/Decode 完成。预热后清空模块/任务头状态，并将预热答案目录与实测目录分开。先运行本轮回归、配置/资源检查和 CUDA kernel witness，再严格校验 checkpoint 并执行实际推理。不会调度基线、消融或完整验证集。
+
+`experiments/B3_execution_audit/` 保留 `per_frame_metrics.jsonl`、`per_question_metrics.jsonl`、`m1_state.jsonl`、`predictions.pkl`、`execution_summary.json` 和 `execution_report.md`。异常写入 `request_failures.jsonl` / `failure.log`，worker 非零退出，不返回伪成功。`audit.json` 对账实际 Attention 批次数、执行器与受保护文件哈希。
+
+计时分析仅在该 benchmark 启用：请求前后 CUDA 同步得到含预处理、传输、模型及输出回传的 wall latency；CUDA Event 记录各窗口前缀/全局后缀、Prefill（含 KV 写入）、Decode 生成循环与完整生成的 stream span。span 含主机提交间隙，嵌套跨度不可相加；原 M2 `M2_*_ms` 为未经独立同步的 host 诊断。峰值显存在预热后重置。普通正式推理不启用这些分析同步；`worldstream_execution.host_elapsed_ms` 是 host 时延，不能宣称纯 GPU 时间。短序列均值/P50/P95/吞吐仅作参考，不推断加速或完整集质量。
+
 ```bash
 taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m pytest -q tests
 
@@ -48,10 +63,10 @@ taskset -c 0-3,6-31 env HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
 
 该验证工具保留原生 generate 作为对照，仅调用同一个 PrefillExecutor 检查完整 Prefill、相同全前缀和受控改变一个末尾 token 的局部前缀。比较 greedy/sampling token、logits 与 RNG，不写生产批准，也不构成历史文本增强质量认证。
 
-当前 M2 全部受控情形位级一致。M3 完整 Prefill/相同全前缀通过严格检查；局部前缀生成 token 一致但 logits 未通过严格检查，因此不授予对应正式复用。历史增强需要独立的任务质量、M1 协议和部署模型证据；KV 精确匹配不能替代此证据。当前成本/质量批准为空。
+历史全形状 M2 策略的位级一致不能迁移到当前 v2 选定窗口 GEMM 策略，需按当前签名重新验证。历史 M3 完整 Prefill/相同全前缀通过严格检查；局部前缀生成 token 一致但 logits 未通过严格检查，因此不授予对应正式复用。历史增强需要独立的任务质量、M1 协议和部署模型证据；KV 精确匹配不能替代此证据。当前成本/质量批准为空。
 
 ## 本次结果边界
 
-`outputs/single_route_convergence_20261022/experiment_report.md` 汇总 12 帧成功配对、4 帧自然视觉验证、受控窗口数值验证与前缀生成对照。成功配对的 Detection/Map 输出和生成 token 逐帧一致，主线当前没有真实复用收益。历史增强没有适用问题，不声称其已通过任务质量验证。完整验证集官方精度未运行。
+历史配对记录不作为本轮新测量。当前可访问的报告入口为 [执行契约测试](../outputs/m123_execution_contract_20261025/experiment_report.md)、[WSGRR 历史修复](../outputs/wsgrr_mainfix_20261023/experiment_report.md) 和 [本轮短序列审计](../outputs/m123_execution_audit_20261025_run01/experiment_report.md)。完整集官方精度与历史文本独立质量需要单独评估。
 
-开发短测中出现过一次审计导出引用退役字段的失败，已修复并新增账本回归；失败记录保留在 service/experiments/B3_language，成功主线为 B3_language_final。service/audit.json 会如实保留此失败，成功配对检查单独见 paired_service_validation.json。以前按用户要求停止的长时评测没有恢复。
+历史开发记录曾包含审计导出引用退役字段的失败与修复，这些记录不作为本轮测试结果。以前按用户要求停止的长时评测没有恢复；本轮只执行上面的单场景短序列。

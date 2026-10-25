@@ -149,7 +149,10 @@ def run(args):
     write(dest/'invocation.json', vars(args))
     write(dest/'worker_pid.json', dict(pid=os.getpid()))
     write(dest/'benchmark_source_hashes.json', {str(p): sha256(p) for p in Path('tools/worldstream_m123/benchmark').glob('*.py')})
-    write(dest/'m1_m2_source_hashes.json',{str(p):sha256(p) for directory in ('worldstream/m1','worldstream/m2') for p in Path(directory).glob('*.py')})
+    hashes = {str(p):sha256(p) for directory in ('worldstream/m1','worldstream/m2','worldstream/m3') for p in Path(directory).glob('*.py')}
+    hashes['projects/mmdet3d_plugin/models/detectors/petr3d.py'] = sha256('projects/mmdet3d_plugin/models/detectors/petr3d.py')
+    write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if k.startswith(('worldstream/m1/', 'worldstream/m2/'))})
+    write(dest/'m1_m2_m3_source_hashes.json', hashes)
     cfg = effective_config(args.condition, args.workload, dest)
     importlib.import_module('projects.mmdet3d_plugin')
     random.seed(args.seed)
@@ -159,6 +162,15 @@ def run(args):
     if not torch.cuda.is_available():
         raise RuntimeError('CUDA unavailable')
     model = load_model(cfg, args.checkpoint, dest)
+    manifest = Path(args.run_root)/'preflight.json'
+    evidence = json.loads(manifest.read_text()) if manifest.is_file() else {}
+    model.worldstream_audit_identity = dict(config=FINAL if args.condition != 'B0' else BASELINE,
+        config_sha256=sha256(FINAL if args.condition != 'B0' else BASELINE),
+        effective_config_sha256=sha256(dest/'effective_config.json'), checkpoint=args.checkpoint,
+        checkpoint_sha256=evidence.get('checkpoint', {}).get('sha256') or sha256(args.checkpoint),
+        source_manifest='benchmark_source_hashes.json + m1_m2_m3_source_hashes.json',
+        source_manifest_sha256=sha256(dest/'m1_m2_m3_source_hashes.json'))
+    model.worldstream_profile = getattr(args, 'execution_audit', False)
     if getattr(args,'offline_wsgrr',None):
         from functools import partial
         from dataclasses import replace
@@ -201,11 +213,19 @@ def run(args):
     dataset = build_dataset(cfg.data.test)
     dataset.data_infos = sorted(dataset.data_infos, key=lambda i: (i['scene_token'], i['timestamp']))
     all_infos = dataset.data_infos
-    selected = all_infos if not args.limit else all_infos[:args.limit]
+    candidates = all_infos
+    if getattr(args, 'execution_audit', False):
+        scene = getattr(args, 'scene', None) or all_infos[0]['scene_token']
+        candidates = [i for i in all_infos if i['scene_token'] == scene]
+        from .sequence import validate_sequence as validate_continuous_sequence
+        validate_continuous_sequence(candidates[:args.limit], scene)
+    selected = candidates if not args.limit else candidates[:args.limit]
     validate_sequence(selected)
     full = len(selected) == len(all_infos)
     write(dest/'sequence.json', dict(validation_frames=len(all_infos), selected_frames=len(selected),
         full_validation=full, tokens=[i['token'] for i in selected],
+        requested_frames=args.limit, selection='single scene, consecutive timestamp-sorted frames' if getattr(args, 'execution_audit', False) else 'timestamp-sorted split',
+        reduction_reason='selected scene has fewer frames than requested' if args.limit > len(selected) else None,
         scene_ids=sorted({i['scene_token'] for i in selected})))
     observer = Observer(model)
     # Annotation reverse links are only exposed to the offline scorer below.
@@ -263,7 +283,15 @@ def run(args):
         a, b = (torch.cuda.Event(enable_timing=True) for _ in range(2))
         a.record()
         with torch.no_grad():
-            result = model(return_loss=False, rescale=True, **data)
+            try:
+                result = model(return_loss=False, rescale=True, **data)
+            except BaseException as error:
+                append(dest/'request_failures.jsonl', dict(scene_id=info['scene_token'],
+                    frame_id=info['token'], timestamp=info['timestamp']/1e6,
+                    phase='model', error_type=type(error).__name__, message=str(error),
+                    request_host_elapsed_ms=(perf_counter()-request_tick)*1000,
+                    module_execution=copy.deepcopy(getattr(model, 'worldstream_execution', {}))))
+                raise
         b.record()
         torch.cuda.synchronize()
         model_end = perf_counter()
@@ -289,6 +317,7 @@ def run(args):
             output_digest=typed_digest({k: v for k, v in result.items() if k != 'text_out'}),
             timing_scope='Single sequential request: dataset access/preprocess, collate/H2D, model including language and native answer write, CPU result materialization. Audit serialization and counterfactual checks excluded.',
             gpu_scope='CUDA events on default stream; includes host submission gaps, not sum of active kernel durations. Nested stage spans must not be added.')
+        row['identity'] = model.worldstream_audit_identity
         if model.m1_manager is not None:
             # Existing CPU timers; read outside request timing without copying
             # dense M1 audit/observation arrays into a 6019-frame result file.
@@ -352,6 +381,11 @@ def run(args):
             torch.cuda.set_rng_state(rng)
         frames.append(row)
         append(dest/'per_frame_metrics.jsonl', row)
+        if getattr(args, 'execution_audit', False):
+            from .audit import validate_execution_row
+            problems = validate_execution_row(row, expected_questions=len(result['text_out']))
+            if problems:
+                raise RuntimeError('Formal execution audit failed: '+', '.join(problems))
         outputs.append(result)
         if (ordinal+1) % 10 == 0 or ordinal == 0:
             write(dest/'progress.json', dict(completed_frames=ordinal+1, target_frames=len(selected),
@@ -453,12 +487,19 @@ def main():
     parser.add_argument('--measurement-set', choices=['main', 'attribution', 'efficiency', 'smoke'], default='smoke')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--validate-only', action='store_true')
+    parser.add_argument('--execution-audit', action='store_true', help='B3 only; one continuous scene, GPU stage profiling, per-frame contract audit')
+    parser.add_argument('--scene', help='Scene token for --execution-audit; default first scene')
     parser.add_argument('--offline-wsgrr',choices=['A','B','C','D','NoM1Region','NoM1RegionMatched'],help='Explicit unapproved task experiment, B2 only')
     parser.add_argument('--window-budget',type=int,default=3)
     parser.add_argument('--perception-only',action='store_true',help='Explicit official Detection/Map run with no language questions; no feature counterfactual/audit scorer (done in paired task runs)')
     parser.add_argument('--window-targets',help='D3 per_frame_metrics.jsonl; cardinalities only for the explicit NoM1RegionMatched control')
     parser.add_argument('--force-full-frame',action='append',default=[],help='Explicit offline D counterfactual sample token; never a production option')
     args = parser.parse_args()
+    if args.execution_audit and (args.condition != 'B3' or args.workload != 'language'
+            or args.limit < 1 or args.offline_wsgrr or args.perception_only):
+        parser.error('execution-audit requires B3, language and a positive frame limit; offline/perception-only forbidden')
+    if set(os.sched_getaffinity(0)) & {4, 5}:
+        parser.error('Launch with taskset -c 0-3,6-31')
     try:
         run(args)
     except BaseException:

@@ -91,8 +91,16 @@ class M3Runtime:
             match_ms=(perf_counter()-tick)*1000
             allowed,reason=self.scheduler.prefix_allowed(expanded,matched,context,match_ms+signature_ms/max(1,len(ids_list)))
             prefix=matched if allowed else 0
-            answer,diag=self.executor.generate(base,expanded,reuse_length=prefix,capture=True,
-                profile=context.get('profile',False),**generation)
+            self.last_diagnostics['active_request_index'] = index
+            self.executor.last_diagnostics = {}
+            try:
+                answer,diag=self.executor.generate(base,expanded,reuse_length=prefix,capture=True,
+                    profile=context.get('profile',False),**generation)
+            except Exception as error:
+                rows.append(dict(self.executor.last_diagnostics, request_index=index,
+                    executor='PrefillExecutor', matched_prefix=matched, prefix_admission=reason,
+                    state_retrieval=retrieval, error_type=type(error).__name__, error=str(error)))
+                raise
             reused=diag['reused_tokens']
             diag.update(request_index=index,mode='prefix_prefill' if reused else 'full_prefill',matched_prefix=matched,
                 prefix_admission=reason,state_retrieval=retrieval,visual_tokens=int(expanded.visual_mask.sum()),

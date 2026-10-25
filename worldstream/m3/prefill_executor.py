@@ -85,8 +85,14 @@ class PrefillExecutor:
             effective_prefill_tokens=n - reuse_length, forward_prefill_lengths=[],
             computed_source=list(self.cache.entry.computed_source) if reuse_length else list(expanded.source),
             suffix_computed_source=list(expanded.source))
+        self.last_diagnostics = diagnostics
         diagnostics['prefix_storage']='owned_clone'
         events = []
+        profile_cuda = profile and expanded.embeddings.is_cuda
+        if profile_cuda:
+            generation_start = torch.cuda.Event(enable_timing=True)
+            generation_end = torch.cuda.Event(enable_timing=True)
+            generation_start.record()
 
         def first_forward():
             diagnostics['prefill_entered'] = True
@@ -138,11 +144,16 @@ class PrefillExecutor:
         if not diagnostics['prefill_completed']:
             raise RuntimeError('M3 generation completed without PrefillExecutor prefill')
         diagnostics['decode_completed'] = True
-        if profile and expanded.embeddings.is_cuda:
+        if profile_cuda:
+            generation_end.record()
             torch.cuda.synchronize(expanded.embeddings.device)
             diagnostics['prefill_including_cache_gpu_ms'] = sum(a.elapsed_time(b) for a, b in events)
+            diagnostics['decode_loop_gpu_span_ms'] = events[-1][1].elapsed_time(generation_end)
+            diagnostics['generation_gpu_span_ms'] = generation_start.elapsed_time(generation_end)
+            diagnostics['timing_method'] = 'CUDA event stream spans; includes host gaps; decode includes HF sampling loop'
         diagnostics['llm_wall_ms' if profile else 'llm_cpu_enqueue_ms'] = (perf_counter() - tick) * 1000
         diagnostics['cache_bytes'] = self.cache.nbytes
+        diagnostics['cache_budget_bytes'] = self.cache.budget_bytes
         diagnostics['prefix_lineage'] = self.cache.entry.prefix_lineage if self.cache.entry else ()
         diagnostics['branch_workspace_bytes'] = branch_workspace_bytes
         return answer, diagnostics
