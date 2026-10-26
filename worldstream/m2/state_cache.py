@@ -39,20 +39,35 @@ class StateCache:
                      for name,value in [('images',images),('block0_input',block0_input)]+[(f'block:{i}',t) for i,t in sorted(outputs.items())])
 
     def commit(self, images, outputs, context, signature, output_stride=None, sources=None, *, block0_input,
-               region_states=(), window_ages=None, descriptors=None):
-        """Publish a single completed forward atomically; retained outputs are immutable."""
+               region_states=(), window_ages=None, descriptors=None,
+               _transfer_outputs=False, _validated_inputs=False, _finite_extras=(), _overhead_bytes=0):
+        """Publish atomically; public callers get private tensor copies.
+
+        _transfer_outputs is internal to M2Runtime: WindowExecutor's packed
+        buffers are isolated from input/grid/returned features, and runtime
+        relinquishes all write access after this call. Reused zero-update buffers
+        already belong to the immutable previous cache. External inputs still
+        clone; detach alone is never used to adopt an externally owned tensor.
+        """
         window_ages = window_ages or {}
         values = [images, block0_input, *outputs.values(), *window_ages.values()]
         if descriptors is not None: values.append(descriptors)
         needed = sum(t.numel()*t.element_size() for t in values)
-        if needed > self.budget_bytes:
+        if needed + _overhead_bytes > self.budget_bytes:
             raise CachePublicationError('window_cache_budget_exceeded')
-        finite=[torch.isfinite(value).all() for value in values]
-        if not torch.stack(finite).all().item():
+        checked=(values[2:] if _validated_inputs else values)+list(_finite_extras)
+        finite=[torch.isfinite(value).all() for value in checked if value.is_floating_point() or value.is_complex()]
+        if finite and not torch.stack(finite).all().item():
             raise NonFiniteCacheError('nonfinite_cache_features')
         owned_images = images.detach().clone()
         owned_input = block0_input.detach().clone()
-        owned_outputs = {i: value.detach().clone() for i,value in outputs.items()}
+        # Transfer only executor-private packed outputs. No input, returned grid
+        # or caller-owned tensor is adopted; default commit always clones.
+        forbidden={images.storage().data_ptr(),block0_input.storage().data_ptr()}
+        forbidden.update(t.storage().data_ptr() for t in _finite_extras)
+        if _transfer_outputs and any(t.storage().data_ptr() in forbidden for t in outputs.values()):
+            raise CachePublicationError('output_storage_alias')
+        owned_outputs = {i: value.detach() if _transfer_outputs else value.detach().clone() for i,value in outputs.items()}
         owned_context = copy.deepcopy(context)
         owned_regions = copy.deepcopy(region_states)
         owned_ages = {i:t.detach().clone() for i,t in window_ages.items()}
@@ -65,7 +80,7 @@ class StateCache:
         input_stride = tuple(images.stride())
         output_stride = tuple(output_stride) if output_stride is not None else None
         storage_revision = self._revision(owned_images, owned_input, owned_outputs) + self._policy_revision(owned_descriptors,owned_ages)
-        metadata_revision = repr((owned_context,owned_sources,signature,input_stride,output_stride,self.version+1,owned_regions))
+        metadata_revision = (repr((owned_context,owned_sources,input_stride,output_stride,self.version+1,owned_regions)),signature)
         # All potentially failing work precedes publication, including ownership,
         # metadata cloning and integrity bookkeeping.
         (self.images,self.block0_input,self.outputs,self.context,self.sources,self.signature,
@@ -89,7 +104,7 @@ class StateCache:
     def mismatch(self, images, context, signature, block0_input):
         if self.images is None or self.block0_input is None:
             return 'no_valid_cache'
-        if self.metadata_revision != repr((self.context,self.sources,self.signature,self.input_stride,self.output_stride,self.version,self.region_states)):
+        if self.metadata_revision != (repr((self.context,self.sources,self.input_stride,self.output_stride,self.version,self.region_states)),self.signature):
             return 'cache_metadata_modified'
         if self.storage_revision is not None and self.storage_revision != self._revision(self.images,self.block0_input,self.outputs)+self._policy_revision(self.descriptors,self.window_ages):
             return 'cache_storage_modified'

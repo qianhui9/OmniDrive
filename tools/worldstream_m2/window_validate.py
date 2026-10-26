@@ -222,14 +222,23 @@ def run_wsgrr(args):
            [('A','A',3),('B','B',3),('C','C',3)]+[('D'+str(b),'D',b) for b in args.budgets])
     runtimes={name:IncrementalVisionRuntime(model,{**dict(cfg.model.m2_config), 'ordinary_budget':b}) for name,_,b in specs}
     managers={name:WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml')) for name,_,_ in specs}
+    reference=None
+    if getattr(args,'reference_runtime',None):
+        import importlib.util,sys
+        path=Path(args.reference_runtime).resolve()
+        spec=importlib.util.spec_from_file_location('worldstream._m2_reference',path/'__init__.py',submodule_search_locations=[str(path)])
+        package=importlib.util.module_from_spec(spec);sys.modules[spec.name]=package;spec.loader.exec_module(package)
+        reference=package.IncrementalVisionRuntime(model,dict(cfg.model.m2_config))
+        reference_cache_type=type(reference.cache)
     rows=[];native_rows=[];cost_records=[];previous=None;old_info=None
     # The model kernels are warmed before any reported frames.
     for index,info in enumerate(infos):
         sample=dataset[index]
         image=torch.from_numpy(np.stack(sample['img']).transpose(0,3,1,2).copy()).cuda()
         x0=block0_input(model,image)
-        native_output,dense=measure_call(lambda:model(image)[0],args.repeats,args.warmup)
-        native_rows.append(dict(ordinal=index,frame_id=info['token'],scene_id=info['scene_token'],timing=dense))
+        if reference is None:
+            native_output,dense=measure_call(lambda:model(image)[0],args.repeats,args.warmup)
+        else:native_output,dense=None,None
         norm=sample['img_norm_cfg'];cameras={}
         for c,(cid,cam) in enumerate(info['cams'].items()):
             rgb=sample['img'][c]*np.asarray(norm['std'])+np.asarray(norm['mean'])
@@ -278,19 +287,55 @@ def run_wsgrr(args):
                 # commit replaces owned fields atomically; the source snapshot is
                 # immutable, so repeats see identical history without GPU clones.
                 rt.cache=copy.copy(source_cache)
+                if getattr(args,'snapshot_boundary',False):
+                    return rt.forward(image,m1_result=snapshot,execution_context=context)
                 if getattr(args,'formal',False):
                     return rt.forward_from_m1(image,manager,context)
                 return rt.evaluate_offline(image,variant=variant,m1_result=snapshot,execution_context=context)
-            measured,timing=measure_call(candidate,args.repeats,args.warmup)
+            if reference is None:
+                measured,timing=measure_call(candidate,args.repeats,args.warmup)
+            else:
+                (measured,native_output),timing,dense=paired_measure(candidate,lambda:model(image)[0],args.repeats,args.warmup)
+            native_rows.append(dict(ordinal=index,frame_id=info['token'],scene_id=info['scene_token'],timing=dense))
             rt.executor.execute=execute
             output,diag=measured
             next_cache=rt.cache
+            reference_pair=None
+            if reference is not None:
+                def prior():
+                    reference.cache=reference_cache_type(source_cache.budget_bytes)
+                    reference.cache.__dict__.update(source_cache.__dict__)
+                    if source_cache.context is not None:
+                        c=reference.cache
+                        c.metadata_revision=repr((c.context,c.sources,c.signature,c.input_stride,c.output_stride,c.version,c.region_states))
+                    if getattr(args,'snapshot_boundary',False):
+                        return reference.forward(image,m1_result=snapshot,execution_context=context)
+                    return reference.forward_from_m1(image,manager,context)
+                (optimized,prior_result),opt_cost,prior_cost=paired_measure(candidate,prior,args.repeats,args.warmup)
+                before,before_diag=prior_result
+                same_ids=all(a['executed_window_ids']==b['executed_window_ids'] and a['planned_window_ids']==b['planned_window_ids']
+                    for a,b in zip(diag['stages'][:len(rt.prefix)],before_diag['stages'][:len(rt.prefix)]))
+                same_outputs=all(torch.equal(next_cache.outputs[i],reference.cache.outputs[i]) for i in rt.prefix)
+                same_ages=all(torch.equal(next_cache.window_ages[i],reference.cache.window_ages[i]) for i in rt.prefix)
+                delta_before=difference(output[0],before[0])
+                if not (same_ids and same_outputs and same_ages and delta_before['exact']
+                    and next_cache.version==reference.cache.version and next_cache.sources==reference.cache.sources):
+                    raise AssertionError('Optimization changed window plan/cache/output: '+str(delta_before))
+                reference_pair=dict(optimized=opt_cost,before=prior_cost,window_ids_equal=same_ids,
+                    packed_outputs_equal=same_outputs,ages_equal=same_ages,features=delta_before,
+                    cache_versions_equal=True,provenance_equal=True)
+                rt.cache=next_cache
             if getattr(args,'followup_profile',False) and name=='D3' and index==1:
                 from .profiling import profile_call
                 rt.cache=source_cache
                 # Profiling mutates this shallow copy only; selected history and
                 # the measured publication remain exactly the ones above.
                 profile_call(rt,candidate,out/'profile_output')
+                from .profiling import measure_publication
+                measure_publication(rt,candidate,out/'synchronized_actual_publication.json')
+                if reference is not None:
+                    profile_call(reference,prior,out/'reference_profile_output')
+                    measure_publication(reference,prior,out/'reference_synchronized_actual_publication.json')
                 rt.cache=next_cache
             delta=difference(output[0],native_output)
             outputs=prediction_outputs(predictions[info['token']],manager.config)
@@ -309,7 +354,10 @@ def run_wsgrr(args):
                 full_recompute=diag['full_recompute'],full_recompute_reason=diag['full_recompute_reason'],
                 cache_version=diag['cache_version'],
                 cache_mismatch_reason=diag['cache_mismatch_reason'],
-                incremental=timing,native=dense,M1_precheck_ms=precheck_ms,M1_state_read_ms=read_ms,
+                incremental=timing,native=dense,reference_pair=reference_pair,
+                peak_gpu_allocated_bytes=torch.cuda.max_memory_allocated(),
+                peak_gpu_reserved_bytes=torch.cuda.max_memory_reserved(),
+                M1_precheck_ms=precheck_ms,M1_state_read_ms=read_ms,
                 M1_precheck_components_ms=result.diagnostics.get('timings_ms',{}),
                 M1_precheck_profiled=precheck_profile is not None,
                 region_scoring_host_ms=diag['M2_region_scoring_ms'],window_and_suffix_host_ms=diag['M2_window_and_suffix_ms'],
@@ -374,7 +422,7 @@ def run_wsgrr(args):
             event_regions=sum(len(r['region_refresh'].get('event_regions',[])) for r in data))
     result=dict(aggregate=aggregate,frames=len(infos),sample_tokens=[i['token'] for i in infos],
         requested_frames=args.frames,formal_config='projects/configs/OmniDrive/worldstream_m123_auto.py',
-        execution_entry='forward_from_m1' if getattr(args,'formal',False) else 'offline_validation',
+        execution_entry='forward(snapshot)' if getattr(args,'snapshot_boundary',False) else 'forward_from_m1' if getattr(args,'formal',False) else 'offline_validation',
         eligibility_definition='Continuous frame with valid M1/cache admission, no full refresh, selector plans fewer than all windows in at least one prefix block',
         timestamp_span_s=(infos[-1]['timestamp']-infos[0]['timestamp'])/1e6,
         checkpoint=args.checkpoint,backbone_fingerprint=block_fingerprint(model),numerical_policy=NUMERICAL_POLICY,
@@ -558,6 +606,8 @@ if __name__=='__main__':
     parser.add_argument('--followup-profile',action='store_true',help='Offline torch.profiler/cProfile attribution on frame 1, D3')
     parser.add_argument('--followup',action='store_true',help='Offline paired D3/NoM1Region nominal-budget experiment (same source safety)')
     parser.add_argument('--main-only',action='store_true',help='Only current WSGRR D3 and paired Native timing; no ablations or budget scan')
+    parser.add_argument('--snapshot-boundary',action='store_true',help='Measure identical already-exported M1 snapshots, excluding snapshot export from both visual conditions')
+    parser.add_argument('--reference-runtime',help='Frozen prior M2 package for paired before/after measurements; never used by serving')
     parser.add_argument('--formal',action='store_true',help='Use serving forward_from_m1 with live M1 snapshots; requires --main-only')
     args=parser.parse_args()
     if args.formal and not args.main_only:parser.error('--formal requires --main-only')

@@ -1,5 +1,7 @@
 """Dependency closure for the actual EVA non-shifted window/global topology."""
+import copy
 from dataclasses import dataclass
+from collections import OrderedDict
 import torch
 import torch.nn.functional as F
 from .packing import window_mask, partition, unpartition
@@ -51,6 +53,49 @@ class StagePlan:
 class DependencyPlanner:
     def __init__(self, backbone):
         self.backbone = backbone
+        self._execution_ids = OrderedDict()
+        self._footprints = {}
+        self._modules = tuple(backbone.modules())
+        self._topology_guard = None
+        self._verified_prefix = None
+        self.tensor_refs = tuple(list(backbone.named_parameters())+list(backbone.named_buffers()))
+
+    def execution_ids(self, plans, prefix, shape, device):
+        """One batched D2H read of dependency masks, with reusable verified IDs.
+
+        Construction from CPU range positions proves uniqueness and bounds.
+        Tensor pointer/version guard prevents a modified plan using that proof.
+        """
+        from .window_executor import _WindowIdProof
+        masks=[];positions={}
+        if plans is not None:
+            for i in prefix:
+                mask=plans[i].updated
+                if id(mask) not in positions:
+                    positions[id(mask)]=len(masks);masks.append(mask)
+            # Prefix blocks may have different window grids.
+            values=torch.cat(masks).cpu().tolist()
+            offset=0;host={}
+            for mask in masks:
+                host[id(mask)]=values[offset:offset+mask.numel()];offset+=mask.numel()
+        result={};lists={}
+        for i in prefix:
+            size=self.backbone.blocks[i].window_size
+            total=shape[0]*((shape[1]+size-1)//size)*((shape[2]+size-1)//size)
+            ids=tuple(j for j,v in enumerate(host[id(plans[i].updated)]) if v) if plans is not None else tuple(range(total))
+            if plans is not None and plans[i].updated.numel()!=total:raise ValueError('Invalid dependency plan geometry')
+            key=(total,ids,str(device))
+            tensor=self._execution_ids.get(key)
+            if tensor is None:
+                tensor=torch.tensor(ids,device=device,dtype=torch.long)
+                tensor._m2_window_proof=_WindowIdProof(tensor.data_ptr(),tensor._version,total,ids)
+                self._execution_ids[key]=tensor
+                if len(self._execution_ids)>8:self._execution_ids.popitem(last=False)
+            else:
+                self._execution_ids.move_to_end(key)
+                if tensor._version!=tensor._m2_window_proof.version:raise ValueError('Planned window IDs modified')
+            result[i]=tensor;lists[i]=list(ids)
+        return result,lists
 
     @staticmethod
     def windows_to_tokens(selected, shape, size):
@@ -93,6 +138,22 @@ class DependencyPlanner:
         return plans
 
     def cacheable_prefix(self):
+        # Cheap identity/function/config guard catches replacements and custom
+        # forwards without re-running full topology validation on every frame.
+        def structure(modules):
+            return tuple((id(m),type(m),getattr(m.forward,'__func__',m.forward),
+                getattr(getattr(m,'_forward',None),'__func__',None),
+                tuple((n,id(v)) for n,v in m._modules.items()),
+                tuple((n,id(v)) for n,v in m._parameters.items()),
+                tuple((n,id(v)) for n,v in m._buffers.items()),
+                tuple(getattr(m,'normalized_shape',())),getattr(m,'padding_mode',None),
+                getattr(m,'window_size',None),getattr(m,'use_residual_block',None)) for m in modules)
+        guard=structure(self._modules)
+        if guard==self._topology_guard:
+            return list(self._verified_prefix)
+        self._modules=tuple(self.backbone.modules())
+        guard=structure(self._modules)
+        self.tensor_refs=tuple(list(self.backbone.named_parameters())+list(self.backbone.named_buffers()))
         # Window flags alone do not prove independence: a replacement norm or
         # attention module can mix spatial windows while retaining the weights.
         from projects.mmdet3d_plugin.models.backbones.eva_vit import (
@@ -131,9 +192,11 @@ class DependencyPlanner:
                     getattr(block._forward,'__func__',None) is not Block._forward):
                 return reject()
             result.append(i)
+        self._topology_guard=guard
+        self._verified_prefix=tuple(result)
         return result
 
-    def input_footprints(self, height, width, *, verified_prefix=None):
+    def input_footprints(self, height, width, *, verified_prefix=None, _borrow=False):
         """Input dependency of each prefix window, including earlier windows/Conv2d.
 
         Virtual window/Conv padding has no observed input pixels. Global and
@@ -143,8 +206,12 @@ class DependencyPlanner:
         kh,kw=p.kernel_size;sh,sw=p.stride;ph,pw=p.padding;dh,dw=p.dilation
         th=(height+2*ph-dh*(kh-1)-1)//sh+1
         tw=(width+2*pw-dw*(kw-1)-1)//sw+1
+        prefix=self.cacheable_prefix() if verified_prefix is None else verified_prefix
+        key=(height,width,tuple(prefix),p.kernel_size,p.stride,p.padding,p.dilation,
+             tuple(b.window_size for b in self.backbone.blocks[:len(prefix)]))
+        if key in self._footprints:return self._footprints[key] if _borrow else copy.deepcopy(self._footprints[key])
         result={}
-        for i in self.cacheable_prefix() if verified_prefix is None else verified_prefix:
+        for i in prefix:
             ws=self.backbone.blocks[i].window_size;units=[]
             for y in range(0,th,ws):
                 for x in range(0,tw,ws):
@@ -159,4 +226,6 @@ class DependencyPlanner:
                             min(height,(y1-1)*sh-ph+dh*(kh-1)+1)],
                         kernel=[kh,kw],stride=[sh,sw],padding=[ph,pw],dilation=[dh,dw]))
             result[i]=units
-        return result
+        if len(self._footprints)>=8:self._footprints.clear()
+        self._footprints[key]=result
+        return result if _borrow else copy.deepcopy(result)

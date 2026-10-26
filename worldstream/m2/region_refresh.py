@@ -1,10 +1,11 @@
 """WSGRR: one explainable selector; no network, image warp or identity inference."""
 import copy
+from functools import lru_cache
 import math
 import numpy as np
 import torch
 import torch.nn.functional as F
-from .packing import partition, window_mask
+from .packing import partition, window_mask, window_geometry
 from .dependency_planner import patch_updates
 
 
@@ -12,10 +13,25 @@ MUST_EVENTS = frozenset(('appeared', 'disappeared', 'reappeared', 'state_changed
     'association_invalid', 'state_jump', 'source_invalid', 'state_expired'))
 
 
+@lru_cache(maxsize=8)
+def _descriptor_counts(shape,size,device):
+    _,mask,_=window_geometry(*shape,size)
+    return torch.tensor(mask.sum((1,2))[:,None],dtype=torch.float32,device=device).clamp_min(1)
+
+
+@lru_cache(maxsize=16)
+def _projection_axes(shape,kernel,stride,padding,dilation,size):
+    kh,kw=kernel;sh,sw=stride;ph,pw=padding;dh,dw=dilation
+    ys=np.arange(shape[1])[:,None]*sh-ph+np.arange(kh)*dh
+    xs=np.arange(shape[2])[:,None]*sw-pw+np.arange(kw)*dw
+    groups=(np.arange(0,shape[1],size),np.arange(0,shape[2],size))
+    for a in (ys,xs,*groups):a.flags.writeable=False
+    return ys,xs,groups
+
+
 def pooled_descriptors(x, size):
     windows, _ = partition(x.float(), size)
-    valid, _ = partition(torch.ones_like(x[..., :1], dtype=torch.float32), size)
-    return windows.sum((1, 2)) / valid.sum((1, 2)).clamp_min(1)
+    return windows.sum((1, 2)) / _descriptor_counts(tuple(x.shape[:3]),size,str(x.device))
 
 
 def cosine_drift(current, previous):
@@ -77,8 +93,7 @@ def select_regions(x0, cache, bundle, context, projection, size, config,
     kh,kw=projection.kernel_size;sh,sw=projection.stride
     ph,pw=projection.padding;dh,dw=projection.dilation
     height,width=uncertainty_pixels.shape[-2:]
-    ys=np.arange(shape[1])[:,None]*sh-ph+np.arange(kh)*dh
-    xs=np.arange(shape[2])[:,None]*sw-pw+np.arange(kw)*dw
+    ys,xs,groups=_projection_axes(tuple(shape),projection.kernel_size,projection.stride,projection.padding,projection.dilation,size)
     per_camera=((shape[1]+size-1)//size)*((shape[2]+size-1)//size)
     region_required=np.zeros(len(x0)*per_camera,dtype=bool)
     regional_uncertainty=np.zeros_like(region_required)
@@ -98,11 +113,12 @@ def select_regions(x0, cache, bundle, context, projection, size, config,
         if x1<=x0 or y1<=y0:return result
         xx=((xs>=math.floor(x0))&(xs<math.ceil(x1))&(xs>=0)&(xs<width)).any(1)
         yy=((ys>=math.floor(y0))&(ys<math.ceil(y1))&(ys>=0)&(ys<height)).any(1)
-        tokens=yy[:,None]&xx[None,:]
-        hp,wp=(shape[1]+size-1)//size*size,(shape[2]+size-1)//size*size
-        tokens=np.pad(tokens,((0,hp-shape[1]),(0,wp-shape[2])))
-        windows=tokens.reshape(hp//size,size,wp//size,size).any((1,3)).reshape(-1)
-        result[offset:offset+per_camera]=windows
+        # Separable rectangular footprint: same OR reduction as padded token
+        # rasterization, without allocating/padding a token grid per M1 region.
+        yids=np.flatnonzero(np.logical_or.reduceat(yy,groups[0]))
+        xids=np.flatnonzero(np.logical_or.reduceat(xx,groups[1]))
+        cols=(shape[2]+size-1)//size
+        result[offset+(yids[:,None]*cols+xids[None,:]).reshape(-1)]=True
         return result
     uncertainty_rows=[]
     for row in bundle.uncertainty_regions:

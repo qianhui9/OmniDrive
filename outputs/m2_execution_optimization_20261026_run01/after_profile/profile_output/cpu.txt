@@ -1,0 +1,68 @@
+         349297 function calls (298896 primitive calls) in 0.527 seconds
+
+   Ordered by: cumulative time
+   List reduced from 501 to 60 due to restriction <60>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.527    0.527 window_validate.py:277(candidate)
+        1    0.000    0.000    0.526    0.526 runtime.py:50(forward_from_m1)
+        1    0.000    0.000    0.496    0.496 runtime.py:66(forward)
+        1    0.441    0.441    0.495    0.495 runtime.py:82(_forward)
+        1    0.000    0.000    0.031    0.031 state_manager.py:561(export_m2_inputs)
+        1    0.000    0.000    0.023    0.023 runtime.py:252(_execute)
+   430/43    0.000    0.000    0.022    0.001 module.py:1188(_call_impl)
+        1    0.000    0.000    0.021    0.021 state_store.py:66(source_digest)
+       22    0.000    0.000    0.021    0.001 eva_vit.py:854(forward)
+       22    0.002    0.000    0.021    0.001 eva_vit.py:831(_forward)
+23931/170    0.007    0.000    0.014    0.000 copy.py:128(deepcopy)
+       22    0.000    0.000    0.014    0.001 eva_vit.py:661(forward)
+  816/113    0.001    0.000    0.013    0.000 copy.py:200(_deepcopy_list)
+ 1085/833    0.002    0.000    0.013    0.000 copy.py:226(_deepcopy_dict)
+        1    0.001    0.001    0.008    0.008 m1_adapter.py:33(computation_admission)
+  14201/1    0.005    0.000    0.008    0.008 state_types.py:301(json_value)
+   2352/1    0.001    0.000    0.008    0.008 state_types.py:312(<listcomp>)
+ 6504/161    0.002    0.000    0.008    0.000 state_store.py:82(digest_tree)
+  322/161    0.001    0.000    0.008    0.000 state_store.py:92(<dictcomp>)
+        1    0.000    0.000    0.008    0.008 runtime.py:73(_plan_refresh)
+        1    0.000    0.000    0.007    0.007 region_refresh.py:52(select_regions)
+ 1531/164    0.001    0.000    0.007    0.000 state_types.py:310(<dictcomp>)
+        1    0.000    0.000    0.006    0.006 state_store.py:97(<dictcomp>)
+       48    0.001    0.000    0.006    0.000 eva_vit.py:380(forward)
+       24    0.000    0.000    0.005    0.000 fp16_utils.py:108(new_func)
+  900/280    0.002    0.000    0.005    0.000 {built-in method numpy.core._multiarray_umath.implement_array_function}
+      168    0.005    0.000    0.005    0.000 {built-in method torch._C._nn.linear}
+        1    0.000    0.000    0.005    0.005 state_cache.py:41(commit)
+        3    0.004    0.001    0.004    0.001 {method 'cpu' of 'torch._C._TensorBase' objects}
+      157    0.001    0.000    0.004    0.000 region_refresh.py:87(mask_for)
+       48    0.003    0.000    0.004    0.000 eva_vit.py:282(rotate_half)
+       96    0.000    0.000    0.004    0.000 linear.py:113(forward)
+       24    0.000    0.000    0.004    0.000 eva_vit.py:609(forward)
+    96079    0.003    0.000    0.003    0.000 {built-in method builtins.isinstance}
+        1    0.000    0.000    0.003    0.003 dependency_planner.py:139(cacheable_prefix)
+       24    0.000    0.000    0.003    0.000 attention.py:57(forward)
+        1    0.000    0.000    0.003    0.003 dependency_planner.py:142(structure)
+      439    0.001    0.000    0.003    0.000 dependency_planner.py:143(<genexpr>)
+      562    0.000    0.000    0.003    0.000 state_store.py:93(<dictcomp>)
+      122    0.002    0.000    0.002    0.000 {method 'astype' of 'numpy.ndarray' objects}
+       98    0.000    0.000    0.002    0.000 <__array_function__ internals>:177(pad)
+     9477    0.001    0.000    0.002    0.000 {built-in method builtins.getattr}
+       98    0.000    0.000    0.002    0.000 arraypad.py:529(pad)
+        1    0.000    0.000    0.002    0.002 __init__.py:183(dumps)
+        1    0.000    0.000    0.002    0.002 encoder.py:182(encode)
+        1    0.002    0.002    0.002    0.002 encoder.py:204(iterencode)
+       24    0.000    0.000    0.002    0.000 flash_attn_interface.py:901(flash_attn_varlen_kvpacked_func)
+       24    0.000    0.000    0.002    0.000 {built-in method apply}
+        2    0.000    0.000    0.002    0.001 <__array_function__ internals>:177(stack)
+        2    0.000    0.000    0.002    0.001 shape_base.py:357(stack)
+    55330    0.002    0.000    0.002    0.000 {method 'get' of 'dict' objects}
+        2    0.000    0.000    0.002    0.001 <__array_function__ internals>:177(concatenate)
+        1    0.000    0.000    0.002    0.002 state_store.py:108(<dictcomp>)
+        2    0.000    0.000    0.002    0.001 window_executor.py:70(execute)
+        6    0.000    0.000    0.002    0.000 m1_adapter.py:121(<listcomp>)
+       18    0.000    0.000    0.002    0.000 mask_codec.py:16(decode_mask)
+     6106    0.001    0.000    0.002    0.000 dataclasses.py:1047(is_dataclass)
+       24    0.000    0.000    0.002    0.000 flash_attn_interface.py:410(forward)
+     3432    0.001    0.000    0.002    0.000 module.py:1256(__getattr__)
+       79    0.000    0.000    0.002    0.000 geometry.py:18(state_geometry_version)
+
+

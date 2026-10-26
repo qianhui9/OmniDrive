@@ -1,0 +1,1153 @@
+diff --git a/tools/worldstream_m2/profiling.py b/tools/worldstream_m2/profiling.py
+index d937edd5..ffc5a23f 100644
+--- a/tools/worldstream_m2/profiling.py
++++ b/tools/worldstream_m2/profiling.py
+@@ -3,6 +3,8 @@ from contextlib import contextmanager, ExitStack
+ import cProfile
+ import io
+ import pstats
++import importlib
++from time import perf_counter
+ from pathlib import Path
+ from unittest.mock import patch
+ import torch
+@@ -12,8 +14,8 @@ from .common import write
+ 
+ @contextmanager
+ def instrumentation(runtime):
+-    import worldstream.m2.runtime as module
+-    from worldstream.m2.state_cache import StateCache
++    module=importlib.import_module(type(runtime).__module__)
++    StateCache=type(runtime.cache)
+     handles=[]
+     def wrapped(fn,name):
+         def call(*args,**kwargs):
+@@ -48,6 +50,14 @@ def instrumentation(runtime):
+                 (runtime.planner,'plan','m2/dependency_plan'),(runtime.planner,'cacheable_prefix','m2/topology_check'),
+                 (runtime,'signature','m2/signature'),(runtime,'_execute','m2/execution_and_lineage')):
+                 stack.enter_context(patch.object(obj,name,wrapped(getattr(obj,name),label)))
++            original_execute=runtime.executor.execute
++            def execute(*args,**kwargs):
++                with torch.profiler.record_function('prefix/'+str(runtime.executing_block)+'/execute'):
++                    return original_execute(*args,**kwargs)
++            stack.enter_context(patch.object(runtime.executor,'execute',execute))
++            for name in ('_grid','_layout','_valid_positions'):
++                if hasattr(runtime.executor,name):
++                    stack.enter_context(patch.object(runtime.executor,name,wrapped(getattr(runtime.executor,name),'window/'+name)))
+             yield
+     finally:
+         for handle in handles:handle.remove()
+@@ -72,3 +82,18 @@ def profile_call(runtime,call,directory):
+     cpu.dump_stats(str(directory/'cpu.prof'))
+     stream=io.StringIO();pstats.Stats(cpu,stream=stream).strip_dirs().sort_stats('cumtime').print_stats(60)
+     (directory/'cpu.txt').write_text(stream.getvalue())
++
++
++def measure_publication(runtime,call,destination,repeats=3):
++    """Isolate actual commit from outstanding GPU work without altering serving."""
++    cls=type(runtime.cache);commit=cls.commit;samples=[]
++    def observed(cache,*args,**kwargs):
++        tick=perf_counter();torch.cuda.synchronize();wait=(perf_counter()-tick)*1000
++        a,b=torch.cuda.Event(enable_timing=True),torch.cuda.Event(enable_timing=True)
++        a.record();tick=perf_counter();result=commit(cache,*args,**kwargs);b.record();torch.cuda.synchronize()
++        samples.append(dict(prior_gpu_wait_ms=wait,commit_wall_ms=(perf_counter()-tick)*1000,
++            commit_cuda_span_ms=a.elapsed_time(b),transfer_outputs=kwargs.get('_transfer_outputs',False)))
++        return result
++    with patch.object(cls,'commit',observed):
++        for _ in range(repeats):call()
++    write(destination,dict(samples=samples,scope='Same immutable source replay; synchronize immediately BEFORE actual commit, then measure actual commit including finiteness and ownership. Excluded from normal latency.'))
+diff --git a/tools/worldstream_m2/window_validate.py b/tools/worldstream_m2/window_validate.py
+index 85862cf4..e19eb4cc 100644
+--- a/tools/worldstream_m2/window_validate.py
++++ b/tools/worldstream_m2/window_validate.py
+@@ -222,14 +222,23 @@ def run_wsgrr(args):
+            [('A','A',3),('B','B',3),('C','C',3)]+[('D'+str(b),'D',b) for b in args.budgets])
+     runtimes={name:IncrementalVisionRuntime(model,{**dict(cfg.model.m2_config), 'ordinary_budget':b}) for name,_,b in specs}
+     managers={name:WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml')) for name,_,_ in specs}
++    reference=None
++    if getattr(args,'reference_runtime',None):
++        import importlib.util,sys
++        path=Path(args.reference_runtime).resolve()
++        spec=importlib.util.spec_from_file_location('worldstream._m2_reference',path/'__init__.py',submodule_search_locations=[str(path)])
++        package=importlib.util.module_from_spec(spec);sys.modules[spec.name]=package;spec.loader.exec_module(package)
++        reference=package.IncrementalVisionRuntime(model,dict(cfg.model.m2_config))
++        reference_cache_type=type(reference.cache)
+     rows=[];native_rows=[];cost_records=[];previous=None;old_info=None
+     # The model kernels are warmed before any reported frames.
+     for index,info in enumerate(infos):
+         sample=dataset[index]
+         image=torch.from_numpy(np.stack(sample['img']).transpose(0,3,1,2).copy()).cuda()
+         x0=block0_input(model,image)
+-        native_output,dense=measure_call(lambda:model(image)[0],args.repeats,args.warmup)
+-        native_rows.append(dict(ordinal=index,frame_id=info['token'],scene_id=info['scene_token'],timing=dense))
++        if reference is None:
++            native_output,dense=measure_call(lambda:model(image)[0],args.repeats,args.warmup)
++        else:native_output,dense=None,None
+         norm=sample['img_norm_cfg'];cameras={}
+         for c,(cid,cam) in enumerate(info['cams'].items()):
+             rgb=sample['img'][c]*np.asarray(norm['std'])+np.asarray(norm['mean'])
+@@ -278,19 +287,55 @@ def run_wsgrr(args):
+                 # commit replaces owned fields atomically; the source snapshot is
+                 # immutable, so repeats see identical history without GPU clones.
+                 rt.cache=copy.copy(source_cache)
++                if getattr(args,'snapshot_boundary',False):
++                    return rt.forward(image,m1_result=snapshot,execution_context=context)
+                 if getattr(args,'formal',False):
+                     return rt.forward_from_m1(image,manager,context)
+                 return rt.evaluate_offline(image,variant=variant,m1_result=snapshot,execution_context=context)
+-            measured,timing=measure_call(candidate,args.repeats,args.warmup)
++            if reference is None:
++                measured,timing=measure_call(candidate,args.repeats,args.warmup)
++            else:
++                (measured,native_output),timing,dense=paired_measure(candidate,lambda:model(image)[0],args.repeats,args.warmup)
++            native_rows.append(dict(ordinal=index,frame_id=info['token'],scene_id=info['scene_token'],timing=dense))
+             rt.executor.execute=execute
+             output,diag=measured
+             next_cache=rt.cache
++            reference_pair=None
++            if reference is not None:
++                def prior():
++                    reference.cache=reference_cache_type(source_cache.budget_bytes)
++                    reference.cache.__dict__.update(source_cache.__dict__)
++                    if source_cache.context is not None:
++                        c=reference.cache
++                        c.metadata_revision=repr((c.context,c.sources,c.signature,c.input_stride,c.output_stride,c.version,c.region_states))
++                    if getattr(args,'snapshot_boundary',False):
++                        return reference.forward(image,m1_result=snapshot,execution_context=context)
++                    return reference.forward_from_m1(image,manager,context)
++                (optimized,prior_result),opt_cost,prior_cost=paired_measure(candidate,prior,args.repeats,args.warmup)
++                before,before_diag=prior_result
++                same_ids=all(a['executed_window_ids']==b['executed_window_ids'] and a['planned_window_ids']==b['planned_window_ids']
++                    for a,b in zip(diag['stages'][:len(rt.prefix)],before_diag['stages'][:len(rt.prefix)]))
++                same_outputs=all(torch.equal(next_cache.outputs[i],reference.cache.outputs[i]) for i in rt.prefix)
++                same_ages=all(torch.equal(next_cache.window_ages[i],reference.cache.window_ages[i]) for i in rt.prefix)
++                delta_before=difference(output[0],before[0])
++                if not (same_ids and same_outputs and same_ages and delta_before['exact']
++                    and next_cache.version==reference.cache.version and next_cache.sources==reference.cache.sources):
++                    raise AssertionError('Optimization changed window plan/cache/output: '+str(delta_before))
++                reference_pair=dict(optimized=opt_cost,before=prior_cost,window_ids_equal=same_ids,
++                    packed_outputs_equal=same_outputs,ages_equal=same_ages,features=delta_before,
++                    cache_versions_equal=True,provenance_equal=True)
++                rt.cache=next_cache
+             if getattr(args,'followup_profile',False) and name=='D3' and index==1:
+                 from .profiling import profile_call
+                 rt.cache=source_cache
+                 # Profiling mutates this shallow copy only; selected history and
+                 # the measured publication remain exactly the ones above.
+                 profile_call(rt,candidate,out/'profile_output')
++                from .profiling import measure_publication
++                measure_publication(rt,candidate,out/'synchronized_actual_publication.json')
++                if reference is not None:
++                    profile_call(reference,prior,out/'reference_profile_output')
++                    measure_publication(reference,prior,out/'reference_synchronized_actual_publication.json')
+                 rt.cache=next_cache
+             delta=difference(output[0],native_output)
+             outputs=prediction_outputs(predictions[info['token']],manager.config)
+@@ -309,7 +354,10 @@ def run_wsgrr(args):
+                 full_recompute=diag['full_recompute'],full_recompute_reason=diag['full_recompute_reason'],
+                 cache_version=diag['cache_version'],
+                 cache_mismatch_reason=diag['cache_mismatch_reason'],
+-                incremental=timing,native=dense,M1_precheck_ms=precheck_ms,M1_state_read_ms=read_ms,
++                incremental=timing,native=dense,reference_pair=reference_pair,
++                peak_gpu_allocated_bytes=torch.cuda.max_memory_allocated(),
++                peak_gpu_reserved_bytes=torch.cuda.max_memory_reserved(),
++                M1_precheck_ms=precheck_ms,M1_state_read_ms=read_ms,
+                 M1_precheck_components_ms=result.diagnostics.get('timings_ms',{}),
+                 M1_precheck_profiled=precheck_profile is not None,
+                 region_scoring_host_ms=diag['M2_region_scoring_ms'],window_and_suffix_host_ms=diag['M2_window_and_suffix_ms'],
+@@ -374,7 +422,7 @@ def run_wsgrr(args):
+             event_regions=sum(len(r['region_refresh'].get('event_regions',[])) for r in data))
+     result=dict(aggregate=aggregate,frames=len(infos),sample_tokens=[i['token'] for i in infos],
+         requested_frames=args.frames,formal_config='projects/configs/OmniDrive/worldstream_m123_auto.py',
+-        execution_entry='forward_from_m1' if getattr(args,'formal',False) else 'offline_validation',
++        execution_entry='forward(snapshot)' if getattr(args,'snapshot_boundary',False) else 'forward_from_m1' if getattr(args,'formal',False) else 'offline_validation',
+         eligibility_definition='Continuous frame with valid M1/cache admission, no full refresh, selector plans fewer than all windows in at least one prefix block',
+         timestamp_span_s=(infos[-1]['timestamp']-infos[0]['timestamp'])/1e6,
+         checkpoint=args.checkpoint,backbone_fingerprint=block_fingerprint(model),numerical_policy=NUMERICAL_POLICY,
+@@ -558,6 +606,8 @@ if __name__=='__main__':
+     parser.add_argument('--followup-profile',action='store_true',help='Offline torch.profiler/cProfile attribution on frame 1, D3')
+     parser.add_argument('--followup',action='store_true',help='Offline paired D3/NoM1Region nominal-budget experiment (same source safety)')
+     parser.add_argument('--main-only',action='store_true',help='Only current WSGRR D3 and paired Native timing; no ablations or budget scan')
++    parser.add_argument('--snapshot-boundary',action='store_true',help='Measure identical already-exported M1 snapshots, excluding snapshot export from both visual conditions')
++    parser.add_argument('--reference-runtime',help='Frozen prior M2 package for paired before/after measurements; never used by serving')
+     parser.add_argument('--formal',action='store_true',help='Use serving forward_from_m1 with live M1 snapshots; requires --main-only')
+     args=parser.parse_args()
+     if args.formal and not args.main_only:parser.error('--formal requires --main-only')
+diff --git a/worldstream/m2/dependency_planner.py b/worldstream/m2/dependency_planner.py
+index fca42f49..6b8faa7f 100644
+--- a/worldstream/m2/dependency_planner.py
++++ b/worldstream/m2/dependency_planner.py
+@@ -1,5 +1,7 @@
+ """Dependency closure for the actual EVA non-shifted window/global topology."""
++import copy
+ from dataclasses import dataclass
++from collections import OrderedDict
+ import torch
+ import torch.nn.functional as F
+ from .packing import window_mask, partition, unpartition
+@@ -51,6 +53,49 @@ class StagePlan:
+ class DependencyPlanner:
+     def __init__(self, backbone):
+         self.backbone = backbone
++        self._execution_ids = OrderedDict()
++        self._footprints = {}
++        self._modules = tuple(backbone.modules())
++        self._topology_guard = None
++        self._verified_prefix = None
++        self.tensor_refs = tuple(list(backbone.named_parameters())+list(backbone.named_buffers()))
++
++    def execution_ids(self, plans, prefix, shape, device):
++        """One batched D2H read of dependency masks, with reusable verified IDs.
++
++        Construction from CPU range positions proves uniqueness and bounds.
++        Tensor pointer/version guard prevents a modified plan using that proof.
++        """
++        from .window_executor import _WindowIdProof
++        masks=[];positions={}
++        if plans is not None:
++            for i in prefix:
++                mask=plans[i].updated
++                if id(mask) not in positions:
++                    positions[id(mask)]=len(masks);masks.append(mask)
++            # Prefix blocks may have different window grids.
++            values=torch.cat(masks).cpu().tolist()
++            offset=0;host={}
++            for mask in masks:
++                host[id(mask)]=values[offset:offset+mask.numel()];offset+=mask.numel()
++        result={};lists={}
++        for i in prefix:
++            size=self.backbone.blocks[i].window_size
++            total=shape[0]*((shape[1]+size-1)//size)*((shape[2]+size-1)//size)
++            ids=tuple(j for j,v in enumerate(host[id(plans[i].updated)]) if v) if plans is not None else tuple(range(total))
++            if plans is not None and plans[i].updated.numel()!=total:raise ValueError('Invalid dependency plan geometry')
++            key=(total,ids,str(device))
++            tensor=self._execution_ids.get(key)
++            if tensor is None:
++                tensor=torch.tensor(ids,device=device,dtype=torch.long)
++                tensor._m2_window_proof=_WindowIdProof(tensor.data_ptr(),tensor._version,total,ids)
++                self._execution_ids[key]=tensor
++                if len(self._execution_ids)>8:self._execution_ids.popitem(last=False)
++            else:
++                self._execution_ids.move_to_end(key)
++                if tensor._version!=tensor._m2_window_proof.version:raise ValueError('Planned window IDs modified')
++            result[i]=tensor;lists[i]=list(ids)
++        return result,lists
+ 
+     @staticmethod
+     def windows_to_tokens(selected, shape, size):
+@@ -93,6 +138,22 @@ class DependencyPlanner:
+         return plans
+ 
+     def cacheable_prefix(self):
++        # Cheap identity/function/config guard catches replacements and custom
++        # forwards without re-running full topology validation on every frame.
++        def structure(modules):
++            return tuple((id(m),type(m),getattr(m.forward,'__func__',m.forward),
++                getattr(getattr(m,'_forward',None),'__func__',None),
++                tuple((n,id(v)) for n,v in m._modules.items()),
++                tuple((n,id(v)) for n,v in m._parameters.items()),
++                tuple((n,id(v)) for n,v in m._buffers.items()),
++                tuple(getattr(m,'normalized_shape',())),getattr(m,'padding_mode',None),
++                getattr(m,'window_size',None),getattr(m,'use_residual_block',None)) for m in modules)
++        guard=structure(self._modules)
++        if guard==self._topology_guard:
++            return list(self._verified_prefix)
++        self._modules=tuple(self.backbone.modules())
++        guard=structure(self._modules)
++        self.tensor_refs=tuple(list(self.backbone.named_parameters())+list(self.backbone.named_buffers()))
+         # Window flags alone do not prove independence: a replacement norm or
+         # attention module can mix spatial windows while retaining the weights.
+         from projects.mmdet3d_plugin.models.backbones.eva_vit import (
+@@ -131,9 +192,11 @@ class DependencyPlanner:
+                     getattr(block._forward,'__func__',None) is not Block._forward):
+                 return reject()
+             result.append(i)
++        self._topology_guard=guard
++        self._verified_prefix=tuple(result)
+         return result
+ 
+-    def input_footprints(self, height, width, *, verified_prefix=None):
++    def input_footprints(self, height, width, *, verified_prefix=None, _borrow=False):
+         """Input dependency of each prefix window, including earlier windows/Conv2d.
+ 
+         Virtual window/Conv padding has no observed input pixels. Global and
+@@ -143,8 +206,12 @@ class DependencyPlanner:
+         kh,kw=p.kernel_size;sh,sw=p.stride;ph,pw=p.padding;dh,dw=p.dilation
+         th=(height+2*ph-dh*(kh-1)-1)//sh+1
+         tw=(width+2*pw-dw*(kw-1)-1)//sw+1
++        prefix=self.cacheable_prefix() if verified_prefix is None else verified_prefix
++        key=(height,width,tuple(prefix),p.kernel_size,p.stride,p.padding,p.dilation,
++             tuple(b.window_size for b in self.backbone.blocks[:len(prefix)]))
++        if key in self._footprints:return self._footprints[key] if _borrow else copy.deepcopy(self._footprints[key])
+         result={}
+-        for i in self.cacheable_prefix() if verified_prefix is None else verified_prefix:
++        for i in prefix:
+             ws=self.backbone.blocks[i].window_size;units=[]
+             for y in range(0,th,ws):
+                 for x in range(0,tw,ws):
+@@ -159,4 +226,6 @@ class DependencyPlanner:
+                             min(height,(y1-1)*sh-ph+dh*(kh-1)+1)],
+                         kernel=[kh,kw],stride=[sh,sw],padding=[ph,pw],dilation=[dh,dw]))
+             result[i]=units
+-        return result
++        if len(self._footprints)>=8:self._footprints.clear()
++        self._footprints[key]=result
++        return result if _borrow else copy.deepcopy(result)
+diff --git a/worldstream/m2/packing.py b/worldstream/m2/packing.py
+index 7fdabccc..33659b69 100644
+--- a/worldstream/m2/packing.py
++++ b/worldstream/m2/packing.py
+@@ -1,4 +1,6 @@
+ """EVA's camera-major window layout; padding is outside the attention mask."""
++from functools import lru_cache
++import numpy as np
+ import torch
+ import torch.nn.functional as F
+ 
+@@ -22,3 +24,20 @@ def unpartition(windows, size, padded, hw):
+ def window_mask(tokens, size):
+     windows, _ = partition(tokens[..., None], size)
+     return windows.flatten(1).any(1)
++
++
++@lru_cache(maxsize=8)
++def window_geometry(batch, height, width, size):
++    """Immutable CPU geometry; no per-frame CUDA nonzero/validity construction."""
++    rows,cols=(height+size-1)//size,(width+size-1)//size
++    c,wy,wx,dy,dx=np.indices((batch,rows,cols,size,size))
++    yy=wy*size+dy;xx=wx*size+dx
++    valid=(yy<height)&(xx<width)
++    shape=(-1,size,size)
++    # Invalid coordinates are never used after normalization/padding masking.
++    coordinates=tuple(np.ascontiguousarray(a.reshape(shape)) for a in (c,yy.clip(0,height-1),xx.clip(0,width-1)))
++    mask=np.ascontiguousarray(valid.reshape(shape))
++    cc,y,x=np.indices((batch,height,width))
++    grid=(((cc*rows+y//size)*cols+x//size)*size*size+(y%size)*size+x%size).reshape(batch,height*width)
++    for a in (*coordinates,mask,grid):a.flags.writeable=False
++    return coordinates,mask,grid
+diff --git a/worldstream/m2/region_refresh.py b/worldstream/m2/region_refresh.py
+index ca093de2..ee85de1a 100644
+--- a/worldstream/m2/region_refresh.py
++++ b/worldstream/m2/region_refresh.py
+@@ -1,10 +1,11 @@
+ """WSGRR: one explainable selector; no network, image warp or identity inference."""
+ import copy
++from functools import lru_cache
+ import math
+ import numpy as np
+ import torch
+ import torch.nn.functional as F
+-from .packing import partition, window_mask
++from .packing import partition, window_mask, window_geometry
+ from .dependency_planner import patch_updates
+ 
+ 
+@@ -12,10 +13,25 @@ MUST_EVENTS = frozenset(('appeared', 'disappeared', 'reappeared', 'state_changed
+     'association_invalid', 'state_jump', 'source_invalid', 'state_expired'))
+ 
+ 
++@lru_cache(maxsize=8)
++def _descriptor_counts(shape,size,device):
++    _,mask,_=window_geometry(*shape,size)
++    return torch.tensor(mask.sum((1,2))[:,None],dtype=torch.float32,device=device).clamp_min(1)
++
++
++@lru_cache(maxsize=16)
++def _projection_axes(shape,kernel,stride,padding,dilation,size):
++    kh,kw=kernel;sh,sw=stride;ph,pw=padding;dh,dw=dilation
++    ys=np.arange(shape[1])[:,None]*sh-ph+np.arange(kh)*dh
++    xs=np.arange(shape[2])[:,None]*sw-pw+np.arange(kw)*dw
++    groups=(np.arange(0,shape[1],size),np.arange(0,shape[2],size))
++    for a in (ys,xs,*groups):a.flags.writeable=False
++    return ys,xs,groups
++
++
+ def pooled_descriptors(x, size):
+     windows, _ = partition(x.float(), size)
+-    valid, _ = partition(torch.ones_like(x[..., :1], dtype=torch.float32), size)
+-    return windows.sum((1, 2)) / valid.sum((1, 2)).clamp_min(1)
++    return windows.sum((1, 2)) / _descriptor_counts(tuple(x.shape[:3]),size,str(x.device))
+ 
+ 
+ def cosine_drift(current, previous):
+@@ -77,8 +93,7 @@ def select_regions(x0, cache, bundle, context, projection, size, config,
+     kh,kw=projection.kernel_size;sh,sw=projection.stride
+     ph,pw=projection.padding;dh,dw=projection.dilation
+     height,width=uncertainty_pixels.shape[-2:]
+-    ys=np.arange(shape[1])[:,None]*sh-ph+np.arange(kh)*dh
+-    xs=np.arange(shape[2])[:,None]*sw-pw+np.arange(kw)*dw
++    ys,xs,groups=_projection_axes(tuple(shape),projection.kernel_size,projection.stride,projection.padding,projection.dilation,size)
+     per_camera=((shape[1]+size-1)//size)*((shape[2]+size-1)//size)
+     region_required=np.zeros(len(x0)*per_camera,dtype=bool)
+     regional_uncertainty=np.zeros_like(region_required)
+@@ -98,11 +113,12 @@ def select_regions(x0, cache, bundle, context, projection, size, config,
+         if x1<=x0 or y1<=y0:return result
+         xx=((xs>=math.floor(x0))&(xs<math.ceil(x1))&(xs>=0)&(xs<width)).any(1)
+         yy=((ys>=math.floor(y0))&(ys<math.ceil(y1))&(ys>=0)&(ys<height)).any(1)
+-        tokens=yy[:,None]&xx[None,:]
+-        hp,wp=(shape[1]+size-1)//size*size,(shape[2]+size-1)//size*size
+-        tokens=np.pad(tokens,((0,hp-shape[1]),(0,wp-shape[2])))
+-        windows=tokens.reshape(hp//size,size,wp//size,size).any((1,3)).reshape(-1)
+-        result[offset:offset+per_camera]=windows
++        # Separable rectangular footprint: same OR reduction as padded token
++        # rasterization, without allocating/padding a token grid per M1 region.
++        yids=np.flatnonzero(np.logical_or.reduceat(yy,groups[0]))
++        xids=np.flatnonzero(np.logical_or.reduceat(xx,groups[1]))
++        cols=(shape[2]+size-1)//size
++        result[offset+(yids[:,None]*cols+xids[None,:]).reshape(-1)]=True
+         return result
+     uncertainty_rows=[]
+     for row in bundle.uncertainty_regions:
+diff --git a/worldstream/m2/runtime.py b/worldstream/m2/runtime.py
+index 8db0b2ee..5ec3d345 100644
+--- a/worldstream/m2/runtime.py
++++ b/worldstream/m2/runtime.py
+@@ -26,13 +26,14 @@ class IncrementalVisionRuntime:
+         self.cache=StateCache(self.config.memory_budget_mb*1024**2)
+         self.stage_observer=None
+         self.last_diagnostics={}
++        self._closure_maps={}
+ 
+     def reset(self):
+         self.cache.clear()
+ 
+     def signature(self,context):
+         tensors=tuple((n,t.data_ptr(),t._version,tuple(t.shape),str(t.dtype),str(t.device))
+-            for n,t in list(self.model.named_parameters())+list(self.model.named_buffers()))
++            for n,t in self.planner.tensor_refs)
+         topology=tuple((b.window_size,b.use_residual_block,b.attn.flash_attn,b.attn.scale,
+             b.norm1.eps,b.norm2.eps,getattr(b.attn.inner_attn_ln,'eps',None),getattr(b.mlp.ffn_ln,'eps',None),
+             getattr(getattr(b.attn,'inner_attn',None),'softmax_scale',None),
+@@ -81,18 +82,18 @@ class IncrementalVisionRuntime:
+     def _forward(self,images,m1_result,execution_context,computation_state):
+         self.last_diagnostics=dict(runtime_entered=True,execution_completed=False)
+         start=perf_counter();context=dict(execution_context or {})
+-        if any(m.training for m in self.model.modules()) or torch.is_grad_enabled():
++        self.prefix=self.planner.cacheable_prefix()
++        if any(m.training for m in self.planner._modules) or torch.is_grad_enabled():
+             raise ValueError('M2 window execution is inference-only')
+         if images.ndim!=4 or not images.is_floating_point():raise ValueError('Expected floating NCHW model input')
+-        self.prefix=self.planner.cacheable_prefix()
+         if self.planner.rejection_reason:raise ValueError(self.planner.rejection_reason)
+         cameras=context.get('camera_ids',())
+         if len(cameras)!=len(images) or len(set(cameras))!=len(images):
+             raise ValueError('One ordered camera identity is required per model input')
+         bundle=computation_state if computation_state is not None else getattr(m1_result,'computation_state',None)
+-        footprints=self.planner.input_footprints(*images.shape[-2:],verified_prefix=self.prefix)
++        footprints=self.planner.input_footprints(*images.shape[-2:],verified_prefix=self.prefix,_borrow=True)
+         signature=self.signature(context)
+-        previous=copy.deepcopy(self.cache.context) if isinstance(self.cache.context,dict) else None
++        previous=self.cache.context if isinstance(self.cache.context,dict) else None
+         source_times=[]
+         invalid=None;reason=None;details={}
+         valid=bool(context.get('scene_id') and context.get('frame_id') and finite_time(context.get('timestamp'))
+@@ -101,9 +102,10 @@ class IncrementalVisionRuntime:
+         if not valid:raise ValueError('invalid_execution_context')
+         if not self.config.enabled:raise ValueError('M2 runtime is disabled')
+         if not self.prefix:raise ValueError('no_cacheable_prefix')
+-        if not torch.isfinite(images).all().item():raise ValueError('nonfinite_model_input')
+         x0=block0_input(self.model,images)
+-        if not torch.isfinite(x0).all().item():raise ValueError('nonfinite_block0_input')
++        input_finite=torch.stack((torch.isfinite(images).all(),torch.isfinite(x0).all())).cpu().tolist()
++        if not input_finite[0]:raise ValueError('nonfinite_model_input')
++        if not input_finite[1]:raise ValueError('nonfinite_block0_input')
+         mismatch=self.cache.mismatch(images,context,signature,x0)
+         # Scene boundaries are lifecycle resets, not a second full executor.
+         # Validate stored integrity before discarding history from a prior scene.
+@@ -157,16 +159,22 @@ class IncrementalVisionRuntime:
+             # verified token dependency footprints, including different sizes.
+             first_size=self.model.blocks[0].window_size
+             cols=(x0.shape[2]+first_size-1)//first_size
+-            def closure(ids,block):
+-                result=set();units=footprints[block]
+-                for c in range(len(cameras)):
+-                    selected=[j%per_camera for j in ids if j//per_camera==c]
+-                    for j,unit in enumerate(units):
++            geometry_key=(tuple(x0.shape[:3]),tuple(self.model.blocks[i].window_size for i in self.prefix))
++            if geometry_key not in self._closure_maps:
++                mappings={}
++                for block in self.prefix:
++                    mappings[block]=[]
++                    for unit in footprints[block]:
+                         a,b,d,e=unit['token_region']
+-                        if any((k%cols)*first_size<d and (k%cols+1)*first_size>a
+-                            and (k//cols)*first_size<e and (k//cols+1)*first_size>b for k in selected):
+-                            result.add(c*len(units)+j)
+-                return result
++                        mappings[block].append(tuple(k for k in range(per_camera)
++                            if (k%cols)*first_size<d and (k%cols+1)*first_size>a
++                            and (k//cols)*first_size<e and (k//cols+1)*first_size>b))
++                if len(self._closure_maps)>=8:self._closure_maps.clear()
++                self._closure_maps[geometry_key]=mappings
++            def closure(ids,block):
++                units=self._closure_maps[geometry_key][block]
++                return {c*len(units)+j for c in range(len(cameras)) for j,initial in enumerate(units)
++                    if any(c*per_camera+k in ids for k in initial)}
+             for stage in stages:
+                 if stage['block'] not in self.prefix:continue
+                 required=closure(mandatory,stage['block'])
+@@ -195,10 +203,11 @@ class IncrementalVisionRuntime:
+             descriptors.index_copy_(0,ids,current.index_select(0,ids))
+         else:
+             descriptors=current
+-            region_states=copy.deepcopy(bundle.region_states)
+-        if not torch.isfinite(features).all().item():raise ValueError('nonfinite_visual_features')
++            region_states=bundle.region_states
+         self.cache.commit(images,outputs,context,signature,features.stride(),sources,block0_input=x0,
+-            region_states=region_states,window_ages=ages,descriptors=descriptors)
++            region_states=region_states,window_ages=ages,descriptors=descriptors,
++            _transfer_outputs=True,_validated_inputs=True,_finite_extras=(features,),
++            _overhead_bytes=self.executor.metadata_bytes)
+         publication_ms=(perf_counter()-publication_start)*1000
+         now=context.get('timestamp');old=(previous or {}).get('timestamp')
+         diag=dict(mode='incremental' if skipped else 'full_update',full_update_reason=reason,
+@@ -220,7 +229,7 @@ class IncrementalVisionRuntime:
+             M2_validation_ms=validation_ms,M2_region_scoring_ms=scoring_ms,
+             M2_execution_ms=execution_ms,M2_window_and_suffix_ms=execution_ms,M2_cache_publication_ms=publication_ms,M2_wall_ms=(perf_counter()-start)*1000,
+             prefix_window_geometry={i:[self.model.patch_embed.proj.kernel_size[j]*self.model.blocks[i].window_size for j in (0,1)] for i in self.prefix},
+-            prefix_dependency_footprints=footprints)
++            prefix_dependency_footprints=copy.deepcopy(footprints))
+         full_reason = (reason or next((s.get('full_update_reason') for s in stages
+             if s.get('full_update_reason')), None) or 'all_windows_required') if not skipped else None
+         cached_stages=[s for s in stages if s['block'] in self.prefix]
+@@ -241,15 +250,16 @@ class IncrementalVisionRuntime:
+         return [features],self.last_diagnostics
+ 
+     def _execute(self,x,context,plans,reason):
+-        stages=[];outputs={};sources={};executed_ids={}
++        stages=[];outputs={};sources={}
++        executed_ids,host_ids=self.planner.execution_ids(plans,self.prefix,x.shape[:3],x.device)
+         for i,block in enumerate(self.model.blocks):
+             if i not in self.prefix:
+                 x=block(x);stages.append(dict(block=i,mode='full',reason='global_dependency'))
+             else:
+                 size=block.window_size;total=len(x)*((x.shape[1]+size-1)//size)*((x.shape[2]+size-1)//size)
+-                ids=plans[i].updated.nonzero(as_tuple=False).flatten() if plans is not None else torch.arange(total,device=x.device)
++                ids=executed_ids[i]
+                 why=reason
+-                planned_ids=list(range(total)) if len(ids)==total else ids.tolist()
++                planned_ids=host_ids[i]
+                 self.executing_block=i
+                 executed_ids[i]=ids
+                 cached=self.cache.outputs.get(i) if len(ids)<total else None
+@@ -262,7 +272,7 @@ class IncrementalVisionRuntime:
+                 sources[i]=[dict(computation_frame_id=context.get('frame_id'),computation_timestamp=context.get('timestamp'),
+                     computation_version=self.cache.version+1,camera_id=context['camera_ids'][j//per_camera],
+                     producer_layer=i,dependency_scope='closed_window_prefix',task_quality_certified=False)
+-                    if j in computed else copy.deepcopy(self.cache.sources[i][j]) for j in range(total)]
++                    if j in computed else self.cache.sources[i][j] for j in range(total)]
+                 stages.append(dict(block=i,total_windows=total,updated_windows=len(ids),executed_windows=len(ids),
+                     planned_windows=len(ids),planned_window_ids=planned_ids,
+                     executed_window_ids=id_values,
+diff --git a/worldstream/m2/state_cache.py b/worldstream/m2/state_cache.py
+index a7924016..764e0311 100644
+--- a/worldstream/m2/state_cache.py
++++ b/worldstream/m2/state_cache.py
+@@ -39,20 +39,35 @@ class StateCache:
+                      for name,value in [('images',images),('block0_input',block0_input)]+[(f'block:{i}',t) for i,t in sorted(outputs.items())])
+ 
+     def commit(self, images, outputs, context, signature, output_stride=None, sources=None, *, block0_input,
+-               region_states=(), window_ages=None, descriptors=None):
+-        """Publish a single completed forward atomically; retained outputs are immutable."""
++               region_states=(), window_ages=None, descriptors=None,
++               _transfer_outputs=False, _validated_inputs=False, _finite_extras=(), _overhead_bytes=0):
++        """Publish atomically; public callers get private tensor copies.
++
++        _transfer_outputs is internal to M2Runtime: WindowExecutor's packed
++        buffers are isolated from input/grid/returned features, and runtime
++        relinquishes all write access after this call. Reused zero-update buffers
++        already belong to the immutable previous cache. External inputs still
++        clone; detach alone is never used to adopt an externally owned tensor.
++        """
+         window_ages = window_ages or {}
+         values = [images, block0_input, *outputs.values(), *window_ages.values()]
+         if descriptors is not None: values.append(descriptors)
+         needed = sum(t.numel()*t.element_size() for t in values)
+-        if needed > self.budget_bytes:
++        if needed + _overhead_bytes > self.budget_bytes:
+             raise CachePublicationError('window_cache_budget_exceeded')
+-        finite=[torch.isfinite(value).all() for value in values]
+-        if not torch.stack(finite).all().item():
++        checked=(values[2:] if _validated_inputs else values)+list(_finite_extras)
++        finite=[torch.isfinite(value).all() for value in checked if value.is_floating_point() or value.is_complex()]
++        if finite and not torch.stack(finite).all().item():
+             raise NonFiniteCacheError('nonfinite_cache_features')
+         owned_images = images.detach().clone()
+         owned_input = block0_input.detach().clone()
+-        owned_outputs = {i: value.detach().clone() for i,value in outputs.items()}
++        # Transfer only executor-private packed outputs. No input, returned grid
++        # or caller-owned tensor is adopted; default commit always clones.
++        forbidden={images.storage().data_ptr(),block0_input.storage().data_ptr()}
++        forbidden.update(t.storage().data_ptr() for t in _finite_extras)
++        if _transfer_outputs and any(t.storage().data_ptr() in forbidden for t in outputs.values()):
++            raise CachePublicationError('output_storage_alias')
++        owned_outputs = {i: value.detach() if _transfer_outputs else value.detach().clone() for i,value in outputs.items()}
+         owned_context = copy.deepcopy(context)
+         owned_regions = copy.deepcopy(region_states)
+         owned_ages = {i:t.detach().clone() for i,t in window_ages.items()}
+@@ -65,7 +80,7 @@ class StateCache:
+         input_stride = tuple(images.stride())
+         output_stride = tuple(output_stride) if output_stride is not None else None
+         storage_revision = self._revision(owned_images, owned_input, owned_outputs) + self._policy_revision(owned_descriptors,owned_ages)
+-        metadata_revision = repr((owned_context,owned_sources,signature,input_stride,output_stride,self.version+1,owned_regions))
++        metadata_revision = (repr((owned_context,owned_sources,input_stride,output_stride,self.version+1,owned_regions)),signature)
+         # All potentially failing work precedes publication, including ownership,
+         # metadata cloning and integrity bookkeeping.
+         (self.images,self.block0_input,self.outputs,self.context,self.sources,self.signature,
+@@ -89,7 +104,7 @@ class StateCache:
+     def mismatch(self, images, context, signature, block0_input):
+         if self.images is None or self.block0_input is None:
+             return 'no_valid_cache'
+-        if self.metadata_revision != repr((self.context,self.sources,self.signature,self.input_stride,self.output_stride,self.version,self.region_states)):
++        if self.metadata_revision != (repr((self.context,self.sources,self.input_stride,self.output_stride,self.version,self.region_states)),self.signature):
+             return 'cache_metadata_modified'
+         if self.storage_revision is not None and self.storage_revision != self._revision(self.images,self.block0_input,self.outputs)+self._policy_revision(self.descriptors,self.window_ages):
+             return 'cache_storage_modified'
+diff --git a/worldstream/m2/window_executor.py b/worldstream/m2/window_executor.py
+index acfe564d..d20c75ed 100644
+--- a/worldstream/m2/window_executor.py
++++ b/worldstream/m2/window_executor.py
+@@ -4,27 +4,67 @@ Partial GEMM shapes may change FP32 rounding before native FlashAttention casts;
+ this is a versioned numerical policy, validated quantitatively against native EVA.
+ No new dtype conversion, attention approximation, or cross-window reuse is used.
+ """
++from collections import OrderedDict
++from dataclasses import dataclass
++import numpy as np
+ import torch
+ import torch.nn.functional as F
+-from .packing import partition, unpartition
++from .packing import partition, unpartition, window_geometry
+ 
+ NUMERICAL_POLICY = 'selected_window_qkv_projection_valid_token_mlp_v2'
+ 
+ 
++@dataclass(frozen=True)
++class _WindowIdProof:
++    pointer: int
++    version: int
++    total: int
++    values: tuple
++
++
+ class WindowExecutor:
+     def __init__(self):
+         self.attention_observer = None
++        self._geometry = OrderedDict()
++        self._selections = OrderedDict()
++
++    def _layout(self,x,size):
++        key=(tuple(x.shape[:3]),size,str(x.device))
++        if key not in self._geometry:
++            coords,mask,grid=window_geometry(*x.shape[:3],size)
++            self._geometry[key]=(tuple(torch.tensor(a,device=x.device) for a in coords),
++                torch.tensor(mask[...,None],device=x.device),torch.tensor(grid,device=x.device))
++            if len(self._geometry)>2:self._geometry.popitem(last=False)
++        self._geometry.move_to_end(key)
++        return self._geometry[key]
++
++    def _valid_positions(self,x,size,values):
++        key=(tuple(x.shape[:3]),size,str(x.device),tuple(values))
++        if key not in self._selections:
++            _,mask,_=window_geometry(*x.shape[:3],size)
++            positions=np.flatnonzero(mask[list(values)].reshape(-1)).copy()
++            self._selections[key]=torch.tensor(positions,device=x.device,dtype=torch.long)
++            if len(self._selections)>8:self._selections.popitem(last=False)
++        self._selections.move_to_end(key)
++        return self._selections[key]
+ 
+-    @staticmethod
+-    def _grid(windows,size,padded,x):
+-        output=unpartition(windows,size,padded,x.shape[1:3])
+-        # Native residual additions preserve the shortcut's dense permutation.
+-        # Preserve it for downstream EVA and task-head GEMM dispatch as well.
+-        if output.stride()!=x.stride():
+-            aligned=torch.empty_strided(x.shape,x.stride(),dtype=x.dtype,device=x.device)
+-            aligned.copy_(output)
+-            output=aligned
+-        if output.data_ptr()==windows.data_ptr():output=output.clone()
++    @property
++    def metadata_bytes(self):
++        values=[t for coords,mask,grid in self._geometry.values() for t in (*coords,mask,grid)]
++        values+=list(self._selections.values())
++        return sum(t.numel()*t.element_size() for t in values)
++
++    def _grid(self,windows,size,padded,x):
++        # A single gather writes native strides directly, avoiding padded-grid
++        # materialization, crop.contiguous(), then a second layout copy.
++        _,_,grid=self._layout(x,size)
++        output=torch.empty_strided(x.shape,x.stride(),dtype=x.dtype,device=x.device)
++        if x.stride(1)==x.shape[2]*x.stride(2):
++            source=windows.reshape(1,-1,x.shape[-1]).expand(len(x),-1,-1)
++            torch.gather(source,1,grid[...,None].expand(-1,-1,x.shape[-1]),
++                out=output.view(len(x),-1,x.shape[-1]))
++        else:
++            output.copy_(unpartition(windows,size,padded,x.shape[1:3]))
+         return output
+ 
+     def execute(self, block, x, cached_windows, ids):
+@@ -45,20 +85,32 @@ class WindowExecutor:
+             raise ValueError('Cached windows do not match the current feature grid')
+         if ids.device!=x.device:
+             ids=ids.to(x.device)
+-        if len(ids) and (int(ids.min())<0 or int(ids.max())>=count or len(ids.unique())!=len(ids)):
+-            raise ValueError('Window IDs must be unique and within the feature grid')
++        proof=getattr(ids,'_m2_window_proof',None)
++        if proof is not None:
++            if (not isinstance(proof,_WindowIdProof) or proof.pointer!=ids.data_ptr()
++                    or proof.version!=ids._version or proof.total!=count or len(proof.values)!=len(ids)):
++                raise ValueError('Planned window IDs modified or geometry mismatch')
++            values=proof.values
++        else:
++            # Independent public calls retain the full validation contract.
++            values=tuple(ids.cpu().tolist())
++            if len(set(values))!=len(ids) or any(i<0 or i>=count for i in values):
++                raise ValueError('Window IDs must be unique and within the feature grid')
+         if not len(ids):
+             return self._grid(cached_windows,size,padded,x),cached_windows
+         if len(ids)==count:
+             # Avoid gather/zero-fill/scatter overhead when there is no reuse.
+             updated=block(x)
+             if self.attention_observer is not None:self.attention_observer(count)
+-            return updated,partition(updated,size)[0]
++            packed=partition(updated,size)[0]
++            if packed.storage().data_ptr()==updated.storage().data_ptr():packed=packed.clone()
++            return updated,packed
+         a=block.attn
+-        shortcut,_=partition(x,size)
+-        shortcut=shortcut.index_select(0,ids)
+-        valid,_=partition(torch.ones_like(x[...,:1],dtype=torch.bool),size)
+-        valid=valid.index_select(0,ids)
++        coordinates,mask,_=self._layout(x,size)
++        cc,yy,xx=(t.index_select(0,ids) for t in coordinates)
++        shortcut=x[cc,yy,xx]
++        valid=mask.index_select(0,ids)
++        positions=self._valid_positions(x,size,values)
+         # Native normalizes real tokens BEFORE window padding. Learned norm
+         # biases must not create nonzero normalized virtual padding tokens.
+         normalized=block.norm1(shortcut).masked_fill(~valid,0)
+@@ -85,14 +137,14 @@ class WindowExecutor:
+         updated=shortcut+block.drop_path(attention)
+         # MLP has no spatial dependence. Exclude virtual padding entirely rather
+         # than replacing the 40x40 native grid with a 48x48 packed MLP grid.
+-        valid_tokens=valid[...,0]
+-        values=updated[valid_tokens]
++        values=updated.reshape(-1,x.shape[-1]).index_select(0,positions)
+         values=values+block.drop_path(block.mlp(block.norm2(values)))
+         packed=torch.zeros_like(updated)
+-        packed[valid_tokens]=values
++        packed.view(-1,x.shape[-1]).index_copy_(0,positions,values)
+         output=cached_windows.clone()
+         output.index_copy_(0,ids,packed)
+         return self._grid(output,size,padded,x),output
+ 
+     def clear(self):
+-        pass
++        self._geometry.clear()
++        self._selections.clear()
+diff --git a/tests/worldstream_m2/test_execution_optimization.py b/tests/worldstream_m2/test_execution_optimization.py
+new file mode 100644
+index 00000000..c2f335e0
+--- /dev/null
++++ b/tests/worldstream_m2/test_execution_optimization.py
+@@ -0,0 +1,128 @@
++"""Ownership, static geometry, certified IDs and numeric policy regressions."""
++import copy
++import numpy as np
++import pytest
++import torch
++from worldstream.m2 import IncrementalVisionRuntime
++from worldstream.m2.state_cache import StateCache,CachePublicationError,NonFiniteCacheError
++from worldstream.m2.packing import partition,unpartition,window_geometry
++from worldstream.m2.region_refresh import pooled_descriptors
++from worldstream.m2.window_executor import WindowExecutor
++from .test_source_linked_admission import cold,bundle_for
++
++
++@pytest.mark.parametrize('shape,size',[((2,10,10,32),4),((1,4,4,8),4),((3,5,7,8),6)])
++@pytest.mark.parametrize('permuted',[False,True])
++@torch.no_grad()
++def test_grid_single_gather_preserves_values_strides_and_ownership(shape,size,permuted):
++    x=torch.randn(shape)
++    if permuted:x=x.permute(0,3,1,2).contiguous().permute(0,2,3,1)
++    windows,padded=partition(x,size)
++    rt=WindowExecutor();result=rt._grid(windows,size,padded,x)
++    assert torch.equal(result,x) and result.stride()==x.stride()
++    assert result.storage().data_ptr()!=windows.storage().data_ptr()
++    saved=windows.clone();result.zero_();assert torch.equal(windows,saved)
++
++
++@torch.no_grad()
++def test_public_cache_commit_still_owns_external_tensor_storage():
++    cache=StateCache(10000);x=torch.randn(1,1,1,4);images=torch.randn(1,3,4,4);packed=x.clone()
++    cache.commit(images,{0:packed},dict(frame_id='0',camera_ids=['front']),'sig',block0_input=x)
++    for external,owned in ((images,cache.images),(x,cache.block0_input),(packed,cache.outputs[0])):
++        assert external.storage().data_ptr()!=owned.storage().data_ptr()
++        before=owned.clone();external.zero_();assert torch.equal(owned,before)
++
++
++@torch.no_grad()
++def test_runtime_transfers_packed_outputs_without_aliasing_returned_grids(eva,context,monkeypatch):
++    rt=IncrementalVisionRuntime(eva);image=torch.randn(2,3,40,40)
++    packed={};grids={};execute=rt.executor.execute
++    def observed(block,x,cache,ids):
++        output,windows=execute(block,x,cache,ids)
++        packed[rt.executing_block]=windows;grids[rt.executing_block]=output
++        return output,windows
++    monkeypatch.setattr(rt.executor,'execute',observed)
++    result,_=cold(rt,image,context)
++    for i in rt.prefix:
++        assert rt.cache.outputs[i].storage().data_ptr()==packed[i].storage().data_ptr()
++        assert rt.cache.outputs[i].storage().data_ptr()!=grids[i].storage().data_ptr()
++    # Packed buffers above have been transferred: the private observer borrows
++    # them read-only. The public return/input remain independently writable.
++    before={i:t.clone() for i,t in rt.cache.outputs.items()}
++    result[0].zero_();image.zero_()
++    assert all(torch.equal(before[i],rt.cache.outputs[i]) for i in rt.prefix)
++
++
++@torch.no_grad()
++def test_partial_transfer_does_not_overwrite_old_cache_on_success_or_failure(eva,context):
++    rt=IncrementalVisionRuntime(eva);image=torch.randn(2,3,40,40);cold(rt,image,context)
++    old=copy.copy(rt.cache);saved={i:t.clone() for i,t in old.outputs.items()}
++    ctx=dict(context,frame_id='1',timestamp=1.1)
++    rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
++    assert all(torch.equal(old.outputs[i],saved[i]) for i in rt.prefix)
++    current=copy.copy(rt.cache);current_saved={i:t.clone() for i,t in current.outputs.items()}
++    rt.cache.budget_bytes=1;ctx=dict(context,frame_id='2',timestamp=1.2)
++    with pytest.raises(CachePublicationError):rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
++    assert rt.cache.version==2 and rt.cache.outputs is current.outputs
++    assert all(torch.equal(rt.cache.outputs[i],current_saved[i]) for i in rt.prefix)
++
++
++@torch.no_grad()
++def test_final_visual_finiteness_is_checked_before_atomic_publication(eva,context):
++    rt=IncrementalVisionRuntime(eva);image=torch.randn(2,3,40,40);cold(rt,image,context)
++    outputs=rt.cache.outputs
++    def bad(block,x):
++        if block==len(eva.blocks)-1:x.fill_(float('nan'))
++    rt.stage_observer=bad;ctx=dict(context,frame_id='1',timestamp=1.1)
++    with pytest.raises(NonFiniteCacheError):rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
++    assert rt.cache.outputs is outputs and rt.cache.version==1
++    assert not rt.last_diagnostics['execution_completed']
++
++
++@torch.no_grad()
++def test_transfer_refuses_input_or_return_feature_alias():
++    cache=StateCache(10000);x=torch.randn(1,1,1,4);images=torch.randn(1,3,4,4)
++    with pytest.raises(CachePublicationError,match='alias'):
++        cache.commit(images,{0:x},dict(frame_id='0',camera_ids=['front']),'sig',block0_input=x,_transfer_outputs=True)
++    assert cache.version==0
++
++
++@torch.no_grad()
++def test_planned_id_proof_rejects_mutation_and_public_ids_still_validate(eva):
++    rt=IncrementalVisionRuntime(eva)
++    ids,_=rt.planner.execution_ids(None,rt.prefix,(2,10,10),'cpu')
++    ids[0][0]=1
++    with pytest.raises(ValueError,match='modified'):
++        rt.executor.execute(eva.blocks[0],torch.randn(2,10,10,32),None,ids[0])
++    cache=partition(torch.randn(2,10,10,32),4)[0]
++    for bad in (torch.tensor([-1]),torch.tensor([18]),torch.tensor([0,0])):
++        with pytest.raises(ValueError,match='unique'):
++            rt.executor.execute(eva.blocks[0],torch.randn(2,10,10,32),cache,bad)
++
++
++@torch.no_grad()
++def test_cached_footprint_metadata_cannot_be_modified_through_public_results(eva,context):
++    rt=IncrementalVisionRuntime(eva)
++    first=rt.planner.input_footprints(40,40);first[0][0]['input_region'][0]=999
++    assert rt.planner.input_footprints(40,40)[0][0]['input_region'][0]==0
++    image=torch.randn(2,3,40,40);_,diag=cold(rt,image,context)
++    diag['prefix_dependency_footprints'][0][0]['input_region'][0]=999
++    assert rt.planner.input_footprints(40,40)[0][0]['input_region'][0]==0
++
++
++@torch.no_grad()
++def test_topology_memoization_detects_buffer_replacement(eva,context):
++    rt=IncrementalVisionRuntime(eva);image=torch.randn(2,3,40,40);cold(rt,image,context)
++    eva.rope_win.freqs_cos=eva.rope_win.freqs_cos.clone()+.01
++    ctx=dict(context,frame_id='1',timestamp=1.1)
++    with pytest.raises(ValueError,match='signature'):
++        rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
++
++
++@pytest.mark.parametrize('shape,size',[((2,10,10,3),4),((3,5,7,1),6),((1,4,4,8),4)])
++def test_descriptor_static_counts_are_exactly_the_original_reduction(shape,size):
++    x=torch.randn(shape);windows,_=partition(x.float(),size)
++    valid,_=partition(torch.ones_like(x[...,:1]),size)
++    reference=windows.sum((1,2))/valid.sum((1,2)).clamp_min(1)
++    assert torch.equal(pooled_descriptors(x,size),reference)
++    assert window_geometry(*shape[:3],size) is window_geometry(*shape[:3],size)
+diff --git a/tests/worldstream_m2/test_optimization_analysis.py b/tests/worldstream_m2/test_optimization_analysis.py
+new file mode 100644
+index 00000000..b09f31af
+--- /dev/null
++++ b/tests/worldstream_m2/test_optimization_analysis.py
+@@ -0,0 +1,22 @@
++"""Kernel attribution must use CUPTI correlation, not Torch 1.13 External id."""
++import json
++from tools.worldstream_m2.execution_analysis import trace_summary
++
++
++def test_trace_correlation_is_counted_once_despite_mismatched_external_ids(tmp_path):
++    events=[
++        dict(cat='user_annotation',name='prefix/0/qkv',ts=100,dur=40,args={}),
++        dict(cat='cpu_op',name='aten::mm',ts=105,dur=30,args={'External id':1}),
++        dict(cat='cuda_runtime',name='cudaLaunchKernel',ts=110,dur=3,args={'External id':900,'correlation':77}),
++        dict(cat='kernel',name='gemm',ts=300,dur=200,args={'External id':900,'correlation':77,'stream':7}),
++        dict(cat='user_annotation',name='suffix/2',ts=200,dur=50,args={}),
++        dict(cat='cpu_op',name='aten::mm',ts=210,dur=20,args={'External id':2}),
++        dict(cat='cuda_runtime',name='cudaLaunchKernel',ts=215,dur=3,args={'External id':901,'correlation':78}),
++        dict(cat='kernel',name='gemm',ts=500,dur=800,args={'External id':901,'correlation':78,'stream':7}),
++    ]
++    (tmp_path/'trace.json').write_text(json.dumps(dict(traceEvents=events)))
++    (tmp_path/'operators.json').write_text(json.dumps(dict(rows=[])))
++    result=trace_summary(tmp_path)
++    assert result['kernel_active_sum_ms']==1.
++    assert result['kernel_ms_by_stage']=={'prefix_qkv':.2,'suffix_22_blocks':.8}
++    assert result['kernel_count']==2 and result['streams']==[7]
+diff --git a/tools/worldstream_m2/execution_analysis.py b/tools/worldstream_m2/execution_analysis.py
+new file mode 100644
+index 00000000..28c8a838
+--- /dev/null
++++ b/tools/worldstream_m2/execution_analysis.py
+@@ -0,0 +1,136 @@
++"""Rebuild optimization evidence; profiler kernels and event spans stay distinct."""
++from collections import Counter,defaultdict
++import argparse
++import json
++from pathlib import Path
++import numpy as np
++from tools.worldstream_m123.benchmark.metrics import distribution
++from tools.worldstream_m123.benchmark.quality_calibration import paired_quality
++from .common import write
++
++
++def read(path):return json.loads(Path(path).read_text())
++def rows(path):return [json.loads(x) for x in Path(path).read_text().splitlines() if x.strip()]
++
++
++def visual_summary(path):
++    values=read(Path(path)/'results.json')['natural'];result={}
++    for name,get in [('native',lambda r:r['native']),('before',lambda r:r['reference_pair']['before']),('optimized',lambda r:r['reference_pair']['optimized'])]:
++        result[name]={key:distribution(get(r)[key] for r in values) for key in ('wall_ms','gpu_span_ms')}
++    result.update(frames=len(values),reused_windows=sum(r['actual_skipped_windows'] for r in values),
++        total_windows=sum(s['total_windows'] for r in values for s in r['stages'] if 'total_windows' in s),
++        continuous_total_windows=sum(s['total_windows'] for r in values[1:] for s in r['stages'] if 'total_windows' in s),
++        all_equal=all(all(r['reference_pair'][key] for key in ('window_ids_equal','packed_outputs_equal','ages_equal','cache_versions_equal','provenance_equal')) and r['reference_pair']['features']['exact'] for r in values),
++        peak_allocated_bytes=max(r['peak_gpu_allocated_bytes'] for r in values),
++        peak_reserved_bytes=max(r['peak_gpu_reserved_bytes'] for r in values))
++    result['optimized_vs_before_speedup']=result['before']['wall_ms']['mean']/result['optimized']['wall_ms']['mean']
++    result['optimized_vs_native_speedup']=result['native']['wall_ms']['mean']/result['optimized']['wall_ms']['mean']
++    return result
++
++
++def trace_summary(directory):
++    events=read(Path(directory)/'trace.json')['traceEvents']
++    cpu=[e for e in events if e.get('cat')=='cpu_op']
++    launches={e['args']['correlation']:e for e in events if e.get('cat')=='cuda_runtime' and 'correlation' in e.get('args',{})}
++    annotations=[e for e in events if e.get('cat')=='user_annotation']
++    special=[e for e in cpu if e['name'] in ('aten::clone','aten::isfinite')]
++    inside=lambda a,b:b['ts']<=a['ts']<=b['ts']+b['dur']
++    kernels=[e for e in events if e.get('cat')=='kernel']
++    categories=defaultdict(float);counts=Counter()
++    for e in kernels:
++        launch=launches.get(e.get('args',{}).get('correlation'))
++        ancestors=[a for a in cpu if launch and inside(launch,a)]
++        op=min(ancestors,key=lambda a:(a['dur'],-a['ts'])) if ancestors else None
++        names=[a['name'] for a in annotations if launch and inside(launch,a)]
++        parents=[a['name'] for a in special if launch and inside(launch,a)]
++        if 'cache/commit' in names:
++            group='cache_clone' if 'aten::clone' in parents else 'cache_finite' if 'aten::isfinite' in parents else 'cache_other'
++        elif any(n.startswith('suffix/') for n in names):group='suffix_22_blocks'
++        elif any(n.endswith('/qkv') for n in names):group='prefix_qkv'
++        elif any(n.endswith('/attention') for n in names):group='prefix_attention'
++        elif any(n.endswith('/mlp') for n in names):group='prefix_mlp'
++        elif 'window/_grid' in names:group='window_grid_gather'
++        elif any(n.startswith('prefix/') and n.endswith('/execute') for n in names):
++            opname=op['name'] if op else ''
++            group='window_gather' if opname in ('aten::index','aten::index_select') else 'window_scatter_clone' if opname in ('aten::index_copy_','aten::copy_','aten::zero_','aten::fill_') else 'prefix_norm_residual_other'
++        elif 'm2/select_regions' in names:group='region_scoring'
++        elif 'm2/block0_input' in names:group='embedding'
++        elif 'm2/dependency_plan' in names:group='dependency_masks'
++        else:group='other'
++        categories[group]+=e['dur']/1000;counts[group]+=1
++    memcpy=[e for e in events if e.get('cat')=='gpu_memcpy']
++    runtime=[e for e in events if e.get('cat')=='cuda_runtime']
++    ops=read(Path(directory)/'operators.json')['rows']
++    selected={name:dict(calls=v['calls'],cpu_total_ms=v['cpu_total_us']/1000,self_cuda_ms=v['self_cuda_us']/1000)
++        for v in ops for name in [v['name']] if name in ('aten::nonzero','aten::item','aten::clone','aten::copy_','aten::index_select','aten::index_copy_','cudaStreamSynchronize')}
++    cache_clones=[o for o in cpu if o['name']=='aten::clone' and any(a['name']=='cache/commit' and inside(o,a) for a in annotations)]
++    clone_bytes=0
++    for op in cache_clones:
++        shape=op['args']['Input Dims'][0];dtype=op['args']['Input type'][0]
++        clone_bytes+=int(np.prod(shape))*(8 if dtype in ('long int','long','int64') else 4)
++    return dict(kernel_active_sum_ms=sum(e['dur'] for e in kernels)/1000,kernel_count=len(kernels),
++        streams=sorted({e['args'].get('stream') for e in kernels}),kernel_ms_by_stage=dict(categories),kernel_count_by_stage=dict(counts),
++        memcpy={kind:dict(calls=sum(kind in e['name'] for e in memcpy),bytes=sum(e['args'].get('bytes',0) for e in memcpy if kind in e['name']),
++            gpu_ms=sum(e['dur'] for e in memcpy if kind in e['name'])/1000) for kind in ('DtoH','HtoD','DtoD')},
++        synchronize_calls=sum(e['name']=='cudaStreamSynchronize' for e in runtime),
++        synchronize_host_wait_ms=sum(e['dur'] for e in runtime if e['name']=='cudaStreamSynchronize')/1000,
++        cache_clone_calls=len(cache_clones),cache_clone_bytes=clone_bytes,operators=selected,
++        scope='Each kernel counted once. CUPTI correlation -> CUDA launch CPU timestamp -> CPU annotation nesting. Torch 1.13 External id counters cannot reliably join later profiling sessions. CPU waits and nested operator totals are not active kernel time')
++
++
++def service_stats(frames,questions,label):
++    return dict(frames=len(frames),request_ms=distribution(f['request_ms'] for f in frames),
++        visual_cuda_span_ms=distribution(f['stages'][label]['gpu_span_ms'] for f in frames),
++        prefill_cuda_ms=distribution(f['stages']['prefill']['gpu_span_ms'] for f in frames),
++        decode_forward_cuda_ms=distribution(f['stages'].get('decode',{}).get('gpu_span_ms',0.) for f in frames),
++        m1_cpu_ms=distribution(f.get('m1_commit_timings_ms',{}).get('m1_total_including_adapters_ms',0.) for f in frames),
++        m2_host_ms=distribution((f.get('m2') or {}).get('M2_total_ms',0.) for f in frames),
++        m3_host_ms=distribution((f.get('m3') or {}).get('runtime_host_elapsed_ms',0.) for f in frames),
++        peak_allocated_bytes=max(f['peak_gpu_allocated_bytes'] for f in frames),
++        peak_reserved_bytes=max(f['peak_gpu_reserved_bytes'] for f in frames),
++        throughput_fps=1000*len(frames)/sum(f['request_ms'] for f in frames),
++        generated_tokens=sum(q['generated_tokens'] for q in questions),
++        reused_tokens=sum((q.get('reuse_diagnostics') or {}).get('reused_tokens',0) for q in questions))
++
++
++def run(root,prior):
++    root=Path(root);prior=Path(prior)
++    output=dict(formal_boundary=visual_summary(root/'paired40'),snapshot_boundary=visual_summary(root/'snapshot40'),
++        profiler_before=trace_summary(root/'isolated_profile/reference_profile_output'),
++        profiler_optimized=trace_summary(root/'isolated_profile/profile_output'),
++        publication_before=read(root/'isolated_profile/reference_synchronized_actual_publication.json'),
++        publication_optimized=read(root/'isolated_profile/synchronized_actual_publication.json'))
++    all_frames=defaultdict(list);all_questions=defaultdict(list);rounds=[];pairs=[]
++    oldf=rows(prior/'formal40/per_frame_metrics.jsonl');oldq=rows(prior/'formal40/per_question_metrics.jsonl')
++    for repeat in range(3):
++        record={};data={}
++        for name,label in [('native','eva_native'),('formal','m2_total')]:
++            path=root/'service'/('r'+str(repeat)+'_'+name)
++            ff=rows(path/'per_frame_metrics.jsonl');qq=rows(path/'per_question_metrics.jsonl');data[name]=(ff,qq)
++            record[name]=service_stats(ff,qq,label);all_frames[name]+=ff;all_questions[name]+=qq
++        nf,nq=data['native'];ff,fq=data['formal']
++        assert [(q['frame_id'],q['question']) for q in nq]==[(q['frame_id'],q['question']) for q in fq]
++        quality=[dict(frame_id=q['frame_id'],question=q['question'],**paired_quality(q['answer'],n['answer'],q['reference'])) for n,q in zip(nq,fq)]
++        old_equal=sum(a['answer']==b['answer'] for a,b in zip(oldq,fq))
++        windows_equal=all([s['executed_window_ids'] for s in a['m2']['per_block']]==[s['executed_window_ids'] for s in b['m2']['per_block']] for a,b in zip(oldf,ff))
++        record.update(window_reused=sum(f['m2']['reused_windows'] for f in ff),total_windows=sum(f['m2']['total_windows'] for f in ff),
++            reuse_frames=sum(f['m2']['reused_windows']>0 for f in ff),old_window_ids_equal=windows_equal,
++            old_task_digests_equal=all(a['output_digest']==b['output_digest'] for a,b in zip(oldf,ff)),
++            old_answers_equal=old_equal,
++            native_f1=float(np.mean([q['baseline_f1'] for q in quality])),formal_f1=float(np.mean([q['f1'] for q in quality])),
++            critical_regression_questions=sum(q['critical_regressions']>0 for q in quality),
++            critical_regression_checks=sum(q['critical_regressions'] for q in quality))
++        rounds.append(record);pairs.append(dict(repeat=repeat,rows=quality))
++    output['service_rounds']=rounds
++    output['service_aggregate']={name:service_stats(all_frames[name],all_questions[name],label) for name,label in [('native','eva_native'),('formal','m2_total')]}
++    output['official_subset']={name:read(root/'service'/('r0_'+name+'_official_subset')/'summary.json') for name in ('native','formal')}
++    critical_ids={'88a6b5e35eb44deba6b1065d74b0a3c4','fd612e8660e74196af7da7e6487e5d53'}
++    output['retained_critical_cases']=[dict(repeat=p['repeat'],**q) for p in pairs for q in p['rows'] if q['frame_id'] in critical_ids]
++    write(root/'vlm_pairs.json',pairs);write(root/'comparison_summary.json',output)
++    return output
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--root',required=True);parser.add_argument('--prior',required=True)
++    args=parser.parse_args();result=run(args.root,args.prior)
++    print(json.dumps(dict(formal_boundary=result['formal_boundary'],snapshot_boundary=result['snapshot_boundary'],service_rounds=result['service_rounds']),indent=2))
+diff --git a/tools/worldstream_m2/execution_benchmark.py b/tools/worldstream_m2/execution_benchmark.py
+new file mode 100644
+index 00000000..de7c7835
+--- /dev/null
++++ b/tools/worldstream_m2/execution_benchmark.py
+@@ -0,0 +1,43 @@
++"""Three alternating real-service pairs; no runtime hooks or policy overrides."""
++import argparse
++from datetime import datetime,timezone
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++
++
++def run(root,prior,rounds):
++    root=Path(root);prior=Path(prior);root.mkdir(parents=True,exist_ok=True)
++    sequence=json.loads((prior/'sequence40.json').read_text())
++    questions=[json.loads(x) for x in (prior/'formal40/per_question_metrics.jsonl').read_text().splitlines()]
++    sequence['questions']={q['frame_id']:[q['question']] for q in questions}
++    if len(sequence['tokens'])!=40 or len(sequence['questions'])!=40:raise ValueError('Need the complete original 40-question sequence')
++    sequence_file=root/'service_sequence.json';sequence_file.write_text(json.dumps(sequence,indent=2))
++    commands=[]
++    for repeat in range(rounds):
++        for name,condition in ([('native','B0'),('formal','B3')] if repeat%2==0 else [('formal','B3'),('native','B0')]):
++            dest=root/('r'+str(repeat)+'_'+name)
++            command=['taskset','-c','0-3,6-31',sys.executable,'-u','-m','tools.worldstream_m123.benchmark.worker',
++                '--output',str(dest),'--run-root',str(root),'--condition',condition,'--workload','language',
++                '--limit','40','--warmup','1','--seed','0','--repeat',str(repeat),'--measurement-set','efficiency',
++                '--sequence-file',str(sequence_file)]
++            if name=='formal':command+=['--m2-acceptance']
++            log=root/(dest.name+'.log')
++            record=dict(name=dest.name,command=command,log=str(log),start=datetime.now(timezone.utc).isoformat())
++            commands.append(record)
++            (root/'service_commands.json').write_text(json.dumps(commands,indent=2))
++            print('START',dest.name,flush=True)
++            with log.open('w') as handle:result=subprocess.run(command,stdout=handle,stderr=subprocess.STDOUT)
++            record.update(returncode=result.returncode,end=datetime.now(timezone.utc).isoformat())
++            (root/'service_commands.json').write_text(json.dumps(commands,indent=2))
++            if result.returncode:raise RuntimeError('Service run failed: '+str(log))
++            print('DONE',dest.name,flush=True)
++
++
++if __name__=='__main__':
++    parser=argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--root',required=True);parser.add_argument('--prior',required=True)
++    parser.add_argument('--rounds',type=int,default=3)
++    args=parser.parse_args();run(args.root,args.prior,args.rounds)
+diff --git a/docs/worldstream_m2_execution_optimization.md b/docs/worldstream_m2_execution_optimization.md
+new file mode 100644
+index 00000000..60c3ca8e
+--- /dev/null
++++ b/docs/worldstream_m2_execution_optimization.md
+@@ -0,0 +1,47 @@
++# M2 执行与缓存管理优化
++
++正式路径仍为 `M1 Precheck → WSGRR → DependencyPlanner → WindowExecutor → StateCache → Detection/Map → M1 Commit → M3`。本轮不修改刷新预算、必须事件、真实依赖闭包、模型权重、M1/M3 算法或 M3 质量预算，也没有成本门控和备用执行器。
++
++## 执行器
++
++`WindowExecutor.execute()` 仍同时处理全更新、部分更新和零更新。
++
++- 缓存相机/窗口几何、padding 有效位置与网格重建索引，使用有界缓存。
++- 部分更新直接按坐标 gather 当前 token，避免先完整打包整个输入再选择窗口。
++- MLP 使用静态有效位置的 `index_select/index_copy_`，替代布尔高级索引引起的动态 CUDA `nonzero`。
++- 用一次 gather 将 packed windows 写入原生 stride 的网格，避免 padded reshape/crop.contiguous/再一次 stride 对齐复制。非标准 stride 仍在同一个布局方法内完成拷贝，不构成另一条推理算法。
++- Q、K、V 权重、bias、RoPE、FlashAttention、LayerNorm、残差和有效 token MLP 数值策略均保持原实现。未采用融合后改变 GEMM 数值的 QKV 权重副本。
++
++规划器批量读取已闭合的窗口 mask，从 CPU 合法范围生成排序唯一 ID。私有 `_WindowIdProof` 绑定 Tensor 指针、版本、总窗口数和 CPU ID，执行器无需重复 GPU min/max/unique 扫描。ID 被修改或几何不符直接报错；独立 Tensor 调用仍完整验证范围与唯一性。
++
++## 缓存所有权
++
++公开 `StateCache.commit()` 默认继续 clone 所有外部 Tensor。
++
++只有 Runtime 内部显式请求 `_transfer_outputs=True` 时，才接管 WindowExecutor 的 packed outputs。这些 buffer 来自新分配，且与输入、执行网格和最终返回特征没有 Storage Alias；零更新 buffer 来自已经发布的不可变缓存。Runtime 在提交后不再写入转移的 buffer。工具若截获私有 packed 输出，只能只读借用。
++
++输入 images 和 block0_input 继续建立私有副本；ages、descriptors 和复杂区域/来源元数据也保留所有权拷贝。没有用 detach 替代外部输入的 clone。提交会拒绝 packed output 与输入/返回特征共享 storage 的情况。
++
++有限值检查在原子发布前完成，执行器临时 buffer 不提前覆盖历史；失败保留上一发布版本。静态执行器元数据纳入提交容量检查。当前真实缓存载荷加静态索引远低于 512 MiB 预算。
++
++## 状态与 CPU 工作
++
++- 批量检查输入和 Block 0 有限值；最终视觉特征与缓存 Tensor 合并到发布前的检查。
++- 缓存模型拓扑验证结果，用模块类型、子模块/参数/Buffer 身份、forward 方法和关键配置守卫检测结构变化；参数和 Buffer 的指针、Tensor 版本、shape/dtype/device 仍逐帧检查。
++- 按实际卷积与窗口几何缓存 input footprints、诊断闭包映射和区域投影坐标。对外返回的 footprint 诊断独立复制，外部不能污染静态几何。
++- 描述子有效 token 分母由相同整数几何预计算；区域矩形用等价的分离 OR 运算得到窗口覆盖，避免反复 padding 二维 token mask。
++- 减少重复区域状态与来源行 deepcopy；发布边界继续拥有必要元数据。
++
++## 测量边界
++
++正式 `forward_from_m1()` 包括 M1 snapshot 导出。纯 M2 边际实验则预先导出同一个 snapshot，直接调用同一 `forward()` 核心，双方均排除 snapshot 导出；完整实时服务始终调用正式入口。不能将两个边界混用，也不能以 B0/B3 的 M1/M3 差异替代 M2 的因果测量。
++
++Profiler 只存在于 `tools/worldstream_m2/profiling.py` 的上下文包装中，退出后恢复方法和 hooks；正式推理没有 record_function 开销。CUDA Event Span 包含主机提交间隙。实际 kernel active time 从 trace 的 kernel 事件单次计数；不能累计重叠的 operator CUDA 总时间。
++
++提交 wall 时间包含此前累积 GPU 工作的等待。隔离实验在实际 commit 前 synchronize，再测原本提交参数，不将此前等待记为 clone 成本。当前 Trace 还可看到年龄数组标量 HtoD 之后的长等待：减少同步次数并不等于消除了全局后缀计算。
++
++## 结果与复现
++
++本轮输出：[experiment_report.md](../outputs/m2_execution_optimization_20261026_run01/experiment_report.md)。包含同 snapshot 的 40 帧优化前/后/原生配对、完整服务三轮交替顺序测量、Profiler 原始 trace、GT 子集质量、逐问题关键数字案例、测试和完整命令。
++
++`tools/worldstream_m2/window_validate.py --reference-runtime <冻结旧包>` 只供 benchmark 使用；冻结包位于本轮输出目录。正式 M2 配置无法选择旧运行时或新算法。`--snapshot-boundary` 只改变实验计时的入口，不复制 GPU 执行实现。

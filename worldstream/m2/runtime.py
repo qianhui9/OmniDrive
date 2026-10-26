@@ -26,13 +26,14 @@ class IncrementalVisionRuntime:
         self.cache=StateCache(self.config.memory_budget_mb*1024**2)
         self.stage_observer=None
         self.last_diagnostics={}
+        self._closure_maps={}
 
     def reset(self):
         self.cache.clear()
 
     def signature(self,context):
         tensors=tuple((n,t.data_ptr(),t._version,tuple(t.shape),str(t.dtype),str(t.device))
-            for n,t in list(self.model.named_parameters())+list(self.model.named_buffers()))
+            for n,t in self.planner.tensor_refs)
         topology=tuple((b.window_size,b.use_residual_block,b.attn.flash_attn,b.attn.scale,
             b.norm1.eps,b.norm2.eps,getattr(b.attn.inner_attn_ln,'eps',None),getattr(b.mlp.ffn_ln,'eps',None),
             getattr(getattr(b.attn,'inner_attn',None),'softmax_scale',None),
@@ -81,18 +82,18 @@ class IncrementalVisionRuntime:
     def _forward(self,images,m1_result,execution_context,computation_state):
         self.last_diagnostics=dict(runtime_entered=True,execution_completed=False)
         start=perf_counter();context=dict(execution_context or {})
-        if any(m.training for m in self.model.modules()) or torch.is_grad_enabled():
+        self.prefix=self.planner.cacheable_prefix()
+        if any(m.training for m in self.planner._modules) or torch.is_grad_enabled():
             raise ValueError('M2 window execution is inference-only')
         if images.ndim!=4 or not images.is_floating_point():raise ValueError('Expected floating NCHW model input')
-        self.prefix=self.planner.cacheable_prefix()
         if self.planner.rejection_reason:raise ValueError(self.planner.rejection_reason)
         cameras=context.get('camera_ids',())
         if len(cameras)!=len(images) or len(set(cameras))!=len(images):
             raise ValueError('One ordered camera identity is required per model input')
         bundle=computation_state if computation_state is not None else getattr(m1_result,'computation_state',None)
-        footprints=self.planner.input_footprints(*images.shape[-2:],verified_prefix=self.prefix)
+        footprints=self.planner.input_footprints(*images.shape[-2:],verified_prefix=self.prefix,_borrow=True)
         signature=self.signature(context)
-        previous=copy.deepcopy(self.cache.context) if isinstance(self.cache.context,dict) else None
+        previous=self.cache.context if isinstance(self.cache.context,dict) else None
         source_times=[]
         invalid=None;reason=None;details={}
         valid=bool(context.get('scene_id') and context.get('frame_id') and finite_time(context.get('timestamp'))
@@ -101,9 +102,10 @@ class IncrementalVisionRuntime:
         if not valid:raise ValueError('invalid_execution_context')
         if not self.config.enabled:raise ValueError('M2 runtime is disabled')
         if not self.prefix:raise ValueError('no_cacheable_prefix')
-        if not torch.isfinite(images).all().item():raise ValueError('nonfinite_model_input')
         x0=block0_input(self.model,images)
-        if not torch.isfinite(x0).all().item():raise ValueError('nonfinite_block0_input')
+        input_finite=torch.stack((torch.isfinite(images).all(),torch.isfinite(x0).all())).cpu().tolist()
+        if not input_finite[0]:raise ValueError('nonfinite_model_input')
+        if not input_finite[1]:raise ValueError('nonfinite_block0_input')
         mismatch=self.cache.mismatch(images,context,signature,x0)
         # Scene boundaries are lifecycle resets, not a second full executor.
         # Validate stored integrity before discarding history from a prior scene.
@@ -157,16 +159,22 @@ class IncrementalVisionRuntime:
             # verified token dependency footprints, including different sizes.
             first_size=self.model.blocks[0].window_size
             cols=(x0.shape[2]+first_size-1)//first_size
-            def closure(ids,block):
-                result=set();units=footprints[block]
-                for c in range(len(cameras)):
-                    selected=[j%per_camera for j in ids if j//per_camera==c]
-                    for j,unit in enumerate(units):
+            geometry_key=(tuple(x0.shape[:3]),tuple(self.model.blocks[i].window_size for i in self.prefix))
+            if geometry_key not in self._closure_maps:
+                mappings={}
+                for block in self.prefix:
+                    mappings[block]=[]
+                    for unit in footprints[block]:
                         a,b,d,e=unit['token_region']
-                        if any((k%cols)*first_size<d and (k%cols+1)*first_size>a
-                            and (k//cols)*first_size<e and (k//cols+1)*first_size>b for k in selected):
-                            result.add(c*len(units)+j)
-                return result
+                        mappings[block].append(tuple(k for k in range(per_camera)
+                            if (k%cols)*first_size<d and (k%cols+1)*first_size>a
+                            and (k//cols)*first_size<e and (k//cols+1)*first_size>b))
+                if len(self._closure_maps)>=8:self._closure_maps.clear()
+                self._closure_maps[geometry_key]=mappings
+            def closure(ids,block):
+                units=self._closure_maps[geometry_key][block]
+                return {c*len(units)+j for c in range(len(cameras)) for j,initial in enumerate(units)
+                    if any(c*per_camera+k in ids for k in initial)}
             for stage in stages:
                 if stage['block'] not in self.prefix:continue
                 required=closure(mandatory,stage['block'])
@@ -195,10 +203,11 @@ class IncrementalVisionRuntime:
             descriptors.index_copy_(0,ids,current.index_select(0,ids))
         else:
             descriptors=current
-            region_states=copy.deepcopy(bundle.region_states)
-        if not torch.isfinite(features).all().item():raise ValueError('nonfinite_visual_features')
+            region_states=bundle.region_states
         self.cache.commit(images,outputs,context,signature,features.stride(),sources,block0_input=x0,
-            region_states=region_states,window_ages=ages,descriptors=descriptors)
+            region_states=region_states,window_ages=ages,descriptors=descriptors,
+            _transfer_outputs=True,_validated_inputs=True,_finite_extras=(features,),
+            _overhead_bytes=self.executor.metadata_bytes)
         publication_ms=(perf_counter()-publication_start)*1000
         now=context.get('timestamp');old=(previous or {}).get('timestamp')
         diag=dict(mode='incremental' if skipped else 'full_update',full_update_reason=reason,
@@ -220,7 +229,7 @@ class IncrementalVisionRuntime:
             M2_validation_ms=validation_ms,M2_region_scoring_ms=scoring_ms,
             M2_execution_ms=execution_ms,M2_window_and_suffix_ms=execution_ms,M2_cache_publication_ms=publication_ms,M2_wall_ms=(perf_counter()-start)*1000,
             prefix_window_geometry={i:[self.model.patch_embed.proj.kernel_size[j]*self.model.blocks[i].window_size for j in (0,1)] for i in self.prefix},
-            prefix_dependency_footprints=footprints)
+            prefix_dependency_footprints=copy.deepcopy(footprints))
         full_reason = (reason or next((s.get('full_update_reason') for s in stages
             if s.get('full_update_reason')), None) or 'all_windows_required') if not skipped else None
         cached_stages=[s for s in stages if s['block'] in self.prefix]
@@ -241,15 +250,16 @@ class IncrementalVisionRuntime:
         return [features],self.last_diagnostics
 
     def _execute(self,x,context,plans,reason):
-        stages=[];outputs={};sources={};executed_ids={}
+        stages=[];outputs={};sources={}
+        executed_ids,host_ids=self.planner.execution_ids(plans,self.prefix,x.shape[:3],x.device)
         for i,block in enumerate(self.model.blocks):
             if i not in self.prefix:
                 x=block(x);stages.append(dict(block=i,mode='full',reason='global_dependency'))
             else:
                 size=block.window_size;total=len(x)*((x.shape[1]+size-1)//size)*((x.shape[2]+size-1)//size)
-                ids=plans[i].updated.nonzero(as_tuple=False).flatten() if plans is not None else torch.arange(total,device=x.device)
+                ids=executed_ids[i]
                 why=reason
-                planned_ids=list(range(total)) if len(ids)==total else ids.tolist()
+                planned_ids=host_ids[i]
                 self.executing_block=i
                 executed_ids[i]=ids
                 cached=self.cache.outputs.get(i) if len(ids)<total else None
@@ -262,7 +272,7 @@ class IncrementalVisionRuntime:
                 sources[i]=[dict(computation_frame_id=context.get('frame_id'),computation_timestamp=context.get('timestamp'),
                     computation_version=self.cache.version+1,camera_id=context['camera_ids'][j//per_camera],
                     producer_layer=i,dependency_scope='closed_window_prefix',task_quality_certified=False)
-                    if j in computed else copy.deepcopy(self.cache.sources[i][j]) for j in range(total)]
+                    if j in computed else self.cache.sources[i][j] for j in range(total)]
                 stages.append(dict(block=i,total_windows=total,updated_windows=len(ids),executed_windows=len(ids),
                     planned_windows=len(ids),planned_window_ids=planned_ids,
                     executed_window_ids=id_values,

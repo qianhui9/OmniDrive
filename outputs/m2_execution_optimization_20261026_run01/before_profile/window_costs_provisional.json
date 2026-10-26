@@ -1,0 +1,273 @@
+{
+  "schema_version": 3,
+  "records": [
+    {
+      "key": "{\"attention_fp16_enabled\": true, \"attention_softmax_scale\": null, \"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"backbone_geometry\": {\"cls_token\": true, \"dilation\": [1, 1], \"kernel\": [16, 16], \"padding\": [0, 0], \"stride\": [16, 16], \"topology\": [[16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false]]}, \"backbone_version\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"block_index\": 0, \"change_detection\": \"wsgrr_image_uncertainty_v2\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"deterministic_algorithms\": false, \"dtype\": \"torch.float32\", \"flash\": true, \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"heads\": 16, \"inner_norm_eps\": null, \"input_shape\": [6, 40, 40, 1024], \"input_stride\": [1638400, 40, 1, 1600], \"mlp_norm_eps\": 1e-06, \"model_version\": \"3fbebed9ceb0012e6a8266683ccfe6e5e732b7fd61d331eaea1950d7c8d74433\", \"norm_eps\": [1e-06, 1e-06], \"numerical_policy\": \"selected_window_qkv_projection_valid_token_mlp_v2\", \"reduced_precision_reduction\": true, \"refresh_policy\": [\"wsgrr_image_uncertainty_v2\", 3, 8, 8, 16.0, 1.0, 0.25, 0.25, 0.05], \"scale\": 0.125, \"schema\": 3, \"tf32\": [false, true], \"torch\": \"1.13.1+cu117\", \"window\": 16}",
+      "block": 0,
+      "updated": 49,
+      "numerical_verified": true,
+      "numerical_validation_scope": "Finite local error only; independent quantitative limits and downstream quality still required",
+      "block_incremental": {
+        "wall_ms": 18.918112851679325,
+        "gpu_span_ms": 18.9085750579834,
+        "repeats": 3,
+        "wall_p95_ms": 18.996676011011004,
+        "gpu_span_p95_ms": 18.986250114440917,
+        "statistic": "median",
+        "wall_samples_ms": [
+          18.670950084924698,
+          19.005405250936747,
+          18.918112851679325
+        ],
+        "gpu_span_samples_ms": [
+          18.65782356262207,
+          18.99488067626953,
+          18.9085750579834
+        ]
+      },
+      "block_full": {
+        "wall_ms": 20.271132700145245,
+        "gpu_span_ms": 20.258399963378906,
+        "repeats": 3,
+        "wall_p95_ms": 20.27210919186473,
+        "gpu_span_p95_ms": 20.25978183746338,
+        "statistic": "median",
+        "wall_samples_ms": [
+          20.27221769094467,
+          20.271132700145245,
+          20.112319383770227
+        ],
+        "gpu_span_samples_ms": [
+          20.25993537902832,
+          20.258399963378906,
+          20.102399826049805
+        ]
+      },
+      "difference": {
+        "exact": false,
+        "max_abs": 1.914990782737732,
+        "mean_abs": 0.0058036926202476025
+      },
+      "quality_certified": false,
+      "quality_rejection_reason": "downstream_quality_unverified",
+      "incremental_gpu_ms": 18.9085750579834,
+      "full_gpu_ms": 20.258399963378906,
+      "incremental_wall_ms": 18.918112851679325,
+      "full_wall_ms": 20.271132700145245,
+      "pipeline_incremental_wall_ms": 502.0222160965204,
+      "pipeline_full_wall_ms": 481.6127959638834,
+      "pipeline_incremental_gpu_ms": 502.002685546875,
+      "pipeline_full_gpu_ms": 481.5974426269531,
+      "evidence_cases": [
+        "D3_1"
+      ],
+      "numerical_evidence": {
+        "path": "results.json",
+        "sha256": "713b02a46e4dbd45471ada220a1a14b545cb8d3e189063ccf48efb79de573c94"
+      },
+      "measurements": [
+        {
+          "key": "{\"attention_fp16_enabled\": true, \"attention_softmax_scale\": null, \"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"backbone_geometry\": {\"cls_token\": true, \"dilation\": [1, 1], \"kernel\": [16, 16], \"padding\": [0, 0], \"stride\": [16, 16], \"topology\": [[16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false]]}, \"backbone_version\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"block_index\": 0, \"change_detection\": \"wsgrr_image_uncertainty_v2\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"deterministic_algorithms\": false, \"dtype\": \"torch.float32\", \"flash\": true, \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"heads\": 16, \"inner_norm_eps\": null, \"input_shape\": [6, 40, 40, 1024], \"input_stride\": [1638400, 40, 1, 1600], \"mlp_norm_eps\": 1e-06, \"model_version\": \"3fbebed9ceb0012e6a8266683ccfe6e5e732b7fd61d331eaea1950d7c8d74433\", \"norm_eps\": [1e-06, 1e-06], \"numerical_policy\": \"selected_window_qkv_projection_valid_token_mlp_v2\", \"reduced_precision_reduction\": true, \"refresh_policy\": [\"wsgrr_image_uncertainty_v2\", 3, 8, 8, 16.0, 1.0, 0.25, 0.25, 0.05], \"scale\": 0.125, \"schema\": 3, \"tf32\": [false, true], \"torch\": \"1.13.1+cu117\", \"window\": 16}",
+          "block": 0,
+          "updated": 49,
+          "numerical_verified": true,
+          "numerical_validation_scope": "Finite local error only; independent quantitative limits and downstream quality still required",
+          "block_incremental": {
+            "wall_ms": 18.918112851679325,
+            "gpu_span_ms": 18.9085750579834,
+            "repeats": 3,
+            "wall_p95_ms": 18.996676011011004,
+            "gpu_span_p95_ms": 18.986250114440917,
+            "statistic": "median",
+            "wall_samples_ms": [
+              18.670950084924698,
+              19.005405250936747,
+              18.918112851679325
+            ],
+            "gpu_span_samples_ms": [
+              18.65782356262207,
+              18.99488067626953,
+              18.9085750579834
+            ]
+          },
+          "block_full": {
+            "wall_ms": 20.271132700145245,
+            "gpu_span_ms": 20.258399963378906,
+            "repeats": 3,
+            "wall_p95_ms": 20.27210919186473,
+            "gpu_span_p95_ms": 20.25978183746338,
+            "statistic": "median",
+            "wall_samples_ms": [
+              20.27221769094467,
+              20.271132700145245,
+              20.112319383770227
+            ],
+            "gpu_span_samples_ms": [
+              20.25993537902832,
+              20.258399963378906,
+              20.102399826049805
+            ]
+          },
+          "difference": {
+            "exact": false,
+            "max_abs": 1.914990782737732,
+            "mean_abs": 0.0058036926202476025
+          },
+          "quality_certified": false,
+          "quality_rejection_reason": "downstream_quality_unverified",
+          "incremental_gpu_ms": 18.9085750579834,
+          "full_gpu_ms": 20.258399963378906,
+          "incremental_wall_ms": 18.918112851679325,
+          "full_wall_ms": 20.271132700145245,
+          "pipeline_incremental_wall_ms": 502.0222160965204,
+          "pipeline_full_wall_ms": 481.6127959638834,
+          "pipeline_incremental_gpu_ms": 502.002685546875,
+          "pipeline_full_gpu_ms": 481.5974426269531,
+          "evidence_cases": [
+            "D3_1"
+          ],
+          "numerical_evidence": {
+            "path": "results.json"
+          }
+        }
+      ]
+    },
+    {
+      "key": "{\"attention_fp16_enabled\": true, \"attention_softmax_scale\": null, \"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"backbone_geometry\": {\"cls_token\": true, \"dilation\": [1, 1], \"kernel\": [16, 16], \"padding\": [0, 0], \"stride\": [16, 16], \"topology\": [[16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false]]}, \"backbone_version\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"block_index\": 1, \"change_detection\": \"wsgrr_image_uncertainty_v2\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"deterministic_algorithms\": false, \"dtype\": \"torch.float32\", \"flash\": true, \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"heads\": 16, \"inner_norm_eps\": null, \"input_shape\": [6, 40, 40, 1024], \"input_stride\": [1638400, 40, 1, 1600], \"mlp_norm_eps\": 1e-06, \"model_version\": \"8c6e039d079c3727a905a3908ba5f185f95462b67d83c11f3d35a074b890ef7e\", \"norm_eps\": [1e-06, 1e-06], \"numerical_policy\": \"selected_window_qkv_projection_valid_token_mlp_v2\", \"reduced_precision_reduction\": true, \"refresh_policy\": [\"wsgrr_image_uncertainty_v2\", 3, 8, 8, 16.0, 1.0, 0.25, 0.25, 0.05], \"scale\": 0.125, \"schema\": 3, \"tf32\": [false, true], \"torch\": \"1.13.1+cu117\", \"window\": 16}",
+      "block": 1,
+      "updated": 49,
+      "numerical_verified": true,
+      "numerical_validation_scope": "Finite local error only; independent quantitative limits and downstream quality still required",
+      "block_incremental": {
+        "wall_ms": 19.11448920145631,
+        "gpu_span_ms": 19.105247497558594,
+        "repeats": 3,
+        "wall_p95_ms": 19.11878534592688,
+        "gpu_span_p95_ms": 19.109741592407225,
+        "statistic": "median",
+        "wall_samples_ms": [
+          18.81955284625292,
+          19.11448920145631,
+          19.1192626953125
+        ],
+        "gpu_span_samples_ms": [
+          18.800384521484375,
+          19.105247497558594,
+          19.110240936279297
+        ]
+      },
+      "block_full": {
+        "wall_ms": 20.315830130130053,
+        "gpu_span_ms": 20.3057918548584,
+        "repeats": 3,
+        "wall_p95_ms": 20.34387136809528,
+        "gpu_span_p95_ms": 20.333642196655273,
+        "statistic": "median",
+        "wall_samples_ms": [
+          20.273844245821238,
+          20.346987061202526,
+          20.315830130130053
+        ],
+        "gpu_span_samples_ms": [
+          20.263904571533203,
+          20.33673667907715,
+          20.3057918548584
+        ]
+      },
+      "difference": {
+        "exact": false,
+        "max_abs": 0.001682281494140625,
+        "mean_abs": 5.663900083163753e-06
+      },
+      "quality_certified": false,
+      "quality_rejection_reason": "downstream_quality_unverified",
+      "incremental_gpu_ms": 19.105247497558594,
+      "full_gpu_ms": 20.3057918548584,
+      "incremental_wall_ms": 19.11448920145631,
+      "full_wall_ms": 20.315830130130053,
+      "pipeline_incremental_wall_ms": 502.0222160965204,
+      "pipeline_full_wall_ms": 481.6127959638834,
+      "pipeline_incremental_gpu_ms": 502.002685546875,
+      "pipeline_full_gpu_ms": 481.5974426269531,
+      "evidence_cases": [
+        "D3_1"
+      ],
+      "numerical_evidence": {
+        "path": "results.json",
+        "sha256": "713b02a46e4dbd45471ada220a1a14b545cb8d3e189063ccf48efb79de573c94"
+      },
+      "measurements": [
+        {
+          "key": "{\"attention_fp16_enabled\": true, \"attention_softmax_scale\": null, \"autocast\": false, \"autocast_dtype\": \"torch.float16\", \"backbone_geometry\": {\"cls_token\": true, \"dilation\": [1, 1], \"kernel\": [16, 16], \"padding\": [0, 0], \"stride\": [16, 16], \"topology\": [[16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false], [16, false], [16, false], [0, false]]}, \"backbone_version\": \"a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543\", \"block_index\": 1, \"change_detection\": \"wsgrr_image_uncertainty_v2\", \"cuda\": \"11.7\", \"cudnn\": [false, false], \"deterministic_algorithms\": false, \"dtype\": \"torch.float32\", \"flash\": true, \"gpu\": [\"NVIDIA GeForce RTX 3090\", 8, 6, 25296044032], \"heads\": 16, \"inner_norm_eps\": null, \"input_shape\": [6, 40, 40, 1024], \"input_stride\": [1638400, 40, 1, 1600], \"mlp_norm_eps\": 1e-06, \"model_version\": \"8c6e039d079c3727a905a3908ba5f185f95462b67d83c11f3d35a074b890ef7e\", \"norm_eps\": [1e-06, 1e-06], \"numerical_policy\": \"selected_window_qkv_projection_valid_token_mlp_v2\", \"reduced_precision_reduction\": true, \"refresh_policy\": [\"wsgrr_image_uncertainty_v2\", 3, 8, 8, 16.0, 1.0, 0.25, 0.25, 0.05], \"scale\": 0.125, \"schema\": 3, \"tf32\": [false, true], \"torch\": \"1.13.1+cu117\", \"window\": 16}",
+          "block": 1,
+          "updated": 49,
+          "numerical_verified": true,
+          "numerical_validation_scope": "Finite local error only; independent quantitative limits and downstream quality still required",
+          "block_incremental": {
+            "wall_ms": 19.11448920145631,
+            "gpu_span_ms": 19.105247497558594,
+            "repeats": 3,
+            "wall_p95_ms": 19.11878534592688,
+            "gpu_span_p95_ms": 19.109741592407225,
+            "statistic": "median",
+            "wall_samples_ms": [
+              18.81955284625292,
+              19.11448920145631,
+              19.1192626953125
+            ],
+            "gpu_span_samples_ms": [
+              18.800384521484375,
+              19.105247497558594,
+              19.110240936279297
+            ]
+          },
+          "block_full": {
+            "wall_ms": 20.315830130130053,
+            "gpu_span_ms": 20.3057918548584,
+            "repeats": 3,
+            "wall_p95_ms": 20.34387136809528,
+            "gpu_span_p95_ms": 20.333642196655273,
+            "statistic": "median",
+            "wall_samples_ms": [
+              20.273844245821238,
+              20.346987061202526,
+              20.315830130130053
+            ],
+            "gpu_span_samples_ms": [
+              20.263904571533203,
+              20.33673667907715,
+              20.3057918548584
+            ]
+          },
+          "difference": {
+            "exact": false,
+            "max_abs": 0.001682281494140625,
+            "mean_abs": 5.663900083163753e-06
+          },
+          "quality_certified": false,
+          "quality_rejection_reason": "downstream_quality_unverified",
+          "incremental_gpu_ms": 19.105247497558594,
+          "full_gpu_ms": 20.3057918548584,
+          "incremental_wall_ms": 19.11448920145631,
+          "full_wall_ms": 20.315830130130053,
+          "pipeline_incremental_wall_ms": 502.0222160965204,
+          "pipeline_full_wall_ms": 481.6127959638834,
+          "pipeline_incremental_gpu_ms": 502.002685546875,
+          "pipeline_full_gpu_ms": 481.5974426269531,
+          "evidence_cases": [
+            "D3_1"
+          ],
+          "numerical_evidence": {
+            "path": "results.json"
+          }
+        }
+      ]
+    }
+  ],
+  "validation_sha256": "713b02a46e4dbd45471ada220a1a14b545cb8d3e189063ccf48efb79de573c94",
+  "backbone_fingerprint": "a015679a6e6662364073d17ac6a615f84a1eb188cfe23c3aed9ae550a7ddf543",
+  "formal_quality_policy": {
+    "approved_counts": []
+  },
+  "production_ready": false
+}
