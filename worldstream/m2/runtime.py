@@ -1,4 +1,4 @@
-"""WSGRR is the serving algorithm; every planned window executes and publishes."""
+"""WSGRR-AR: closed window prefix, global anchor update, one cache publication."""
 import copy
 import math
 from time import perf_counter
@@ -9,6 +9,7 @@ from .m1_adapter import computation_admission
 from .state_cache import StateCache
 from .window_executor import WindowExecutor,NUMERICAL_POLICY
 from .region_refresh import pooled_descriptors,select_regions
+from .global_residual import update_global
 
 
 def finite_time(value):
@@ -39,7 +40,7 @@ class IncrementalVisionRuntime:
             getattr(getattr(b.attn,'inner_attn',None),'softmax_scale',None),
             getattr(getattr(b.attn,'inner_attn',None),'fp16_enabled',None)) for b in self.model.blocks)
         p=self.model.patch_embed.proj
-        return (context.get('execution_signature'),NUMERICAL_POLICY,self.config.refresh_signature(),tensors,topology,
+        return (context.get('execution_signature'),NUMERICAL_POLICY,self.config.refresh_signature(),self.config.global_signature(),tensors,topology,
             (p.kernel_size,p.stride,p.padding,p.dilation,self.model.pretrain_use_cls_token),
             torch.is_autocast_enabled(),torch.get_autocast_gpu_dtype(),
             torch.backends.cuda.matmul.allow_tf32,torch.backends.cudnn.allow_tf32,
@@ -80,6 +81,19 @@ class IncrementalVisionRuntime:
         return self.planner.plan_windows(selected,x0.shape[:3],stop_after=len(self.prefix)),descriptors,regions,refresh
 
     def _forward(self,images,m1_result,execution_context,computation_state):
+        # A failed request, including a failed new-scene initialization, cannot
+        # clear or partially publish the previously committed window/anchor state.
+        source=self.cache
+        self.cache=copy.copy(source)
+        published=False
+        try:
+            result=self._forward_frame(images,m1_result,execution_context,computation_state)
+            published=True
+            return result
+        finally:
+            if not published:self.cache=source
+
+    def _forward_frame(self,images,m1_result,execution_context,computation_state):
         self.last_diagnostics=dict(runtime_entered=True,execution_completed=False)
         start=perf_counter();context=dict(execution_context or {})
         self.prefix=self.planner.cacheable_prefix()
@@ -109,7 +123,7 @@ class IncrementalVisionRuntime:
         mismatch=self.cache.mismatch(images,context,signature,x0)
         # Scene boundaries are lifecycle resets, not a second full executor.
         # Validate stored integrity before discarding history from a prior scene.
-        if mismatch in ('cache_metadata_modified','cache_storage_modified'):
+        if mismatch in ('cache_metadata_modified','cache_storage_modified','cache_global_state_modified'):
             raise ValueError(mismatch)
         if self.cache.context is not None and self.cache.context['scene_id']!=context['scene_id']:
             self.cache.clear()
@@ -133,7 +147,7 @@ class IncrementalVisionRuntime:
         scoring_ms=(perf_counter()-scoring_start)*1000
         validation_ms=(perf_counter()-start)*1000
         execution_start=perf_counter()
-        features,stages,outputs,sources,executed_ids=self._execute(x0,context,plans,reason)
+        features,stages,outputs,sources,executed_ids,anchor,global_diag=self._execute(x0,context,plans,reason,signature)
         execution_ms=(perf_counter()-execution_start)*1000
         if self.prefix:
             if plans is None:
@@ -207,10 +221,10 @@ class IncrementalVisionRuntime:
         self.cache.commit(images,outputs,context,signature,features.stride(),sources,block0_input=x0,
             region_states=region_states,window_ages=ages,descriptors=descriptors,
             _transfer_outputs=True,_validated_inputs=True,_finite_extras=(features,),
-            _overhead_bytes=self.executor.metadata_bytes)
+            _overhead_bytes=self.executor.metadata_bytes,global_anchor=anchor,_transfer_global=True)
         publication_ms=(perf_counter()-publication_start)*1000
         now=context.get('timestamp');old=(previous or {}).get('timestamp')
-        diag=dict(mode='incremental' if skipped else 'full_update',full_update_reason=reason,
+        diag=dict(mode='incremental' if skipped or global_diag['approx_global_residual_reuse'] else 'full_update',full_update_reason=reason,
             cache_boundary='window',state_interface='source_linked',cacheable_blocks=list(self.prefix),
             global_barrier_block=len(self.prefix),patch_embedding='full_once',change_detection=self.config.refresh_signature()[0],numerical_policy=NUMERICAL_POLICY,
             refresh_policy=self.config.refresh_signature(),region_refresh=refresh,
@@ -243,18 +257,22 @@ class IncrementalVisionRuntime:
                 k:sum(s['per_camera'][c][k] for s in cached_stages)
                 for k in ('total_windows','planned_windows','executed_windows','reused_windows','mandatory_windows','ordinary_windows')})
                 for c,cid in enumerate(cameras)],M2_total_ms=(perf_counter()-start)*1000)
+        diag.update(global_diag)
         diag.update(runtime_entered=True,execution_completed=True,
             actual_window_reuse=bool(skipped),full_recompute=not bool(skipped),
             full_recompute_reason=full_reason,executor='WindowExecutor')
+        diag.update(full_recompute=not bool(skipped) and not global_diag['approx_global_residual_reuse'],
+                    full_recompute_reason=full_reason if not global_diag['approx_global_residual_reuse'] else None,
+                    actual_global_residual_reuse=global_diag['approx_global_residual_reuse'])
         diag.update(details);self.last_diagnostics.update(diag)
         return [features],self.last_diagnostics
 
-    def _execute(self,x,context,plans,reason):
+    def _execute(self,x,context,plans,reason,signature=None):
         stages=[];outputs={};sources={}
         executed_ids,host_ids=self.planner.execution_ids(plans,self.prefix,x.shape[:3],x.device)
         for i,block in enumerate(self.model.blocks):
             if i not in self.prefix:
-                x=block(x);stages.append(dict(block=i,mode='full',reason='global_dependency'))
+                break
             else:
                 size=block.window_size;total=len(x)*((x.shape[1]+size-1)//size)*((x.shape[2]+size-1)//size)
                 ids=executed_ids[i]
@@ -287,4 +305,11 @@ class IncrementalVisionRuntime:
                     executed_windows=sum(j//per_camera==c for j in id_values),
                     reused_windows=per_camera-sum(j//per_camera==c for j in id_values)) for c,cid in enumerate(context['camera_ids'])]
             if self.stage_observer is not None:self.stage_observer(i,x)
-        return x.permute(0,3,1,2),stages,outputs,sources,executed_ids
+        global_context=dict(context,_global_full_refresh=reason=='m1_full_refresh')
+        x,anchor,suffix_stages,global_diag=self._update_global(x,global_context,
+            signature if signature is not None else self.signature(context))
+        stages.extend(suffix_stages)
+        return x.permute(0,3,1,2),stages,outputs,sources,executed_ids,anchor,global_diag
+
+    def _update_global(self,x,context,signature):
+        return update_global(x,self.model.blocks,self.prefix,self.cache,context,signature,self.config,self.stage_observer)

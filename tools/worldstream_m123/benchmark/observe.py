@@ -133,6 +133,7 @@ class Observer:
             # These wrappers are analysis-only and leave the executable topology intact.
             self.wrap(model.m2_runtime.executor, 'execute', 'm2_window_block', window=True)
             self.observe_module(model.img_backbone.patch_embed, 'm2_patch_embedding')
+            self.wrap(model.m2_runtime,'_update_global','m2_global_state_update')
             for i, block in enumerate(model.img_backbone.blocks):
                 if i not in model.m2_runtime.prefix:
                     self.observe_module(block, f'm2_suffix_block_{i}')

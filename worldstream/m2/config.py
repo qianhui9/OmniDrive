@@ -1,4 +1,4 @@
-"""The sole M2 contract: source-linked window Auto with maintained M1 state."""
+"""The sole M2 contract: source-linked windows and temporal anchor residuals."""
 from dataclasses import dataclass
 import math
 
@@ -18,6 +18,11 @@ class M2Config:
     age_weight: float = 0.25
     uncertainty_weight: float = 0.25
     score_threshold: float = 0.05
+    global_anchor_interval: int = 2
+    global_drift_threshold: float = 0.7721027880907059
+
+    def global_signature(self):
+        return ('wsgrr_anchor_residual_v1', self.global_anchor_interval, self.global_drift_threshold)
 
     def refresh_signature(self):
         return ('wsgrr_image_uncertainty_v2', self.ordinary_budget, self.max_reuse_frames,
@@ -29,10 +34,10 @@ class M2Config:
             raise ValueError('M2 supports only source-linked window Auto with maintained M1 state')
         if type(self.memory_budget_mb) is not int or self.memory_budget_mb<0:
             raise ValueError('Invalid cache budget')
-        for name, minimum in (('ordinary_budget', 0), ('max_reuse_frames', 1), ('region_margin_px', 0)):
+        for name, minimum in (('ordinary_budget', 0), ('max_reuse_frames', 1), ('region_margin_px', 0), ('global_anchor_interval', 2)):
             if type(getattr(self, name)) is not int or getattr(self, name) < minimum:
                 raise ValueError('Invalid '+name)
-        for name in ('movement_threshold_px','drift_weight','age_weight','uncertainty_weight','score_threshold'):
+        for name in ('movement_threshold_px','drift_weight','age_weight','uncertainty_weight','score_threshold','global_drift_threshold'):
             value = getattr(self, name)
             if type(value) not in (int,float) or not math.isfinite(value) or value < 0:
                 raise ValueError('Invalid '+name)

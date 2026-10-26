@@ -200,6 +200,11 @@ def run(args):
     write(dest/'m1_m2_m3_source_hashes.json', hashes)
     cfg = effective_config(args.condition, args.workload, dest,getattr(args,'m3_strategy',None))
     configure_m2_evidence(cfg,args,dest)
+    for key in ('global_anchor_interval','global_drift_threshold'):
+        value=getattr(args,'m2_'+key,None)
+        if value is not None:
+            if args.condition!='B3':raise ValueError('Anchor calibration requires the formal B3 algorithm')
+            cfg.model.m2_config[key]=value
     if getattr(args,'m3_policy',None):
         cfg.model.m3_config.reuse_policy=args.m3_policy
     write(dest/'effective_config.json', dict(config=cfg._cfg_dict.to_dict(),
@@ -428,6 +433,12 @@ def run(args):
             executed=sum(s.get('executed_windows',0) for s in row['m2'].get('stages',[]))
             if executed!=sum(observer.window_attention_batches.values()):
                 raise RuntimeError('M2 window counters disagree with actual attention batches')
+            observed_suffix=sum(v['calls'] for k,v in stages.items() if k.startswith('m2_suffix_block_'))
+            expected_suffix=row['m2'].get('global_suffix_executed_blocks')
+            if expected_suffix is not None and observed_suffix!=expected_suffix:
+                raise RuntimeError('Global suffix diagnostics disagree with actual block calls')
+            row['observed_global_suffix_blocks']=observed_suffix
+            row['observed_global_suffix_skipped_blocks']=len(model.img_backbone.blocks)-len(model.m2_runtime.prefix)-observed_suffix
         gt = ground_truth(info['token'])
         for qi, answer in enumerate(result['text_out']):
             quality = answer_quality(answer['A'][0], gt.get(answer['Q']))
@@ -643,6 +654,8 @@ def main():
     parser.add_argument('--output', required=True)
     parser.add_argument('--run-root', required=True)
     parser.add_argument('--condition', choices=['B0', 'B1', 'B2', 'B3'], required=True)
+    parser.add_argument('--m2-global-anchor-interval',type=int,help='Offline calibration override of the same M2 policy')
+    parser.add_argument('--m2-global-drift-threshold',type=float,help='Offline calibration override of the same M2 policy')
     parser.add_argument('--workload', choices=['planning', 'language'], default='planning')
     parser.add_argument('--checkpoint', default='ckpts/iter_10548.pth')
     parser.add_argument('--limit', type=int, default=0)

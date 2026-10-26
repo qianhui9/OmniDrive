@@ -72,7 +72,7 @@ def test_final_visual_finiteness_is_checked_before_atomic_publication(eva,contex
     rt=IncrementalVisionRuntime(eva);image=torch.randn(2,3,40,40);cold(rt,image,context)
     outputs=rt.cache.outputs
     def bad(block,x):
-        if block==len(eva.blocks)-1:x.fill_(float('nan'))
+        if block==rt.prefix[-1]:x.fill_(float('nan'))
     rt.stage_observer=bad;ctx=dict(context,frame_id='1',timestamp=1.1)
     with pytest.raises(NonFiniteCacheError):rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
     assert rt.cache.outputs is outputs and rt.cache.version==1

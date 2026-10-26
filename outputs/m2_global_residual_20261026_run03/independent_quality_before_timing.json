@@ -1,0 +1,133 @@
+{
+  "metrics": {
+    "mAP": {
+      "native": 0.12228706600907877,
+      "candidate": 0.05131337131471968,
+      "loss": 0.07097369469435909
+    },
+    "NDS": {
+      "native": 0.16973200762164958,
+      "candidate": 0.12047690354038113,
+      "loss": 0.04925510408126846
+    },
+    "DET_l": {
+      "native": 0.07729308307170868,
+      "candidate": 0.06322246044874191,
+      "loss": 0.014070622622966766
+    },
+    "Token_F1": {
+      "native": 0.4394634371713753,
+      "candidate": 0.4586591053386653,
+      "loss": -0.01919566816728996
+    }
+  },
+  "quality_budgets": {
+    "mAP": 0.05,
+    "NDS": 0.05,
+    "DET_l": 0.05,
+    "Token_F1": 0.05
+  },
+  "metric_budget_pass": {
+    "mAP": false,
+    "NDS": true,
+    "DET_l": true,
+    "Token_F1": true
+  },
+  "within_quality_budgets": false,
+  "budget_units": "absolute score loss: native minus candidate; not relative percent",
+  "historical_wsgrr_matched_questions": 0,
+  "critical_proxy_regressions_vs_native": 1,
+  "new_critical_proxy_regressions_vs_wsgrr": null,
+  "retained_critical_cases": [],
+  "scope": "OFFICIAL EVALUATOR ON DECLARED SUBSET, NOT full-val mAP/NDS/Map Score",
+  "limitations": "Numeric/spatial/motion/safety parsers are lexical proxies, not human semantic judgements",
+  "quality_by_anchor_age": [
+    {
+      "mode": "anchor_update",
+      "age": 0,
+      "questions": 4,
+      "mean_f1_loss": 0.0,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "anchor_update",
+      "age": 1,
+      "questions": 1,
+      "mean_f1_loss": 0.0,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "anchor_update",
+      "age": 2,
+      "questions": 4,
+      "mean_f1_loss": 0.0,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "anchor_update",
+      "age": 3,
+      "questions": 2,
+      "mean_f1_loss": 0.0,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "anchor_update",
+      "age": 4,
+      "questions": 1,
+      "mean_f1_loss": 0.0,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "approx_global_residual_reuse",
+      "age": 1,
+      "questions": 8,
+      "mean_f1_loss": -0.03967763092428071,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "approx_global_residual_reuse",
+      "age": 2,
+      "questions": 3,
+      "mean_f1_loss": -0.047758329540237364,
+      "critical_proxy_regressions": 1
+    },
+    {
+      "mode": "approx_global_residual_reuse",
+      "age": 3,
+      "questions": 1,
+      "mean_f1_loss": 0.0,
+      "critical_proxy_regressions": 0
+    }
+  ],
+  "native_questions_below_perfect_f1": 24,
+  "per_scene": {
+    "01e4fcbe6e49483293ce45727152b36e": {
+      "frames": 6,
+      "global_suffix_reuse_frames": 3,
+      "mAP_loss": 0.15629412952537913,
+      "NDS_loss": 0.10040148805852953,
+      "DET_l_loss": 0.021702487021684647
+    },
+    "034dee1695304630b0692da8c1f153fc": {
+      "frames": 6,
+      "global_suffix_reuse_frames": 4,
+      "mAP_loss": 0.03350946559153716,
+      "NDS_loss": 0.0164544165724547,
+      "DET_l_loss": -0.004707075655460358
+    },
+    "04219bfdc9004ba2af16d3079ecc4353": {
+      "frames": 6,
+      "global_suffix_reuse_frames": 2,
+      "mAP_loss": 0.006108965267341136,
+      "NDS_loss": 0.02105907315968751,
+      "DET_l_loss": 0.0036393925547599792
+    },
+    "07aed9dae37340a997535ad99138e243": {
+      "frames": 6,
+      "global_suffix_reuse_frames": 3,
+      "mAP_loss": 0.033232692496548505,
+      "NDS_loss": 0.021475316998167272,
+      "DET_l_loss": -0.01783502846956253
+    }
+  }
+}

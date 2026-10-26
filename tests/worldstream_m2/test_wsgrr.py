@@ -277,7 +277,8 @@ def test_compact_m1_export_preserves_contract_and_owns_metadata(context):
     assert compact.computation_state.refresh_contract==full.computation_state.refresh_contract
     assert compact.computation_state.region_states==full.computation_state.region_states
     assert compact.diagnostics['snapshot_scope']=='m2_computation_only'
-    compact.computation_state.refresh_contract.clear()
+    with pytest.raises(TypeError,match='read-only'):
+        compact.computation_state.refresh_contract.clear()
     assert manager.last_result.computation_state.refresh_contract
     with pytest.raises(RuntimeError):manager.export_m2_inputs(dict(ctx,frame_id='forged'),computation_only=True)
 

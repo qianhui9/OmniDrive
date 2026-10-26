@@ -1,0 +1,50 @@
+{
+  "declared_at": "2026-10-26T14:17:28.131996+00:00",
+  "objective": "Recalibrate the same global anchor residual reuse algorithm under relaxed absolute task budgets",
+  "quality_budgets": {
+    "mAP": 0.05,
+    "NDS": 0.05,
+    "DET_l": 0.05,
+    "Token_F1": 0.05
+  },
+  "critical_qa": "Numeric/spatial/motion/safety lexical checks and full answers reported separately",
+  "development": {
+    "frames": 40,
+    "scene": "01452fbfbf4543af8acdfd3e8a1ee806",
+    "drift_quantile": 0.5,
+    "anchor_intervals": [
+      2,
+      3,
+      4
+    ],
+    "threshold": 0.9120883047580719,
+    "selection": "Minimum measured complete request mean among candidates passing every task budget; tie breaks on shorter interval"
+  },
+  "validation": {
+    "frames": 24,
+    "scenes": 4,
+    "manifest": "validation_sequence24.json",
+    "manifest_sha256": "e3064a4f1166af7a865b041fd47305cd6ba9e937206aa254fb244469f28e0727",
+    "model_outputs_seen_at_declaration": false,
+    "retuning_after_validation": false
+  },
+  "timing": {
+    "complete_service": "Three alternating native/formal pairs on 40 development frames",
+    "visual": "Frozen old WSGRR and new WSGRR-AR on identical exported M1 snapshots with identical prefix computation",
+    "confounders": "Generated token counts and M3 reused tokens must be reported"
+  },
+  "fixed": {
+    "checkpoint": "ckpts/iter_10548.pth",
+    "ordinary_budget": 3,
+    "max_reuse_frames": 8,
+    "m3_internal_quality_budget": 0.02,
+    "algorithm": "Single M2 runtime; M1/M3 algorithms unchanged"
+  },
+  "cpu_affinity": "0-3,6-31",
+  "gpu_rule": "Wait below 500 MiB; never stop other processes",
+  "original_evidence": "outputs/m2_global_residual_20261026_run01",
+  "original_outputs_modified": false,
+  "development_refinement_from": "outputs/m2_global_residual_20261026_run02",
+  "maximum_additional_development_thresholds": 1,
+  "reason": "All three q75 candidates fail .05 development budgets; perform the predeclared single conservative q50 refinement"
+}

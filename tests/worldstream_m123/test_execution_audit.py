@@ -112,7 +112,7 @@ def test_observer_keeps_verified_topology_and_covers_window_executor(eva, monkey
     assert runtime.planner.rejection_reason is None
     with torch.no_grad():
         x = eva.patch_embed(torch.randn(2, 3, 40, 40))
-        runtime._execute(x, dict(frame_id='f', timestamp=1., camera_ids=['a','b']), None, 'no_cache')
+        runtime._execute(x, dict(scene_id='s',state_epoch=1,frame_id='f', timestamp=1., camera_ids=['a','b']), None, 'no_cache')
     labels = [event[0] for event in observer.events]
     assert labels[0] == 'm2_patch_embedding'
     assert labels.count('m2_window_block_0') == labels.count('m2_window_block_1') == 1

@@ -44,7 +44,8 @@ def instrumentation(runtime):
     try:
         with ExitStack() as stack:
             stack.enter_context(patch.object(F,'linear',measured_linear))
-            for name in ('block0_input','select_regions','computation_admission'):
+            for name in ('block0_input','select_regions','computation_admission','update_global'):
+                if not hasattr(module,name):continue
                 stack.enter_context(patch.object(module,name,wrapped(getattr(module,name),'m2/'+name)))
             for obj,name,label in ((StateCache,'commit','cache/commit'),
                 (runtime.planner,'plan','m2/dependency_plan'),(runtime.planner,'cacheable_prefix','m2/topology_check'),

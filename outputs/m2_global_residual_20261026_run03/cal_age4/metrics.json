@@ -1,0 +1,72 @@
+{
+  "status": "COMPLETED",
+  "frames": 40,
+  "questions": 40,
+  "full_validation": false,
+  "warmup_frames": 1,
+  "request_ms": {
+    "n": 40,
+    "mean": 2985.3420799714513,
+    "p50": 1996.338818455115,
+    "p95": 8416.955736489032,
+    "maximum": 9500.482247211039,
+    "total": 119413.68319885805
+  },
+  "model_ms": {
+    "n": 40,
+    "mean": 2750.092538574245,
+    "p50": 1793.8309609889984,
+    "p95": 8212.022922164757,
+    "maximum": 9297.947730869055,
+    "total": 110003.7015429698
+  },
+  "quality": {
+    "questions": 40,
+    "valid_gt": 40,
+    "missing_gt": 0,
+    "answer_exact_match": 0.0,
+    "token_f1": 0.36567466235116963,
+    "numeric_questions": 9,
+    "numeric_count_match": 0.0,
+    "numeric_mae": null,
+    "numeric_mae_denominator": 0
+  },
+  "m1": {
+    "counts": {
+      "frames": 40,
+      "candidates": 3608,
+      "eligible": 410,
+      "accepted": 2411,
+      "scored": 350,
+      "correct": 349,
+      "wrong": 1,
+      "unknown": 2061
+    },
+    "continuity": {
+      "predicted_track_fragments": 20,
+      "continuous_identity_switches": 61,
+      "scored_visible": 567,
+      "visible_known_missed": 1132,
+      "ambiguous_visible": 507,
+      "bridged_visible_gaps": 6
+    },
+    "association_precision": 0.9971428571428571,
+    "wrong_association_rate": 0.002857142857142857,
+    "effective_recall": 0.8512195121951219,
+    "association_coverage": 0.6682372505543237,
+    "alignment_precision": null,
+    "alignment_recall": null,
+    "alignment_numerator": 0,
+    "alignment_denominator": 0,
+    "scope": "Offline partial Oracle: unique class/size/1m matching; not standard MOT. GT never enters online decisions.",
+    "candidate_definition": "selected predictions on scene frames after the first",
+    "alignment_status": "NOT_AVAILABLE: no independently scored alignment denominator"
+  },
+  "official_detection": null,
+  "official_map": null,
+  "official_status": "NOT_RUN: subset",
+  "m1_scene_integrity": {
+    "01452fbfbf4543af8acdfd3e8a1ee806": "PASS"
+  },
+  "undefined_metric_paths": []
+}

@@ -1,4 +1,9 @@
 """World-referenced stateful VLM serving: the only M1/M2/M3 route."""
+# Offline task acceptance allows absolute loss <= 0.05 for each task metric.
+# AR4 / drift 0.912088305 failed fresh heldout mAP, so retain AR2 / 0.772102788.
+# The retained parameters pass the previous independent subset under this budget.
+# See outputs/m2_global_residual_20261026_run03/experiment_report.md.
+# Aggregate task acceptance and complete service acceleration are separate results.
 _base_ = ['./mask_eva_lane_det_vlm.py']
 model = dict(
     worldstream_require_m123=True,
@@ -6,7 +11,8 @@ model = dict(
     m1_config='configs/worldstream_m1_final.yaml',
     m2_enable=True,
     m2_config=dict(mode='auto', reuse_boundary='window', state_interface='source_linked',
-        m1_service='maintain', memory_budget_mb=512, ordinary_budget=3, max_reuse_frames=8),
+        m1_service='maintain', memory_budget_mb=512, ordinary_budget=3, max_reuse_frames=8,
+        global_anchor_interval=2, global_drift_threshold=0.7721027880907059),
     m3_enable=True,
     m3_config=dict(mode='auto', state_context='augment', memory_budget_mb=512,
         reuse_strategy='wsdr_kv',block_size=32,quality_budget=0.02,

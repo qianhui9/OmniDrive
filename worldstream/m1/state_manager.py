@@ -566,22 +566,23 @@ class WorldStateManager:
             if r.scene_id != expected_context.get('scene_id') or r.frame_id != expected_context.get('frame_id') or r.timestamp != expected_context.get('timestamp') or (r.diagnostics.get('execution_signature') != expected_context.get('execution_signature')) or (r.diagnostics.get('state_epoch') != expected_context.get('state_epoch')) or (r.diagnostics.get('transaction_status') != 'pending') or (self.store.source_digest() != self._pending_source_digest):
                 raise RuntimeError('M1 snapshot does not match the pending M2 request')
         if computation_only:
-            # M2 consumes the source/lease/region contract, not the dense RGB
-            # correspondences or M1 audit arrays. Keep the same pending-state
-            # checks above and defensively own every exported mutable field.
+            # One owned, read-only computation tree. Subsequent M2/cache reads
+            # share immutable records rather than deepcopying them again.
+            # Keep transaction flags privately mutable in the snapshot wrapper.
             from .state_types import M1Result
+            from .readonly_snapshot import freeze
             r=self.last_result
             bundle=copy.copy(r.computation_state)
             if bundle is not None:
-                bundle.source_records=copy.deepcopy(bundle.source_records)
-                bundle.refresh_contract=copy.deepcopy(bundle.refresh_contract)
-                bundle.region_states=copy.deepcopy(bundle.region_states)
-                bundle.region_events=copy.deepcopy(bundle.region_events)
-                bundle.uncertainty_regions=copy.deepcopy(bundle.uncertainty_regions)
+                bundle.source_records=freeze(bundle.source_records)
+                bundle.refresh_contract=freeze(bundle.refresh_contract)
+                bundle.region_states=freeze(bundle.region_states)
+                bundle.region_events=freeze(bundle.region_events)
+                bundle.uncertainty_regions=freeze(bundle.uncertainty_regions)
                 bundle.diagnostics=copy.deepcopy(bundle.diagnostics)
-                bundle.observation_links={cid:{key:copy.deepcopy(link[key]) for key in
+                bundle.observation_links=freeze({cid:{key:link[key] for key in
                     ('source_frame_id','source_camera_id','source_timestamp','validity_lease') if key in link}
-                    for cid,link in bundle.observation_links.items()}
+                    for cid,link in bundle.observation_links.items()})
             return M1Result(r.scene_id,r.frame_id,r.timestamp,full_refresh_hint=r.full_refresh_hint,
                 computation_state=bundle,diagnostics=dict(snapshot_scope='m2_computation_only',
                     **{key:copy.deepcopy(r.diagnostics[key]) for key in

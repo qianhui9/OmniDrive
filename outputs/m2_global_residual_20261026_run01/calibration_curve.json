@@ -1,0 +1,1823 @@
+{
+  "native": {
+    "frames": 40,
+    "request_ms": {
+      "n": 40,
+      "mean": 2974.1351377102546,
+      "p50": 1876.9295357633382,
+      "p95": 9238.037664466538,
+      "maximum": 9270.889478269964,
+      "total": 118965.40550841019
+    },
+    "visual_cuda_span_ms": {
+      "n": 40,
+      "mean": 479.52524185180664,
+      "p50": 480.6348571777344,
+      "p95": 482.43645935058595,
+      "maximum": 484.2896423339844,
+      "total": 19181.009674072266
+    },
+    "prefill_cuda_ms": {
+      "n": 40,
+      "mean": 189.0239372253418,
+      "p50": 183.6446762084961,
+      "p95": 224.74275131225585,
+      "maximum": 225.32608032226562,
+      "total": 7560.957489013672
+    },
+    "decode_cuda_ms": {
+      "n": 40,
+      "mean": 1886.7098042011262,
+      "p50": 793.5264139175415,
+      "p95": 8070.361217308045,
+      "maximum": 8109.7850551605225,
+      "total": 75468.39216804504
+    },
+    "peak_allocated_bytes": 16485273600,
+    "peak_reserved_bytes": 16903045120,
+    "throughput_fps": 0.33623219984882263,
+    "generated_tokens": 3022,
+    "m3_reused_tokens": 0
+  },
+  "candidates": [
+    {
+      "interval": 2,
+      "threshold": 0.7721027880907059,
+      "quality": {
+        "metrics": {
+          "mAP": {
+            "native": 0.28854640169860885,
+            "candidate": 0.28365601803514073,
+            "loss": 0.004890383663468112
+          },
+          "NDS": {
+            "native": 0.34144248848792563,
+            "candidate": 0.33843722398147175,
+            "loss": 0.0030052645064538863
+          },
+          "DET_l": {
+            "native": 0.23200015723705292,
+            "candidate": 0.23217260837554932,
+            "loss": -0.00017245113849639893
+          },
+          "Token_F1": {
+            "native": 0.35927049781771564,
+            "candidate": 0.36938909503508977,
+            "loss": -0.010118597217374126
+          }
+        },
+        "within_initial_budgets": true,
+        "initial_budgets": {
+          "mAP": 0.005,
+          "NDS": 0.005,
+          "DET_l": 0.005,
+          "Token_F1": 0.02
+        },
+        "critical_proxy_regressions_vs_native": 7,
+        "new_critical_proxy_regressions_vs_wsgrr": 6,
+        "retained_critical_cases": [
+          {
+            "frame_id": "88a6b5e35eb44deba6b1065d74b0a3c4",
+            "question": "How does the road layout ahead appear to be?",
+            "native_answer": "The road ahead is clear with no visible obstructions, and it appears to be a standard two-way street.",
+            "answer": "The road ahead is clear, with no visible obstructions or traffic.",
+            "reference": "The road ahead appears to be a multi-lane urban street, with visible lane markings suggesting at least two lanes in each direction.",
+            "f1": 0.29411764705882354,
+            "baseline_f1": 0.5238095238095238,
+            "f1_loss": 0.2296918767507003,
+            "answer_equal": false,
+            "output_token_f1": 0.6,
+            "task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": false,
+              "numeric_values": [],
+              "reference_numeric_values": [
+                2.0
+              ],
+              "numeric_value_precision": 0.0,
+              "numeric_value_recall": 0.0,
+              "numeric_aligned_mae": null,
+              "spatial_label_match": true,
+              "spatial_label_f1": 1.0,
+              "motion_label_match": null,
+              "motion_label_f1": null,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "baseline_task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": true,
+              "numeric_values": [
+                2.0
+              ],
+              "reference_numeric_values": [
+                2.0
+              ],
+              "numeric_value_precision": 1.0,
+              "numeric_value_recall": 1.0,
+              "numeric_aligned_mae": 0.0,
+              "spatial_label_match": true,
+              "spatial_label_f1": 1.0,
+              "motion_label_match": null,
+              "motion_label_f1": null,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "critical_regressions": 3,
+            "versus_previous_wsgrr": {
+              "f1": 0.29411764705882354,
+              "baseline_f1": 0.625,
+              "f1_loss": 0.33088235294117646,
+              "answer_equal": false,
+              "output_token_f1": 0.5,
+              "task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [],
+                "reference_numeric_values": [
+                  2.0
+                ],
+                "numeric_value_precision": 0.0,
+                "numeric_value_recall": 0.0,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": true,
+                "spatial_label_f1": 1.0,
+                "motion_label_match": null,
+                "motion_label_f1": null,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "baseline_task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  2.0,
+                  1.0
+                ],
+                "reference_numeric_values": [
+                  2.0
+                ],
+                "numeric_value_precision": 0.5,
+                "numeric_value_recall": 1.0,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": true,
+                "spatial_label_f1": 1.0,
+                "motion_label_match": null,
+                "motion_label_f1": null,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "critical_regressions": 2
+            }
+          },
+          {
+            "frame_id": "fd612e8660e74196af7da7e6487e5d53",
+            "question": "Are there any traffic elements that could influence your driving behavior?",
+            "native_answer": "Yes, there are several traffic elements that could influence driving behavior in this scenario. Firstly, there are multiple traffic cones placed in various locations around your vehicle, specifically at (-7.3, -3.1), (+1.9, -3.0), (+10.0, -3.1), (+13.1, -3.1), (+16.2, -3.2), (+19.3, -3.2), (+22.4, -3.2), (+25.5, -3.2), (+28.6, -3.2), (+31.7, -3.2), and (+34.8, -3.2) which indicate construction zones or roadwork. Additionally, there are pedestrians moving in the crosswalk ahead to the right, with locations at (+12.0, -10.0), (+12.0, -10.8), (+12.0, -11.6), and (+11.8, -12.4), which requires careful attention to ensure their safety. A moving car is also noted in the opposite-flow lane to the left at (+10.0, +8.9), which could potentially cross paths. Lastly, the presence of a green traffic light for your lane indicates that you can proceed but should remain vigilant for any changes.",
+            "answer": "Yes, there are several traffic elements that could influence driving behavior in this scenario. Firstly, there are multiple traffic cones placed in various locations around your vehicle, specifically at (-7.3, -3.1), (+1.9, -3.0), (+10.0, -3.1), (+13.1, -3.1), (+16.2, -3.2), (+19.3, -3.2), (+22.4, -3.2), (+25.5, -3.2), (+28.6, -3.2), (+31.7, -3.2), and (+34.8, -3.2) which indicate construction zones or roadwork. Additionally, there are pedestrians moving in the crosswalk ahead to the right, with locations at (+12.0, -10.0), (+12.0, -10.8), (+12.0, -11.6), and (+11.8, -12.4), which requires careful attention to ensure their safety. A moving car is also noted in the opposite-flow lane to the left at (+10.0, +8.9), which could potentially cross paths. Lastly, the presence of a green traffic light for your lane indicates that you can proceed but should remain vigilant for any changes.",
+            "reference": "In this scenario, the presence of a construction zone marked by orange barriers, multiple traffic cones, and pedestrians requires careful attention. Specifically, there are traffic cones located at positions like (+6.9, -9.4), (+11.2, -8.6), and (+4.9, -4.1), as well as pedestrians at locations such as (+18.7, -9.1) and (+8.8, -10.0). Additionally, a moving car ahead in the same direction at (+47.5, +1.8) traveling at (+13.6, +1.0) m/s also needs to be monitored.",
+            "f1": 0.4409448818897638,
+            "baseline_f1": 0.4409448818897638,
+            "f1_loss": 0.0,
+            "answer_equal": true,
+            "output_token_f1": 1.0,
+            "task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": false,
+              "numeric_values": [
+                -7.3,
+                -3.1,
+                1.9,
+                -3.0,
+                10.0,
+                -3.1,
+                13.1,
+                -3.1,
+                16.2,
+                -3.2,
+                19.3,
+                -3.2,
+                22.4,
+                -3.2,
+                25.5,
+                -3.2,
+                28.6,
+                -3.2,
+                31.7,
+                -3.2,
+                34.8,
+                -3.2,
+                12.0,
+                -10.0,
+                12.0,
+                -10.8,
+                12.0,
+                -11.6,
+                11.8,
+                -12.4,
+                10.0,
+                8.9
+              ],
+              "reference_numeric_values": [
+                6.9,
+                -9.4,
+                11.2,
+                -8.6,
+                4.9,
+                -4.1,
+                18.7,
+                -9.1,
+                8.8,
+                -10.0,
+                47.5,
+                1.8,
+                13.6,
+                1.0
+              ],
+              "numeric_value_precision": 0.03125,
+              "numeric_value_recall": 0.07142857142857142,
+              "numeric_aligned_mae": null,
+              "spatial_label_match": false,
+              "spatial_label_f1": 0.5,
+              "motion_label_match": true,
+              "motion_label_f1": 1.0,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "baseline_task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": false,
+              "numeric_values": [
+                -7.3,
+                -3.1,
+                1.9,
+                -3.0,
+                10.0,
+                -3.1,
+                13.1,
+                -3.1,
+                16.2,
+                -3.2,
+                19.3,
+                -3.2,
+                22.4,
+                -3.2,
+                25.5,
+                -3.2,
+                28.6,
+                -3.2,
+                31.7,
+                -3.2,
+                34.8,
+                -3.2,
+                12.0,
+                -10.0,
+                12.0,
+                -10.8,
+                12.0,
+                -11.6,
+                11.8,
+                -12.4,
+                10.0,
+                8.9
+              ],
+              "reference_numeric_values": [
+                6.9,
+                -9.4,
+                11.2,
+                -8.6,
+                4.9,
+                -4.1,
+                18.7,
+                -9.1,
+                8.8,
+                -10.0,
+                47.5,
+                1.8,
+                13.6,
+                1.0
+              ],
+              "numeric_value_precision": 0.03125,
+              "numeric_value_recall": 0.07142857142857142,
+              "numeric_aligned_mae": null,
+              "spatial_label_match": false,
+              "spatial_label_f1": 0.5,
+              "motion_label_match": true,
+              "motion_label_f1": 1.0,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "critical_regressions": 0,
+            "versus_previous_wsgrr": {
+              "f1": 0.4409448818897638,
+              "baseline_f1": 0.475,
+              "f1_loss": 0.034055118110236204,
+              "answer_equal": false,
+              "output_token_f1": 0.79375,
+              "task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  -7.3,
+                  -3.1,
+                  1.9,
+                  -3.0,
+                  10.0,
+                  -3.1,
+                  13.1,
+                  -3.1,
+                  16.2,
+                  -3.2,
+                  19.3,
+                  -3.2,
+                  22.4,
+                  -3.2,
+                  25.5,
+                  -3.2,
+                  28.6,
+                  -3.2,
+                  31.7,
+                  -3.2,
+                  34.8,
+                  -3.2,
+                  12.0,
+                  -10.0,
+                  12.0,
+                  -10.8,
+                  12.0,
+                  -11.6,
+                  11.8,
+                  -12.4,
+                  10.0,
+                  8.9
+                ],
+                "reference_numeric_values": [
+                  6.9,
+                  -9.4,
+                  11.2,
+                  -8.6,
+                  4.9,
+                  -4.1,
+                  18.7,
+                  -9.1,
+                  8.8,
+                  -10.0,
+                  47.5,
+                  1.8,
+                  13.6,
+                  1.0
+                ],
+                "numeric_value_precision": 0.03125,
+                "numeric_value_recall": 0.07142857142857142,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": false,
+                "spatial_label_f1": 0.5,
+                "motion_label_match": true,
+                "motion_label_f1": 1.0,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "baseline_task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  -7.3,
+                  -3.1,
+                  1.9,
+                  -3.0,
+                  10.0,
+                  -3.1,
+                  13.1,
+                  -3.1,
+                  16.2,
+                  -3.2,
+                  19.3,
+                  -3.2,
+                  22.4,
+                  -3.2,
+                  25.5,
+                  -3.2,
+                  28.6,
+                  -3.2,
+                  31.7,
+                  -3.2,
+                  11.0,
+                  -6.8,
+                  11.0,
+                  -7.8,
+                  10.0,
+                  8.7
+                ],
+                "reference_numeric_values": [
+                  6.9,
+                  -9.4,
+                  11.2,
+                  -8.6,
+                  4.9,
+                  -4.1,
+                  18.7,
+                  -9.1,
+                  8.8,
+                  -10.0,
+                  47.5,
+                  1.8,
+                  13.6,
+                  1.0
+                ],
+                "numeric_value_precision": 0.0,
+                "numeric_value_recall": 0.0,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": false,
+                "spatial_label_f1": 0.5,
+                "motion_label_match": true,
+                "motion_label_f1": 1.0,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "critical_regressions": 0
+            }
+          }
+        ],
+        "scope": "OFFICIAL EVALUATOR ON DECLARED SUBSET, NOT full-val mAP/NDS/Map Score",
+        "limitations": "Numeric/spatial/motion/safety parsers are lexical proxies, not human semantic judgements",
+        "quality_by_anchor_age": [
+          {
+            "mode": "anchor_update",
+            "age": 0,
+            "questions": 1,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "anchor_update",
+            "age": 1,
+            "questions": 29,
+            "mean_f1_loss": -0.0030853313575939147,
+            "critical_proxy_regressions": 3
+          },
+          {
+            "mode": "anchor_update",
+            "age": 2,
+            "questions": 5,
+            "mean_f1_loss": -0.03017346966791652,
+            "critical_proxy_regressions": 2
+          },
+          {
+            "mode": "approx_global_residual_reuse",
+            "age": 1,
+            "questions": 5,
+            "mean_f1_loss": -0.032880386197032,
+            "critical_proxy_regressions": 2
+          }
+        ],
+        "native_questions_below_perfect_f1": 40
+      },
+      "timing": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 3004.014162067324,
+          "p50": 2453.353281598538,
+          "p95": 6555.348018230869,
+          "maximum": 9223.51556411013,
+          "total": 120160.56648269296
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 487.2776386260986,
+          "p50": 516.9225463867188,
+          "p95": 560.7785705566394,
+          "maximum": 1070.3206787109375,
+          "total": 19491.105545043945
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 184.69625015258788,
+          "p50": 179.23067474365234,
+          "p95": 219.4218620300293,
+          "maximum": 228.5445098876953,
+          "total": 7387.850006103516
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1642.108218383789,
+          "p50": 778.1838388442993,
+          "p95": 5245.452954101561,
+          "maximum": 7744.918493270874,
+          "total": 65684.32873535156
+        },
+        "peak_allocated_bytes": 17271109120,
+        "peak_reserved_bytes": 18205376512,
+        "throughput_fps": 0.3328879113245634,
+        "generated_tokens": 2640,
+        "m3_reused_tokens": 0,
+        "global_suffix_skipped_blocks": 110,
+        "global_suffix_reuse_frames": 5,
+        "anchor_updates": 35,
+        "refresh_reasons": {
+          "initial_anchor": 1,
+          "null": 5,
+          "anchor_expired": 5,
+          "feature_drift": 26,
+          "m1_full_refresh": 3
+        },
+        "anchor_ages": {
+          "0": 1,
+          "1": 34,
+          "2": 5
+        },
+        "drift": {
+          "n": 39,
+          "mean": 0.8051990469296774,
+          "p50": 0.9441825747489929,
+          "p95": 1.0215857744216919,
+          "maximum": 1.0294796228408813,
+          "total": 31.402762830257416
+        },
+        "snapshot_wall_ms": {
+          "n": 40,
+          "mean": 48.50410071667284,
+          "p50": 24.278617929667234,
+          "p95": 60.36509762052317,
+          "maximum": 570.4647190868855,
+          "total": 1940.1640286669135
+        },
+        "m2_wall_ms": {
+          "n": 40,
+          "mean": 437.64568235492334,
+          "p50": 491.6649549268186,
+          "p95": 500.75287693180144,
+          "maximum": 501.02564273402095,
+          "total": 17505.827294196934
+        },
+        "m3_wall_ms": {
+          "n": 40,
+          "mean": 1867.8825969807804,
+          "p50": 984.0462375432253,
+          "p95": 5519.447313714771,
+          "maximum": 8065.768945962191,
+          "total": 74715.30387923121
+        },
+        "cache_bytes": 260924256,
+        "window_reused": 348,
+        "window_total": 4320,
+        "component_cuda_span_ms": {
+          "m2_patch_embedding": {
+            "n": 40,
+            "mean": 1.1104831993579865,
+            "p50": 1.1054399609565735,
+            "p95": 1.1333520233631131,
+            "maximum": 1.2092479467391968,
+            "total": 44.41932797431946
+          },
+          "m2_window_block_": {
+            "n": 40,
+            "mean": 35.1813223361969,
+            "p50": 36.803711891174316,
+            "p95": 39.30456008911133,
+            "maximum": 39.48518371582031,
+            "total": 1407.252893447876
+          },
+          "m2_suffix_block_": {
+            "n": 40,
+            "mean": 381.38147802352904,
+            "p50": 436.6358890533447,
+            "p95": 438.8260313034058,
+            "maximum": 439.5785903930664,
+            "total": 15255.259120941162
+          },
+          "m2_global_state_update": {
+            "n": 40,
+            "mean": 382.10737178325655,
+            "p50": 437.39544677734375,
+            "p95": 439.5870620727539,
+            "maximum": 440.32305908203125,
+            "total": 15284.294871330261
+          }
+        },
+        "global_update_cuda_span_by_kind": {
+          "anchor_update": {
+            "n": 35,
+            "mean": 436.6047293526786,
+            "p50": 437.8419189453125,
+            "p95": 439.6293060302734,
+            "maximum": 440.32305908203125,
+            "total": 15281.16552734375
+          },
+          "approx_global_residual_reuse": {
+            "n": 5,
+            "mean": 0.6258687973022461,
+            "p50": 0.6225919723510742,
+            "p95": 0.6430720090866089,
+            "maximum": 0.6440960168838501,
+            "total": 3.1293439865112305
+          }
+        }
+      },
+      "service_speedup": 0.9900536339893594,
+      "visual_speedup": 0.984090390857766
+    },
+    {
+      "interval": 3,
+      "threshold": 0.7721027880907059,
+      "quality": {
+        "metrics": {
+          "mAP": {
+            "native": 0.28854640169860885,
+            "candidate": 0.2823752505549616,
+            "loss": 0.006171151143647247
+          },
+          "NDS": {
+            "native": 0.34144248848792563,
+            "candidate": 0.3370028066609112,
+            "loss": 0.00443968182701443
+          },
+          "DET_l": {
+            "native": 0.23200015723705292,
+            "candidate": 0.23511968553066254,
+            "loss": -0.003119528293609619
+          },
+          "Token_F1": {
+            "native": 0.35927049781771564,
+            "candidate": 0.3659248619885961,
+            "loss": -0.006654364170880445
+          }
+        },
+        "within_initial_budgets": false,
+        "initial_budgets": {
+          "mAP": 0.005,
+          "NDS": 0.005,
+          "DET_l": 0.005,
+          "Token_F1": 0.02
+        },
+        "critical_proxy_regressions_vs_native": 2,
+        "new_critical_proxy_regressions_vs_wsgrr": 3,
+        "retained_critical_cases": [
+          {
+            "frame_id": "88a6b5e35eb44deba6b1065d74b0a3c4",
+            "question": "How does the road layout ahead appear to be?",
+            "native_answer": "The road ahead is clear with no visible obstructions, and it appears to be a standard two-way street.",
+            "answer": "The road ahead is clear with no visible obstructions, and it appears to be a standard two-lane street with one lane for each direction.",
+            "reference": "The road ahead appears to be a multi-lane urban street, with visible lane markings suggesting at least two lanes in each direction.",
+            "f1": 0.625,
+            "baseline_f1": 0.5238095238095238,
+            "f1_loss": -0.10119047619047616,
+            "answer_equal": false,
+            "output_token_f1": 0.8181818181818182,
+            "task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": false,
+              "numeric_values": [
+                2.0,
+                1.0
+              ],
+              "reference_numeric_values": [
+                2.0
+              ],
+              "numeric_value_precision": 0.5,
+              "numeric_value_recall": 1.0,
+              "numeric_aligned_mae": null,
+              "spatial_label_match": true,
+              "spatial_label_f1": 1.0,
+              "motion_label_match": null,
+              "motion_label_f1": null,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "baseline_task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": true,
+              "numeric_values": [
+                2.0
+              ],
+              "reference_numeric_values": [
+                2.0
+              ],
+              "numeric_value_precision": 1.0,
+              "numeric_value_recall": 1.0,
+              "numeric_aligned_mae": 0.0,
+              "spatial_label_match": true,
+              "spatial_label_f1": 1.0,
+              "motion_label_match": null,
+              "motion_label_f1": null,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "critical_regressions": 2,
+            "versus_previous_wsgrr": {
+              "f1": 0.625,
+              "baseline_f1": 0.625,
+              "f1_loss": 0.0,
+              "answer_equal": true,
+              "output_token_f1": 1.0,
+              "task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  2.0,
+                  1.0
+                ],
+                "reference_numeric_values": [
+                  2.0
+                ],
+                "numeric_value_precision": 0.5,
+                "numeric_value_recall": 1.0,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": true,
+                "spatial_label_f1": 1.0,
+                "motion_label_match": null,
+                "motion_label_f1": null,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "baseline_task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  2.0,
+                  1.0
+                ],
+                "reference_numeric_values": [
+                  2.0
+                ],
+                "numeric_value_precision": 0.5,
+                "numeric_value_recall": 1.0,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": true,
+                "spatial_label_f1": 1.0,
+                "motion_label_match": null,
+                "motion_label_f1": null,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "critical_regressions": 0
+            }
+          },
+          {
+            "frame_id": "fd612e8660e74196af7da7e6487e5d53",
+            "question": "Are there any traffic elements that could influence your driving behavior?",
+            "native_answer": "Yes, there are several traffic elements that could influence driving behavior in this scenario. Firstly, there are multiple traffic cones placed in various locations around your vehicle, specifically at (-7.3, -3.1), (+1.9, -3.0), (+10.0, -3.1), (+13.1, -3.1), (+16.2, -3.2), (+19.3, -3.2), (+22.4, -3.2), (+25.5, -3.2), (+28.6, -3.2), (+31.7, -3.2), and (+34.8, -3.2) which indicate construction zones or roadwork. Additionally, there are pedestrians moving in the crosswalk ahead to the right, with locations at (+12.0, -10.0), (+12.0, -10.8), (+12.0, -11.6), and (+11.8, -12.4), which requires careful attention to ensure their safety. A moving car is also noted in the opposite-flow lane to the left at (+10.0, +8.9), which could potentially cross paths. Lastly, the presence of a green traffic light for your lane indicates that you can proceed but should remain vigilant for any changes.",
+            "answer": "Yes, there are several traffic elements that could influence driving behavior in this scenario. Firstly, there are multiple traffic cones placed in various locations around your vehicle, specifically at (-7.3, -3.1), (+1.9, -3.0), (+10.0, -3.1), (+13.1, -3.1), (+16.2, -3.2), (+19.3, -3.2), (+22.4, -3.2), (+25.5, -3.2), (+28.6, -3.2), (+31.7, -3.2), and (+34.8, -3.2) which indicate construction zones or roadwork. Additionally, there are pedestrians moving in the crosswalk ahead to the right, with locations at (+12.0, -10.0), (+12.0, -10.8), (+12.0, -11.6), and (+11.9, -12.4), which requires careful attention to ensure their safety. A moving car is also noted in the opposite-flow lane to the left at (+10.0, +8.9), which could potentially cross paths. Lastly, the presence of a green traffic light for your lane indicates that you can proceed but should remain vigilant for any changes.",
+            "reference": "In this scenario, the presence of a construction zone marked by orange barriers, multiple traffic cones, and pedestrians requires careful attention. Specifically, there are traffic cones located at positions like (+6.9, -9.4), (+11.2, -8.6), and (+4.9, -4.1), as well as pedestrians at locations such as (+18.7, -9.1) and (+8.8, -10.0). Additionally, a moving car ahead in the same direction at (+47.5, +1.8) traveling at (+13.6, +1.0) m/s also needs to be monitored.",
+            "f1": 0.4409448818897638,
+            "baseline_f1": 0.4409448818897638,
+            "f1_loss": 0.0,
+            "answer_equal": false,
+            "output_token_f1": 0.9940119760479041,
+            "task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": false,
+              "numeric_values": [
+                -7.3,
+                -3.1,
+                1.9,
+                -3.0,
+                10.0,
+                -3.1,
+                13.1,
+                -3.1,
+                16.2,
+                -3.2,
+                19.3,
+                -3.2,
+                22.4,
+                -3.2,
+                25.5,
+                -3.2,
+                28.6,
+                -3.2,
+                31.7,
+                -3.2,
+                34.8,
+                -3.2,
+                12.0,
+                -10.0,
+                12.0,
+                -10.8,
+                12.0,
+                -11.6,
+                11.9,
+                -12.4,
+                10.0,
+                8.9
+              ],
+              "reference_numeric_values": [
+                6.9,
+                -9.4,
+                11.2,
+                -8.6,
+                4.9,
+                -4.1,
+                18.7,
+                -9.1,
+                8.8,
+                -10.0,
+                47.5,
+                1.8,
+                13.6,
+                1.0
+              ],
+              "numeric_value_precision": 0.03125,
+              "numeric_value_recall": 0.07142857142857142,
+              "numeric_aligned_mae": null,
+              "spatial_label_match": false,
+              "spatial_label_f1": 0.5,
+              "motion_label_match": true,
+              "motion_label_f1": 1.0,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "baseline_task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": false,
+              "numeric_values": [
+                -7.3,
+                -3.1,
+                1.9,
+                -3.0,
+                10.0,
+                -3.1,
+                13.1,
+                -3.1,
+                16.2,
+                -3.2,
+                19.3,
+                -3.2,
+                22.4,
+                -3.2,
+                25.5,
+                -3.2,
+                28.6,
+                -3.2,
+                31.7,
+                -3.2,
+                34.8,
+                -3.2,
+                12.0,
+                -10.0,
+                12.0,
+                -10.8,
+                12.0,
+                -11.6,
+                11.8,
+                -12.4,
+                10.0,
+                8.9
+              ],
+              "reference_numeric_values": [
+                6.9,
+                -9.4,
+                11.2,
+                -8.6,
+                4.9,
+                -4.1,
+                18.7,
+                -9.1,
+                8.8,
+                -10.0,
+                47.5,
+                1.8,
+                13.6,
+                1.0
+              ],
+              "numeric_value_precision": 0.03125,
+              "numeric_value_recall": 0.07142857142857142,
+              "numeric_aligned_mae": null,
+              "spatial_label_match": false,
+              "spatial_label_f1": 0.5,
+              "motion_label_match": true,
+              "motion_label_f1": 1.0,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "critical_regressions": 0,
+            "versus_previous_wsgrr": {
+              "f1": 0.4409448818897638,
+              "baseline_f1": 0.475,
+              "f1_loss": 0.034055118110236204,
+              "answer_equal": false,
+              "output_token_f1": 0.79375,
+              "task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  -7.3,
+                  -3.1,
+                  1.9,
+                  -3.0,
+                  10.0,
+                  -3.1,
+                  13.1,
+                  -3.1,
+                  16.2,
+                  -3.2,
+                  19.3,
+                  -3.2,
+                  22.4,
+                  -3.2,
+                  25.5,
+                  -3.2,
+                  28.6,
+                  -3.2,
+                  31.7,
+                  -3.2,
+                  34.8,
+                  -3.2,
+                  12.0,
+                  -10.0,
+                  12.0,
+                  -10.8,
+                  12.0,
+                  -11.6,
+                  11.9,
+                  -12.4,
+                  10.0,
+                  8.9
+                ],
+                "reference_numeric_values": [
+                  6.9,
+                  -9.4,
+                  11.2,
+                  -8.6,
+                  4.9,
+                  -4.1,
+                  18.7,
+                  -9.1,
+                  8.8,
+                  -10.0,
+                  47.5,
+                  1.8,
+                  13.6,
+                  1.0
+                ],
+                "numeric_value_precision": 0.03125,
+                "numeric_value_recall": 0.07142857142857142,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": false,
+                "spatial_label_f1": 0.5,
+                "motion_label_match": true,
+                "motion_label_f1": 1.0,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "baseline_task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  -7.3,
+                  -3.1,
+                  1.9,
+                  -3.0,
+                  10.0,
+                  -3.1,
+                  13.1,
+                  -3.1,
+                  16.2,
+                  -3.2,
+                  19.3,
+                  -3.2,
+                  22.4,
+                  -3.2,
+                  25.5,
+                  -3.2,
+                  28.6,
+                  -3.2,
+                  31.7,
+                  -3.2,
+                  11.0,
+                  -6.8,
+                  11.0,
+                  -7.8,
+                  10.0,
+                  8.7
+                ],
+                "reference_numeric_values": [
+                  6.9,
+                  -9.4,
+                  11.2,
+                  -8.6,
+                  4.9,
+                  -4.1,
+                  18.7,
+                  -9.1,
+                  8.8,
+                  -10.0,
+                  47.5,
+                  1.8,
+                  13.6,
+                  1.0
+                ],
+                "numeric_value_precision": 0.0,
+                "numeric_value_recall": 0.0,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": false,
+                "spatial_label_f1": 0.5,
+                "motion_label_match": true,
+                "motion_label_f1": 1.0,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "critical_regressions": 0
+            }
+          }
+        ],
+        "scope": "OFFICIAL EVALUATOR ON DECLARED SUBSET, NOT full-val mAP/NDS/Map Score",
+        "limitations": "Numeric/spatial/motion/safety parsers are lexical proxies, not human semantic judgements",
+        "quality_by_anchor_age": [
+          {
+            "mode": "anchor_update",
+            "age": 0,
+            "questions": 1,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "anchor_update",
+            "age": 1,
+            "questions": 28,
+            "mean_f1_loss": -0.009583065262122164,
+            "critical_proxy_regressions": 2
+          },
+          {
+            "mode": "anchor_update",
+            "age": 2,
+            "questions": 1,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "anchor_update",
+            "age": 3,
+            "questions": 3,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "approx_global_residual_reuse",
+            "age": 1,
+            "questions": 4,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "approx_global_residual_reuse",
+            "age": 2,
+            "questions": 3,
+            "mean_f1_loss": 0.0007170868347338896,
+            "critical_proxy_regressions": 0
+          }
+        ],
+        "native_questions_below_perfect_f1": 40
+      },
+      "timing": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 3116.5269089164212,
+          "p50": 2093.7368534505367,
+          "p95": 8987.438149168156,
+          "maximum": 9319.126599933952,
+          "total": 124661.07635665685
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 454.2005832672119,
+          "p50": 518.7291870117188,
+          "p95": 538.4438201904297,
+          "maximum": 990.3330688476562,
+          "total": 18168.023330688477
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 184.693501663208,
+          "p50": 179.6515350341797,
+          "p95": 219.10190811157227,
+          "maximum": 220.8008270263672,
+          "total": 7387.74006652832
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1848.6759610176086,
+          "p50": 816.0507383346558,
+          "p95": 7759.004031848906,
+          "maximum": 8087.1949672698975,
+          "total": 73947.03844070435
+        },
+        "peak_allocated_bytes": 17262771200,
+        "peak_reserved_bytes": 18100518912,
+        "throughput_fps": 0.3208700034448565,
+        "generated_tokens": 2965,
+        "m3_reused_tokens": 0,
+        "global_suffix_skipped_blocks": 154,
+        "global_suffix_reuse_frames": 7,
+        "anchor_updates": 33,
+        "refresh_reasons": {
+          "initial_anchor": 1,
+          "null": 7,
+          "anchor_expired": 3,
+          "m1_full_refresh": 3,
+          "feature_drift": 26
+        },
+        "anchor_ages": {
+          "0": 1,
+          "1": 32,
+          "2": 4,
+          "3": 3
+        },
+        "drift": {
+          "n": 39,
+          "mean": 0.807218712873948,
+          "p50": 0.9441825747489929,
+          "p95": 1.0215857744216919,
+          "maximum": 1.0294796228408813,
+          "total": 31.48152980208397
+        },
+        "snapshot_wall_ms": {
+          "n": 40,
+          "mean": 35.74726339429617,
+          "p50": 24.424305884167552,
+          "p95": 37.54454606678337,
+          "maximum": 503.5304371267557,
+          "total": 1429.8905357718468
+        },
+        "m2_wall_ms": {
+          "n": 40,
+          "mean": 417.33031005132943,
+          "p50": 493.0459044408053,
+          "p95": 501.5386900631711,
+          "maximum": 503.8219327107072,
+          "total": 16693.212402053177
+        },
+        "m3_wall_ms": {
+          "n": 40,
+          "mean": 2077.863761014305,
+          "p50": 1020.2808247413486,
+          "p95": 8079.353432543575,
+          "maximum": 8409.478418994695,
+          "total": 83114.5504405722
+        },
+        "cache_bytes": 260924256,
+        "window_reused": 340,
+        "window_total": 4320,
+        "component_cuda_span_ms": {
+          "m2_patch_embedding": {
+            "n": 40,
+            "mean": 1.1096432000398635,
+            "p50": 1.1065600514411926,
+            "p95": 1.141740757226944,
+            "maximum": 1.2272640466690063,
+            "total": 44.38572800159454
+          },
+          "m2_window_block_": {
+            "n": 40,
+            "mean": 35.334354400634766,
+            "p50": 36.71953582763672,
+            "p95": 39.161763763427736,
+            "maximum": 39.50060844421387,
+            "total": 1413.3741760253906
+          },
+          "m2_suffix_block_": {
+            "n": 40,
+            "mean": 360.807753610611,
+            "p50": 437.27184200286865,
+            "p95": 439.9552659034729,
+            "maximum": 440.9980773925781,
+            "total": 14432.310144424438
+          },
+          "m2_global_state_update": {
+            "n": 40,
+            "mean": 361.5253351047635,
+            "p50": 438.01905822753906,
+            "p95": 440.69960021972656,
+            "maximum": 441.7689514160156,
+            "total": 14461.01340419054
+          }
+        },
+        "global_update_cuda_span_by_kind": {
+          "anchor_update": {
+            "n": 33,
+            "mean": 438.07921346028644,
+            "p50": 438.6611328125,
+            "p95": 440.7046203613281,
+            "maximum": 441.7689514160156,
+            "total": 14456.614044189453
+          },
+          "approx_global_residual_reuse": {
+            "n": 7,
+            "mean": 0.6284800001553127,
+            "p50": 0.6266880035400391,
+            "p95": 0.6475775837898254,
+            "maximum": 0.6481919884681702,
+            "total": 4.399360001087189
+          }
+        }
+      },
+      "service_speedup": 0.9543107518825581,
+      "visual_speedup": 1.05575655231974
+    },
+    {
+      "interval": 4,
+      "threshold": 0.7721027880907059,
+      "quality": {
+        "metrics": {
+          "mAP": {
+            "native": 0.28854640169860885,
+            "candidate": 0.2837211834816308,
+            "loss": 0.004825218216978067
+          },
+          "NDS": {
+            "native": 0.34144248848792563,
+            "candidate": 0.33819300873708896,
+            "loss": 0.00324947975083667
+          },
+          "DET_l": {
+            "native": 0.23200015723705292,
+            "candidate": 0.23067884147167206,
+            "loss": 0.0013213157653808594
+          },
+          "Token_F1": {
+            "native": 0.35927049781771564,
+            "candidate": 0.3708496613460842,
+            "loss": -0.011579163528368575
+          }
+        },
+        "within_initial_budgets": true,
+        "initial_budgets": {
+          "mAP": 0.005,
+          "NDS": 0.005,
+          "DET_l": 0.005,
+          "Token_F1": 0.02
+        },
+        "critical_proxy_regressions_vs_native": 2,
+        "new_critical_proxy_regressions_vs_wsgrr": 4,
+        "retained_critical_cases": [
+          {
+            "frame_id": "88a6b5e35eb44deba6b1065d74b0a3c4",
+            "question": "How does the road layout ahead appear to be?",
+            "native_answer": "The road ahead is clear with no visible obstructions, and it appears to be a standard two-way street.",
+            "answer": "The road ahead is clear with no visible obstructions, and it appears to be a standard two-way street.",
+            "reference": "The road ahead appears to be a multi-lane urban street, with visible lane markings suggesting at least two lanes in each direction.",
+            "f1": 0.5238095238095238,
+            "baseline_f1": 0.5238095238095238,
+            "f1_loss": 0.0,
+            "answer_equal": true,
+            "output_token_f1": 1.0,
+            "task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": true,
+              "numeric_values": [
+                2.0
+              ],
+              "reference_numeric_values": [
+                2.0
+              ],
+              "numeric_value_precision": 1.0,
+              "numeric_value_recall": 1.0,
+              "numeric_aligned_mae": 0.0,
+              "spatial_label_match": true,
+              "spatial_label_f1": 1.0,
+              "motion_label_match": null,
+              "motion_label_f1": null,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "baseline_task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": true,
+              "numeric_values": [
+                2.0
+              ],
+              "reference_numeric_values": [
+                2.0
+              ],
+              "numeric_value_precision": 1.0,
+              "numeric_value_recall": 1.0,
+              "numeric_aligned_mae": 0.0,
+              "spatial_label_match": true,
+              "spatial_label_f1": 1.0,
+              "motion_label_match": null,
+              "motion_label_f1": null,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "critical_regressions": 0,
+            "versus_previous_wsgrr": {
+              "f1": 0.5238095238095238,
+              "baseline_f1": 0.625,
+              "f1_loss": 0.10119047619047616,
+              "answer_equal": false,
+              "output_token_f1": 0.8181818181818182,
+              "task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": true,
+                "numeric_values": [
+                  2.0
+                ],
+                "reference_numeric_values": [
+                  2.0
+                ],
+                "numeric_value_precision": 1.0,
+                "numeric_value_recall": 1.0,
+                "numeric_aligned_mae": 0.0,
+                "spatial_label_match": true,
+                "spatial_label_f1": 1.0,
+                "motion_label_match": null,
+                "motion_label_f1": null,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "baseline_task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  2.0,
+                  1.0
+                ],
+                "reference_numeric_values": [
+                  2.0
+                ],
+                "numeric_value_precision": 0.5,
+                "numeric_value_recall": 1.0,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": true,
+                "spatial_label_f1": 1.0,
+                "motion_label_match": null,
+                "motion_label_f1": null,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "critical_regressions": 0
+            }
+          },
+          {
+            "frame_id": "fd612e8660e74196af7da7e6487e5d53",
+            "question": "Are there any traffic elements that could influence your driving behavior?",
+            "native_answer": "Yes, there are several traffic elements that could influence driving behavior in this scenario. Firstly, there are multiple traffic cones placed in various locations around your vehicle, specifically at (-7.3, -3.1), (+1.9, -3.0), (+10.0, -3.1), (+13.1, -3.1), (+16.2, -3.2), (+19.3, -3.2), (+22.4, -3.2), (+25.5, -3.2), (+28.6, -3.2), (+31.7, -3.2), and (+34.8, -3.2) which indicate construction zones or roadwork. Additionally, there are pedestrians moving in the crosswalk ahead to the right, with locations at (+12.0, -10.0), (+12.0, -10.8), (+12.0, -11.6), and (+11.8, -12.4), which requires careful attention to ensure their safety. A moving car is also noted in the opposite-flow lane to the left at (+10.0, +8.9), which could potentially cross paths. Lastly, the presence of a green traffic light for your lane indicates that you can proceed but should remain vigilant for any changes.",
+            "answer": "Yes, there are several traffic elements that could influence driving behavior in this scenario. Firstly, there are multiple traffic cones placed in various locations around your vehicle, specifically at (-7.3, -3.1), (+1.9, -3.0), (+10.0, -3.1), (+13.1, -3.1), (+16.2, -3.2), (+19.3, -3.2), (+22.4, -3.2), (+25.5, -3.2), (+28.6, -3.2), (+31.7, -3.2), and (+34.8, -3.2) which indicate construction zones or roadwork. Additionally, there are pedestrians moving in the crosswalk ahead to the right, with locations at (+12.0, -10.0), (+12.0, -10.8), (+12.0, -11.6), and (+11.8, -12.4), which requires careful attention to ensure their safety. A moving car is also noted in the opposite-flow lane to the left at (+10.0, +8.9), which could potentially cross paths. Lastly, the presence of a green traffic light for your lane indicates that you can proceed but should remain vigilant for any changes.",
+            "reference": "In this scenario, the presence of a construction zone marked by orange barriers, multiple traffic cones, and pedestrians requires careful attention. Specifically, there are traffic cones located at positions like (+6.9, -9.4), (+11.2, -8.6), and (+4.9, -4.1), as well as pedestrians at locations such as (+18.7, -9.1) and (+8.8, -10.0). Additionally, a moving car ahead in the same direction at (+47.5, +1.8) traveling at (+13.6, +1.0) m/s also needs to be monitored.",
+            "f1": 0.4409448818897638,
+            "baseline_f1": 0.4409448818897638,
+            "f1_loss": 0.0,
+            "answer_equal": true,
+            "output_token_f1": 1.0,
+            "task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": false,
+              "numeric_values": [
+                -7.3,
+                -3.1,
+                1.9,
+                -3.0,
+                10.0,
+                -3.1,
+                13.1,
+                -3.1,
+                16.2,
+                -3.2,
+                19.3,
+                -3.2,
+                22.4,
+                -3.2,
+                25.5,
+                -3.2,
+                28.6,
+                -3.2,
+                31.7,
+                -3.2,
+                34.8,
+                -3.2,
+                12.0,
+                -10.0,
+                12.0,
+                -10.8,
+                12.0,
+                -11.6,
+                11.8,
+                -12.4,
+                10.0,
+                8.9
+              ],
+              "reference_numeric_values": [
+                6.9,
+                -9.4,
+                11.2,
+                -8.6,
+                4.9,
+                -4.1,
+                18.7,
+                -9.1,
+                8.8,
+                -10.0,
+                47.5,
+                1.8,
+                13.6,
+                1.0
+              ],
+              "numeric_value_precision": 0.03125,
+              "numeric_value_recall": 0.07142857142857142,
+              "numeric_aligned_mae": null,
+              "spatial_label_match": false,
+              "spatial_label_f1": 0.5,
+              "motion_label_match": true,
+              "motion_label_f1": 1.0,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "baseline_task_metrics": {
+              "numeric_applicable": true,
+              "numeric_exact": false,
+              "numeric_values": [
+                -7.3,
+                -3.1,
+                1.9,
+                -3.0,
+                10.0,
+                -3.1,
+                13.1,
+                -3.1,
+                16.2,
+                -3.2,
+                19.3,
+                -3.2,
+                22.4,
+                -3.2,
+                25.5,
+                -3.2,
+                28.6,
+                -3.2,
+                31.7,
+                -3.2,
+                34.8,
+                -3.2,
+                12.0,
+                -10.0,
+                12.0,
+                -10.8,
+                12.0,
+                -11.6,
+                11.8,
+                -12.4,
+                10.0,
+                8.9
+              ],
+              "reference_numeric_values": [
+                6.9,
+                -9.4,
+                11.2,
+                -8.6,
+                4.9,
+                -4.1,
+                18.7,
+                -9.1,
+                8.8,
+                -10.0,
+                47.5,
+                1.8,
+                13.6,
+                1.0
+              ],
+              "numeric_value_precision": 0.03125,
+              "numeric_value_recall": 0.07142857142857142,
+              "numeric_aligned_mae": null,
+              "spatial_label_match": false,
+              "spatial_label_f1": 0.5,
+              "motion_label_match": true,
+              "motion_label_f1": 1.0,
+              "safety_label_match": null,
+              "safety_label_f1": null
+            },
+            "critical_regressions": 0,
+            "versus_previous_wsgrr": {
+              "f1": 0.4409448818897638,
+              "baseline_f1": 0.475,
+              "f1_loss": 0.034055118110236204,
+              "answer_equal": false,
+              "output_token_f1": 0.79375,
+              "task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  -7.3,
+                  -3.1,
+                  1.9,
+                  -3.0,
+                  10.0,
+                  -3.1,
+                  13.1,
+                  -3.1,
+                  16.2,
+                  -3.2,
+                  19.3,
+                  -3.2,
+                  22.4,
+                  -3.2,
+                  25.5,
+                  -3.2,
+                  28.6,
+                  -3.2,
+                  31.7,
+                  -3.2,
+                  34.8,
+                  -3.2,
+                  12.0,
+                  -10.0,
+                  12.0,
+                  -10.8,
+                  12.0,
+                  -11.6,
+                  11.8,
+                  -12.4,
+                  10.0,
+                  8.9
+                ],
+                "reference_numeric_values": [
+                  6.9,
+                  -9.4,
+                  11.2,
+                  -8.6,
+                  4.9,
+                  -4.1,
+                  18.7,
+                  -9.1,
+                  8.8,
+                  -10.0,
+                  47.5,
+                  1.8,
+                  13.6,
+                  1.0
+                ],
+                "numeric_value_precision": 0.03125,
+                "numeric_value_recall": 0.07142857142857142,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": false,
+                "spatial_label_f1": 0.5,
+                "motion_label_match": true,
+                "motion_label_f1": 1.0,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "baseline_task_metrics": {
+                "numeric_applicable": true,
+                "numeric_exact": false,
+                "numeric_values": [
+                  -7.3,
+                  -3.1,
+                  1.9,
+                  -3.0,
+                  10.0,
+                  -3.1,
+                  13.1,
+                  -3.1,
+                  16.2,
+                  -3.2,
+                  19.3,
+                  -3.2,
+                  22.4,
+                  -3.2,
+                  25.5,
+                  -3.2,
+                  28.6,
+                  -3.2,
+                  31.7,
+                  -3.2,
+                  11.0,
+                  -6.8,
+                  11.0,
+                  -7.8,
+                  10.0,
+                  8.7
+                ],
+                "reference_numeric_values": [
+                  6.9,
+                  -9.4,
+                  11.2,
+                  -8.6,
+                  4.9,
+                  -4.1,
+                  18.7,
+                  -9.1,
+                  8.8,
+                  -10.0,
+                  47.5,
+                  1.8,
+                  13.6,
+                  1.0
+                ],
+                "numeric_value_precision": 0.0,
+                "numeric_value_recall": 0.0,
+                "numeric_aligned_mae": null,
+                "spatial_label_match": false,
+                "spatial_label_f1": 0.5,
+                "motion_label_match": true,
+                "motion_label_f1": 1.0,
+                "safety_label_match": null,
+                "safety_label_f1": null
+              },
+              "critical_regressions": 0
+            }
+          }
+        ],
+        "scope": "OFFICIAL EVALUATOR ON DECLARED SUBSET, NOT full-val mAP/NDS/Map Score",
+        "limitations": "Numeric/spatial/motion/safety parsers are lexical proxies, not human semantic judgements",
+        "quality_by_anchor_age": [
+          {
+            "mode": "anchor_update",
+            "age": 0,
+            "questions": 1,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "anchor_update",
+            "age": 1,
+            "questions": 29,
+            "mean_f1_loss": -0.008415633239619934,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "anchor_update",
+            "age": 2,
+            "questions": 1,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "anchor_update",
+            "age": 4,
+            "questions": 2,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "approx_global_residual_reuse",
+            "age": 1,
+            "questions": 3,
+            "mean_f1_loss": -0.054800643661719994,
+            "critical_proxy_regressions": 2
+          },
+          {
+            "mode": "approx_global_residual_reuse",
+            "age": 2,
+            "questions": 2,
+            "mean_f1_loss": -0.027355623100303955,
+            "critical_proxy_regressions": 0
+          },
+          {
+            "mode": "approx_global_residual_reuse",
+            "age": 3,
+            "questions": 2,
+            "mean_f1_loss": 0.0,
+            "critical_proxy_regressions": 0
+          }
+        ],
+        "native_questions_below_perfect_f1": 40
+      },
+      "timing": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 3006.7898052278906,
+          "p50": 2038.4255913086236,
+          "p95": 7214.743250026361,
+          "maximum": 9555.06800301373,
+          "total": 120271.59220911562
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 454.8603593826294,
+          "p50": 516.1126403808594,
+          "p95": 536.3575408935546,
+          "maximum": 1058.26611328125,
+          "total": 18194.414375305176
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 184.4346118927002,
+          "p50": 179.30239868164062,
+          "p95": 219.48836288452148,
+          "maximum": 220.38015747070312,
+          "total": 7377.384475708008
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1721.4975198745728,
+          "p50": 778.083779335022,
+          "p95": 5850.438349628443,
+          "maximum": 8072.469179153442,
+          "total": 68859.90079498291
+        },
+        "peak_allocated_bytes": 17270307328,
+        "peak_reserved_bytes": 18100518912,
+        "throughput_fps": 0.3325806141358152,
+        "generated_tokens": 2766,
+        "m3_reused_tokens": 0,
+        "global_suffix_skipped_blocks": 154,
+        "global_suffix_reuse_frames": 7,
+        "anchor_updates": 33,
+        "refresh_reasons": {
+          "initial_anchor": 1,
+          "null": 7,
+          "anchor_expired": 2,
+          "feature_drift": 27,
+          "m1_full_refresh": 3
+        },
+        "anchor_ages": {
+          "0": 1,
+          "1": 32,
+          "2": 3,
+          "3": 2,
+          "4": 2
+        },
+        "drift": {
+          "n": 39,
+          "mean": 0.806947009685712,
+          "p50": 0.9441825747489929,
+          "p95": 1.0215857744216919,
+          "maximum": 1.0294796228408813,
+          "total": 31.470933377742767
+        },
+        "snapshot_wall_ms": {
+          "n": 40,
+          "mean": 36.63453093031421,
+          "p50": 24.102952098473907,
+          "p95": 35.353789268992834,
+          "maximum": 556.8329822272062,
+          "total": 1465.3812372125685
+        },
+        "m2_wall_ms": {
+          "n": 40,
+          "mean": 417.09393623750657,
+          "p50": 492.68601136282086,
+          "p95": 501.78753663785756,
+          "maximum": 508.2512772642076,
+          "total": 16683.757449500263
+        },
+        "m3_wall_ms": {
+          "n": 40,
+          "mean": 1948.0758017045446,
+          "p50": 982.4365021195263,
+          "p95": 6140.664083603764,
+          "maximum": 8395.481832325459,
+          "total": 77923.03206818178
+        },
+        "cache_bytes": 260924256,
+        "window_reused": 336,
+        "window_total": 4320,
+        "component_cuda_span_ms": {
+          "m2_patch_embedding": {
+            "n": 40,
+            "mean": 1.1159231930971145,
+            "p50": 1.1067519783973694,
+            "p95": 1.1802783727645874,
+            "maximum": 1.2343039512634277,
+            "total": 44.63692772388458
+          },
+          "m2_window_block_": {
+            "n": 40,
+            "mean": 35.41042807102203,
+            "p50": 36.9105920791626,
+            "p95": 39.33051824569702,
+            "maximum": 39.40559959411621,
+            "total": 1416.4171228408813
+          },
+          "m2_suffix_block_": {
+            "n": 40,
+            "mean": 360.09544224739074,
+            "p50": 436.64918327331543,
+            "p95": 438.61517543792723,
+            "maximum": 439.4321975708008,
+            "total": 14403.81768989563
+          },
+          "m2_global_state_update": {
+            "n": 40,
+            "mean": 360.81227154880764,
+            "p50": 437.3934020996094,
+            "p95": 439.3537994384766,
+            "maximum": 440.1694641113281,
+            "total": 14432.490861952305
+          }
+        },
+        "global_update_cuda_span_by_kind": {
+          "anchor_update": {
+            "n": 33,
+            "mean": 437.21706321022725,
+            "p50": 437.6934509277344,
+            "p95": 439.45020751953126,
+            "maximum": 440.1694641113281,
+            "total": 14428.1630859375
+          },
+          "approx_global_residual_reuse": {
+            "n": 7,
+            "mean": 0.6182537164006915,
+            "p50": 0.6184960007667542,
+            "p95": 0.6306464076042175,
+            "maximum": 0.634880006313324,
+            "total": 4.32777601480484
+          }
+        }
+      },
+      "service_speedup": 0.9891396906225838,
+      "visual_speedup": 1.054225174738582
+    }
+  ]
+}

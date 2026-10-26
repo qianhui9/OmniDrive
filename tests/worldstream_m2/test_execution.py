@@ -29,7 +29,9 @@ def test_identical_windows_skip_attention_and_pointwise(exact_runtime,context):
     assert d['actual_skipped_windows']==d['skipped_pointwise_window_work']==36
     assert d['actual_skipped_block_computations']==2
     assert all(s['pointwise_window_work']==0 for s in d['stages'][:2])
-    assert torch.equal(out[0],rt.model(x)[0])
+    # An identical H2 may use residual arithmetic; cancellation is rounded.
+    assert d['approx_global_residual_reuse']
+    assert torch.allclose(out[0],rt.model(x)[0],atol=3e-6,rtol=3e-6)
 
 
 @torch.no_grad()

@@ -26,9 +26,9 @@ def admitted_runtime(eva,monkeypatch):
 
 @pytest.fixture
 def exact_runtime(eva):
-    """Legacy operator/equality regressions use the explicit offline A baseline."""
+    """Exact prefix controls use offline A and refresh on any H2 drift."""
     from worldstream.m2 import IncrementalVisionRuntime
-    runtime=IncrementalVisionRuntime(eva,dict())
+    runtime=IncrementalVisionRuntime(eva,dict(global_drift_threshold=0.))
     runtime.forward=lambda images,**kwargs:runtime.evaluate_offline(images,variant='A',**kwargs)
     return runtime
 

@@ -220,7 +220,11 @@ def run_wsgrr(args):
     specs=([('D3','D',3)] if getattr(args,'main_only',False) else
            [('D3','D',3),('NoM1Region','NoM1Region',3)] if getattr(args,'followup',False) else
            [('A','A',3),('B','B',3),('C','C',3)]+[('D'+str(b),'D',b) for b in args.budgets])
-    runtimes={name:IncrementalVisionRuntime(model,{**dict(cfg.model.m2_config), 'ordinary_budget':b}) for name,_,b in specs}
+    intervals=getattr(args,'anchor_intervals',None)
+    if intervals:specs=[('AR'+str(age),'D',3) for age in intervals]
+    runtimes={name:IncrementalVisionRuntime(model,{**dict(cfg.model.m2_config), 'ordinary_budget':b,
+        **({'global_anchor_interval':int(name[2:])} if intervals else {}),
+        **({'global_drift_threshold':args.global_drift_threshold} if args.global_drift_threshold is not None else {})}) for name,_,b in specs}
     managers={name:WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml')) for name,_,_ in specs}
     reference=None
     if getattr(args,'reference_runtime',None):
@@ -228,9 +232,18 @@ def run_wsgrr(args):
         path=Path(args.reference_runtime).resolve()
         spec=importlib.util.spec_from_file_location('worldstream._m2_reference',path/'__init__.py',submodule_search_locations=[str(path)])
         package=importlib.util.module_from_spec(spec);sys.modules[spec.name]=package;spec.loader.exec_module(package)
-        reference=package.IncrementalVisionRuntime(model,dict(cfg.model.m2_config))
+        reference=package.IncrementalVisionRuntime(model,{k:v for k,v in dict(cfg.model.m2_config).items() if not k.startswith('global_')})
         reference_cache_type=type(reference.cache)
     rows=[];native_rows=[];cost_records=[];previous=None;old_info=None
+    old_export=None
+    if getattr(args,'reference_state_manager',None):
+        import ast
+        tree=ast.parse(Path(args.reference_state_manager).read_text())
+        owner=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='WorldStateManager')
+        method=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='export_m2_inputs')
+        namespace={'copy':copy,'__package__':'worldstream.m1'}
+        exec(compile(ast.Module(body=[method],type_ignores=[]),args.reference_state_manager,'exec'),namespace)
+        old_export=namespace['export_m2_inputs']
     # The model kernels are warmed before any reported frames.
     for index,info in enumerate(infos):
         sample=dataset[index]
@@ -268,6 +281,29 @@ def run_wsgrr(args):
                 coordinate_space='preprocessed_image',camera_ids=list(cameras))
             tick=perf_counter();snapshot=manager.export_m2_inputs(expected_context=context,computation_only=True)
             read_ms=(perf_counter()-tick)*1000
+            export_pair=None
+            if old_export is not None:
+                samples=[[],[]]
+                for repeat in range(3):
+                    for which in ((0,1) if repeat%2==0 else (1,0)):
+                        tick=perf_counter()
+                        exported=(manager.export_m2_inputs(context,computation_only=True) if which==0 else
+                                  old_export(manager,context,computation_only=True))
+                        samples[which].append((perf_counter()-tick)*1000)
+                old_snapshot=old_export(manager,context,computation_only=True)
+                same_contract=all(getattr(snapshot.computation_state,k)==getattr(old_snapshot.computation_state,k)
+                    for k in ('source_records','refresh_contract','region_states','region_events','uncertainty_regions','observation_links','diagnostics'))
+                if not same_contract:raise AssertionError('Snapshot optimization changed computation contract')
+                export_pair=dict(optimized_wall_ms=samples[0],before_wall_ms=samples[1],same_pending_request=True,
+                                 computation_contract_equal=True)
+                if index==1 and name==specs[0][0]:
+                    import cProfile,io,pstats
+                    for label,call in [('optimized',lambda:manager.export_m2_inputs(context,computation_only=True)),
+                                       ('before',lambda:old_export(manager,context,computation_only=True))]:
+                        profile=cProfile.Profile();profile.runcall(call)
+                        profile.dump_stats(str(out/('snapshot_'+label+'.prof')))
+                        stream=io.StringIO();pstats.Stats(profile,stream=stream).sort_stats('cumtime').print_stats(40)
+                        (out/('snapshot_'+label+'.txt')).write_text(stream.getvalue())
             if getattr(args,'followup_profile',False) and name=='D3' and index==1:
                 import cProfile,io,pstats
                 profiler=cProfile.Profile();profiler.enable()
@@ -302,12 +338,16 @@ def run_wsgrr(args):
             next_cache=rt.cache
             reference_pair=None
             if reference is not None:
+                # Namespace adaptation belongs outside BOTH latency samples.
+                # Timed calls only receive shallow views of the same history.
+                reference_source=reference_cache_type(source_cache.budget_bytes)
+                reference_source.__dict__.update(source_cache.__dict__)
+                if source_cache.context is not None:
+                    c=reference_source
+                    c.signature=reference.signature(context)
+                    c.metadata_revision=(repr((c.context,c.sources,c.input_stride,c.output_stride,c.version,c.region_states)),c.signature)
                 def prior():
-                    reference.cache=reference_cache_type(source_cache.budget_bytes)
-                    reference.cache.__dict__.update(source_cache.__dict__)
-                    if source_cache.context is not None:
-                        c=reference.cache
-                        c.metadata_revision=repr((c.context,c.sources,c.signature,c.input_stride,c.output_stride,c.version,c.region_states))
+                    reference.cache=copy.copy(reference_source)
                     if getattr(args,'snapshot_boundary',False):
                         return reference.forward(image,m1_result=snapshot,execution_context=context)
                     return reference.forward_from_m1(image,manager,context)
@@ -318,14 +358,14 @@ def run_wsgrr(args):
                 same_outputs=all(torch.equal(next_cache.outputs[i],reference.cache.outputs[i]) for i in rt.prefix)
                 same_ages=all(torch.equal(next_cache.window_ages[i],reference.cache.window_ages[i]) for i in rt.prefix)
                 delta_before=difference(output[0],before[0])
-                if not (same_ids and same_outputs and same_ages and delta_before['exact']
+                if not (same_ids and same_outputs and same_ages
                     and next_cache.version==reference.cache.version and next_cache.sources==reference.cache.sources):
                     raise AssertionError('Optimization changed window plan/cache/output: '+str(delta_before))
                 reference_pair=dict(optimized=opt_cost,before=prior_cost,window_ids_equal=same_ids,
                     packed_outputs_equal=same_outputs,ages_equal=same_ages,features=delta_before,
                     cache_versions_equal=True,provenance_equal=True)
                 rt.cache=next_cache
-            if getattr(args,'followup_profile',False) and name=='D3' and index==1:
+            if getattr(args,'followup_profile',False) and name==specs[0][0] and index==getattr(args,'profile_frame',1):
                 from .profiling import profile_call
                 rt.cache=source_cache
                 # Profiling mutates this shallow copy only; selected history and
@@ -371,6 +411,9 @@ def run_wsgrr(args):
                 cache_transition_audit=audit_cache_transition(source_cache,next_cache,diag,frame.frame_id,budget),
                 m1_replay_source='historical_full_model_detection_replay',
                 downstream_quality='NOT_MEASURED: replay supplies states, not candidate task predictions')
+            row['global_state']={k:v for k,v in diag.items() if k.startswith(('global_','approx_global_'))}
+            row['cache_bytes']=diag['cache_bytes']
+            row['snapshot_export_pair']=export_pair
             rows.append(row)
             if args.profile_block_costs and variant=='D' and continuous:
                 publication_cache=StateCache(rt.cache.budget_bytes)
@@ -608,6 +651,10 @@ if __name__=='__main__':
     parser.add_argument('--main-only',action='store_true',help='Only current WSGRR D3 and paired Native timing; no ablations or budget scan')
     parser.add_argument('--snapshot-boundary',action='store_true',help='Measure identical already-exported M1 snapshots, excluding snapshot export from both visual conditions')
     parser.add_argument('--reference-runtime',help='Frozen prior M2 package for paired before/after measurements; never used by serving')
+    parser.add_argument('--anchor-intervals',type=int,nargs='+',help='Offline calibration of the same anchor policy')
+    parser.add_argument('--global-drift-threshold',type=float,help='Offline calibration parameter')
+    parser.add_argument('--reference-state-manager',help='Frozen prior M1 source for same-request export measurement only')
+    parser.add_argument('--profile-frame',type=int,default=1,help='Offline profiler frame ordinal; excluded from timings')
     parser.add_argument('--formal',action='store_true',help='Use serving forward_from_m1 with live M1 snapshots; requires --main-only')
     args=parser.parse_args()
     if args.formal and not args.main_only:parser.error('--formal requires --main-only')

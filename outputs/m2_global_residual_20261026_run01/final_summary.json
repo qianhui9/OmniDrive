@@ -1,0 +1,1464 @@
+{
+  "selection": {
+    "interval": 2,
+    "threshold": 0.7721027880907059,
+    "status": "development_metric_budget_pass",
+    "reason": "Lowest measured complete service mean among candidates within all four user-specified initial quality budgets; numeric/spatial/motion/safety regressions are reported separately and are not certified by aggregate budgets",
+    "new_critical_proxy_regressions_vs_wsgrr": 6,
+    "validation_used": false
+  },
+  "rounds": [
+    {
+      "native": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 2871.69235952897,
+          "p50": 1741.042077774182,
+          "p95": 9139.803732396103,
+          "maximum": 9260.727643966675,
+          "total": 114867.6943811588
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 481.1990592956543,
+          "p50": 482.4818115234375,
+          "p95": 484.003955078125,
+          "maximum": 484.8853454589844,
+          "total": 19247.962371826172
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 189.22970848083497,
+          "p50": 183.84435272216797,
+          "p95": 223.60472412109374,
+          "maximum": 225.79405212402344,
+          "total": 7569.188339233398
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1887.8060574531555,
+          "p50": 793.5519323348999,
+          "p95": 8086.306047534943,
+          "maximum": 8110.5597133636475,
+          "total": 75512.24229812622
+        },
+        "peak_allocated_bytes": 16485273600,
+        "peak_reserved_bytes": 16903045120,
+        "throughput_fps": 0.3482267160971328,
+        "generated_tokens": 3022,
+        "m3_reused_tokens": 0
+      },
+      "formal": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 3003.8187691941857,
+          "p50": 2438.976669916883,
+          "p95": 6588.9395247446355,
+          "maximum": 9227.780885994434,
+          "total": 120152.75076776743
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 489.13892631530763,
+          "p50": 518.5377502441406,
+          "p95": 561.8557067871081,
+          "maximum": 1083.0869140625,
+          "total": 19565.557052612305
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 184.9969783782959,
+          "p50": 179.615234375,
+          "p95": 219.75916137695313,
+          "maximum": 220.5675506591797,
+          "total": 7399.879135131836
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1642.4069129943848,
+          "p50": 779.1681413650513,
+          "p95": 5252.777967262266,
+          "maximum": 7744.571165084839,
+          "total": 65696.27651977539
+        },
+        "peak_allocated_bytes": 17271109120,
+        "peak_reserved_bytes": 18205376512,
+        "throughput_fps": 0.3329095650694876,
+        "generated_tokens": 2640,
+        "m3_reused_tokens": 0,
+        "global_suffix_skipped_blocks": 110,
+        "global_suffix_reuse_frames": 5,
+        "anchor_updates": 35,
+        "refresh_reasons": {
+          "initial_anchor": 1,
+          "null": 5,
+          "anchor_expired": 5,
+          "feature_drift": 26,
+          "m1_full_refresh": 3
+        },
+        "anchor_ages": {
+          "0": 1,
+          "1": 34,
+          "2": 5
+        },
+        "drift": {
+          "n": 39,
+          "mean": 0.8051990469296774,
+          "p50": 0.9441825747489929,
+          "p95": 1.0215857744216919,
+          "maximum": 1.0294796228408813,
+          "total": 31.402762830257416
+        },
+        "snapshot_wall_ms": {
+          "n": 40,
+          "mean": 49.180850479751825,
+          "p50": 24.463035631924868,
+          "p95": 60.614647250621196,
+          "maximum": 582.2951281443238,
+          "total": 1967.234019190073
+        },
+        "m1_wall_ms": {
+          "n": 40,
+          "mean": 326.5810458920896,
+          "p50": 281.31979750469327,
+          "p95": 788.3473989320919,
+          "maximum": 841.6063757613301,
+          "total": 13063.241835683584
+        },
+        "m2_wall_ms": {
+          "n": 40,
+          "mean": 438.80136063089594,
+          "p50": 493.1691780220717,
+          "p95": 500.52868528291583,
+          "maximum": 501.7427788116038,
+          "total": 17552.054425235838
+        },
+        "m3_wall_ms": {
+          "n": 40,
+          "mean": 1868.4255289845169,
+          "p50": 985.2150755468756,
+          "p95": 5528.806828800587,
+          "maximum": 8066.29850436002,
+          "total": 74737.02115938067
+        },
+        "cache_publication_host_ms": {
+          "n": 40,
+          "mean": 377.0344509044662,
+          "p50": 431.0009491164237,
+          "p95": 432.3201141320169,
+          "maximum": 432.52863083034754,
+          "total": 15081.378036178648
+        },
+        "cache_bytes": 260924256,
+        "window_reused": 348,
+        "window_total": 4320,
+        "component_cuda_span_ms": {
+          "m2_patch_embedding": {
+            "n": 40,
+            "mean": 1.1185287982225418,
+            "p50": 1.1084160208702087,
+            "p95": 1.196364825963974,
+            "maximum": 1.2346559762954712,
+            "total": 44.74115192890167
+          },
+          "m2_window_block_": {
+            "n": 40,
+            "mean": 35.2370512008667,
+            "p50": 36.790656089782715,
+            "p95": 39.35183544158936,
+            "maximum": 39.59926414489746,
+            "total": 1409.482048034668
+          },
+          "m2_suffix_block_": {
+            "n": 40,
+            "mean": 382.3498064041138,
+            "p50": 437.45559787750244,
+            "p95": 438.9084237098694,
+            "maximum": 439.30112648010254,
+            "total": 15293.99225616455
+          },
+          "m2_global_state_update": {
+            "n": 40,
+            "mean": 383.07841568738223,
+            "p50": 438.2074890136719,
+            "p95": 439.6474868774414,
+            "maximum": 440.0425109863281,
+            "total": 15323.136627495289
+          }
+        },
+        "global_update_cuda_span_by_kind": {
+          "anchor_update": {
+            "n": 35,
+            "mean": 437.7144060407366,
+            "p50": 438.45428466796875,
+            "p95": 439.6897308349609,
+            "maximum": 440.0425109863281,
+            "total": 15320.004211425781
+          },
+          "approx_global_residual_reuse": {
+            "n": 5,
+            "mean": 0.6264832139015197,
+            "p50": 0.6215680241584778,
+            "p95": 0.645529592037201,
+            "maximum": 0.6481919884681702,
+            "total": 3.132416069507599
+          }
+        }
+      },
+      "speedup": 0.9560138544241601
+    },
+    {
+      "native": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 2874.9893574626185,
+          "p50": 1758.363661589101,
+          "p95": 9158.393353014253,
+          "maximum": 9192.543944809586,
+          "total": 114999.57429850474
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 480.34424285888673,
+          "p50": 481.2777557373047,
+          "p95": 483.32762451171874,
+          "maximum": 484.20880126953125,
+          "total": 19213.76971435547
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 189.33217163085936,
+          "p50": 183.7649917602539,
+          "p95": 224.699308013916,
+          "maximum": 226.05209350585938,
+          "total": 7573.286865234375
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1888.6990162849427,
+          "p50": 795.2671689987183,
+          "p95": 8079.192794132233,
+          "maximum": 8114.274845123291,
+          "total": 75547.9606513977
+        },
+        "peak_allocated_bytes": 16485273600,
+        "peak_reserved_bytes": 16903045120,
+        "throughput_fps": 0.3478273745272472,
+        "generated_tokens": 3022,
+        "m3_reused_tokens": 0
+      },
+      "formal": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 3022.932225151453,
+          "p50": 2456.7465065047145,
+          "p95": 6592.215146403758,
+          "maximum": 9327.18668691814,
+          "total": 120917.28900605813
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 489.2278188705444,
+          "p50": 518.03271484375,
+          "p95": 564.2183746337878,
+          "maximum": 1076.822998046875,
+          "total": 19569.112754821777
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 185.1208351135254,
+          "p50": 179.37953186035156,
+          "p95": 219.4760673522949,
+          "maximum": 221.80557250976562,
+          "total": 7404.833404541016
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1644.0795300483703,
+          "p50": 781.0048131942749,
+          "p95": 5255.569390392302,
+          "maximum": 7747.988134384155,
+          "total": 65763.18120193481
+        },
+        "peak_allocated_bytes": 17271109120,
+        "peak_reserved_bytes": 18205376512,
+        "throughput_fps": 0.330804637854525,
+        "generated_tokens": 2640,
+        "m3_reused_tokens": 0,
+        "global_suffix_skipped_blocks": 110,
+        "global_suffix_reuse_frames": 5,
+        "anchor_updates": 35,
+        "refresh_reasons": {
+          "initial_anchor": 1,
+          "null": 5,
+          "anchor_expired": 5,
+          "feature_drift": 26,
+          "m1_full_refresh": 3
+        },
+        "anchor_ages": {
+          "0": 1,
+          "1": 34,
+          "2": 5
+        },
+        "drift": {
+          "n": 39,
+          "mean": 0.8051990469296774,
+          "p50": 0.9441825747489929,
+          "p95": 1.0215857744216919,
+          "maximum": 1.0294796228408813,
+          "total": 31.402762830257416
+        },
+        "snapshot_wall_ms": {
+          "n": 40,
+          "mean": 49.143033276777714,
+          "p50": 24.2607060354203,
+          "p95": 61.46359457634257,
+          "maximum": 577.2597999311984,
+          "total": 1965.7213310711086
+        },
+        "m1_wall_ms": {
+          "n": 40,
+          "mean": 330.9597967308946,
+          "p50": 283.2941529341042,
+          "p95": 783.5625486914066,
+          "maximum": 893.609581515193,
+          "total": 13238.391869235784
+        },
+        "m2_wall_ms": {
+          "n": 40,
+          "mean": 438.964459951967,
+          "p50": 492.9616581648588,
+          "p95": 501.17529712151736,
+          "maximum": 503.0396291986108,
+          "total": 17558.57839807868
+        },
+        "m3_wall_ms": {
+          "n": 40,
+          "mean": 1870.3834788291715,
+          "p50": 987.5983791425824,
+          "p95": 5529.817962716332,
+          "maximum": 8067.0418702065945,
+          "total": 74815.33915316686
+        },
+        "cache_publication_host_ms": {
+          "n": 40,
+          "mean": 377.3858370492235,
+          "p50": 431.3760781660676,
+          "p95": 432.86609917413443,
+          "maximum": 433.39757807552814,
+          "total": 15095.43348196894
+        },
+        "cache_bytes": 260924256,
+        "window_reused": 348,
+        "window_total": 4320,
+        "component_cuda_span_ms": {
+          "m2_patch_embedding": {
+            "n": 40,
+            "mean": 1.1162279933691024,
+            "p50": 1.1105120182037354,
+            "p95": 1.1770112216472626,
+            "maximum": 1.2254079580307007,
+            "total": 44.6491197347641
+          },
+          "m2_window_block_": {
+            "n": 40,
+            "mean": 35.26805655956268,
+            "p50": 36.92859172821045,
+            "p95": 39.0124270439148,
+            "maximum": 39.615678787231445,
+            "total": 1410.7222623825073
+          },
+          "m2_suffix_block_": {
+            "n": 40,
+            "mean": 382.5756989002228,
+            "p50": 437.8911027908325,
+            "p95": 439.46425285339353,
+            "maximum": 439.5155830383301,
+            "total": 15303.027956008911
+          },
+          "m2_global_state_update": {
+            "n": 40,
+            "mean": 383.30074629038575,
+            "p50": 438.64935302734375,
+            "p95": 440.2164840698242,
+            "maximum": 440.258544921875,
+            "total": 15332.029851615429
+          }
+        },
+        "global_update_cuda_span_by_kind": {
+          "anchor_update": {
+            "n": 35,
+            "mean": 437.97001953125,
+            "p50": 438.6744384765625,
+            "p95": 440.22621154785156,
+            "maximum": 440.258544921875,
+            "total": 15328.95068359375
+          },
+          "approx_global_residual_reuse": {
+            "n": 5,
+            "mean": 0.6158336043357849,
+            "p50": 0.6154239773750305,
+            "p95": 0.6232063889503479,
+            "maximum": 0.6236159801483154,
+            "total": 3.0791680216789246
+          }
+        }
+      },
+      "speedup": 0.9510598132310352
+    },
+    {
+      "native": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 2867.52171657281,
+          "p50": 1727.362783625722,
+          "p95": 9138.987206039019,
+          "maximum": 9188.113904558122,
+          "total": 114700.8686629124
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 480.71667556762696,
+          "p50": 482.126708984375,
+          "p95": 483.7198852539062,
+          "maximum": 483.99078369140625,
+          "total": 19228.667022705078
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 189.30843276977538,
+          "p50": 184.10323333740234,
+          "p95": 224.56238403320313,
+          "maximum": 226.07974243164062,
+          "total": 7572.337310791016
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1887.8181962013246,
+          "p50": 793.7936677932739,
+          "p95": 8081.516667366028,
+          "maximum": 8116.216121673584,
+          "total": 75512.72784805298
+        },
+        "peak_allocated_bytes": 16485273600,
+        "peak_reserved_bytes": 16903045120,
+        "throughput_fps": 0.3487331915292955,
+        "generated_tokens": 3022,
+        "m3_reused_tokens": 0
+      },
+      "formal": {
+        "frames": 40,
+        "request_ms": {
+          "n": 40,
+          "mean": 3143.082004599273,
+          "p50": 2564.2784740775824,
+          "p95": 6719.534923206082,
+          "maximum": 9402.82731084153,
+          "total": 125723.28018397093
+        },
+        "visual_cuda_span_ms": {
+          "n": 40,
+          "mean": 488.64368495941164,
+          "p50": 518.0529479980469,
+          "p95": 563.4338226318347,
+          "maximum": 1084.275146484375,
+          "total": 19545.747398376465
+        },
+        "prefill_cuda_ms": {
+          "n": 40,
+          "mean": 184.81286163330077,
+          "p50": 179.54456329345703,
+          "p95": 220.06387023925782,
+          "maximum": 220.82371520996094,
+          "total": 7392.514465332031
+        },
+        "decode_cuda_ms": {
+          "n": 40,
+          "mean": 1643.1313220024108,
+          "p50": 779.0062408447266,
+          "p95": 5255.718007469176,
+          "maximum": 7745.548301696777,
+          "total": 65725.25288009644
+        },
+        "peak_allocated_bytes": 17271109120,
+        "peak_reserved_bytes": 18205376512,
+        "throughput_fps": 0.3181590548820233,
+        "generated_tokens": 2640,
+        "m3_reused_tokens": 0,
+        "global_suffix_skipped_blocks": 110,
+        "global_suffix_reuse_frames": 5,
+        "anchor_updates": 35,
+        "refresh_reasons": {
+          "initial_anchor": 1,
+          "null": 5,
+          "anchor_expired": 5,
+          "feature_drift": 26,
+          "m1_full_refresh": 3
+        },
+        "anchor_ages": {
+          "0": 1,
+          "1": 34,
+          "2": 5
+        },
+        "drift": {
+          "n": 39,
+          "mean": 0.8051990469296774,
+          "p50": 0.9441825747489929,
+          "p95": 1.0215857744216919,
+          "maximum": 1.0294796228408813,
+          "total": 31.402762830257416
+        },
+        "snapshot_wall_ms": {
+          "n": 40,
+          "mean": 49.19138493714854,
+          "p50": 24.597904877737164,
+          "p95": 61.409755772909705,
+          "maximum": 583.4583467803895,
+          "total": 1967.6553974859416
+        },
+        "m1_wall_ms": {
+          "n": 40,
+          "mean": 332.12806505616754,
+          "p50": 284.86230270937085,
+          "p95": 791.2754686782135,
+          "maximum": 857.8123231418431,
+          "total": 13285.122602246702
+        },
+        "m2_wall_ms": {
+          "n": 40,
+          "mean": 438.30046337097883,
+          "p50": 492.5994661170989,
+          "p95": 501.8695483217016,
+          "maximum": 502.6713730767369,
+          "total": 17532.018534839153
+        },
+        "m3_wall_ms": {
+          "n": 40,
+          "mean": 1869.2406286019832,
+          "p50": 984.6314680762589,
+          "p95": 5533.89762053266,
+          "maximum": 8066.581862978637,
+          "total": 74769.62514407933
+        },
+        "cache_publication_host_ms": {
+          "n": 40,
+          "mean": 376.401687390171,
+          "p50": 430.2406411152333,
+          "p95": 432.3064979398623,
+          "maximum": 432.9366721212864,
+          "total": 15056.06749560684
+        },
+        "cache_bytes": 260924256,
+        "window_reused": 348,
+        "window_total": 4320,
+        "component_cuda_span_ms": {
+          "m2_patch_embedding": {
+            "n": 40,
+            "mean": 1.1157664000988006,
+            "p50": 1.1093119978904724,
+            "p95": 1.187708806991577,
+            "maximum": 1.232192039489746,
+            "total": 44.630656003952026
+          },
+          "m2_window_block_": {
+            "n": 40,
+            "mean": 35.25418255329132,
+            "p50": 36.81376075744629,
+            "p95": 39.12117872238159,
+            "maximum": 39.523582458496094,
+            "total": 1410.1673021316528
+          },
+          "m2_suffix_block_": {
+            "n": 40,
+            "mean": 381.7420175552368,
+            "p50": 436.8539352416992,
+            "p95": 438.8155005455017,
+            "maximum": 439.8357753753662,
+            "total": 15269.680702209473
+          },
+          "m2_global_state_update": {
+            "n": 40,
+            "mean": 382.4650901481509,
+            "p50": 437.6058807373047,
+            "p95": 439.55875701904296,
+            "maximum": 440.57293701171875,
+            "total": 15298.603605926037
+          }
+        },
+        "global_update_cuda_span_by_kind": {
+          "anchor_update": {
+            "n": 35,
+            "mean": 437.01532679966516,
+            "p50": 438.1245422363281,
+            "p95": 439.5823089599609,
+            "maximum": 440.57293701171875,
+            "total": 15295.536437988281
+          },
+          "approx_global_residual_reuse": {
+            "n": 5,
+            "mean": 0.613433587551117,
+            "p50": 0.6113280057907104,
+            "p95": 0.6213631749153137,
+            "maximum": 0.6225919723510742,
+            "total": 3.0671679377555847
+          }
+        }
+      },
+      "speedup": 0.9123279991984823
+    }
+  ],
+  "round_mean_saved_ms_ci95": {
+    "mean": -185.20985512683788,
+    "lower": -380.57335886078715,
+    "upper": 10.153648607111421,
+    "method": "Paired round means, Student t(df=2), only 3 repeats on the same 40 frames; not a multi-scene confidence guarantee"
+  },
+  "service_quality": {
+    "metrics": {
+      "mAP": {
+        "native": 0.28854640169860885,
+        "candidate": 0.28365601803514073,
+        "loss": 0.004890383663468112
+      },
+      "NDS": {
+        "native": 0.34144248848792563,
+        "candidate": 0.33843722398147175,
+        "loss": 0.0030052645064538863
+      },
+      "DET_l": {
+        "native": 0.23200015723705292,
+        "candidate": 0.23217260837554932,
+        "loss": -0.00017245113849639893
+      },
+      "Token_F1": {
+        "native": 0.35927049781771564,
+        "candidate": 0.36938909503508977,
+        "loss": -0.010118597217374126
+      }
+    },
+    "within_initial_budgets": true,
+    "initial_budgets": {
+      "mAP": 0.005,
+      "NDS": 0.005,
+      "DET_l": 0.005,
+      "Token_F1": 0.02
+    },
+    "critical_proxy_regressions_vs_native": 7,
+    "new_critical_proxy_regressions_vs_wsgrr": 6,
+    "retained_critical_cases": [
+      {
+        "frame_id": "88a6b5e35eb44deba6b1065d74b0a3c4",
+        "question": "How does the road layout ahead appear to be?",
+        "native_answer": "The road ahead is clear with no visible obstructions, and it appears to be a standard two-way street.",
+        "answer": "The road ahead is clear, with no visible obstructions or traffic.",
+        "reference": "The road ahead appears to be a multi-lane urban street, with visible lane markings suggesting at least two lanes in each direction.",
+        "f1": 0.29411764705882354,
+        "baseline_f1": 0.5238095238095238,
+        "f1_loss": 0.2296918767507003,
+        "answer_equal": false,
+        "output_token_f1": 0.6,
+        "task_metrics": {
+          "numeric_applicable": true,
+          "numeric_exact": false,
+          "numeric_values": [],
+          "reference_numeric_values": [
+            2.0
+          ],
+          "numeric_value_precision": 0.0,
+          "numeric_value_recall": 0.0,
+          "numeric_aligned_mae": null,
+          "spatial_label_match": true,
+          "spatial_label_f1": 1.0,
+          "motion_label_match": null,
+          "motion_label_f1": null,
+          "safety_label_match": null,
+          "safety_label_f1": null
+        },
+        "baseline_task_metrics": {
+          "numeric_applicable": true,
+          "numeric_exact": true,
+          "numeric_values": [
+            2.0
+          ],
+          "reference_numeric_values": [
+            2.0
+          ],
+          "numeric_value_precision": 1.0,
+          "numeric_value_recall": 1.0,
+          "numeric_aligned_mae": 0.0,
+          "spatial_label_match": true,
+          "spatial_label_f1": 1.0,
+          "motion_label_match": null,
+          "motion_label_f1": null,
+          "safety_label_match": null,
+          "safety_label_f1": null
+        },
+        "critical_regressions": 3,
+        "versus_previous_wsgrr": {
+          "f1": 0.29411764705882354,
+          "baseline_f1": 0.625,
+          "f1_loss": 0.33088235294117646,
+          "answer_equal": false,
+          "output_token_f1": 0.5,
+          "task_metrics": {
+            "numeric_applicable": true,
+            "numeric_exact": false,
+            "numeric_values": [],
+            "reference_numeric_values": [
+              2.0
+            ],
+            "numeric_value_precision": 0.0,
+            "numeric_value_recall": 0.0,
+            "numeric_aligned_mae": null,
+            "spatial_label_match": true,
+            "spatial_label_f1": 1.0,
+            "motion_label_match": null,
+            "motion_label_f1": null,
+            "safety_label_match": null,
+            "safety_label_f1": null
+          },
+          "baseline_task_metrics": {
+            "numeric_applicable": true,
+            "numeric_exact": false,
+            "numeric_values": [
+              2.0,
+              1.0
+            ],
+            "reference_numeric_values": [
+              2.0
+            ],
+            "numeric_value_precision": 0.5,
+            "numeric_value_recall": 1.0,
+            "numeric_aligned_mae": null,
+            "spatial_label_match": true,
+            "spatial_label_f1": 1.0,
+            "motion_label_match": null,
+            "motion_label_f1": null,
+            "safety_label_match": null,
+            "safety_label_f1": null
+          },
+          "critical_regressions": 2
+        }
+      },
+      {
+        "frame_id": "fd612e8660e74196af7da7e6487e5d53",
+        "question": "Are there any traffic elements that could influence your driving behavior?",
+        "native_answer": "Yes, there are several traffic elements that could influence driving behavior in this scenario. Firstly, there are multiple traffic cones placed in various locations around your vehicle, specifically at (-7.3, -3.1), (+1.9, -3.0), (+10.0, -3.1), (+13.1, -3.1), (+16.2, -3.2), (+19.3, -3.2), (+22.4, -3.2), (+25.5, -3.2), (+28.6, -3.2), (+31.7, -3.2), and (+34.8, -3.2) which indicate construction zones or roadwork. Additionally, there are pedestrians moving in the crosswalk ahead to the right, with locations at (+12.0, -10.0), (+12.0, -10.8), (+12.0, -11.6), and (+11.8, -12.4), which requires careful attention to ensure their safety. A moving car is also noted in the opposite-flow lane to the left at (+10.0, +8.9), which could potentially cross paths. Lastly, the presence of a green traffic light for your lane indicates that you can proceed but should remain vigilant for any changes.",
+        "answer": "Yes, there are several traffic elements that could influence driving behavior in this scenario. Firstly, there are multiple traffic cones placed in various locations around your vehicle, specifically at (-7.3, -3.1), (+1.9, -3.0), (+10.0, -3.1), (+13.1, -3.1), (+16.2, -3.2), (+19.3, -3.2), (+22.4, -3.2), (+25.5, -3.2), (+28.6, -3.2), (+31.7, -3.2), and (+34.8, -3.2) which indicate construction zones or roadwork. Additionally, there are pedestrians moving in the crosswalk ahead to the right, with locations at (+12.0, -10.0), (+12.0, -10.8), (+12.0, -11.6), and (+11.8, -12.4), which requires careful attention to ensure their safety. A moving car is also noted in the opposite-flow lane to the left at (+10.0, +8.9), which could potentially cross paths. Lastly, the presence of a green traffic light for your lane indicates that you can proceed but should remain vigilant for any changes.",
+        "reference": "In this scenario, the presence of a construction zone marked by orange barriers, multiple traffic cones, and pedestrians requires careful attention. Specifically, there are traffic cones located at positions like (+6.9, -9.4), (+11.2, -8.6), and (+4.9, -4.1), as well as pedestrians at locations such as (+18.7, -9.1) and (+8.8, -10.0). Additionally, a moving car ahead in the same direction at (+47.5, +1.8) traveling at (+13.6, +1.0) m/s also needs to be monitored.",
+        "f1": 0.4409448818897638,
+        "baseline_f1": 0.4409448818897638,
+        "f1_loss": 0.0,
+        "answer_equal": true,
+        "output_token_f1": 1.0,
+        "task_metrics": {
+          "numeric_applicable": true,
+          "numeric_exact": false,
+          "numeric_values": [
+            -7.3,
+            -3.1,
+            1.9,
+            -3.0,
+            10.0,
+            -3.1,
+            13.1,
+            -3.1,
+            16.2,
+            -3.2,
+            19.3,
+            -3.2,
+            22.4,
+            -3.2,
+            25.5,
+            -3.2,
+            28.6,
+            -3.2,
+            31.7,
+            -3.2,
+            34.8,
+            -3.2,
+            12.0,
+            -10.0,
+            12.0,
+            -10.8,
+            12.0,
+            -11.6,
+            11.8,
+            -12.4,
+            10.0,
+            8.9
+          ],
+          "reference_numeric_values": [
+            6.9,
+            -9.4,
+            11.2,
+            -8.6,
+            4.9,
+            -4.1,
+            18.7,
+            -9.1,
+            8.8,
+            -10.0,
+            47.5,
+            1.8,
+            13.6,
+            1.0
+          ],
+          "numeric_value_precision": 0.03125,
+          "numeric_value_recall": 0.07142857142857142,
+          "numeric_aligned_mae": null,
+          "spatial_label_match": false,
+          "spatial_label_f1": 0.5,
+          "motion_label_match": true,
+          "motion_label_f1": 1.0,
+          "safety_label_match": null,
+          "safety_label_f1": null
+        },
+        "baseline_task_metrics": {
+          "numeric_applicable": true,
+          "numeric_exact": false,
+          "numeric_values": [
+            -7.3,
+            -3.1,
+            1.9,
+            -3.0,
+            10.0,
+            -3.1,
+            13.1,
+            -3.1,
+            16.2,
+            -3.2,
+            19.3,
+            -3.2,
+            22.4,
+            -3.2,
+            25.5,
+            -3.2,
+            28.6,
+            -3.2,
+            31.7,
+            -3.2,
+            34.8,
+            -3.2,
+            12.0,
+            -10.0,
+            12.0,
+            -10.8,
+            12.0,
+            -11.6,
+            11.8,
+            -12.4,
+            10.0,
+            8.9
+          ],
+          "reference_numeric_values": [
+            6.9,
+            -9.4,
+            11.2,
+            -8.6,
+            4.9,
+            -4.1,
+            18.7,
+            -9.1,
+            8.8,
+            -10.0,
+            47.5,
+            1.8,
+            13.6,
+            1.0
+          ],
+          "numeric_value_precision": 0.03125,
+          "numeric_value_recall": 0.07142857142857142,
+          "numeric_aligned_mae": null,
+          "spatial_label_match": false,
+          "spatial_label_f1": 0.5,
+          "motion_label_match": true,
+          "motion_label_f1": 1.0,
+          "safety_label_match": null,
+          "safety_label_f1": null
+        },
+        "critical_regressions": 0,
+        "versus_previous_wsgrr": {
+          "f1": 0.4409448818897638,
+          "baseline_f1": 0.475,
+          "f1_loss": 0.034055118110236204,
+          "answer_equal": false,
+          "output_token_f1": 0.79375,
+          "task_metrics": {
+            "numeric_applicable": true,
+            "numeric_exact": false,
+            "numeric_values": [
+              -7.3,
+              -3.1,
+              1.9,
+              -3.0,
+              10.0,
+              -3.1,
+              13.1,
+              -3.1,
+              16.2,
+              -3.2,
+              19.3,
+              -3.2,
+              22.4,
+              -3.2,
+              25.5,
+              -3.2,
+              28.6,
+              -3.2,
+              31.7,
+              -3.2,
+              34.8,
+              -3.2,
+              12.0,
+              -10.0,
+              12.0,
+              -10.8,
+              12.0,
+              -11.6,
+              11.8,
+              -12.4,
+              10.0,
+              8.9
+            ],
+            "reference_numeric_values": [
+              6.9,
+              -9.4,
+              11.2,
+              -8.6,
+              4.9,
+              -4.1,
+              18.7,
+              -9.1,
+              8.8,
+              -10.0,
+              47.5,
+              1.8,
+              13.6,
+              1.0
+            ],
+            "numeric_value_precision": 0.03125,
+            "numeric_value_recall": 0.07142857142857142,
+            "numeric_aligned_mae": null,
+            "spatial_label_match": false,
+            "spatial_label_f1": 0.5,
+            "motion_label_match": true,
+            "motion_label_f1": 1.0,
+            "safety_label_match": null,
+            "safety_label_f1": null
+          },
+          "baseline_task_metrics": {
+            "numeric_applicable": true,
+            "numeric_exact": false,
+            "numeric_values": [
+              -7.3,
+              -3.1,
+              1.9,
+              -3.0,
+              10.0,
+              -3.1,
+              13.1,
+              -3.1,
+              16.2,
+              -3.2,
+              19.3,
+              -3.2,
+              22.4,
+              -3.2,
+              25.5,
+              -3.2,
+              28.6,
+              -3.2,
+              31.7,
+              -3.2,
+              11.0,
+              -6.8,
+              11.0,
+              -7.8,
+              10.0,
+              8.7
+            ],
+            "reference_numeric_values": [
+              6.9,
+              -9.4,
+              11.2,
+              -8.6,
+              4.9,
+              -4.1,
+              18.7,
+              -9.1,
+              8.8,
+              -10.0,
+              47.5,
+              1.8,
+              13.6,
+              1.0
+            ],
+            "numeric_value_precision": 0.0,
+            "numeric_value_recall": 0.0,
+            "numeric_aligned_mae": null,
+            "spatial_label_match": false,
+            "spatial_label_f1": 0.5,
+            "motion_label_match": true,
+            "motion_label_f1": 1.0,
+            "safety_label_match": null,
+            "safety_label_f1": null
+          },
+          "critical_regressions": 0
+        }
+      }
+    ],
+    "scope": "OFFICIAL EVALUATOR ON DECLARED SUBSET, NOT full-val mAP/NDS/Map Score",
+    "limitations": "Numeric/spatial/motion/safety parsers are lexical proxies, not human semantic judgements",
+    "quality_by_anchor_age": [
+      {
+        "mode": "anchor_update",
+        "age": 0,
+        "questions": 1,
+        "mean_f1_loss": 0.0,
+        "critical_proxy_regressions": 0
+      },
+      {
+        "mode": "anchor_update",
+        "age": 1,
+        "questions": 29,
+        "mean_f1_loss": -0.0030853313575939147,
+        "critical_proxy_regressions": 3
+      },
+      {
+        "mode": "anchor_update",
+        "age": 2,
+        "questions": 5,
+        "mean_f1_loss": -0.03017346966791652,
+        "critical_proxy_regressions": 2
+      },
+      {
+        "mode": "approx_global_residual_reuse",
+        "age": 1,
+        "questions": 5,
+        "mean_f1_loss": -0.032880386197032,
+        "critical_proxy_regressions": 2
+      }
+    ],
+    "native_questions_below_perfect_f1": 40,
+    "per_scene": {
+      "01452fbfbf4543af8acdfd3e8a1ee806": {
+        "frames": 40,
+        "global_suffix_reuse_frames": 5,
+        "mAP_loss": 0.004890383663468112,
+        "NDS_loss": 0.0030052645064538863,
+        "DET_l_loss": -0.00017245113849639893
+      }
+    }
+  },
+  "aggregate": {
+    "native": {
+      "unique_frames": 40,
+      "request_ms": {
+        "n": 120,
+        "mean": 2871.401144521466,
+        "p50": 1753.4601362422109,
+        "p95": 9150.021438975818,
+        "maximum": 9260.727643966675,
+        "total": 344568.13734257594
+      },
+      "visual_cuda_span_ms": {
+        "n": 120,
+        "mean": 480.7533259073893,
+        "p50": 481.7432098388672,
+        "p95": 483.73104400634764,
+        "maximum": 484.8853454589844,
+        "total": 57690.39910888672
+      },
+      "prefill_cuda_ms": {
+        "n": 120,
+        "mean": 189.29010429382325,
+        "p50": 183.94573211669922,
+        "p95": 224.65803604125978,
+        "maximum": 226.07974243164062,
+        "total": 22714.81251525879
+      },
+      "decode_cuda_ms": {
+        "n": 120,
+        "mean": 1888.1077566464742,
+        "p50": 794.9024457931519,
+        "p95": 8086.276781845093,
+        "maximum": 8116.216121673584,
+        "total": 226572.9307975769
+      },
+      "peak_allocated_bytes": 16485273600,
+      "peak_reserved_bytes": 16903045120,
+      "throughput_fps": 0.34826203294790953,
+      "m3_reused_tokens": 0,
+      "generated_tokens": 9066
+    },
+    "formal": {
+      "unique_frames": 40,
+      "request_ms": {
+        "n": 120,
+        "mean": 3056.610999648304,
+        "p50": 2456.7465065047145,
+        "p95": 6713.422213704324,
+        "maximum": 9402.82731084153,
+        "total": 366793.3199577965
+      },
+      "visual_cuda_span_ms": {
+        "n": 120,
+        "mean": 489.0034767150879,
+        "p50": 518.2773132324219,
+        "p95": 563.77725830078,
+        "maximum": 1084.275146484375,
+        "total": 58680.41720581055
+      },
+      "prefill_cuda_ms": {
+        "n": 120,
+        "mean": 184.976891708374,
+        "p50": 179.55260467529297,
+        "p95": 220.05680465698242,
+        "maximum": 221.80557250976562,
+        "total": 22197.227005004883
+      },
+      "decode_cuda_ms": {
+        "n": 120,
+        "mean": 1643.205921681722,
+        "p50": 780.3001890182495,
+        "p95": 5255.6431933403,
+        "maximum": 7747.988134384155,
+        "total": 197184.71060180664
+      },
+      "peak_allocated_bytes": 17271109120,
+      "peak_reserved_bytes": 18205376512,
+      "throughput_fps": 0.3271597203946007,
+      "m3_reused_tokens": 0,
+      "generated_tokens": 7920
+    }
+  },
+  "repeat_output_consistency": {
+    "native": {
+      "task_digests_equal": true,
+      "answers_equal": true
+    },
+    "formal": {
+      "task_digests_equal": true,
+      "answers_equal": true
+    }
+  },
+  "validation": {
+    "native": {
+      "frames": 24,
+      "request_ms": {
+        "n": 24,
+        "mean": 2306.835750292521,
+        "p50": 1892.776780994609,
+        "p95": 4609.336627437731,
+        "maximum": 5573.953195940703,
+        "total": 55364.0580070205
+      },
+      "visual_cuda_span_ms": {
+        "n": 24,
+        "mean": 476.30393091837567,
+        "p50": 477.251708984375,
+        "p95": 480.3492462158203,
+        "maximum": 480.7380065917969,
+        "total": 11431.294342041016
+      },
+      "prefill_cuda_ms": {
+        "n": 24,
+        "mean": 184.78248723347983,
+        "p50": 181.8898696899414,
+        "p95": 215.1484962463378,
+        "maximum": 224.0633544921875,
+        "total": 4434.779693603516
+      },
+      "decode_cuda_ms": {
+        "n": 24,
+        "mean": 1218.3815635045369,
+        "p50": 788.9483976364136,
+        "p95": 3521.367875194547,
+        "maximum": 4407.35715675354,
+        "total": 29241.157524108887
+      },
+      "peak_allocated_bytes": 16348129792,
+      "peak_reserved_bytes": 16900947968,
+      "throughput_fps": 0.43349423550124616,
+      "generated_tokens": 1188,
+      "m3_reused_tokens": 0
+    },
+    "formal": {
+      "frames": 24,
+      "request_ms": {
+        "n": 24,
+        "mean": 2415.5424377337717,
+        "p50": 1977.8924859128892,
+        "p95": 5052.0456776255705,
+        "maximum": 5549.474247265607,
+        "total": 57973.018505610526
+      },
+      "visual_cuda_span_ms": {
+        "n": 24,
+        "mean": 472.70681699117023,
+        "p50": 502.1388702392578,
+        "p95": 530.0329620361327,
+        "maximum": 1041.5947265625,
+        "total": 11344.963607788086
+      },
+      "prefill_cuda_ms": {
+        "n": 24,
+        "mean": 179.65764045715332,
+        "p50": 178.01113891601562,
+        "p95": 211.26072692871085,
+        "maximum": 220.02764892578125,
+        "total": 4311.78337097168
+      },
+      "decode_cuda_ms": {
+        "n": 24,
+        "mean": 1215.326388835907,
+        "p50": 790.3130550384521,
+        "p95": 3529.3074321746803,
+        "maximum": 4407.102724075317,
+        "total": 29167.833332061768
+      },
+      "peak_allocated_bytes": 17274180096,
+      "peak_reserved_bytes": 17987272704,
+      "throughput_fps": 0.4139856888369082,
+      "generated_tokens": 1184,
+      "m3_reused_tokens": 326,
+      "global_suffix_skipped_blocks": 66,
+      "global_suffix_reuse_frames": 3,
+      "anchor_updates": 21,
+      "refresh_reasons": {
+        "initial_anchor": 4,
+        "null": 3,
+        "anchor_expired": 2,
+        "feature_drift": 15
+      },
+      "anchor_ages": {
+        "0": 4,
+        "1": 18,
+        "2": 2
+      },
+      "drift": {
+        "n": 20,
+        "mean": 0.7996184796094894,
+        "p50": 0.9007154703140259,
+        "p95": 0.9801794022321701,
+        "maximum": 1.0071921348571777,
+        "total": 15.992369592189789
+      },
+      "snapshot_wall_ms": {
+        "n": 24,
+        "mean": 35.75972785862783,
+        "p50": 13.874731492251158,
+        "p95": 30.152837955392883,
+        "maximum": 544.4312002509832,
+        "total": 858.2334686070681
+      },
+      "m1_wall_ms": {
+        "n": 24,
+        "mean": 228.2453962834552,
+        "p50": 254.2332704178989,
+        "p95": 330.10518427472556,
+        "maximum": 360.1602348499,
+        "total": 5477.889510802925
+      },
+      "m2_wall_ms": {
+        "n": 24,
+        "mean": 435.7966508056658,
+        "p50": 488.37356898002326,
+        "p95": 496.80296320002526,
+        "maximum": 498.26115975156426,
+        "total": 10459.11961933598
+      },
+      "m3_wall_ms": {
+        "n": 24,
+        "mean": 1429.1611442458816,
+        "p50": 996.145629324019,
+        "p95": 3788.464946579186,
+        "maximum": 4668.371492996812,
+        "total": 34299.86746190116
+      },
+      "cache_publication_host_ms": {
+        "n": 24,
+        "mean": 375.55785859391716,
+        "p50": 428.6645180545747,
+        "p95": 433.31163325347006,
+        "maximum": 435.7873979024589,
+        "total": 9013.388606254011
+      },
+      "cache_bytes": 260924256,
+      "window_reused": 108,
+      "window_total": 2592,
+      "component_cuda_span_ms": {
+        "m2_patch_embedding": {
+          "n": 24,
+          "mean": 1.1101653377215068,
+          "p50": 1.1040000319480896,
+          "p95": 1.1327775716781616,
+          "maximum": 1.2128959894180298,
+          "total": 26.643968105316162
+        },
+        "m2_window_block_": {
+          "n": 24,
+          "mean": 36.33704928557078,
+          "p50": 36.800543785095215,
+          "p95": 38.66865768432617,
+          "maximum": 38.69811248779297,
+          "total": 872.0891828536987
+        },
+        "m2_suffix_block_": {
+          "n": 24,
+          "mean": 380.21424380938214,
+          "p50": 434.44644832611084,
+          "p95": 437.8177695274353,
+          "maximum": 437.9106216430664,
+          "total": 9125.14185142517
+        },
+        "m2_global_state_update": {
+          "n": 24,
+          "mean": 380.8710616156459,
+          "p50": 435.19744873046875,
+          "p95": 438.25299682617185,
+          "maximum": 438.60791015625,
+          "total": 9140.905478775501
+        }
+      },
+      "global_update_cuda_span_by_kind": {
+        "anchor_update": {
+          "n": 21,
+          "mean": 435.1923203241257,
+          "p50": 435.9966735839844,
+          "p95": 438.2617492675781,
+          "maximum": 438.60791015625,
+          "total": 9139.03872680664
+        },
+        "approx_global_residual_reuse": {
+          "n": 3,
+          "mean": 0.6222506562868754,
+          "p50": 0.6225919723510742,
+          "p95": 0.6253567934036255,
+          "maximum": 0.6256639957427979,
+          "total": 1.8667519688606262
+        }
+      }
+    },
+    "quality": {
+      "metrics": {
+        "mAP": {
+          "native": 0.3659324277733173,
+          "candidate": 0.3495775013217969,
+          "loss": 0.016354926451520424
+        },
+        "NDS": {
+          "native": 0.3714497560094305,
+          "candidate": 0.35736633397049034,
+          "loss": 0.014083422038940141
+        },
+        "DET_l": {
+          "native": 0.16565124690532684,
+          "candidate": 0.1683076024055481,
+          "loss": -0.0026563555002212524
+        },
+        "Token_F1": {
+          "native": 0.39423164402326183,
+          "candidate": 0.3981427172153807,
+          "loss": -0.0039110731921188635
+        }
+      },
+      "within_initial_budgets": false,
+      "initial_budgets": {
+        "mAP": 0.005,
+        "NDS": 0.005,
+        "DET_l": 0.005,
+        "Token_F1": 0.02
+      },
+      "critical_proxy_regressions_vs_native": 0,
+      "new_critical_proxy_regressions_vs_wsgrr": 0,
+      "retained_critical_cases": [],
+      "scope": "OFFICIAL EVALUATOR ON DECLARED SUBSET, NOT full-val mAP/NDS/Map Score",
+      "limitations": "Numeric/spatial/motion/safety parsers are lexical proxies, not human semantic judgements",
+      "quality_by_anchor_age": [
+        {
+          "mode": "anchor_update",
+          "age": 0,
+          "questions": 4,
+          "mean_f1_loss": 0.0,
+          "critical_proxy_regressions": 0
+        },
+        {
+          "mode": "anchor_update",
+          "age": 1,
+          "questions": 15,
+          "mean_f1_loss": -0.0008863564419119989,
+          "critical_proxy_regressions": 0
+        },
+        {
+          "mode": "anchor_update",
+          "age": 2,
+          "questions": 2,
+          "mean_f1_loss": 0.0,
+          "critical_proxy_regressions": 0
+        },
+        {
+          "mode": "approx_global_residual_reuse",
+          "age": 1,
+          "questions": 3,
+          "mean_f1_loss": -0.02685680332739156,
+          "critical_proxy_regressions": 0
+        }
+      ],
+      "native_questions_below_perfect_f1": 24,
+      "per_scene": {
+        "2ed0fcbfc214478ca3b3ce013e7723ba": {
+          "frames": 6,
+          "global_suffix_reuse_frames": 0,
+          "mAP_loss": 0.0012952026142892814,
+          "NDS_loss": 0.0001492560859649994,
+          "DET_l_loss": 0.00311163067817688
+        },
+        "905cfed4f0fc46679e8df8890cca4141": {
+          "frames": 6,
+          "global_suffix_reuse_frames": 3,
+          "mAP_loss": 0.0301350947936768,
+          "NDS_loss": 0.02060717049386701,
+          "DET_l_loss": -0.0017874911427497864
+        },
+        "bed67ef03c4a4066a74f6c0117d512ee": {
+          "frames": 6,
+          "global_suffix_reuse_frames": 0,
+          "mAP_loss": 0.0018847761938388663,
+          "NDS_loss": 0.0010656787228617293,
+          "DET_l_loss": -0.0005225539207458496
+        },
+        "d29527ec841045d18d04a933e7a0afd2": {
+          "frames": 6,
+          "global_suffix_reuse_frames": 0,
+          "mAP_loss": 0.004422530824003873,
+          "NDS_loss": 0.00222624255502879,
+          "DET_l_loss": -0.00020738691091537476
+        }
+      }
+    },
+    "threshold_retuned": false,
+    "all_initial_metric_budgets_pass": false
+  },
+  "deployment_quality_target_met": false,
+  "external_service_deployed": false,
+  "quality_vs_historical_wsgrr": {
+    "development": {
+      "mAP_loss": 0.005064044133448853,
+      "NDS_loss": 0.002917888064714269,
+      "DET_l_loss": -0.00035043060779571533
+    },
+    "validation": {
+      "mAP_loss": 0.016354926451520424,
+      "NDS_loss": 0.014083422038940141,
+      "DET_l_loss": -0.0026563555002212524
+    },
+    "scope": "Historical full-loop prediction comparison, including M1/task-head feedback; not an identical-state causal task-loss isolation. Latency causality comes only from paired_visual_summary."
+  }
+}

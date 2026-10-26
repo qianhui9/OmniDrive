@@ -1,7 +1,8 @@
-"""Only the immediately preceding frame and early independent block outputs live here."""
+"""Atomic state for preceding-frame windows and one temporal global anchor."""
 import copy
 import math
 import torch
+from dataclasses import replace
 
 
 class NonFiniteCacheError(RuntimeError):
@@ -31,6 +32,14 @@ class StateCache:
         self.region_states = []
         self.window_ages = {}
         self.descriptors = None
+        self.global_anchor = None
+        self.global_revision = None
+
+    @staticmethod
+    def _global_revision(anchor):
+        if anchor is None: return None
+        return (anchor.metadata(), tuple((t.data_ptr(),t._version,tuple(t.shape),tuple(t.stride()),
+                t.dtype,t.device) for t in anchor.tensors()))
 
     @staticmethod
     def _revision(images, block0_input, outputs):
@@ -40,7 +49,8 @@ class StateCache:
 
     def commit(self, images, outputs, context, signature, output_stride=None, sources=None, *, block0_input,
                region_states=(), window_ages=None, descriptors=None,
-               _transfer_outputs=False, _validated_inputs=False, _finite_extras=(), _overhead_bytes=0):
+               _transfer_outputs=False, _validated_inputs=False, _finite_extras=(), _overhead_bytes=0,
+               global_anchor=None, _transfer_global=False):
         """Publish atomically; public callers get private tensor copies.
 
         _transfer_outputs is internal to M2Runtime: WindowExecutor's packed
@@ -52,6 +62,26 @@ class StateCache:
         window_ages = window_ages or {}
         values = [images, block0_input, *outputs.values(), *window_ages.values()]
         if descriptors is not None: values.append(descriptors)
+        if global_anchor is not None:
+            if (global_anchor.scene_id != context.get('scene_id')
+                    or global_anchor.state_epoch != context.get('state_epoch')
+                    or global_anchor.signature != signature
+                    or global_anchor.camera_ids != tuple(context.get('camera_ids',()))
+                    or global_anchor.publication_version != self.version+1):
+                raise CachePublicationError('global_anchor_publication_mismatch')
+            if (global_anchor.prefix_boundary != len(outputs) or global_anchor.h2.ndim != 4
+                    or global_anchor.h2.shape != global_anchor.residual.shape
+                    or tuple(global_anchor.h2.shape) != global_anchor.shape
+                    or tuple(global_anchor.h2.stride()) != global_anchor.stride
+                    or global_anchor.h2.dtype != global_anchor.residual.dtype
+                    or global_anchor.h2.device != global_anchor.residual.device
+                    or len(global_anchor.h2) != len(context.get('camera_ids',()))
+                    or type(global_anchor.age) is not int or global_anchor.age < 0
+                    or type(global_anchor.generation) is not int or global_anchor.generation < 1
+                    or not math.isfinite(global_anchor.timestamp)
+                    or global_anchor.timestamp > context.get('timestamp',-math.inf)):
+                raise CachePublicationError('global_anchor_contract_incompatible')
+            values.extend(global_anchor.tensors())
         needed = sum(t.numel()*t.element_size() for t in values)
         if needed + _overhead_bytes > self.budget_bytes:
             raise CachePublicationError('window_cache_budget_exceeded')
@@ -68,6 +98,14 @@ class StateCache:
         if _transfer_outputs and any(t.storage().data_ptr() in forbidden for t in outputs.values()):
             raise CachePublicationError('output_storage_alias')
         owned_outputs = {i: value.detach() if _transfer_outputs else value.detach().clone() for i,value in outputs.items()}
+        if global_anchor is not None:
+            forbidden.update(t.storage().data_ptr() for t in outputs.values())
+            if _transfer_global and (any(t.storage().data_ptr() in forbidden for t in global_anchor.tensors())
+                    or global_anchor.h2.storage().data_ptr()==global_anchor.residual.storage().data_ptr()):
+                raise CachePublicationError('global_anchor_storage_alias')
+            owned_anchor = global_anchor if _transfer_global else replace(global_anchor,
+                residual=global_anchor.residual.detach().clone(),h2=global_anchor.h2.detach().clone())
+        else: owned_anchor = None
         owned_context = copy.deepcopy(context)
         owned_regions = copy.deepcopy(region_states)
         owned_ages = {i:t.detach().clone() for i,t in window_ages.items()}
@@ -81,14 +119,15 @@ class StateCache:
         output_stride = tuple(output_stride) if output_stride is not None else None
         storage_revision = self._revision(owned_images, owned_input, owned_outputs) + self._policy_revision(owned_descriptors,owned_ages)
         metadata_revision = (repr((owned_context,owned_sources,input_stride,output_stride,self.version+1,owned_regions)),signature)
+        global_revision = self._global_revision(owned_anchor)
         # All potentially failing work precedes publication, including ownership,
         # metadata cloning and integrity bookkeeping.
         (self.images,self.block0_input,self.outputs,self.context,self.sources,self.signature,
          self.input_stride,self.output_stride,self.version,self.storage_revision,self.metadata_revision,
-         self.region_states,self.window_ages,self.descriptors) = (
+         self.region_states,self.window_ages,self.descriptors,self.global_anchor,self.global_revision) = (
             owned_images,owned_input,owned_outputs,owned_context,owned_sources,signature,
             input_stride,output_stride,self.version+1,storage_revision,metadata_revision,
-            owned_regions,owned_ages,owned_descriptors)
+            owned_regions,owned_ages,owned_descriptors,owned_anchor,global_revision)
 
     @staticmethod
     def _policy_revision(descriptors, ages):
@@ -99,11 +138,14 @@ class StateCache:
     def bytes(self):
         values = list(self.outputs.values()) + ([self.images,self.block0_input] if self.images is not None else [])
         values += list(self.window_ages.values()) + ([self.descriptors] if self.descriptors is not None else [])
+        if self.global_anchor is not None: values += list(self.global_anchor.tensors())
         return sum(x.numel()*x.element_size() for x in values)
 
     def mismatch(self, images, context, signature, block0_input):
         if self.images is None or self.block0_input is None:
             return 'no_valid_cache'
+        if self.global_revision != self._global_revision(self.global_anchor):
+            return 'cache_global_state_modified'
         if self.metadata_revision != (repr((self.context,self.sources,self.input_stride,self.output_stride,self.version,self.region_states)),self.signature):
             return 'cache_metadata_modified'
         if self.storage_revision is not None and self.storage_revision != self._revision(self.images,self.block0_input,self.outputs)+self._policy_revision(self.descriptors,self.window_ages):

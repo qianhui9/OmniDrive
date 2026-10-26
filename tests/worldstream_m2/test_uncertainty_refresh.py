@@ -117,7 +117,8 @@ def test_m1_exports_image_scope_without_promoting_failed_geometry(context):
     assert len(rows)==1 and rows[0]['mandatory'] and not rows[0]['world_identity_authorized']
     ctx['state_epoch']=r.diagnostics['state_epoch']
     exported=manager.export_m2_inputs(ctx,computation_only=True)
-    exported.computation_state.uncertainty_regions[0]['bbox_xyxy'][0]=-100
+    with pytest.raises(TypeError,match='read-only'):
+        exported.computation_state.uncertainty_regions[0]['bbox_xyxy'][0]=-100
     assert r.computation_state.uncertainty_regions[0]['bbox_xyxy'][0]>=0
     view.update(predicted_region=None,projected_points=np.array([[1.,2.],[np.nan,np.nan]]))
     unbounded=build_bundle(manager,frame,r)
