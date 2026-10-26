@@ -205,6 +205,9 @@ def main():
     if fp16_cfg is not None:
         wrap_fp16_model(model)
     checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
+    if getattr(model,'m3_runtime',None) is not None:
+        from worldstream.m3.checkpoint import attach_checkpoint_identity
+        attach_checkpoint_identity(model,args.checkpoint)
     if getattr(model, 'worldstream_require_m123', False):
         # Bind once at load, outside every timed request; never hash weights per frame.
         from tools.worldstream_m123.benchmark.common import sha256

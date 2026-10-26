@@ -10,9 +10,8 @@ model = dict(
         cost_table='outputs/final_route/window_costs.json'),
     m3_enable=True,
     m3_config=dict(mode='auto', state_context='augment', memory_budget_mb=512,
-        cost_table='outputs/final_route/m3_prefill_costs.json',
-        quality_certificate='outputs/final_route/m3_prefill_quality.json',
-        state_quality_certificate='outputs/final_route/m3_state_quality.json'))
+        reuse_strategy='wsdr_kv',block_size=32,quality_budget=0.02,
+        reuse_policy='outputs/final_route/m3_reuse_policy.json'))
 # Preserve deployed preprocessing and retain source camera poses in metadata.
 test_pipeline = [
     dict(type='LoadMultiViewImageFromFiles', to_float32=True),

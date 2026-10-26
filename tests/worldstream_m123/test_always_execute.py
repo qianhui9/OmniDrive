@@ -76,10 +76,8 @@ def test_formal_request_always_runs_all_modules(tmp_path, eva, llm, monkeypatch,
     if evidence == 'missing':
         # Replace artifact readers, never the protected production artifacts.
         model.m2_runtime.costs.records = []
-        model.m3_runtime.scheduler.costs = {}
-        model.m3_runtime.scheduler.quality = {}
-        model.m3_runtime.scheduler.state_quality = {}
-    assert not model.m3_runtime.scheduler.quality.get('approved')
+        model.m3_runtime.scheduler.policy = {}
+    assert not hasattr(model.m3_runtime.scheduler,'quality')
     forward_lengths = []
     original = llm.forward
 
@@ -229,7 +227,7 @@ def test_prefill_rejection_does_not_reenter_native_generate(llm, monkeypatch):
     original = runtime.executor.generate
 
     def observe(model, expanded, **kwargs):
-        calls.append((expanded, kwargs['reuse_length']))
+        calls.append((expanded, kwargs['decision'].reuse_length))
         return original(model, expanded, **kwargs)
 
     def forbidden(*args, **kwargs):
@@ -244,7 +242,7 @@ def test_prefill_rejection_does_not_reenter_native_generate(llm, monkeypatch):
     assert diag['runtime_entered'] and diag['execution_completed']
     assert [length for _, length in calls] == [0, 0]
     assert diag['requests'][1]['matched_prefix'] == 7
-    assert diag['requests'][1]['prefix_admission'] == 'prefix_evidence_unavailable'
+    assert diag['requests'][1]['prefix_admission'] in ('reuse_policy_missing','reuse_policy_missing_or_invalid')
     for (expanded, _), row in zip(calls, diag['requests']):
         assert row['full_prefill'] and row['forward_prefill_lengths'] == [7]
         assert row['decode_completed'] and not row['historical_text_consumed']

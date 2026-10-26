@@ -1,48 +1,56 @@
-# WSDR-KV：任务与 group 变化感知的严格 KV 候选规划
+# Quality-Bounded WSDR-KV
 
-正式入口仍为 `projects/configs/OmniDrive/worldstream_m123_auto.py`，默认 `M3Config.reuse_strategy='exact_prefix'`。WSDR-KV 通过显式实验参数启用，不修改部署批准文件，也不授权未经验证的生产复用。
+M3 主线为 `M3Runtime → ReusePlanner → ReuseDecision → PrefillExecutor → 原始 HF Decode → 缓存更新`。完整 Prefill 使用同一执行器的 `reuse_length=0`。`exact_prefix` 只限制同一规划器的近似候选，保留为测试/benchmark 参考；不存在另一套运行时回退执行器。
 
-## 当前接口能够证明的内容
+## 输入与复用含义
 
-`Petr3D.simple_test_pts` 将 Detection head 的 `vlm_memory` 与 Map head 的 `vlm_memory` 拼接。真实模型的边界是 object 256、ego 1、map 256，总计 513 个 carrier token。object 是额外学习查询的输出，并非 256 个逐对象检测槽位；ego 是 `can_bus_embed`，包含当前/历史运动与位姿信息；map 也是独立的额外查询输出。
+保留原始 object 256 → ego 1 → map 256 顺序、全部当前视觉输入、原权重与预处理。object/map 是学习 latent query，不能当作逐物体槽位。M2 EVA 窗口经过全局后缀和稠密任务头，现有接口没有到 carrier 的可靠空间映射，因此始终报告 `m2_region_mapping_unavailable`。
 
-EVA 窗口经过 Block 2 起的全局后缀，以及 Detection/Map 稠密注意力和时序记忆，才形成这些 carrier。现有接口没有可靠的窗口到 carrier、anchor ID 到 object query 或地图区域到 map query 的对应表。因此本实现始终报告 `m2_mapping_available=False`、`m2_mapping_reason='m2_region_mapping_unavailable'`，不推导虚假的区域级 KV 区段。M2 只提供当前 scene/frame/time 的执行上下文一致性检查；组是否稳定最终通过实际扩展 Embedding 精确比较判断。
+32-token 块只表示当前 LLM 序列中的固定连续计算块，组边界也保留。文本 embedding、token IDs、position IDs、attention/visual masks、模型签名与场景作用域必须兼容；不能跨过变化或不合法的前缀使用非连续 KV。
 
-M1 使用 Commit 之前冻结的 `VerifiedWorldState` 和现有 `query_world_state()`：检查快照摘要、来源、帧、时间、epoch、状态版本和执行签名。有效空快照不表示场景完整；普通观测支持不等于物理身份认证。历史状态只用于任务候选与失效判断，不能签发 KV 复用。动态历史文本仍须独立质量准入，插入位置保持在 image marker 之后，没有将动态 JSON 移到视觉前缀之前。
+同帧匹配保持严格精确；跨帧对每个视觉块计算对称归一化 Frobenius/RMS 差异及最大 token 变化。风险使用 task profile 的 object/ego/map 权重、可信 M1 来源连续性和 M2 实际刷新/年龄信息。M1 普通关联不等于物理身份认证，M2 只提供风险线索。未知、计数、安全类使用统一较高权重。所有前缀候选都包含之前块的最大风险，遇到首个超界块便不能复用其后 KV。
 
-## 规划、布局与实际执行
+## 一份策略
 
-`reuse_planner.py` 使用 `task_conditioner.task_profile()` 对既有分类结果细化依赖优先级：object 属性、map 关系、object+ego 运动，以及完整视觉范围。全局安全、未知、计数与缺失问题使用完整范围。优先级不删除任何当前 carrier。
+`outputs/final_route/m3_reuse_policy.json` 替代 M3 的旧成本/质量批准分支。旧 JSON 和研究结果保留，当前 M3 不再读取它们；M2 的独立窗口成本机制保持不变。
 
-规划器对缓存中拥有的 ExpandedInput 分组视图与当前实际展开结果进行精确比较，给出 stable/changed/mandatory groups，以及稳定组优先、任务相关性和原始组顺序作为 tie-break 的候选顺序。它不保存另一份大型 carrier 缓冲。
+策略由真实输入的配对实验生成，不包含人工 `approved=True`。记录模型/权重/部署环境/生成参数/布局签名、块大小、任务阈值、质量预算、校准及验证场景、逐请求测量和数据哈希。每个 profile 在校准场景中按质量预算选最低运行时延阈值；独立场景只验证该选择，失败时不改用另一个在验证集表现好的阈值。
 
-当前 OmniDrive 使用学习过的固定顺序，没有经过验证的组可交换契约，所以实际 `layout_permutation` 保持 object→ego→map，并报告 `native_group_order_unverified`。`candidate_group_order` 只是建议，不能声称已执行重排或提高匹配率。对于另一个明确声明 `CarrierLayout.order_contract='group_permutation_v1'` 的载体生产者，代码支持在 carrier 组织阶段完整重排后重新调用 native expansion；该声明不是质量批准，OmniDrive 的正式调用不提供它。受控测试会检测这种排列对完整模型 logits 的改变。
+统一决策在实测范围内最小化预测运行时延。成本拟合配对的完整 M3 wall，包含输入比较、KV 分支复制、剩余 Prefill、缓存更新及变化后的 Decode；拟合固定开销并用当前决策实耗替换校准决策耗时。没有匹配策略、样本不足、质量超预算或预测无净收益时，输出 `reuse_length=0`。
 
-`ExpandedInput` 增加 layout signature 和 visual group spans。Token ID、Embedding、position ID、attention mask、visual mask 均仍由实际 native expansion 确定。布局、策略版本、模型/LoRA/后端和场景作用域纳入缓存兼容；缓存元数据修改会清空旧缓存。严格 LCP 不允许跳过已变化的前缀，再复用后方不连续的 KV。
+配对单问题回放后还需执行真实整帧服务验证，覆盖自然采样 RNG 链和缓存演变。`prefill_validate --qualify-service` 会将实际服务中的质量退化写回同一策略，使失败规则失效，不重选阈值。规则撤销后的同样本复跑是回归证据，不能冒充另一份全新独立测试。
 
-仍只调用原有 `PrefillExecutor`、不可变 PrefixKVCache 和原生 Decode。匹配长度、批准长度与实际使用长度分别记录；短输入命中旧长缓存时仍重新计算最后一个 token 的 logits，批准证据必须绑定调整后的实际复用长度。
+默认质量预算为 GT Token F1 绝对下降 0.02 的初始研究预算，`quality_budget` 可配置，不能解释成通用任务标准。数字检查比较实际数字值（含英文数词）、精确序列、值覆盖及对齐误差；空间/运动/安全同时记录显式词法标签与新增退化。它们是可审计代理指标，不能替代完整语义标注或人工安全评估。策略中的小样本经验上界不是理论保证。
 
-## 独立准入与诊断
+## 近似来源和执行
 
-新策略只接受 strategy=`wsdr_kv`、version=`wsdr_kv_group_v1` 的批准。不会迁移 `exact_prefill` 的批准。证据绑定模型/权重 SHA、部署键、策略版本、任务类型/profile、实际布局签名、输入长度、候选与实际复用长度、dtype 和生成参数哈希，并要求真实数值一致性、独立任务质量和逐样本净成本。外部 evidence/protocol 文件需要真实哈希；`wsdr_kv_evidence_v1` 的 binding、数值检查和测量内容也与批准记录一致。缺任何证据均执行完整 Prefill。
+`ReuseDecision` 区分 exact / bounded_approx / none，并记录长度、风险、预测节省、缓存帧、年龄、近似深度及理由。执行器校验当前张量版本、缓存版本、连续前缀证明和策略界限；不能简单传一个近似长度跳过精确检查。精确 benchmark 的整数长度接口仍必须通过严格 LCP。
 
-新增请求诊断包括策略、任务、布局、各组状态、M1 有效性、M2 映射缺失、匹配/批准/实际复用、缓存失效与布局退化原因，以及准备、匹配、分支、Prefill、Decode 时延。普通推理不额外调用 `torch.cuda.synchronize()`；WSDR 规划需要的三个组稳定性布尔值一次回传 CPU。未采集的 GPU 时延为 null，已有 CPU 入队时间保留明确名称。`end_to_end_ms` 是 M3 单问题 host wall；完整系统请求时延读取 benchmark 的 `request_ms`，不可混同。GPU Event span 含 CPU 提交间隙，嵌套范围不可相加。
+缓存保留 prefix lineage、根帧、近似深度和风险所用 profile。当前问题改变时重新加权继承风险；近似缓存即使当前 embedding 相同也不能标成 exact。当前校准限制年龄最多 2 帧、跨帧近似深度最多 1；达到限制后仍用同一执行器完整计算。近似全输入命中也重算末 token logits，不使用旧帧末 token logits。
 
-## 最小真实验证
+历史文本仍经现有来源和任务筛选，作为视觉标记之后的补充输入；是否启用属于同一校准策略。本轮保持 `history_text=false`，避免把未经本轮校准的输入文本变化混入 KV 近似收益。没有额外历史文本批准路线。
+
+标准 `tools/test.py` 在实际加载 checkpoint 后只计算一次文件身份，供 M3 绑定权重；不会每帧复制或哈希模型参数。只读 benchmark 时间包装不改变可移植的后端键，其余模型/LoRA/数值包装仍纳入签名；live cache 签名仍会检测包装发生变化。
+
+## 复现
+
+所有命令使用 OmniDrive 解释器，并以 `taskset -c 0-3,6-31` 启动。最终实验使用 24 帧、3 个场景、每帧 3 问：校准 12 帧、开发 6 帧、全新验证 6 帧。长前缀失败后仅追加一个最多 128 视觉 token 的短前缀候选；原验证帧不再计入最终独立验证。场景和问题仅按真实元数据、问题文本选择；标签只在离线评分中使用。
 
 ```bash
-taskset -c 0-3,6-31 env HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
-  OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 \
-  /home/qh/miniconda3/envs/OmniDrive/bin/python -u \
-  -m tools.worldstream_m123.benchmark.prefill_validate --wsdr-comparison \
-  --frames 4 --questions-per-frame 3 --warmup 1 \
-  --checkpoint ckpts/iter_10548.pth --output outputs/wsdr_comparison_new
+taskset -c 0-3,6-31 env HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 \
+ /home/qh/miniconda3/envs/OmniDrive/bin/python -u -m tools.worldstream_m123.benchmark.worker \
+ --output outputs/new_native --run-root outputs/new_run --condition B3 --workload language \
+ --limit 24 --warmup 1 --questions-per-frame 3 --question-selection balanced \
+ --sequence-file outputs/m3_quality_bounded_20261026_run01/sequence_extended.json \
+ --m3-strategy native_full --capture-m3-inputs
+
+taskset -c 0-3,6-31 env HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 \
+ /home/qh/miniconda3/envs/OmniDrive/bin/python -u -m tools.worldstream_m123.benchmark.prefill_validate \
+ --calibrate-wsdr --capture outputs/new_native \
+ --sequence-file outputs/m3_quality_bounded_20261026_run01/sequence_extended.json \
+ --quality-budget 0.02 --block-size 32 --max-visual-tokens 128 --checkpoint ckpts/iter_10548.pth --output outputs/new_calibration
 ```
 
-该模式复用现有 worker，只运行 native_full、exact_prefix、wsdr_kv 三组。M1/M2、连续帧、真实问题、预处理、权重和生成参数相同；native_full 显式关闭自定义 M3 并保留原生完整 Prefill。每帧三个语言问题，整帧 request_ms 包含三次生成。正式入口本身不切换策略。
+再以 worker 的 `--m3-strategy wsdr_kv --m3-policy <生成策略>` 对同一真实序列执行完整 M1/M2/M3 验证。校准工具以逐问题共同 RNG 进行配对；实际服务运行保留原生整帧采样顺序，须单独报告实际质量和时延。不能把校准回放的 M3 wall 当作端到端时延。
 
-WSDR worker 在全部服务时延及显存样本之后运行两个独立数值探针：基于真实最后一帧 carrier，分别改变 map 或首个 object token。它们明确标记 controlled/natural_frame=False，通过已有执行器直接检查候选 KV 的数值性质，不能冒充自然帧复用或任务质量。`wsdr_candidates.json` 始终 production_ready=False、approved=[]，不会写正式批准文件。
-
-自然连续帧如果没有“部分组精确稳定”的样本，报告必须说明覆盖缺口；不能人为冻结组后将它当作自然推理。详细本轮结果见 [实验报告](../outputs/m3_wsdr_kv_20261025_run01/experiment_report.md)。
-
-worker 的 `--question-offset N` 可从已有带标签的 Conv/VQA 问题序列中确定性选择另一个起点，默认 0 保持原选择；不读取答案来筛选输入。本轮额外以 `--limit 2 --questions-per-frame 2 --question-offset 10` 对三种配置补测真实数字参考问题，结果单独保存于 `numeric_service/`，不与四帧主比较混算。
+本轮结果、Pareto 图、逐请求记录和可复现命令见 [实验报告](../outputs/m3_quality_bounded_20261026_run01/experiment_report.md)。上一版严格候选规划的结果保留于 [2026-10-25 报告](../outputs/m3_wsdr_kv_20261025_run01/experiment_report.md)，不作为新策略的质量批准。

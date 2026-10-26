@@ -22,3 +22,17 @@ def test_body_and_default_changes_are_distinguished():
     a=compile('x=1','first.py','exec');b=compile('x=1','other.py','exec');c=compile('x=2','first.py','exec')
     assert stable_code_hash(a)==stable_code_hash(b)
     assert stable_code_hash(a)!=stable_code_hash(c)
+
+
+def test_read_only_timing_wrapper_has_portable_key_but_live_cache_invalidation(llm):
+    from functools import wraps
+    from worldstream.m3.visual_state import deployment_key,execution_signature
+    before=deployment_key(llm);live=execution_signature(llm)
+    original=llm.forward
+    @wraps(original)
+    def timer(*args,**kwargs):return original(*args,**kwargs)
+    timer._worldstream_read_only_observer=True
+    llm.forward=timer
+    assert deployment_key(llm)==before
+    assert deployment_key(llm,include_observer=True)!=before
+    assert execution_signature(llm)!=live

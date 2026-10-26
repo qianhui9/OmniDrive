@@ -1,248 +1,241 @@
-"""Group-level WSDR contracts; all test evidence stays in pytest temporary paths."""
-import copy
+"""Continuous quality-bounded KV; unit policies never leave temporary paths."""
 from dataclasses import replace
-import hashlib
 import json
-
 import pytest
 import torch
-
-from worldstream.m3 import CarrierLayout,M3Runtime,expand_input
-from worldstream.m3.reuse_planner import ReusePlanner,WSDR_VERSION,GROUPS,organize_carriers
-from worldstream.m3.prefix_matcher import exact_lcp
+from worldstream.m3 import M3Runtime, CarrierLayout, expand_input
 from worldstream.m3.config import M3Config
-from worldstream.m3.scheduler import Scheduler
+from worldstream.m3.prefix_matcher import prefix_statistics, exact_lcp
+from worldstream.m3.reuse_planner import ReuseDecision
+from worldstream.m3.scheduler import Scheduler, POLICY_VERSION
 from worldstream.m3.world_state import query_world_state
-from .test_trusted_history import fixture_state,state_context
+from .test_trusted_history import fixture_state, state_context
 
 
-def expanded(llm,carriers,layout=None,order=None,signature='same'):
-    return expand_input(llm,torch.tensor([1,3,-200,4,5]),carriers,carrier_layout=layout or CarrierLayout(3,1,5),
-        carrier_order=order,scope=('s',('front',),2),signature=(signature,))
+def bound(context, index):
+    t=1.+index*.1
+    state=fixture_state()
+    record=dict(state.records[0],verified_timestamp=t,source_timestamp=t-.2)
+    state=replace(state,frame_id='f'+str(index),timestamp=t,state_version=3+index,records=(record,))
+    return state,dict(state_context(context),frame_id=state.frame_id,timestamp=t,state_version=state.state_version)
 
 
-def plan(llm,carriers,context,question='where is the car',layout=None,previous=None):
-    layout=layout or CarrierLayout(3,1,5)
-    x=expanded(llm,carriers,layout)
-    ctx=state_context(context)
-    return x,ReusePlanner().plan(question,x,layout,previous,query_world_state(fixture_state(),question,ctx),ctx)
+def trial(threshold=.2):
+    runtime=M3Runtime(dict(min_prefix_tokens=1))
+    runtime.planner.calibration_threshold=threshold
+    return runtime
 
 
-def test_deterministic_layout_and_no_invented_m2_mapping(llm,carriers,context):
-    x,a=plan(llm,carriers,context)
-    _,b=plan(llm,carriers,context)
-    assert a==b and a.layout_permutation==GROUPS
-    assert not a.m2_mapping_available and a.m2_mapping_reason=='m2_region_mapping_unavailable'
-    assert a.fallback_reason=='native_group_order_unverified'
-    assert a.m1_state_valid
-    assert x.visual_mask.sum()==carriers.shape[1]
-
-
-@pytest.mark.parametrize('question,profile,relevant',[
-    ('where is the car','object_attributes',('object',)),
-    ('which lane is on the road','map_relations',('map',)),
-    ('what is the vehicle speed','object_ego_motion',('object','ego')),
-    ('how many cars are on the road','full_visual',GROUPS),
-    ('are there any cars','full_visual',GROUPS),
-    ('is it safe to proceed','full_visual',GROUPS),
-    ('unrecognized question','full_visual',GROUPS)])
-def test_uses_existing_classifier_and_conservative_dependencies(llm,carriers,context,question,profile,relevant):
-    _,p=plan(llm,carriers,context,question)
-    assert p.task_profile==profile and p.relevant_groups==relevant
-
-
-def test_stable_group_priority_is_exact_not_semantic(llm,carriers,context):
-    old,_=plan(llm,carriers,context)
-    changed=carriers.clone();changed[:,4:]+=.00001
-    _,p=plan(llm,changed,context,'which road lane',previous=old)
-    assert p.stable_groups==('object','ego') and p.changed_groups==('map',)
-    assert p.mandatory_refresh_groups==('map',)
-    assert p.candidate_group_order==('object','ego','map')
-    _,same=plan(llm,carriers,context,'which road lane',previous=old)
-    assert same.candidate_group_order==('map','object','ego')
-    assert same.layout_permutation==GROUPS  # Native positional contract is fixed.
-
-
-def test_declared_producer_contract_reorganizes_all_metadata_before_expansion(llm,carriers,context):
-    layout=CarrierLayout(3,1,5,'group_permutation_v1')
-    _,p=plan(llm,carriers,context,'which road lane',layout)
-    assert p.layout_permutation==('map','object','ego')
-    ordered=organize_carriers(carriers,layout,p)
-    assert torch.equal(ordered,torch.cat((carriers[:,4:],carriers[:,:3],carriers[:,3:4]),1))
-    x=expanded(llm,ordered,layout,p.layout_permutation)
-    x.layout_signature=p.layout_signature
-    assert x.token_ids.tolist()==[[1,3]+[-200]*9+[4,5]]
-    assert x.position_ids.tolist()==[list(range(13))] and x.attention_mask.all()
-    assert x.visual_group_spans==( ('map',2,7),('object',7,10),('ego',10,11) )
-    assert torch.equal(x.embeddings[:,2:11],ordered) and x.visual_mask.sum()==9
-    native=expanded(llm,carriers)
-    native.layout_signature='original'
-    assert exact_lcp(native,x)==0
-    # A layout changes model behavior independently of KV. Compare full forwards.
-    with torch.no_grad():
-        a=llm(inputs_embeds=native.embeddings).logits
-        b=llm(inputs_embeds=x.embeddings).logits
-    assert not torch.equal(a,b) and (a-b).abs().max()>0
-
-
-def test_high_similarity_never_skips_changed_or_noncontiguous_prefix(llm,carriers):
-    previous=expanded(llm,carriers)
-    changed=carriers.clone();changed[0,4,0]+=1e-7
-    current=expanded(llm,changed)
-    assert torch.nn.functional.cosine_similarity(carriers.flatten(),changed.flatten(),dim=0)>.999
-    assert exact_lcp(previous,current)==6
-    current.layout_signature='different_layout'
-    assert exact_lcp(previous,current)==0
+def call(runtime,llm,carriers,context,index,questions=None):
+    state,ctx=bound(context,index)
+    questions=questions or ['where is the car']
+    ids=[torch.tensor([1,3,-200,4+i,5]) for i in range(len(questions))]
+    return runtime.generate(llm,ids,carriers,context=ctx,layout=CarrierLayout(3,1,5),
+        verified_state=state,questions=questions,max_new_tokens=3,do_sample=False)
 
 
 @torch.no_grad()
-@pytest.mark.parametrize('fault',['scene','time','epoch','version','signature','expired','mutated'])
-def test_invalid_history_forces_full_prefill(llm,carriers,context,fault):
-    state=fixture_state();ctx=state_context(context)
+def test_natural_order_and_same_frame_exact_reuse(llm,carriers,context):
+    runtime=trial()
+    answers,d=call(runtime,llm,carriers,context,0,['where is the car']*2)
+    row=d['requests'][1]
+    assert row['reuse_type']=='exact' and row['reused_tokens']==11
+    assert row['forward_prefill_lengths']==[2] and row['effective_prefill_tokens']==2
+    expected=llm.generate(inputs=torch.tensor([[1,3,-200,5,5]]),images=carriers,max_new_tokens=3,do_sample=False)
+    assert torch.equal(answers[1],expected)
+    assert row['layout_permutation']==('object','ego','map')
+    assert not row['m2_mapping_available']
+
+
+@torch.no_grad()
+def test_cross_frame_approx_really_executes_only_suffix(llm,carriers,context):
+    runtime=trial(.1)
+    call(runtime,llm,carriers,context,0)
+    changed=carriers+.001
+    _,d=call(runtime,llm,changed,context,1)
+    row=d['requests'][0]
+    assert row['reuse_type']=='bounded_approx' and row['reused_tokens']>2
+    assert row['matched_prefix_tokens']==2
+    assert sum(row['forward_prefill_lengths'])==row['input_tokens']-row['reused_tokens']
+    assert row['approx_reuse_depth']==1 and row['cache_age_frames']==1
+    assert runtime.cache.entry.approx_reuse_depth==1
+    assert runtime.cache.entry.root_frame_index==0
+    assert runtime.cache.entry.prefix_lineage
+
+
+@torch.no_grad()
+def test_inherited_approx_cache_never_relabelled_as_exact(llm,carriers,context):
+    runtime=trial(.1)
+    call(runtime,llm,carriers,context,0)
+    changed=carriers+.001
+    call(runtime,llm,changed,context,1)
+    _,d=call(runtime,llm,changed,context,1,['where is the car']*2)
+    assert all(r['reuse_type']=='bounded_approx' for r in d['requests'])
+    assert all(r['approx_reuse_depth']==1 for r in d['requests'])
+
+
+@torch.no_grad()
+def test_inherited_risk_is_reweighted_for_current_question(llm,carriers,context):
+    runtime=trial(.5)
+    call(runtime,llm,carriers,context,0)
+    call(runtime,llm,carriers+.001,context,1)
+    previous=runtime.cache.entry.quality_risk
+    _,d=call(runtime,llm,carriers+.001,context,1,['is it safe'])
+    assert d['requests'][0]['estimated_quality_risk']>=previous
+    assert d['requests'][0]['risk_profile']=='full_visual'
+
+
+@torch.no_grad()
+def test_depth_bound_refreshes_instead_of_accumulating(llm,carriers,context):
+    runtime=trial(.1)
+    call(runtime,llm,carriers,context,0)
+    call(runtime,llm,carriers+.001,context,1)
+    _,d=call(runtime,llm,carriers+.002,context,2)
+    assert d['requests'][0]['reuse_type']=='none'
+    assert d['requests'][0]['full_prefill']
+    assert runtime.cache.entry.approx_reuse_depth==0
+
+
+@torch.no_grad()
+def test_calibrated_visual_cap_limits_only_contiguous_cross_frame_prefix(llm,carriers,context):
+    runtime=trial(.5);runtime.planner.calibration_max_visual_tokens=3
+    call(runtime,llm,carriers,context,0)
+    _,d=call(runtime,llm,carriers+.001,context,1)
+    assert d['requests'][0]['reuse_type']=='bounded_approx'
+    assert d['requests'][0]['reused_tokens']==5
+    assert d['requests'][0]['forward_prefill_lengths']==[8]
+
+
+@torch.no_grad()
+def test_first_changed_block_stops_prefix_no_noncontiguous_kv(llm,carriers,context):
+    runtime=trial(.01)
+    call(runtime,llm,carriers,context,0)
+    changed=carriers.clone();changed[:,0]+=10
+    _,d=call(runtime,llm,changed,context,1)
+    assert d['requests'][0]['reused_tokens']==2
+    assert d['requests'][0]['reuse_type']=='exact'
+
+
+@pytest.mark.parametrize('field',['position_ids','attention_mask','token_ids','visual_mask'])
+def test_metadata_and_text_must_remain_exact(llm,carriers,field):
+    a=expand_input(llm,torch.tensor([[1,3,-200,4]]),carriers,carrier_layout=CarrierLayout(3,1,5))
+    b=a.prefix(a.length,clone=True)
+    getattr(b,field)[0,3]=0 if field in ('attention_mask','visual_mask') else 30
+    exact,legal,blocks=prefix_statistics(a,b)
+    assert legal==3 and exact<=3
+    assert all(b['end']>legal for b in blocks if b['start']<=3)
+
+
+@torch.no_grad()
+def test_same_frame_visual_change_is_never_approximate(llm,carriers,context):
+    runtime=trial(10.)
+    call(runtime,llm,carriers,context,0)
+    _,d=call(runtime,llm,carriers+.001,context,0)
+    assert d['requests'][0]['reused_tokens']==2
+    assert d['requests'][0]['reuse_type']=='exact'
+
+
+@torch.no_grad()
+@pytest.mark.parametrize('fault',['scene','time','version','model'])
+def test_lifecycle_incompatibility_cannot_use_old_kv(llm,carriers,context,fault):
+    runtime=trial(10.)
+    call(runtime,llm,carriers,context,1)
+    state,ctx=bound(context,2)
     if fault=='scene':ctx['scene_id']='other'
-    if fault=='time':ctx['timestamp']=.5
-    if fault=='epoch':ctx['state_epoch']=4
-    if fault=='version':ctx['state_version']=9
-    if fault=='signature':ctx['state_execution_signature']='wrong'
-    if fault=='expired':state=replace(state,diagnostics=dict(max_state_age_s=.01))
-    if fault=='mutated':state.records[0]['center_ego_m'][0]=999.
-    runtime=M3Runtime(dict(reuse_strategy='wsdr_kv',min_prefix_tokens=1))
-    _,diag=runtime.generate(llm,[torch.tensor([1,-200,4])]*2,carriers,context=ctx,
-        layout=CarrierLayout(3,1,5),verified_state=state,questions=['where is the car']*2,max_new_tokens=2)
-    assert all(not r['m1_state_valid'] and r['reused_tokens']==0 and r['full_prefill'] for r in diag['requests'])
+    if fault=='time':ctx['timestamp']=.2
+    if fault=='version':ctx['state_version']=0
+    if fault=='model':
+        with torch.no_grad():llm.model.embed_tokens.weight.add_(.01)
+    _,d=runtime.generate(llm,[torch.tensor([1,3,-200,4,5])],carriers,context=ctx,
+        layout=CarrierLayout(3,1,5),verified_state=state,questions=['where is the car'],max_new_tokens=2)
+    assert d['requests'][0]['reused_tokens']==0
+    assert d['requests'][0]['cache_invalidation_reason']
 
 
 @torch.no_grad()
-def test_scene_time_and_version_lifecycle_diagnostics(llm,carriers,context):
-    runtime=M3Runtime(dict(reuse_strategy='wsdr_kv',min_prefix_tokens=1))
-    ids=[torch.tensor([1,-200,4])];layout=CarrierLayout(3,1,5)
-    def call(state,ctx):
-        return runtime.generate(llm,ids,carriers,context=ctx,layout=layout,
-            verified_state=state,questions=['where is the car'],max_new_tokens=2)[1]['requests'][0]
-    state=fixture_state();ctx=state_context(context)
-    call(state,ctx)
-    row=call(state,ctx)
-    assert row['matched_prefix_tokens']==11 and row['approved_prefix_tokens']==row['reused_tokens']==0
-    assert row['prefix_rejection_reason']=='wsdr_quality_evidence_unavailable'
-    assert row['effective_prefill_tokens']==11 and row['cache_branch_ms'] is None
-    assert row['cache_invalidation_reason'] is None
-    row=call(replace(state,state_version=2),dict(ctx,state_version=2))
-    assert row['cache_invalidation_reason']=='state_version_rollback'
-    row=call(replace(state,timestamp=.9),dict(ctx,timestamp=.9,state_version=2))
-    assert row['cache_invalidation_reason']=='nonmonotonic_timestamp'
-    row=call(state,dict(ctx,scene_id='other'))
-    assert row['cache_invalidation_reason']=='scene_camera_or_epoch_changed'
+def test_unproved_approx_and_stale_proof_are_errors(llm,carriers,context):
+    runtime=trial(.1)
+    call(runtime,llm,carriers,context,0)
+    state,ctx=bound(context,1);ctx['frame_index']=1
+    x=expand_input(llm,torch.tensor([[1,3,-200,4,5]]),carriers+.001,
+        scope=runtime.cache.entry.expanded.scope,signature=runtime.cache.entry.expanded.signature,
+        source=('s','f1',1.1,0),carrier_layout=CarrierLayout(3,1,5))
+    with pytest.raises(ValueError,match='evidence'):
+        runtime.executor.generate(llm,x,decision=ReuseDecision(11,'bounded_approx'),max_new_tokens=2)
+    decision,_=runtime.planner.plan('where is the car',x,runtime.cache,
+        query_world_state(state,'where is the car',ctx),ctx)
+    for broken in (replace(decision,approx_reuse_depth=0),replace(decision,cache_age_frames=0),
+                   replace(decision,root_frame_index=99)):
+        with pytest.raises(ValueError,match='evidence'):
+            runtime.executor.generate(llm,x,decision=broken,max_new_tokens=2)
+    x.position_ids[0,1]+=1
+    with pytest.raises(ValueError,match='evidence'):
+        runtime.executor.generate(llm,x,decision=decision,max_new_tokens=2)
+
+
+def unit_scheduler(tmp_path):
+    context=dict(model_version='unit',weights_sha256='unit',execution_key='unit',generation_key='unit',
+        layout_signature='unit',dtype='unit',task_profile='full_visual',input_tokens=100)
+    e=dict(quality_loss_upper=.01,calibration_samples=3,validation_samples=2,critical_regressions=0,
+        risk_limit=.1,max_rms=.1,max_token_change=.2,
+        cost=dict(net_saved_ms_per_token=.2,samples=3,min_input_tokens=90,max_input_tokens=110,max_reuse_tokens=90))
+    policy=dict(version=POLICY_VERSION,binding={k:v for k,v in context.items() if k not in ('task_profile','input_tokens')},
+        block_size=32,profiles={'full_visual':{'exact':e,'approx':e}},max_cache_age_frames=2,max_approx_depth=1)
+    p=tmp_path/'unit.json';p.write_text(json.dumps(policy))
+    return Scheduler(M3Config(reuse_policy=str(p))),context
+
+
+def candidate(**kw):
+    return dict(length=64,reuse_type='bounded_approx',risk=.05,rms=.04,max_token=.05,age=1,depth=1,**kw)
+
+
+def test_unified_argmin_selects_quality_bounded_net_gain(tmp_path):
+    scheduler,ctx=unit_scheduler(tmp_path)
+    small=dict(candidate(),length=32)
+    chosen,_=scheduler.choose([small,candidate()],ctx,1.)
+    assert chosen['length']==64
+    assert scheduler.choose([dict(candidate(),risk=.2)],ctx,1.)[0] is None
+    assert scheduler.choose([dict(candidate(),depth=2)],ctx,1.)[0] is None
+    assert scheduler.choose([dict(candidate(),age=3)],ctx,1.)[0] is None
+    assert scheduler.choose([candidate()],ctx,100.)[0] is None
+    scheduler.policy['profiles']['full_visual']['approx']['quality_loss_upper']=.03
+    assert scheduler.choose([candidate()],ctx,0.)[0] is None
+
+
+@pytest.mark.parametrize('key',['model_version','weights_sha256','execution_key','generation_key','layout_signature','dtype'])
+def test_policy_bound_to_actual_execution(tmp_path,key):
+    scheduler,ctx=unit_scheduler(tmp_path);ctx[key]='different'
+    assert scheduler.choose([candidate()],ctx,0.)[1]=='reuse_policy_binding_mismatch'
+
+
+@pytest.mark.parametrize('content',[None,'broken','[]','{}','{"version":"old"}',
+    '{"version":"quality_bounded_wsdr_v1","profiles":{},"quality_budget":NaN}'])
+def test_missing_policy_is_same_executor_full_prefill(tmp_path,content):
+    p=tmp_path/'policy.json'
+    if content is not None:p.write_text(content)
+    scheduler=Scheduler(M3Config(reuse_policy=str(p)))
+    assert scheduler.choose([],{},0.)[0] is None
+
+
+def test_native_order_and_reference_strategy_only():
+    assert M3Config().reuse_strategy=='wsdr_kv'
+    with pytest.raises(ValueError):CarrierLayout(3,1,5,'group_permutation_v1')
+    with pytest.raises(ValueError):M3Config(block_size=7)
 
 
 @torch.no_grad()
-def test_storage_metadata_and_m2_context_cannot_forge_mapping(llm,carriers,context):
-    runtime=M3Runtime(dict(reuse_strategy='wsdr_kv',min_prefix_tokens=1))
-    kwargs=dict(lm_head=llm,input_ids_list=[torch.tensor([1,-200,4])],vision_carriers=carriers,
-        context=state_context(context),layout=CarrierLayout(3,1,5),verified_state=fixture_state(),
-        questions=['where is the car'],max_new_tokens=2)
-    runtime.generate(**kwargs)
-    runtime.cache.entry.expanded.layout_signature='tampered'
-    row=runtime.generate(**kwargs)[1]['requests'][0]
-    assert row['cache_invalidation_reason']=='cache_storage_revision_changed'
-    row=runtime.generate(**kwargs,m2_diagnostics=dict(execution_completed=True,cache_context=dict(frame_id='wrong')))[1]['requests'][0]
-    assert not row['m2_mapping_available'] and row['layout_fallback_reason']=='stale_m2_execution_context'
-    assert row['reused_tokens']==0
-
-
-def test_strategy_configuration_is_explicit():
-    assert M3Config().reuse_strategy=='exact_prefix'
-    with pytest.raises(ValueError):M3Config(reuse_strategy='approximate')
-
-
-def evidence(tmp_path,llm,carriers,context):
-    x,p=plan(llm,carriers,context)
-    x.layout_signature=p.layout_signature
-    context=dict(p.diagnostics(),model_version='deployed',execution_key='backend',weights_sha256='a'*64,
-                 generation_key='generation',effective_reuse_length=6)
-    artifact=tmp_path/'unit_only_evidence.json'
-    row=dict(context,strategy='wsdr_kv',input_tokens=x.length,prefix_tokens=6,reused_tokens=6,
-        dtype=str(x.embeddings.dtype),evidence_path=str(artifact),protocol_path=str(artifact),
-        tokens_equal=True,rng_equal=True,scores_close=True,approved_by='unit_fixture_only',task_quality_status='passed',
-        independent_task_quality=True,task_metrics={'fixture_only':1.},heldout_samples=1,
-        measurements=[dict(sample_id='unit',baseline_ms=20.,optimized_ms=.1)])
-    keys=('strategy','strategy_version','model_version','execution_key','weights_sha256','task_type','task_profile',
-          'layout_signature','input_tokens','prefix_tokens','reused_tokens','dtype','generation_key')
-    artifact.write_text(json.dumps(dict(schema='wsdr_kv_evidence_v1',binding={k:row[k] for k in keys},
-        numerical=dict(tokens_equal=True,rng_equal=True,scores_close=True),measurements=row['measurements'])))
-    digest=hashlib.sha256(artifact.read_bytes()).hexdigest()
-    row.update(evidence_sha256=digest,protocol_sha256=digest)
-    scheduler=Scheduler(M3Config(reuse_strategy='wsdr_kv',min_prefix_tokens=1))
-    scheduler.quality={'approved':[copy.deepcopy(row)]};scheduler.costs={'approved':[copy.deepcopy(row)]}
-    return scheduler,x,context,row
-
-
-@pytest.mark.parametrize('field',['strategy','strategy_version','task_type','task_profile','layout_signature',
-    'weights_sha256','input_tokens','prefix_tokens','reused_tokens','dtype','generation_key','evidence_sha256'])
-def test_wsdr_certificates_are_strategy_layout_task_weight_and_count_bound(tmp_path,llm,carriers,context,field):
-    scheduler,x,ctx,row=evidence(tmp_path,llm,carriers,context)
-    assert scheduler.prefix_allowed(x,6,ctx,.1)[0]
-    for table in (scheduler.quality,scheduler.costs):table['approved'][0][field]='mismatched'
-    assert not scheduler.prefix_allowed(x,6,ctx,.1)[0]
-
-
-def test_exact_approval_and_unhashed_or_unbeneficial_wsdr_evidence_rejected(tmp_path,llm,carriers,context):
-    scheduler,x,ctx,row=evidence(tmp_path,llm,carriers,context)
-    scheduler.quality['approved'][0]['strategy']='exact_prefill'
-    assert scheduler.prefix_allowed(x,6,ctx,0)[1]=='wsdr_quality_evidence_unavailable'
-    scheduler.quality['approved'][0]=copy.deepcopy(row)
-    scheduler.costs['approved'][0]['measurements'][0]['optimized_ms']=30.
-    assert scheduler.prefix_allowed(x,6,ctx,0)[1]=='wsdr_cost_evidence_unavailable'
-    scheduler.costs['approved'][0]=copy.deepcopy(row)
-    (tmp_path/'unit_only_evidence.json').write_text('modified')
-    assert not scheduler.prefix_allowed(x,6,ctx,0)[0]
-
-
-@torch.no_grad()
-def test_wsdr_uses_only_verified_contiguous_prefix_in_existing_executor(llm,carriers,context,monkeypatch):
-    runtime=M3Runtime(dict(reuse_strategy='wsdr_kv',min_prefix_tokens=1))
-    # Isolate the tiny model executor from deployment approval, never write it.
-    monkeypatch.setattr(runtime.scheduler,'prefix_allowed',lambda x,p,c,o:(p>0,'unit_executor_fixture'))
-    ids=[torch.tensor([1,3,-200,4,5]),torch.tensor([1,3,-200,7,8])]
-    outputs,diag=runtime.generate(llm,ids,carriers,context=state_context(context),layout=CarrierLayout(3,1,5),
-        verified_state=fixture_state(),questions=['where is the car']*2,max_new_tokens=3,do_sample=False)
-    second=diag['requests'][1]
-    assert second['matched_prefix_tokens']==second['approved_prefix_tokens']==second['reused_tokens']==11
-    assert second['forward_prefill_lengths']==[2] and second['effective_prefill_tokens']==2
-    reference=llm.generate(inputs=ids[1][None],images=carriers,max_new_tokens=3,do_sample=False)
-    assert torch.equal(outputs[1],reference)
-
-
-@torch.no_grad()
-def test_approved_match_and_actual_reuse_differ_for_last_token_logits(llm,carriers,context,monkeypatch):
-    runtime=M3Runtime(dict(reuse_strategy='wsdr_kv',min_prefix_tokens=1))
-    seen=[]
-    def allow(x,p,c,o):
-        seen.append(c['effective_reuse_length'])
-        return p>0,'unit_executor_fixture'
-    monkeypatch.setattr(runtime.scheduler,'prefix_allowed',allow)
-    _,diag=runtime.generate(llm,[torch.tensor([1,3,-200,4,5]),torch.tensor([1,3,-200,4])],
-        carriers,context=state_context(context),layout=CarrierLayout(3,1,5),verified_state=fixture_state(),
-        questions=['where is the car']*2,max_new_tokens=2)
-    row=diag['requests'][1]
-    assert row['matched_prefix_tokens']==row['approved_prefix_tokens']==12
-    assert row['reused_tokens']==11 and seen[-1]==11 and row['effective_prefill_tokens']==1
-
-
-@torch.no_grad()
-@pytest.mark.parametrize('strategy',['exact_prefix','wsdr_kv'])
-def test_diagnostics_do_not_extend_old_kv_entry_lifetime(llm,carriers,context,monkeypatch,strategy):
-    import gc
-    import weakref
-    runtime=M3Runtime(dict(reuse_strategy=strategy))
-    original=runtime.cache.put;observed=[]
-    def put(*args,**kwargs):
-        old=weakref.ref(runtime.cache.entry) if runtime.cache.entry is not None else None
-        value=original(*args,**kwargs)
-        if old is not None:
-            gc.collect();observed.append(old() is None)
+@pytest.mark.parametrize('approximate',[False,True])
+def test_no_old_cache_entry_reference_leak(llm,carriers,context,monkeypatch,approximate):
+    import weakref,gc
+    runtime=trial(.1) if approximate else M3Runtime();oldput=runtime.cache.put;observed=[]
+    def put(*args,**kw):
+        old=weakref.ref(runtime.cache.entry) if runtime.cache.entry else None
+        value=oldput(*args,**kw)
+        if old:gc.collect();observed.append(old() is None)
         return value
     monkeypatch.setattr(runtime.cache,'put',put)
-    runtime.generate(llm,[torch.tensor([1,-200,4]),torch.tensor([1,-200,5])],carriers,
-        context=state_context(context),layout=CarrierLayout(3,1,5),verified_state=fixture_state(),
-        questions=['where is the car']*2,max_new_tokens=2)
+    if approximate:
+        call(runtime,llm,carriers,context,0)
+        call(runtime,llm,carriers+.001,context,1)
+    else:call(runtime,llm,carriers,context,0,['where is the car']*2)
     assert observed==[True]

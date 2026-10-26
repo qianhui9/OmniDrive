@@ -42,15 +42,14 @@ class CarrierLayout:
     object_tokens: int
     ego_tokens: int
     map_tokens: int
-    # Native OmniDrive has learned positional order. A different producer must
-    # explicitly supply its own group-permutation input contract.
+    # OmniDrive retains its trained object -> ego -> map order.
     order_contract: str = 'native_fixed'
 
     def __post_init__(self):
         if any(type(n) is not int or n<0 for n in (self.object_tokens,self.ego_tokens,self.map_tokens)):
             raise ValueError('Invalid carrier group lengths')
-        if self.order_contract not in ('native_fixed','group_permutation_v1'):
-            raise ValueError('Unknown carrier ordering contract')
+        if self.order_contract != 'native_fixed':
+            raise ValueError('OmniDrive requires its native fixed carrier order')
 
     @property
     def groups(self):
@@ -89,7 +88,7 @@ def execution_signature(lm_head, model_version=''):
             torch.are_deterministic_algorithms_enabled())
 
 
-def deployment_key(lm_head):
+def deployment_key(lm_head, include_observer=False):
     """Stable profiler compatibility key; weights are identified separately by SHA/version.
 
     Cache validity itself uses the live versioned signature above. This stable key
@@ -112,6 +111,11 @@ def deployment_key(lm_head):
         fn=module.forward;chain=[];seen=set()
         while fn is not None and id(fn) not in seen:
             seen.add(id(fn));actual=getattr(fn,'__func__',fn);code=getattr(actual,'__code__',None)
+            # Read-only benchmark timers do not change the deployed kernels.
+            # All actual model/backend/LoRA wrappers remain fingerprinted.
+            if not include_observer and getattr(actual,'_worldstream_read_only_observer',False):
+                fn=getattr(actual,'__wrapped__',None)
+                continue
             key=id(actual)
             if key not in inspected:
                 inspected[key]=(getattr(actual,'__module__',type(actual).__module__),
@@ -186,12 +190,13 @@ def expand_input(lm_head, input_ids, images, attention_mask=None, position_ids=N
         if images is None or images.shape[0]!=1 or images.shape[1]!=carrier_layout.total:
             raise ValueError('Carrier provenance requires one complete visual carrier')
         order=tuple(carrier_order or ('object','ego','map'))
-        if len(order)!=3 or set(order)!={'object','ego','map'}:raise ValueError('Invalid group permutation')
+        if order != ('object','ego','map'):raise ValueError('Carrier reorder is unsupported')
         markers=(raw==IMAGE_TOKEN_INDEX).nonzero(as_tuple=False).flatten().tolist()
         if len(markers)==1:
             cursor=markers[0];rows=[];sizes=dict(carrier_layout.groups)
             for group in order:
                 rows.append((group,cursor,cursor+sizes[group]));cursor+=sizes[group]
             spans=tuple(rows)
+        layout_signature = layout_signature or hashlib.sha256(repr(carrier_layout.groups).encode()).hexdigest()
     return ExpandedInput(embeds, ids, positions, mask, visual, tuple(scope), signature, tuple(source),
                          layout_signature,spans)

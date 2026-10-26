@@ -49,7 +49,7 @@ def test_unqualified_history_keeps_original_ids_and_full_visual(llm,carriers,con
     assert d['runtime_entered'] and d['execution_completed']
     assert not row['historical_text_consumed']
     assert row['full_prefill'] and row['prefill_completed'] and row['decode_completed']
-    assert row['state_retrieval']['reason']=='historical_context_quality_unverified'
+    assert row['state_retrieval']['reason']=='history_text_not_calibrated'
     assert not row['state_retrieval']['admitted'] and row['current_visual_complete']
     assert captured[0].token_ids[0,0]==1 and captured[0].token_ids[0,-1]==4
     assert torch.equal(captured[0].embeddings[:,1:10],carriers)
@@ -58,7 +58,8 @@ def test_unqualified_history_keeps_original_ids_and_full_visual(llm,carriers,con
 
 def test_state_augmentation_preserves_every_current_carrier(llm,carriers,context,monkeypatch):
     runtime=M3Runtime();captured=[]
-    monkeypatch.setattr(runtime.scheduler,'state_allowed',lambda *a:(True,'unit_fixture'))
+    runtime.scheduler.policy={'history_text':True}
+    monkeypatch.setattr(runtime.scheduler,'compatible',lambda *a:True)
     original=runtime.executor.generate
     def observe(model,expanded,*a,**kw):
         captured.append(expanded)

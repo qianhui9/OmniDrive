@@ -160,6 +160,7 @@ def run(args):
     write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if k.startswith(('worldstream/m1/', 'worldstream/m2/'))})
     write(dest/'m1_m2_m3_source_hashes.json', hashes)
     cfg = effective_config(args.condition, args.workload, dest,getattr(args,'m3_strategy',None))
+    if getattr(args,'m3_policy',None):cfg.model.m3_config.reuse_policy=args.m3_policy
     importlib.import_module('projects.mmdet3d_plugin')
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -177,6 +178,7 @@ def run(args):
         source_manifest='benchmark_source_hashes.json + m1_m2_m3_source_hashes.json',
         source_manifest_sha256=sha256(dest/'m1_m2_m3_source_hashes.json'))
     model.worldstream_profile = bool(getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None))
+    model.worldstream_capture_m3_inputs=bool(getattr(args,'capture_m3_inputs',False))
     if getattr(args,'offline_wsgrr',None):
         from functools import partial
         from dataclasses import replace
@@ -220,7 +222,13 @@ def run(args):
     dataset.data_infos = sorted(dataset.data_infos, key=lambda i: (i['scene_token'], i['timestamp']))
     all_infos = dataset.data_infos
     candidates = all_infos
-    if getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None):
+    specification={}
+    if getattr(args,'sequence_file',None):
+        specification=json.loads(Path(args.sequence_file).read_text())
+        tokens=specification['tokens']
+        by_token={i['token']:i for i in all_infos}
+        candidates=[by_token[t] for t in tokens]
+    elif getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None):
         scene = getattr(args, 'scene', None) or all_infos[0]['scene_token']
         candidates = [i for i in all_infos if i['scene_token'] == scene]
         from .sequence import validate_sequence as validate_continuous_sequence
@@ -228,12 +236,24 @@ def run(args):
     selected = candidates if not args.limit else candidates[:args.limit]
     validate_sequence(selected)
     full = len(selected) == len(all_infos)
+    dataset.data_infos=selected
     write(dest/'sequence.json', dict(validation_frames=len(all_infos), selected_frames=len(selected),
         full_validation=full, tokens=[i['token'] for i in selected],
         requested_frames=args.limit, selection='single scene, consecutive timestamp-sorted frames' if getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None) else 'timestamp-sorted split',
         reduction_reason='selected scene has fewer frames than requested' if args.limit > len(selected) else None,
         scene_ids=sorted({i['scene_token'] for i in selected})))
     observer = Observer(model)
+    observer.capture_inputs=bool(getattr(args,'capture_m3_inputs',False))
+    if getattr(args,'m3_policy',None):
+        # Read-only timers have the same portable backend identity as serving.
+        from worldstream.m3.visual_state import deployment_key
+        policy=json.loads(Path(args.m3_policy).read_text())
+        binding=policy['binding'];canonical=deployment_key(model.lm_head)
+        if binding['weights_sha256']!=model.worldstream_audit_identity['checkpoint_sha256']:
+            raise ValueError('Policy checkpoint does not match loaded weights')
+        if binding['execution_key']!=canonical:
+            raise ValueError('Policy does not match the actual model/backend')
+        write(dest/'used_m3_policy.json',policy)
     # Annotation reverse links are only exposed to the offline scorer below.
     scorer = None
     if model.m1_manager is not None and not getattr(args,'perception_only',False):
@@ -245,7 +265,9 @@ def run(args):
         sample = dataset[ordinal]
         data = scatter(collate([sample], samples_per_gpu=1), [0])[0]
         if args.workload == 'language':
-            select_question(data, ordinal, args.questions_per_frame, getattr(args, 'question_offset', 0))
+            names=specification.get('questions',{}).get(selected[ordinal]['token'])
+            if names:select_named_questions(data,names)
+            else:select_question(data, ordinal, args.questions_per_frame, getattr(args, 'question_offset', 0), getattr(args,'question_selection','ordered'))
         if getattr(args,'perception_only',False):clear_questions(data)
         with torch.no_grad():
             model(return_loss=False, rescale=True, **data)
@@ -282,7 +304,9 @@ def run(args):
         prepared = perf_counter()
         data = scatter(collate([sample], samples_per_gpu=1), [0])[0]
         if args.workload == 'language':
-            select_question(data, ordinal, args.questions_per_frame, getattr(args, 'question_offset', 0))
+            names=specification.get('questions',{}).get(info['token'])
+            if names:select_named_questions(data,names)
+            else:select_question(data, ordinal, args.questions_per_frame, getattr(args, 'question_offset', 0), getattr(args,'question_selection','ordered'))
         if getattr(args,'perception_only',False):clear_questions(data)
         torch.cuda.synchronize()
         model_tick = perf_counter()
@@ -379,6 +403,25 @@ def run(args):
                 reuse_diagnostics=detail)
             questions.append(qrow)
             append(dest/'per_question_metrics.jsonl', qrow)
+        if observer.capture_inputs:
+            # Materialize inputs only AFTER measured service time and peak VRAM.
+            # Labels/GT are scored separately and never supplied to the planner.
+            from worldstream.m3 import CarrierLayout
+            calls=[x['captured_input'] for x in observer.native_generations]
+            if calls[0]['carriers'].shape[1]!=513:raise ValueError('Unexpected real OmniDrive carrier layout')
+            state=getattr(model,'m3_verified_state',None)
+            if state is None:raise RuntimeError('Capture requires real frozen M1 state')
+            folder=dest/'m3_inputs';folder.mkdir(exist_ok=True)
+            torch.save(dict(carriers=calls[0]['carriers'].detach().cpu(),
+                ids=[c['ids'].detach().cpu().reshape(-1) for c in calls],
+                rng=[(c['cpu_rng'],c['cuda_rng']) for c in calls],generation=calls[0]['generation'],
+                questions=[a['Q'] for a in result['text_out']],verified_state=state,
+                layout=CarrierLayout(256,1,256),m2=row['m2'],
+                context=dict(scene_id=state.scene_id,frame_id=state.frame_id,timestamp=state.timestamp,
+                    camera_ids=list(info['cams']),state_epoch=state.state_epoch,state_version=state.state_version,
+                    state_execution_signature=state.execution_signature,
+                    weights_sha256=model.worldstream_audit_identity['checkpoint_sha256'])),
+                folder/(info['token']+'.pt'))
         for images, reused, diagnostics in ([] if getattr(args,'perception_only',False) else observer.reuses):
             # Counterfactual correctness check on ACTUAL reuse only. Restore
             # sampling RNG and run it outside production latency measurements.
@@ -406,10 +449,6 @@ def run(args):
                 questions=len(questions), latest_request_ms=row['request_ms']))
             print('FRAME', args.condition, args.workload, args.repeat, ordinal+1, '/', len(selected),
                   round(row['request_ms'], 2), 'ms', flush=True)
-    if getattr(args,'m3_controlled_probe',False):
-        # After all request/peak-memory samples: probes must not inflate service VRAM.
-        from .prefill_validate import wsdr_probe
-        wsdr_probe(model,observer.last_m3_call,dest)
     with (dest/'predictions.pkl').open('wb') as handle:
         pickle.dump(outputs, handle)
     summary = dict(status='COMPLETED', frames=len(frames), questions=len(questions),
@@ -475,7 +514,7 @@ def clear_questions(data):
     data['img_metas'][0][0]['vlm_labels']=DataContainer([],stack=False)
 
 
-def select_question(data, ordinal, limit, offset=0):
+def select_question(data, ordinal, limit, offset=0, selection='ordered'):
     if not limit:
         return
     meta = data['img_metas'][0][0]
@@ -487,10 +526,33 @@ def select_question(data, ordinal, limit, offset=0):
         raise ValueError('No language questions available')
     start = (ordinal + offset) % len(indices)
     selected = [indices[(start+i) % len(indices)] for i in range(min(limit, len(indices)))]
+    if selection=='balanced':
+        from worldstream.m3.task_conditioner import task_profile
+        wanted=['object_attributes','map_relations','object_ego_motion','full_visual']
+        wanted=wanted[ordinal%4:]+wanted[:ordinal%4]
+        if any(task_profile(labels[i])[1]=='object_ego_motion' for i in indices):
+            wanted=['object_ego_motion']+[p for p in wanted if p!='object_ego_motion']
+        chosen=[]
+        for profile in wanted:
+            eligible=[i for i in indices if i not in chosen and task_profile(labels[i])[1]==profile]
+            if eligible:chosen.append(eligible[ordinal%len(eligible)])
+            if len(chosen)==min(limit,len(indices)):break
+        selected=(chosen+[i for i in selected if i not in chosen])[:min(limit,len(indices))]
     ids = data['input_ids'][0][0]
     data['input_ids'][0][0] = [ids[i] for i in selected]
     from mmcv.parallel import DataContainer
     meta['vlm_labels'] = DataContainer([labels[i] for i in selected], stack=False)
+
+
+def select_named_questions(data,names):
+    """Replay exactly the existing question/input pairs recorded in a manifest."""
+    from mmcv.parallel import DataContainer
+    meta=data['img_metas'][0][0];labels=meta['vlm_labels'].data
+    if len(set(names))!=len(names) or any(labels.count(q)!=1 for q in names):
+        raise ValueError('Explicit question is missing or ambiguous in native dataset')
+    selected=[labels.index(q) for q in names];ids=data['input_ids'][0][0]
+    data['input_ids'][0][0]=[ids[i] for i in selected]
+    meta['vlm_labels']=DataContainer(list(names),stack=False)
 
 
 def main():
@@ -505,6 +567,10 @@ def main():
     parser.add_argument('--questions-per-frame', type=int, default=1)
     parser.add_argument('--question-offset', type=int, default=0,
         help='Deterministic offset into the existing labelled Conv/VQA questions; no answer-based filtering')
+    parser.add_argument('--question-selection', choices=['ordered','balanced'], default='ordered')
+    parser.add_argument('--sequence-file', help='Explicit ordered real sample tokens for paired multi-scene runs')
+    parser.add_argument('--capture-m3-inputs', action='store_true', help='Capture real native inputs outside service timing for offline calibration')
+    parser.add_argument('--m3-policy', help='Unified fitted WSDR policy for this experiment')
     parser.add_argument('--repeat', type=int, default=0)
     parser.add_argument('--measurement-set', choices=['main', 'attribution', 'efficiency', 'smoke'], default='smoke')
     parser.add_argument('--seed', type=int, default=0)
@@ -513,7 +579,6 @@ def main():
     parser.add_argument('--scene', help='Scene token for --execution-audit; default first scene')
     parser.add_argument('--m3-strategy',choices=['native_full','exact_prefix','wsdr_kv'],
         help='Explicit small M3 comparison with unchanged formal M1/M2 and generation; no approvals')
-    parser.add_argument('--m3-controlled-probe',action='store_true',help='Explicit offline numeric probes after all service timing/memory samples')
     parser.add_argument('--offline-wsgrr',choices=['A','B','C','D','NoM1Region','NoM1RegionMatched'],help='Explicit unapproved task experiment, B2 only')
     parser.add_argument('--window-budget',type=int,default=3)
     parser.add_argument('--perception-only',action='store_true',help='Explicit official Detection/Map run with no language questions; no feature counterfactual/audit scorer (done in paired task runs)')
@@ -521,13 +586,13 @@ def main():
     parser.add_argument('--force-full-frame',action='append',default=[],help='Explicit offline D counterfactual sample token; never a production option')
     args = parser.parse_args()
     if args.question_offset < 0:parser.error('question-offset must be nonnegative')
+    if args.capture_m3_inputs and args.m3_strategy!='native_full':parser.error('Capture requires native_full reference')
     if args.execution_audit and (args.condition != 'B3' or args.workload != 'language'
             or args.limit < 1 or args.offline_wsgrr or args.perception_only):
         parser.error('execution-audit requires B3, language and a positive frame limit; offline/perception-only forbidden')
     if args.m3_strategy and (args.condition!='B3' or args.workload!='language' or args.limit<1
             or args.offline_wsgrr or args.perception_only or args.execution_audit):
         parser.error('M3 comparison requires B3 language, a short positive limit and no other experiment modes')
-    if args.m3_controlled_probe and args.m3_strategy!='wsdr_kv':parser.error('Controlled M3 probes require wsdr_kv experiment')
     if set(os.sched_getaffinity(0)) & {4, 5}:
         parser.error('Launch with taskset -c 0-3,6-31')
     try:

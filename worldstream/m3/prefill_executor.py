@@ -6,11 +6,13 @@ to the original model. HF retains its BOS convention, processors, RNG, EOS and
 stopping criteria. No images are passed back into the model.
 """
 import copy
+import math
 from time import perf_counter
 import torch
 from torch import nn
 from transformers.generation.utils import GenerationMixin
 from transformers.modeling_outputs import CausalLMOutputWithPast
+from .prefix_matcher import input_revision
 
 
 class GenerationFacade(nn.Module, GenerationMixin):
@@ -64,7 +66,7 @@ class PrefillExecutor:
         return length
 
     @torch.no_grad()
-    def generate(self, model, expanded, reuse_length=0, capture=True, profile=False,
+    def generate(self, model, expanded, reuse_length=0, capture=True, profile=False, decision=None,
                  **generation):
         if any(m.training for m in model.modules()):
             raise ValueError('M3 execution is inference only')
@@ -78,8 +80,40 @@ class PrefillExecutor:
         if generation.get('max_new_tokens', 1) < 1:
             raise ValueError('max_new_tokens must be positive')
         n = expanded.length
-        if reuse_length and self.cache.match(expanded) < reuse_length:
-            raise ValueError('Prefix equality must be certified before execution')
+        self.cache.validate_storage()
+        if decision is not None:
+            if reuse_length:
+                raise ValueError('Specify ReuseDecision rather than a second reuse length')
+            reuse_length = decision.reuse_length
+            if decision.reuse_type not in ('none', 'exact', 'bounded_approx'):
+                raise ValueError('Invalid reuse decision type')
+            if (decision.reuse_type == 'none') != (reuse_length == 0):
+                raise ValueError('Reuse decision type and length disagree')
+        if type(reuse_length) is not int or not 0 <= reuse_length <= n:
+            raise ValueError('Invalid continuous prefix length')
+        if reuse_length:
+            if self.cache.entry is None:
+                raise ValueError('Missing or modified source KV')
+            if decision is not None and decision.reuse_type == 'bounded_approx':
+                proof = decision.proof
+                source=self.cache.entry
+                expected_depth=source.approx_reuse_depth+int(expanded.source[:2]!=source.expanded.source[:2])
+                if (proof is None or not proof.policy_id or proof.current_revision != input_revision(expanded)
+                        or proof.cached_revision != self.cache.revision or reuse_length > proof.contiguous_limit
+                        or any(not math.isfinite(v) for v in (proof.risk,proof.risk_limit,proof.rms,proof.max_rms,proof.max_token,proof.max_token_change))
+                        or proof.risk > proof.risk_limit or proof.rms > proof.max_rms
+                        or proof.max_token > proof.max_token_change
+                        or not 0 < decision.approx_reuse_depth == expected_depth
+                        or decision.root_frame_index!=source.root_frame_index
+                        or decision.cache_age_frames!=decision.frame_index-source.root_frame_index
+                        or decision.cache_age_frames<0
+                        or decision.cache_age_frames > proof.max_age_frames
+                        or decision.approx_reuse_depth > proof.max_approx_depth
+                        or decision.estimated_quality_risk != proof.risk):
+                    raise ValueError('Bounded prefix requires current contiguous policy evidence')
+                source=None  # Do not retain the replaced owned KV during capture.
+            elif self.cache.entry.approx_reuse_depth or self.cache.match(expanded) < reuse_length:
+                raise ValueError('Prefix equality must be certified before exact execution')
         # Only the end of the stored prefill has saved last-token logits.
         reuse_length=self.effective_reuse_length(expanded,reuse_length)
         branch_workspace_bytes = (sum(t[..., :reuse_length, :].numel() * t.element_size()
@@ -89,6 +123,9 @@ class PrefillExecutor:
             effective_prefill_tokens=n - reuse_length, forward_prefill_lengths=[],
             computed_source=list(self.cache.entry.computed_source) if reuse_length else list(expanded.source),
             suffix_computed_source=list(expanded.source))
+        diagnostics.update(reuse_type=decision.reuse_type if decision else ('exact' if reuse_length else 'none'),
+            cache_age_frames=decision.cache_age_frames if decision else 0,
+            approx_reuse_depth=decision.approx_reuse_depth if decision else 0)
         self.last_diagnostics = diagnostics
         diagnostics['prefix_storage']='owned_clone'
         events = []
@@ -143,8 +180,15 @@ class PrefillExecutor:
                             lineage.append((span_start, stop, source)); cursor = stop
                         if cursor < reuse_length:
                             lineage.append((cursor, reuse_length, self.cache.entry.computed_source))
+                    update_tick = perf_counter()
                     diagnostics['cache_stored'] = self.cache.put(expanded, output.past_key_values,
-                                                                 output.logits, lineage)
+                        output.logits, lineage,
+                        frame_index=decision.frame_index if decision else 0,
+                        root_frame_index=decision.root_frame_index if decision else 0,
+                        approx_reuse_depth=decision.approx_reuse_depth if decision else 0,
+                        quality_risk=decision.estimated_quality_risk if decision else 0.,
+                        risk_profile=decision.risk_profile if decision else 'full_visual')
+                    diagnostics['cache_update_cpu_enqueue_ms'] = (perf_counter()-update_tick)*1000
             if profile and expanded.embeddings.is_cuda:
                 end.record()
                 events.append((start, end))

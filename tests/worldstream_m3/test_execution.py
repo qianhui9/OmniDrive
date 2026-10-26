@@ -12,7 +12,7 @@ from worldstream.m3.prefill_executor import PrefillExecutor
 def qualified_runtime(**kw):
     # Unit fixture for suffix execution. No measured certificates are fabricated.
     runtime=M3Runtime(kw)
-    runtime.scheduler.prefix_allowed=lambda expanded,prefix,context,overhead:(prefix>=runtime.config.min_prefix_tokens,'unit_fixture')
+    runtime.planner.calibration_threshold=0.
     return runtime
 
 
@@ -201,7 +201,7 @@ def test_runtime_full_unchanged(llm, carriers,context):
     ids = torch.tensor([1, -200, 3])
     torch.manual_seed(19); expected = llm.generate(inputs=ids[None], images=carriers, do_sample=True, max_new_tokens=5)
     torch.manual_seed(19); actual, diag = M3Runtime().generate(llm, [ids], carriers, context=context, do_sample=True, max_new_tokens=5)
-    assert torch.equal(expected, actual[0]) and diag['mode'] == 'exact_prefill'
+    assert torch.equal(expected, actual[0]) and diag['mode'] == 'quality_bounded_wsdr'
 
 
 def test_scene_camera_lifecycle(llm, carriers, context):

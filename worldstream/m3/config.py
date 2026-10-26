@@ -1,23 +1,27 @@
-"""Trusted historical augmentation and exact prefix prefill, one executor."""
+"""One quality-bounded WSDR policy; exact_prefix is a benchmark restriction."""
 from dataclasses import dataclass
 import math
+
 
 @dataclass(frozen=True)
 class M3Config:
     mode: str = 'auto'
     memory_budget_mb: float = 512
     min_prefix_tokens: int = 32
-    cost_table: str = ''
-    quality_certificate: str = ''
-    state_quality_certificate: str = ''
     model_version: str = ''
     state_context: str = 'augment'
-    reuse_strategy: str = 'exact_prefix'
+    reuse_strategy: str = 'wsdr_kv'
+    reuse_policy: str = ''
+    quality_budget: float = .02
+    block_size: int = 32
 
     def __post_init__(self):
-        if self.mode!='auto' or self.state_context!='augment':
-            raise ValueError('M3 supports only trusted state augmentation and exact prefix Auto')
-        if self.reuse_strategy not in ('exact_prefix','wsdr_kv'):
+        if self.mode != 'auto' or self.state_context != 'augment':
+            raise ValueError('M3 supports one automatic prefill/decode path')
+        if self.reuse_strategy not in ('exact_prefix', 'wsdr_kv'):
             raise ValueError('Unknown M3 reuse strategy')
-        if not math.isfinite(self.memory_budget_mb) or self.memory_budget_mb<0 or type(self.min_prefix_tokens) is not int or self.min_prefix_tokens<1:
-            raise ValueError('Invalid prefix cache budget')
+        if (not math.isfinite(self.memory_budget_mb) or self.memory_budget_mb < 0
+                or type(self.min_prefix_tokens) is not int or self.min_prefix_tokens < 1
+                or self.block_size not in (16, 32, 64)
+                or not math.isfinite(self.quality_budget) or not 0 <= self.quality_budget <= 1):
+            raise ValueError('Invalid cache or quality budget')

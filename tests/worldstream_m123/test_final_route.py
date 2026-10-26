@@ -31,9 +31,10 @@ def test_final_configuration_and_baseline_heads():
     assert not hasattr(m3,'selector') and not hasattr(m3,'batched_decode')
     for key in ('img_backbone','pts_bbox_head','map_head','lm_head','tokenizer'):
         if key in base.model:assert cfg.model[key]==base.model[key]
-    for path in (m2.cost_table,m3.cost_table,m3.quality_certificate):assert Path(path).is_file()
+    assert Path(m2.cost_table).is_file()
+    assert m3.reuse_strategy=='wsdr_kv' and m3.reuse_policy
     runtime=M3Runtime(m3)
-    assert not runtime.scheduler.costs.get('approved') and not runtime.scheduler.quality.get('approved')
+    assert not hasattr(runtime.scheduler,'costs') and not hasattr(runtime.scheduler,'quality')
 
 
 def test_final_m2_native_fallback():
@@ -62,8 +63,8 @@ def test_retired_external_identity_modes_rejected(mode):
 def test_missing_or_invalid_m3_evidence_fails_closed(tmp_path,content):
     path=tmp_path/'evidence.json'
     if content is not None:path.write_text(content)
-    scheduler=Scheduler(M3Config(cost_table=str(path),quality_certificate=str(path)))
-    assert scheduler.costs==scheduler.quality=={}
+    scheduler=Scheduler(M3Config(reuse_policy=str(path)))
+    assert scheduler.policy=={}
 
 
 def test_only_one_formal_entry_and_no_alternate_runtime_files():

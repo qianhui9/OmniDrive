@@ -79,6 +79,7 @@ class Observer:
         self.prefill_generations = []
         self.handles = []
         self.last_m3_call = None
+        self.capture_inputs = False
         if hasattr(model.img_backbone, 'register_forward_pre_hook'):
             # Wrapping forward changes the topology identity that M2 verifies.
             # Read-only hooks retain the original executable graph.
@@ -178,6 +179,7 @@ class Observer:
         @wraps(original)
         def call(*args, **kwargs):
             label = name
+            rng = (torch.get_rng_state(), torch.cuda.get_rng_state()) if generation and self.capture_inputs else None
             if name=='m3_auto_total':self.last_m3_call=dict(kwargs)
             if window:
                 label = f'm2_window_block_{self.model.m2_runtime.executing_block}'
@@ -204,7 +206,12 @@ class Observer:
                     # The deployed Llava wrapper passes inputs_embeds, so HF
                     # starts returned sequences with one synthetic BOS token.
                     generated_tokens=output.shape[-1]-1, start=start, end=end))
+                if self.capture_inputs:
+                    self.native_generations[-1]['captured_input'] = dict(
+                        ids=ids, carriers=carriers, cpu_rng=rng[0], cuda_rng=rng[1],
+                        generation={k:v for k,v in kwargs.items() if k not in ('inputs','images')})
             return result
+        call._worldstream_read_only_observer=True
         setattr(obj, attribute, call)
 
     def clear(self):

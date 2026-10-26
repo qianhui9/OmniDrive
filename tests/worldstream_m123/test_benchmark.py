@@ -22,6 +22,18 @@ def test_question_offset_selects_existing_pairs_without_changing_them():
     assert labels == ['unlabelled', 'conv', 'vqa1', 'vqa2']
 
 
+def test_named_questions_preserve_native_pairs_and_reject_ambiguity():
+    from mmcv.parallel import DataContainer
+    from tools.worldstream_m123.benchmark.worker import select_named_questions
+    labels=['unlabelled','map','object']
+    data={'img_metas': [[{'vlm_labels':DataContainer(labels,stack=False)}]],
+          'input_ids': [[[10,11,12]]]}
+    select_named_questions(data,['object','map'])
+    assert data['input_ids'][0][0]==[12,11]
+    assert data['img_metas'][0][0]['vlm_labels'].data==['object','map']
+    with pytest.raises(ValueError):select_named_questions(data,['missing'])
+
+
 @pytest.mark.parametrize('condition', ['B0', 'B1', 'B2', 'B3'])
 def test_formal_guard_does_not_change_independent_reference_or_existing_ablations(tmp_path, condition):
     from mmcv import Config
