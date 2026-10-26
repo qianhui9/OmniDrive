@@ -201,6 +201,8 @@ class Observer:
                 carriers = kwargs.get('images')
                 prompt_tokens = ids.numel() + int((ids == -200).sum()) * (carriers.shape[1]-1)
                 self.native_generations.append(dict(output=output, host_wall_ms=elapsed,
+                    audit_input_ids=ids, audit_carriers=carriers,
+                    audit_generation={k:v for k,v in kwargs.items() if k not in ('inputs','images')},
                     phase_events=list(self.events[first_event:-1]),
                     input_tokens=prompt_tokens, output_sequence_tokens=output.shape[-1],
                     # The deployed Llava wrapper passes inputs_embeds, so HF

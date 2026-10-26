@@ -160,7 +160,10 @@ def run(args):
     write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if k.startswith(('worldstream/m1/', 'worldstream/m2/'))})
     write(dest/'m1_m2_m3_source_hashes.json', hashes)
     cfg = effective_config(args.condition, args.workload, dest,getattr(args,'m3_strategy',None))
-    if getattr(args,'m3_policy',None):cfg.model.m3_config.reuse_policy=args.m3_policy
+    if getattr(args,'m3_policy',None):
+        cfg.model.m3_config.reuse_policy=args.m3_policy
+        write(dest/'effective_config.json', dict(config=cfg._cfg_dict.to_dict(),
+            note='Benchmark output/workload overrides and frozen policy path; production source config unchanged.'))
     importlib.import_module('projects.mmdet3d_plugin')
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -243,6 +246,10 @@ def run(args):
         reduction_reason='selected scene has fewer frames than requested' if args.limit > len(selected) else None,
         scene_ids=sorted({i['scene_token'] for i in selected})))
     observer = Observer(model)
+    decision_trace = None
+    if getattr(args, 'trace_m3_decisions', False):
+        from .decision_replay import DecisionTrace
+        decision_trace = DecisionTrace(model.m3_runtime)
     observer.capture_inputs=bool(getattr(args,'capture_m3_inputs',False))
     if getattr(args,'m3_policy',None):
         # Read-only timers have the same portable backend identity as serving.
@@ -288,6 +295,8 @@ def run(args):
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         observer.clear()
+        if decision_trace is not None:
+            decision_trace.clear()
         torch.cuda.synchronize()
         request_tick = perf_counter()
         scene_reset = previous_scene != info['scene_token']
@@ -401,8 +410,25 @@ def run(args):
                 decode_ms=detail.get('decode_ms') if detail else
                     native_prefill[-1][1].elapsed_time(observed['end']) if native_prefill else None,
                 reuse_diagnostics=detail)
+            if getattr(args, 'm3_strategy', None):
+                call = observer.last_m3_call
+                if native is not None:
+                    ids, carriers = native['audit_input_ids'], native['audit_carriers']
+                    generation = native['audit_generation']
+                else:
+                    ids, carriers = call['input_ids_list'][qi], call['vision_carriers']
+                    generation = {k:call[k] for k in ('do_sample','temperature','top_p','num_beams','max_new_tokens','use_cache')}
+                # Witnesses are materialized after measured request and peak memory.
+                qrow.update(input_witness=dict(ids=typed_digest(ids.reshape(-1)),
+                    carriers=typed_digest(carriers), generation=generation),
+                    actual_reuse_length=detail.get('reused_tokens', 0),
+                    effective_prefill_tokens=detail.get('effective_prefill_tokens', qrow['input_tokens']),
+                    candidate_reuse_lengths=detail.get('candidate_prefix_tokens', []))
             questions.append(qrow)
             append(dest/'per_question_metrics.jsonl', qrow)
+        if decision_trace is not None:
+            for trace in decision_trace.rows:
+                append(dest/'decision_traces.jsonl', trace)
         if observer.capture_inputs:
             # Materialize inputs only AFTER measured service time and peak VRAM.
             # Labels/GT are scored separately and never supplied to the planner.
@@ -570,6 +596,8 @@ def main():
     parser.add_argument('--question-selection', choices=['ordered','balanced'], default='ordered')
     parser.add_argument('--sequence-file', help='Explicit ordered real sample tokens for paired multi-scene runs')
     parser.add_argument('--capture-m3-inputs', action='store_true', help='Capture real native inputs outside service timing for offline calibration')
+    parser.add_argument('--trace-m3-decisions', action='store_true',
+        help='Read-only candidate statistics for offline signal replay; no embeddings or KV copies')
     parser.add_argument('--m3-policy', help='Unified fitted WSDR policy for this experiment')
     parser.add_argument('--repeat', type=int, default=0)
     parser.add_argument('--measurement-set', choices=['main', 'attribution', 'efficiency', 'smoke'], default='smoke')
@@ -587,6 +615,7 @@ def main():
     args = parser.parse_args()
     if args.question_offset < 0:parser.error('question-offset must be nonnegative')
     if args.capture_m3_inputs and args.m3_strategy!='native_full':parser.error('Capture requires native_full reference')
+    if args.trace_m3_decisions and args.m3_strategy!='wsdr_kv':parser.error('Decision traces require wsdr_kv')
     if args.execution_audit and (args.condition != 'B3' or args.workload != 'language'
             or args.limit < 1 or args.offline_wsgrr or args.perception_only):
         parser.error('execution-audit requires B3, language and a positive frame limit; offline/perception-only forbidden')

@@ -1,0 +1,280 @@
+{
+  "measurements": 216,
+  "unique_questions": 72,
+  "m1_validity": {
+    "True": 72
+  },
+  "m2_validity": {
+    "True": 72
+  },
+  "m2_refresh_ratio": {
+    "n": 72,
+    "mean": 1.0,
+    "p50": 1.0,
+    "p95": 1.0,
+    "maximum": 1.0,
+    "total": 72.0
+  },
+  "m2_cache_age_frames": {
+    "n": 72,
+    "mean": 0.0,
+    "p50": 0.0,
+    "p95": 0.0,
+    "maximum": 0.0,
+    "total": 0.0
+  },
+  "m2_mapping_available": {
+    "False": 72
+  },
+  "actual_decision_reasons": {
+    "cold_or_invalid_cache": 4,
+    "no_quality_bounded_net_gain": 59,
+    "task_profile_not_calibrated": 1,
+    "quality_latency_minimum": 8
+  },
+  "replay_baseline_mismatches": 0,
+  "by_profile": {
+    "full_visual": {
+      "risk": {
+        "n": 37,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "maximum": 0.0,
+        "total": 0.0
+      },
+      "actual_reuse_length": {
+        "n": 37,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "maximum": 0.0,
+        "total": 0.0
+      }
+    },
+    "map_relations": {
+      "risk": {
+        "n": 14,
+        "mean": 0.07933402400729912,
+        "p50": 0.0,
+        "p95": 0.5540259245317429,
+        "maximum": 0.5597123131155968,
+        "total": 1.1106763361021876
+      },
+      "actual_reuse_length": {
+        "n": 14,
+        "mean": 262.5,
+        "p50": 163.0,
+        "p95": 558.35,
+        "maximum": 559.0,
+        "total": 3675.0
+      }
+    },
+    "object_attributes": {
+      "risk": {
+        "n": 20,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "maximum": 0.0,
+        "total": 0.0
+      },
+      "actual_reuse_length": {
+        "n": 20,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "maximum": 0.0,
+        "total": 0.0
+      }
+    },
+    "object_ego_motion": {
+      "risk": {
+        "n": 1,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "maximum": 0.0,
+        "total": 0.0
+      },
+      "actual_reuse_length": {
+        "n": 1,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "maximum": 0.0,
+        "total": 0.0
+      }
+    }
+  },
+  "variants": {
+    "without_m1": {
+      "semantics": "Neutralize M1 validity gate",
+      "measurements": 216,
+      "changed_decisions": 0,
+      "accepted_to_rejected": 0,
+      "rejected_to_accepted": 0,
+      "token_delta": 0,
+      "reason_changes": 0,
+      "candidate_count_changes": 0,
+      "by_profile": {
+        "full_visual": {
+          "n": 111,
+          "changed": 0
+        },
+        "map_relations": {
+          "n": 42,
+          "changed": 0
+        },
+        "object_attributes": {
+          "n": 60,
+          "changed": 0
+        },
+        "object_ego_motion": {
+          "n": 3,
+          "changed": 0
+        }
+      }
+    },
+    "without_m2": {
+      "semantics": "Neutral M2 validity, zero refresh/age",
+      "measurements": 216,
+      "changed_decisions": 0,
+      "accepted_to_rejected": 0,
+      "rejected_to_accepted": 0,
+      "token_delta": 0,
+      "reason_changes": 0,
+      "candidate_count_changes": 0,
+      "by_profile": {
+        "full_visual": {
+          "n": 111,
+          "changed": 0
+        },
+        "map_relations": {
+          "n": 42,
+          "changed": 0
+        },
+        "object_attributes": {
+          "n": 60,
+          "changed": 0
+        },
+        "object_ego_motion": {
+          "n": 3,
+          "changed": 0
+        }
+      }
+    }
+  },
+  "candidate_risk_by_profile": {
+    "full_visual": {
+      "n": 222,
+      "mean": 1.0849271251543149,
+      "p50": 1.2529878504574299,
+      "p95": 1.5449523366987705,
+      "maximum": 1.5546608995646238,
+      "total": 240.8538217842579
+    },
+    "map_relations": {
+      "n": 24,
+      "mean": 0.2476290479535237,
+      "p50": 0.13226294657215476,
+      "p95": 0.5597123131155968,
+      "maximum": 0.5597123131155968,
+      "total": 5.943097150884569
+    },
+    "object_attributes": {
+      "n": 44,
+      "mean": 0.5731431587429886,
+      "p50": 0.8480591932311654,
+      "p95": 1.2349269818514585,
+      "maximum": 1.4311036560684443,
+      "total": 25.2182989846915
+    },
+    "object_ego_motion": {
+      "n": 1,
+      "mean": 0.0,
+      "p50": 0.0,
+      "p95": 0.0,
+      "maximum": 0.0,
+      "total": 0.0
+    }
+  },
+  "observed_signal_groups": {
+    "m1_state_valid": {
+      "True": {
+        "requests": 72,
+        "accepted": 8,
+        "rejected": 64,
+        "actual_lengths": {
+          "n": 72,
+          "mean": 51.041666666666664,
+          "p50": 0.0,
+          "p95": 558.0,
+          "maximum": 559.0,
+          "total": 3675.0
+        }
+      }
+    },
+    "m2_context_valid": {
+      "True": {
+        "requests": 72,
+        "accepted": 8,
+        "rejected": 64,
+        "actual_lengths": {
+          "n": 72,
+          "mean": 51.041666666666664,
+          "p50": 0.0,
+          "p95": 558.0,
+          "maximum": 559.0,
+          "total": 3675.0
+        }
+      }
+    },
+    "m2_refresh_ratio": {
+      "1.0": {
+        "requests": 72,
+        "accepted": 8,
+        "rejected": 64,
+        "actual_lengths": {
+          "n": 72,
+          "mean": 51.041666666666664,
+          "p50": 0.0,
+          "p95": 558.0,
+          "maximum": 559.0,
+          "total": 3675.0
+        }
+      }
+    },
+    "m2_cache_age_frames": {
+      "0": {
+        "requests": 72,
+        "accepted": 8,
+        "rejected": 64,
+        "actual_lengths": {
+          "n": 72,
+          "mean": 51.041666666666664,
+          "p50": 0.0,
+          "p95": 558.0,
+          "maximum": 559.0,
+          "total": 3675.0
+        }
+      }
+    },
+    "m2_mapping_available": {
+      "False": {
+        "requests": 72,
+        "accepted": 8,
+        "rejected": 64,
+        "actual_lengths": {
+          "n": 72,
+          "mean": 51.041666666666664,
+          "p50": 0.0,
+          "p95": 558.0,
+          "maximum": 559.0,
+          "total": 3675.0
+        }
+      }
+    }
+  },
+  "attribution_scope": "Observed groups are descriptive; only counterfactual planner changes assess decision sensitivity."
+}
