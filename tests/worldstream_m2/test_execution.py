@@ -34,8 +34,8 @@ def test_identical_windows_skip_attention_and_pointwise(exact_runtime,context):
 
 @torch.no_grad()
 @pytest.mark.parametrize('cause',['missing','full_refresh','no_windows','no_quality'])
-def test_every_miss_uses_same_all_window_execution(eva,context,monkeypatch,cause):
-    rt=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
+def test_full_refresh_and_direct_partial_use_one_executor(eva,context,monkeypatch,cause):
+    rt=IncrementalVisionRuntime(eva,dict())
     x=torch.randn(2,3,40,40);cold(rt,x,context)
     ctx=dict(context,frame_id='1',timestamp=1.1);bundle=bundle_for(rt,ctx)
     if cause=='full_refresh':bundle.diagnostics['full_refresh_hint']=True
@@ -43,20 +43,28 @@ def test_every_miss_uses_same_all_window_execution(eva,context,monkeypatch,cause
     calls=[];original=rt.executor.execute
     def execute(*a,**kw):calls.append(len(a[3]));return original(*a,**kw)
     monkeypatch.setattr(rt.executor,'execute',execute)
-    out,d=rt.forward(x,execution_context=ctx,computation_state=None if cause=='missing' else bundle)
-    assert calls==[18,18] and d['actual_skipped_windows']==0
-    assert torch.equal(out[0],eva(x)[0])
+    if cause=='missing':
+        with pytest.raises(ValueError,match='missing_computation_state'):
+            rt.forward(x,execution_context=ctx)
+        assert calls==[]
+    else:
+        out,d=rt.forward(x,execution_context=ctx,computation_state=bundle)
+        assert calls==[18,18] if cause=='full_refresh' else calls==[6,6]
+        assert d['planned_windows']==d['executed_windows']
+        assert d['cache_saved']
 
 
 @torch.no_grad()
-def test_cache_publication_failure_returns_completed_result_once(eva,context,monkeypatch):
-    rt=IncrementalVisionRuntime(eva,dict(cache_capture='always'));calls=[]
+def test_cache_publication_failure_raises_without_retry(eva,context,monkeypatch):
+    rt=IncrementalVisionRuntime(eva,dict());calls=[]
     handle=eva.blocks[-1].register_forward_hook(lambda *a:calls.append(1))
     def fail(*a,**k):raise CachePublicationError('injected allocation failure')
     monkeypatch.setattr(rt.cache,'commit',fail)
-    out,d=cold(rt,torch.ones(2,3,40,40),context);handle.remove()
-    assert len(calls)==1 and not d['cache_saved'] and not rt.cache.bytes
-    assert d['cache_publication_error']=='cache_publication_failed'
+    with pytest.raises(CachePublicationError,match='injected'):
+        cold(rt,torch.ones(2,3,40,40),context)
+    handle.remove()
+    assert len(calls)==1 and not rt.cache.bytes
+    assert not rt.last_diagnostics['execution_completed']
 
 
 def test_retired_algorithms_and_exact_bypass_are_rejected():
@@ -67,12 +75,12 @@ def test_retired_algorithms_and_exact_bypass_are_rejected():
 
 
 @torch.no_grad()
-def test_zero_budget_keeps_same_complete_forward_without_cache(eva,context):
-    runtime=IncrementalVisionRuntime(eva,dict(memory_budget_mb=0,cache_capture='always'))
+def test_zero_cache_budget_raises(eva,context):
+    runtime=IncrementalVisionRuntime(eva,dict(memory_budget_mb=0))
     image=torch.randn(2,3,40,40)
-    out,d=cold(runtime,image,context)
-    assert torch.equal(out[0],eva(image)[0])
-    assert not d['cache_saved'] and runtime.cache.bytes==0
+    with pytest.raises(CachePublicationError,match='budget'):
+        cold(runtime,image,context)
+    assert runtime.cache.bytes==0
 
 
 @torch.no_grad()
@@ -110,9 +118,8 @@ def test_changed_execution_never_reuses_prior_window_outputs(exact_runtime,conte
         flag=torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction
         monkeypatch.setattr(torch.backends.cuda.matmul,'allow_fp16_reduced_precision_reduction',not flag)
     if mutation=='camera_order':ctx['camera_ids']=list(reversed(ctx['camera_ids']))
-    out,d=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert d['actual_skipped_windows']==0
-    assert torch.equal(out[0],rt.model(image)[0])
+    with pytest.raises(ValueError,match='execution_signature_mismatch'):
+        rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(),reason='CUDA unavailable')

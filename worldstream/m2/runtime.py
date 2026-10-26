@@ -1,15 +1,12 @@
-"""One window execution graph: cache misses expand to all-window updates."""
+"""WSGRR is the serving algorithm; every planned window executes and publishes."""
 import copy
-import hashlib
 import math
 from time import perf_counter
 import torch
-import numpy as np
 from .config import M2Config
-from .cost_model import CostModel,cost_key
-from .dependency_planner import DependencyPlanner,block0_input,exact_token_changes,patch_updates
+from .dependency_planner import DependencyPlanner,block0_input,patch_updates
 from .m1_adapter import computation_admission
-from .state_cache import StateCache,NonFiniteCacheError,CachePublicationError
+from .state_cache import StateCache
 from .window_executor import WindowExecutor,NUMERICAL_POLICY
 from .region_refresh import pooled_descriptors,select_regions
 
@@ -26,15 +23,12 @@ class IncrementalVisionRuntime:
         self.prefix=self.planner.cacheable_prefix()
         if self.planner.rejection_reason:raise ValueError(self.planner.rejection_reason)
         self.executor=WindowExecutor()
-        self.costs=CostModel(self.config.cost_table)
         self.cache=StateCache(self.config.memory_budget_mb*1024**2)
         self.stage_observer=None
         self.last_diagnostics={}
-        self._last_capture_decision=None
 
     def reset(self):
         self.cache.clear()
-        self._last_capture_decision=None
 
     def signature(self,context):
         tensors=tuple((n,t.data_ptr(),t._version,tuple(t.shape),str(t.dtype),str(t.device))
@@ -53,46 +47,38 @@ class IncrementalVisionRuntime:
             torch.are_deterministic_algorithms_enabled())
 
     def forward_from_m1(self,images,manager,context):
-        return self._from_m1(images,manager,context)
-
-    def evaluate_offline_from_m1(self,images,manager,context,*,variant='D',window_targets=None):
-        return self._from_m1(images,manager,context,variant,window_targets)
-
-    def _from_m1(self,images,manager,context,offline=None,window_targets=None):
+        if manager is None:
+            raise ValueError('missing_m1_manager')
         tick=perf_counter()
-        if manager is None:snapshot=None
-        else:
-            try:snapshot=manager.export_m2_inputs(expected_context=context,computation_only=True)
-            except RuntimeError as error:
-                if str(error) not in ('Call precheck first','M1 snapshot does not match the pending M2 request'):
-                    raise
-                snapshot=None
+        snapshot=manager.export_m2_inputs(expected_context=context,computation_only=True)
         read_ms=(perf_counter()-tick)*1000
-        if offline:
-            result,diag=self.evaluate_offline(images,variant=offline,m1_result=snapshot,execution_context=context,window_targets=window_targets)
-        else:result,diag=self.forward(images,m1_result=snapshot,execution_context=context)
-        diag.update(m1_snapshot_read=snapshot is not None,M1_M2_state_read_ms=read_ms,
+        result,diag=self.forward(images,m1_result=snapshot,execution_context=context)
+        diag.update(m1_snapshot_read=True,M1_M2_state_read_ms=read_ms,
                     world_identity_authorized_pixel_reuse=False)
         return result,diag
+
+    def evaluate_offline_from_m1(self,images,manager,context,*,variant='D',window_targets=None):
+        # Historical tools share the serving executor and cache namespace.
+        from tools.worldstream_m2.offline_variants import evaluate_from_m1
+        return evaluate_from_m1(self,images,manager,context,variant,window_targets)
 
     def forward(self,images,m1_result=None,m1_state=None,execution_context=None,computation_state=None):
         return self._forward(images,m1_result,execution_context,computation_state)
 
     def evaluate_offline(self,images,*,variant='D',m1_result=None,execution_context=None,computation_state=None,window_targets=None):
-        """Explicit research entry; no cost table mutation or production approval.
+        from tools.worldstream_m2.offline_variants import evaluate
+        return evaluate(self,images,variant,m1_result,execution_context,computation_state,window_targets)
 
-        A/B/C are ablations only. Production forward always uses complete WSGRR.
-        A runtime/cache cannot cross the offline/production signature boundary.
-        """
-        if variant not in ('A','B','C','D','NoM1Region','NoM1RegionMatched'):raise ValueError('Unknown offline ablation')
-        if variant=='NoM1RegionMatched':
-            if (not isinstance(window_targets,list) or len(window_targets)!=len(images)
-                    or any(type(v) is not int or v<0 for v in window_targets)):
-                raise ValueError('Explicit per-camera offline total targets required')
-        elif window_targets is not None:raise ValueError('Total targets belong only to the offline matched-compute control')
-        return self._forward(images,m1_result,execution_context,computation_state,variant,window_targets)
+    def _plan_refresh(self,x0,bundle,context,uncertainty,mandatory):
+        for i in self.prefix:
+            expired=self.cache.window_ages[i]+1 >= self.config.max_reuse_frames
+            mandatory |= self.planner.windows_to_tokens(expired,x0.shape[:3],self.model.blocks[i].window_size)
+        selected,descriptors,regions,refresh=select_regions(x0,self.cache,bundle,context,
+            self.model.patch_embed.proj,self.model.blocks[0].window_size,self.config,
+            uncertainty,mandatory)
+        return self.planner.plan_windows(selected,x0.shape[:3],stop_after=len(self.prefix)),descriptors,regions,refresh
 
-    def _forward(self,images,m1_result,execution_context,computation_state,offline=None,window_targets=None):
+    def _forward(self,images,m1_result,execution_context,computation_state):
         self.last_diagnostics=dict(runtime_entered=True,execution_completed=False)
         start=perf_counter();context=dict(execution_context or {})
         if any(m.training for m in self.model.modules()) or torch.is_grad_enabled():
@@ -105,58 +91,47 @@ class IncrementalVisionRuntime:
             raise ValueError('One ordered camera identity is required per model input')
         bundle=computation_state if computation_state is not None else getattr(m1_result,'computation_state',None)
         footprints=self.planner.input_footprints(*images.shape[-2:],verified_prefix=self.prefix)
-        signature=(self.signature(context), 'offline_'+offline if offline else 'production')
+        signature=self.signature(context)
         previous=copy.deepcopy(self.cache.context) if isinstance(self.cache.context,dict) else None
         source_times=[]
         invalid=None;reason=None;details={}
         valid=bool(context.get('scene_id') and context.get('frame_id') and finite_time(context.get('timestamp'))
             and context.get('execution_signature') and type(context.get('state_epoch')) is int
             and context.get('coordinate_space')=='preprocessed_image')
+        if not valid:raise ValueError('invalid_execution_context')
+        if not self.config.enabled:raise ValueError('M2 runtime is disabled')
+        if not self.prefix:raise ValueError('no_cacheable_prefix')
+        if not torch.isfinite(images).all().item():raise ValueError('nonfinite_model_input')
         x0=block0_input(self.model,images)
-        # Inspect storage/metadata before the adapter can dereference corrupted
-        # lineage. A cache miss still validates M1's current publication context.
-        mismatch=self.cache.mismatch(images,context,signature,x0) if valid else None
-        previous_capture=copy.deepcopy(self._last_capture_decision)
-        if valid and mismatch is None:
+        if not torch.isfinite(x0).all().item():raise ValueError('nonfinite_block0_input')
+        mismatch=self.cache.mismatch(images,context,signature,x0)
+        # Scene boundaries are lifecycle resets, not a second full executor.
+        # Validate stored integrity before discarding history from a prior scene.
+        if mismatch in ('cache_metadata_modified','cache_storage_modified'):
+            raise ValueError(mismatch)
+        if self.cache.context is not None and self.cache.context['scene_id']!=context['scene_id']:
+            self.cache.clear()
+            mismatch='scene_change'
+        elif mismatch not in (None,'no_valid_cache'):
+            raise ValueError(mismatch)
+        if mismatch is None:
             source_times=[s.get('computation_timestamp') for units in self.cache.sources.values() for s in units]
-        if not valid:reason='invalid_execution_context'
-        elif not self.config.enabled:reason='disabled'
-        elif mismatch not in (None,'no_valid_cache'):reason=mismatch
-        else:
-            invalid,reason=computation_admission(bundle,context,images,self.cache,
-                getattr(m1_result,'full_refresh_hint',False),details=details,
-                window_footprints=footprints)
+        invalid,reason=computation_admission(bundle,context,images,self.cache,
+            getattr(m1_result,'full_refresh_hint',False),details=details,window_footprints=footprints)
+        if reason not in (None,'no_valid_cache','m1_full_refresh'):
+            raise ValueError(reason)
         if reason is None and mismatch:reason=mismatch
+        if mismatch=='scene_change':reason='scene_change'
         uncertainty=details.pop('_uncertainty_pixels',None)
         scoring_start=perf_counter();refresh={};descriptors=None;region_states=[]
-        if not self.prefix and reason is None:reason='no_cacheable_prefix'
         if reason is None:
             mandatory=patch_updates(torch.as_tensor(invalid,device=images.device,dtype=torch.bool),self.model.patch_embed.proj)
-            mandatory |= ~torch.isfinite(x0).all(-1)
-            if offline != 'A':
-                for i in self.prefix:
-                    expired=self.cache.window_ages[i]+1 >= self.config.max_reuse_frames
-                    mandatory |= self.planner.windows_to_tokens(expired,x0.shape[:3],self.model.blocks[i].window_size)
-            if offline=='A':
-                from worldstream.m1.mask_codec import decode_mask
-                dirty=torch.as_tensor(np.stack([decode_mask(bundle.refresh_contract[c]['dirty_hint_mask']) for c in cameras]),device=x0.device)
-                mandatory |= patch_updates(dirty,self.model.patch_embed.proj)
-                changed=exact_token_changes(x0,self.cache.block0_input)|mandatory
-                plans=self.planner.plan(changed,stop_after=len(self.prefix))
-                refresh=dict(exact_token_update_ratio=float(changed.float().mean()))
-                region_states=copy.deepcopy(bundle.region_states)
-                descriptors=pooled_descriptors(x0,self.model.blocks[0].window_size)
-            else:
-                selected,descriptors,region_states,refresh=select_regions(x0,self.cache,bundle,context,
-                    self.model.patch_embed.proj,self.model.blocks[0].window_size,self.config,
-                    uncertainty,mandatory,events=offline not in ('B','NoM1Region','NoM1RegionMatched'),
-                    budget=offline not in ('B','C'),window_targets=window_targets)
-                plans=self.planner.plan_windows(selected,x0.shape[:3],stop_after=len(self.prefix))
+            plans,descriptors,region_states,refresh=self._plan_refresh(x0,bundle,context,uncertainty,mandatory)
         else:plans=None
         scoring_ms=(perf_counter()-scoring_start)*1000
         validation_ms=(perf_counter()-start)*1000
         execution_start=perf_counter()
-        features,stages,outputs,sources,capture_eligible,executed_ids=self._execute(x0,context,plans,reason,offline)
+        features,stages,outputs,sources,executed_ids=self._execute(x0,context,plans,reason)
         execution_ms=(perf_counter()-execution_start)*1000
         if self.prefix:
             if plans is None:
@@ -205,99 +180,68 @@ class IncrementalVisionRuntime:
                 stage['selection_consistency'].update(mandatory_in_execution=required.issubset(set(stage['executed_window_ids'])),
                     mandatory_ordinary_disjoint=not bool(required&optional))
         skipped=sum(s.get('reused_windows',0) for s in stages)
-        # A cache lifecycle mismatch can bypass the reuse adapter. Validate the
-        # current M1 publication context against an empty candidate cache before
-        # publishing fresh full-compute outputs; never dereference stale storage.
-        publication_source_reason=reason
-        if valid and mismatch not in (None,'no_valid_cache'):
-            _,publication_source_reason=computation_admission(bundle,context,images,StateCache(0),
-                getattr(m1_result,'full_refresh_hint',False),window_footprints=footprints)
-        refusals=[]
-        if not valid:refusals.append('invalid_execution_context')
-        if not self.config.enabled:refusals.append('disabled')
-        if self.config.cache_capture=='never':refusals.append('capture_policy_never')
-        if publication_source_reason not in (None,'no_valid_cache','m1_full_refresh'):
-            refusals.append(publication_source_reason)
-        if not self.prefix:refusals.append('no_cacheable_prefix')
-        if not offline and self.config.cache_capture=='adaptive' and not capture_eligible:
-            refusals.append('empty_cost_table' if not self.costs.records and self.costs.status=='empty_cost_table'
-                else self.costs.status if self.costs.status!='ready' else 'no_approved_beneficial_cost_record')
-        capture=not refusals
-        capture_decision=dict(policy=self.config.cache_capture,offline_experiment=bool(offline),
-            computation_succeeded=True,policy_allowed=capture,allowed=capture,attempted=capture,published=False,
-            rejection_reasons=refusals,reason=refusals[0] if refusals else
-                'offline_candidate_capture' if offline else
-                'explicit_capture_policy' if self.config.cache_capture=='always' else 'capture_eligible',
-            source_validation_reason=publication_source_reason,
-            beneficial_capture_scale_found=bool(capture_eligible))
-        publication_error=None
         publication_start=perf_counter()
-        if capture:
-            try:
-                ages={}
-                for s in stages:
-                    if s['block'] not in self.prefix:continue
-                    i=s['block'];updated=executed_ids[i]
-                    age=self.cache.window_ages[i]+1 if plans is not None else torch.zeros(s['total_windows'],device=x0.device,dtype=torch.long)
-                    age[updated]=0;ages[i]=age
-                if self.prefix:
-                    size=self.model.blocks[0].window_size
-                    current=descriptors if descriptors is not None else pooled_descriptors(x0,size)
-                    if plans is not None:
-                        descriptors=self.cache.descriptors.clone()
-                        ids=executed_ids[0]
-                        descriptors.index_copy_(0,ids,current.index_select(0,ids))
-                    else:
-                        descriptors=current
-                        region_states=copy.deepcopy(getattr(bundle,'region_states',[]))
-                self.cache.commit(images,outputs,context,signature,features.stride(),sources,block0_input=x0,
-                    region_states=region_states,window_ages=ages,descriptors=descriptors)
-            except (NonFiniteCacheError,CachePublicationError,torch.cuda.OutOfMemoryError) as error:
-                publication_error='nonfinite_cache_features' if isinstance(error,NonFiniteCacheError) else 'cache_publication_failed'
-                capture=False;self.cache.clear()
-                capture_decision.update(allowed=False,reason='publication_failed',publication_failure_reason=str(error),
-                    publication_failure_type=type(error).__name__)
-        else:self.cache.clear()
-        capture_decision['published']=capture
-        self._last_capture_decision=copy.deepcopy(capture_decision)
+        ages={}
+        for stage in stages:
+            i=stage['block']
+            if i not in self.prefix:continue
+            updated=executed_ids[i]
+            age=self.cache.window_ages[i]+1 if plans is not None else torch.zeros(stage['total_windows'],device=x0.device,dtype=torch.long)
+            age[updated]=0;ages[i]=age
+        current=descriptors if descriptors is not None else pooled_descriptors(x0,self.model.blocks[0].window_size)
+        if plans is not None:
+            descriptors=self.cache.descriptors.clone()
+            ids=executed_ids[0]
+            descriptors.index_copy_(0,ids,current.index_select(0,ids))
+        else:
+            descriptors=current
+            region_states=copy.deepcopy(bundle.region_states)
+        if not torch.isfinite(features).all().item():raise ValueError('nonfinite_visual_features')
+        self.cache.commit(images,outputs,context,signature,features.stride(),sources,block0_input=x0,
+            region_states=region_states,window_ages=ages,descriptors=descriptors)
         publication_ms=(perf_counter()-publication_start)*1000
         now=context.get('timestamp');old=(previous or {}).get('timestamp')
-        diag=dict(mode='incremental' if skipped else 'full_update',full_update_reason=reason,fallback_reason=reason,
+        diag=dict(mode='incremental' if skipped else 'full_update',full_update_reason=reason,
             cache_boundary='window',state_interface='source_linked',cacheable_blocks=list(self.prefix),
-            global_barrier_block=len(self.prefix),patch_embedding='full_once',change_detection='exact_block0_input' if offline=='A' else self.config.refresh_signature()[0],numerical_policy=NUMERICAL_POLICY,
-            offline_experiment=bool(offline),offline_variant=offline,refresh_policy=self.config.refresh_signature(),region_refresh=refresh,
+            global_barrier_block=len(self.prefix),patch_embedding='full_once',change_detection=self.config.refresh_signature()[0],numerical_policy=NUMERICAL_POLICY,
+            refresh_policy=self.config.refresh_signature(),region_refresh=refresh,
             pointwise_execution='selected_window_qkv_projection_and_valid_token_mlp',
             window_count_scope='cached_prefix_output_windows; pointwise work reported separately',
             stages=stages,actual_skipped_windows=skipped,cache_hits=skipped,
             actual_skipped_block_computations=sum(1 for s in stages if s.get('executed_windows')==0),
             skipped_pointwise_window_work=sum(s.get('total_windows',0) for s in stages if s.get('executed_windows')==0),
             recomputed_windows=sum(s.get('executed_windows',0) for s in stages),
-            cache_bytes=self.cache.bytes,cache_version=self.cache.version,cache_saved=capture,
-            cache_publication_error=publication_error,output_window_provenance=copy.deepcopy(sources),
-            cache_context=copy.deepcopy(context),cost_table_status=self.costs.status,
-            cost_record_count=len(self.costs.records),cost_production_ready=self.costs.production_ready,
-            cache_capture_decision=capture_decision,cache_mismatch_reason=mismatch,
-            cache_miss_root_cause=((previous_capture or {}).get('publication_failure_reason') or
-                (previous_capture or {}).get('reason')) if mismatch=='no_valid_cache' else None,
-            task_quality_certified=False,window_reuse_quality_certified=bool(skipped and not offline),m1_transformer_certificate_used=False,
+            cache_bytes=self.cache.bytes,cache_version=self.cache.version,cache_saved=True,
+            output_window_provenance=copy.deepcopy(sources),
+            cache_context=copy.deepcopy(context),cache_mismatch_reason=mismatch,
+            task_quality_certified=False,window_reuse_quality_certified=False,m1_transformer_certificate_used=False,
             cache_verification_age=now-old if finite_time(now) and finite_time(old) else None,
             source_age=now-min(t for t in source_times if finite_time(t)) if finite_time(now) and any(finite_time(t) for t in source_times) else None,
             M2_validation_ms=validation_ms,M2_region_scoring_ms=scoring_ms,
-            M2_window_and_suffix_ms=execution_ms,M2_cache_publication_ms=publication_ms,M2_wall_ms=(perf_counter()-start)*1000,
+            M2_execution_ms=execution_ms,M2_window_and_suffix_ms=execution_ms,M2_cache_publication_ms=publication_ms,M2_wall_ms=(perf_counter()-start)*1000,
             prefix_window_geometry={i:[self.model.patch_embed.proj.kernel_size[j]*self.model.blocks[i].window_size for j in (0,1)] for i in self.prefix},
             prefix_dependency_footprints=footprints)
         full_reason = (reason or next((s.get('full_update_reason') for s in stages
             if s.get('full_update_reason')), None) or 'all_windows_required') if not skipped else None
+        cached_stages=[s for s in stages if s['block'] in self.prefix]
+        diag.update(total_windows=sum(s['total_windows'] for s in cached_stages),
+            planned_windows=sum(s['planned_windows'] for s in cached_stages),
+            executed_windows=sum(s['executed_windows'] for s in cached_stages),
+            reused_windows=skipped,full_refresh_reason=full_reason,
+            mandatory_windows=sum(len(s['mandatory_window_ids']) for s in cached_stages),
+            ordinary_windows=sum(len(s['ordinary_window_ids']) for s in cached_stages),
+            per_block=cached_stages,per_camera=[dict(camera_id=cid,**{
+                k:sum(s['per_camera'][c][k] for s in cached_stages)
+                for k in ('total_windows','planned_windows','executed_windows','reused_windows','mandatory_windows','ordinary_windows')})
+                for c,cid in enumerate(cameras)],M2_total_ms=(perf_counter()-start)*1000)
         diag.update(runtime_entered=True,execution_completed=True,
             actual_window_reuse=bool(skipped),full_recompute=not bool(skipped),
             full_recompute_reason=full_reason,executor='WindowExecutor')
         diag.update(details);self.last_diagnostics.update(diag)
         return [features],self.last_diagnostics
 
-    def _execute(self,x,context,plans,reason,offline=None):
-        stages=[];outputs={};sources={};capture_eligible=False;executed_ids={}
-        # Preserve the selector plan before cost rejection expands later closure.
-        original_plans=list(plans) if plans is not None else None
+    def _execute(self,x,context,plans,reason):
+        stages=[];outputs={};sources={};executed_ids={}
         for i,block in enumerate(self.model.blocks):
             if i not in self.prefix:
                 x=block(x);stages.append(dict(block=i,mode='full',reason='global_dependency'))
@@ -306,29 +250,13 @@ class IncrementalVisionRuntime:
                 ids=plans[i].updated.nonzero(as_tuple=False).flatten() if plans is not None else torch.arange(total,device=x.device)
                 why=reason
                 planned_ids=list(range(total)) if len(ids)==total else ids.tolist()
-                selector_ids=(original_plans[i].updated.nonzero(as_tuple=False).flatten().tolist()
-                    if plans is not None and original_plans[i] is not plans[i] else planned_ids)
-                before_cost=len(ids)
-                key=cost_key(block,x,i,model=self.model,refresh_policy=self.config.refresh_signature()) if self.costs.records else None
-                eligible=key is not None and self.costs.has_beneficial(key)
-                capture_eligible |= eligible
-                assessment=self.costs.assessment(key,before_cost)
-                checked=len(ids)<total and not offline
-                if len(ids)<total and not offline:
-                    allowed,why=assessment['beneficial'],assessment['cost_rejection_reason']
-                    if not allowed:
-                        ids=torch.arange(total,device=x.device)
-                        # Actual upstream recomputation must close through later
-                        # prefix blocks even when cost admission expands a plan.
-                        expanded=self.planner.plan(torch.ones(x.shape[:3],device=x.device,dtype=torch.bool),stop_after=len(self.prefix))
-                        for later in range(i+1,len(self.prefix)):plans[later]=expanded[later]
                 self.executing_block=i
                 executed_ids[i]=ids
                 cached=self.cache.outputs.get(i) if len(ids)<total else None
                 x,packed=self.executor.execute(block,x,cached,ids)
                 outputs[i]=packed;id_values=list(range(total)) if len(ids)==total else planned_ids
                 computed=set(id_values);per_camera=total//len(x)
-                rows=(x.shape[1]+size-1)//size;cols=(x.shape[2]+size-1)//size
+                cols=(x.shape[2]+size-1)//size
                 valid_tokens=sum(min(size,x.shape[1]-(j%per_camera//cols)*size)*
                     min(size,x.shape[2]-(j%cols)*size) for j in id_values)
                 sources[i]=[dict(computation_frame_id=context.get('frame_id'),computation_timestamp=context.get('timestamp'),
@@ -336,25 +264,17 @@ class IncrementalVisionRuntime:
                     producer_layer=i,dependency_scope='closed_window_prefix',task_quality_certified=False)
                     if j in computed else copy.deepcopy(self.cache.sources[i][j]) for j in range(total)]
                 stages.append(dict(block=i,total_windows=total,updated_windows=len(ids),executed_windows=len(ids),
-                    planned_windows=before_cost,planned_window_ids=planned_ids,
-                    selector_planned_windows=len(selector_ids),
-                    selector_planned_window_ids=selector_ids,
-                    cost_admission_checked=checked,cost_admission_applied=checked,
-                    cost_record_count=len(self.costs.records),capture_scale_beneficial=eligible,
-                    cost_key_sha256=hashlib.sha256(key.encode()).hexdigest() if key is not None else None,
-                    **assessment,
+                    planned_windows=len(ids),planned_window_ids=planned_ids,
                     executed_window_ids=id_values,
                     reused_windows=total-len(ids),mode='windows',full_update_reason=why,attention_windows=len(ids),
                     pointwise_tokens=valid_tokens,qkv_tokens=len(ids)*size*size,
                     pointwise_window_work=len(ids)))
                 stage=stages[-1]
-                stage['selection_consistency']=dict(planned_in_execution=set(planned_ids).issubset(computed),
-                    selector_in_execution=set(selector_ids).issubset(computed),
+                stage['selection_consistency']=dict(plan_equals_execution=set(planned_ids)==computed,
                     counts_match=len(computed)==len(ids) and len(ids)+stage['reused_windows']==total)
                 stage['per_camera']=[dict(camera_id=cid,total_windows=per_camera,
-                    selector_planned_windows=sum(j//per_camera==c for j in selector_ids),
                     planned_windows=sum(j//per_camera==c for j in planned_ids),
                     executed_windows=sum(j//per_camera==c for j in id_values),
                     reused_windows=per_camera-sum(j//per_camera==c for j in id_values)) for c,cid in enumerate(context['camera_ids'])]
             if self.stage_observer is not None:self.stage_observer(i,x)
-        return x.permute(0,3,1,2),stages,outputs,sources,capture_eligible,executed_ids
+        return x.permute(0,3,1,2),stages,outputs,sources,executed_ids

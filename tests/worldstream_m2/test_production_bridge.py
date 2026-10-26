@@ -148,7 +148,7 @@ def test_failed_record_cannot_hide_in_partial_report(tmp_path,eva):
         promote_candidate(candidate,quality,keys,[0],'unit_fixture',tmp_path/'approved.json')
 
 
-def test_actual_formal_adaptive_publication_then_nonzero_reuse(tmp_path,eva,context):
+def test_actual_formal_direct_publication_then_nonzero_reuse(tmp_path,eva,context):
     from worldstream.m2 import IncrementalVisionRuntime
     from worldstream.m2.cost_model import cost_key,CostModel
     from worldstream.m2.dependency_planner import block0_input
@@ -169,17 +169,16 @@ def test_actual_formal_adaptive_publication_then_nonzero_reuse(tmp_path,eva,cont
             x=eva.blocks[i](x)
     table=tmp_path/'unit_only_formal.json'
     put(table,dict(schema_version=3,records=records,production_ready=True,formal_quality_policy=dict(approved_counts=[6])))
-    rt.costs=CostModel(str(table))
     manager=WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml'))
     with torch.no_grad():
         _,first,_=step(rt,manager,image,context,0,offline=False)
         _,second,_=step(rt,manager,image,context,1,offline=False)
-    assert first['cache_capture_decision']['policy']=='adaptive' and first['cache_saved']
-    assert second['actual_skipped_windows']>0 and not second['offline_experiment']
-    result=validate_rows([dict(scene_id='s',m2=first),dict(scene_id='s',m2=second)],rt.costs)
+    assert first['cache_saved'] and not hasattr(rt,'costs')
+    assert second['actual_skipped_windows']>0 and not second.get('offline_experiment',False)
+    result=validate_rows([dict(scene_id='s',m2=first),dict(scene_id='s',m2=second)])
     assert result['status']=='PASS' and result['window_reuse_ratio']>0
-    broken=copy.deepcopy(second);broken['stages'][0]['cost_admission_applied']=False
-    assert validate_rows([dict(scene_id='s',m2=first),dict(scene_id='s',m2=broken)],rt.costs)['status']=='FAIL'
+    broken=copy.deepcopy(second);broken['stages'][0]['planned_window_ids']=[]
+    assert validate_rows([dict(scene_id='s',m2=first),dict(scene_id='s',m2=broken)])['status']=='FAIL'
 
 
 def test_full_model_profiler_restores_actual_cache_and_m1_transaction(tmp_path,eva,context,monkeypatch):
@@ -206,7 +205,6 @@ def test_full_model_profiler_restores_actual_cache_and_m1_transaction(tmp_path,e
                 incremental_gpu_ms=1.,full_gpu_ms=2.,incremental_wall_ms=1.,full_wall_ms=2.))
             x=eva.blocks[i](x)
     table=tmp_path/'candidate_table.json';put(table,dict(schema_version=3,records=records))
-    rt.costs=CostModel(str(table))
     observer=FullModelEvidence(rt)
     manager=WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml'))
     with torch.no_grad():
@@ -234,7 +232,8 @@ def test_worker_cost_overrides_are_explicit_and_isolated(tmp_path):
         m2_candidate_cost_table=str(path),m2_cost_table=None,m2_profile_evidence=True,window_budget=3)
     cfg=effective_config('B2','language',tmp_path)
     configure_m2_evidence(cfg,args,tmp_path)
-    assert cfg.model.m2_config.cost_table==str(path)
-    assert Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py').model.m2_config.cost_table=='outputs/final_route/window_costs.json'
+    assert 'cost_table' not in cfg.model.m2_config
+    assert 'cost_table' not in Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py').model.m2_config
     args.m2_candidate_cost_table=None;args.m2_profile_evidence=False;args.m2_cost_table=str(path);args.offline_wsgrr=None
-    with pytest.raises(ValueError,match='no admitted'):configure_m2_evidence(cfg,args,tmp_path)
+    configure_m2_evidence(cfg,args,tmp_path)
+    assert 'cost_table' not in cfg.model.m2_config

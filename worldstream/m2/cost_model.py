@@ -1,3 +1,4 @@
+# Offline profiling/archived promotion utilities only. Serving M2 has no cost dependency.
 """Versioned, per-block measured costs. Unknown or mismatched records fail closed."""
 import hashlib
 import json

@@ -10,8 +10,6 @@ class M2Config:
     state_interface: str = 'source_linked'
     m1_service: str = 'maintain'
     memory_budget_mb: int = 512
-    cost_table: str = ''
-    cache_capture: str = 'adaptive'
     ordinary_budget: int = 3
     max_reuse_frames: int = 8
     region_margin_px: int = 8
@@ -31,8 +29,6 @@ class M2Config:
             raise ValueError('M2 supports only source-linked window Auto with maintained M1 state')
         if type(self.memory_budget_mb) is not int or self.memory_budget_mb<0:
             raise ValueError('Invalid cache budget')
-        if self.cache_capture not in ('adaptive','always','never'):
-            raise ValueError('Invalid capture policy')
         for name, minimum in (('ordinary_budget', 0), ('max_reuse_frames', 1), ('region_margin_px', 0)):
             if type(getattr(self, name)) is not int or getattr(self, name) < minimum:
                 raise ValueError('Invalid '+name)

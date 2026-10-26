@@ -78,8 +78,8 @@ def test_uncertainty_context_cannot_bypass_source_validation(rt,context,fault):
         if fault=='identity':row['world_identity_authorized']=True
         if fault=='nan':row['bbox_xyxy'][0]=float('nan')
         b.uncertainty_regions.append(row)
-    _,d=step(rt,x,context,1,edit=edit)
-    assert d['full_update_reason']=='invalid_region_state' and not d['cache_saved']
+    with pytest.raises(ValueError,match='invalid_region_state'):
+        step(rt,x,context,1,edit=edit)
 
 
 @pytest.mark.parametrize('kernel,stride,padding,dilation',[(3,2,2,2),(5,3,2,1),(2,2,0,1)])

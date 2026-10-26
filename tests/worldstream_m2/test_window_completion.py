@@ -64,7 +64,7 @@ def test_window_cache_owns_outputs_and_rejects_over_budget_atomically():
 
 @torch.no_grad()
 @pytest.mark.parametrize('target',['images','outputs'])
-def test_window_cache_mutation_forces_native_refresh(admitted_runtime,context,target):
+def test_window_cache_mutation_raises(admitted_runtime,context,target):
     from .test_source_linked_admission import cold,bundle_for
     runtime=admitted_runtime
     x=torch.randn(2,3,40,40)
@@ -72,10 +72,8 @@ def test_window_cache_mutation_forces_native_refresh(admitted_runtime,context,ta
     if target=='images':runtime.cache.images.add_(1)
     else:runtime.cache.outputs[0].zero_()
     ctx=dict(context,frame_id='1',timestamp=1.1)
-    out,d=runtime.forward(x,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
-    assert d['fallback_reason']=='cache_storage_modified'
-    assert d['actual_skipped_windows']==0
-    assert torch.equal(out[0],runtime.model(x)[0])
+    with pytest.raises(ValueError,match='cache_storage_modified'):
+        runtime.forward(x,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
 
 
 def test_window_cost_key_includes_inner_normalization(eva):
@@ -104,11 +102,11 @@ def test_invalid_window_costs_cannot_admit(eva,tmp_path,fault):
 
 @torch.no_grad()
 @pytest.mark.parametrize('approved',[True,False])
-def test_auto_requires_matching_cost_and_quality(eva,context,tmp_path,approved):
+def test_auto_ignores_archived_cost_and_quality(eva,context,tmp_path,approved):
     from .test_source_linked_admission import cold,bundle_for
     from projects.mmdet3d_plugin.models.backbones.eva_vit import get_abs_pos
     image=torch.randn(2,3,40,40);changed=image.clone();changed[0,:,0,0]+=.1
-    runtime=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
+    runtime=IncrementalVisionRuntime(eva,dict())
     cold(runtime,image,context)
     x=eva.patch_embed(changed)
     x=x+get_abs_pos(eva.pos_embed,eva.pretrain_use_cls_token,x.shape[1:3])
@@ -122,32 +120,27 @@ def test_auto_requires_matching_cost_and_quality(eva,context,tmp_path,approved):
     path=tmp_path/'synthetic_costs.json'
     path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,records=records,
         production_ready=True,formal_quality_policy=dict(approved_counts=[6] if approved else []))))
-    runtime.costs=CostModel(str(path));ctx=dict(context,frame_id='1',timestamp=1.1)
+    assert not hasattr(runtime,'costs')
+    ctx=dict(context,frame_id='1',timestamp=1.1)
     out,d=runtime.forward(changed,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
-    assert d['actual_skipped_windows']==(24 if approved else 0)
-    assert d['runtime_entered'] and d['execution_completed']
-    assert d['actual_window_reuse'] == approved
-    assert d['full_recompute'] == (not approved)
-    assert d['executor'] == 'WindowExecutor'
-    assert d['full_recompute_reason'] == (None if approved else 'downstream_quality_unverified')
-    assert torch.isfinite(out[0]).all()
-    if not approved:assert torch.equal(out[0],eva(changed)[0])
+    assert d['actual_skipped_windows']==24
+    assert d['runtime_entered'] and d['execution_completed'] and d['actual_window_reuse']
+    assert not d['full_recompute'] and d['full_recompute_reason'] is None
+    assert d['planned_windows']==d['executed_windows'] and torch.isfinite(out[0]).all()
 
 
 @torch.no_grad()
 @pytest.mark.parametrize('fault', ['cost', 'miss', 'source', 'numerical', 'publication'])
-def test_full_recompute_uses_same_executor(eva, context, monkeypatch, fault):
+def test_invalid_state_and_publication_do_not_retry(eva, context, monkeypatch, fault):
     from .test_source_linked_admission import cold, bundle_for
     from worldstream.m2.state_cache import CachePublicationError
-    runtime = IncrementalVisionRuntime(eva, dict(cache_capture='always'))
+    runtime = IncrementalVisionRuntime(eva, dict())
     image = torch.randn(2, 3, 40, 40)
     cold(runtime, image, context)
     ctx = dict(context, frame_id='1', timestamp=1.1)
     bundle = bundle_for(runtime, ctx)
     if fault == 'miss':runtime.cache.clear()
     if fault == 'source':bundle.execution_signature = 'invalid'
-    if fault == 'numerical':
-        monkeypatch.setattr(runtime.costs, 'beneficial', lambda *a: (False, 'window_numerical_evidence_missing'))
     if fault == 'publication':
         def fail(*a, **kw):raise CachePublicationError('injected publication failure')
         monkeypatch.setattr(runtime.cache, 'commit', fail)
@@ -157,15 +150,19 @@ def test_full_recompute_uses_same_executor(eva, context, monkeypatch, fault):
         calls.append((cached, len(ids)))
         return original(block, x, cached, ids)
     monkeypatch.setattr(runtime.executor, 'execute', observe)
-    out, d = runtime.forward(image, execution_context=ctx, computation_state=bundle)
-    assert d['runtime_entered'] and d['execution_completed'] and d['full_recompute']
-    assert not d['actual_window_reuse'] and d['full_recompute_reason']
-    assert calls == [(None, 18), (None, 18)]
-    assert torch.equal(out[0], eva(image)[0])
-    if fault == 'cost':assert d['full_recompute_reason'] == 'unprofiled_cost'
-    if fault == 'numerical':assert d['full_recompute_reason'] == 'window_numerical_evidence_missing'
-    if fault == 'publication':
-        assert d['cache_publication_error'] == 'cache_publication_failed' and not runtime.cache.outputs
+    if fault=='source':
+        with pytest.raises(ValueError,match='m1_context_mismatch'):
+            runtime.forward(image,execution_context=ctx,computation_state=bundle)
+        assert calls==[]
+    elif fault=='publication':
+        with pytest.raises(CachePublicationError,match='injected'):
+            runtime.forward(image,execution_context=ctx,computation_state=bundle)
+        assert [n for _,n in calls]==[6,6]
+        assert runtime.cache.version==1
+    else:
+        out,d=runtime.forward(image,execution_context=ctx,computation_state=bundle)
+        assert [n for _,n in calls]==([18,18] if fault=='miss' else [6,6])
+        assert d['planned_windows']==d['executed_windows']
 
 
 @torch.no_grad()
@@ -179,8 +176,7 @@ def test_benchmark_observer_does_not_change_eva_topology(eva,context,monkeypatch
         def record(self):pass
     monkeypatch.setattr(torch.cuda,'Event',Event)
     monkeypatch.setattr(visual_state,'base_model',lambda m:m)
-    runtime=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
-    monkeypatch.setattr(runtime.costs,'beneficial',lambda key,count:(True,None))
+    runtime=IncrementalVisionRuntime(eva,dict())
     noop=lambda *a,**k:None
     model=NS(img_backbone=eva,pts_bbox_head=NS(forward=noop),map_head=NS(forward=noop),
         lm_head=NS(forward=noop,generate=noop),m1_manager=None,m2_runtime=runtime,m3_runtime=None)

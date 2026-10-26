@@ -25,19 +25,19 @@ def test_final_configuration_and_baseline_heads():
     assert cfg.model.worldstream_require_m123
     assert not base.model.get('worldstream_require_m123', False)
     assert m2.mode==m3.mode=='auto' and m2.m1_service=='maintain'
-    assert m2.reuse_boundary=='window' and m2.cost_table
+    assert m2.reuse_boundary=='window' and m2.ordinary_budget==3 and m2.max_reuse_frames==8
     assert m2.state_interface=='source_linked'
     assert m3.state_context=='augment'
     assert not hasattr(m3,'selector') and not hasattr(m3,'batched_decode')
     for key in ('img_backbone','pts_bbox_head','map_head','lm_head','tokenizer'):
         if key in base.model:assert cfg.model[key]==base.model[key]
-    assert Path(m2.cost_table).is_file()
+    assert not hasattr(m2,'cost_table') and not hasattr(m2,'cache_capture')
     assert m3.reuse_strategy=='wsdr_kv' and m3.reuse_policy
     runtime=M3Runtime(m3)
     assert not hasattr(runtime.scheduler,'costs') and not hasattr(runtime.scheduler,'quality')
 
 
-def test_final_m2_native_fallback():
+def test_final_m2_invalid_context_raises():
     from projects.mmdet3d_plugin.models.backbones.eva_vit import EVAViT
     from worldstream.m2 import IncrementalVisionRuntime
     cfg=Config.fromfile(ENTRY)
@@ -47,11 +47,8 @@ def test_final_m2_native_fallback():
     executor=IncrementalVisionRuntime(model,M2Config(**cfg.model.m2_config))
     with torch.no_grad():
         image=torch.zeros(1,3,40,40)
-        value,d=executor.forward(image,execution_context=dict(scene_id='s',frame_id='f',camera_ids=['front']))
-        reference=model(image)
-    assert torch.equal(reference[0],value[0]) and d['mode']=='full_update' and d['actual_skipped_windows']==0
-    assert d['cache_boundary']=='window' and d['cacheable_blocks']==[0,1]
-    assert d['global_barrier_block']==2 and not d['cache_saved']
+        with pytest.raises(ValueError,match='invalid_execution_context'):
+            executor.forward(image,execution_context=dict(scene_id='s',frame_id='f',camera_ids=['front']))
 
 
 @pytest.mark.parametrize('mode',['hint','shadow'])

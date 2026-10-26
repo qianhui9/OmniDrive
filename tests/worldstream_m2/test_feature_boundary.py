@@ -33,7 +33,7 @@ def test_embedding_once_and_no_pixel_route(admitted_runtime,context,monkeypatch)
     cold(runtime,image,context)
     def fail(*a):raise AssertionError('Production must not compare pixels or exact tokens')
     monkeypatch.setattr('worldstream.m2.dependency_planner.exact_pixel_changes',fail)
-    monkeypatch.setattr('worldstream.m2.runtime.exact_token_changes',fail)
+    monkeypatch.setattr('worldstream.m2.dependency_planner.exact_token_changes',fail)
     ctx=dict(context,frame_id='1',timestamp=1.1)
     _,diag=runtime.forward(image,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
     handle.remove()
@@ -98,22 +98,22 @@ def test_feature_cache_budget_ownership_and_atomicity():
 
 
 @torch.no_grad()
-def test_mutated_feature_cache_forces_full(admitted_runtime,context):
+def test_mutated_feature_cache_raises(admitted_runtime,context):
     rt=admitted_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
     rt.cache.block0_input.add_(1)
     ctx=dict(context,frame_id='1',timestamp=1.1)
-    out,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert diag['actual_skipped_windows']==0 and diag['fallback_reason']=='cache_storage_modified'
-    assert torch.equal(out[0],rt.model(image)[0])
+    with pytest.raises(ValueError,match='cache_storage_modified'):
+        rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
 
 
 @torch.no_grad()
 def test_nonfinite_features_cannot_be_published(admitted_runtime,context):
     rt=admitted_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
     image[0,:,0,0]=float('nan');ctx=dict(context,frame_id='1',timestamp=1.1)
-    _,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert diag['cache_publication_error']=='nonfinite_cache_features'
-    assert not diag['cache_saved'] and rt.cache.bytes==0 and rt.cache.block0_input is None
+    previous=rt.cache.version
+    with pytest.raises(ValueError,match='nonfinite_model_input'):
+        rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
+    assert rt.cache.version==previous and rt.cache.bytes>0
 
 
 @torch.no_grad()
@@ -126,7 +126,7 @@ def test_programming_errors_are_not_suppressed(admitted_runtime,context,monkeypa
 
 @torch.no_grad()
 @pytest.mark.parametrize('state',['missing','unapproved','wrong_signature','unbeneficial','no_numerics','approved'])
-def test_adaptive_capture_bootstraps_only_approved_compatible_scales(eva,context,tmp_path,state):
+def test_cache_bootstrap_is_independent_of_archived_cost_tables(eva,context,tmp_path,state):
     image=torch.randn(2,3,40,40);x=block0_input(eva,image);records=[]
     for i in [0,1]:
         records.append(dict(key=cost_key(eva.blocks[i],x,i,model=eva,refresh_policy=M2Config().refresh_signature()),block=i,updated=6,
@@ -140,17 +140,15 @@ def test_adaptive_capture_bootstraps_only_approved_compatible_scales(eva,context
     path=tmp_path/'costs.json';path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,
         records=[] if state=='missing' else records,production_ready=True,
         formal_quality_policy=dict(approved_counts=[] if state=='unapproved' else [6]))))
-    rt=IncrementalVisionRuntime(eva,dict(cost_table=str(path)))
+    # Archived cost fixtures cannot influence serving, including wrong/empty tables.
+    rt=IncrementalVisionRuntime(eva)
+    assert not hasattr(rt,'costs')
     _,diag=cold(rt,image,context)
-    assert diag['cache_saved']==(state=='approved')
-    if state=='approved':
-        ctx=dict(context,frame_id='1',timestamp=1.1)
-        out,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-        assert diag['actual_skipped_windows']==24 and torch.allclose(out[0],eva(image)[0],atol=3e-6,rtol=3e-6)
-        # Different selected scale cannot borrow the six-window approval.
-        rt.config=replace(rt.config,ordinary_budget=4);ctx=dict(context,frame_id='2',timestamp=1.2)
-        _,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-        assert diag['actual_skipped_windows']==0
+    assert diag['cache_saved'] and rt.cache.version==1
+    ctx=dict(context,frame_id='1',timestamp=1.1)
+    out,diag=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
+    assert diag['actual_skipped_windows']==24
+    assert torch.allclose(out[0],eva(image)[0],atol=3e-6,rtol=3e-6)
 
 
 @torch.no_grad()
@@ -160,9 +158,8 @@ def test_corrupt_metadata_is_rejected_before_adapter(admitted_runtime,context,ta
     ctx=dict(context,frame_id='1',timestamp=1.1);bundle=bundle_for(rt,ctx)
     if target=='context':rt.cache.context.clear()
     else:rt.cache.sources[0]=[None]
-    out,diag=rt.forward(image,execution_context=ctx,computation_state=bundle)
-    assert diag['fallback_reason']=='cache_metadata_modified' and diag['actual_skipped_windows']==0
-    assert torch.equal(out[0],rt.model(image)[0])
+    with pytest.raises(ValueError,match='cache_metadata_modified'):
+        rt.forward(image,execution_context=ctx,computation_state=bundle)
 
 
 def test_production_costs_require_retained_evidence(eva,tmp_path):
@@ -193,7 +190,5 @@ def test_new_camera_batch_does_not_pass_stale_shapes_to_full_executor(admitted_r
     rt=admitted_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
     image=torch.cat([image,image[:1]],0)
     ctx=dict(context,frame_id='1',timestamp=1.1,camera_ids=['front','back','extra'])
-    out,diag=cold(rt,image,ctx)
-    assert diag['actual_skipped_windows']==0
-    assert all(s['executed_windows']==27 for s in diag['stages'][:2])
-    assert torch.equal(out[0],rt.model(image)[0])
+    with pytest.raises(ValueError,match='shape_unsupported'):
+        cold(rt,image,ctx)

@@ -278,6 +278,8 @@ def run_wsgrr(args):
                 # commit replaces owned fields atomically; the source snapshot is
                 # immutable, so repeats see identical history without GPU clones.
                 rt.cache=copy.copy(source_cache)
+                if getattr(args,'formal',False):
+                    return rt.forward_from_m1(image,manager,context)
                 return rt.evaluate_offline(image,variant=variant,m1_result=snapshot,execution_context=context)
             measured,timing=measure_call(candidate,args.repeats,args.warmup)
             rt.executor.execute=execute
@@ -305,10 +307,8 @@ def run_wsgrr(args):
                 full_update_reason=diag['full_update_reason'],difference=delta,
                 actual_skipped_windows=diag['actual_skipped_windows'],actual_window_reuse=diag['actual_window_reuse'],
                 full_recompute=diag['full_recompute'],full_recompute_reason=diag['full_recompute_reason'],
-                cache_capture_decision=diag['cache_capture_decision'],cache_version=diag['cache_version'],
-                cache_mismatch_reason=diag['cache_mismatch_reason'],cache_miss_root_cause=diag['cache_miss_root_cause'],
-                cost_table_status=diag['cost_table_status'],cost_record_count=diag['cost_record_count'],
-                cost_production_ready=diag['cost_production_ready'],
+                cache_version=diag['cache_version'],
+                cache_mismatch_reason=diag['cache_mismatch_reason'],
                 incremental=timing,native=dense,M1_precheck_ms=precheck_ms,M1_state_read_ms=read_ms,
                 M1_precheck_components_ms=result.diagnostics.get('timings_ms',{}),
                 M1_precheck_profiled=precheck_profile is not None,
@@ -374,7 +374,7 @@ def run_wsgrr(args):
             event_regions=sum(len(r['region_refresh'].get('event_regions',[])) for r in data))
     result=dict(aggregate=aggregate,frames=len(infos),sample_tokens=[i['token'] for i in infos],
         requested_frames=args.frames,formal_config='projects/configs/OmniDrive/worldstream_m123_auto.py',
-        formal_cost_table=dict(path=cfg.model.m2_config.cost_table,sha256=sha256(cfg.model.m2_config.cost_table)),
+        execution_entry='forward_from_m1' if getattr(args,'formal',False) else 'offline_validation',
         eligibility_definition='Continuous frame with valid M1/cache admission, no full refresh, selector plans fewer than all windows in at least one prefix block',
         timestamp_span_s=(infos[-1]['timestamp']-infos[0]['timestamp'])/1e6,
         checkpoint=args.checkpoint,backbone_fingerprint=block_fingerprint(model),numerical_policy=NUMERICAL_POLICY,
@@ -558,7 +558,9 @@ if __name__=='__main__':
     parser.add_argument('--followup-profile',action='store_true',help='Offline torch.profiler/cProfile attribution on frame 1, D3')
     parser.add_argument('--followup',action='store_true',help='Offline paired D3/NoM1Region nominal-budget experiment (same source safety)')
     parser.add_argument('--main-only',action='store_true',help='Only current WSGRR D3 and paired Native timing; no ablations or budget scan')
+    parser.add_argument('--formal',action='store_true',help='Use serving forward_from_m1 with live M1 snapshots; requires --main-only')
     args=parser.parse_args()
+    if args.formal and not args.main_only:parser.error('--formal requires --main-only')
     if args.main_only and (not args.wsgrr or args.followup):parser.error('--main-only requires --wsgrr and excludes --followup')
     if args.frames<2 or args.repeats<3 or args.warmup<1:parser.error('Need frames>=2, repeats>=3, warmup>=1')
     if args.compare_task_runs:

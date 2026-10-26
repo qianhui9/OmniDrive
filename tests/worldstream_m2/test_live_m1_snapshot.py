@@ -17,8 +17,7 @@ def frame_for(images, context):
 @torch.no_grad()
 def test_live_precheck_execution_commit_selects_wsgrr_windows(eva,context):
     m=WorldStateManager(M1Config(source_linked_state=True,temporal_visibility=True,local_support=True))
-    rt=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
-    rt.costs.beneficial=lambda key,count:(True,None)
+    rt=IncrementalVisionRuntime(eva,dict())
     x=torch.randint(0,256,(2,3,40,40),dtype=torch.uint8)
     diagnostics=[]
     for i in range(3):
@@ -40,7 +39,7 @@ def test_live_precheck_execution_commit_selects_wsgrr_windows(eva,context):
 
 @torch.no_grad()
 @pytest.mark.parametrize('fault',['missing','stale','epoch','aborted','mutated'])
-def test_snapshot_read_failure_full_fallback(eva,context,fault):
+def test_snapshot_read_failure_raises(eva,context,fault):
     m=WorldStateManager();rt=IncrementalVisionRuntime(eva,dict())
     x=torch.ones(2,3,40,40);ctx=dict(context,timestamp=100.)
     f=frame_for(torch.zeros_like(x,dtype=torch.uint8),ctx);r=m.precheck(f)
@@ -50,14 +49,14 @@ def test_snapshot_read_failure_full_fallback(eva,context,fault):
     if fault=='epoch':ctx['state_epoch']=-1
     if fault=='aborted':r.diagnostics['transaction_status']='aborted'
     if fault=='mutated':m.store.commit_count+=1
-    out,d=rt.forward_from_m1(x,m,ctx)
-    assert torch.equal(out[0],eva(x)[0])
-    assert d['full_update_reason']=='missing_computation_state' and d['cache_hits']==0
+    with pytest.raises((ValueError,RuntimeError)):
+        rt.forward_from_m1(x,m,ctx)
+    assert rt.cache.version==0 and rt.cache.bytes==0
 
 
 @torch.no_grad()
-def test_disabled_legacy_keeps_original_path(eva,context):
+def test_missing_m1_manager_raises(eva,context):
     rt=IncrementalVisionRuntime(eva,dict(enabled=False))
     x=torch.ones(2,3,40,40)
-    out,d=rt.forward_from_m1(x,None,context)
-    assert torch.equal(out[0],eva(x)[0]) and d['fallback_reason']=='disabled'
+    with pytest.raises(ValueError,match='missing_m1_manager'):
+        rt.forward_from_m1(x,None,context)

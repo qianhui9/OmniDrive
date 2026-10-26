@@ -75,7 +75,7 @@ def test_formal_request_always_runs_all_modules(tmp_path, eva, llm, monkeypatch,
     model = formal_model(tmp_path, eva, llm, monkeypatch)
     if evidence == 'missing':
         # Replace artifact readers, never the protected production artifacts.
-        model.m2_runtime.costs.records = []
+        assert not hasattr(model.m2_runtime,'costs')
         model.m3_runtime.scheduler.policy = {}
     assert not hasattr(model.m3_runtime.scheduler,'quality')
     forward_lengths = []
@@ -105,9 +105,11 @@ def test_formal_request_always_runs_all_modules(tmp_path, eva, llm, monkeypatch,
                    ('precheck_entered', 'precheck_completed', 'commit_entered', 'commit_completed'))
         assert trace['m1']['transaction_status'] == 'committed'
         assert trace['m2']['runtime_entered'] and trace['m2']['execution_completed']
-        assert trace['m2']['full_recompute'] and not trace['m2']['actual_window_reuse']
+        assert trace['m2']['full_recompute']==(timestamp==100.)
+        assert trace['m2']['actual_window_reuse']==(timestamp==100.1)
+        assert model.m2_diagnostics['cache_saved']
         assert trace['m2']['executor'] == 'WindowExecutor'
-        assert trace['m2']['full_recompute_reason']
+        assert bool(trace['m2']['full_recompute_reason'])==(timestamp==100.)
         assert trace['m3']['runtime_entered'] and trace['m3']['execution_completed']
         row = trace['m3']['requests'][0]
         assert row['reused_tokens'] == 0 and row['full_prefill']

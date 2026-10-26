@@ -19,13 +19,12 @@ def test_unchanged_window_keeps_actual_computation_source(exact_runtime,context)
 
 @torch.no_grad()
 @pytest.mark.parametrize('field',['camera_id','producer_layer','computation_version','computation_frame_id'])
-def test_external_lineage_mutation_forces_all_window_update(exact_runtime,context,field):
+def test_external_lineage_mutation_raises(exact_runtime,context,field):
     rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
     rt.cache.sources[0][0][field]='forged'
     ctx=dict(context,frame_id='1',timestamp=1.1)
-    out,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert d['actual_skipped_windows']==0
-    assert torch.equal(out[0],rt.model(x)[0])
+    with pytest.raises(ValueError,match='cache_metadata_modified'):
+        rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
 
 
 @torch.no_grad()
@@ -34,6 +33,8 @@ def test_failed_publication_preserves_output_lineage(exact_runtime,context,monke
     def fail(*a,**kw):raise CachePublicationError('injected publication failure')
     monkeypatch.setattr(rt.cache,'commit',fail)
     ctx=dict(context,frame_id='1',timestamp=1.1)
-    _,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert not d['cache_saved'] and not rt.cache.bytes and d['actual_skipped_windows']==36
-    assert all(s['computation_frame_id']=='0' for units in d['output_window_provenance'].values() for s in units)
+    source=rt.cache.sources;version=rt.cache.version
+    with pytest.raises(CachePublicationError,match='injected'):
+        rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
+    assert rt.cache.sources is source and rt.cache.version==version
+    assert rt.cache.context['frame_id']=='0'

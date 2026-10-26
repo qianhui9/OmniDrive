@@ -20,10 +20,7 @@ def context():
 @pytest.fixture
 def admitted_runtime(eva,monkeypatch):
     from worldstream.m2 import IncrementalVisionRuntime
-    runtime=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
-    # Unit fixture only: isolate execution/source contracts from measured cost
-    # certification. No mocked costs are written to deployment artifacts.
-    monkeypatch.setattr(runtime.costs,'beneficial',lambda key,count:(True,None))
+    runtime=IncrementalVisionRuntime(eva,dict())
     return runtime
 
 
@@ -31,7 +28,7 @@ def admitted_runtime(eva,monkeypatch):
 def exact_runtime(eva):
     """Legacy operator/equality regressions use the explicit offline A baseline."""
     from worldstream.m2 import IncrementalVisionRuntime
-    runtime=IncrementalVisionRuntime(eva,dict(cache_capture='always'))
+    runtime=IncrementalVisionRuntime(eva,dict())
     runtime.forward=lambda images,**kwargs:runtime.evaluate_offline(images,variant='A',**kwargs)
     return runtime
 

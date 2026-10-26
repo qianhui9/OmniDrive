@@ -32,7 +32,7 @@ def step(rt,image,context,index,regions=(),events=(),variant='D',edit=None):
 
 @pytest.fixture
 def rt(eva):
-    return IncrementalVisionRuntime(eva,dict(cache_capture='always',region_margin_px=0,ordinary_budget=0))
+    return IncrementalVisionRuntime(eva,dict(region_margin_px=0,ordinary_budget=0))
 
 
 @torch.no_grad()
@@ -157,8 +157,9 @@ def test_local_unknown_has_priority_without_becoming_mandatory(rt,context):
 
 @torch.no_grad()
 def test_invalid_current_region_cannot_seed_a_cold_cache(rt,context):
-    _,d=step(rt,torch.randn(2,3,40,40),context,0,[region(bbox_xyxy=[0,0,float('nan'),2])])
-    assert d['full_update_reason']=='invalid_region_state' and not d['cache_saved']
+    with pytest.raises(ValueError,match='invalid_region_state'):
+        step(rt,torch.randn(2,3,40,40),context,0,[region(bbox_xyxy=[0,0,float('nan'),2])])
+    assert rt.cache.version==0
 
 
 @pytest.mark.parametrize('kernel,stride,padding,dilation',[(3,2,2,2),(5,3,2,1),(2,2,0,1)])
@@ -186,8 +187,8 @@ def test_incompatible_policy_or_mutated_state_never_reuses(rt,context,mutation):
     if mutation=='region':rt.cache.region_states[0]['class_id']='forged'
     if mutation=='ages':rt.cache.window_ages[0].add_(10)
     if mutation=='descriptor':rt.cache.descriptors.add_(1)
-    out,d=step(rt,image,context,1)
-    assert d['actual_skipped_windows']==0 and torch.equal(out[0],rt.model(image)[0])
+    with pytest.raises(ValueError,match='execution_signature_mismatch|cache_metadata_modified|cache_storage_modified'):
+        step(rt,image,context,1)
 
 
 def test_snapshot_failure_is_atomic_for_all_new_fields():
@@ -204,19 +205,19 @@ def test_snapshot_failure_is_atomic_for_all_new_fields():
 
 
 @torch.no_grad()
-def test_offline_candidate_uses_same_executor_and_cannot_enable_production(rt,context,monkeypatch):
+def test_offline_d_and_formal_share_execution_and_history(rt,context,monkeypatch):
     rt.config=replace(rt.config,ordinary_budget=2)
     image=torch.randn(2,3,40,40);step(rt,image,context,0)
     calls=[];execute=rt.executor.execute
     def observe(block,x,cache,ids):calls.append(len(ids));return execute(block,x,cache,ids)
     monkeypatch.setattr(rt.executor,'execute',observe)
     _,d=step(rt,image,context,1)
-    assert calls==[4,4] and d['offline_experiment'] and not d['task_quality_certified']
-    assert not rt.costs.production_ready and not rt.costs.records
+    assert calls==[4,4] and not d['task_quality_certified']
+    assert not hasattr(rt,'costs')
     ctx=dict(context,frame_id='2',timestamp=1.02)
     _,d=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert not d['offline_experiment'] and d['actual_skipped_windows']==0
-    assert d['full_update_reason']=='execution_signature_mismatch'
+    assert d['actual_skipped_windows']==28 and d['cache_version']==3
+    assert d['full_update_reason'] is None
 
 
 @torch.no_grad()
@@ -240,7 +241,7 @@ def test_m1_exports_real_projection_and_qualified_fields(eva,context):
 @pytest.mark.skipif(not torch.cuda.is_available(),reason='CUDA unavailable')
 @torch.no_grad()
 def test_cuda_wsgrr_runtime_preserves_shapes_sources_and_approximate_output(eva,context):
-    rt=IncrementalVisionRuntime(eva.cuda(),dict(cache_capture='always',ordinary_budget=2))
+    rt=IncrementalVisionRuntime(eva.cuda(),dict(ordinary_budget=2))
     image=torch.randn(2,3,40,40,device='cuda');step(rt,image,context,0)
     image+=.02
     out,d=step(rt,image,context,1)

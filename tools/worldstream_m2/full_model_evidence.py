@@ -5,7 +5,6 @@ request. Replays never commit M1 or advance production history.
 """
 import copy
 from functools import wraps
-import hashlib
 import math
 from pathlib import Path
 
@@ -28,13 +27,12 @@ class FullModelEvidence:
         execute = runtime.executor.execute
 
         @wraps(original)
-        def forward(images, m1_result, execution_context, computation_state, offline=None, window_targets=None):
+        def forward(images, m1_result, execution_context, computation_state):
             self.inputs = {}
             source = copy.copy(runtime.cache)
-            capture_decision = copy.deepcopy(runtime._last_capture_decision)
-            result = original(images, m1_result, execution_context, computation_state, offline, window_targets)
+            result = original(images, m1_result, execution_context, computation_state)
             self.pending = (images, m1_result, copy.deepcopy(execution_context), computation_state,
-                offline, window_targets, source, capture_decision, dict(self.inputs), result)
+                source, dict(self.inputs), result)
             return result
 
         @wraps(execute)
@@ -53,15 +51,13 @@ class FullModelEvidence:
     @torch.no_grad()
     def collect(self, frame_id):
         if self.pending is None: raise ValueError('Missing actual M2 call')
-        images, snapshot, context, state, offline, targets, source, capture_decision, inputs, result = self.pending
-        if offline != 'D': raise ValueError('Full-model cost collection requires offline D')
+        images, snapshot, context, state, source, inputs, result = self.pending
         rt = self.runtime
-        saved = (rt.cache, rt.last_diagnostics, rt._last_capture_decision, rt.executing_block)
+        saved = (rt.cache, rt.last_diagnostics, rt.executing_block)
         cpu_rng, cuda_rng = torch.get_rng_state(), torch.cuda.get_rng_state()
         def candidate():
             rt.cache = copy.copy(source)
-            rt._last_capture_decision = copy.deepcopy(capture_decision)
-            return self.forward(images, snapshot, context, state, offline, targets)
+            return self.forward(images, snapshot, context, state)
         try:
             (replayed, native), inc, full = paired_measure(candidate,
                 lambda: rt.model(images)[0], self.repeats, self.warmup)
@@ -86,8 +82,6 @@ class FullModelEvidence:
                     raise ValueError('Nonfinite candidate block error')
                 key = cost_key(block,x,i,model=rt.model,refresh_policy=rt.config.refresh_signature())
                 stage = next(s for s in stages if s['block']==i)
-                if stage['cost_key_sha256'] != hashlib.sha256(key.encode()).hexdigest():
-                    raise ValueError('Measured cost identity differs from actual model call')
                 self.measurements.append(dict(key=key, block=i, updated=len(ids),
                     numerical_verified=True, numerical_validation_scope='Finite measured error; task/limit assessment pending',
                     quality_certified=False, quality_rejection_reason='downstream_quality_unverified',
@@ -97,7 +91,7 @@ class FullModelEvidence:
                     pipeline_incremental_gpu_ms=inc['gpu_span_ms'],pipeline_full_gpu_ms=full['gpu_span_ms'],
                     difference=local, evidence_cases=[case],block_incremental=a,block_full=b))
         finally:
-            rt.cache, rt.last_diagnostics, rt._last_capture_decision, rt.executing_block = saved
+            rt.cache, rt.last_diagnostics, rt.executing_block = saved
             torch.set_rng_state(cpu_rng);torch.cuda.set_rng_state(cuda_rng)
             self.clear()
 

@@ -45,19 +45,15 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
         return (None, 'm1_state_epoch_mismatch')
     if not valid_region_states(bundle,context.get('camera_ids',())):
         return (None,'invalid_region_state')
-    if force_refresh or bundle.diagnostics.get('full_refresh_hint'):
-        return (None, 'm1_full_refresh')
     if context.get('coordinate_space') != 'preprocessed_image':
         return (None, 'preprocessing_geometry_unavailable')
-    if not np.isfinite(bundle.timestamp):
-        return (None, 'm1_source_time_mismatch')
     if cache.context is not None:
         if bundle.diagnostics.get('cache_frame_id') != cache.context['frame_id'] or bundle.diagnostics.get('source_cache_version') != cache.version or bundle.diagnostics.get('observed_source_frame_id') != cache.context['frame_id']:
             return (None, 'm1_cache_source_mismatch')
         if cache.context.get('state_epoch') is not None and cache.context['state_epoch'] != bundle.state_epoch:
             return (None, 'm1_state_epoch_mismatch')
     else:
-        return (None, 'no_valid_cache')
+        return (None, 'm1_full_refresh' if force_refresh or bundle.diagnostics.get('full_refresh_hint') else 'no_valid_cache')
     if not bundle.diagnostics.get('cache_available'):
         return (None, 'm1_computation_unavailable')
     window_sources = [s for values in cache.sources.values() for s in values]
@@ -119,8 +115,6 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
                 return (None, 'm1_computation_source_mismatch')
             if bundle.timestamp - computed_time > horizon and not str(record.get('feature_id', '')).startswith('eva_prefix:'):
                 camera_reasons[cid] = 'm1_computation_source_expired'
-        if contract.get('full_refresh_hint'):
-            return (None, 'm1_full_refresh')
         if contract.get('coordinate_space') != 'preprocessed_image':
             return (None, 'preprocessing_geometry_unavailable')
         try:
@@ -137,4 +131,6 @@ def computation_admission(bundle, context, images, cache, force_refresh=False, d
     if details is not None:
         details.update(camera_reasons=camera_reasons, force_recompute_cameras=[bool(m.any()) for m in masks], expired_source_pixels=int(local_expired.sum()), )
         details['_uncertainty_pixels'] = np.stack(uncertainty)
+    if force_refresh or bundle.diagnostics.get('full_refresh_hint') or any(c.get('full_refresh_hint') for c in bundle.refresh_contract.values()):
+        return (None, 'm1_full_refresh')
     return (np.stack(masks), None)

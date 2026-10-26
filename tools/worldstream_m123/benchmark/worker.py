@@ -85,9 +85,9 @@ def configure_m2_evidence(cfg, args, dest):
         raise ValueError('M2 cost profiling requires an explicit candidate table')
     if getattr(args,'m2_task_evidence',False) and (args.workload!='language' or args.condition not in ('B2','B3')):
         raise ValueError('M2 task witnesses require full-model B2/B3 language execution')
-    if getattr(args,'m2_acceptance',False) and (not formal or args.condition!='B3'
+    if getattr(args,'m2_acceptance',False) and (args.condition!='B3'
             or args.workload!='language' or args.limit<2 or args.perception_only):
-        raise ValueError('M2 acceptance requires B3 language, a formal table and at least two frames')
+        raise ValueError('M2 acceptance requires B3 language and at least two frames')
     path = candidate or formal
     rules_path = getattr(args,'m2_assessment_rules',None)
     if rules_path:
@@ -105,9 +105,6 @@ def configure_m2_evidence(cfg, args, dest):
         if any(tuple(json.loads(r['key']).get('refresh_policy',())) != policy for r in table.records):
             raise ValueError('M2 candidate refresh policy differs from formal configuration')
         if candidate and args.window_budget!=policy[1]: raise ValueError('Candidate budget must match formal refresh policy')
-        if formal and not any(table.beneficial(r['key'],r['updated'])[0] for r in table.records):
-            raise ValueError('Formal M2 table contains no admitted beneficial records')
-        cfg.model.m2_config.cost_table = path
         write(dest/'m2_cost_binding.json', dict(path=str(Path(path).resolve()), sha256=sha256(path),
             kind='candidate' if candidate else 'formal', records=len(table.records)))
     return cfg
@@ -232,9 +229,9 @@ def run(args):
         if args.condition!='B2' or model.m2_runtime is None:
             raise ValueError('Offline WSGRR task evaluation requires B2 (M1 + M2, native VLM)')
         runtime=model.m2_runtime
-        runtime.config=replace(runtime.config,ordinary_budget=args.window_budget,cache_capture='always')
-        # Explicit offline tool entry only. No deployment configuration can
-        # select this path or bypass the production cost/quality checks.
+        runtime.config=replace(runtime.config,ordinary_budget=args.window_budget)
+        # Historical selector controls live only in tools. D uses the same
+        # serving algorithm and neither route has M2 cost/quality admission.
         if args.offline_wsgrr=='NoM1RegionMatched':
             if not args.window_targets:raise ValueError('Matched-compute control requires the D3 per-frame target file')
             target_rows=[json.loads(s) for s in Path(args.window_targets).read_text().splitlines()]
@@ -669,7 +666,7 @@ def main():
         help='Explicit small M3 comparison with unchanged formal M1/M2 and generation; no approvals')
     parser.add_argument('--offline-wsgrr',choices=['A','B','C','D','NoM1Region','NoM1RegionMatched'],help='Explicit unapproved task experiment, B2 only')
     parser.add_argument('--m2-candidate-cost-table', help='Offline D only: candidate cost identity, never a production approval')
-    parser.add_argument('--m2-cost-table', help='Explicit admitted table for formal B2/B3; uses normal runtime admission')
+    parser.add_argument('--m2-cost-table', help='Optional profiling metadata only; never affects M2 execution')
     parser.add_argument('--m2-profile-evidence', action='store_true', help='Post-request M2 block/pipeline costs on the actual source snapshot')
     parser.add_argument('--m2-task-evidence', action='store_true', help='Record input-ID and generation witnesses for paired M2 quality evaluation')
     parser.add_argument('--m2-assessment-rules', help='Bind predeclared quality/error limits before model execution')
