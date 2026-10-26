@@ -1,0 +1,72 @@
+{
+  "status": "COMPLETED",
+  "frames": 4,
+  "questions": 12,
+  "full_validation": false,
+  "warmup_frames": 1,
+  "request_ms": {
+    "n": 4,
+    "mean": 3725.869168411009,
+    "p50": 3637.924814596772,
+    "p95": 4491.207948583178,
+    "maximum": 4579.378263093531,
+    "total": 14903.476673644036
+  },
+  "model_ms": {
+    "n": 4,
+    "mean": 3408.6474070791155,
+    "p50": 3264.975475613028,
+    "p95": 4137.387719750404,
+    "maximum": 4226.578631903976,
+    "total": 13634.589628316462
+  },
+  "quality": {
+    "questions": 12,
+    "valid_gt": 12,
+    "missing_gt": 0,
+    "answer_exact_match": 0.0,
+    "token_f1": 0.35722493566605484,
+    "numeric_questions": 0,
+    "numeric_count_match": null,
+    "numeric_mae": null,
+    "numeric_mae_denominator": 0
+  },
+  "m1": {
+    "counts": {
+      "frames": 4,
+      "candidates": 288,
+      "eligible": 38,
+      "accepted": 268,
+      "scored": 38,
+      "correct": 38,
+      "wrong": 0,
+      "unknown": 230
+    },
+    "continuity": {
+      "predicted_track_fragments": 0,
+      "continuous_identity_switches": 0,
+      "scored_visible": 58,
+      "visible_known_missed": 80,
+      "ambiguous_visible": 44,
+      "bridged_visible_gaps": 0
+    },
+    "association_precision": 1.0,
+    "wrong_association_rate": 0.0,
+    "effective_recall": 1.0,
+    "association_coverage": 0.9305555555555556,
+    "alignment_precision": null,
+    "alignment_recall": null,
+    "alignment_numerator": 0,
+    "alignment_denominator": 0,
+    "scope": "Offline partial Oracle: unique class/size/1m matching; not standard MOT. GT never enters online decisions.",
+    "candidate_definition": "selected predictions on scene frames after the first",
+    "alignment_status": "NOT_AVAILABLE: no independently scored alignment denominator"
+  },
+  "official_detection": null,
+  "official_map": null,
+  "official_status": "NOT_RUN: subset",
+  "m1_scene_integrity": {
+    "01452fbfbf4543af8acdfd3e8a1ee806": "PASS"
+  },
+  "undefined_metric_paths": []
+}

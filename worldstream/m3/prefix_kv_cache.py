@@ -42,7 +42,8 @@ class PrefixKVCache:
             ('embeddings','token_ids','position_ids','attention_mask','visual_mask')]
         tensors += [t for layer in entry.kv for t in layer]+[entry.last_logits]
         return (tuple((t.data_ptr(),t._version,tuple(t.shape),tuple(t.stride()),t.dtype,t.device) for t in tensors),
-                repr((entry.expanded.scope,entry.expanded.signature,entry.expanded.source,entry.prefix_lineage)))
+                repr((entry.expanded.scope,entry.expanded.signature,entry.expanded.source,entry.prefix_lineage,
+                      entry.expanded.layout_signature,entry.expanded.visual_group_spans)))
 
     @property
     def nbytes(self):

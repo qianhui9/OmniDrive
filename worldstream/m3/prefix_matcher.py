@@ -3,7 +3,8 @@ import torch
 
 
 def exact_lcp(previous, current):
-    if previous.scope != current.scope or previous.signature != current.signature:
+    if (previous.scope != current.scope or previous.signature != current.signature
+            or previous.layout_signature != current.layout_signature):
         return 0
     a, b = previous.embeddings, current.embeddings
     if a.dtype != b.dtype or a.device != b.device or a.shape[2:] != b.shape[2:]:

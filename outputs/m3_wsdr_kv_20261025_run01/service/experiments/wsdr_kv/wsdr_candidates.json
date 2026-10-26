@@ -1,0 +1,76 @@
+{
+  "strategy": "wsdr_kv",
+  "strategy_version": "wsdr_kv_group_v1",
+  "production_ready": false,
+  "approved": [],
+  "records": [
+    {
+      "binding": {
+        "strategy": "wsdr_kv",
+        "strategy_version": "wsdr_kv_group_v1",
+        "model_version": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+        "weights_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+        "execution_key": "5b6a64edef514c6272929eeb2dd0268142c52f90e59d3254cc3ccbb853d6c847",
+        "task_type": "object_relation",
+        "task_profile": "object_attributes",
+        "layout_signature": "f904a433bdd4d04e5e241617cc5aeda7af941e03187da0d1db09f09c7d84cf0e",
+        "input_tokens": 570,
+        "prefix_tokens": 292,
+        "reused_tokens": 292,
+        "dtype": "torch.float16",
+        "generation_key": "1c422562bf565d5fee0a54af272500f3bf726dfdd0f8ebd9b2a1ce7f46b89bba"
+      },
+      "numerical": {
+        "tokens_equal": true,
+        "rng_equal": true,
+        "scores_close": false,
+        "logits_max_abs": 0.15625
+      },
+      "measurements": [
+        {
+          "sample_id": "controlled_map_carrier_delta",
+          "baseline_ms": 560.5096770450473,
+          "optimized_ms": 511.7139327339828
+        }
+      ],
+      "independent_task_quality": false,
+      "quality_status": "NOT_ASSESSED",
+      "evidence_path": "controlled_probes.json",
+      "evidence_sha256": "a1fd531f4e07d21871e9dc3d20488d2352b8f636f6f4f424e61a3f5e5c00b56e"
+    },
+    {
+      "binding": {
+        "strategy": "wsdr_kv",
+        "strategy_version": "wsdr_kv_group_v1",
+        "model_version": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+        "weights_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+        "execution_key": "5b6a64edef514c6272929eeb2dd0268142c52f90e59d3254cc3ccbb853d6c847",
+        "task_type": "object_relation",
+        "task_profile": "object_attributes",
+        "layout_signature": "f904a433bdd4d04e5e241617cc5aeda7af941e03187da0d1db09f09c7d84cf0e",
+        "input_tokens": 570,
+        "prefix_tokens": 35,
+        "reused_tokens": 35,
+        "dtype": "torch.float16",
+        "generation_key": "1c422562bf565d5fee0a54af272500f3bf726dfdd0f8ebd9b2a1ce7f46b89bba"
+      },
+      "numerical": {
+        "tokens_equal": true,
+        "rng_equal": true,
+        "scores_close": true,
+        "logits_max_abs": 0.0
+      },
+      "measurements": [
+        {
+          "sample_id": "controlled_object_carrier_delta",
+          "baseline_ms": 561.671698000282,
+          "optimized_ms": 566.3298778235912
+        }
+      ],
+      "independent_task_quality": false,
+      "quality_status": "NOT_ASSESSED",
+      "evidence_path": "controlled_probes.json",
+      "evidence_sha256": "a1fd531f4e07d21871e9dc3d20488d2352b8f636f6f4f424e61a3f5e5c00b56e"
+    }
+  ]
+}

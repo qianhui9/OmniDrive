@@ -78,6 +78,7 @@ class Observer:
         self.window_attention_batches = Counter()
         self.prefill_generations = []
         self.handles = []
+        self.last_m3_call = None
         if hasattr(model.img_backbone, 'register_forward_pre_hook'):
             # Wrapping forward changes the topology identity that M2 verifies.
             # Read-only hooks retain the original executable graph.
@@ -177,6 +178,7 @@ class Observer:
         @wraps(original)
         def call(*args, **kwargs):
             label = name
+            if name=='m3_auto_total':self.last_m3_call=dict(kwargs)
             if window:
                 label = f'm2_window_block_{self.model.m2_runtime.executing_block}'
             if dynamic:
@@ -186,23 +188,27 @@ class Observer:
             start, end = (torch.cuda.Event(enable_timing=True) for _ in range(2))
             start.record()
             tick = perf_counter()
+            first_event=len(self.events)
             result = original(*args, **kwargs)
             elapsed = (perf_counter()-tick)*1000
             end.record()
             self.events.append((label, start, end, elapsed))
             if generation:
+                output=result.sequences if hasattr(result,'sequences') else result
                 ids = kwargs.get('inputs')
                 carriers = kwargs.get('images')
                 prompt_tokens = ids.numel() + int((ids == -200).sum()) * (carriers.shape[1]-1)
-                self.native_generations.append(dict(output=result, host_wall_ms=elapsed,
-                    input_tokens=prompt_tokens, output_sequence_tokens=result.shape[-1],
+                self.native_generations.append(dict(output=output, host_wall_ms=elapsed,
+                    phase_events=list(self.events[first_event:-1]),
+                    input_tokens=prompt_tokens, output_sequence_tokens=output.shape[-1],
                     # The deployed Llava wrapper passes inputs_embeds, so HF
                     # starts returned sequences with one synthetic BOS token.
-                    generated_tokens=result.shape[-1]-1, start=start, end=end))
+                    generated_tokens=output.shape[-1]-1, start=start, end=end))
             return result
         setattr(obj, attribute, call)
 
     def clear(self):
+        self.last_m3_call=None
         self.events.clear()
         self.native_generations.clear()
         self.prefill_generations.clear()

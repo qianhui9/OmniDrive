@@ -41,7 +41,7 @@ def cpu_result(value):
     return value
 
 
-def effective_config(condition, workload, dest):
+def effective_config(condition, workload, dest, m3_strategy=None):
     from mmcv import Config
     cfg = Config.fromfile(BASELINE if condition == 'B0' else FINAL)
     common = Config.fromfile(FINAL)
@@ -52,6 +52,12 @@ def effective_config(condition, workload, dest):
         cfg.model.m3_enable = False
         if condition == 'B1':
             cfg.model.m2_enable = False
+    if m3_strategy is not None:
+        if condition!='B3':raise ValueError('M3 comparison retains formal M1/M2 in B3')
+        if m3_strategy=='native_full':
+            cfg.model.worldstream_require_m123=False
+            cfg.model.m3_enable=False
+        else:cfg.model.m3_config.reuse_strategy=m3_strategy
     for node in cfg.data.test.pipeline:
         if node['type'] == 'LoadAnnoatationVQATest':
             node['load_type'] = ['conv'] if workload == 'language' else ['planning']
@@ -153,7 +159,7 @@ def run(args):
     hashes['projects/mmdet3d_plugin/models/detectors/petr3d.py'] = sha256('projects/mmdet3d_plugin/models/detectors/petr3d.py')
     write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if k.startswith(('worldstream/m1/', 'worldstream/m2/'))})
     write(dest/'m1_m2_m3_source_hashes.json', hashes)
-    cfg = effective_config(args.condition, args.workload, dest)
+    cfg = effective_config(args.condition, args.workload, dest,getattr(args,'m3_strategy',None))
     importlib.import_module('projects.mmdet3d_plugin')
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -170,7 +176,7 @@ def run(args):
         checkpoint_sha256=evidence.get('checkpoint', {}).get('sha256') or sha256(args.checkpoint),
         source_manifest='benchmark_source_hashes.json + m1_m2_m3_source_hashes.json',
         source_manifest_sha256=sha256(dest/'m1_m2_m3_source_hashes.json'))
-    model.worldstream_profile = getattr(args, 'execution_audit', False)
+    model.worldstream_profile = bool(getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None))
     if getattr(args,'offline_wsgrr',None):
         from functools import partial
         from dataclasses import replace
@@ -214,7 +220,7 @@ def run(args):
     dataset.data_infos = sorted(dataset.data_infos, key=lambda i: (i['scene_token'], i['timestamp']))
     all_infos = dataset.data_infos
     candidates = all_infos
-    if getattr(args, 'execution_audit', False):
+    if getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None):
         scene = getattr(args, 'scene', None) or all_infos[0]['scene_token']
         candidates = [i for i in all_infos if i['scene_token'] == scene]
         from .sequence import validate_sequence as validate_continuous_sequence
@@ -224,7 +230,7 @@ def run(args):
     full = len(selected) == len(all_infos)
     write(dest/'sequence.json', dict(validation_frames=len(all_infos), selected_frames=len(selected),
         full_validation=full, tokens=[i['token'] for i in selected],
-        requested_frames=args.limit, selection='single scene, consecutive timestamp-sorted frames' if getattr(args, 'execution_audit', False) else 'timestamp-sorted split',
+        requested_frames=args.limit, selection='single scene, consecutive timestamp-sorted frames' if getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None) else 'timestamp-sorted split',
         reduction_reason='selected scene has fewer frames than requested' if args.limit > len(selected) else None,
         scene_ids=sorted({i['scene_token'] for i in selected})))
     observer = Observer(model)
@@ -239,7 +245,7 @@ def run(args):
         sample = dataset[ordinal]
         data = scatter(collate([sample], samples_per_gpu=1), [0])[0]
         if args.workload == 'language':
-            select_question(data, ordinal, args.questions_per_frame)
+            select_question(data, ordinal, args.questions_per_frame, getattr(args, 'question_offset', 0))
         if getattr(args,'perception_only',False):clear_questions(data)
         with torch.no_grad():
             model(return_loss=False, rescale=True, **data)
@@ -276,7 +282,7 @@ def run(args):
         prepared = perf_counter()
         data = scatter(collate([sample], samples_per_gpu=1), [0])[0]
         if args.workload == 'language':
-            select_question(data, ordinal, args.questions_per_frame)
+            select_question(data, ordinal, args.questions_per_frame, getattr(args, 'question_offset', 0))
         if getattr(args,'perception_only',False):clear_questions(data)
         torch.cuda.synchronize()
         model_tick = perf_counter()
@@ -299,6 +305,7 @@ def run(args):
         request_end = perf_counter()
         stages = observer.collect()
         row = dict(condition=args.condition, workload=args.workload, repeat=args.repeat,
+            m3_strategy=getattr(args,'m3_strategy',None),
             measurement_set=args.measurement_set,
             scene_id=info['scene_token'], frame_id=info['token'], timestamp=info['timestamp']/1e6,
             ordinal=ordinal, seed=seed, full_validation=full,
@@ -349,6 +356,7 @@ def run(args):
             m3_request=(row['m3'] or {}).get('requests',[])
             detail=m3_request[qi] if qi<len(m3_request) else {}
             qrow = dict(condition=args.condition, workload=args.workload, repeat=args.repeat,
+                m3_strategy=getattr(args,'m3_strategy',None),
                 measurement_set=args.measurement_set,
                 scene_id=info['scene_token'], frame_id=info['token'], question_index=qi,
                 question=answer['Q'], answer=answer['A'][0], reference=gt.get(answer['Q']), quality=quality,
@@ -363,6 +371,12 @@ def run(args):
                 reused_prefix_length=detail.get('reused_tokens',0),
                 historical_context_admitted=detail.get('state_retrieval',{}).get('admitted',False),
                 m3_reason=detail.get('prefix_admission') or (row['m3'] or {}).get('reason'))
+            phase_events=observed.get('phase_events',[]) if observed else []
+            native_prefill=[(a,b) for label,a,b,_ in phase_events if label=='prefill']
+            qrow.update(prefill_ms=detail.get('prefill_ms') if detail else sum(a.elapsed_time(b) for a,b in native_prefill),
+                decode_ms=detail.get('decode_ms') if detail else
+                    native_prefill[-1][1].elapsed_time(observed['end']) if native_prefill else None,
+                reuse_diagnostics=detail)
             questions.append(qrow)
             append(dest/'per_question_metrics.jsonl', qrow)
         for images, reused, diagnostics in ([] if getattr(args,'perception_only',False) else observer.reuses):
@@ -392,6 +406,10 @@ def run(args):
                 questions=len(questions), latest_request_ms=row['request_ms']))
             print('FRAME', args.condition, args.workload, args.repeat, ordinal+1, '/', len(selected),
                   round(row['request_ms'], 2), 'ms', flush=True)
+    if getattr(args,'m3_controlled_probe',False):
+        # After all request/peak-memory samples: probes must not inflate service VRAM.
+        from .prefill_validate import wsdr_probe
+        wsdr_probe(model,observer.last_m3_call,dest)
     with (dest/'predictions.pkl').open('wb') as handle:
         pickle.dump(outputs, handle)
     summary = dict(status='COMPLETED', frames=len(frames), questions=len(questions),
@@ -457,7 +475,7 @@ def clear_questions(data):
     data['img_metas'][0][0]['vlm_labels']=DataContainer([],stack=False)
 
 
-def select_question(data, ordinal, limit):
+def select_question(data, ordinal, limit, offset=0):
     if not limit:
         return
     meta = data['img_metas'][0][0]
@@ -465,7 +483,9 @@ def select_question(data, ordinal, limit):
     # The dataset inserts one unlabelled random description before the true
     # Conv/VQA questions. Select deterministically from real labelled pairs.
     indices = list(range(1, len(labels))) or list(range(len(labels)))
-    start = ordinal % len(indices)
+    if not indices:
+        raise ValueError('No language questions available')
+    start = (ordinal + offset) % len(indices)
     selected = [indices[(start+i) % len(indices)] for i in range(min(limit, len(indices)))]
     ids = data['input_ids'][0][0]
     data['input_ids'][0][0] = [ids[i] for i in selected]
@@ -483,21 +503,31 @@ def main():
     parser.add_argument('--limit', type=int, default=0)
     parser.add_argument('--warmup', type=int, default=3)
     parser.add_argument('--questions-per-frame', type=int, default=1)
+    parser.add_argument('--question-offset', type=int, default=0,
+        help='Deterministic offset into the existing labelled Conv/VQA questions; no answer-based filtering')
     parser.add_argument('--repeat', type=int, default=0)
     parser.add_argument('--measurement-set', choices=['main', 'attribution', 'efficiency', 'smoke'], default='smoke')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--validate-only', action='store_true')
     parser.add_argument('--execution-audit', action='store_true', help='B3 only; one continuous scene, GPU stage profiling, per-frame contract audit')
     parser.add_argument('--scene', help='Scene token for --execution-audit; default first scene')
+    parser.add_argument('--m3-strategy',choices=['native_full','exact_prefix','wsdr_kv'],
+        help='Explicit small M3 comparison with unchanged formal M1/M2 and generation; no approvals')
+    parser.add_argument('--m3-controlled-probe',action='store_true',help='Explicit offline numeric probes after all service timing/memory samples')
     parser.add_argument('--offline-wsgrr',choices=['A','B','C','D','NoM1Region','NoM1RegionMatched'],help='Explicit unapproved task experiment, B2 only')
     parser.add_argument('--window-budget',type=int,default=3)
     parser.add_argument('--perception-only',action='store_true',help='Explicit official Detection/Map run with no language questions; no feature counterfactual/audit scorer (done in paired task runs)')
     parser.add_argument('--window-targets',help='D3 per_frame_metrics.jsonl; cardinalities only for the explicit NoM1RegionMatched control')
     parser.add_argument('--force-full-frame',action='append',default=[],help='Explicit offline D counterfactual sample token; never a production option')
     args = parser.parse_args()
+    if args.question_offset < 0:parser.error('question-offset must be nonnegative')
     if args.execution_audit and (args.condition != 'B3' or args.workload != 'language'
             or args.limit < 1 or args.offline_wsgrr or args.perception_only):
         parser.error('execution-audit requires B3, language and a positive frame limit; offline/perception-only forbidden')
+    if args.m3_strategy and (args.condition!='B3' or args.workload!='language' or args.limit<1
+            or args.offline_wsgrr or args.perception_only or args.execution_audit):
+        parser.error('M3 comparison requires B3 language, a short positive limit and no other experiment modes')
+    if args.m3_controlled_probe and args.m3_strategy!='wsdr_kv':parser.error('Controlled M3 probes require wsdr_kv experiment')
     if set(os.sched_getaffinity(0)) & {4, 5}:
         parser.error('Launch with taskset -c 0-3,6-31')
     try:

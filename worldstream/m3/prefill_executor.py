@@ -58,6 +58,11 @@ class PrefillExecutor:
     def __init__(self, cache):
         self.cache = cache
 
+    def effective_reuse_length(self,expanded,length):
+        if length==expanded.length and self.cache.entry is not None and self.cache.entry.expanded.length!=expanded.length:
+            return length-1
+        return length
+
     @torch.no_grad()
     def generate(self, model, expanded, reuse_length=0, capture=True, profile=False,
                  **generation):
@@ -76,8 +81,7 @@ class PrefillExecutor:
         if reuse_length and self.cache.match(expanded) < reuse_length:
             raise ValueError('Prefix equality must be certified before execution')
         # Only the end of the stored prefill has saved last-token logits.
-        if reuse_length == n and self.cache.entry.expanded.length != n:
-            reuse_length -= 1
+        reuse_length=self.effective_reuse_length(expanded,reuse_length)
         branch_workspace_bytes = (sum(t[..., :reuse_length, :].numel() * t.element_size()
             for layer in self.cache.entry.kv for t in layer) if reuse_length else 0)
         diagnostics = dict(input_tokens=n, reused_tokens=reuse_length,
@@ -88,6 +92,8 @@ class PrefillExecutor:
         self.last_diagnostics = diagnostics
         diagnostics['prefix_storage']='owned_clone'
         events = []
+        branch_events=[]
+        diagnostics['cache_branch_cpu_enqueue_ms']=0.
         profile_cuda = profile and expanded.embeddings.is_cuda
         if profile_cuda:
             generation_start = torch.cuda.Event(enable_timing=True)
@@ -100,12 +106,22 @@ class PrefillExecutor:
             if profile and expanded.embeddings.is_cuda:
                 start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
                 start.record()
+            def branch(length):
+                if not length:return None
+                t=perf_counter()
+                if profile_cuda:
+                    a,b=torch.cuda.Event(enable_timing=True),torch.cuda.Event(enable_timing=True)
+                    a.record()
+                value=self.cache.branch(length)
+                if profile_cuda:b.record();branch_events.append((a,b))
+                diagnostics['cache_branch_cpu_enqueue_ms']+=(perf_counter()-t)*1000
+                return value
             if reuse_length == n:
                 output = CausalLMOutputWithPast(logits=self.cache.entry.last_logits.clone(),
-                                               past_key_values=self.cache.branch(n))
+                                               past_key_values=branch(n))
             else:
                 with torch.autograd.profiler.record_function('m3_prefix_branch'):
-                    kv = self.cache.branch(reuse_length) if reuse_length else None
+                    kv = branch(reuse_length)
                 with torch.autograd.profiler.record_function('m3_suffix_prefill' if reuse_length else 'm3_full_prefill'):
                     output = model(inputs_embeds=expanded.embeddings[:, reuse_length:],
                         position_ids=expanded.position_ids[:, reuse_length:],
@@ -150,6 +166,7 @@ class PrefillExecutor:
             diagnostics['prefill_including_cache_gpu_ms'] = sum(a.elapsed_time(b) for a, b in events)
             diagnostics['decode_loop_gpu_span_ms'] = events[-1][1].elapsed_time(generation_end)
             diagnostics['generation_gpu_span_ms'] = generation_start.elapsed_time(generation_end)
+            diagnostics['cache_branch_gpu_span_ms']=sum(a.elapsed_time(b) for a,b in branch_events)
             diagnostics['timing_method'] = 'CUDA event stream spans; includes host gaps; decode includes HF sampling loop'
         diagnostics['llm_wall_ms' if profile else 'llm_cpu_enqueue_ms'] = (perf_counter() - tick) * 1000
         diagnostics['cache_bytes'] = self.cache.nbytes

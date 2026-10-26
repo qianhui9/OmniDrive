@@ -10,6 +10,18 @@ from tools.worldstream_m123.benchmark.metrics import (
 from tools.worldstream_m123.benchmark.report import generate
 
 
+def test_question_offset_selects_existing_pairs_without_changing_them():
+    from mmcv.parallel import DataContainer
+    from tools.worldstream_m123.benchmark.worker import select_question
+    labels = ['unlabelled', 'conv', 'vqa1', 'vqa2']
+    meta = {'vlm_labels': DataContainer(labels, stack=False)}
+    data = {'img_metas': [[meta]], 'input_ids': [[[10, 11, 12, 13]]]}
+    select_question(data, 0, 2, offset=1)
+    assert data['input_ids'][0][0] == [12, 13]
+    assert meta['vlm_labels'].data == ['vqa1', 'vqa2']
+    assert labels == ['unlabelled', 'conv', 'vqa1', 'vqa2']
+
+
 @pytest.mark.parametrize('condition', ['B0', 'B1', 'B2', 'B3'])
 def test_formal_guard_does_not_change_independent_reference_or_existing_ablations(tmp_path, condition):
     from mmcv import Config

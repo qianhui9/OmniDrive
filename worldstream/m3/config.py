@@ -12,9 +12,12 @@ class M3Config:
     state_quality_certificate: str = ''
     model_version: str = ''
     state_context: str = 'augment'
+    reuse_strategy: str = 'exact_prefix'
 
     def __post_init__(self):
         if self.mode!='auto' or self.state_context!='augment':
             raise ValueError('M3 supports only trusted state augmentation and exact prefix Auto')
+        if self.reuse_strategy not in ('exact_prefix','wsdr_kv'):
+            raise ValueError('Unknown M3 reuse strategy')
         if not math.isfinite(self.memory_budget_mb) or self.memory_budget_mb<0 or type(self.min_prefix_tokens) is not int or self.min_prefix_tokens<1:
             raise ValueError('Invalid prefix cache budget')

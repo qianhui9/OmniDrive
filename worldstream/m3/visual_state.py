@@ -16,6 +16,8 @@ class ExpandedInput:
     scope: tuple = ()
     signature: tuple = ()
     source: tuple = ()
+    layout_signature: str = ''
+    visual_group_spans: tuple = ()
 
     @property
     def length(self):
@@ -26,7 +28,8 @@ class ExpandedInput:
         for name in ('embeddings', 'token_ids', 'position_ids', 'attention_mask', 'visual_mask'):
             value = getattr(self, name)[:, :length]
             fields[name] = value.detach().clone() if clone else value
-        return replace(self, **fields)
+        spans=tuple((g,a,min(b,length)) for g,a,b in self.visual_group_spans if a<length)
+        return replace(self, visual_group_spans=spans, **fields)
 
     @property
     def nbytes(self):
@@ -39,6 +42,19 @@ class CarrierLayout:
     object_tokens: int
     ego_tokens: int
     map_tokens: int
+    # Native OmniDrive has learned positional order. A different producer must
+    # explicitly supply its own group-permutation input contract.
+    order_contract: str = 'native_fixed'
+
+    def __post_init__(self):
+        if any(type(n) is not int or n<0 for n in (self.object_tokens,self.ego_tokens,self.map_tokens)):
+            raise ValueError('Invalid carrier group lengths')
+        if self.order_contract not in ('native_fixed','group_permutation_v1'):
+            raise ValueError('Unknown carrier ordering contract')
+
+    @property
+    def groups(self):
+        return (('object',self.object_tokens),('ego',self.ego_tokens),('map',self.map_tokens))
 
     @property
     def total(self):
@@ -119,7 +135,8 @@ def deployment_key(lm_head):
 
 @torch.no_grad()
 def expand_input(lm_head, input_ids, images, attention_mask=None, position_ids=None,
-                 scope=(), signature=(), source=()):
+                 scope=(), signature=(), source=(), carrier_layout=None, carrier_order=None,
+                 layout_signature=''):
     if input_ids.ndim == 1:
         input_ids = input_ids.unsqueeze(0)
     if input_ids.ndim != 2 or input_ids.shape[0] != 1 or input_ids.shape[1] == 0:
@@ -164,4 +181,17 @@ def expand_input(lm_head, input_ids, images, attention_mask=None, position_ids=N
         raise ValueError('Unsupported mask or position shape')
     if not torch.isfinite(embeds).all():
         raise ValueError('Nonfinite multimodal embeddings')
-    return ExpandedInput(embeds, ids, positions, mask, visual, tuple(scope), signature, tuple(source))
+    spans=()
+    if carrier_layout is not None:
+        if images is None or images.shape[0]!=1 or images.shape[1]!=carrier_layout.total:
+            raise ValueError('Carrier provenance requires one complete visual carrier')
+        order=tuple(carrier_order or ('object','ego','map'))
+        if len(order)!=3 or set(order)!={'object','ego','map'}:raise ValueError('Invalid group permutation')
+        markers=(raw==IMAGE_TOKEN_INDEX).nonzero(as_tuple=False).flatten().tolist()
+        if len(markers)==1:
+            cursor=markers[0];rows=[];sizes=dict(carrier_layout.groups)
+            for group in order:
+                rows.append((group,cursor,cursor+sizes[group]));cursor+=sizes[group]
+            spans=tuple(rows)
+    return ExpandedInput(embeds, ids, positions, mask, visual, tuple(scope), signature, tuple(source),
+                         layout_signature,spans)

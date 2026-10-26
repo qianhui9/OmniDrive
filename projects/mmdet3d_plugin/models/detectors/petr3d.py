@@ -504,7 +504,9 @@ class Petr3D(MVXTwoStageDetector):
                     vision_carriers=vision_embeded,
                     verified_state=getattr(self, 'm3_verified_state', None),
                     tokenizer=self.tokenizer,
+                    m2_diagnostics=getattr(self,'m2_diagnostics',None),
                     context=dict(scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']),
+                        weights_sha256=getattr(self,'worldstream_audit_identity',{}).get('checkpoint_sha256'),
                         state_epoch=getattr(getattr(self.m1_manager,'store',None),'generation',None),
                         state_version=getattr(getattr(self,'m3_verified_state',None),'state_version',None),
                         state_execution_signature=getattr(getattr(self.m1_manager,'store',None),'execution_signature',None),
@@ -704,6 +706,13 @@ class Petr3D(MVXTwoStageDetector):
                         full_prefill_reason=r.get('full_prefill_reason'),
                         prefill_completed=r.get('prefill_completed', False),
                         decode_completed=r.get('decode_completed', False)) for r in diag.get('requests', [])]
+                    for compact,detail in zip(trace[name]['requests'],diag.get('requests',[])):
+                        for key in ('reuse_strategy','task_type','task_profile','layout_signature','layout_permutation',
+                            'stable_groups','changed_groups','mandatory_refresh_groups','m1_state_valid',
+                            'm2_mapping_available','matched_prefix_tokens','approved_prefix_tokens','effective_prefill_tokens',
+                            'prefix_rejection_reason','cache_invalidation_reason','layout_fallback_reason',
+                            'layout_preparation_ms','prefix_matching_ms','cache_branch_ms','prefill_ms','decode_ms','end_to_end_ms'):
+                            if key in detail:compact[key]=list(detail[key]) if isinstance(detail[key],tuple) else detail[key]
             if precheck is not None and settings.logging and settings.log_path:
                 # Commit precedes M3; serialize once after M3 to include the entire request.
                 commit_diag = self.m1_manager.last_commit_diagnostics if trace['m1']['commit_completed'] else {}

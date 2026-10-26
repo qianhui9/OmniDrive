@@ -101,7 +101,8 @@ def freeze_verified_state(manager, frame):
 def query_world_state(state,question,context):
     """Simple dependency filters; partial history never establishes absence/counts."""
     task=task_type(question);q=question.lower()
-    def reject(reason):return dict(admitted=False,reason=reason,task=task,records=[],text='')
+    state_valid=False
+    def reject(reason):return dict(admitted=False,reason=reason,task=task,records=[],text='',state_valid=state_valid)
     if state is None:return reject('no_frozen_verified_history')
     try:
         if state.content_sha256!=snapshot_digest(state):return reject('historical_snapshot_modified')
@@ -111,6 +112,18 @@ def query_world_state(state,question,context):
             or state.state_epoch!=context.get('state_epoch')
             or state.state_version!=context.get('state_version')
             or state.execution_signature!=context.get('state_execution_signature')):return reject('stale_state_context')
+    # A bound empty snapshot is valid but never establishes complete coverage.
+    # This diagnostic is independent of task suitability and text quality.
+    try:
+        state_valid=all(r.get('source_state_epoch')==state.state_epoch
+            and r.get('source_execution_signature')==state.execution_signature
+            and r.get('source_frame') and r['source_frame']!=state.frame_id
+            and r.get('verified_timestamp')==state.timestamp
+            and r.get('evidence_origin') in ('actual_perception','historical_full_model_detection_replay')
+            and isinstance(r.get('source_timestamp'),(int,float))
+            and 0<state.timestamp-r['source_timestamp']<=state.diagnostics.get('max_state_age_s',1.)
+            for r in state.records)
+    except (TypeError,ValueError):state_valid=False
     if task in ('global_safety','unknown'):return reject('full_scene_task_requires_visual')
     if re.search(r'\b(how many|any|no |all |count|number|none|absence)\b',q):return reject('partial_history_cannot_establish_count_or_absence')
     records=[r for r in state.records if r['anchor_type']==('map' if task=='map' else 'object')
@@ -135,7 +148,7 @@ def query_world_state(state,question,context):
     payload=dict(source='verified historical M1 observations; incomplete scene coverage',
         frame_id=state.frame_id,timestamp=state.timestamp,state_epoch=state.state_epoch,
         execution_signature=state.execution_signature,records=records)
-    return dict(admitted=True,reason='verified_history_candidate_requires_task_quality',task=task,records=records,
+    return dict(admitted=True,reason='verified_history_candidate_requires_task_quality',task=task,records=records,state_valid=state_valid,
         text='\nHistorical world-state context (partial observations, unknown is not absent):\n'+json.dumps(payload,separators=(',',':'))+'\n',
         complete_scene_coverage=False,task_quality_certified=False,
         m1_protocol_sha256=state.diagnostics.get('m1_protocol_sha256'))
