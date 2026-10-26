@@ -27,13 +27,13 @@ def checked_artifact(base, evidence):
 def promote_candidate(candidate_path, quality_path, live_keys, counts, approved_by, output):
     """Validate a concrete researcher selection before atomically writing it."""
     candidate_path=Path(candidate_path).resolve();quality_path=Path(quality_path).resolve()
-    output=Path(output)
+    output=Path(output) if output is not None else None
     data=json.loads(candidate_path.read_text());quality=json.loads(quality_path.read_text())
     if data.get('schema_version')!=SCHEMA_VERSION:raise ValueError('Candidate schema mismatch')
     if not counts or any(type(c) is not int or c<0 for c in counts) or not approved_by.strip():
         raise ValueError('Explicit counts and researcher identity required')
     if (quality.get('schema')!='m2_window_task_quality_v1' or quality.get('independent') is not True
-            or quality.get('status')!='passed' or not quality.get('assessor')
+            or quality.get('status') not in ('passed','partial') or not quality.get('assessor')
             or quality.get('candidate_sha256')!=sha256(candidate_path)):
         raise ValueError('Independent candidate-bound task assessment required')
     selected=[r for r in data['records'] if r['updated'] in counts]
@@ -62,6 +62,8 @@ def promote_candidate(candidate_path, quality_path, live_keys, counts, approved_
         if not record.get('evidence_cases'):raise ValueError('No validated scenarios')
         assessments=[r for r in quality.get('records',[]) if r.get('key')==key and r.get('updated')==count]
         if len(assessments)!=1:raise ValueError('Per-signature/count task evidence missing')
+        if assessments[0].get('status','passed')!='passed':
+            raise ValueError('Selected signature/count task assessment did not pass: '+str(assessments[0].get('rejection_reasons',[])))
         if not set(record['evidence_cases']).issubset(assessments[0].get('covered_cases',[])):
             raise ValueError('Task assessment does not cover the validated scenarios')
         if approximate:
@@ -101,6 +103,8 @@ def promote_candidate(candidate_path, quality_path, live_keys, counts, approved_
             numerical_evidence_sha256=sha256(path))
     result=dict(schema_version=SCHEMA_VERSION,records=copy.deepcopy(selected),
         formal_quality_policy=dict(approved_counts=sorted(set(counts))),production_ready=True)
+    if output is None:
+        return result
     # Refuse accidental replacement of previous research approvals. An empty
     # deployment table may be initialized; a new path may always be used.
     if output.exists():
@@ -122,16 +126,42 @@ def promote_candidate(candidate_path, quality_path, live_keys, counts, approved_
     return result
 
 
+def check_candidate(candidate_path,quality_path,live_keys,counts):
+    """Dry run every count group atomically; never creates an approval artifact."""
+    data=json.loads(Path(candidate_path).read_text())
+    results=[]
+    for count in sorted(set(counts)):
+        records=[dict(block=r['block'],updated=count,key_sha256=hashlib.sha256(r['key'].encode()).hexdigest())
+            for r in data['records'] if r['updated']==count]
+        try:
+            promote_candidate(candidate_path,quality_path,live_keys,[count],'check-only; no approval',None)
+            reason=None
+        except (ValueError,KeyError,TypeError,OSError) as error:
+            reason=str(error)
+        results.append(dict(updated=count,records=records,status='PASS' if reason is None else 'FAIL',
+            reason=reason,scope='All records at this count must pass together'))
+    return dict(status='PASS' if results and all(r['status']=='PASS' for r in results) else 'FAIL',
+        counts=results,production_approvals_added=0)
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--candidate',required=True)
     parser.add_argument('--quality-report',required=True)
     parser.add_argument('--checkpoint',default='ckpts/iter_10548.pth')
     parser.add_argument('--approved-counts',type=int,nargs='+',required=True)
-    parser.add_argument('--approved-by',required=True)
-    parser.add_argument('--confirm-approval',action='store_true',required=True)
-    parser.add_argument('--output',required=True)
+    parser.add_argument('--approved-by')
+    parser.add_argument('--confirm-approval',action='store_true')
+    parser.add_argument('--output')
+    parser.add_argument('--check-only',action='store_true',help='Validate count groups against the live model without writing approvals')
+    parser.add_argument('--report',help='Optional new JSON path for check-only reasons')
     args=parser.parse_args()
+    if not args.check_only and (not args.confirm_approval or not args.approved_by or not args.output):
+        parser.error('Writing requires --approved-by, --confirm-approval and --output')
+    if args.check_only and (args.output or args.confirm_approval):
+        parser.error('--check-only does not accept approval output/confirmation')
+    if args.report and not args.check_only:parser.error('--report belongs to --check-only')
+    if args.report and Path(args.report).exists():parser.error('Report already exists')
     import torch
     from .common import backbone
     from worldstream.m2.cost_model import cost_key
@@ -154,8 +184,16 @@ def main():
         x=block0_input(model,torch.zeros(6,3,resize[1],resize[0],device='cuda'))
         for i in prefix:
             keys.add(cost_key(model.blocks[i],x,i,model=model,refresh_policy=refresh_policy));x=model.blocks[i](x)
+    if args.check_only:
+        result=check_candidate(args.candidate,args.quality_report,keys,args.approved_counts)
+        if args.report:
+            from tools.worldstream_m123.benchmark.common import write
+            write(args.report,result)
+        print(json.dumps(result,indent=2))
+        return 0 if result['status']=='PASS' else 1
     result=promote_candidate(args.candidate,args.quality_report,keys,args.approved_counts,args.approved_by,args.output)
     print(json.dumps(dict(output=args.output,approved_counts=result['formal_quality_policy']['approved_counts'])))
+    return 0
 
 
-if __name__=='__main__':main()
+if __name__=='__main__':raise SystemExit(main())

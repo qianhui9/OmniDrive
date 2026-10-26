@@ -120,6 +120,10 @@ def evaluate_run(run_dir,output_dir):
         detection=clean,map=map_value,task_quality_certified=False,production_approvals_added=0,
         detector_criteria=dataset.eval_detection_configs.serialize(),sample_tokens=tokens,
         prediction_run=str(run_dir.resolve()))
+    from tools.worldstream_m123.benchmark.common import sha256
+    result['prediction_sha256']=sha256(run_dir/'predictions.pkl')
+    result['evidence_hashes']={name:sha256(output_dir/name) for name in
+        ('detection_metrics.json','map_metrics.json','scenes.json')}
     write(output_dir/'summary.json',result)
     write(output_dir/'status.json',dict(status='COMPLETED',frames=len(tokens),full_validation=full))
     return result

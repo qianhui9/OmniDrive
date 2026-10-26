@@ -1,0 +1,24 @@
+{
+  "schema": "m2_assessment_rules_v1",
+  "description": "Template only. Declare finite feature-error limits before launching BOTH model runs; null values deliberately cannot pass validation.",
+  "min_frames": 24,
+  "min_scenes": 4,
+  "min_cases_per_record": 3,
+  "feature_error_limits": {
+    "max_abs": null,
+    "mean_abs": null
+  },
+  "max_critical_regression_requests": 0,
+  "tasks": {
+    "detection": [
+      {"metric": "mean_ap", "direction": "higher", "max_loss": 0.0},
+      {"metric": "nd_score", "direction": "higher", "max_loss": 0.0}
+    ],
+    "map": [
+      {"metric": "OpenLane-V2 Score/DET_l", "direction": "higher", "max_loss": 0.0}
+    ],
+    "vlm": [
+      {"metric": "token_f1", "direction": "higher", "max_loss": 0.0}
+    ]
+  }
+}

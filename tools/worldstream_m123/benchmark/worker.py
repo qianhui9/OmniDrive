@@ -71,6 +71,48 @@ def effective_config(condition, workload, dest, m3_strategy=None):
     return cfg
 
 
+def configure_m2_evidence(cfg, args, dest):
+    """Explicit benchmark overrides; default deployment configuration is untouched."""
+    candidate = getattr(args, 'm2_candidate_cost_table', None)
+    formal = getattr(args, 'm2_cost_table', None)
+    if candidate and formal: raise ValueError('Select either candidate or formal M2 costs')
+    if candidate and (args.condition != 'B2' or args.workload != 'language'
+            or getattr(args,'offline_wsgrr',None) != 'D' or getattr(args,'perception_only',False)):
+        raise ValueError('M2 candidate evidence requires B2 language and offline D')
+    if formal and (args.condition not in ('B2','B3') or getattr(args,'offline_wsgrr',None)):
+        raise ValueError('Formal M2 cost override requires B2/B3 without offline execution')
+    if getattr(args,'m2_profile_evidence',False) and not candidate:
+        raise ValueError('M2 cost profiling requires an explicit candidate table')
+    if getattr(args,'m2_task_evidence',False) and (args.workload!='language' or args.condition not in ('B2','B3')):
+        raise ValueError('M2 task witnesses require full-model B2/B3 language execution')
+    if getattr(args,'m2_acceptance',False) and (not formal or args.condition!='B3'
+            or args.workload!='language' or args.limit<2 or args.perception_only):
+        raise ValueError('M2 acceptance requires B3 language, a formal table and at least two frames')
+    path = candidate or formal
+    rules_path = getattr(args,'m2_assessment_rules',None)
+    if rules_path:
+        if args.condition not in ('B2','B3') or args.workload!='language':
+            raise ValueError('M2 assessment rules require B2/B3 language execution')
+        from tools.worldstream_m2.assess_candidate import check_limits
+        check_limits(json.loads(Path(rules_path).read_text()))
+        write(dest/'m2_assessment_rules_binding.json',dict(path=str(Path(rules_path).resolve()),sha256=sha256(rules_path)))
+    if path:
+        from worldstream.m2.cost_model import CostModel
+        from worldstream.m2.config import M2Config
+        table = CostModel(path)
+        if table.status != 'ready': raise ValueError('Invalid or empty M2 cost table: '+table.status)
+        policy = M2Config(**dict(cfg.model.m2_config)).refresh_signature()
+        if any(tuple(json.loads(r['key']).get('refresh_policy',())) != policy for r in table.records):
+            raise ValueError('M2 candidate refresh policy differs from formal configuration')
+        if candidate and args.window_budget!=policy[1]: raise ValueError('Candidate budget must match formal refresh policy')
+        if formal and not any(table.beneficial(r['key'],r['updated'])[0] for r in table.records):
+            raise ValueError('Formal M2 table contains no admitted beneficial records')
+        cfg.model.m2_config.cost_table = path
+        write(dest/'m2_cost_binding.json', dict(path=str(Path(path).resolve()), sha256=sha256(path),
+            kind='candidate' if candidate else 'formal', records=len(table.records)))
+    return cfg
+
+
 def load_model(cfg, checkpoint, dest):
     from mmdet3d.models import build_model
     from mmcv.runner import wrap_fp16_model
@@ -160,10 +202,11 @@ def run(args):
     write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if k.startswith(('worldstream/m1/', 'worldstream/m2/'))})
     write(dest/'m1_m2_m3_source_hashes.json', hashes)
     cfg = effective_config(args.condition, args.workload, dest,getattr(args,'m3_strategy',None))
+    configure_m2_evidence(cfg,args,dest)
     if getattr(args,'m3_policy',None):
         cfg.model.m3_config.reuse_policy=args.m3_policy
-        write(dest/'effective_config.json', dict(config=cfg._cfg_dict.to_dict(),
-            note='Benchmark output/workload overrides and frozen policy path; production source config unchanged.'))
+    write(dest/'effective_config.json', dict(config=cfg._cfg_dict.to_dict(),
+        note='Explicit benchmark workload/output/policy overrides; production source config unchanged.'))
     importlib.import_module('projects.mmdet3d_plugin')
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -180,7 +223,8 @@ def run(args):
         checkpoint_sha256=evidence.get('checkpoint', {}).get('sha256') or sha256(args.checkpoint),
         source_manifest='benchmark_source_hashes.json + m1_m2_m3_source_hashes.json',
         source_manifest_sha256=sha256(dest/'m1_m2_m3_source_hashes.json'))
-    model.worldstream_profile = bool(getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None))
+    model.worldstream_profile = bool(getattr(args, 'execution_audit', False) or getattr(args,'m3_strategy',None)
+        or getattr(args,'m2_task_evidence',False) or getattr(args,'m2_profile_evidence',False))
     model.worldstream_capture_m3_inputs=bool(getattr(args,'capture_m3_inputs',False))
     if getattr(args,'offline_wsgrr',None):
         from functools import partial
@@ -218,6 +262,10 @@ def run(args):
             runtime.forward_from_m1=force_frame
         write(dest/'offline_experiment.json',dict(variant=args.offline_wsgrr,budget=args.window_budget,
             production_approvals_added=0,quality_certified=False))
+    m2_evidence = None
+    if getattr(args,'m2_profile_evidence',False):
+        from tools.worldstream_m2.full_model_evidence import FullModelEvidence
+        m2_evidence = FullModelEvidence(model.m2_runtime)
     if args.validate_only:
         write(dest/'status.json', dict(status='COMPLETED', checkpoint_validation='PASS', measured_frames=0))
         return
@@ -285,10 +333,12 @@ def run(args):
     model.save_path = str(dest/'measured_answers')+'/'
     reset(model)
     observer.clear()
+    if m2_evidence is not None: m2_evidence.clear()
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
     previous_scene = None
     for ordinal, info in enumerate(selected):
+        if m2_evidence is not None: m2_evidence.clear()
         seed = (args.seed + int(hashlib.sha256(info['token'].encode()).hexdigest()[:8], 16)) % (2**31)
         random.seed(seed)
         np.random.seed(seed)
@@ -410,7 +460,8 @@ def run(args):
                 decode_ms=detail.get('decode_ms') if detail else
                     native_prefill[-1][1].elapsed_time(observed['end']) if native_prefill else None,
                 reuse_diagnostics=detail)
-            if getattr(args, 'm3_strategy', None):
+            if (getattr(args, 'm3_strategy', None) or getattr(args,'offline_wsgrr',None)
+                    or getattr(args,'m2_cost_table',None) or getattr(args,'m2_task_evidence',False)):
                 call = observer.last_m3_call
                 if native is not None:
                     ids, carriers = native['audit_input_ids'], native['audit_carriers']
@@ -462,6 +513,9 @@ def run(args):
                 atol=1e-5, rtol=1e-5,
                 tolerance_pass=torch.allclose(native, reused, atol=1e-5, rtol=1e-5)))
             torch.cuda.set_rng_state(rng)
+        if m2_evidence is not None:
+            m2_evidence.collect(info['token'])
+            row['m2_evidence_scope']='Extra profiling outside request timing; cumulative GPU peak may include evidence workspace'
         frames.append(row)
         append(dest/'per_frame_metrics.jsonl', row)
         if getattr(args, 'execution_audit', False):
@@ -477,6 +531,8 @@ def run(args):
                   round(row['request_ms'], 2), 'ms', flush=True)
     with (dest/'predictions.pkl').open('wb') as handle:
         pickle.dump(outputs, handle)
+    if m2_evidence is not None:
+        m2_evidence.finish(dest,model.worldstream_audit_identity['checkpoint_sha256'])
     summary = dict(status='COMPLETED', frames=len(frames), questions=len(questions),
         full_validation=full, warmup_frames=warmup_count,
         request_ms=distribution(r['request_ms'] for r in frames),
@@ -521,6 +577,10 @@ def run(args):
     ledger_pass = all(x == 'PASS' for x in summary.get('m1_scene_integrity', {}).values())
     write(dest/'status.json', dict(status='COMPLETED', measured_frames=len(frames),
         full_validation=full, integrity='PASS' if ledger_pass else 'FAIL', official_status=summary['official_status']))
+    if getattr(args,'m2_acceptance',False):
+        from tools.worldstream_m2.production_acceptance import validate_run
+        acceptance=validate_run(dest,dest/'m2_acceptance.json')
+        if acceptance['status']!='PASS': raise RuntimeError('Formal M2 acceptance failed; see m2_acceptance.json')
     if full and getattr(args,'perception_only',False):
         # Release this GPU process before CPU-only official evaluation. This
         # never shortens a reported inference timing or substitutes predictions.
@@ -608,6 +668,12 @@ def main():
     parser.add_argument('--m3-strategy',choices=['native_full','exact_prefix','wsdr_kv'],
         help='Explicit small M3 comparison with unchanged formal M1/M2 and generation; no approvals')
     parser.add_argument('--offline-wsgrr',choices=['A','B','C','D','NoM1Region','NoM1RegionMatched'],help='Explicit unapproved task experiment, B2 only')
+    parser.add_argument('--m2-candidate-cost-table', help='Offline D only: candidate cost identity, never a production approval')
+    parser.add_argument('--m2-cost-table', help='Explicit admitted table for formal B2/B3; uses normal runtime admission')
+    parser.add_argument('--m2-profile-evidence', action='store_true', help='Post-request M2 block/pipeline costs on the actual source snapshot')
+    parser.add_argument('--m2-task-evidence', action='store_true', help='Record input-ID and generation witnesses for paired M2 quality evaluation')
+    parser.add_argument('--m2-assessment-rules', help='Bind predeclared quality/error limits before model execution')
+    parser.add_argument('--m2-acceptance', action='store_true', help='Require actual nonzero reuse through formal B3 admission')
     parser.add_argument('--window-budget',type=int,default=3)
     parser.add_argument('--perception-only',action='store_true',help='Explicit official Detection/Map run with no language questions; no feature counterfactual/audit scorer (done in paired task runs)')
     parser.add_argument('--window-targets',help='D3 per_frame_metrics.jsonl; cardinalities only for the explicit NoM1RegionMatched control')
