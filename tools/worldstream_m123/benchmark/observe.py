@@ -80,6 +80,8 @@ class Observer:
         self.handles = []
         self.last_m3_call = None
         self.capture_inputs = False
+        self.capture_m1_controls = False
+        self.m1_control = None
         if hasattr(model.img_backbone, 'register_forward_pre_hook'):
             # Wrapping forward changes the topology identity that M2 verifies.
             # Read-only hooks retain the original executable graph.
@@ -121,6 +123,7 @@ class Observer:
 
             @wraps(native_commit)
             def commit(frame, outputs, result):
+                if self.capture_m1_controls:self.m1_control.update(frame=frame,outputs=outputs)
                 value = native_commit(frame, outputs, result)
                 # Keep references to immutable observation arrays; copy diagnostic
                 # dictionaries after the full request, outside its measured time.
@@ -181,7 +184,9 @@ class Observer:
         def call(*args, **kwargs):
             label = name
             rng = (torch.get_rng_state(), torch.cuda.get_rng_state()) if generation and self.capture_inputs else None
-            if name=='m3_auto_total':self.last_m3_call=dict(kwargs)
+            if name=='m3_auto_total':
+                self.last_m3_call=dict(kwargs)
+                if self.capture_inputs:self.last_m3_rng=(torch.get_rng_state(),torch.cuda.get_rng_state())
             if window:
                 label = f'm2_window_block_{self.model.m2_runtime.executing_block}'
             if dynamic:
@@ -192,6 +197,8 @@ class Observer:
             start.record()
             tick = perf_counter()
             first_event=len(self.events)
+            if name=='m1_precheck' and self.capture_m1_controls:
+                self.m1_control=dict(state={k:v for k,v in self.model.m1_manager.__dict__.items() if not callable(v)})
             result = original(*args, **kwargs)
             elapsed = (perf_counter()-tick)*1000
             end.record()

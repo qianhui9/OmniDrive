@@ -10,6 +10,8 @@ def metrics(loss):
 def test_relaxed_budget_accepts_previously_rejected_detection_loss():
     assert assess_quality(metrics(.01635492645), quality_budgets())['within_quality_budgets']
     assert not assess_quality(metrics(.01635492645), quality_budgets(.005, .02))['within_quality_budgets']
+    assert assess_quality(metrics(.07097369), quality_budgets())['within_quality_budgets']
+    assert not assess_quality(metrics(.07097369), quality_budgets(.05))['within_quality_budgets']
     vlm_only = metrics(0.)
     vlm_only['Token_F1']['loss'] = .04
     assert assess_quality(vlm_only, quality_budgets())['within_quality_budgets']
@@ -17,11 +19,11 @@ def test_relaxed_budget_accepts_previously_rejected_detection_loss():
 
 
 def test_absolute_inclusive_boundary_and_each_task():
-    assert assess_quality(metrics(.4-.35), quality_budgets())['within_quality_budgets']
+    assert assess_quality(metrics(.4-.3), quality_budgets())['within_quality_budgets']
     assert assess_quality(metrics(-.2), quality_budgets())['within_quality_budgets']
     for key in METRICS:
         values = metrics(0.)
-        values[key]['loss'] = .050001
+        values[key]['loss'] = .100001
         result = assess_quality(values, quality_budgets())
         assert not result['within_quality_budgets']
         assert not result['metric_budget_pass'][key]
@@ -44,7 +46,7 @@ def test_selection_accepts_relaxed_loss_but_rejects_faster_over_budget_candidate
     (tmp_path/'calibration_parameters.json').write_text(json.dumps({'threshold': .97}))
     monkeypatch.setattr(analysis, 'quality_latency_plot', lambda *args: None)
     monkeypatch.setattr(analysis, 'report_rejected_calibration', lambda *args: None)
-    losses = {'cal_age2': .01, 'cal_age3': .04, 'cal_age4': .051}
+    losses = {'cal_age2': .01, 'cal_age3': .08, 'cal_age4': .101}
     durations = {'cal_native': 100., 'cal_age2': 95., 'cal_age3': 80., 'cal_age4': 60.}
     monkeypatch.setattr(analysis, 'compare_quality', lambda root, native, candidate: dict(
         **assess_quality(metrics(losses[candidate]), quality_budgets()),
@@ -56,7 +58,7 @@ def test_selection_accepts_relaxed_loss_but_rejects_faster_over_budget_candidate
     selected = json.loads((tmp_path/'selection.json').read_text())
     assert selected['interval'] == 3
     assert not selected['validation_used']
-    losses.update({name: .051 for name in losses})
+    losses.update({name: .101 for name in losses})
     analysis.calibration(tmp_path)
     assert not (tmp_path/'selection.json').exists()
     assert (tmp_path/'calibration_rejection.json').exists()
@@ -80,7 +82,7 @@ def test_heldout_identity_rejected_before_gpu_execution(tmp_path, monkeypatch, f
     monkeypatch.setattr(benchmark, 'service', lambda *args, **kwargs: called.append(True))
     with pytest.raises(ValueError, match='manifest was modified|excluded previous scene'):
         benchmark.run(argparse.Namespace(root=str(tmp_path), stage='validation',
-            quality_budget=.05, vlm_quality_budget=None, validation_sequence=None))
+            quality_budget=.10, vlm_quality_budget=None, validation_sequence=None))
     assert not called
 
 
@@ -99,7 +101,7 @@ def test_existing_experiment_outputs_are_preserved(tmp_path, monkeypatch, operat
     with pytest.raises(ValueError, match='already exists'):
         if operation == 'calibration':
             benchmark.run(argparse.Namespace(root=str(tmp_path), stage='calibration',
-                quality_budget=.05, vlm_quality_budget=None))
+                quality_budget=.10, vlm_quality_budget=None))
         elif operation == 'service':
             benchmark.service(tmp_path, 'cal_age2', tmp_path/'absent.json')
         else:

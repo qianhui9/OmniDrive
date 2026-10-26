@@ -26,7 +26,7 @@ def compare_quality(root, native, candidate):
     pairs=[dict(frame_id=q['frame_id'],question=q['question'],native_answer=n['answer'],answer=q['answer'],
                 reference=q['reference'],**paired_quality(q['answer'],n['answer'],q['reference'])) for n,q in zip(nq,cq)]
     native_f1=float(np.mean([p['baseline_f1'] for p in pairs]));f1=float(np.mean([p['f1'] for p in pairs]))
-    metrics={key:dict(native=float(b),candidate=float(a),loss=float(b-a)) for key,b,a in (
+    metrics={key:dict(native=float(b),candidate=float(a),loss=float(b-a),relative_loss=float((b-a)/b) if b else None) for key,b,a in (
         ('mAP',base['detection']['mean_ap'],actual['detection']['mean_ap']),
         ('NDS',base['detection']['nd_score'],actual['detection']['nd_score']),
         ('DET_l',base['map']['OpenLane-V2 Score']['DET_l'],actual['map']['OpenLane-V2 Score']['DET_l']),('Token_F1',native_f1,f1))}
@@ -61,6 +61,15 @@ def compare_quality(root, native, candidate):
             mAP_loss=b['detection']['mean_ap']-a['detection']['mean_ap'],
             NDS_loss=b['detection']['nd_score']-a['detection']['nd_score'],
             DET_l_loss=b['map']['OpenLane-V2 Score']['DET_l']-a['map']['OpenLane-V2 Score']['DET_l'])
+        scene_pairs=[p for p in pairs if frame_map[p['frame_id']]['scene_id']==scene]
+        scores={key:(float(nb),float(cb)) for key,nb,cb in (
+            ('mAP',b['detection']['mean_ap'],a['detection']['mean_ap']),
+            ('NDS',b['detection']['nd_score'],a['detection']['nd_score']),
+            ('DET_l',b['map']['OpenLane-V2 Score']['DET_l'],a['map']['OpenLane-V2 Score']['DET_l']),
+            ('Token_F1',np.mean([p['baseline_f1'] for p in scene_pairs]),np.mean([p['f1'] for p in scene_pairs])))}
+        result['per_scene'][scene]['metrics']={key:dict(native=nb,candidate=cb,
+            loss=nb-cb,relative_loss=(nb-cb)/nb if nb else None) for key,(nb,cb) in scores.items()}
+        result['per_scene'][scene]['critical_proxy_regressions']=sum(p['critical_regressions'] for p in scene_pairs)
     write(root/(candidate+'_quality_pairs.json'),pairs)
     return result
 
@@ -162,6 +171,8 @@ def quality_latency_plot(root,points,native):
         ax.margins(x=.15,y=.18)
     fig.suptitle('Development only: interval / H2 drift threshold; red dashed = task loss budget')
     fig.tight_layout();fig.savefig(root/'quality_latency_curve.png',dpi=160);fig.savefig(root/'quality_latency_curve.svg');plt.close(fig)
+    svg=root/'quality_latency_curve.svg'
+    svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines())+'\n')
 
 
 def report_rejected_calibration(root, points):
@@ -322,7 +333,7 @@ def report(root,result,visual,points):
     test_log='tests_gpu_after_budget_guards.log' if (root/'tests_gpu_after_budget_guards.log').exists() else 'tests_gpu_final.log'
     budgets=result['quality_budgets']
     lines=['# OmniDrive WSGRR-AR：放宽精度预算后的实验','',
-        '预算单位为原生分数减去正式分数的**绝对下降**，逐项独立判断，边界包含等号；负值表示改善。允许下降 0.05 相当于 5 个百分点，并非相对下降 5%。预算仅用于离线选择与验收，不参与在线 M2 判定。','',
+        '预算单位为原生分数减去正式分数的**绝对下降**，逐项独立判断，边界包含等号；负值表示改善。允许下降的绝对分数由下方预算记录确定，例如 0.10 表示 10 个百分点，并非相对下降 10%。预算仅用于离线选择与验收，不参与在线 M2 判定。','',
         '四项预算：`'+json.dumps(budgets)+'`。旧结果未被改写；[原配置预算重评](previous_budget_reassessment/reassessment.md) 与本轮新参数实测分别记录。','',
         f"本轮实测固定参数：间隔 {selection['interval']}，最大相机 H2 相对 RMS 漂移阈值 {selection['threshold']:.9f}；前缀预算 3、最大复用年龄 8、checkpoint iter_10548.pth 不变。M1/M3 算法不变；M3 内部 quality_budget=0.02 是原有 KV 策略参数，不作为本次四项任务验收预算。",'',
         '## 开发集校准','',
@@ -374,7 +385,7 @@ def report(root,result,visual,points):
         '历史 WSGRR 闭环任务差：`'+json.dumps(result['quality_vs_historical_wsgrr'])+'`。任务头与 M1 后续状态会传播误差，不能当作同状态残差的因果精度损失。复用年龄、特征差和逐问损失见 visual_error_by_age.json / *_quality_pairs.json。','',
         '## 结论与复现','',
         f"独立精度预算通过：{result['independent_quality_budget_pass']}；完整请求平均加速：{result['complete_service_mean_acceleration']}；本子集同时满足精度和平均时延目标：{result['quality_latency_goal_met']}。三项结论分开记录，预算放宽不等于模型精度提高。",'',
-        '实际正式默认参数：`'+json.dumps(result['formal_default_parameters'])+'`；本轮实验参数覆盖默认值：'+str(result['experimental_parameters_installed_as_default'])+'；当前默认参数在旧独立子集按本轮预算重评通过：'+str(result['formal_default_historical_subset_quality_pass'])+'。独立预算失败时保留原默认参数，不依据独立集再搜索阈值。原参数按 0.05 的旧独立子集重评见 previous_budget_reassessment/。','',
+        '实际正式默认参数：`'+json.dumps(result['formal_default_parameters'])+'`；本轮实验参数覆盖默认值：'+str(result['experimental_parameters_installed_as_default'])+'；当前默认参数在旧独立子集按本轮预算重评通过：'+str(result['formal_default_historical_subset_quality_pass'])+'。独立预算失败时保留原默认参数，不依据独立集再搜索阈值。原参数按本轮预算的旧独立子集重评见 previous_budget_reassessment/。','',
         f'只运行实验服务，未发布外部服务。平均指标达标不认证所有场景/关键问答；独立集不用于继续调参。单一路径执行与 hooks 计数核对见 formal_execution_audit.json；最新 GPU 回归见 {test_log}。保留正常负收益样本。','',
         '本轮不继续使用独立数据调参。后续若研究更稳定的残差条件，需要更丰富的开发场景及另一份未参与调参的独立数据。','',
         '环境见 environment.json、各 worker manifest；命令/退出码见 commands.json。旧输出保留原预算含义，新结果记录本轮预算。','',
@@ -398,6 +409,9 @@ def reassess(root, evidence_root):
             'calibration':{str(age):compare_quality(root,'cal_native','cal_age'+str(age)) for age in (2,3,4)},
             'service':compare_quality(root,'r0_native','r0_formal'),
             'validation':compare_quality(root,'validation_native','validation_formal')}
+    budgets=result['validation']['quality_budgets']
+    result.update(historical_quality_reassessment=True,quality_budgets=budgets,
+        quality_budget=next(iter(budgets.values())) if len(set(budgets.values()))==1 else None)
     old=read(evidence/'final_summary.json')
     result['complete_service_speedup']=old['aggregate']['native']['request_ms']['mean']/old['aggregate']['formal']['request_ms']['mean']
     result['selection_unchanged']=old['selection']
@@ -424,7 +438,7 @@ def reassess(root, evidence_root):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True)
     p.add_argument('--stage',choices=['calibration','final','reassess'],required=True)
-    p.add_argument('--quality-budget',type=float,default=DEFAULT_QUALITY_BUDGET,help='Maximum absolute loss per task metric (default: 0.05)')
+    p.add_argument('--quality-budget',type=float,default=DEFAULT_QUALITY_BUDGET,help='Maximum absolute loss per task metric (default: 0.10)')
     p.add_argument('--vlm-quality-budget',type=float,default=None,help='Legacy reproduction override only')
     p.add_argument('--evidence-root',help='Immutable previous run for retrospective reassessment')
     args=p.parse_args();root=Path(args.root);root.mkdir(parents=True,exist_ok=True)

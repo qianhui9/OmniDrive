@@ -1,0 +1,15 @@
+START cal_native
+Traceback (most recent call last):
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/latency_quality.py", line 107, in <module>
+    a=p.parse_args();{'calibrate':calibrate,'verify':verify,'summarize':summarize}[a.stage](Path(a.root))
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/latency_quality.py", line 31, in calibrate
+    service(root,'cal_native',seq);evaluate(root,'cal_native')
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m2/global_residual_benchmark.py", line 50, in service
+    execute(root,name,args)
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m2/global_residual_benchmark.py", line 28, in execute
+    if result.returncode:raise RuntimeError('Experiment failed: '+record['log'])
+RuntimeError: Experiment failed: outputs/m123_latency_quality_20261027_run01/cal_native.log

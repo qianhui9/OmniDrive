@@ -1,0 +1,18 @@
+{
+  "M2_visual_saved_ms": 276.4067718138298,
+  "M2_service_visual_span_saved_ms": 185.83872339460584,
+  "M1_state_added_ms": 175.1318944669846,
+  "M2_management_added_ms": 17.725135581309182,
+  "M3_prefill_saved_ms": 4.547631369696717,
+  "M3_decode_per_token_ms": 24.783045893702013,
+  "E2E_net_saved_ms": 64.85489958948983,
+  "scopes": {
+    "M2_visual_saved_ms": "Same-snapshot complete visual boundary including M2 management; separate 8-frame control",
+    "M2_service_visual_span_saved_ms": "Same heldout 24-frame three-pair native EVA versus M2 wrapper CUDA spans, includes host gaps and management; not a pure kernel saving",
+    "M1_state_added_ms": "Formal CPU state/adapters; native has no M1",
+    "M2_management_added_ms": "Observed validation + region-scoring host spans only, lower-bound proxy, excludes execution enqueue and publication GPU waits",
+    "M3_prefill_saved_ms": "Native minus formal CUDA spans under free generation; not controlled prefill algorithm speedup",
+    "M3_decode_per_token_ms": "Fixed actual token sequence control",
+    "E2E_net_saved_ms": "Paired full request wall; never sum other fields"
+  }
+}

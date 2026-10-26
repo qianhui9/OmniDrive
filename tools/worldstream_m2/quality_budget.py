@@ -1,7 +1,7 @@
 """Offline task acceptance; these budgets never participate in M2 inference."""
 import math
 
-DEFAULT_QUALITY_BUDGET = 0.05
+DEFAULT_QUALITY_BUDGET = 0.10
 METRICS = ('mAP', 'NDS', 'DET_l', 'Token_F1')
 
 

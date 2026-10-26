@@ -249,3 +249,27 @@ def test_eos_and_stopping(llm, carriers):
     answer, _ = PrefillExecutor(PrefixKVCache(1024**2)).generate(llm, x, eos_token_id=None, max_new_tokens=8,
         stopping_criteria=StoppingCriteriaList([StopAtThree()]))
     assert answer.shape[1] <= 3
+
+
+@pytest.mark.parametrize('mask', [[1, 1, 1], [0, 1, 1], [0, 0, 1], [1, 0, 1]])
+def test_decode_cursor_matches_native_position_ids_and_logits(llm, mask):
+    from worldstream.m3.prefill_executor import GenerationFacade
+    x = expand_input(llm, torch.tensor([[1, 3, 4]]), None,
+                     attention_mask=torch.tensor([mask]))
+    with torch.no_grad():
+        prefill = llm(inputs_embeds=x.embeddings, position_ids=x.position_ids,
+                      attention_mask=x.attention_mask, use_cache=True)
+        facade = GenerationFacade(llm, x, lambda: prefill)
+        facade.first = False
+        ids = torch.tensor([[1, 8]])
+        kv = prefill.past_key_values
+        for _ in range(4):
+            attention = torch.cat((x.attention_mask, torch.ones((1, ids.shape[-1]-1), dtype=x.attention_mask.dtype)), dim=-1)
+            expected = llm.prepare_inputs_for_generation(ids, past_key_values=kv, attention_mask=attention, use_cache=True)
+            actual = facade.prepare_inputs_for_generation(ids, past_key_values=kv, attention_mask=attention)
+            assert torch.equal(actual['input_ids'], expected['input_ids'])
+            assert torch.equal(actual['position_ids'], expected['position_ids'])
+            a, b = llm(**actual), llm(**expected)
+            assert torch.equal(a.logits, b.logits)
+            kv = a.past_key_values
+            ids = torch.cat((ids, a.logits[:, -1].argmax(-1, keepdim=True)), dim=-1)

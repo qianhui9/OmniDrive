@@ -157,3 +157,17 @@ def test_source_digest_binds_array_contents_shape_dtype_and_object_values(config
     anchor.external_tracking['numeric']=array.view(np.float64);assert manager.store.source_digest()!=first
     anchor.external_tracking['numeric']=array
     anchor.external_tracking['objects'][0]['count']=2;assert manager.store.source_digest()!=first
+
+
+def test_source_digest_detects_feature_tensor_replacement_and_mutation(config, make_frame):
+    import torch
+    from worldstream.m1.state_store import StateStore
+    store = StateStore(replace(config, capture_tensors=True, max_tensor_bytes=128))
+    rec = store.put_feature(ComputedFeature('x', 'carrier', (8,), 'float32', 'cpu',
+                                          'branch', torch.ones(8)), make_frame())
+    initial = store.source_digest()
+    rec.tensor[0] += 1
+    mutated = store.source_digest()
+    assert mutated != initial
+    rec.tensor = rec.tensor.clone()
+    assert store.source_digest() != mutated

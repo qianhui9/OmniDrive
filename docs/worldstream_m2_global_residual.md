@@ -30,14 +30,18 @@ Snapshot 的 wrapper 和 transaction diagnostics 仍私有复制。M1 Commit 修
 
 放宽预算后的主实验保存在 `outputs/m2_global_residual_20261026_run03/`；`run02` 保存较激进阈值的失败开发结果，原 `run01` 保留当时预算与结论。新目录下 `previous_budget_reassessment/` 只重评旧预测，不把修改预算当成模型精度或推理速度改善。新参数的校准、独立验证和三轮完整服务使用新的真实推理输出，详见主实验目录的 `experiment_report.md` 和 `refinement_history.md`。
 
-离线允许 Detection mAP、NDS、Lane DET_l、VLM Token F1 各项绝对下降 **≤0.05**，即 `native_score - candidate_score <= 0.05`，不是相对下降 5%。四项分别判断，不允许某项提升抵消另一项超标；数字、空间、运动、安全词法代理退化仍单列。默认值在 `tools/worldstream_m2/quality_budget.py`，实验 CLI 的 `--quality-budget` 默认 0.05，每个输出目录冻结 `quality_budget.json`；同一目录不能切换标准。旧标准可用 `--quality-budget 0.005 --vlm-quality-budget 0.02` 显式回放；复现原阈值时还需传入 `--drift-quantile 0.25`。旧输出中的脚本记录的是当时默认值，跨版本回放需显式传参。
+离线允许 Detection mAP、NDS、Lane DET_l、VLM Token F1 各项绝对下降 **≤0.10**，即 `native_score - candidate_score <= 0.10`，不是相对下降 10%。四项分别判断，不允许某项提升抵消另一项超标；数字、空间、运动、安全词法代理退化仍单列。默认值在 `tools/worldstream_m2/quality_budget.py`，实验 CLI 的 `--quality-budget` 默认 0.10，每个输出目录冻结 `quality_budget.json`；同一目录不能切换标准。上一轮 0.05 标准可用 `--quality-budget 0.05` 显式回放；更早标准可用 `--quality-budget 0.005 --vlm-quality-budget 0.02` 显式回放；复现原阈值时还需传入 `--drift-quantile 0.25`。旧输出中的脚本记录的是当时默认值，跨版本回放需显式传参。
 
 先固定开发场景 age-1 H2 漂移的 75% 分位数比较间隔 2/3/4，三项候选均因精度失败；再按已记录的单次保守校准计划改用 50% 分位数（0.912088305），重测原生和三个间隔。在满足四项预算的候选中按开发集完整请求均值选择，选定间隔 4。单轮均值不能证明统计显著最优。独立场景按预先声明的规则选择，排除开发与旧验证场景；选定参数后只验证一次。任何候选超标都会被保留在曲线中；全部超标时不生成可用的 `selection.json`。三个间隔只用于离线校准，正式运行仍为同一条 M2 路径。
 
 预算不加入在线 Runtime，也不修改 M3 内部 `quality_budget=0.02` 的 KV 策略。最终结果分别记录独立精度预算是否通过、完整请求是否平均加速、两者是否同时满足；精度通过不能代替端到端加速证据。三轮计时来自相同 40 帧的重复测量，其置信区间不作为跨场景保证。
 
-本轮实验间隔 4 在新独立 4 场景上的 mAP 下降 0.070974，超过 0.05；NDS/DET_l 下降为 0.049255/0.014071，Token F1 提高 0.019196。该实验参数不替换正式默认值。`worldstream_m123_auto.py` 和 `M2Config` 均保留间隔 2、阈值 0.772102788；原独立子集的回顾性重评 mAP/NDS 下降为 0.016355/0.014083，按新预算通过。新实验的失败没有通过再次调整独立集来消除。
+历史 run03（当时预算 0.05）实验间隔 4 在独立 4 场景上的 mAP 下降 0.070974，超过 0.05；NDS/DET_l 下降为 0.049255/0.014071，Token F1 提高 0.019196。该实验参数不替换正式默认值。`worldstream_m123_auto.py` 和 `M2Config` 均保留间隔 2、阈值 0.772102788；原独立子集的回顾性重评 mAP/NDS 下降为 0.016355/0.014083，按新预算通过。新实验的失败没有通过再次调整独立集来消除。
 
 `global_suffix_skipped_blocks` 和 `global_suffix_reuse_frames` 在完成对应计算后生成。完整 worker 还通过 Suffix Block 的只读 forward hooks 记录实际调用次数，并逐帧核对计划诊断。Profiler 仅位于实验工具中，正式模块不创建 profiler 或 CUDA Event。
 
 全局更新 CUDA Span 包含漂移判定、锚帧/残差更新与主机提交间隙；Kernel Active 从 trace 的 kernel 事件单次计数。Host enqueue、同步 Wall、CUDA Span、Kernel Active 不混用。端到端结果必须来自完整请求，不能直接用跳过 Block 的比例换算。
+
+本轮 0.10 预算实验、M1 同状态回放及固定 Token 解码控制见 `outputs/m123_latency_quality_20261027_run01/`。历史 run03 的回顾性通过与本轮全新开发/独立验证分开记录；历史输出不覆盖。
+
+本轮新开发集选择间隔 3、阈值 0.9120883047580719；新的独立 4 场景 mAP 绝对下降 0.105005685，超过 0.10，因此不安装该候选。正式参数继续为间隔 2、阈值 0.7721027880907059。其余性能测量继续使用冻结的失败候选，仅作诊断，不能称为通过验收的新主线。

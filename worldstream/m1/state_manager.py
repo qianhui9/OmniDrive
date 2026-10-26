@@ -209,6 +209,7 @@ class WorldStateManager:
         projection_ms = (perf_counter() - projection_start) * 1000
         temporal_times = dict(temporal_correspondence=0.0, visibility_verification=0.0, geometry_support=0.0)
         self.last_evidence = {}
+        gray_cache={cid:{} for cid in frame.cameras}
         if self.config.temporal_visibility or self.config.local_support:
             from .temporal_visibility import build_evidence
 
@@ -226,7 +227,7 @@ class WorldStateManager:
                         anchor_excluded[region_slices(p.region, camera.image.shape)] = True
                         region = p.region
                         excluded[region_slices(region, camera.image.shape)] = True
-                evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config)
+                evidence = build_evidence(self._previous_cameras.get(cid), camera, self.config, gray_cache=gray_cache[cid])
                 return (evidence, excluded, anchor_excluded)
             items = list(frame.cameras.items())
             if self.config.temporal_workers > 1 and len(items) > 1:
@@ -348,7 +349,7 @@ class WorldStateManager:
         if self.config.source_linked_state:
             from .computation_state import build_bundle
             state_start = perf_counter()
-            result.computation_state = build_bundle(self, frame, result, getattr(self, '_validate_observation', True))
+            result.computation_state = build_bundle(self, frame, result, getattr(self, '_validate_observation', True),gray_cache=gray_cache)
             result.diagnostics['timings_ms']['computation_state_build'] = (perf_counter() - state_start) * 1000
             result.diagnostics['timings_ms']['precheck_total'] = (perf_counter() - start) * 1000
         result.diagnostics['timings_ms'].update(dense_flow=sum((e.diagnostics.get('dense_flow_ms', 0.0) for e in self.last_evidence.values())), dense_validation=sum((e.diagnostics.get('dense_validation_ms', 0.0) for e in self.last_evidence.values())))

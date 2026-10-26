@@ -150,7 +150,7 @@ def run(args):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True)
     p.add_argument('--stage',choices=['calibration','service','validation','verify','tests'],required=True)
-    p.add_argument('--quality-budget',type=float,default=DEFAULT_QUALITY_BUDGET,help='Maximum absolute loss per task metric; offline evaluation only (default: 0.05)')
+    p.add_argument('--quality-budget',type=float,default=DEFAULT_QUALITY_BUDGET,help='Maximum absolute loss per task metric; offline evaluation only (default: 0.10)')
     p.add_argument('--vlm-quality-budget',type=float,default=None,help='Legacy reproduction override only')
     p.add_argument('--drift-quantile',type=float,default=.5,help='Development-only H2 drift quantile (default: 0.5)')
     p.add_argument('--drift-source',help='Existing development drift JSONL (never heldout data)')

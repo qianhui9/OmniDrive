@@ -1,0 +1,213 @@
+{
+  "status": "QUALITY_FAIL",
+  "implementation_complete": true,
+  "stable_net_speedup": false,
+  "quality_latency_goal_met": false,
+  "experimental_policy": {
+    "interval": 3,
+    "threshold": 0.9120883047580719,
+    "name": "cal_t0_age3",
+    "validation_used": false,
+    "reason": "All four .10 task budgets must pass; shortlist within 1% of the lowest complete service mean, then minimize worst per-scene candidate/native latency ratio, then mean and age; no heldout retuning",
+    "quality": {
+      "metrics": {
+        "mAP": {
+          "native": 0.3504391983083851,
+          "candidate": 0.3122632176828947,
+          "loss": 0.03817598062549038,
+          "relative_loss": 0.10893752984760474
+        },
+        "NDS": {
+          "native": 0.3627962703863907,
+          "candidate": 0.34213366231679,
+          "loss": 0.020662608069600685,
+          "relative_loss": 0.05695374995887992
+        },
+        "DET_l": {
+          "native": 0.08886159211397171,
+          "candidate": 0.08863038569688797,
+          "loss": 0.00023120641708374023,
+          "relative_loss": 0.0026018711974820407
+        },
+        "Token_F1": {
+          "native": 0.38721196739239483,
+          "candidate": 0.3820442844655656,
+          "loss": 0.005167682926829231,
+          "relative_loss": 0.01334587606274157
+        }
+      },
+      "quality_budgets": {
+        "mAP": 0.1,
+        "NDS": 0.1,
+        "DET_l": 0.1,
+        "Token_F1": 0.1
+      },
+      "metric_budget_pass": {
+        "mAP": true,
+        "NDS": true,
+        "DET_l": true,
+        "Token_F1": true
+      },
+      "within_quality_budgets": true,
+      "budget_units": "absolute score loss: native minus candidate; not relative percent",
+      "historical_wsgrr_matched_questions": 0,
+      "critical_proxy_regressions_vs_native": 0,
+      "new_critical_proxy_regressions_vs_wsgrr": null,
+      "retained_critical_cases": [],
+      "scope": "OFFICIAL EVALUATOR ON DECLARED SUBSET, NOT full-val mAP/NDS/Map Score",
+      "limitations": "Numeric/spatial/motion/safety parsers are lexical proxies, not human semantic judgements",
+      "quality_by_anchor_age": [
+        {
+          "mode": "anchor_update",
+          "age": 0,
+          "questions": 2,
+          "mean_f1_loss": 0.0,
+          "critical_proxy_regressions": 0
+        },
+        {
+          "mode": "anchor_update",
+          "age": 1,
+          "questions": 5,
+          "mean_f1_loss": 0.008536585365853656,
+          "critical_proxy_regressions": 0
+        },
+        {
+          "mode": "anchor_update",
+          "age": 2,
+          "questions": 1,
+          "mean_f1_loss": 0.0,
+          "critical_proxy_regressions": 0
+        },
+        {
+          "mode": "anchor_update",
+          "age": 3,
+          "questions": 2,
+          "mean_f1_loss": 0.0,
+          "critical_proxy_regressions": 0
+        },
+        {
+          "mode": "approx_global_residual_reuse",
+          "age": 1,
+          "questions": 4,
+          "mean_f1_loss": 0.009999999999999995,
+          "critical_proxy_regressions": 0
+        },
+        {
+          "mode": "approx_global_residual_reuse",
+          "age": 2,
+          "questions": 2,
+          "mean_f1_loss": 0.0,
+          "critical_proxy_regressions": 0
+        }
+      ],
+      "native_questions_below_perfect_f1": 16,
+      "per_scene": {
+        "080a52cb8f59489b9cddc7b721808088": {
+          "frames": 8,
+          "global_suffix_reuse_frames": 5,
+          "mAP_loss": 0.08670541463415243,
+          "NDS_loss": 0.05952087462242697,
+          "DET_l_loss": 0.007907412946224213,
+          "metrics": {
+            "mAP": {
+              "native": 0.2836723221766138,
+              "candidate": 0.19696690754246138,
+              "loss": 0.08670541463415243,
+              "relative_loss": 0.30565341718523326
+            },
+            "NDS": {
+              "native": 0.24574990652623666,
+              "candidate": 0.18622903190380968,
+              "loss": 0.05952087462242697,
+              "relative_loss": 0.24220100615205087
+            },
+            "DET_l": {
+              "native": 0.12374109029769897,
+              "candidate": 0.11583367735147476,
+              "loss": 0.007907412946224213,
+              "relative_loss": 0.06390288728829194
+            },
+            "Token_F1": {
+              "native": 0.412497539036518,
+              "candidate": 0.412497539036518,
+              "loss": 0.0,
+              "relative_loss": 0.0
+            }
+          },
+          "critical_proxy_regressions": 0
+        },
+        "0ac05652a4c44374998be876ba5cd6fd": {
+          "frames": 8,
+          "global_suffix_reuse_frames": 1,
+          "mAP_loss": -0.0006269950638238264,
+          "NDS_loss": 0.002508976633322779,
+          "DET_l_loss": -0.005543366074562073,
+          "metrics": {
+            "mAP": {
+              "native": 0.21027663020023862,
+              "candidate": 0.21090362526406245,
+              "loss": -0.0006269950638238264,
+              "relative_loss": -0.0029817629435413833
+            },
+            "NDS": {
+              "native": 0.2259388954925464,
+              "candidate": 0.22342991885922361,
+              "loss": 0.002508976633322779,
+              "relative_loss": 0.011104668932072162
+            },
+            "DET_l": {
+              "native": 0.08271890133619308,
+              "candidate": 0.08826226741075516,
+              "loss": -0.005543366074562073,
+              "relative_loss": -0.0670145031548746
+            },
+            "Token_F1": {
+              "native": 0.3619263957482717,
+              "candidate": 0.35159102989461316,
+              "loss": 0.010335365853658518,
+              "relative_loss": 0.02855654070847877
+            }
+          },
+          "critical_proxy_regressions": 0
+        }
+      }
+    },
+    "worst_scene_latency_ratio": 0.9573942945484553
+  },
+  "deployment_decision": {
+    "candidate_installed": false,
+    "reason": "Independent mAP loss exceeds the frozen 0.10 budget; no heldout retuning",
+    "independent_metrics": {
+      "mAP": {
+        "native": 0.3114775568281936,
+        "candidate": 0.2064718722173033,
+        "loss": 0.10500568461089033,
+        "relative_loss": 0.3371211899829107
+      },
+      "NDS": {
+        "native": 0.34921907210801406,
+        "candidate": 0.2889899309153724,
+        "loss": 0.060229141192641666,
+        "relative_loss": 0.1724680752087122
+      },
+      "DET_l": {
+        "native": 0.07460284233093262,
+        "candidate": 0.05711844190955162,
+        "loss": 0.017484400421380997,
+        "relative_loss": 0.23436641118607127
+      },
+      "Token_F1": {
+        "native": 0.44531348905464435,
+        "candidate": 0.44655236144116506,
+        "loss": -0.0012388723865207063,
+        "relative_loss": -0.002782023039882999
+      }
+    },
+    "candidate_interval": 3,
+    "candidate_threshold": 0.9120883047580719,
+    "retained_formal_interval": 2,
+    "retained_formal_threshold": 0.7721027880907059,
+    "core_optimizations": "M1 complete-state digest / request-local grayscale and M3 equivalent decode position computation; separately verified",
+    "performance_runs": "Same rejected candidate retained for all three diagnostic timing pairs"
+  }
+}

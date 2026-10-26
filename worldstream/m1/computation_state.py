@@ -26,7 +26,7 @@ def validity_lease(source_timestamp, observed_timestamp, now, horizon, compatibl
         reason = 'source_expired'
     return ValidityLease(observed_timestamp, observed_timestamp, horizon, reason is None, reason)
 
-def build_bundle(manager, frame, result, validate_observation=True):
+def build_bundle(manager, frame, result, validate_observation=True, gray_cache=None):
     bundle = ComputationStateBundle(frame.scene_id, frame.frame_id, frame.timestamp, manager.store.generation, frame.execution_signature)
     receipt = manager._computation_receipt or {}
     cache = receipt.get('cache_context') or {}
@@ -125,8 +125,9 @@ def build_bundle(manager, frame, result, validate_observation=True):
                 if len(source):
                     values = []
                     from .temporal_visibility import gray_image
-                    old_gray = gray_image(old).astype(np.float32) / 255.0
-                    current_gray = gray_image(camera).astype(np.float32) / 255.0
+                    cached=(gray_cache or {}).get(cid,{})
+                    old_gray = (cached["previous"] if "previous" in cached else gray_image(old)).astype(np.float32) / 255.0
+                    current_gray = (cached["current"] if "current" in cached else gray_image(camera)).astype(np.float32) / 255.0
                     for offset in range(0, len(source), 16384):
                         (p, q) = (source[offset:offset + 16384], target[offset:offset + 16384])
                         old_rgb = cv2.remap(old_gray, p[:, 0].reshape(-1, 1), p[:, 1].reshape(-1, 1), cv2.INTER_LINEAR)[:, 0]

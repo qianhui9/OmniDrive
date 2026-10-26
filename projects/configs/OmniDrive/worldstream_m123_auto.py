@@ -1,8 +1,8 @@
 """World-referenced stateful VLM serving: the only M1/M2/M3 route."""
-# Offline task acceptance allows absolute loss <= 0.05 for each task metric.
-# AR4 / drift 0.912088305 failed fresh heldout mAP, so retain AR2 / 0.772102788.
-# The retained parameters pass the previous independent subset under this budget.
-# See outputs/m2_global_residual_20261026_run03/experiment_report.md.
+# Offline task acceptance allows absolute loss <= 0.10 for each task metric.
+# New AR3 / drift 0.912088305 lost mAP 0.105005685 > 0.10 on fresh heldout data.
+# Retain AR2 / 0.772102788; do not tune on the failed independent scenes.
+# See outputs/m123_latency_quality_20261027_run01/experiment_report.md.
 # Aggregate task acceptance and complete service acceleration are separate results.
 _base_ = ['./mask_eva_lane_det_vlm.py']
 model = dict(

@@ -1,0 +1,108 @@
+[
+  {
+    "name": "historical_quality_reassessment",
+    "command": [
+      "taskset",
+      "-c",
+      "0-3,6-31",
+      "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+      "-m",
+      "tools.worldstream_m2.global_residual_analysis",
+      "--root",
+      "outputs/m123_latency_quality_20261027_run01/historical_quality_reassessment",
+      "--stage",
+      "reassess",
+      "--evidence-root",
+      "outputs/m2_global_residual_20261026_run03",
+      "--quality-budget",
+      "0.10"
+    ],
+    "returncode": 0
+  },
+  {
+    "name": "m1_control",
+    "command": [
+      "taskset",
+      "-c",
+      "0-3,6-31",
+      "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+      "-m",
+      "tools.worldstream_m123.latency_controls",
+      "--root",
+      "outputs/m123_latency_quality_20261027_run01",
+      "--stage",
+      "m1"
+    ],
+    "returncode": 0,
+    "log": "outputs/m123_latency_quality_20261027_run01/m1_control.log"
+  },
+  {
+    "name": "decode_control",
+    "command": [
+      "taskset",
+      "-c",
+      "0-3,6-31",
+      "env",
+      "OMP_NUM_THREADS=1",
+      "OPENBLAS_NUM_THREADS=1",
+      "MKL_NUM_THREADS=1",
+      "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+      "-m",
+      "tools.worldstream_m123.latency_controls",
+      "--root",
+      "outputs/m123_latency_quality_20261027_run01",
+      "--stage",
+      "decode"
+    ],
+    "returncode": 0,
+    "log": "outputs/m123_latency_quality_20261027_run01/decode_control_fixed.log"
+  },
+  {
+    "name": "all_cpu_regression",
+    "command": [
+      "taskset",
+      "-c",
+      "0-3,6-31",
+      "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+      "-m",
+      "pytest",
+      "tests/worldstream_m1",
+      "tests/worldstream_m2",
+      "tests/worldstream_m3",
+      "tests/worldstream_m123",
+      "-q"
+    ],
+    "returncode": 0,
+    "log": "outputs/m123_latency_quality_20261027_run01/tests_all_cpu_final.log"
+  },
+  {
+    "name": "diagnostics_final",
+    "command": [
+      "taskset",
+      "-c",
+      "0-3,6-31",
+      "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+      "-m",
+      "tools.worldstream_m123.latency_diagnostics",
+      "--root",
+      "outputs/m123_latency_quality_20261027_run01"
+    ],
+    "returncode": 0,
+    "log": "outputs/m123_latency_quality_20261027_run01/diagnostics_final.log"
+  },
+  {
+    "name": "report_final",
+    "command": [
+      "taskset",
+      "-c",
+      "0-3,6-31",
+      "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+      "-m",
+      "tools.worldstream_m123.latency_report",
+      "--root",
+      "outputs/m123_latency_quality_20261027_run01"
+    ],
+    "returncode": 0,
+    "log": "outputs/m123_latency_quality_20261027_run01/report_final.log"
+  }
+]

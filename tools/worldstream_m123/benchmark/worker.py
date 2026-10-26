@@ -1,6 +1,7 @@
 """One isolated condition; native model calls, unchanged sampling and admission."""
 import argparse
 import copy
+from contextlib import nullcontext
 import gc
 import hashlib
 import importlib
@@ -194,9 +195,12 @@ def run(args):
     write(dest/'invocation.json', vars(args))
     write(dest/'worker_pid.json', dict(pid=os.getpid()))
     write(dest/'benchmark_source_hashes.json', {str(p): sha256(p) for p in Path('tools/worldstream_m123/benchmark').glob('*.py')})
-    hashes = {str(p):sha256(p) for directory in ('worldstream/m1','worldstream/m2','worldstream/m3') for p in Path(directory).glob('*.py')}
+    # Offline frozen_worker loads before-code packages in a fresh process. Bind
+    # the actual loaded files rather than claiming the checkout's code ran.
+    directories=[Path(os.path.relpath(Path(importlib.import_module('worldstream.'+c).__file__).parent)) for c in ('m1','m2','m3')]
+    hashes = {str(p):sha256(p) for directory in directories for p in directory.glob('*.py')}
     hashes['projects/mmdet3d_plugin/models/detectors/petr3d.py'] = sha256('projects/mmdet3d_plugin/models/detectors/petr3d.py')
-    write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if k.startswith(('worldstream/m1/', 'worldstream/m2/'))})
+    write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if Path(k).parent in directories[:2]})
     write(dest/'m1_m2_m3_source_hashes.json', hashes)
     cfg = effective_config(args.condition, args.workload, dest,getattr(args,'m3_strategy',None))
     configure_m2_evidence(cfg,args,dest)
@@ -296,6 +300,7 @@ def run(args):
         reduction_reason='selected scene has fewer frames than requested' if args.limit > len(selected) else None,
         scene_ids=sorted({i['scene_token'] for i in selected})))
     observer = Observer(model)
+    observer.capture_m1_controls=bool(getattr(args,'capture_m1_controls',False))
     decision_trace = None
     if getattr(args, 'trace_m3_decisions', False):
         from .decision_replay import DecisionTrace
@@ -373,7 +378,9 @@ def run(args):
         model_tick = perf_counter()
         a, b = (torch.cuda.Event(enable_timing=True) for _ in range(2))
         a.record()
-        with torch.no_grad():
+        from .runtime_profile import RuntimeProfile
+        profile_context=RuntimeProfile(dest/'profile_output') if getattr(args,'runtime_profile',False) and ordinal==args.profile_frame else nullcontext()
+        with profile_context, torch.no_grad():
             try:
                 result = model(return_loss=False, rescale=True, **data)
             except BaseException as error:
@@ -488,17 +495,26 @@ def run(args):
         if decision_trace is not None:
             for trace in decision_trace.rows:
                 append(dest/'decision_traces.jsonl', trace)
+        if getattr(args,'capture_m1_controls',False):
+            folder=dest/'m1_controls';folder.mkdir(exist_ok=True)
+            torch.save(observer.m1_control,folder/(info['token']+'.pt'))
         if observer.capture_inputs:
             # Materialize inputs only AFTER measured service time and peak VRAM.
             # Labels/GT are scored separately and never supplied to the planner.
             from worldstream.m3 import CarrierLayout
             calls=[x['captured_input'] for x in observer.native_generations]
+            if not calls:
+                call=observer.last_m3_call
+                if call is None:raise RuntimeError('No executed M3 call to capture')
+                calls=[dict(ids=ids,carriers=call['vision_carriers'],cpu_rng=observer.last_m3_rng[0],
+                    cuda_rng=observer.last_m3_rng[1],generation={k:call[k] for k in ('do_sample','temperature','top_p','num_beams','max_new_tokens','use_cache')}) for ids in call['input_ids_list']]
             if calls[0]['carriers'].shape[1]!=513:raise ValueError('Unexpected real OmniDrive carrier layout')
             state=getattr(model,'m3_verified_state',None)
             if state is None:raise RuntimeError('Capture requires real frozen M1 state')
             folder=dest/'m3_inputs';folder.mkdir(exist_ok=True)
             torch.save(dict(carriers=calls[0]['carriers'].detach().cpu(),
                 ids=[c['ids'].detach().cpu().reshape(-1) for c in calls],
+                generated_ids=[g['output'].detach().cpu() for g in (observer.native_generations or observer.prefill_generations)],
                 rng=[(c['cpu_rng'],c['cuda_rng']) for c in calls],generation=calls[0]['generation'],
                 questions=[a['Q'] for a in result['text_out']],verified_state=state,
                 layout=CarrierLayout(256,1,256),m2=row['m2'],
@@ -665,6 +681,9 @@ def main():
         help='Deterministic offset into the existing labelled Conv/VQA questions; no answer-based filtering')
     parser.add_argument('--question-selection', choices=['ordered','balanced'], default='ordered')
     parser.add_argument('--sequence-file', help='Explicit ordered real sample tokens for paired multi-scene runs')
+    parser.add_argument('--capture-m1-controls',action='store_true',help='Save real committed inputs outside timed requests for identical-state CPU controls')
+    parser.add_argument('--runtime-profile',action='store_true',help='Diagnostic only: sampled cProfile and CUDA trace, not performance evidence')
+    parser.add_argument('--profile-frame',type=int,default=1)
     parser.add_argument('--capture-m3-inputs', action='store_true', help='Capture real native inputs outside service timing for offline calibration')
     parser.add_argument('--trace-m3-decisions', action='store_true',
         help='Read-only candidate statistics for offline signal replay; no embeddings or KV copies')
@@ -690,7 +709,7 @@ def main():
     parser.add_argument('--force-full-frame',action='append',default=[],help='Explicit offline D counterfactual sample token; never a production option')
     args = parser.parse_args()
     if args.question_offset < 0:parser.error('question-offset must be nonnegative')
-    if args.capture_m3_inputs and args.m3_strategy!='native_full':parser.error('Capture requires native_full reference')
+    if args.capture_m3_inputs and args.condition!='B3':parser.error('Capture requires B3 with real M1 state')
     if args.trace_m3_decisions and args.m3_strategy!='wsdr_kv':parser.error('Decision traces require wsdr_kv')
     if args.execution_audit and (args.condition != 'B3' or args.workload != 'language'
             or args.limit < 1 or args.offline_wsgrr or args.perception_only):

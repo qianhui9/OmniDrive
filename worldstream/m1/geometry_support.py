@@ -63,17 +63,16 @@ def measured_patch_support(old_gray, gray, source, target, eligible, config):
 
     def sample(im, grid):
         return cv2.remap(im, grid[..., 0].astype(np.float32), grid[..., 1].astype(np.float32), cv2.INTER_LINEAR)
-    def gray_measurement(gray, derivative=None):
-        image=gray.astype(np.float32)/255.
-        return image if derivative is None else cv2.Sobel(image,cv2.CV_32F,int(derivative==0),int(derivative==1),ksize=3)/8
-    a = sample(gray_measurement(old_gray), source_grid)
-    b = sample(gray_measurement(gray), target_grid)
+    old_float=old_gray.astype(np.float32)/255.
+    current_float=gray.astype(np.float32)/255.
+    a = sample(old_float, source_grid)
+    b = sample(current_float, target_grid)
     offset = np.clip(np.median(b - a, axis=1, keepdims=True), -0.03, 0.03)
     diff = np.abs(b - a - offset)
     gradient_diff = np.zeros_like(diff)
     for axis in (0, 1):
-        g0 = gray_measurement(old_gray, axis)
-        g1 = gray_measurement(gray, axis)
+        g0 = cv2.Sobel(old_float,cv2.CV_32F,int(axis==0),int(axis==1),ksize=3)/8
+        g1 = cv2.Sobel(current_float,cv2.CV_32F,int(axis==0),int(axis==1),ksize=3)/8
         gradient_diff += np.abs(sample(g0, source_grid) - sample(g1, target_grid))
     agree = (diff <= config.support_residual_max) & (gradient_diff <= config.support_gradient_max)
     texture = (a.std(1) >= config.min_texture_std) & (b.std(1) >= config.min_texture_std)

@@ -10,9 +10,10 @@ def gray_image(camera):
     return cv2.cvtColor(image,cv2.COLOR_RGB2GRAY) if image.ndim==3 else image.copy()
 
 
-def build_evidence(previous, current, config):
+def build_evidence(previous, current, config, gray_cache=None):
     start = perf_counter()
     gray = gray_image(current)
+    if gray_cache is not None:gray_cache["current"]=gray
     (h, w) = gray.shape
     points = np.empty((0, 2), np.float32)
     evidence = OnlineVisibilityEvidence(current.camera_id, previous.timestamp if previous else float('nan'), current.timestamp, points, points.copy(), np.empty(0), np.empty(0, bool), np.empty(0, bool), np.empty(0, bool), np.empty(0), np.zeros((h, w), bool), np.zeros((h, w), bool))
@@ -25,6 +26,7 @@ def build_evidence(previous, current, config):
         d['reason'] = 'incompatible_history'
         return evidence
     old_gray = gray_image(previous)
+    if gray_cache is not None:gray_cache["previous"]=old_gray
     p0 = cv2.goodFeaturesToTrack(old_gray, maxCorners=config.flow_max_points, qualityLevel=0.01, minDistance=config.flow_min_distance_px, blockSize=5)
     if p0 is None:
         p0 = np.empty((0, 1, 2), np.float32)

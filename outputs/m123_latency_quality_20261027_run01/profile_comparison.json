@@ -1,0 +1,508 @@
+{
+  "before_profile": {
+    "original_name_group_summary": {
+      "source_digest": {
+        "calls": 4,
+        "cumulative_ms": 29.499921
+      },
+      "_history_digest": {
+        "calls": 3,
+        "cumulative_ms": 3.552474
+      },
+      "frame_digest": {
+        "calls": 2,
+        "cumulative_ms": 18.575206
+      },
+      "fork": {
+        "calls": 2,
+        "cumulative_ms": 5.054353
+      },
+      "freeze": {
+        "calls": 5996,
+        "cumulative_ms": 3.5173780000000003
+      },
+      "export_m2_inputs": {
+        "calls": 1,
+        "cumulative_ms": 10.866649
+      },
+      "_precheck": {
+        "calls": 1,
+        "cumulative_ms": 119.31162300000001
+      },
+      "_commit": {
+        "calls": 1,
+        "cumulative_ms": 26.895047
+      },
+      "deepcopy": {
+        "calls": 28557,
+        "cumulative_ms": 18.217798000000002
+      },
+      "prepare_inputs_for_generation": {
+        "calls": 58,
+        "cumulative_ms": 3.057678
+      }
+    },
+    "concrete_functions": [
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_store.py",
+        "line": 66,
+        "name": "source_digest",
+        "calls": 4,
+        "self_ms": 0.323999,
+        "cumulative_ms": 29.499921
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_store.py",
+        "line": 33,
+        "name": "fork",
+        "calls": 2,
+        "self_ms": 0.11343600000000001,
+        "cumulative_ms": 5.054353
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/readonly_snapshot.py",
+        "line": 29,
+        "name": "freeze",
+        "calls": 5996,
+        "self_ms": 1.996733,
+        "cumulative_ms": 3.5173780000000003
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_manager.py",
+        "line": 160,
+        "name": "_history_digest",
+        "calls": 3,
+        "self_ms": 0.023395000000000003,
+        "cumulative_ms": 3.552474
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_manager.py",
+        "line": 424,
+        "name": "_commit",
+        "calls": 1,
+        "self_ms": 0.5419740000000001,
+        "cumulative_ms": 26.895047
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_manager.py",
+        "line": 561,
+        "name": "export_m2_inputs",
+        "calls": 1,
+        "self_ms": 0.033969,
+        "cumulative_ms": 10.866649
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_manager.py",
+        "line": 177,
+        "name": "_precheck",
+        "calls": 1,
+        "self_ms": 1.406946,
+        "cumulative_ms": 119.31162300000001
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/input_contract.py",
+        "line": 25,
+        "name": "frame_digest",
+        "calls": 2,
+        "self_ms": 0.07284800000000001,
+        "cumulative_ms": 18.575206
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/projects/mmdet3d_plugin/models/dense_heads/llava_llama.py",
+        "line": 212,
+        "name": "prepare_inputs_for_generation",
+        "calls": 19,
+        "self_ms": 0.0417,
+        "cumulative_ms": 1.016727
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/transformers/models/llama/modeling_llama.py",
+        "line": 852,
+        "name": "prepare_inputs_for_generation",
+        "calls": 19,
+        "self_ms": 0.48680200000000007,
+        "cumulative_ms": 0.9705800000000001
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/prefill_executor.py",
+        "line": 38,
+        "name": "prepare_inputs_for_generation",
+        "calls": 20,
+        "self_ms": 0.036865,
+        "cumulative_ms": 1.0703710000000002
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/copy.py",
+        "line": 128,
+        "name": "deepcopy",
+        "calls": 28557,
+        "self_ms": 9.301126,
+        "cumulative_ms": 18.217798000000002
+      }
+    ],
+    "generation_and_sync_functions": [
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<built-in method torch._C._cuda_synchronize>",
+        "calls": 1,
+        "self_ms": 0.012827000000000002,
+        "cumulative_ms": 0.012827000000000002
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<built-in method torch.multinomial>",
+        "calls": 20,
+        "self_ms": 179.000552,
+        "cumulative_ms": 179.000552
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<method 'cumsum' of 'torch._C._TensorBase' objects>",
+        "calls": 40,
+        "self_ms": 0.652806,
+        "cumulative_ms": 0.652806
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<method 'masked_fill' of 'torch._C._TensorBase' objects>",
+        "calls": 62,
+        "self_ms": 1.1096920000000001,
+        "cumulative_ms": 1.1096920000000001
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<method 'masked_fill_' of 'torch._C._TensorBase' objects>",
+        "calls": 33,
+        "self_ms": 0.24749500000000002,
+        "cumulative_ms": 0.24749500000000002
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/geometry_support.py",
+        "line": 64,
+        "name": "sample",
+        "calls": 36,
+        "self_ms": 0.071135,
+        "cumulative_ms": 7.136814000000001
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/geometry.py",
+        "line": 196,
+        "name": "sample_polyline",
+        "calls": 44,
+        "self_ms": 0.12715,
+        "cumulative_ms": 3.6327350000000003
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/transformers/generation/utils.py",
+        "line": 2453,
+        "name": "sample",
+        "calls": 1,
+        "self_ms": 1.822089,
+        "cumulative_ms": 713.558211
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<built-in method torch._C._nn.upsample_bicubic2d>",
+        "calls": 1,
+        "self_ms": 0.210732,
+        "cumulative_ms": 0.210732
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/torch/cuda/__init__.py",
+        "line": 556,
+        "name": "synchronize",
+        "calls": 1,
+        "self_ms": 0.0040230000000000005,
+        "cumulative_ms": 0.030339
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/numpy/core/fromnumeric.py",
+        "line": 2493,
+        "name": "_cumsum_dispatcher",
+        "calls": 50,
+        "self_ms": 0.004865,
+        "cumulative_ms": 0.004865
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/numpy/core/fromnumeric.py",
+        "line": 2497,
+        "name": "cumsum",
+        "calls": 50,
+        "self_ms": 0.023591,
+        "cumulative_ms": 0.13897
+      },
+      {
+        "file": "<__array_function__ internals>",
+        "line": 177,
+        "name": "cumsum",
+        "calls": 50,
+        "self_ms": 0.017305,
+        "cumulative_ms": 0.178094
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<method 'cumsum' of 'numpy.ndarray' objects>",
+        "calls": 50,
+        "self_ms": 0.083788,
+        "cumulative_ms": 0.083788
+      }
+    ],
+    "warning": "Name-group sums may double count nested wrapper/implementation calls; use concrete_functions"
+  },
+  "after_profile": {
+    "original_name_group_summary": {
+      "source_digest": {
+        "calls": 8,
+        "cumulative_ms": 40.504978
+      },
+      "_history_digest": {
+        "calls": 3,
+        "cumulative_ms": 3.449253
+      },
+      "frame_digest": {
+        "calls": 2,
+        "cumulative_ms": 18.777993
+      },
+      "fork": {
+        "calls": 2,
+        "cumulative_ms": 5.011477
+      },
+      "freeze": {
+        "calls": 5996,
+        "cumulative_ms": 3.516846
+      },
+      "export_m2_inputs": {
+        "calls": 1,
+        "cumulative_ms": 8.474468
+      },
+      "_precheck": {
+        "calls": 1,
+        "cumulative_ms": 111.63239600000001
+      },
+      "_commit": {
+        "calls": 1,
+        "cumulative_ms": 27.614031
+      },
+      "deepcopy": {
+        "calls": 28557,
+        "cumulative_ms": 18.294650000000004
+      },
+      "prepare_inputs_for_generation": {
+        "calls": 20,
+        "cumulative_ms": 0.251502
+      }
+    },
+    "concrete_functions": [
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_store.py",
+        "line": 33,
+        "name": "fork",
+        "calls": 2,
+        "self_ms": 0.116509,
+        "cumulative_ms": 5.011477
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_store.py",
+        "line": 66,
+        "name": "source_digest",
+        "calls": 4,
+        "self_ms": 0.07240100000000001,
+        "cumulative_ms": 20.290296
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/readonly_snapshot.py",
+        "line": 29,
+        "name": "freeze",
+        "calls": 5996,
+        "self_ms": 1.9855319999999999,
+        "cumulative_ms": 3.516846
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/source_digest.py",
+        "line": 26,
+        "name": "source_digest",
+        "calls": 4,
+        "self_ms": 0.079376,
+        "cumulative_ms": 20.214682
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_manager.py",
+        "line": 177,
+        "name": "_precheck",
+        "calls": 1,
+        "self_ms": 1.5029630000000003,
+        "cumulative_ms": 111.63239600000001
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_manager.py",
+        "line": 160,
+        "name": "_history_digest",
+        "calls": 3,
+        "self_ms": 0.017603,
+        "cumulative_ms": 3.449253
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_manager.py",
+        "line": 425,
+        "name": "_commit",
+        "calls": 1,
+        "self_ms": 0.561181,
+        "cumulative_ms": 27.614031
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/state_manager.py",
+        "line": 562,
+        "name": "export_m2_inputs",
+        "calls": 1,
+        "self_ms": 0.012877000000000001,
+        "cumulative_ms": 8.474468
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/input_contract.py",
+        "line": 25,
+        "name": "frame_digest",
+        "calls": 2,
+        "self_ms": 0.07614900000000001,
+        "cumulative_ms": 18.777993
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/prefill_executor.py",
+        "line": 42,
+        "name": "prepare_inputs_for_generation",
+        "calls": 20,
+        "self_ms": 0.242215,
+        "cumulative_ms": 0.251502
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/copy.py",
+        "line": 128,
+        "name": "deepcopy",
+        "calls": 28557,
+        "self_ms": 9.624601,
+        "cumulative_ms": 18.294650000000004
+      }
+    ],
+    "generation_and_sync_functions": [
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<built-in method torch._C._cuda_synchronize>",
+        "calls": 1,
+        "self_ms": 0.011558,
+        "cumulative_ms": 0.011558
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<built-in method torch.multinomial>",
+        "calls": 20,
+        "self_ms": 178.30018,
+        "cumulative_ms": 178.30018
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<method 'cumsum' of 'torch._C._TensorBase' objects>",
+        "calls": 21,
+        "self_ms": 0.35948500000000005,
+        "cumulative_ms": 0.35948500000000005
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<method 'masked_fill' of 'torch._C._TensorBase' objects>",
+        "calls": 62,
+        "self_ms": 1.1365070000000002,
+        "cumulative_ms": 1.1365070000000002
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<method 'masked_fill_' of 'torch._C._TensorBase' objects>",
+        "calls": 14,
+        "self_ms": 0.11686400000000001,
+        "cumulative_ms": 0.11686400000000001
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/geometry_support.py",
+        "line": 64,
+        "name": "sample",
+        "calls": 36,
+        "self_ms": 0.066124,
+        "cumulative_ms": 7.121564
+      },
+      {
+        "file": "/data/qh/phdCode/work4/OmniDrive/worldstream/m1/geometry.py",
+        "line": 196,
+        "name": "sample_polyline",
+        "calls": 44,
+        "self_ms": 0.129247,
+        "cumulative_ms": 3.6609760000000002
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/transformers/generation/utils.py",
+        "line": 2453,
+        "name": "sample",
+        "calls": 1,
+        "self_ms": 1.82897,
+        "cumulative_ms": 710.2501960000001
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<built-in method torch._C._nn.upsample_bicubic2d>",
+        "calls": 1,
+        "self_ms": 0.033987,
+        "cumulative_ms": 0.033987
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/torch/cuda/__init__.py",
+        "line": 556,
+        "name": "synchronize",
+        "calls": 1,
+        "self_ms": 0.004295,
+        "cumulative_ms": 0.027177
+      },
+      {
+        "file": "<__array_function__ internals>",
+        "line": 177,
+        "name": "cumsum",
+        "calls": 50,
+        "self_ms": 0.018201000000000002,
+        "cumulative_ms": 0.181711
+      },
+      {
+        "file": "~",
+        "line": 0,
+        "name": "<method 'cumsum' of 'numpy.ndarray' objects>",
+        "calls": 50,
+        "self_ms": 0.085741,
+        "cumulative_ms": 0.085741
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/numpy/core/fromnumeric.py",
+        "line": 2497,
+        "name": "cumsum",
+        "calls": 50,
+        "self_ms": 0.022846,
+        "cumulative_ms": 0.14359300000000003
+      },
+      {
+        "file": "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/numpy/core/fromnumeric.py",
+        "line": 2493,
+        "name": "_cumsum_dispatcher",
+        "calls": 50,
+        "self_ms": 0.004901,
+        "cumulative_ms": 0.004901
+      }
+    ],
+    "warning": "Name-group sums may double count nested wrapper/implementation calls; use concrete_functions"
+  }
+}
