@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "gpu_regression": {
+    "passed": 536,
+    "log": "tests_gpu_delivery.log",
+    "command": "taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 tests/worldstream_m123 -q",
+    "exit_code": 0
+  },
+  "initial_regression": {
+    "log": "tests_gpu_final.log",
+    "passed": 535,
+    "failed": 1,
+    "reason": "Test reference used (w*v)/s instead of the unchanged original w*(v/s); fixed test arithmetic order only. Initial raw log retained."
+  },
+  "formal_defaults_retained": true,
+  "prior_tracked_outputs_unchanged_from": "c466ded8",
+  "execution_audits_pass": 12,
+  "input_and_perception_repeat_checks_pass": true,
+  "pruning_equivalence_real_frames": 32,
+  "fixed_tokens_actual_forward_history_verified": true,
+  "frozen_m3_policy_unchanged": true,
+  "source_sha256": {
+    "tests/worldstream_m123/test_final_statistics.py": "5d1abd7dcd3cf5227d541ae07319eaefac23caae2cdf31eab0b5d43f12e65a28",
+    "tests/worldstream_m123/test_fixed_tokens.py": "3222f4a6c97c8306cd379b8ff0a7f23635db3257de553c172d34a409b3eb551d",
+    "tests/worldstream_m2/test_anchor_risk.py": "2b7b09bc7b3be85ccf91363f47c91f1f5085510c90e58a873352d3c60ee05297",
+    "tools/worldstream_m123/benchmark/fixed_tokens.py": "87e24623179941a48ac7f696018e5aa015a100c238f03b08cab9bdfefbcdf306",
+    "tools/worldstream_m123/benchmark/risk_equivalence.py": "ed808f6c0d2387635f3b34536d66f8d38e6f64e43db90f8038cdc7a91d630bbd",
+    "tools/worldstream_m123/benchmark/worker.py": "444d3db1ea6a34a2afe53648f082499f09c7a8be7828ae305d19ffb76e951387",
+    "tools/worldstream_m123/final_speed_analysis.py": "b302a2998b60141534e4ed9f7b25f9672896258a427e5493b80a553d718d1d77",
+    "tools/worldstream_m123/final_speed_experiment.py": "4b26ade0b3ad3eb7c3c3d3108761c7270944606741a022dadcb08e08eda2dcf7",
+    "tools/worldstream_m123/final_speed_report.py": "b1d16b356361f1408312d252d80edc694ff10c042e3a90d3f87ce5e81ea1e881",
+    "tools/worldstream_m123/final_speed_reproduce.py": "f9172bd6d45d33609ee72bf96f75acad88dbcc0b748cd6b15886f072ea7840ca",
+    "tools/worldstream_m2/task_quality.py": "42e6ae0b407d1fbfa78a24d303bc55d4f88940938cff53030f8c2ca922747387",
+    "worldstream/m2/anchor_risk.py": "fe3b6aa28a517b51c21143b8a9ae93bd8720e9fe09e54f22dcb659ce20aa2149",
+    "worldstream/m2/config.py": "a6d8f46a4780d7fe8753725eb33fcbf1528371b5543ebed1878a8272d33f214e",
+    "worldstream/m2/global_residual.py": "26695f3ebc405b09e48318c607ba6ba8b7f8c26ec71cda5ef9332d48613272c6"
+  },
+  "local_version_control": {
+    "status": "WORKTREE_SAVED_NO_COMMIT",
+    "reason": "Both original and one permitted retry of Git staging were rejected because automatic permission approval review did not finish before its deadline; neither command executed."
+  }
+}

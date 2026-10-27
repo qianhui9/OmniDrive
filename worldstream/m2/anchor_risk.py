@@ -18,7 +18,7 @@ def world_signal(bundle, refresh, total_windows):
         source='existing_m1_wsgrr_projected_region_events_not_current_detections')
 
 
-def feature_statistics(current, previous, tail_fraction=.10):
+def feature_statistics(current, previous, tail_fraction=.10, *, include_local=True):
     """Shared FP32 delta; one compact D2H read for all camera statistics.
 
     Token changes use the camera anchor RMS as denominator, not individual
@@ -28,8 +28,16 @@ def feature_statistics(current, previous, tail_fraction=.10):
     old=previous.float();delta=current.float()-old
     power=delta.square()
     denom=old.square().flatten(1).mean(1).clamp_min(1e-12)
-    token=(power.mean(-1)/denom[:,None,None]).sqrt().flatten(1)
     global_drift=(power.flatten(1).mean(1)/denom).sqrt()
+    if not include_local:
+        # The deployed RMS/Risk0 configurations have no local contribution.
+        # Keep the identical global reduction; do not build token scores, topk,
+        # hot masks, or a stacked multi-statistic transfer for unused features.
+        values=global_drift.detach().cpu().tolist()
+        if any(not math.isfinite(v) for v in values):
+            raise NonFiniteCacheError('nonfinite_global_risk_statistics')
+        return dict(global_drift=max(values),per_camera_global=values)
+    token=(power.mean(-1)/denom[:,None,None]).sqrt().flatten(1)
     k=max(1,math.ceil(token.shape[1]*tail_fraction))
     tail=token.topk(k,dim=1,sorted=False).values.mean(1)
     hot=(token>1.).float().mean(1)
@@ -41,7 +49,8 @@ def feature_statistics(current, previous, tail_fraction=.10):
 
 
 def risk_score(stats, world_change, age, config):
-    features=(stats['global_drift'],stats['local_tail']*(1.+stats['hot_fraction']),
+    local=stats['local_tail']*(1.+stats['hot_fraction']) if config.needs_local_risk else 0.
+    features=(stats['global_drift'],local,
               world_change,age/config.global_anchor_interval)
     normalized=tuple(v/s for v,s in zip(features,config.global_risk_scales))
     risk=sum(w*v for w,v in zip(config.global_risk_weights,normalized))

@@ -1,0 +1,74 @@
+{
+  "source_commit": "c466ded8",
+  "scenes": [
+    "ed242d80ccb34b139aaf9ab89859332e",
+    "952cb0bcd89b4ca4b904cdcbbf595523",
+    "3a2d9bf6115f40898005d1c1df2b7282",
+    "bd338b912ce9434995b29b6dac9fbf1d",
+    "91f797db8fb34ae5b32ba85eecae47c9",
+    "3dd2be428534403ba150a0b60abc6a0a"
+  ],
+  "frames": 48,
+  "frames_per_scene": 8,
+  "excluded_scenes": [
+    "01452fbfbf4543af8acdfd3e8a1ee806",
+    "01e4fcbe6e49483293ce45727152b36e",
+    "034dee1695304630b0692da8c1f153fc",
+    "04219bfdc9004ba2af16d3079ecc4353",
+    "07aed9dae37340a997535ad99138e243",
+    "080a52cb8f59489b9cddc7b721808088",
+    "0ac05652a4c44374998be876ba5cd6fd",
+    "0dae482684ce4cd69a7258f55bc98d73",
+    "0e7ede02718341558414865d5c604745",
+    "112ca771e318478a88cfa692f61ffcac",
+    "16be583c31a2403caa6c158bb55ae616",
+    "16e50a63b809463099cb4c378fe0641e",
+    "197a7e4d3de84e57af17b3d65fcb3893",
+    "19d97841d6f64eba9f6eb9b6e8c257dc",
+    "1aa633b683174280b243e0a9a7ad9171",
+    "21a7ba093614493b83838b9656b3558d",
+    "2abb3f3517c64446a5768df5665da49d",
+    "2ed0fcbfc214478ca3b3ce013e7723ba",
+    "905cfed4f0fc46679e8df8890cca4141",
+    "bed67ef03c4a4066a74f6c0117d512ee",
+    "c5224b9b454b4ded9b5d2d2634bbda8a",
+    "c92fdd793fbb4401b12782a9b8d4a499",
+    "d29527ec841045d18d04a933e7a0afd2"
+  ],
+  "selection": "All fixed beforehand; no fitting or threshold search. Risk0 and RMS from prior frozen parameters.",
+  "sequence_sha256": "0319995302226c666c89be7b052004d2624da35a8c8d0674e1acddfab1f3d54c",
+  "risk0_sha256": "9246a7900bd940f05aea947982793b85c61d315aed79ca3efd7f767464854aa1",
+  "rms_sha256": "8182724f258d8d7920512f2394875e775de5e1d75253793cce6879f4be212e68",
+  "timing": {
+    "repeats": 3,
+    "orders": [
+      [
+        "native",
+        "rms",
+        "risk0"
+      ],
+      [
+        "risk0",
+        "rms",
+        "native"
+      ],
+      [
+        "rms",
+        "native",
+        "risk0"
+      ]
+    ],
+    "boundaries": [
+      "free_generation_real_preprocessing",
+      "fixed_tokens_real_preprocessing"
+    ],
+    "fixed_reference": "Native free round0 token IDs excluding its single synthetic BOS; all other generated tokens retained, including EOS. Never score forced answers as quality."
+  },
+  "acceptance": "All four native-minus-candidate losses <=.10; positive scene-cluster bootstrap 95% lower CI of fixed-token request savings, all round means positive, all scene means positive, and Risk0 not Pareto-dominated by RMS in four losses vs fixed-token model compute.",
+  "bootstrap": {
+    "unit": "scene, pooling repeated measurements within each scene before resampling",
+    "repetitions": 10000,
+    "seed": 20261027
+  },
+  "m3_policy_budget": 0.02
+}

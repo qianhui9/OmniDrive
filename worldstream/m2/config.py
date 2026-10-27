@@ -26,6 +26,10 @@ class M2Config:
     global_tail_fraction: float = .10
 
     @property
+    def needs_local_risk(self):
+        return self.global_risk_weights[1] != 0
+
+    @property
     def risk_threshold(self):
         # Preserve the previous strictly-greater RMS boundary with the same
         # single >= score comparison. No alternate selector or executor.

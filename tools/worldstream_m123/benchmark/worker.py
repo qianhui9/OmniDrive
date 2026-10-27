@@ -42,6 +42,12 @@ def cpu_result(value):
     return value
 
 
+def image_values(value):
+    if hasattr(value,'data') and not isinstance(value,(torch.Tensor,np.ndarray)):return image_values(value.data)
+    if isinstance(value,(tuple,list)):return [image_values(v) for v in value]
+    return value
+
+
 def effective_config(condition, workload, dest, m3_strategy=None):
     from mmcv import Config
     cfg = Config.fromfile(BASELINE if condition == 'B0' else FINAL)
@@ -306,6 +312,17 @@ def run(args):
         reduction_reason='selected scene has fewer frames than requested' if args.limit > len(selected) else None,
         scene_ids=sorted({i['scene_token'] for i in selected})))
     observer = Observer(model)
+    fixed=None
+    if getattr(args,'fixed_token_reference',None):
+        if args.workload!='language' or getattr(args,'shadow_global_labels',False):
+            raise ValueError('Fixed tokens require a standalone language performance run')
+        from .fixed_tokens import FixedTokenBenchmark
+        fixed=FixedTokenBenchmark(model,args.fixed_token_reference)
+    equivalence=None
+    if getattr(args,'risk_equivalence_reference',None):
+        if model.m2_runtime is None or fixed is not None:raise ValueError('Risk equivalence requires a separate M2 diagnostic run')
+        from .risk_equivalence import AnchorEquivalence
+        equivalence=AnchorEquivalence(model.m2_runtime,observer,args.risk_equivalence_reference,dest)
     observer.capture_m1_controls=bool(getattr(args,'capture_m1_controls',False))
     decision_trace = None
     if getattr(args, 'trace_m3_decisions', False):
@@ -336,10 +353,6 @@ def run(args):
     prepared_samples=None
     if getattr(args,'preload_inputs',False):
         prepared_samples=[dataset[i] for i in range(len(selected))]
-        def image_values(value):
-            if hasattr(value,'data') and not isinstance(value,(torch.Tensor,np.ndarray)):return image_values(value.data)
-            if isinstance(value,(tuple,list)):return [image_values(v) for v in value]
-            return value
         write(dest/'prepared_input_hashes.json',{info['token']:typed_digest(image_values(s['img'])) for info,s in zip(selected,prepared_samples)})
     warmup_count = min(args.warmup, len(selected))
     for ordinal in range(warmup_count):
@@ -350,6 +363,7 @@ def run(args):
             if names:select_named_questions(data,names)
             else:select_question(data, ordinal, args.questions_per_frame, getattr(args, 'question_offset', 0), getattr(args,'question_selection','ordered'))
         if getattr(args,'perception_only',False):clear_questions(data)
+        if fixed is not None:fixed.prepare(selected[ordinal]['token'])
         with torch.no_grad():
             model(return_loss=False, rescale=True, **data)
         torch.cuda.synchronize()
@@ -360,6 +374,7 @@ def run(args):
     reset(model)
     if shadow is not None:shadow.reset()
     observer.clear()
+    if equivalence is not None:equivalence.clear()
     if m2_evidence is not None: m2_evidence.clear()
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
@@ -372,6 +387,8 @@ def run(args):
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         observer.clear()
+        if equivalence is not None:equivalence.clear()
+        if fixed is not None:fixed.prepare(info['token'])
         if shadow is not None:shadow.clear()
         if decision_trace is not None:
             decision_trace.clear()
@@ -430,6 +447,8 @@ def run(args):
             request_ms=(request_end-request_tick)*1000, gpu_stream_span_ms=a.elapsed_time(b),
             input_boundary='preloaded_cpu_tensors' if prepared_samples is not None else 'real_dataset_preprocessing',
             shadow_suffix_labels=shadow is not None,
+            risk_equivalence_diagnostic=equivalence is not None,
+            generation_workload='fixed_reference_tokens' if fixed is not None else 'free_generation',
             stages=stages, native_eva_cameras=observer.backbone_cameras,
             observed_window_attention_batches=dict(observer.window_attention_batches),
             peak_gpu_allocated_bytes=torch.cuda.max_memory_allocated(),
@@ -441,6 +460,9 @@ def run(args):
             output_digest=typed_digest({k: v for k, v in result.items() if k != 'text_out'}),
             timing_scope='Single sequential request: dataset access/preprocess, collate/H2D, model including language and native answer write, CPU result materialization. Audit serialization and counterfactual checks excluded.',
             gpu_scope='CUDA events on default stream; includes host submission gaps, not sum of active kernel durations. Nested stage spans must not be added.')
+        row['input_tensor_digest']=typed_digest(image_values(sample['img']))
+        if fixed is not None:row['fixed_tokens']=fixed.collect(result['text_out'])
+        if equivalence is not None:append(dest/'risk_equivalence.jsonl',equivalence.collect())
         row['identity'] = model.worldstream_audit_identity
         if model.m1_manager is not None:
             # Existing CPU timers; read outside request timing without copying
@@ -473,7 +495,7 @@ def run(args):
             row['observed_global_suffix_skipped_blocks']=len(model.img_backbone.blocks)-len(model.m2_runtime.prefix)-observed_suffix
         gt = ground_truth(info['token'])
         for qi, answer in enumerate(result['text_out']):
-            quality = answer_quality(answer['A'][0], gt.get(answer['Q']))
+            quality = answer_quality(answer['A'][0], gt.get(answer['Q'])) if fixed is None else None
             native = observer.native_generations[qi] if qi < len(observer.native_generations) else None
             observed = native or (observer.prefill_generations[qi] if qi<len(observer.prefill_generations) else None)
             m3_request=(row['m3'] or {}).get('requests',[])
@@ -482,7 +504,8 @@ def run(args):
                 m3_strategy=getattr(args,'m3_strategy',None),
                 measurement_set=args.measurement_set,
                 scene_id=info['scene_token'], frame_id=info['token'], question_index=qi,
-                question=answer['Q'], answer=answer['A'][0], reference=gt.get(answer['Q']), quality=quality,
+                question=answer['Q'], answer=answer['A'][0], reference=gt.get(answer['Q']) if fixed is None else None, quality=quality,
+                generation_workload=row['generation_workload'],quality_valid_for_task_evaluation=fixed is None,
                 task_type=task_type(answer['Q']),
                 native_generation_executed=native is not None,
                 host_generate_call_ms=observed['host_wall_ms'] if observed else None,
@@ -494,6 +517,7 @@ def run(args):
                 reused_prefix_length=detail.get('reused_tokens',0),
                 historical_context_admitted=detail.get('state_retrieval',{}).get('admitted',False),
                 m3_reason=detail.get('prefix_admission') or (row['m3'] or {}).get('reason'))
+            if fixed is not None:fixed.validate_output(qi,answer['Q'],qrow['token_ids'])
             phase_events=observed.get('phase_events',[]) if observed else []
             native_prefill=[(a,b) for label,a,b,_ in phase_events if label=='prefill']
             qrow.update(prefill_ms=detail.get('prefill_ms') if detail else sum(a.elapsed_time(b) for a,b in native_prefill),
@@ -580,6 +604,7 @@ def run(args):
                   round(row['request_ms'], 2), 'ms', flush=True)
     with (dest/'predictions.pkl').open('wb') as handle:
         pickle.dump(outputs, handle)
+    if equivalence is not None:equivalence.finish()
     if m2_evidence is not None:
         m2_evidence.finish(dest,model.worldstream_audit_identity['checkpoint_sha256'])
     summary = dict(status='COMPLETED', frames=len(frames), questions=len(questions),
@@ -700,6 +725,8 @@ def main():
     parser.add_argument('--m2-risk-config',help='Offline fixed risk-parameter JSON; same Global-State Update')
     parser.add_argument('--shadow-global-labels',action='store_true',help='Offline exact suffix labels; exclude entire run from latency evidence')
     parser.add_argument('--preload-inputs',action='store_true',help='Prepare identical CPU input tensors before model-only controls')
+    parser.add_argument('--fixed-token-reference',help='Benchmark only: common Native reference tokens, real HF forwards, no task-quality scoring')
+    parser.add_argument('--risk-equivalence-reference',help='Offline frozen pre-pruning M2 package; extra reference suffixes, no latency claims')
     parser.add_argument('--workload', choices=['planning', 'language'], default='planning')
     parser.add_argument('--checkpoint', default='ckpts/iter_10548.pth')
     parser.add_argument('--limit', type=int, default=0)

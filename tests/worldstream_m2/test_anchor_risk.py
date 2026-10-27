@@ -28,9 +28,37 @@ def test_nonfinite_statistics_raise(value):
 def test_score_is_one_normalized_nonnegative_sum(weights,scales,threshold):
     c=M2Config(global_risk_weights=weights,global_risk_scales=scales,global_risk_threshold=threshold)
     score,f,z=risk_score(dict(global_drift=.5,local_tail=.7,hot_fraction=.2),.3,1,c)
-    assert f==pytest.approx((.5,.84,.3,.5))
+    assert f==pytest.approx((.5,.84 if weights[1] else 0.,.3,.5))
     assert score==pytest.approx(sum(w*v/s for w,v,s in zip(weights,f,scales)))
     assert z==pytest.approx(tuple(v/s for v,s in zip(f,scales)))
+
+
+def test_zero_local_weight_omits_topk_hot_mask_and_stack():
+    current=torch.randn(2,5,7,8);previous=torch.randn_like(current)
+    with torch.autograd.profiler.profile() as profile:
+        stats=feature_statistics(current,previous,include_local=False)
+    names={event.name for event in profile.function_events}
+    assert not names&{'aten::topk','aten::gt','aten::stack'}
+    assert 'local_tail' not in stats and 'hot_fraction' not in stats
+    complete=feature_statistics(current,previous)
+    assert stats['global_drift']==complete['global_drift']
+    assert stats['per_camera_global']==complete['per_camera_global']
+    c=M2Config(global_risk_weights=(.7100524839296866,0,.33434531972575604,0),
+        global_risk_scales=(.9874035567045212,1.9871003338653175,1,2/3))
+    score=risk_score(stats,.6,1,c)[0]
+    # Preserve the original score's normalize-then-weight evaluation order;
+    # (w*v)/s can differ by one Python-float ULP from w*(v/s).
+    legacy=sum(w*(v/s) for w,v,s in zip(c.global_risk_weights,
+        (complete['global_drift'],complete['local_tail']*(1+complete['hot_fraction']),.6,1/2),c.global_risk_scales))
+    assert score==legacy
+    for threshold in (score,math.nextafter(score,math.inf),math.nextafter(score,-math.inf)):
+        assert (score>=threshold)==(legacy>=threshold)
+
+
+@pytest.mark.parametrize('value',[float('nan'),float('inf')])
+def test_light_statistics_still_reject_nonfinite_inputs(value):
+    a=torch.ones(2,2,2,4);b=a.clone();b[0,0,0,0]=value
+    with pytest.raises(NonFiniteCacheError):feature_statistics(b,a,include_local=False)
 
 
 @pytest.mark.parametrize('kw',[dict(global_risk_weights=(0,0,0,0)),dict(global_risk_scales=(1,0,1,1)),dict(global_risk_weights=(-1,0,0,0)),dict(global_risk_threshold=float('nan')),dict(global_tail_fraction=0)])

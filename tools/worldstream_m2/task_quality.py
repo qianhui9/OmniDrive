@@ -62,11 +62,15 @@ def map_metrics(gt,infos,outputs):
 
 
 def evaluate_run(run_dir,output_dir):
+    run_dir,output_dir=Path(run_dir),Path(output_dir)
+    invocation=run_dir/'invocation.json'
+    if invocation.exists() and json.loads(invocation.read_text()).get('fixed_token_reference'):
+        raise ValueError('Forced-token performance runs cannot supply natural task-quality results')
     from mmcv import Config
     from mmdet3d.datasets import build_dataset
     from nuscenes import NuScenes
     import projects.mmdet3d_plugin
-    run_dir,output_dir=Path(run_dir),Path(output_dir);output_dir.mkdir(parents=True,exist_ok=False)
+    output_dir.mkdir(parents=True,exist_ok=False)
     write(output_dir/'status.json',dict(status='RUNNING',prediction_run=str(run_dir.resolve())))
     cfg=Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py');cfg.data.test.test_mode=True
     cfg.data.test.pipeline=[]

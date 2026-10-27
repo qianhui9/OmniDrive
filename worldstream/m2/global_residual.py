@@ -61,7 +61,8 @@ def update_global(x, blocks, prefix, cache, context, signature, config, observer
                 or anchor.residual.dtype != x.dtype or anchor.residual.device != x.device
                 or anchor.publication_version != cache.version):
             raise ValueError('global_anchor_source_mismatch')
-        stats=feature_statistics(x,anchor.h2,config.global_tail_fraction)
+        stats=feature_statistics(x,anchor.h2,config.global_tail_fraction,
+                                 include_local=config.needs_local_risk)
         drift=stats['global_drift']
         risk,features,normalized=risk_score(stats,world,age,config)
         reason = ('m1_full_refresh' if context.get('_global_full_refresh') else
