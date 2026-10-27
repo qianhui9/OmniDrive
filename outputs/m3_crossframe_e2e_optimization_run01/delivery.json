@@ -1,0 +1,36 @@
+{
+  "code_and_results_commit": "894264c28ce7fee3f804d9f02b62d85cc1f244df",
+  "commit_url": "https://github.com/qianhui9/OmniDrive/commit/894264c28ce7fee3f804d9f02b62d85cc1f244df",
+  "base_commit": "169d7e3023165030cabf962c12311f7c2cdf5480",
+  "branch": "m3-crossframe-e2e-20261027",
+  "experiment_directory": "/data/qh/phdCode/work4/OmniDrive/outputs/m3_crossframe_e2e_optimization_run01",
+  "checkpoint": "ckpts/iter_10548.pth",
+  "checkpoint_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+  "python": "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "gpu_regressions": "579 passed, 23 warnings; regression_tests_r3.log",
+  "independent_acceptance_scenes": 6,
+  "frames_per_scene": 6,
+  "measured_service_runs": 36,
+  "formal_policy_changed": false,
+  "cross_frame_acceptance_pass": false,
+  "complete_service_acceptance_pass": false,
+  "required_reports": [
+    "experiment_report.md",
+    "quality_report.md",
+    "performance_report.md",
+    "deployment_decision.json",
+    "REPRODUCE.md"
+  ],
+  "changed_core_functions": [
+    "ReusePlanner.plan",
+    "Scheduler.approximate_statistics_rejection",
+    "prefix_statistics",
+    "visual_block_spans",
+    "M3Runtime.generate (diagnostic provenance only)",
+    "fit_policy (offline calibration)"
+  ],
+  "large_local_artifact_index": "raw_artifacts_sha256.json",
+  "external_resources_index": "external_resources_sha256.json",
+  "note": "This commit records the measured implementation and results. A following metadata-only commit records its immutable identity; no model or policy changes are added."
+}

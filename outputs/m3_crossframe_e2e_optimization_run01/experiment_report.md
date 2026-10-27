@@ -80,3 +80,5 @@ Across 20 actual development cross-frame comparisons, strict LCP lengths are {35
 
 ## Validation history
 Final GPU regression log is named by `regression_test_result.json`. Initial newly added test-fixture failures (CPU/CUDA device placement and a missing fixture field) remain in the earlier regression logs. The actual-checkpoint planner audit passed all 72 requests. Calibration semantic failures remain separate from passing automatic proxy scores.
+
+Implementation and measured-evidence commit: `894264c28ce7fee3f804d9f02b62d85cc1f244df` (see `delivery.json`). Later delivery metadata does not change model execution or the retained formal policy.
