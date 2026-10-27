@@ -1,0 +1,66 @@
+{
+  "scope": "Direct comparison with unchanged real reference annotation; separate from automatic lexical/numeric/spatial proxies.",
+  "historical_failure_preserved": {
+    "path": "outputs/m3_reuse_recovery_20261027_run01/semantic_failure_review.json",
+    "sha256": "5482c6e6b73437ce4f66bb26894cb1df49779443c4f3963cfc4205051cec0003"
+  },
+  "failures": [
+    {
+      "frame_id": "f38ef51177c84c2a9fa32584b79e601e",
+      "scene_id": "201b7c65a61f4bc1a2333ea90ba9a932",
+      "question": "Is there a designated pedestrian crossing area nearby?",
+      "reference": "Yes, there is a crosswalk to the right-front of the vehicle, indicated by white lines on the road, though there are currently no pedestrians crossing it.",
+      "baseline_answer": "Yes, there is a pedestrian crossing area to the left of the vehicle, where a group of people is waiting to cross.",
+      "answer": "Yes, there is a pedestrian crossing area to the right, where people are currently crossing.",
+      "f1_loss": -0.0680272108843537,
+      "automatic_critical_regressions": 0,
+      "manual_critical_regressions": 1,
+      "reason": "New assertion that pedestrians are currently crossing contradicts reference: there are currently no pedestrians crossing. Baseline waiting-to-cross differs from candidate crossing; lexical F1 improvement does not offset the new motion assertion.",
+      "action": "Reject approximate object rule; no new formal admission. Independent cross-frame validation is also absent.",
+      "reuse_tokens": 163,
+      "risk": 0.8973293006420135,
+      "world_signals": {
+        "m1_state_valid": true,
+        "m2_context_valid": true,
+        "m2_refresh_ratio": 1.0,
+        "m2_cache_age_frames": 0,
+        "m2_full_refresh_reasons": [],
+        "m2_mapping_available": false,
+        "m2_mapping_reason": "m2_region_mapping_unavailable"
+      },
+      "images": {
+        "CAM_FRONT": {
+          "path": "./data/nuscenes/samples/CAM_FRONT/n015-2018-07-11-11-54-16+0800__CAM_FRONT__1531281908762460.jpg",
+          "sha256": "1ab9db58c712ed79e659e703b85d98e92134fb672d1f1636c6abc141bfa5226f"
+        },
+        "CAM_FRONT_RIGHT": {
+          "path": "./data/nuscenes/samples/CAM_FRONT_RIGHT/n015-2018-07-11-11-54-16+0800__CAM_FRONT_RIGHT__1531281908770339.jpg",
+          "sha256": "e8582be21e773782517a8ed88a5013f42ab6cf90fb723148501b4b481b030600"
+        },
+        "CAM_FRONT_LEFT": {
+          "path": "./data/nuscenes/samples/CAM_FRONT_LEFT/n015-2018-07-11-11-54-16+0800__CAM_FRONT_LEFT__1531281908754844.jpg",
+          "sha256": "667ac2937d4b0c158bc6c179c64e0c28b0a1ffe7a196d3d1db5e9e2ead23f1a0"
+        },
+        "CAM_BACK": {
+          "path": "./data/nuscenes/samples/CAM_BACK/n015-2018-07-11-11-54-16+0800__CAM_BACK__1531281908787525.jpg",
+          "sha256": "313e80f91ee5d460100d033e3a24745c50c73dac9c0ea4e0399001110d596668"
+        },
+        "CAM_BACK_LEFT": {
+          "path": "./data/nuscenes/samples/CAM_BACK_LEFT/n015-2018-07-11-11-54-16+0800__CAM_BACK_LEFT__1531281908797423.jpg",
+          "sha256": "6e586b8366d2f7b73f2f05a4d7e32cfd46c0c8d33c3889dcbcdef0e17039bad9"
+        },
+        "CAM_BACK_RIGHT": {
+          "path": "./data/nuscenes/samples/CAM_BACK_RIGHT/n015-2018-07-11-11-54-16+0800__CAM_BACK_RIGHT__1531281908777893.jpg",
+          "sha256": "76825b9d808beb5215ffa8d420d6d5dcb44e600594de498bc06d6aee05f82a01"
+        }
+      }
+    }
+  ],
+  "reviewer": "Codex engineering review of unchanged reference annotation and original front/front-left/front-right images; not independent human semantic certification.",
+  "inspected_cameras": [
+    "CAM_FRONT",
+    "CAM_FRONT_LEFT",
+    "CAM_FRONT_RIGHT"
+  ],
+  "visual_scope": "Nearby groups at the crossing are visible. Static views do not establish the asserted crossing motion; rejection is grounded in the explicit unchanged no-pedestrians-crossing annotation and lack of supporting motion evidence."
+}

@@ -1,0 +1,1421 @@
+diff --git a/.gitignore b/.gitignore
+index 38eeef4d..a2892c65 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -207,3 +207,18 @@ deploy/llm_lib/llm_safetensor*/
+ /outputs/m3_reuse_recovery_20261027_run01/**/*.pt
+ /outputs/m3_reuse_recovery_20261027_run01/**/prefix_before_trace.json
+ /outputs/m3_reuse_recovery_20261027_run01/**/prefix_after_trace.json
++
++# Cross-frame study: raw model tensors and profiler traces remain SHA indexed locally.
++/outputs/m3_crossframe_e2e_optimization_run01/**/*.pt
++/outputs/m3_crossframe_e2e_optimization_run01/**/*.pkl
++/outputs/m3_crossframe_e2e_optimization_run01/**/*.prof
++/outputs/m3_crossframe_e2e_optimization_run01/**/cuda.json
++/outputs/m3_crossframe_e2e_optimization_run01/**/*_trace.json
++/outputs/m3_crossframe_e2e_optimization_run01/**/per_frame_metrics.jsonl
++/outputs/m3_crossframe_e2e_optimization_run01/**/m1_state.jsonl
++/outputs/m3_crossframe_e2e_optimization_run01/**/decision_traces.jsonl
++/outputs/m3_crossframe_e2e_optimization_run01/**/checkpoint_validation.json
++/outputs/m3_crossframe_e2e_optimization_run01/**/answers/
++/outputs/m3_crossframe_e2e_optimization_run01/**/measured_answers/
++/outputs/m3_crossframe_e2e_optimization_run01/**/detection/
++/outputs/m3_crossframe_e2e_optimization_run01/**/detection_matches_2m/
+diff --git a/tests/worldstream_m123/test_crossframe_report.py b/tests/worldstream_m123/test_crossframe_report.py
+new file mode 100644
+index 00000000..e6ab552f
+--- /dev/null
++++ b/tests/worldstream_m123/test_crossframe_report.py
+@@ -0,0 +1,54 @@
++"""Reporting must separate text, visual, same-frame and actual execution."""
++import pytest
++from tools.worldstream_m123.crossframe_report import reuse, traffic_claims
++from tools.worldstream_m123.benchmark.quality_calibration import cross_frame_visual
++
++
++def request(length,source='old',kind='exact'):
++    d=dict(input_tokens=600,effective_prefill_tokens=600-length,forward_prefill_lengths=[600-length],
++        reuse_length=length,reused_tokens=length,cache_source_frame=source,reuse_type=kind,cache_age_frames=1,approx_reuse_depth=int(kind=='bounded_approx'),
++        visual_group_spans=(('object',35,291),('ego',291,292),('map',292,548)),root_frame_index=0,
++        computed_source=['s',source,1.,0],prefix_lineage=[],task_profile='map_relations',estimated_quality_risk=.1)
++    return dict(scene_id='s',frame_id='new',question='Describe the road.',input_tokens=600,
++        reused_prefix_length=length,reuse_diagnostics=d)
++
++
++def test_text35_does_not_become_cross_frame_visual_reuse():
++    r=reuse([request(35)])
++    assert r['actually_reused_kv_tokens']==r['cross_frame_exact_tokens']==35
++    assert r['cross_frame_visual_tokens']==0 and r['cross_frame_requests']==1
++    assert r['cross_frame_evidence'][0]['forward_lengths']==[565]
++
++
++def test_same_frame_inheritance_is_distinct_from_cross_frame_visual_reuse():
++    r=reuse([request(163,kind='bounded_approx'),request(558,source='new',kind='bounded_approx')])
++    assert r['cross_frame_bounded_approx_tokens']==163 and r['cross_frame_visual_tokens']==128
++    assert r['same_frame_inherited_approx_tokens']==558 and r['cross_frame_requests']==1
++    assert r['effective_prefill_tokens']==1200-163-558
++
++
++@pytest.mark.parametrize('fault',['forward','planned','provenance'])
++def test_corrupt_execution_evidence_cannot_produce_successful_report(fault):
++    q=request(163);d=q['reuse_diagnostics']
++    if fault=='forward':d['forward_prefill_lengths']=[600]
++    if fault=='planned':d['reuse_length']=35
++    if fault=='provenance':d.pop('visual_group_spans')
++    with pytest.raises(ValueError):reuse([q])
++
++
++def test_missing_or_same_frame_metadata_cannot_certify_approximate_policy():
++    q=request(163,kind='bounded_approx')
++    row=dict(frame_id='new',diagnostics=q['reuse_diagnostics'])
++    assert cross_frame_visual(row)
++    row['diagnostics']['cache_source_frame']='new'
++    assert not cross_frame_visual(row)
++    row['diagnostics'].pop('cache_source_frame')
++    assert not cross_frame_visual(row)
++    row['diagnostics']['cache_source_frame']='old'
++    row.pop('frame_id')
++    assert not cross_frame_visual(row)
++
++
++def test_traffic_claim_flags_cover_the_historical_failure_without_f1_override():
++    claims=traffic_claims('A double yellow line indicates a no-passing zone and two-way traffic with one lane each way.')
++    assert set(claims)=={'double_yellow','no_passing','two_way','lane_count'}
+diff --git a/tests/worldstream_m3/test_crossframe_bounds.py b/tests/worldstream_m3/test_crossframe_bounds.py
+new file mode 100644
+index 00000000..4523068a
+--- /dev/null
++++ b/tests/worldstream_m3/test_crossframe_bounds.py
+@@ -0,0 +1,87 @@
++"""Optimistic cost pruning preserves causal candidates and real GPU forwards."""
++import pytest
++import torch
++from worldstream.m3 import CarrierLayout, expand_input
++from worldstream.m3.prefix_matcher import prefix_statistics, visual_block_spans
++from .test_wsdr_kv import unit_scheduler, trial, bound
++
++
++@pytest.mark.parametrize('device',['cpu','cuda'])
++@torch.no_grad()
++def test_cap_preserves_full_causal_match_and_measured_blocks(llm,device):
++    if device=='cuda' and not torch.cuda.is_available():pytest.skip('CUDA required')
++    llm=llm.to(device)
++    images=torch.randn(1,81,32,device=device)
++    x=expand_input(llm,torch.tensor([[1,3,-200,4]],device=device),images,
++        carrier_layout=CarrierLayout(48,1,32))
++    y=x.prefix(x.length,clone=True)
++    y.embeddings[:,2:]+=0.01
++    full=prefix_statistics(x,y,16)
++    capped=prefix_statistics(x,y,16,max_visual_tokens=32)
++    assert capped[:2]==full[:2]
++    assert capped[2]==full[2][:2]
++    # Later unchanged map slots cannot bypass the first changed object slot.
++    y.embeddings[:,51:]=x.embeddings[:,51:]
++    assert prefix_statistics(x,y,16,max_visual_tokens=32)[0]==2
++    # Text/position/mask/nonfinite failures beyond the cap remain visible.
++    for name in ('token_ids','position_ids','attention_mask'):
++        z=y.prefix(y.length,clone=True);getattr(z,name)[:,-1]=0
++        assert prefix_statistics(x,z,16,max_visual_tokens=32)[:2]==prefix_statistics(x,z,16)[:2]
++    y.embeddings[:,-1]=float('nan')
++    assert prefix_statistics(x,y,16,max_visual_tokens=32)[:2]==prefix_statistics(x,y,16)[:2]
++
++
++def test_visual_cap_does_not_invent_sub_block_endpoints():
++    from types import SimpleNamespace
++    x=SimpleNamespace(visual_group_spans=(('object',35,291),('ego',291,292),('map',292,548)))
++    assert list(visual_block_spans(x,580,32,31))==[]
++    assert list(visual_block_spans(x,580,32,128))[-1]==('object',131,163)
++    assert [v[2] for v in visual_block_spans(x,580,32,257)][-2:]==[291,292]
++
++
++@pytest.mark.parametrize('fault,expected',[
++    ('length','reuse_tokens_below_range'),('input','input_tokens_out_of_range'),
++    ('age','cache_age_limit'),('depth','approx_depth_limit'),
++    ('quality','critical_regressions'),('binding','reuse_policy_binding_mismatch'),
++    ('cost','nonpositive_net_saving')])
++def test_optimistic_pruning_rejects_only_impossible_cost_quality_ranges(tmp_path,fault,expected):
++    s,ctx=unit_scheduler(tmp_path)
++    e=s.policy['profiles']['full_visual']['approx'];age=1;depth=1
++    if fault=='length':e['cost']['min_reuse_tokens']=80
++    if fault=='input':ctx['input_tokens']=120
++    if fault=='age':age=3
++    if fault=='depth':depth=2
++    if fault=='quality':e['critical_regressions']=1
++    if fault=='binding':ctx['execution_key']='different'
++    if fault=='cost':e['cost']['fixed_overhead_ms']=10000
++    assert s.approximate_statistics_rejection(ctx,[34,66],age,depth)==expected
++
++
++def test_bounds_check_every_endpoint_not_only_the_largest(tmp_path):
++    s,ctx=unit_scheduler(tmp_path)
++    e=s.policy['profiles']['full_visual']['approx'];e['cost']['max_reuse_tokens']=65
++    assert s.approximate_statistics_rejection(ctx,[34,66],1,1) is None
++    assert s.approximate_statistics_rejection(ctx,[],1,1)=='no_visual_block_within_cap'
++
++
++@pytest.mark.parametrize('device',['cpu','cuda'])
++@torch.no_grad()
++def test_optimized_bounded_reuse_has_actual_suffix_forward_and_lineage(llm,carriers,context,device):
++    if device=='cuda' and not torch.cuda.is_available():pytest.skip('CUDA required')
++    llm=llm.to(device);carriers=carriers.to(device)
++    runtime=trial(.1);runtime.planner.calibration_max_visual_tokens=3
++    def execute(images,index):
++        state,ctx=bound(context,index)
++        return runtime.generate(llm,[torch.tensor([1,3,-200,4,5],device=device)],images,
++            context=ctx,layout=CarrierLayout(3,1,5),verified_state=state,
++            questions=['where is the car'],max_new_tokens=3,do_sample=False)
++    execute(carriers,0)
++    _,d=execute(carriers+.001,1)
++    row=d['requests'][0]
++    assert row['reused_tokens']==5 and row['forward_prefill_lengths']==[8]
++    assert row['computed_source'][1]=='f0' and row['suffix_computed_source'][1]=='f1'
++    assert row['approx_reuse_depth']==1 and row['cache_age_frames']==1
++    # Mutating the stored prefix still invalidates all cached computation.
++    runtime.cache.entry.kv[0][0].zero_()
++    _,d=execute(carriers+.002,2)
++    assert d['requests'][0]['reused_tokens']==0 and d['requests'][0]['forward_prefill_lengths']==[13]
+diff --git a/tests/worldstream_m3/test_quality_calibration.py b/tests/worldstream_m3/test_quality_calibration.py
+index 91128920..cad1b598 100644
+--- a/tests/worldstream_m3/test_quality_calibration.py
++++ b/tests/worldstream_m3/test_quality_calibration.py
+@@ -7,9 +7,10 @@ from tools.worldstream_m123.benchmark.quality_calibration import (
+ 
+ 
+ def record(threshold,scene,wall):
+-    return dict(profile='full_visual',threshold=threshold,scene_id=scene,
++    return dict(profile='full_visual',threshold=threshold,scene_id=scene,frame_id=scene+'_target',
+         quality=dict(f1_loss=.001,critical_regressions=0),baseline_wall_ms=100.,candidate_wall_ms=wall,
+         diagnostics=dict(reuse_type='bounded_approx',reused_tokens=64,input_tokens=100,
++            cache_source_frame=scene+'_source',visual_group_spans=(('object',32,80),),
+             planning_ms=1.,prefill_ms=30.,decode_ms=10.,cache_branch_ms=.1))
+ 
+ 
+@@ -33,6 +34,54 @@ def test_missing_independent_scene_is_an_error():
+     with pytest.raises(ValueError):fit_policy([],{},dict(scene_splits={'s':'calibration'}))
+ 
+ 
++def test_same_frame_inherited_kv_cannot_certify_cross_frame_visual_rule():
++    rows=[record(.1,s,50.) for s in ('cal','val') for _ in range(3)]
++    seq=dict(scene_splits={'cal':'calibration','val':'validation'})
++    for r in rows:
++        if r['scene_id']=='val':r['diagnostics']['cache_source_frame']=r['frame_id']
++    policy,_=fit_policy(rows,{},seq)
++    assert 'approx' not in policy['profiles']['full_visual']
++    for r in rows:r['diagnostics']['reused_tokens']=32
++    policy,_=fit_policy(rows,{},seq)
++    assert 'approx' not in policy['profiles']['full_visual']
++
++
++def test_approximate_cost_range_uses_cross_frame_samples_and_quality_keeps_descendants():
++    rows=[record(.1,s,50.) for s in ('cal','val') for _ in range(3)]
++    same=record(.1,'cal',10.);same['diagnostics'].update(cache_source_frame=same['frame_id'],reused_tokens=90)
++    same['quality']['f1_loss']=.3
++    rows.append(same)
++    policy,_=fit_policy(rows,{},dict(scene_splits={'cal':'calibration','val':'validation'}),budget=1.)
++    rule=policy['profiles']['full_visual']['approx']
++    assert rule['cost']['min_reuse_tokens']==rule['cost']['max_reuse_tokens']==64
++    assert rule['cost']['samples']==3 and rule['calibration_samples']==4
++    assert rule['quality_loss_upper']>.02
++
++
++def test_cross_frame_validation_must_cover_the_frozen_calibration_cost_domain():
++    rows=[record(.1,s,50.) for s in ('cal','val') for _ in range(3)]
++    for r in rows:
++        if r['scene_id']=='val':r['diagnostics']['input_tokens']=200
++    policy,_=fit_policy(rows,{},dict(scene_splits={'cal':'calibration','val':'validation'}))
++    assert 'approx' not in policy['profiles']['full_visual']
++
++
++def test_fitted_net_cost_deducts_the_measured_scheduler_overhead_once(tmp_path):
++    import json
++    from worldstream.m3.config import M3Config
++    from worldstream.m3.scheduler import Scheduler
++    rows=[record(.1,s,50.) for s in ('cal','val') for _ in range(3)]
++    for r in rows:r['scheduler_overhead_ms']=10.
++    binding={key:'unit_fixture' for key in ('model_version','weights_sha256','execution_key','generation_key','layout_signature','dtype')}
++    policy,_=fit_policy(rows,binding,dict(scene_splits={'cal':'calibration','val':'validation'}))
++    path=tmp_path/'policy.json';path.write_text(json.dumps(policy))
++    scheduler=Scheduler(M3Config(reuse_policy=str(path)))
++    # The measured paired M3 walls save 50 ms, after 10 ms of online overhead.
++    chosen,_=scheduler.choose([dict(length=64,reuse_type='bounded_approx',risk=.01,rms=0.,max_token=0.,age=1,depth=1)],
++        dict(binding,task_profile='full_visual',input_tokens=100),10.)
++    assert chosen['saved_ms']==pytest.approx(50.)
++
++
+ def test_numeric_metric_checks_values_not_just_counts():
+     assert numeric_values('two cars')==[2.]
+     assert task_metrics('3 cars','2 cars')['numeric_exact'] is False
+diff --git a/tools/worldstream_m123/benchmark/quality_calibration.py b/tools/worldstream_m123/benchmark/quality_calibration.py
+index fda21d41..6282d057 100644
+--- a/tools/worldstream_m123/benchmark/quality_calibration.py
++++ b/tools/worldstream_m123/benchmark/quality_calibration.py
+@@ -84,6 +84,16 @@ def aggregate(rows):
+         reused_tokens=sum(r['diagnostics']['reused_tokens'] for r in rows))
+ 
+ 
++def cross_frame_visual(row):
++    """Require actual cross-frame visual reuse, not inherited same-frame KV."""
++    d=row['diagnostics']
++    source=d.get('cache_source_frame')
++    target=row.get('frame_id')
++    spans=d.get('visual_group_spans') or [(b['group'],b['start'],b['end']) for b in d.get('block_changes',[])]
++    return bool(source and target and source!=target and spans
++        and d['reused_tokens']>min(s[1] for s in spans))
++
++
+ def fit_policy(records, binding, sequence, budget=.02, block_size=32):
+     """Select thresholds using calibration scenes ONLY, then validate once.
+ 
+@@ -118,16 +128,30 @@ def fit_policy(records, binding, sequence, budget=.02, block_size=32):
+             val=[r for r in subset if r.get('split','calibration' if r['scene_id'] in cal_scenes else 'validation')=='validation']
+             loss=quality_upper(cal);heldout_loss=quality_upper(val)
+             if not cal or not val:continue
++            # Historical approximate fits could contain only inherited
++            # same-frame KV (558 tokens) while the cross-frame cap was 163.
++            # Keep all descendants in the quality bound, but require independent
++            # cross-frame visual evidence for the approximate cost range.
++            cost_cal=[r for r in cal if cross_frame_visual(r)] if kind=='bounded_approx' else cal
++            cost_val=[r for r in val if cross_frame_visual(r)] if kind=='bounded_approx' else val
++            if not cost_cal or not cost_val:continue
++            if kind=='bounded_approx':
++                input_range=[min(r['diagnostics']['input_tokens'] for r in cost_cal),max(r['diagnostics']['input_tokens'] for r in cost_cal)]
++                reuse_range=[min(r['diagnostics']['reused_tokens'] for r in cost_cal),max(r['diagnostics']['reused_tokens'] for r in cost_cal)]
++                cost_val=[r for r in cost_val if input_range[0]<=r['diagnostics']['input_tokens']<=input_range[1]
++                    and reuse_range[0]<=r['diagnostics']['reused_tokens']<=reuse_range[1]]
++                if not cost_val:continue
+             # Costs fitted on calibration only; validation remains a check.
+-            lengths=np.array([r['diagnostics']['reused_tokens'] for r in cal],dtype=float)
+-            savings=np.array([r['baseline_wall_ms']-r['candidate_wall_ms']+r['diagnostics']['planning_ms'] for r in cal])
++            lengths=np.array([r['diagnostics']['reused_tokens'] for r in cost_cal],dtype=float)
++            savings=np.array([r['baseline_wall_ms']-r['candidate_wall_ms']+
++                r.get('scheduler_overhead_ms',r['diagnostics']['planning_ms']) for r in cost_cal])
+             if np.ptp(lengths)>=1:
+                 slope,intercept=np.polyfit(lengths,savings,1)
+                 residual=savings-(slope*lengths+intercept)
+                 fixed=max(0.,float(-intercept-np.percentile(residual,20)))
+             else:
+                 slope=float(np.percentile(savings/lengths,20));fixed=0.
+-            n=[r['diagnostics']['input_tokens'] for r in subset]
++            n=[r['diagnostics']['input_tokens'] for r in cost_cal]
+             evidence=dict(risk_limit=chosen,max_rms=2.,max_token_change=2.,
+                 max_visual_tokens=next((r.get('max_visual_tokens') for r in subset),None),
+                 quality_loss_upper=max(loss,heldout_loss),calibration_quality_loss_upper=loss,
+@@ -136,14 +160,19 @@ def fit_policy(records, binding, sequence, budget=.02, block_size=32):
+                 calibration_samples=len(cal),validation_samples=len(val),
+                 cost=dict(net_saved_ms_per_token=float(slope),fixed_overhead_ms=fixed,
+                     min_input_tokens=min(n),max_input_tokens=max(n),
+-                    min_reuse_tokens=min(r['diagnostics']['reused_tokens'] for r in cal),
+-                    max_reuse_tokens=max(r['diagnostics']['reused_tokens'] for r in subset),
+-                    samples=len(cal),cost_scope='paired complete M3 wall incl. match, branch, cache update, prefill and affected decode',
+-                    planning_ms=float(np.mean([r['diagnostics']['planning_ms'] for r in cal])),
+-                    branch_ms=float(np.mean([r['diagnostics'].get('cache_branch_ms',0) or 0 for r in cal])),
+-                    prefill_ms=float(np.mean([r['diagnostics']['prefill_ms'] for r in cal])),
+-                    decode_ms=float(np.mean([r['diagnostics']['decode_ms'] for r in cal])),
+-                    cache_update_enqueue_ms=float(np.mean([r['diagnostics'].get('cache_update_cpu_enqueue_ms',0) for r in cal]))))
++                    min_reuse_tokens=min(r['diagnostics']['reused_tokens'] for r in cost_cal),
++                    max_reuse_tokens=max(r['diagnostics']['reused_tokens'] for r in cost_cal),
++                    samples=len(cost_cal),cross_frame_visual_samples=len(cost_cal) if kind=='bounded_approx' else None,
++                    validation_cross_frame_visual_samples=len(cost_val) if kind=='bounded_approx' else None,
++                    cost_scope='paired complete M3 wall incl. match, branch, cache update, prefill and affected decode',
++                    reference_execution=cost_cal[0].get('cost_reference','legacy native LM head on identical M1/M2 carriers'),
++                    overhead_scope='measured scheduler input preparation/signature plus planning' if all('scheduler_overhead_ms' in r for r in cost_cal)
++                        else 'legacy planning-only evidence; online preparation/signature deduction remains conservative',
++                    planning_ms=float(np.mean([r['diagnostics']['planning_ms'] for r in cost_cal])),
++                    branch_ms=float(np.mean([r['diagnostics'].get('cache_branch_ms',0) or 0 for r in cost_cal])),
++                    prefill_ms=float(np.mean([r['diagnostics']['prefill_ms'] for r in cost_cal])),
++                    decode_ms=float(np.mean([r['diagnostics']['decode_ms'] for r in cost_cal])),
++                    cache_update_enqueue_ms=float(np.mean([r['diagnostics'].get('cache_update_cpu_enqueue_ms',0) for r in cost_cal]))))
+             rule['exact' if kind=='exact' else 'approx']=evidence
+         profiles[profile]=rule
+     return dict(version=POLICY_VERSION,binding=binding,block_size=block_size,quality_budget=budget,
+@@ -214,7 +243,8 @@ def calibrate(args):
+     import projects.mmdet3d_plugin
+     model=load_model(cfg,args.checkpoint,out)
+     observer=Observer(model)
+-    frames=[torch.load(capture/'m3_inputs'/(t+'.pt'),map_location='cpu') for t in sequence['tokens']]
++    from tools.worldstream_m123.latency_controls import load_capture
++    frames=[load_capture(capture/'m3_inputs'/(t+'.pt')) for t in sequence['tokens']]
+     native_rows=[json.loads(x) for x in (capture/'per_question_metrics.jsonl').read_text().splitlines()]
+     native={(r['frame_id'],r['question']):r for r in native_rows}
+     # Thresholds come from natural calibration-scene deltas only, in native dtype.
+@@ -236,6 +266,12 @@ def calibrate(args):
+     runtimes={t:M3Runtime(M3Config(block_size=args.block_size,quality_budget=args.quality_budget)) for t in thresholds}
+     for t,runtime in runtimes.items():runtime.planner=ReusePlanner(runtime.scheduler,calibration_threshold=t,
+         calibration_max_visual_tokens=args.max_visual_tokens)
++    for runtime in runtimes.values():
++        original=runtime.planner.plan
++        def observed_plan(*a,_runtime=runtime,_original=original,**kw):
++            _runtime._calibration_input_overhead_ms=kw.get('overhead_ms',0.)
++            return _original(*a,**kw)
++        runtime.planner.plan=observed_plan
+     records=[];binding=None
+     for ordinal,frame in enumerate(frames):
+         scene=frame['context']['scene_id'];fid=frame['context']['frame_id']
+@@ -268,6 +304,8 @@ def calibrate(args):
+                     split=sequence.get('frame_splits',{}).get(fid,sequence['scene_splits'][scene]),
+                     max_visual_tokens=args.max_visual_tokens,profile=d['task_profile'],question=question,reference=gt.get(question),
+                     threshold=threshold,baseline_wall_ms=baseline_ms,candidate_wall_ms=elapsed,
++                    cost_reference='native LM head on identical M1/M2 carriers',
++                    scheduler_overhead_ms=runtime._calibration_input_overhead_ms+d['planning_ms'],
+                     baseline_answer=baseline,answer=answer,quality=paired_quality(answer,baseline,gt.get(question)),
+                     diagnostics=d,token_ids=output[0].cpu().tolist())
+                 records.append(record)
+diff --git a/tools/worldstream_m123/crossframe_diagnostics.py b/tools/worldstream_m123/crossframe_diagnostics.py
+new file mode 100644
+index 00000000..c5f5b704
+--- /dev/null
++++ b/tools/worldstream_m123/crossframe_diagnostics.py
+@@ -0,0 +1,191 @@
++"""Real captured-input audit and alternating GPU planner microbenchmark.
++
++Extra probes exclude this run from service latency evidence. No synthetic
++embeddings, changed question order, or policy writes are used.
++"""
++import argparse
++from collections import Counter
++from functools import wraps
++from pathlib import Path
++import pstats
++import sys
++from time import perf_counter
++import torch
++
++from tools.worldstream_m123.benchmark.common import write
++from tools.worldstream_m123.benchmark.worker import effective_config, load_model, append
++from tools.worldstream_m123.benchmark.metrics import distribution
++from tools.worldstream_m123.latency_controls import load_capture, before_package
++from tools.worldstream_m2.global_residual_benchmark import read, rows
++from worldstream.m3 import M3Runtime
++from worldstream.m3.prefix_matcher import prefix_statistics
++
++
++@torch.no_grad()
++def run(root):
++    import projects.mmdet3d_plugin
++    dest=root/'paired_diagnostics';dest.mkdir(exist_ok=False)
++    model=load_model(effective_config('B3','language',dest,'wsdr_kv'),'ckpts/iter_10548.pth',dest)
++    old=before_package(root,'m3')
++    old_planner=sys.modules[old.__name__+'.reuse_planner'].ReusePlanner
++    old_scheduler=sys.modules[old.__name__+'.scheduler'].Scheduler
++    old_config=sys.modules[old.__name__+'.config'].M3Config
++    runtime=M3Runtime(dict(reuse_policy=str(root/'frozen_m3_policy.json')))
++    previous=old_planner(old_scheduler(old_config(reuse_policy=str(root/'frozen_m3_policy.json'))))
++    old_statistics=sys.modules[old.__name__+'.prefix_matcher'].prefix_statistics
++    traces={(t['context']['frame_id'],t['question']):t for t in rows(root/'development_diagnostic/decision_traces.jsonl')}
++    micro=[];checks=[];prefixes=[];profiled=set()
++    native_plan=runtime.planner.plan
++    old_choose=previous.scheduler.choose;new_choose=runtime.scheduler.choose
++    @wraps(native_plan)
++    def plan(question,expanded,cache,history,context,m2_diagnostics=None,overhead_ms=0.):
++        trace=traces[(context['frame_id'],question)];overhead=trace.get('overhead_ms',0.)
++        previous.scheduler.choose=lambda cs,ctx,ms:old_choose(cs,ctx,overhead)
++        runtime.scheduler.choose=lambda cs,ctx,ms:new_choose(cs,ctx,overhead)
++        old_decision,old_details=previous.plan(question,expanded,cache,history,context,m2_diagnostics,overhead_ms)
++        new_decision,new_details=native_plan(question,expanded,cache,history,context,m2_diagnostics,overhead_ms)
++        fields=('reuse_length','reuse_type','cache_source_frame','cache_age_frames','approx_reuse_depth',
++            'estimated_quality_risk','root_frame_index','decision_reason')
++        check={k:getattr(old_decision,k)==getattr(new_decision,k) for k in fields}
++        checks.append(dict(frame_id=context['frame_id'],question=question,checks=check))
++        if not all(check.values()):raise ValueError('Pruning changed a fixed-overhead decision')
++        entry=cache.entry
++        if entry is not None and entry.expanded.source[:2]!=expanded.source[:2]:
++            a,b=entry.expanded,expanded
++            exact,legal,blocks=old_statistics(a,b,32)
++            group_stats={}
++            for group,start,stop in b.visual_group_spans:
++                aa=a.embeddings[0,start:stop];bb=b.embeddings[0,start:stop]
++                equal=(aa==bb).all(-1)
++                delta=(aa.float()-bb.float()).square().sum(-1)
++                scale=torch.maximum(aa.float().square().sum(-1),bb.float().square().sum(-1)).clamp_min(1e-12)
++                group_stats[group]=dict(tokens=stop-start,strictly_equal_tokens=int(equal.sum()),
++                    relative_rms=float((delta.sum()/scale.sum()).sqrt()),max_token_change=float((delta/scale).sqrt().max()))
++            prefixes.append(dict(scene_id=context['scene_id'],frame_id=context['frame_id'],question=question,
++                source=list(entry.computed_source),root_frame_index=entry.root_frame_index,
++                exact_prefix=exact,structural_prefix=legal,groups=group_stats,blocks=blocks,
++                world_signals={k:v for k,v in new_details.items() if k.startswith(('m1_','m2_'))},
++                approximate_statistics_rejection=new_details.get('approximate_statistics_rejection'),
++                endpoints={str(size):[x['end'] for x in prefix_statistics(a,b,size)[2]] for size in (16,32,64)}))
++            # At most six distinct real adjacent frame pairs; alternate order.
++            pair=(entry.computed_source[1],context['frame_id'])
++            if pair not in profiled and len(profiled)<6:
++                profiled.add(pair)
++                for repeat in range(7):
++                    for label in (('before','after') if repeat%2==0 else ('after','before')):
++                        torch.cuda.synchronize();start,end=(torch.cuda.Event(enable_timing=True) for _ in range(2))
++                        tick=perf_counter();start.record()
++                        if label=='before':previous.plan(question,expanded,cache,history,context,m2_diagnostics,overhead_ms)
++                        else:native_plan(question,expanded,cache,history,context,m2_diagnostics,overhead_ms)
++                        end.record();torch.cuda.synchronize()
++                        if repeat:micro.append(dict(pair=pair,repeat=repeat,kind=label,wall_ms=(perf_counter()-tick)*1000,cuda_ms=start.elapsed_time(end),
++                            profile=new_details['task_profile'],before_blocks=len(old_details.get('block_changes',[])),after_blocks=len(new_details.get('block_changes',[]))))
++        return new_decision,new_details
++    runtime.planner.plan=plan
++    for token in read(root/'development_sequence.json')['tokens']:
++        frame=load_capture(root/'development_diagnostic/m3_inputs'/(token+'.pt'))
++        # Restore the originally captured generator state at each request.
++        for qi,(ids,question,state) in enumerate(zip(frame['ids'],frame['questions'],frame['rng'])):
++            torch.set_rng_state(state[0]);torch.cuda.set_rng_state(state[1])
++            output,diag=runtime.generate(model.lm_head,[ids.cuda()],frame['carriers'].cuda(),
++                context=dict(frame['context'],profile=True),questions=[question],layout=frame['layout'],
++                verified_state=frame['verified_state'],tokenizer=model.tokenizer,m2_diagnostics=frame['m2'],**frame['generation'])
++            append(dest/'executions.jsonl',dict(frame_id=token,question=question,diagnostics=diag['requests'][0],token_ids=output[0].cpu().tolist()))
++        print('AUDIT',token,flush=True)
++    for name,data in [('prefix_structure.json',prefixes),('planner_equivalence.json',dict(all_passed=True,requests=len(checks),checks=checks)),
++            ('planner_microbenchmark.json',dict(records=micro,pairs=len(profiled),warmup_excluded=True,
++                summary={kind:{key:distribution(x[key] for x in micro if x['kind']==kind) for key in ('wall_ms','cuda_ms')} for kind in ('before','after')},
++                scope='Actual checkpoint embeddings/cache, same frozen cost overhead for decision equivalence; extra probes excluded from E2E'))]:write(root/name,data)
++    f=root/'development_diagnostic/profile_output/cpu.prof'
++    if f.exists():
++        stats=pstats.Stats(str(f)).stats
++        write(root/'cpu_profile_summary.json',sorted([dict(file=k[0],line=k[1],function=k[2],calls=v[1],self_ms=v[2]*1000,cumulative_ms=v[3]*1000) for k,v in stats.items()],key=lambda x:-x['self_ms'])[:150])
++
++
++@torch.no_grad()
++def prefill_control(root):
++    """Limited development-only zero/trial equal-token GPU cost evidence."""
++    import projects.mmdet3d_plugin
++    from worldstream.m3.visual_state import base_model
++    from tools.worldstream_m123.benchmark.fixed_tokens import forced_generation
++    from tools.worldstream_m123.benchmark.m3_recovery import ZeroReuseControl
++    dest=root/'development_fixed_control';dest.mkdir(exist_ok=False)
++    model=load_model(effective_config('B3','language',dest,'native_full'),'ckpts/iter_10548.pth',dest)
++    base=base_model(model.lm_head);original=base.forward;events=[];decode_inputs=[];observed_prefills=[]
++    @wraps(original)
++    def forward(*args,**kwargs):
++        kind='prefill' if kwargs.get('inputs_embeds') is not None else 'decode'
++        if kind=='decode':decode_inputs.append(kwargs['input_ids'].detach())
++        else:
++            kv=kwargs.get('past_key_values');positions=kwargs['position_ids']
++            observed_prefills.append(dict(forward_tokens=kwargs['inputs_embeds'].shape[1],
++                past_tokens=0 if kv is None else kv[0][0].shape[-2],
++                kv_shapes=[] if kv is None else [[list(t.shape) for t in layer] for layer in kv],
++                attention_mask_shape=list(kwargs['attention_mask'].shape),
++                first_position=positions[0,0].detach(),last_position=positions[0,-1].detach()))
++        start,end=(torch.cuda.Event(enable_timing=True) for _ in range(2));start.record()
++        output=original(*args,**kwargs);end.record();events.append((kind,start,end))
++        return output
++    forward._worldstream_read_only_observer=True
++    base.forward=forward
++    sequence=read(root/'development_sequence.json')
++    calibration_tokens={t for scene,part in sequence['scene_splits'].items() if part=='calibration'
++        for t in sequence['continuity'][scene]['sample_tokens']}
++    frames=[load_capture(root/'development_diagnostic/m3_inputs'/(t+'.pt')) for t in sequence['tokens'] if t in calibration_tokens]
++    threshold=max(read(root/'calibration128/thresholds.json')['values']);records=[]
++    for repeat,order in enumerate((('zero','trial'),('trial','zero'),('zero','trial'))):
++        for kind in order:
++            runtime=M3Runtime();runtime.planner.calibration_threshold=threshold;runtime.planner.calibration_max_visual_tokens=128
++            if kind=='zero':ZeroReuseControl(runtime)
++            original_plan=runtime.planner.plan;input_overhead=[]
++            def observe_plan(*a,_original=original_plan,**kw):
++                input_overhead.append(kw.get('overhead_ms',0.))
++                return _original(*a,**kw)
++            runtime.planner.plan=observe_plan
++            for frame in frames:
++                for qi,(ids,question,state,generated) in enumerate(zip(frame['ids'],frame['questions'],frame['rng'],frame['generated_ids'])):
++                    tokens=generated[0,1:].tolist();processor,overrides=forced_generation(tokens)
++                    torch.set_rng_state(state[0]);torch.cuda.set_rng_state(state[1]);events.clear();decode_inputs.clear();observed_prefills.clear();input_overhead.clear()
++                    carriers=frame['carriers'].cuda();ids=ids.cuda();torch.cuda.synchronize();tick=perf_counter()
++                    outputs,diag=runtime.generate(model.lm_head,[ids],carriers,
++                        context=dict(frame['context'],profile=True),questions=[question],layout=frame['layout'],
++                        verified_state=frame['verified_state'],tokenizer=model.tokenizer,m2_diagnostics=frame['m2'],
++                        **dict(frame['generation'],**overrides))
++                    torch.cuda.synchronize();wall=(perf_counter()-tick)*1000;d=diag['requests'][0]
++                    actual=torch.cat([v.reshape(-1) for v in decode_inputs]).cpu().tolist() if decode_inputs else []
++                    if outputs[0][0,1:].cpu().tolist()!=tokens or actual!=tokens[:-1] or processor.calls!=len(tokens):
++                        raise ValueError('Development fixed-token forward history mismatch')
++                    if sum(d['forward_prefill_lengths'])!=d['input_tokens']-d['reused_tokens']:
++                        raise ValueError('Development prefill forward mismatch')
++                    if [v['forward_tokens'] for v in observed_prefills]!=d['forward_prefill_lengths']:
++                        raise ValueError('Observed actual model input shapes disagree with executor')
++                    observed=[dict(v,first_position=int(v['first_position']),last_position=int(v['last_position'])) for v in observed_prefills]
++                    record=dict(repeat=repeat,kind=kind,scene_id=frame['context']['scene_id'],frame_id=frame['context']['frame_id'],
++                        question_index=qi,question=question,reference_steps=len(tokens),actual_decode_forward_calls=len(decode_inputs),
++                        decode_history_equal=True,m3_wall_ms=wall,observed_prefills=observed,
++                        scheduler_overhead_ms=input_overhead[0]+d['planning_ms'],
++                        cost_reference='same M3Runtime/PrefillExecutor with ZeroReuseControl',
++                        **{label+'_cuda_ms':sum(a.elapsed_time(b) for k,a,b in events if k==label) for label in ('prefill','decode')},diagnostics=d)
++                    records.append(record);append(dest/'records.jsonl',record)
++            print('DEVELOPMENT FIXED',repeat,kind,flush=True)
++    paired=[]
++    index={(r['repeat'],r['kind'],r['frame_id'],r['question_index']):r for r in records}
++    for r in records:
++        d=r['diagnostics']
++        if r['kind']!='trial' or not d['reused_tokens'] or d['cache_source_frame']==r['frame_id']:continue
++        zero=index[(r['repeat'],'zero',r['frame_id'],r['question_index'])]
++        paired.append(dict(repeat=r['repeat'],scene_id=r['scene_id'],frame_id=r['frame_id'],question=r['question'],
++            reused_tokens=d['reused_tokens'],visual_tokens=sum(max(0,min(d['reused_tokens'],b)-a) for _,a,b in d['visual_group_spans']),
++            forward_lengths=d['forward_prefill_lengths'],source_frame=d['cache_source_frame'],risk=d['estimated_quality_risk'],
++            **{key+'_saved':zero[key]-r[key] for key in ('prefill_cuda_ms','decode_cuda_ms','m3_wall_ms')}))
++    write(root/'development_fixed_control_summary.json',dict(records=len(records),independent_scenes=2,paired=paired,
++        by_length={str(length):{key:distribution(r[key] for r in paired if r['reused_tokens']==length)
++            for key in ('prefill_cuda_ms_saved','decode_cuda_ms_saved','m3_wall_ms_saved')} for length in sorted({r['reused_tokens'] for r in paired})},
++        scope='Development-only actual checkpoint, original ordered natural questions, common captured free-generated token IDs and identical T-1 actual decode forwards, three alternating rounds. No task quality from forced output and no service/independent acceptance claim. Trial remains rejected on natural semantic/validation evidence.'))
++
++
++if __name__=='__main__':
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);a=p.parse_args()
++    from tools.worldstream_m123.benchmark.gpu_lock import gpu_job_lock
++    from tools.worldstream_m2.global_residual_benchmark import wait_gpu
++    with gpu_job_lock():wait_gpu();run(Path(a.root))
+diff --git a/tools/worldstream_m123/crossframe_e2e.py b/tools/worldstream_m123/crossframe_e2e.py
+new file mode 100644
+index 00000000..29bbad3a
+--- /dev/null
++++ b/tools/worldstream_m123/crossframe_e2e.py
+@@ -0,0 +1,233 @@
++"""Scene-disjoint natural M3 experiments using the existing benchmark worker.
++
++No question rotation, rewritten inputs, alternate runtime, or deployment writes.
++The first labelled questions retain their native Conv/VQA file order.
++"""
++import argparse
++from collections import Counter, defaultdict
++import json
++import os
++from pathlib import Path
++import pickle
++import shutil
++import subprocess
++
++from tools.worldstream_m123.benchmark.common import sha256, write
++from tools.worldstream_m123.benchmark.independent_validation import historical_audit
++from tools.worldstream_m123.benchmark.sequence import validate_sequence
++from tools.worldstream_m123.benchmark.gpu_lock import gpu_job_lock
++from tools.worldstream_m2.global_residual_benchmark import execute, wait_gpu, read, rows, evaluate
++from worldstream.m3.task_conditioner import task_profile
++
++POLICY = Path('outputs/final_route/m3_reuse_policy.json')
++ORDERS = [('native', 'zero', 'reuse'), ('reuse', 'zero', 'native'), ('zero', 'native', 'reuse')]
++
++
++def native_pairs(token):
++    pairs = []
++    for source in ('conv', 'vqa'):
++        path = Path('data/nuscenes')/source/'val'/(token+'.json')
++        if path.exists():
++            pairs.extend(dict(p, source=str(path), source_sha256=sha256(path)) for p in read(path))
++    counts = Counter(p['question'] for p in pairs)
++    # Never silently remove or reorder a duplicated/unlabelled first question.
++    if any(counts[p['question']] != 1 or not p.get('answer') for p in pairs[:3]):
++        return []
++    return pairs
++
++
++def prepare(root):
++    from mmcv import Config
++    if (root/'experiment_plan.json').exists():
++        raise FileExistsError('Preserve frozen plan; use a fresh directory')
++    root.mkdir(parents=True, exist_ok=True)
++    cfg = Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py')
++    infos = pickle.load(open(cfg.data.test.ann_file, 'rb'))['infos']
++    audit_path = root/'historical_data_audit.json'
++    audit = read(audit_path) if audit_path.exists() else historical_audit('outputs', root, infos)
++    write(audit_path, audit)
++    grouped = defaultdict(list)
++    for info in infos:
++        if info['scene_token'] not in audit['excluded_scenes']:
++            grouped[info['scene_token']].append(info)
++    eligible = []
++    for scene, values in sorted(grouped.items()):
++        segment = sorted(values, key=lambda x:x['timestamp'])[:6]
++        if len(segment) < 6 or any(len(native_pairs(i['token'])) < 3 for i in segment):
++            continue
++        validate_sequence(segment, scene)
++        if any(a.get('next') != b['token'] or b.get('prev') != a['token'] for a,b in zip(segment, segment[1:])):
++            continue
++        eligible.append((scene, segment))
++    if len(eligible) < 10:
++        raise ValueError('Need four development and six independent scenes')
++    development, validation = eligible[:4], eligible[4:10]
++    # Cover motion without changing a question or its order. Selection uses
++    # only pre-execution question metadata, never model output or reuse rate.
++    def profiles(scenes):
++        return Counter(task_profile(p['question'])[1] for _,ss in scenes for i in ss for p in native_pairs(i['token'])[:3])
++    if not profiles(validation)['object_ego_motion']:
++        replacement = next((s for s in eligible[10:] if profiles([s])['object_ego_motion']), None)
++        if replacement is None:
++            raise ValueError('No independent natural motion coverage')
++        validation[-1] = replacement
++    evidence = []
++    for name, scenes in [('development', development), ('single', validation), ('multi', validation)]:
++        count = 1 if name == 'single' else 3
++        manifest = dict(tokens=[], questions={}, scene_splits={}, continuity={}, question_selection='first labelled pairs in original Conv then VQA order')
++        for ordinal, (scene, segment) in enumerate(scenes):
++            manifest['scene_splits'][scene] = ('calibration' if ordinal < 2 else 'validation') if name == 'development' else 'independent_acceptance'
++            manifest['continuity'][scene] = validate_sequence(segment, scene)
++            for info in segment:
++                token = info['token']; pairs = native_pairs(token)[:count]
++                manifest['tokens'].append(token)
++                manifest['questions'][token] = [p['question'] for p in pairs]
++                evidence.extend(dict(workload=name, frame_id=token, scene_id=scene, **p) for p in pairs)
++        manifest['profiles'] = dict(Counter(task_profile(q)[1] for qq in manifest['questions'].values() for q in qq))
++        write(root/(name+'_sequence.json'), manifest)
++    write(root/'question_sources.json', evidence)
++    shutil.copy2(POLICY, root/'frozen_m3_policy.json')
++    shutil.copytree('worldstream/m3', root/'before_m3', ignore=shutil.ignore_patterns('__pycache__'))
++    write(root/'experiment_plan.json', dict(initial_commit=subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
++        checkpoint='ckpts/iter_10548.pth', quality_budget=.02,
++        task_quality_budgets=dict(mAP=.1,NDS=.1,DET_l=.1,Token_F1=.1),
++        development_scenes=[s for s,_ in development], acceptance_scenes=[s for s,_ in validation],
++        performance=dict(rounds=3,orders=ORDERS,bootstrap=dict(seed=20261027,repetitions=10000)),
++        modes=['free','fixed'], kinds=['native','zero','reuse'],
++        manifest_sha256={p.name:sha256(p) for p in [root/(s+'_sequence.json') for s in ('development','single','multi')]+[root/'frozen_m3_policy.json']},
++        rule='No formal policy change without independent semantic/quality and paired latency acceptance. Historical critical records remain binding.'))
++    print('PREPARED', root, {s:read(root/(s+'_sequence.json'))['profiles'] for s in ('development','single','multi')}, flush=True)
++
++
++def worker(root, name, workload, kind, repeat=0, fixed=False, diagnostic=False):
++    target = root/name
++    if target.exists():
++        if not (target/'status.json').exists() or read(target/'status.json')['status'] != 'COMPLETED':
++            raise ValueError('Preserve partial run: '+str(target))
++        return
++    sequence = root/(workload+'_sequence.json')
++    args = ['-m','tools.worldstream_m123.benchmark.worker','--output',str(target),'--run-root',str(root),
++        '--condition','B0' if kind == 'native' else 'B3','--workload','language','--limit',str(len(read(sequence)['tokens'])),
++        '--warmup','1','--seed','0','--repeat',str(repeat),'--sequence-file',str(sequence),
++        '--questions-per-frame','1' if workload=='single' else '3','--measurement-set','efficiency']
++    if kind != 'native':
++        args += ['--m3-strategy','wsdr_kv','--m3-policy',str(root/'frozen_m3_policy.json')]
++    if kind == 'zero': args += ['--m3-zero-reuse']
++    if fixed: args += ['--fixed-token-reference',str(root/(workload+'_fixed_reference.json'))]
++    if diagnostic: args += ['--capture-m3-inputs','--trace-m3-decisions','--runtime-profile']
++    wait_gpu()
++    execute(root, name, args)
++
++
++def run(root, stage):
++    plan = read(root/'experiment_plan.json')
++    for name, digest in plan['manifest_sha256'].items():
++        if sha256(root/name) != digest: raise ValueError('Frozen input changed: '+name)
++    if stage == 'diagnostic':
++        worker(root,'development_diagnostic','development','zero',diagnostic=True)
++        return
++    if stage == 'calibrate':
++        wait_gpu()
++        execute(root,'calibration128',['-m','tools.worldstream_m123.benchmark.prefill_validate',
++            '--output',str(root/'calibration128'),'--calibrate-wsdr',
++            '--capture',str(root/'development_diagnostic'),'--sequence-file',str(root/'development_sequence.json'),
++            '--max-visual-tokens','128'])
++        return
++    if stage == 'micro':
++        # This function already holds the same process lock.
++        from tools.worldstream_m123.crossframe_diagnostics import run as diagnostics
++        wait_gpu();diagnostics(root)
++        return
++    if stage == 'post':
++        if not (root/'development_fixed_control_summary.json').exists():
++            wait_gpu()
++            execute(root,'development_fixed_control',['-c',
++                'from pathlib import Path\nfrom tools.worldstream_m123.crossframe_diagnostics import prefill_control\nprefill_control(Path('+repr(str(root))+'))'])
++        profile_status=root/'full_request_profile/status.json'
++        if not profile_status.exists() or read(profile_status)['status']!='COMPLETED':
++            wait_gpu()
++            execute(root,'full_request_profile',['-m','cProfile','-o',str(root/'full_request_cpu.prof'),
++                '-m','tools.worldstream_m123.benchmark.worker','--output',str(root/'full_request_profile'),
++                '--run-root',str(root),'--condition','B3','--workload','language','--limit','6','--warmup','1',
++                '--sequence-file',str(root/'development_sequence.json'),'--m3-strategy','wsdr_kv',
++                '--m3-policy',str(root/'frozen_m3_policy.json')])
++        if not (root/'environment.json').exists():
++            wait_gpu()
++            execute(root,'environment',['-c',
++                'from pathlib import Path\nfrom tools.worldstream_m123.crossframe_e2e import environment\nenvironment(Path('+repr(str(root))+'))'])
++        from tools.worldstream_m123.crossframe_report import analyze
++        analyze(root)
++        from tools.worldstream_m123.artifact_index import build_index
++        build_index(root)
++        return
++    if stage in ('all','tests'):
++        attempt=0
++        while (root/('regression_tests'+('_r'+str(attempt) if attempt else '')+'.log')).exists():attempt+=1
++        name='regression_tests'+('_r'+str(attempt) if attempt else '')
++        wait_gpu()
++        write(root/'regression_test_result.json',dict(status='RUNNING',log=name+'.log'))
++        try:
++            execute(root,name,['-m','pytest','tests/worldstream_m1','tests/worldstream_m2','tests/worldstream_m3','tests/worldstream_m123','-q'])
++        except Exception:
++            write(root/'regression_test_result.json',dict(status='FAILED',log=name+'.log'));raise
++        write(root/'regression_test_result.json',dict(status='PASS',log=name+'.log'))
++    if stage in ('all','free','fixed'):
++        for workload in ('single','multi'):
++            for mode in (('free','fixed') if stage=='all' else (stage,)):
++                for repeat, order in enumerate(ORDERS):
++                    for kind in order:
++                        worker(root,f'{workload}_{mode}_r{repeat}_{kind}',workload,kind,repeat,mode=='fixed')
++                    if mode=='free' and repeat==0:
++                        path=root/'{}_free_r0_native/per_question_metrics.jsonl'.format(workload)
++                        frames={}
++                        for q in rows(path):
++                            ids=q['token_ids'][0]
++                            if ids[0]!=1 or len(ids)-1!=q['generated_tokens']:raise ValueError('Invalid native token reference')
++                            frames.setdefault(q['frame_id'],[]).append(dict(question=q['question'],tokens=ids[1:]))
++                        write(root/(workload+'_fixed_reference.json'),dict(source='Native natural generation, same frozen original questions',source_sha256=sha256(path),frames=frames))
++    if stage in ('all','quality'):
++        for workload in ('single','multi'):
++            for kind in ('native','reuse'):
++                name=f'{workload}_free_r0_{kind}'
++                if not (root/(name+'_official/summary.json')).exists():evaluate(root,name)
++
++
++def main():
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True)
++    p.add_argument('--stage',choices=['prepare','diagnostic','calibrate','micro','tests','free','fixed','quality','all','post'],required=True)
++    a=p.parse_args()
++    if set(os.sched_getaffinity(0)) & {4,5}:p.error('Use taskset -c 0-3,6-31')
++    root=Path(a.root)
++    if a.stage=='prepare':prepare(root)
++    else:
++        with gpu_job_lock():run(root,a.stage)
++
++
++def environment(root):
++    import importlib.metadata
++    import platform
++    import sys
++    import torch
++    from datetime import datetime
++    from zoneinfo import ZoneInfo
++    torch.manual_seed(20261027)
++    x=torch.arange(64,device='cuda',dtype=torch.float32).reshape(8,8)
++    witness=float((x@x.T).sum())
++    if witness!=510720.:raise ValueError('Seeded CUDA kernel witness failed')
++    packages={}
++    for name in ('torch','transformers','mmcv-full','mmdet','mmdet3d','numpy','nuscenes-devkit','flash-attn'):
++        try:packages[name]=importlib.metadata.version(name)
++        except importlib.metadata.PackageNotFoundError:packages[name]=None
++    checkpoint='ckpts/iter_10548.pth';digest=sha256(checkpoint)
++    if digest!=read(root/'frozen_m3_policy.json')['checkpoint_sha256']:raise ValueError('Checkpoint changed')
++    write(root/'environment.json',dict(time=datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),
++        executable=sys.executable,python=sys.version,platform=platform.platform(),cpu_affinity=sorted(os.sched_getaffinity(0)),
++        packages=packages,cuda_runtime=torch.version.cuda,cudnn=torch.backends.cudnn.version(),
++        gpu=torch.cuda.get_device_name(0),capability=torch.cuda.get_device_capability(0),
++        nvidia_smi=subprocess.check_output(['taskset','-c','0-3,6-31','nvidia-smi'],text=True),
++        thread_environment={key:os.environ.get(key) for key in ('OMP_NUM_THREADS','MKL_NUM_THREADS','OPENBLAS_NUM_THREADS','CUDA_VISIBLE_DEVICES','CUBLAS_WORKSPACE_CONFIG')},
++        torch_cpu_threads=torch.get_num_threads(),environment_rebuilt=False,
++        checkpoint=checkpoint,checkpoint_sha256=digest,seeded_kernel_witness=dict(value=witness,expected=510720.,passed=True)))
++
++
++if __name__=='__main__':main()
+diff --git a/tools/worldstream_m123/crossframe_report.py b/tools/worldstream_m123/crossframe_report.py
+new file mode 100644
+index 00000000..f01137e6
+--- /dev/null
++++ b/tools/worldstream_m123/crossframe_report.py
+@@ -0,0 +1,455 @@
++"""Strict paired audit and reports for the one-route cross-frame experiment."""
++import argparse
++from collections import Counter, defaultdict
++import csv
++import json
++from pathlib import Path
++import pstats
++import pickle
++import re
++import numpy as np
++
++from tools.worldstream_m2.global_residual_benchmark import read, rows
++from tools.worldstream_m2.global_residual_analysis import compare_quality
++from tools.worldstream_m123.benchmark.common import sha256, write
++from tools.worldstream_m123.benchmark.metrics import distribution
++from tools.worldstream_m123.benchmark.quality_calibration import paired_quality, quality_upper, fit_policy, cross_frame_visual
++from tools.worldstream_m123.final_speed_analysis import cluster_bootstrap
++
++METRICS=('prefill_cuda_ms','decode_cuda_ms','m3_wall_ms','model_ms','request_ms',
++    'preprocessing_ms','transfer_and_collate_ms','output_transfer_ms','non_model_ms')
++KINDS=('native','zero','reuse')
++
++
++def value(frame,key):
++    if key=='non_model_ms':return frame['request_ms']-frame['model_ms']
++    if key in ('prefill_cuda_ms','decode_cuda_ms'):
++        return frame['stages'].get('prefill' if key=='prefill_cuda_ms' else 'decode',{}).get('gpu_span_ms',0.)
++    if key=='m3_wall_ms':
++        return frame['stages']['m3_auto_total' if frame.get('m3') else 'native_generation']['host_wall_ms']
++    return frame[key]
++
++
++def reuse(questions):
++    counts=Counter();cross=[];lengths=[];ages=[];depths=[]
++    for q in questions:
++        d=q.get('reuse_diagnostics') or {};length=q['reused_prefix_length'];counts['input_tokens']+=q['input_tokens']
++        counts['effective_prefill_tokens']+=q['input_tokens']-length
++        if d:
++            if sum(d['forward_prefill_lengths'])!=d['effective_prefill_tokens'] or d['effective_prefill_tokens']!=q['input_tokens']-length:
++                raise ValueError('Actual prefill forward lengths do not reconcile')
++            if d['reuse_length']!=length:raise ValueError('Planner/executor reuse mismatch')
++        if not length:continue
++        lengths.append(length);ages.append(d['cache_age_frames']);depths.append(d['approx_reuse_depth'])
++        counts['actually_reused_kv_tokens']+=length;counts['cache_hits']+=1
++        same=d['cache_source_frame']==q['frame_id']
++        category=('same_frame_exact' if same else 'cross_frame_exact') if d['reuse_type']=='exact' else ('same_frame_inherited_approx' if same else 'cross_frame_bounded_approx')
++        counts[category+'_tokens']+=length
++        if not same:
++            spans=d.get('visual_group_spans')
++            if not spans:raise ValueError('Cross-frame visual provenance missing')
++            visual=sum(max(0,min(length,stop)-start) for _,start,stop in spans)
++            counts['cross_frame_visual_tokens']+=visual;counts['cross_frame_requests']+=1
++            cross.append(dict(scene_id=q['scene_id'],target_frame=q['frame_id'],source_frame=d['cache_source_frame'],
++                computed_source=d['computed_source'],prefix_lineage=d['prefix_lineage'],
++                question=q['question'],task_profile=d['task_profile'],prefix_length=length,visual_tokens=visual,
++                cache_age=d['cache_age_frames'],approx_depth=d['approx_reuse_depth'],root_frame_index=d['root_frame_index'],
++                quality_risk=d['estimated_quality_risk'],forward_lengths=d['forward_prefill_lengths'],input_tokens=q['input_tokens'],
++                m1_state_valid=d.get('m1_state_valid'),m2_refresh_ratio=d.get('m2_refresh_ratio')))
++    for key in ('actually_reused_kv_tokens','cache_hits','same_frame_exact_tokens','cross_frame_exact_tokens',
++            'cross_frame_bounded_approx_tokens','cross_frame_visual_tokens','cross_frame_requests'):
++        counts.setdefault(key,0)
++    return dict(counts,requests=len(questions),cache_hit_ratio=counts['cache_hits']/len(questions),
++        skipped_fraction=counts['actually_reused_kv_tokens']/counts['input_tokens'],
++        cross_frame_reused_tokens=counts['cross_frame_exact_tokens']+counts['cross_frame_bounded_approx_tokens'],
++        cross_frame_visual_fraction=counts['cross_frame_visual_tokens']/counts['input_tokens'],
++        reused_length=distribution(lengths),all_request_reuse_length=distribution(q['reused_prefix_length'] for q in questions),
++        cache_age=distribution(ages),approx_depth=distribution(depths),cross_frame_evidence=cross,
++        rejection_reasons=dict(Counter((q.get('reuse_diagnostics') or {}).get('approximate_statistics_rejection')
++            or (q.get('reuse_diagnostics') or {}).get('decision_reason','native') for q in questions if not q['reused_prefix_length'])))
++
++
++def paired(frames,workload,mode,reference,plan):
++    result={}
++    for key in METRICS:
++        samples=[];rr=[];cc=[];rounds=[]
++        for repeat in range(3):
++            a=frames[f'{workload}_{mode}_r{repeat}_{reference}'];b=frames[f'{workload}_{mode}_r{repeat}_reuse']
++            aa=[value(f,key) for f in a];bb=[value(f,key) for f in b]
++            rr+=aa;cc+=bb;rounds.append(float(np.mean(aa)-np.mean(bb)))
++            samples.extend(dict(scene_id=f['scene_id'],saved_ms=x-y) for f,x,y in zip(a,aa,bb))
++        ci=cluster_bootstrap(samples,plan['performance'])
++        result[key]=dict(reference_mean=float(np.mean(rr)),candidate_mean=float(np.mean(cc)),
++            saved_ms=float(np.mean(rr)-np.mean(cc)),speedup=float(np.mean(rr)/np.mean(cc)) if np.mean(cc)>0 else None,
++            round_saved_ms=rounds,scene_bootstrap=ci,positive_ci=ci['lower']>0)
++    return result
++
++
++TRAFFIC={
++    'double_yellow':r'\bdouble yellow\b', 'no_passing':r'\b(no[- ]passing|no[- ]overtaking|prohibit\w* (passing|overtaking))\b',
++    'one_way':r'\bone[- ]way\b','two_way':r'\btwo[- ]way\b',
++    'lane_count':r'\b(one|two|three|four|\d+) lanes?\b'}
++
++
++def traffic_claims(answer):
++    return {key:sorted(set(m[0] for m in re.finditer(pattern,answer.lower()))) for key,pattern in TRAFFIC.items() if re.search(pattern,answer.lower())}
++
++
++def quality_pairs(root,workload,questions):
++    output=[]
++    for repeat in range(3):
++        native=questions[f'{workload}_free_r{repeat}_native'];zero=questions[f'{workload}_free_r{repeat}_zero'];candidate=questions[f'{workload}_free_r{repeat}_reuse']
++        for n,z,c in zip(native,zero,candidate):
++            identity=lambda x:(x['frame_id'],x['question'],x['reference'])
++            if identity(n)!=identity(z) or identity(z)!=identity(c):raise ValueError('Unpaired natural quality')
++            for reference,label in ((n,'native'),(z,'zero')):
++                p=paired_quality(c['answer'],reference['answer'],c['reference'])
++                before,after=traffic_claims(reference['answer']),traffic_claims(c['answer'])
++                new={k:v for k,v in after.items() if v!=before.get(k)}
++                output.append(dict(scene_id=c['scene_id'],frame_id=c['frame_id'],repeat=repeat,question=c['question'],reference=c['reference'],
++                    baseline=label,baseline_answer=reference['answer'],answer=c['answer'],actual_reuse=c['reused_prefix_length'],
++                    new_traffic_claims_for_review=new,**p))
++    write(root/(workload+'_quality_pairs.json'),output)
++    result={}
++    for baseline in ('native','zero'):
++        pp=[p for p in output if p['baseline']==baseline]
++        changes=[p for p in pp if not p['answer_equal']]
++        unique={(p['frame_id'],p['question']) for p in pp}
++        kinds=('numeric_exact','spatial_label_match','motion_label_match','safety_label_match')
++        result[baseline]=dict(request_measurements=len(pp),unique_requests=len(unique),mean_f1_loss=float(np.mean([p['f1_loss'] for p in pp])),
++            # Identical repeats do not become independent quality samples.
++            empirical_request_bound=quality_upper([dict(quality=p) for p in pp if p['repeat']==0]),
++            scene_f1_loss_ci=cluster_bootstrap([dict(scene_id=p['scene_id'],saved_ms=p['f1_loss']) for p in pp if p['repeat']==0],read(root/'experiment_plan.json')['performance']),
++            changed_answers=len(changes),critical_proxy_regressions=sum(p['critical_regressions'] for p in pp),
++            new_traffic_claims_needing_review=[p for p in pp if p['repeat']==0 and p['new_traffic_claims_for_review']],
++            baseline_proxy_errors={k:sum(p['baseline_task_metrics'].get(k) is False for p in pp if p['repeat']==0) for k in kinds},
++            candidate_proxy_errors={k:sum(p['task_metrics'].get(k) is False for p in pp if p['repeat']==0) for k in kinds},
++            changed_repeat0_answers=[p for p in changes if p['repeat']==0],
++            limitation='Numeric/spatial/motion/safety parsers and traffic-assertion flags are proxies. Human scene review is required to certify changed semantic claims.')
++    return result
++
++
++def calibration(root):
++    source=root/'calibration128';records=rows(source/'paired_records.jsonl');original=read(source/'m3_reuse_policy.json')
++    fitted,curve=fit_policy(records,original['binding'],read(root/'development_sequence.json'))
++    write(root/'calibration_refit.json',dict(policy=fitted,curve=curve,source_sha256=sha256(source/'paired_records.jsonl'),
++        known_critical_evidence=['historical_semantic_failure.json','calibration_semantic_review.json'],
++        deployment_allowed=False,
++        scope='Same frozen development observations; cross-frame evidence fix, no new threshold search or deployment writes. Historical semantic failures remain binding regardless of a raw fitted lexical bound.'))
++    stats=[]
++    for profile,threshold in sorted({(r['profile'],r['threshold']) for r in records}):
++        rr=[r for r in records if r['profile']==profile and r['threshold']==threshold]
++        cross=[r for r in rr if cross_frame_visual(r)]
++        text=[r for r in rr if r['diagnostics']['cache_source_frame'] and r['diagnostics']['cache_source_frame']!=r['frame_id'] and r['diagnostics']['reused_tokens']==35]
++        stats.append(dict(profile=profile,threshold=threshold,requests=len(rr),
++            cross_frame_visual_requests=len(cross),cross_frame_visual_reused_tokens=sum(r['diagnostics']['reused_tokens']-35 for r in cross),
++            calibration_cross_frame_visual_requests=sum(r['split']=='calibration' for r in cross),
++            validation_cross_frame_visual_requests=sum(r['split']=='validation' for r in cross),
++            cross_visual_quality_loss_upper=quality_upper(cross),critical_proxy_regressions=sum(r['quality']['critical_regressions'] for r in cross),
++            text35_saved_ms=distribution(r['baseline_wall_ms']-r['candidate_wall_ms'] for r in text),
++            cross_visual_saved_ms=distribution(r['baseline_wall_ms']-r['candidate_wall_ms'] for r in cross)))
++    write(root/'calibration_summary.json',stats)
++    return stats
++
++
++def block_frontiers(root):
++    """Actual carrier risk frontiers; no model execution/speed/quality claim."""
++    import torch
++    from tools.worldstream_m123.latency_controls import load_capture
++    from worldstream.m3.reuse_planner import WEIGHTS
++    from worldstream.m3.task_conditioner import task_profile
++    capture=root/'development_diagnostic/m3_inputs';policy=read(root/'frozen_m3_policy.json')
++    frames={};output=[]
++    for r in read(root/'prefix_structure.json'):
++        source,target=r['source'][1],r['frame_id']
++        for token in (source,target):
++            if token not in frames:frames[token]=load_capture(capture/(token+'.pt'))
++        a,b=frames[source],frames[target]
++        current=b['carriers'][0].float();previous=a['carriers'][0].float()
++        if current.shape!=previous.shape or a['layout']!=b['layout']:raise ValueError('Carrier layout mismatch')
++        markers=(b['ids'][0].reshape(-1)==-200).nonzero().reshape(-1)
++        if markers.numel()!=1:raise ValueError('A unique native image expansion is required')
++        start=int(markers[0]);profile=task_profile(r['question'])[1];signals=r['world_signals']
++        factor=1.+.25*signals['m2_refresh_ratio']+.05*min(4,signals['m2_cache_age_frames'])
++        if not signals['m2_context_valid']:factor+=.25
++        thresholds=[policy['profiles'].get(profile,{}).get('approx',{}).get('risk_limit',0.)]
++        results={}
++        for size in (16,32,64):
++            blocks=[];offset=0;risk=0.
++            for (group,count),weight in zip(b['layout'].groups,WEIGHTS[profile]):
++                for lo in range(offset,offset+count,size):
++                    hi=min(lo+size,offset+count)
++                    old,new=previous[lo:hi],current[lo:hi]
++                    delta=(new-old).square().sum(-1)
++                    scale=torch.maximum(old.square().sum(-1),new.square().sum(-1)).clamp_min(1e-12)
++                    rms=float((delta.sum()/scale.sum()).sqrt());maximum=float((delta/scale).sqrt().max())
++                    risk=max(risk,weight*factor*(rms+.25*maximum))
++                    blocks.append(dict(group=group,start=start+lo,end=start+hi,rms=rms,max_token=maximum,risk=risk))
++                offset+=count
++            results[str(size)]=dict(blocks=blocks,
++                risk_frontier={str(threshold):max([r['exact_prefix']]+[v['end'] for v in blocks
++                    if v['end']<=min(start+128,r['structural_prefix']) and v['risk']<=threshold]) for threshold in thresholds})
++        output.append(dict(frame_id=target,source_frame=source,question=r['question'],profile=profile,exact_prefix=r['exact_prefix'],sizes=results))
++    write(root/'block_size_frontiers.json',dict(records=output,
++        scope='CPU analysis of actual captured native LLM visual carriers, proven Object/Ego/Map expansion; same measured M1/M2 factor. Only raw incremental carrier-risk frontiers, not policy eligibility, semantic approval, skipped forwards or measured speedup. Exact LCP is never rounded by block size.'))
++
++
++def resource_index(root):
++    """Hash used external resources without copying private data into outputs."""
++    from mmcv import Config
++    cfg=Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py')
++    annotation=Path(cfg.data.test.ann_file)
++    tokens=set(read(root/'development_sequence.json')['tokens']+read(root/'single_sequence.json')['tokens'])
++    infos=pickle.load(annotation.open('rb'))['infos'];frames=[]
++    paths={annotation,Path('ckpts/iter_10548.pth')}
++    for key in ('lane_anno_file',):
++        if cfg.data.test.get(key):paths.add(Path(cfg.data.test[key]))
++    for path in ('data/nuscenes/data_dict_sample.pkl','data/nuscenes/data_dict_subset_B_val.pkl'):
++        if Path(path).exists():paths.add(Path(path))
++    paths.update(p for p in Path('ckpts/pretrain_qformer').iterdir() if p.is_file())
++    paths.update(p for p in Path('data/nuscenes/v1.0-trainval').glob('*.json') if p.is_file())
++    for info in infos:
++        if info['token'] not in tokens:continue
++        cameras={c:str(Path(v['data_path'])) for c,v in info['cams'].items()}
++        paths.update(Path(v) for v in cameras.values())
++        for kind in ('conv','vqa'):
++            p=Path('data/nuscenes')/kind/'val'/(info['token']+'.json')
++            if p.exists():paths.add(p)
++        frames.append(dict(frame_id=info['token'],scene_id=info['scene_token'],timestamp=info['timestamp'],cameras=cameras))
++    files={}
++    for i,path in enumerate(sorted(paths)):
++        files[str(path)]=dict(resolved=str(path.resolve()),bytes=path.stat().st_size,sha256=sha256(path))
++        if i%100==0:print('RESOURCE SHA',i+1,'/',len(paths),flush=True)
++    if {f['frame_id'] for f in frames}!=tokens:raise ValueError('External resource frame coverage missing')
++    write(root/'external_resources_sha256.json',dict(files=files,frames=frames,
++        scope='All 60 used development/acceptance frames and their six original camera files and labelled question sources; configured annotation/checkpoint/tokenizer/preload files and SDK tables. Private resource contents remain in their existing server paths. This is not a copy or hash of every unused nuScenes sample.'))
++
++
++def analyze(root):
++    plan=read(root/'experiment_plan.json')
++    for name,digest in plan['manifest_sha256'].items():
++        if sha256(root/name)!=digest:raise ValueError('Frozen manifest changed')
++    if sha256('outputs/final_route/m3_reuse_policy.json')!=sha256(root/'frozen_m3_policy.json'):
++        raise ValueError('Formal deployment policy changed during acceptance')
++    frames={};questions={};summaries={};csv_rows=[];frame_rows=[];audits={};checkpoint_audits={}
++    from tools.worldstream_m2.production_acceptance import validate_rows
++    for workload in ('single','multi'):
++        sequence=read(root/(workload+'_sequence.json'))
++        native_inputs=None;zero_outputs=None
++        for mode in ('free','fixed'):
++            for repeat in range(3):
++                for kind in KINDS:
++                    name=f'{workload}_{mode}_r{repeat}_{kind}';run=root/name
++                    checkpoint_check=read(run/'checkpoint_validation.json')
++                    if read(run/'status.json').get('integrity')!='PASS' or checkpoint_check['status']!='PASS':
++                        raise ValueError('Model/worker integrity failure: '+name)
++                    checkpoint_audits[name]={k:v for k,v in checkpoint_check.items() if k!='metadata'}
++                    for path,digest in read(run/'m1_m2_m3_source_hashes.json').items():
++                        if sha256(path)!=digest:raise ValueError('Measured M1/M2/M3 source differs from delivery: '+path)
++                    ff=rows(run/'per_frame_metrics.jsonl');qq=rows(run/'per_question_metrics.jsonl')
++                    if [f['frame_id'] for f in ff]!=sequence['tokens']:raise ValueError('Input frame order changed')
++                    expected=[(t,i,q) for t in sequence['tokens'] for i,q in enumerate(sequence['questions'][t])]
++                    if [(q['frame_id'],q['question_index'],q['question']) for q in qq]!=expected:raise ValueError('Natural question order changed')
++                    if native_inputs is None:native_inputs=[f['input_tensor_digest'] for f in ff]
++                    if [f['input_tensor_digest'] for f in ff]!=native_inputs:raise ValueError('Actual six-camera inputs changed')
++                    if kind=='zero' and any(q['reused_prefix_length'] for q in qq):raise ValueError('Zero control reused historical KV')
++                    if kind!='native':
++                        audit=validate_rows(ff,require_reuse=False)
++                        if audit['status']!='PASS':raise ValueError('M1/M2 execution regression')
++                        audits[name]=audit
++                        outputs=[f['output_digest'] for f in ff]
++                        if zero_outputs is None:zero_outputs=outputs
++                        if outputs!=zero_outputs:raise ValueError('M3 changed M1/M2 perception outputs')
++                    if mode=='fixed':
++                        reference=read(root/(workload+'_fixed_reference.json'))
++                        for f in ff:
++                            refs=reference['frames'][f['frame_id']];steps=sum(len(q['tokens']) for q in refs)
++                            frame_questions=[q for q in qq if q['frame_id']==f['frame_id']]
++                            prefill_calls=sum(q['input_tokens']>q['reused_prefix_length'] for q in frame_questions)
++                            if (f['fixed_tokens']['generated_steps']!=steps or f['fixed_tokens']['actual_decode_forward_calls']!=steps-len(refs)
++                                    or f['stages'].get('decode',{}).get('calls',0)!=steps-len(refs)
++                                    or f['stages'].get('prefill',{}).get('calls',0)!=prefill_calls
++                                    or f['fixed_tokens']['actual_total_llm_forward_calls']!=steps-len(refs)+prefill_calls):
++                                raise ValueError('Fixed-token decode forward evidence mismatch')
++                        for q in qq:
++                            ref=reference['frames'][q['frame_id']][q['question_index']]
++                            if q['token_ids'][0][1:]!=ref['tokens'] or q['quality'] is not None:raise ValueError('Fixed-token sequence or quality isolation failed')
++                    frames[name]=ff;questions[name]=qq
++                    summaries[name]=dict(reuse=reuse(qq),**{k:distribution(value(f,k) for f in ff) for k in METRICS},
++                        throughput_questions_s=len(qq)*1000/sum(f['request_ms'] for f in ff),throughput_frames_s=len(ff)*1000/sum(f['request_ms'] for f in ff),
++                        amortized_request_ms_per_question=sum(f['request_ms'] for f in ff)/len(qq),
++                        peak_gpu_allocated_bytes=max(f['peak_gpu_allocated_bytes'] for f in ff),peak_gpu_reserved_bytes=max(f['peak_gpu_reserved_bytes'] for f in ff),
++                        peak_m3_cache_bytes=max((q.get('reuse_diagnostics') or {}).get('cache_bytes',0) for q in qq),
++                        peak_m3_branch_workspace_bytes=max((q.get('reuse_diagnostics') or {}).get('branch_workspace_bytes',0) for q in qq))
++                    summaries[name]['peak_m2_cache_bytes']=max((f.get('m2') or {}).get('cache_bytes',0) for f in ff)
++                    summaries[name]['peak_combined_cache_bytes']=max((f.get('m2') or {}).get('cache_bytes',0)+(f.get('m3') or {}).get('cache_bytes',0) for f in ff)
++                    summaries[name]['stage_spans']={label:{boundary:distribution(f['stages'][label][boundary] for f in ff if label in f['stages'])
++                        for boundary in ('host_wall_ms','gpu_span_ms')} for label in ('m1_precheck','m1_commit','m2_total','eva_native','detection','map','prefill','decode','m3_auto_total','native_generation')}
++                    summaries[name]['m3_host_stages']={key:distribution((q.get('reuse_diagnostics') or {})[key] for q in qq if key in (q.get('reuse_diagnostics') or {}))
++                        for key in ('layout_preparation_ms','planning_ms','cache_branch_cpu_enqueue_ms','cache_update_cpu_enqueue_ms','prefill_including_cache_cpu_enqueue_ms')}
++                    for q in qq:
++                        d=q.get('reuse_diagnostics') or {}
++                        csv_rows.append(dict(run=name,mode=mode,kind=kind,repeat=repeat,scene_id=q['scene_id'],frame_id=q['frame_id'],question_index=q['question_index'],
++                            question=q['question'],task_profile=d.get('task_profile'),input_tokens=q['input_tokens'],effective_prefill_tokens=q['input_tokens']-q['reused_prefix_length'],
++                            actually_reused_tokens=q['reused_prefix_length'],planned_reuse_tokens=d.get('reuse_length',0),reuse_type=d.get('reuse_type','none'),
++                            source_frame=d.get('cache_source_frame'),root_frame_index=d.get('root_frame_index'),cache_age=d.get('cache_age_frames'),approx_depth=d.get('approx_reuse_depth'),
++                            risk=d.get('estimated_quality_risk'),decision=d.get('decision_reason'),statistics_rejection=d.get('approximate_statistics_rejection'),
++                            forward_prefill_lengths=json.dumps(d.get('forward_prefill_lengths')),generated_tokens=q['generated_tokens'],
++                            planning_ms=d.get('planning_ms'),layout_preparation_ms=d.get('layout_preparation_ms'),
++                            cache_branch_ms=d.get('cache_branch_gpu_span_ms'),cache_update_enqueue_ms=d.get('cache_update_cpu_enqueue_ms')))
++                    for f in ff:frame_rows.append(dict(run=name,scene_id=f['scene_id'],frame_id=f['frame_id'],**{k:value(f,k) for k in METRICS},
++                        stage_spans=f['stages'],peak_allocated=f['peak_gpu_allocated_bytes'],peak_reserved=f['peak_gpu_reserved_bytes'],
++                        input_tensor_digest=f['input_tensor_digest'],perception_output_digest=f['output_digest'],fixed_token_evidence=f.get('fixed_tokens')))
++    write(root/'execution_audits.json',audits)
++    write(root/'checkpoint_integrity.json',checkpoint_audits)
++    test_result=read(root/'regression_test_result.json')
++    test_log=(root/test_result['log']).read_text()
++    if test_result['status']!='PASS':raise ValueError('Regression tests did not pass')
++    if ' passed' not in test_log or ' failed' in test_log:raise ValueError('Regression tests did not pass')
++    with (root/'per_request_summary.csv').open('w') as h:
++        writer=csv.DictWriter(h,fieldnames=list(csv_rows[0]));writer.writeheader();writer.writerows(csv_rows)
++    for name,data in [('per_request_summary.jsonl',csv_rows),('per_frame_summary.jsonl',frame_rows)]:
++        (root/name).write_text(''.join(json.dumps(x,ensure_ascii=False,allow_nan=False)+'\n' for x in data))
++    comparisons={w:{mode:{ref:paired(frames,w,mode,ref,plan) for ref in ('native','zero')} for mode in ('free','fixed')} for w in ('single','multi')}
++    quality={w:dict(system=compare_quality(root,f'{w}_free_r0_native',f'{w}_free_r0_reuse'),
++        paired=quality_pairs(root,w,questions)) for w in ('single','multi')}
++    cal=calibration(root)
++    block_frontiers(root)
++    resource_index(root)
++    stats=pstats.Stats(str(root/'full_request_cpu.prof')).stats
++    pipeline=[dict(file=k[0],line=k[1],function=k[2],calls=v[1],self_ms=v[2]*1000,cumulative_ms=v[3]*1000)
++        for k,v in stats.items() if ('datasets/pipelines' in k[0] or any(s in k[2] for s in ('imread','imdecode','resize','normalize','collate','scatter')))]
++    write(root/'full_request_cpu_summary.json',dict(functions=sorted(pipeline,key=lambda x:-x['self_ms']),
++        scope='Separate cProfile diagnostic, six real development requests plus warmup and process/model setup. Function self/cumulative times can nest; never add them to infer request latency. Excluded from acceptance timing.'))
++    traces=rows(root/'development_diagnostic/decision_traces.jsonl')
++    rejected=Counter();by_profile=defaultdict(Counter)
++    for trace in traces:
++        reasons={v['first_rejection'] for v in trace.get('candidate_evaluations',[]) if v['first_rejection']}
++        if not trace.get('cache'):reasons.add('cold_cache')
++        for reason in reasons:
++            rejected[reason]+=1;by_profile[trace['details']['task_profile']][reason]+=1
++    write(root/'diagnostic_rejections.json',dict(requests=len(traces),requests_with_each_reason=dict(rejected),
++        by_profile={k:dict(v) for k,v in by_profile.items()},
++        scope='Original formal-policy developer diagnostic, actual candidate evaluations; each reason counted at most once per request, not once per block. Timed acceptance decisions remain separately reported.'))
++    cross=any(summaries[f'{w}_free_r0_reuse']['reuse']['cross_frame_visual_tokens']>0 for w in ('single','multi'))
++    safe=all(q['system']['within_quality_budgets'] and not q['paired']['zero']['critical_proxy_regressions']
++        and not q['paired']['native']['critical_proxy_regressions']
++        and not q['paired']['native']['new_traffic_claims_needing_review']
++        and not q['paired']['zero']['new_traffic_claims_needing_review'] and q['paired']['zero']['empirical_request_bound']<=.02
++        and q['paired']['zero']['scene_f1_loss_ci']['upper']<=.02 for q in quality.values())
++    m3=all(comparisons[w]['fixed']['zero'][k]['positive_ci'] for w in ('single','multi') for k in ('prefill_cuda_ms','m3_wall_ms'))
++    model_gain=all(comparisons[w]['fixed']['zero']['model_ms']['positive_ci'] for w in ('single','multi'))
++    e2e=all(comparisons[w]['fixed'][ref]['request_ms']['positive_ci'] and comparisons[w]['fixed'][ref]['request_ms']['speedup']>1
++        for w in ('single','multi') for ref in ('native','zero'))
++    decision=dict(action='RETAIN_EXISTING_CONSERVATIVE_POLICY',formal_policy_changed=False,
++        formal_policy_sha256=sha256(root/'frozen_m3_policy.json'),new_candidate_deployed=False,
++        code_correctness=read(root/'planner_equivalence.json')['all_passed'],
++        regression_log=test_result['log'],regression_log_sha256=sha256(root/test_result['log']),
++        system_absolute_quality_budgets_pass=all(q['system']['within_quality_budgets'] for q in quality.values()),
++        m3_quality_proxy_pass=all(not q['paired']['zero']['critical_proxy_regressions']
++            and not q['paired']['zero']['new_traffic_claims_needing_review']
++            and q['paired']['zero']['empirical_request_bound']<=.02
++            and q['paired']['zero']['scene_f1_loss_ci']['upper']<=.02 for q in quality.values()),
++        native_critical_proxy_findings_repeat0={w:sum(p['critical_regressions'] for p in q['paired']['native']['changed_repeat0_answers']) for w,q in quality.items()},
++        independent_cross_frame_visual_reuse=cross,quality_proxy_gate=safe,prefill_and_m3_latency_ci_positive=m3,
++        model_wall_ci_positive=model_gain,
++        cross_frame_acceptance_pass=cross and safe and m3,complete_service_acceptance_pass=cross and safe and m3 and model_gain and e2e,
++        e2e_positive_paired_ci=e2e,world_referenced_cross_frame_acceleration_claim_supported=cross and safe and m3 and model_gain and e2e,
++        limitations=['Six independent scenes; repeats do not increase independent sample size.',
++            'Disjointness covers M3/language development and service runs. Prior full-split perception evaluations are disclosed in historical_data_audit.json.',
++            'Approximate trial remains development-only. Existing Map/Full-Visual semantic failures are preserved.',
++            'Proxy scores cannot certify unreviewed semantic changes.'],
++        calibration_decision='No quality/latency qualified new cross-frame rule selected; no risk threshold or internal budget increase.')
++    write(root/'deployment_decision.json',decision)
++    result=dict(plan=plan,summaries=summaries,comparisons=comparisons,quality=quality,calibration=cal,
++        deployment=decision,planner_microbenchmark=read(root/'planner_microbenchmark.json'),
++        development_fixed_control=read(root/'development_fixed_control_summary.json'))
++    write(root/'summary.json',result)
++    reports(root,result)
++    write(root/'status.json',dict(status='COMPLETED',code_and_experiments_complete=True,
++        measured_service_runs=36,independent_acceptance_scenes=6,
++        cross_frame_acceptance_pass=decision['cross_frame_acceptance_pass'],
++        complete_service_acceptance_pass=decision['complete_service_acceptance_pass'],formal_policy_changed=False))
++    return result
++
++
++def reports(root,r):
++    d=r['deployment'];perf=['# Performance evidence\n',
++        'Six independent scenes × six continuous frames; three alternating rounds for each mode and method. Positive savings mean the optimized route is faster. CPU wall and overlapping CUDA spans are separate measurements. No overlapping stage sums are used as attribution.\n',
++        'Request/Model/M3 totals refer to one six-camera frame service call: one natural question in single, three ordered natural questions in multi. Prefill/decode forward spans sum those questions within the frame. Frame-request/s and question/s are separately reported; per-question amortized request time is labelled as amortized.\n',
++        '| Workload | Boundary | Reference | Prefill saved ms | M3 saved ms | Model saved ms | Request saved ms [scene 95% CI] | E2E speedup |',
++        '|---|---|---|---:|---:|---:|---|---:|']
++    for workload,modes in r['comparisons'].items():
++        for mode,refs in modes.items():
++            for ref,m in refs.items():
++                q=m['request_ms'];ci=q['scene_bootstrap']
++                perf.append(f"| {workload} | {mode} | {ref} | {m['prefill_cuda_ms']['saved_ms']:.3f} | {m['m3_wall_ms']['saved_ms']:.3f} | {m['model_ms']['saved_ms']:.3f} | {q['saved_ms']:.3f} [{ci['lower']:.3f}, {ci['upper']:.3f}] | {q['speedup']:.4f} |")
++    perf += ['\nAll raw per-scene savings, repeats, P50/P95 latencies, decode spans, peak allocated/reserved memory, cache bytes and throughput are in `summary.json`. Timed workers contain no capture, DecisionTrace or sampled cProfile/torch.profiler probes. Existing CUDA timing observers remain active equally in paired methods. Fixed-token selection overhead remains included.\n',
++        'Prefill/decode CUDA metrics sum actual model-forward event spans. Full HF decode-loop spans (including sampling/host gaps) remain in raw M3 per-request diagnostics; complete M3 wall includes the whole loop. These boundaries are not added together.\n',
++        'CUDA peak allocated/reserved memory is reset after warmup and measured over the frame stream. Owned persistent M2/M3 cache bytes and branch-workspace bytes are reported separately from the allocator peak.\n',
++        'The earlier ~54.5 ms non-model difference is assessed directly by paired request-minus-model measurements, plus preprocessing, collate/transfer and output transfer boundaries. It is not assumed to be M3 work.\n',
++        '| Workload | Fixed reuse vs zero non-model saved ms [95% CI] | Preprocess saved ms | Transfer/collate saved ms |',
++        '|---|---|---:|---:|']
++    for w in ('single','multi'):
++        m=r['comparisons'][w]['fixed']['zero'];n=m['non_model_ms'];ci=n['scene_bootstrap']
++        perf.append(f"| {w} | {n['saved_ms']:.3f} [{ci['lower']:.3f}, {ci['upper']:.3f}] | {m['preprocessing_ms']['saved_ms']:.3f} | {m['transfer_and_collate_ms']['saved_ms']:.3f} |")
++    perf.append('\nThe multi-question non-model penalty is reproduced at about 49.5 ms, almost entirely in preprocessing. The single-question control instead saves about 61.7 ms outside the model despite zero KV reuse. This locates the discrepancy outside prefill and does not identify a causal M3 preprocessing instruction. The host/measurement mechanism remains unresolved; neither a positive request-only CI nor these opposite workload signs establishes KV computation acceleration.\n')
++    bottlenecks=[]
++    for w in ('single','multi'):
++        runs=[r['summaries'][f'{w}_fixed_r{i}_reuse'] for i in range(3)]
++        average=lambda key:float(np.mean([x[key]['mean'] for x in runs]))
++        stage_means={label:float(np.mean([x['stage_spans'][label]['host_wall_ms']['mean'] for x in runs])) for label in ('m2_total','detection','map','m3_auto_total')}
++        largest=max(stage_means,key=stage_means.get)
++        text=f"{w}: largest measured model section is {largest}, host wall {stage_means[largest]:.3f} ms; M3 decode CUDA span {average('decode_cuda_ms'):.3f} ms; preprocessing wall {average('preprocessing_ms'):.3f} ms. Host sections and nested/overlapping CUDA spans are not added."
++        bottlenecks.append(text);perf.append('\n'+text+'\n')
++    perf.append('\nImage I/O/resize/normalization and CPU input preparation are separately profiled in `full_request_cpu_summary.json`; the profiler run is excluded from all headline measurements.\n')
++    micro=r['planner_microbenchmark']['summary']
++    perf.append(f"\nIsolated real-input planner wall: before {micro['before']['wall_ms']['mean']:.4f} ms; after {micro['after']['wall_ms']['mean']:.4f} ms. This diagnostic result is not an E2E claim. See per-profile records in `planner_microbenchmark.json`.\n")
++    perf.append('\nDevelopment-only equal-token Zero/trial GPU control (per-question Runtime calls on two calibration scenes, three alternating rounds, unchanged real reference steps and T−1 actual decode forwards):\n')
++    for length,metrics in r['development_fixed_control']['by_length'].items():
++        perf.append(f"- Prefix {length}: actual prefill CUDA savings {metrics['prefill_cuda_ms_saved']['mean']:.3f} ms; complete M3 savings {metrics['m3_wall_ms_saved']['mean']:.3f} ms. Natural quality rejection remains binding. This is not independent acceptance or full-service speedup.\n")
++    perf.append('\nCost scope: original natural calibration compares the native LM head on identical M1/M2 carriers with the complete M3 runtime. It is not the incremental Zero-KV comparison. Legacy rows contain planning-only cost recovery and can conservatively deduct preparation/signature again online; they are preserved and explicitly labelled. Updated calibration records the actual preparation/signature-plus-planning overhead so the fitter and Scheduler deduct it once. The separate same-runtime fixed-token Zero/trial controls provide the direct incremental measurement. No fitted policy is deployed from these diagnostic points.\n')
++    (root/'performance_report.md').write_text('\n'.join(perf))
++    quality=['# Quality evidence\n','Official unchanged evaluators on the declared 36-frame subset; these are not full-validation scores. Absolute score loss must be ≤ 0.10. Internal M3 quality budget remains 0.02. Negative loss means an improvement.\n',
++        '| Workload | mAP loss | NDS loss | Lane DET_l loss | VLM Token F1 loss | Four budgets |',
++        '|---|---:|---:|---:|---:|---|']
++    for w,q in r['quality'].items():
++        quality.append('| '+w+' | '+' | '.join(f"{q['system']['metrics'][k]['loss']:.6f}" for k in ('mAP','NDS','DET_l','Token_F1'))+f" | {q['system']['within_quality_budgets']} |")
++    for w,q in r['quality'].items():
++        quality.append(f'\n## {w}\nFull official per-scene metrics, populations and proxy error summaries are retained in `summary.json` and the official evaluator directories.\n')
++        z=q['paired']['zero'];quality.append(f"M3-only mean Token F1 loss vs zero historical KV: {z['mean_f1_loss']:.6f}; changed answers {z['changed_answers']}; critical proxy regressions {z['critical_proxy_regressions']}. Native and candidate proxy errors are separately retained in `{w}_quality_pairs.json` and `summary.json`. Traffic assertions requiring review: {len(z['new_traffic_claims_needing_review'])}.\n")
++        n=q['paired']['native'];unique_proxy=sum(p['critical_regressions'] for p in n['changed_repeat0_answers'])
++        quality.append(f"Native→optimized spatial/numeric/motion proxy findings in repeat 0: {unique_proxy}; repeats do not increase independent evidence. Native baseline proxy errors: {n['baseline_proxy_errors']}; optimized proxy errors: {n['candidate_proxy_errors']}. These are parser findings, not independent human confirmation of new hard semantic failures. The overall semantic proxy gate remains conservative.\n")
++    quality.append('Historical double-yellow/no-passing/lane-count hallucination remains a rejection. Its valid M1 state and 94.4% M2 refresh did not establish semantic safety. The development-only 128-visual-token trial does not remove that failure. Higher lexical F1 does not override it. Changed-answer evidence and traffic-assertion flags remain available for direct scene review; parser success alone is not semantic certification.\n')
++    quality.append('New development failure: at `f38ef51177c84c2a9fa32584b79e601e`, the 163-token trial changed waiting pedestrians to people currently crossing, contradicting the unchanged annotation that no pedestrians are crossing. Token F1 improved by 0.0680 and automatic critical count was zero. This is preserved as a separate motion-semantic rejection in `calibration_semantic_review.json`, with all six image paths/SHA and state signals. It does not become a qualified Object Approx rule.\n')
++    quality.append('Both the historical Map failure and the new crossing failure executed all 22 global M2 suffix blocks, skipped zero suffix blocks, and published a fresh global anchor (age after update 0). World-change scores were 0.7083 and 1.0, respectively. Freshness alone cannot reauthorize approximation; these sparse observations do not establish a reliable safe/unsafe threshold. Full state/refresh evidence and source SHA are in `semantic_state_attribution.json`.\n')
++    (root/'quality_report.md').write_text('\n'.join(quality))
++    report=['# M3 cross-frame / E2E experiment\n',f"Base commit: `{r['plan']['initial_commit']}`. Checkpoint: `ckpts/iter_10548.pth`; SHA and environment in worker invocation/configuration/checkpoint records and `environment.json`.\n",
++        '## Acceptance\n```json\n'+json.dumps(d,indent=2)+'\n```\n',
++        '## Direct answers\n',f"1. Independent natural cross-frame visual KV reuse: **{d['independent_cross_frame_visual_reuse']}**. Development trial reuse is reported separately and cannot satisfy acceptance.\n"]
++    for w in ('single','multi'):
++        u=r['summaries'][f'{w}_free_r0_reuse']['reuse']
++        report.append(f"2. {w}: cross-frame KV {u['cross_frame_reused_tokens']} / {u['input_tokens']} input tokens ({100*u['cross_frame_reused_tokens']/u['input_tokens']:.3f}%); cross-frame visual tokens {u['cross_frame_visual_tokens']}, cross-frame requests {u['cross_frame_requests']}. All reuse {u['actually_reused_kv_tokens']} tokens ({100*u['skipped_fraction']:.3f}%); same-frame exact {u['same_frame_exact_tokens']}. See source/target/forward evidence in `summary.json`.\n")
++    trials=[x for x in r['calibration'] if x['threshold']>0]
++    report.append(f"Development-only natural trial: {sum(x['cross_frame_visual_requests'] for x in trials)} cross-frame visual-prefix requests, {sum(x['cross_frame_visual_reused_tokens'] for x in trials)} actually reused visual tokens. These observed development scenes do not count as independent acceptance. Natural motion-semantic failure and lack of a qualified cross-frame validation/cost working point prevent admission.\n")
++    report.append('The 163-token trial prefix contains 35 text tokens and the first 128 Object latent-query tokens. It does not reuse Map KV merely because the question is labelled map_relations. Later Map KV cannot be stitched around a changed earlier Object prefix.\n')
++    report += ['3. Actual Object/Ego/Map strict equality, normalized changes, M1/M2 state, cache age and 16/32/64 block endpoints are in `prefix_structure.json`. Native Object→Ego→Map order is retained. A changed Object prefix cannot be bypassed to reuse Map KV.\n',
++        '4–5. Prefill, full M3, model and full request paired savings and confidence intervals are in `performance_report.md`. Module savings are not counted as complete service savings.\n',
++        '6. Four official-subset score losses and native/new proxy/traffic errors are in `quality_report.md`; lexical improvements do not erase semantic failures.\n',
++        '7. Non-model overhead is measured at explicit request/model boundaries. Remaining bottlenecks and individual stage spans are in `per_frame_summary.jsonl`; CPU profiler hotspots are in `cpu_profile_summary.json`. CUDA stream spans include host gaps and can overlap.\n',
++        '8. Core changes: `ReusePlanner.plan` rejects impossible calibrated endpoints before RMS; `prefix_statistics` evaluates only policy-reachable full blocks; the offline `fit_policy` requires cross-frame visual validation for approximate costs and freezes cost ranges on calibration only. The measured old/new planner comparison uses the same real checkpoint/cache, fixed observed overhead and alternating GPU probes. `PrefillExecutor`, storage revision checks and M1/M2 algorithms are unchanged.\n',
++        f"9. World-referenced cross-frame service acceleration claim supported: **{d['world_referenced_cross_frame_acceleration_claim_supported']}**.\n",
++        '## Policy decision\nThe unique formal policy is retained. New calibration selects no admissible approximate rule with independent cross-frame evidence. Map/full-visual critical history is preserved. No min-token threshold, quality budget or generation length is relaxed to create hits.\n',
++        '## Evidence\n`per_request_summary.csv/jsonl`, `per_frame_summary.jsonl`, `execution_audits.json`, `planner_equivalence.json`, `calibration_summary.json`, and SHA-indexed local tensors/profiles. No historical result was replaced. Reproduce with `REPRODUCE.md`.\n']
++    report += ['\n## Measured remaining cost\n']+bottlenecks
++    report.append(f"\nOnly the planner change has an isolated before/after measurement here: {micro['before']['wall_ms']['mean']:.4f} → {micro['after']['wall_ms']['mean']:.4f} ms on actual captured input/cache pairs. This does not establish cross-frame quality or E2E acceleration.\n")
++    prefixes=read(root/'prefix_structure.json')
++    equality={g:dict(equal_tokens=sum(x['groups'][g]['strictly_equal_tokens'] for x in prefixes),compared_tokens=sum(x['groups'][g]['tokens'] for x in prefixes)) for g in ('object','ego','map')}
++    report.append(f"\nAcross {len(prefixes)} actual development cross-frame comparisons, strict LCP lengths are {dict(Counter(x['exact_prefix'] for x in prefixes))}. Exact visual token equality: {equality}. Mean carrier RMS: "+', '.join(f"{g} {np.mean([x['groups'][g]['relative_rms'] for x in prefixes]):.4f}" for g in ('object','ego','map'))+'. A stable world object is not an exact latent LLM KV slot. See `block_size_frontiers.json` for 16/32/64 raw risk frontiers; exact LCP is never block-rounded, and raw risk eligibility is not semantic approval.\n')
++    report.append('\n## Validation history\nFinal GPU regression log is named by `regression_test_result.json`. Initial newly added test-fixture failures (CPU/CUDA device placement and a missing fixture field) remain in the earlier regression logs. The actual-checkpoint planner audit passed all 72 requests. Calibration semantic failures remain separate from passing automatic proxy scores.\n')
++    (root/'experiment_report.md').write_text('\n'.join(report))
++
++
++if __name__=='__main__':
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',required=True);a=p.parse_args()
++    analyze(Path(a.root))
+diff --git a/worldstream/m3/prefix_matcher.py b/worldstream/m3/prefix_matcher.py
+index a61303bd..ca74cf55 100644
+--- a/worldstream/m3/prefix_matcher.py
++++ b/worldstream/m3/prefix_matcher.py
+@@ -26,8 +26,24 @@ class PrefixProof:
+     max_approx_depth: int
+ 
+ 
++def visual_block_spans(current, length, block_size=32, max_visual_tokens=None):
++    """The existing contiguous block endpoints, optionally capped by policy.
++
++    The cap never creates a new partial block or skips a changed earlier group.
++    Exact/structural matching still covers the complete input independently.
++    """
++    first = current.visual_group_spans[0][1] if current.visual_group_spans else 0
++    cap = first + max_visual_tokens if max_visual_tokens is not None else length
++    for group, start, stop in current.visual_group_spans:
++        for lo in range(start, min(stop, length), block_size):
++            hi = min(lo + block_size, stop, length)
++            if hi > cap:
++                return
++            yield group, lo, hi
++
++
+ @torch.no_grad()
+-def prefix_statistics(previous, current, block_size=32, *, include_blocks=True):
++def prefix_statistics(previous, current, block_size=32, *, include_blocks=True, max_visual_tokens=None):
+     """One metadata transfer; blocks are LLM spans, never EVA windows/IDs."""
+     if (previous.scope != current.scope or previous.signature != current.signature
+             or previous.layout_signature != current.layout_signature
+@@ -51,14 +67,12 @@ def prefix_statistics(previous, current, block_size=32, *, include_blocks=True):
+     values = [torch.where(embed_equal & metadata & finite, n, indices).min().float(),
+               torch.where(legal, n, indices).min().float()]
+     spans = []
+-    for group, start, stop in (current.visual_group_spans if include_blocks else ()):
+-        for lo in range(start, min(stop, n), block_size):
+-            hi = min(lo + block_size, stop, n)
+-            old, new = a[0, lo:hi].float(), b[0, lo:hi].float()
+-            delta = (new - old).square().sum(-1)
+-            scale = torch.maximum(old.square().sum(-1), new.square().sum(-1)).clamp_min(1e-12)
+-            values += [(delta.sum() / scale.sum()).sqrt(), (delta / scale).sqrt().max()]
+-            spans.append((group, lo, hi))
++    for group, lo, hi in (visual_block_spans(current,n,block_size,max_visual_tokens) if include_blocks else ()):
++        old, new = a[0, lo:hi].float(), b[0, lo:hi].float()
++        delta = (new - old).square().sum(-1)
++        scale = torch.maximum(old.square().sum(-1), new.square().sum(-1)).clamp_min(1e-12)
++        values += [(delta.sum() / scale.sum()).sqrt(), (delta / scale).sqrt().max()]
++        spans.append((group, lo, hi))
+     stats = torch.stack(values).cpu().tolist()
+     return int(stats[0]), int(stats[1]), [dict(group=g, start=a, end=b,
+         rms=stats[2+2*i], max_token=stats[3+2*i]) for i, (g, a, b) in enumerate(spans)]
+diff --git a/worldstream/m3/reuse_planner.py b/worldstream/m3/reuse_planner.py
+index 932aa984..3fc8577b 100644
+--- a/worldstream/m3/reuse_planner.py
++++ b/worldstream/m3/reuse_planner.py
+@@ -3,7 +3,7 @@ from dataclasses import dataclass, fields
+ from time import perf_counter
+ import math
+ from .task_conditioner import task_profile
+-from .prefix_matcher import PrefixProof, prefix_statistics, input_revision
++from .prefix_matcher import PrefixProof, prefix_statistics, input_revision, visual_block_spans
+ from .scheduler import POLICY_VERSION
+ 
+ WSDR_VERSION = POLICY_VERSION
+@@ -72,21 +72,31 @@ class ReusePlanner:
+             details['matched_prefix_tokens'] = 0
+             return none('cold_or_invalid_cache')
+         same_frame = entry.expanded.source[:2] == expanded.source[:2]
++        context = dict(context, task_profile=profile, input_tokens=expanded.length,
++            layout_signature=expanded.layout_signature, dtype=str(expanded.embeddings.dtype))
++        rule=self.scheduler.policy.get('profiles',{}).get(profile,{}).get('approx',{})
++        visual_cap=self.calibration_max_visual_tokens if self.calibration_threshold is not None else rule.get('max_visual_tokens')
++        age = frame_index - entry.root_frame_index
++        if age < 0:
++            raise ValueError('Cache frame order is invalid')
++        depth = entry.approx_reuse_depth + int(not same_frame)
+         need_blocks=(not same_frame and signals['m1_state_valid']
+             and self.scheduler.config.reuse_strategy!='exact_prefix'
+             and (self.calibration_threshold is not None or self.scheduler.needs_approximate_statistics(profile)))
++        if need_blocks and self.calibration_threshold is None:
++            lengths=[end-int(end==expanded.length) for _,_,end in visual_block_spans(expanded,
++                min(entry.expanded.length,expanded.length),self.scheduler.config.block_size,visual_cap)]
++            rejection=self.scheduler.approximate_statistics_rejection(context,lengths,age,depth)
++            details['approximate_statistics_rejection']=rejection
++            need_blocks=rejection is None
+         exact, legal, blocks = prefix_statistics(entry.expanded, expanded, self.scheduler.config.block_size,
+-            include_blocks=need_blocks)
++            include_blocks=need_blocks,max_visual_tokens=visual_cap)
+         details.update(matched_prefix_tokens=exact, structural_prefix_tokens=legal, block_changes=blocks)
+-        age = frame_index - entry.root_frame_index
+-        if age < 0:
+-            raise ValueError('Cache frame order is invalid')
+         inherited = entry.approx_reuse_depth > 0
+         # Bound a change of question dependencies without pretending the
+         # inherited approximate KV became exact when current embeddings match.
+         old_weights=WEIGHTS[entry.risk_profile]
+         inherited_risk=entry.quality_risk*max(a/b for a,b in zip(WEIGHTS[profile],old_weights))
+-        depth = entry.approx_reuse_depth + int(not same_frame)
+         if not inherited:
+             depth = int(not same_frame)
+         candidates = []
+@@ -104,8 +114,6 @@ class ReusePlanner:
+             if not signals['m2_context_valid']:factor += .25
+             rms = max_token = 0.
+             risk = inherited_risk
+-            rule=self.scheduler.policy.get('profiles',{}).get(profile,{}).get('approx',{})
+-            visual_cap=self.calibration_max_visual_tokens if self.calibration_threshold is not None else rule.get('max_visual_tokens')
+             first_visual=expanded.visual_group_spans[0][1]
+             for b in blocks:
+                 if visual_cap is not None and b['end']>first_visual+visual_cap:break
+@@ -123,8 +131,6 @@ class ReusePlanner:
+         for c in candidates:
+             if c['length'] == expanded.length and (c['reuse_type'] != 'exact' or entry.expanded.length != expanded.length):
+                 c['length'] -= 1
+-        context = dict(context, task_profile=profile, input_tokens=expanded.length,
+-            layout_signature=expanded.layout_signature, dtype=str(expanded.embeddings.dtype))
+         policy = self.scheduler.policy
+         trial = self.calibration_threshold
+         if trial is not None:
+diff --git a/worldstream/m3/runtime.py b/worldstream/m3/runtime.py
+index 9b1fd0b0..1327b9db 100644
+--- a/worldstream/m3/runtime.py
++++ b/worldstream/m3/runtime.py
+@@ -133,6 +133,7 @@ class M3Runtime:
+                 matched_prefix=matched,prefix_admission=reason,state_retrieval=retrieval,
+                 full_prefill_reason=reason if not diag['reused_tokens'] else None,
+                 visual_tokens=int(expanded.visual_mask.sum()),
++                visual_group_spans=expanded.visual_group_spans,
+                 historical_text_consumed=bool(retrieval['admitted']),current_visual_complete=True,
+                 executor='PrefillExecutor',reuse_strategy='wsdr_kv',
+                 prefix_rejection_reason=reason if not decision.reuse_length else None,
+diff --git a/worldstream/m3/scheduler.py b/worldstream/m3/scheduler.py
+index 884b07a8..64de888e 100644
+--- a/worldstream/m3/scheduler.py
++++ b/worldstream/m3/scheduler.py
+@@ -55,6 +55,26 @@ class Scheduler:
+         evidence=self.policy.get('profiles',{}).get(profile,{}).get('approx',{})
+         return self.quality_rejection(evidence) is None
+ 
++    def approximate_statistics_rejection(self, context, lengths, age, depth):
++        """Reject impossible endpoints before GPU RMS; never admit a candidate.
++
++        Zero risk and zero overhead are optimistic bounds. If every actual
++        block endpoint fails even these bounds, measured risk cannot help it.
++        Selection still evaluates all surviving candidates with actual costs.
++        """
++        if not self.policy:return self.reason
++        if not self.compatible(context):return 'reuse_policy_binding_mismatch'
++        evidence=self.policy['profiles'].get(context['task_profile'],{}).get('approx',{})
++        reason=self.quality_rejection(evidence)
++        if reason:return reason
++        reasons=[]
++        for length in lengths:
++            candidate=dict(length=length,reuse_type='bounded_approx',risk=0.,rms=0.,max_token=0.,age=age,depth=depth)
++            reason,_,_=self.evaluate_candidate(candidate,context,0.)
++            if reason=='eligible':return None
++            reasons.append(reason)
++        return reasons[0] if reasons else 'no_visual_block_within_cap'
++
+     def evaluate_candidate(self,c,context,overhead_ms):
+         """First failed predicate; no policy mutation or alternative admission."""
+         if c['length']<self.config.min_prefix_tokens:return 'prefix_below_minimum',None,None

@@ -55,6 +55,26 @@ class Scheduler:
         evidence=self.policy.get('profiles',{}).get(profile,{}).get('approx',{})
         return self.quality_rejection(evidence) is None
 
+    def approximate_statistics_rejection(self, context, lengths, age, depth):
+        """Reject impossible endpoints before GPU RMS; never admit a candidate.
+
+        Zero risk and zero overhead are optimistic bounds. If every actual
+        block endpoint fails even these bounds, measured risk cannot help it.
+        Selection still evaluates all surviving candidates with actual costs.
+        """
+        if not self.policy:return self.reason
+        if not self.compatible(context):return 'reuse_policy_binding_mismatch'
+        evidence=self.policy['profiles'].get(context['task_profile'],{}).get('approx',{})
+        reason=self.quality_rejection(evidence)
+        if reason:return reason
+        reasons=[]
+        for length in lengths:
+            candidate=dict(length=length,reuse_type='bounded_approx',risk=0.,rms=0.,max_token=0.,age=age,depth=depth)
+            reason,_,_=self.evaluate_candidate(candidate,context,0.)
+            if reason=='eligible':return None
+            reasons.append(reason)
+        return reasons[0] if reasons else 'no_visual_block_within_cap'
+
     def evaluate_candidate(self,c,context,overhead_ms):
         """First failed predicate; no policy mutation or alternative admission."""
         if c['length']<self.config.min_prefix_tokens:return 'prefix_below_minimum',None,None

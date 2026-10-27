@@ -1,0 +1,549 @@
+{
+  "policy": {
+    "version": "quality_bounded_wsdr_v1",
+    "binding": {
+      "model_version": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+      "weights_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+      "execution_key": "b005c1208f71af5ca94861a89c6c521bb4b971791244c3e68483e398fd2dcd15",
+      "generation_key": "0ad71eb87f5adcfb6538038716caa2d4ffc32afcf42a3b0269e7629d4c6d5647",
+      "layout_signature": "17329596d6973e0234a0e353d9481b5be61320f74162a62eadbf0c4c7b9fa39a",
+      "dtype": "torch.float16"
+    },
+    "block_size": 32,
+    "quality_budget": 0.02,
+    "max_cache_age_frames": 2,
+    "max_approx_depth": 1,
+    "history_text": false,
+    "profiles": {
+      "full_visual": {
+        "exact": {
+          "risk_limit": 0.0,
+          "max_rms": 2.0,
+          "max_token_change": 2.0,
+          "max_visual_tokens": 128,
+          "quality_loss_upper": 0.02032092638544251,
+          "calibration_quality_loss_upper": 0.003384733018988151,
+          "validation_quality_loss_upper": 0.02032092638544251,
+          "critical_regressions": 0,
+          "calibration_samples": 19,
+          "validation_samples": 26,
+          "cost": {
+            "net_saved_ms_per_token": 0.22962900443262674,
+            "fixed_overhead_ms": 0.0,
+            "min_input_tokens": 571,
+            "max_input_tokens": 584,
+            "min_reuse_tokens": 35,
+            "max_reuse_tokens": 559,
+            "samples": 19,
+            "cross_frame_visual_samples": null,
+            "validation_cross_frame_visual_samples": null,
+            "cost_scope": "paired complete M3 wall incl. match, branch, cache update, prefill and affected decode",
+            "reference_execution": "legacy native LM head on identical M1/M2 carriers",
+            "overhead_scope": "legacy planning-only evidence; online preparation/signature deduction remains conservative",
+            "planning_ms": 1.1144398564570828,
+            "branch_ms": 0.8890206296192972,
+            "prefill_ms": 45.98074601825915,
+            "decode_ms": 605.6343913831209,
+            "cache_update_enqueue_ms": 0.625651844434048
+          }
+        }
+      },
+      "map_relations": {
+        "exact": {
+          "risk_limit": 0.0,
+          "max_rms": 2.0,
+          "max_token_change": 2.0,
+          "max_visual_tokens": 128,
+          "quality_loss_upper": 0.0,
+          "calibration_quality_loss_upper": 0.0,
+          "validation_quality_loss_upper": 0.0,
+          "critical_regressions": 0,
+          "calibration_samples": 7,
+          "validation_samples": 7,
+          "cost": {
+            "net_saved_ms_per_token": 0.29323621507659803,
+            "fixed_overhead_ms": 20.342574034897453,
+            "min_input_tokens": 572,
+            "max_input_tokens": 581,
+            "min_reuse_tokens": 35,
+            "max_reuse_tokens": 559,
+            "samples": 7,
+            "cross_frame_visual_samples": null,
+            "validation_cross_frame_visual_samples": null,
+            "cost_scope": "paired complete M3 wall incl. match, branch, cache update, prefill and affected decode",
+            "reference_execution": "legacy native LM head on identical M1/M2 carriers",
+            "overhead_scope": "legacy planning-only evidence; online preparation/signature deduction remains conservative",
+            "planning_ms": 1.2558066020054477,
+            "branch_ms": 0.6176000024591174,
+            "prefill_ms": 116.72320583888462,
+            "decode_ms": 438.82240077427457,
+            "cache_update_enqueue_ms": 3.493812134755509
+          }
+        }
+      },
+      "object_attributes": {
+        "exact": {
+          "risk_limit": 0.0,
+          "max_rms": 2.0,
+          "max_token_change": 2.0,
+          "max_visual_tokens": 128,
+          "quality_loss_upper": 0.0,
+          "calibration_quality_loss_upper": 0.0,
+          "validation_quality_loss_upper": 0.0,
+          "critical_regressions": 0,
+          "calibration_samples": 7,
+          "validation_samples": 1,
+          "cost": {
+            "net_saved_ms_per_token": 0.2911064940576621,
+            "fixed_overhead_ms": 20.059031875511717,
+            "min_input_tokens": 572,
+            "max_input_tokens": 585,
+            "min_reuse_tokens": 35,
+            "max_reuse_tokens": 559,
+            "samples": 7,
+            "cross_frame_visual_samples": null,
+            "validation_cross_frame_visual_samples": null,
+            "cost_scope": "paired complete M3 wall incl. match, branch, cache update, prefill and affected decode",
+            "reference_execution": "legacy native LM head on identical M1/M2 carriers",
+            "overhead_scope": "legacy planning-only evidence; online preparation/signature deduction remains conservative",
+            "planning_ms": 1.2295510885970933,
+            "branch_ms": 0.6647497202668872,
+            "prefill_ms": 115.71720286778041,
+            "decode_ms": 649.2677743094308,
+            "cache_update_enqueue_ms": 3.404300061187574
+          }
+        }
+      },
+      "object_ego_motion": {}
+    },
+    "threshold_selection": {
+      "full_visual": 0.0,
+      "map_relations": 0.0,
+      "object_attributes": 0.0,
+      "object_ego_motion": 0.9708193182013929
+    },
+    "scene_splits": {
+      "201b7c65a61f4bc1a2333ea90ba9a932": "calibration",
+      "2086743226764f268fe8d4b0b7c19590": "calibration",
+      "223096a415cc45bf8ecd4c3a42251fd7": "validation",
+      "265f002f02d447ad9074813292eef75e": "validation"
+    },
+    "calibration_samples": 72,
+    "validation_samples": 72,
+    "quality_definition": "paired GT Token F1 upper bound + no new correct-to-incorrect numeric/spatial/motion/safety parser errors",
+    "limitations": [
+      "Small-sample empirical bounds, not a mathematical guarantee",
+      "Task labels are explicit lexical proxies, not human semantic approval",
+      "Unseen profiles/input lengths stay on the same executor with reuse_length=0"
+    ]
+  },
+  "curve": [
+    {
+      "profile": "full_visual",
+      "threshold": 0.0,
+      "calibration": {
+        "samples": 20,
+        "quality_loss_upper": 0.0032154963680387414,
+        "mean_f1_loss": -0.00334947538337369,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 20,
+          "mean": 665.2309941360727,
+          "p50": 651.4255886431783,
+          "p95": 855.4690981516618,
+          "maximum": 1270.1424439437687,
+          "total": 13304.619882721454
+        },
+        "baseline_ms": {
+          "n": 20,
+          "mean": 757.2905894834548,
+          "p50": 774.2222361266613,
+          "p95": 965.9686299739406,
+          "maximum": 975.9448901750147,
+          "total": 15145.811789669096
+        },
+        "reused_tokens": 9558
+      },
+      "validation": {
+        "samples": 27,
+        "quality_loss_upper": 0.019568299482277972,
+        "mean_f1_loss": 0.006610911987256073,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 27,
+          "mean": 606.2176361749017,
+          "p50": 527.1201827563345,
+          "p95": 1107.7421279624104,
+          "maximum": 1398.53112725541,
+          "total": 16367.876176722348
+        },
+        "baseline_ms": {
+          "n": 27,
+          "mean": 717.9907523095608,
+          "p50": 618.753639049828,
+          "p95": 1218.2206365745515,
+          "maximum": 1540.591673925519,
+          "total": 19385.75031235814
+        },
+        "reused_tokens": 11895
+      }
+    },
+    {
+      "profile": "full_visual",
+      "threshold": 0.9708193182013929,
+      "calibration": {
+        "samples": 20,
+        "quality_loss_upper": 0.0032154963680387414,
+        "mean_f1_loss": -0.00334947538337369,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 20,
+          "mean": 703.5343037452549,
+          "p50": 683.5417791735381,
+          "p95": 1000.643278192729,
+          "maximum": 1269.4886489771307,
+          "total": 14070.686074905097
+        },
+        "baseline_ms": {
+          "n": 20,
+          "mean": 757.2905894834548,
+          "p50": 774.2222361266613,
+          "p95": 965.9686299739406,
+          "maximum": 975.9448901750147,
+          "total": 15145.811789669096
+        },
+        "reused_tokens": 6767
+      },
+      "validation": {
+        "samples": 27,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 27,
+          "mean": 623.2865828572324,
+          "p50": 527.7553796768188,
+          "p95": 1205.287489388138,
+          "maximum": 1398.7389630638063,
+          "total": 16828.737737145275
+        },
+        "baseline_ms": {
+          "n": 27,
+          "mean": 717.9907523095608,
+          "p50": 618.753639049828,
+          "p95": 1218.2206365745515,
+          "maximum": 1540.591673925519,
+          "total": 19385.75031235814
+        },
+        "reused_tokens": 10406
+      }
+    },
+    {
+      "profile": "map_relations",
+      "threshold": 0.0,
+      "calibration": {
+        "samples": 8,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 8,
+          "mean": 559.3221395392902,
+          "p50": 589.0920180827379,
+          "p95": 772.9872981552033,
+          "maximum": 835.443202406168,
+          "total": 4474.577116314322
+        },
+        "baseline_ms": {
+          "n": 8,
+          "mean": 672.7000552345999,
+          "p50": 633.1980563700199,
+          "p95": 955.6002459721639,
+          "maximum": 1026.1015240103006,
+          "total": 5381.600441876799
+        },
+        "reused_tokens": 1815
+      },
+      "validation": {
+        "samples": 8,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 8,
+          "mean": 785.7019381481223,
+          "p50": 794.5964969694614,
+          "p95": 1045.3690667403862,
+          "maximum": 1090.5577410012484,
+          "total": 6285.615505184978
+        },
+        "baseline_ms": {
+          "n": 8,
+          "mean": 814.9623947101645,
+          "p50": 812.826422508806,
+          "p95": 1037.486253795214,
+          "maximum": 1084.0788558125496,
+          "total": 6519.699157681316
+        },
+        "reused_tokens": 1292
+      }
+    },
+    {
+      "profile": "map_relations",
+      "threshold": 0.9708193182013929,
+      "calibration": {
+        "samples": 8,
+        "quality_loss_upper": 0.01360294117647058,
+        "mean_f1_loss": 0.004595588235294115,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 8,
+          "mean": 561.6497238515876,
+          "p50": 565.4485188424587,
+          "p95": 749.6775239706038,
+          "maximum": 812.530652154237,
+          "total": 4493.197790812701
+        },
+        "baseline_ms": {
+          "n": 8,
+          "mean": 672.7000552345999,
+          "p50": 633.1980563700199,
+          "p95": 955.6002459721639,
+          "maximum": 1026.1015240103006,
+          "total": 5381.600441876799
+        },
+        "reused_tokens": 1768
+      },
+      "validation": {
+        "samples": 8,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 8,
+          "mean": 774.0082480595447,
+          "p50": 795.4410742968321,
+          "p95": 1029.6770653687418,
+          "maximum": 1067.5772288814187,
+          "total": 6192.065984476358
+        },
+        "baseline_ms": {
+          "n": 8,
+          "mean": 814.9623947101645,
+          "p50": 812.826422508806,
+          "p95": 1037.486253795214,
+          "maximum": 1084.0788558125496,
+          "total": 6519.699157681316
+        },
+        "reused_tokens": 1769
+      }
+    },
+    {
+      "profile": "object_attributes",
+      "threshold": 0.0,
+      "calibration": {
+        "samples": 7,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 7,
+          "mean": 775.5305946671537,
+          "p50": 702.3233538493514,
+          "p95": 1080.672794114798,
+          "maximum": 1165.3671278618276,
+          "total": 5428.714162670076
+        },
+        "baseline_ms": {
+          "n": 7,
+          "mean": 831.7713942378759,
+          "p50": 743.1561551056802,
+          "p95": 1177.553239604458,
+          "maximum": 1306.9189521484077,
+          "total": 5822.399759665132
+        },
+        "reused_tokens": 1815
+      },
+      "validation": {
+        "samples": 1,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 1,
+          "mean": 731.0573076829314,
+          "p50": 731.0573076829314,
+          "p95": 731.0573076829314,
+          "maximum": 731.0573076829314,
+          "total": 731.0573076829314
+        },
+        "baseline_ms": {
+          "n": 1,
+          "mean": 872.4112338386476,
+          "p50": 872.4112338386476,
+          "p95": 872.4112338386476,
+          "maximum": 872.4112338386476,
+          "total": 872.4112338386476
+        },
+        "reused_tokens": 558
+      }
+    },
+    {
+      "profile": "object_attributes",
+      "threshold": 0.9708193182013929,
+      "calibration": {
+        "samples": 7,
+        "quality_loss_upper": 0.005057611125421659,
+        "mean_f1_loss": -0.019046054404383766,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 7,
+          "mean": 787.1167077017682,
+          "p50": 696.3642570190132,
+          "p95": 1111.2180737778542,
+          "maximum": 1164.8269863799214,
+          "total": 5509.816953912377
+        },
+        "baseline_ms": {
+          "n": 7,
+          "mean": 831.7713942378759,
+          "p50": 743.1561551056802,
+          "p95": 1177.553239604458,
+          "maximum": 1306.9189521484077,
+          "total": 5822.399759665132
+        },
+        "reused_tokens": 2071
+      },
+      "validation": {
+        "samples": 1,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 1,
+          "mean": 731.2950273044407,
+          "p50": 731.2950273044407,
+          "p95": 731.2950273044407,
+          "maximum": 731.2950273044407,
+          "total": 731.2950273044407
+        },
+        "baseline_ms": {
+          "n": 1,
+          "mean": 872.4112338386476,
+          "p50": 872.4112338386476,
+          "p95": 872.4112338386476,
+          "maximum": 872.4112338386476,
+          "total": 872.4112338386476
+        },
+        "reused_tokens": 558
+      }
+    },
+    {
+      "profile": "object_ego_motion",
+      "threshold": 0.0,
+      "calibration": {
+        "samples": 1,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 1,
+          "mean": 701.644373126328,
+          "p50": 701.644373126328,
+          "p95": 701.644373126328,
+          "maximum": 701.644373126328,
+          "total": 701.644373126328
+        },
+        "baseline_ms": {
+          "n": 1,
+          "mean": 838.906466960907,
+          "p50": 838.906466960907,
+          "p95": 838.906466960907,
+          "maximum": 838.906466960907,
+          "total": 838.906466960907
+        },
+        "reused_tokens": 558
+      },
+      "validation": {
+        "samples": 0,
+        "quality_loss_upper": null,
+        "mean_f1_loss": null,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 0,
+          "mean": null,
+          "p50": null,
+          "p95": null,
+          "maximum": null,
+          "total": null
+        },
+        "baseline_ms": {
+          "n": 0,
+          "mean": null,
+          "p50": null,
+          "p95": null,
+          "maximum": null,
+          "total": null
+        },
+        "reused_tokens": 0
+      }
+    },
+    {
+      "profile": "object_ego_motion",
+      "threshold": 0.9708193182013929,
+      "calibration": {
+        "samples": 1,
+        "quality_loss_upper": 0.0,
+        "mean_f1_loss": 0.0,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 1,
+          "mean": 701.5089807100594,
+          "p50": 701.5089807100594,
+          "p95": 701.5089807100594,
+          "maximum": 701.5089807100594,
+          "total": 701.5089807100594
+        },
+        "baseline_ms": {
+          "n": 1,
+          "mean": 838.906466960907,
+          "p50": 838.906466960907,
+          "p95": 838.906466960907,
+          "maximum": 838.906466960907,
+          "total": 838.906466960907
+        },
+        "reused_tokens": 558
+      },
+      "validation": {
+        "samples": 0,
+        "quality_loss_upper": null,
+        "mean_f1_loss": null,
+        "critical_regressions": 0,
+        "runtime_ms": {
+          "n": 0,
+          "mean": null,
+          "p50": null,
+          "p95": null,
+          "maximum": null,
+          "total": null
+        },
+        "baseline_ms": {
+          "n": 0,
+          "mean": null,
+          "p50": null,
+          "p95": null,
+          "maximum": null,
+          "total": null
+        },
+        "reused_tokens": 0
+      }
+    }
+  ],
+  "source_sha256": "84d79fad31b3492bdee64e36cdf4c4fb9b2c821866dae28674c973200f954a98",
+  "known_critical_evidence": [
+    "historical_semantic_failure.json",
+    "calibration_semantic_review.json"
+  ],
+  "deployment_allowed": false,
+  "scope": "Same frozen development observations; cross-frame evidence fix, no new threshold search or deployment writes. Historical semantic failures remain binding regardless of a raw fitted lexical bound."
+}

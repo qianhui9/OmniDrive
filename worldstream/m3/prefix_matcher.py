@@ -26,8 +26,24 @@ class PrefixProof:
     max_approx_depth: int
 
 
+def visual_block_spans(current, length, block_size=32, max_visual_tokens=None):
+    """The existing contiguous block endpoints, optionally capped by policy.
+
+    The cap never creates a new partial block or skips a changed earlier group.
+    Exact/structural matching still covers the complete input independently.
+    """
+    first = current.visual_group_spans[0][1] if current.visual_group_spans else 0
+    cap = first + max_visual_tokens if max_visual_tokens is not None else length
+    for group, start, stop in current.visual_group_spans:
+        for lo in range(start, min(stop, length), block_size):
+            hi = min(lo + block_size, stop, length)
+            if hi > cap:
+                return
+            yield group, lo, hi
+
+
 @torch.no_grad()
-def prefix_statistics(previous, current, block_size=32, *, include_blocks=True):
+def prefix_statistics(previous, current, block_size=32, *, include_blocks=True, max_visual_tokens=None):
     """One metadata transfer; blocks are LLM spans, never EVA windows/IDs."""
     if (previous.scope != current.scope or previous.signature != current.signature
             or previous.layout_signature != current.layout_signature
@@ -51,14 +67,12 @@ def prefix_statistics(previous, current, block_size=32, *, include_blocks=True):
     values = [torch.where(embed_equal & metadata & finite, n, indices).min().float(),
               torch.where(legal, n, indices).min().float()]
     spans = []
-    for group, start, stop in (current.visual_group_spans if include_blocks else ()):
-        for lo in range(start, min(stop, n), block_size):
-            hi = min(lo + block_size, stop, n)
-            old, new = a[0, lo:hi].float(), b[0, lo:hi].float()
-            delta = (new - old).square().sum(-1)
-            scale = torch.maximum(old.square().sum(-1), new.square().sum(-1)).clamp_min(1e-12)
-            values += [(delta.sum() / scale.sum()).sqrt(), (delta / scale).sqrt().max()]
-            spans.append((group, lo, hi))
+    for group, lo, hi in (visual_block_spans(current,n,block_size,max_visual_tokens) if include_blocks else ()):
+        old, new = a[0, lo:hi].float(), b[0, lo:hi].float()
+        delta = (new - old).square().sum(-1)
+        scale = torch.maximum(old.square().sum(-1), new.square().sum(-1)).clamp_min(1e-12)
+        values += [(delta.sum() / scale.sum()).sqrt(), (delta / scale).sqrt().max()]
+        spans.append((group, lo, hi))
     stats = torch.stack(values).cpu().tolist()
     return int(stats[0]), int(stats[1]), [dict(group=g, start=a, end=b,
         rms=stats[2+2*i], max_token=stats[3+2*i]) for i, (g, a, b) in enumerate(spans)]

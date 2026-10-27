@@ -3,7 +3,7 @@ from dataclasses import dataclass, fields
 from time import perf_counter
 import math
 from .task_conditioner import task_profile
-from .prefix_matcher import PrefixProof, prefix_statistics, input_revision
+from .prefix_matcher import PrefixProof, prefix_statistics, input_revision, visual_block_spans
 from .scheduler import POLICY_VERSION
 
 WSDR_VERSION = POLICY_VERSION
@@ -72,21 +72,31 @@ class ReusePlanner:
             details['matched_prefix_tokens'] = 0
             return none('cold_or_invalid_cache')
         same_frame = entry.expanded.source[:2] == expanded.source[:2]
-        need_blocks=(not same_frame and signals['m1_state_valid']
-            and self.scheduler.config.reuse_strategy!='exact_prefix'
-            and (self.calibration_threshold is not None or self.scheduler.needs_approximate_statistics(profile)))
-        exact, legal, blocks = prefix_statistics(entry.expanded, expanded, self.scheduler.config.block_size,
-            include_blocks=need_blocks)
-        details.update(matched_prefix_tokens=exact, structural_prefix_tokens=legal, block_changes=blocks)
+        context = dict(context, task_profile=profile, input_tokens=expanded.length,
+            layout_signature=expanded.layout_signature, dtype=str(expanded.embeddings.dtype))
+        rule=self.scheduler.policy.get('profiles',{}).get(profile,{}).get('approx',{})
+        visual_cap=self.calibration_max_visual_tokens if self.calibration_threshold is not None else rule.get('max_visual_tokens')
         age = frame_index - entry.root_frame_index
         if age < 0:
             raise ValueError('Cache frame order is invalid')
+        depth = entry.approx_reuse_depth + int(not same_frame)
+        need_blocks=(not same_frame and signals['m1_state_valid']
+            and self.scheduler.config.reuse_strategy!='exact_prefix'
+            and (self.calibration_threshold is not None or self.scheduler.needs_approximate_statistics(profile)))
+        if need_blocks and self.calibration_threshold is None:
+            lengths=[end-int(end==expanded.length) for _,_,end in visual_block_spans(expanded,
+                min(entry.expanded.length,expanded.length),self.scheduler.config.block_size,visual_cap)]
+            rejection=self.scheduler.approximate_statistics_rejection(context,lengths,age,depth)
+            details['approximate_statistics_rejection']=rejection
+            need_blocks=rejection is None
+        exact, legal, blocks = prefix_statistics(entry.expanded, expanded, self.scheduler.config.block_size,
+            include_blocks=need_blocks,max_visual_tokens=visual_cap)
+        details.update(matched_prefix_tokens=exact, structural_prefix_tokens=legal, block_changes=blocks)
         inherited = entry.approx_reuse_depth > 0
         # Bound a change of question dependencies without pretending the
         # inherited approximate KV became exact when current embeddings match.
         old_weights=WEIGHTS[entry.risk_profile]
         inherited_risk=entry.quality_risk*max(a/b for a,b in zip(WEIGHTS[profile],old_weights))
-        depth = entry.approx_reuse_depth + int(not same_frame)
         if not inherited:
             depth = int(not same_frame)
         candidates = []
@@ -104,8 +114,6 @@ class ReusePlanner:
             if not signals['m2_context_valid']:factor += .25
             rms = max_token = 0.
             risk = inherited_risk
-            rule=self.scheduler.policy.get('profiles',{}).get(profile,{}).get('approx',{})
-            visual_cap=self.calibration_max_visual_tokens if self.calibration_threshold is not None else rule.get('max_visual_tokens')
             first_visual=expanded.visual_group_spans[0][1]
             for b in blocks:
                 if visual_cap is not None and b['end']>first_visual+visual_cap:break
@@ -123,8 +131,6 @@ class ReusePlanner:
         for c in candidates:
             if c['length'] == expanded.length and (c['reuse_type'] != 'exact' or entry.expanded.length != expanded.length):
                 c['length'] -= 1
-        context = dict(context, task_profile=profile, input_tokens=expanded.length,
-            layout_signature=expanded.layout_signature, dtype=str(expanded.embeddings.dtype))
         policy = self.scheduler.policy
         trial = self.calibration_threshold
         if trial is not None:

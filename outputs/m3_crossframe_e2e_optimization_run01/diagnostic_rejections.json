@@ -1,0 +1,32 @@
+{
+  "requests": 72,
+  "requests_with_each_reason": {
+    "cold_cache": 4,
+    "task_profile_not_calibrated": 1,
+    "critical_regressions": 45,
+    "quality_loss_exceeds_budget": 8,
+    "risk_limit": 3,
+    "input_tokens_out_of_range": 3,
+    "reuse_tokens_below_range": 8
+  },
+  "by_profile": {
+    "map_relations": {
+      "cold_cache": 2,
+      "reuse_tokens_below_range": 8,
+      "input_tokens_out_of_range": 2
+    },
+    "object_ego_motion": {
+      "task_profile_not_calibrated": 1
+    },
+    "full_visual": {
+      "critical_regressions": 45,
+      "cold_cache": 2
+    },
+    "object_attributes": {
+      "quality_loss_exceeds_budget": 8,
+      "risk_limit": 3,
+      "input_tokens_out_of_range": 1
+    }
+  },
+  "scope": "Original formal-policy developer diagnostic, actual candidate evaluations; each reason counted at most once per request, not once per block. Timed acceptance decisions remain separately reported."
+}

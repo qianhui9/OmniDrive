@@ -84,6 +84,16 @@ def aggregate(rows):
         reused_tokens=sum(r['diagnostics']['reused_tokens'] for r in rows))
 
 
+def cross_frame_visual(row):
+    """Require actual cross-frame visual reuse, not inherited same-frame KV."""
+    d=row['diagnostics']
+    source=d.get('cache_source_frame')
+    target=row.get('frame_id')
+    spans=d.get('visual_group_spans') or [(b['group'],b['start'],b['end']) for b in d.get('block_changes',[])]
+    return bool(source and target and source!=target and spans
+        and d['reused_tokens']>min(s[1] for s in spans))
+
+
 def fit_policy(records, binding, sequence, budget=.02, block_size=32):
     """Select thresholds using calibration scenes ONLY, then validate once.
 
@@ -118,16 +128,30 @@ def fit_policy(records, binding, sequence, budget=.02, block_size=32):
             val=[r for r in subset if r.get('split','calibration' if r['scene_id'] in cal_scenes else 'validation')=='validation']
             loss=quality_upper(cal);heldout_loss=quality_upper(val)
             if not cal or not val:continue
+            # Historical approximate fits could contain only inherited
+            # same-frame KV (558 tokens) while the cross-frame cap was 163.
+            # Keep all descendants in the quality bound, but require independent
+            # cross-frame visual evidence for the approximate cost range.
+            cost_cal=[r for r in cal if cross_frame_visual(r)] if kind=='bounded_approx' else cal
+            cost_val=[r for r in val if cross_frame_visual(r)] if kind=='bounded_approx' else val
+            if not cost_cal or not cost_val:continue
+            if kind=='bounded_approx':
+                input_range=[min(r['diagnostics']['input_tokens'] for r in cost_cal),max(r['diagnostics']['input_tokens'] for r in cost_cal)]
+                reuse_range=[min(r['diagnostics']['reused_tokens'] for r in cost_cal),max(r['diagnostics']['reused_tokens'] for r in cost_cal)]
+                cost_val=[r for r in cost_val if input_range[0]<=r['diagnostics']['input_tokens']<=input_range[1]
+                    and reuse_range[0]<=r['diagnostics']['reused_tokens']<=reuse_range[1]]
+                if not cost_val:continue
             # Costs fitted on calibration only; validation remains a check.
-            lengths=np.array([r['diagnostics']['reused_tokens'] for r in cal],dtype=float)
-            savings=np.array([r['baseline_wall_ms']-r['candidate_wall_ms']+r['diagnostics']['planning_ms'] for r in cal])
+            lengths=np.array([r['diagnostics']['reused_tokens'] for r in cost_cal],dtype=float)
+            savings=np.array([r['baseline_wall_ms']-r['candidate_wall_ms']+
+                r.get('scheduler_overhead_ms',r['diagnostics']['planning_ms']) for r in cost_cal])
             if np.ptp(lengths)>=1:
                 slope,intercept=np.polyfit(lengths,savings,1)
                 residual=savings-(slope*lengths+intercept)
                 fixed=max(0.,float(-intercept-np.percentile(residual,20)))
             else:
                 slope=float(np.percentile(savings/lengths,20));fixed=0.
-            n=[r['diagnostics']['input_tokens'] for r in subset]
+            n=[r['diagnostics']['input_tokens'] for r in cost_cal]
             evidence=dict(risk_limit=chosen,max_rms=2.,max_token_change=2.,
                 max_visual_tokens=next((r.get('max_visual_tokens') for r in subset),None),
                 quality_loss_upper=max(loss,heldout_loss),calibration_quality_loss_upper=loss,
@@ -136,14 +160,19 @@ def fit_policy(records, binding, sequence, budget=.02, block_size=32):
                 calibration_samples=len(cal),validation_samples=len(val),
                 cost=dict(net_saved_ms_per_token=float(slope),fixed_overhead_ms=fixed,
                     min_input_tokens=min(n),max_input_tokens=max(n),
-                    min_reuse_tokens=min(r['diagnostics']['reused_tokens'] for r in cal),
-                    max_reuse_tokens=max(r['diagnostics']['reused_tokens'] for r in subset),
-                    samples=len(cal),cost_scope='paired complete M3 wall incl. match, branch, cache update, prefill and affected decode',
-                    planning_ms=float(np.mean([r['diagnostics']['planning_ms'] for r in cal])),
-                    branch_ms=float(np.mean([r['diagnostics'].get('cache_branch_ms',0) or 0 for r in cal])),
-                    prefill_ms=float(np.mean([r['diagnostics']['prefill_ms'] for r in cal])),
-                    decode_ms=float(np.mean([r['diagnostics']['decode_ms'] for r in cal])),
-                    cache_update_enqueue_ms=float(np.mean([r['diagnostics'].get('cache_update_cpu_enqueue_ms',0) for r in cal]))))
+                    min_reuse_tokens=min(r['diagnostics']['reused_tokens'] for r in cost_cal),
+                    max_reuse_tokens=max(r['diagnostics']['reused_tokens'] for r in cost_cal),
+                    samples=len(cost_cal),cross_frame_visual_samples=len(cost_cal) if kind=='bounded_approx' else None,
+                    validation_cross_frame_visual_samples=len(cost_val) if kind=='bounded_approx' else None,
+                    cost_scope='paired complete M3 wall incl. match, branch, cache update, prefill and affected decode',
+                    reference_execution=cost_cal[0].get('cost_reference','legacy native LM head on identical M1/M2 carriers'),
+                    overhead_scope='measured scheduler input preparation/signature plus planning' if all('scheduler_overhead_ms' in r for r in cost_cal)
+                        else 'legacy planning-only evidence; online preparation/signature deduction remains conservative',
+                    planning_ms=float(np.mean([r['diagnostics']['planning_ms'] for r in cost_cal])),
+                    branch_ms=float(np.mean([r['diagnostics'].get('cache_branch_ms',0) or 0 for r in cost_cal])),
+                    prefill_ms=float(np.mean([r['diagnostics']['prefill_ms'] for r in cost_cal])),
+                    decode_ms=float(np.mean([r['diagnostics']['decode_ms'] for r in cost_cal])),
+                    cache_update_enqueue_ms=float(np.mean([r['diagnostics'].get('cache_update_cpu_enqueue_ms',0) for r in cost_cal]))))
             rule['exact' if kind=='exact' else 'approx']=evidence
         profiles[profile]=rule
     return dict(version=POLICY_VERSION,binding=binding,block_size=block_size,quality_budget=budget,
@@ -214,7 +243,8 @@ def calibrate(args):
     import projects.mmdet3d_plugin
     model=load_model(cfg,args.checkpoint,out)
     observer=Observer(model)
-    frames=[torch.load(capture/'m3_inputs'/(t+'.pt'),map_location='cpu') for t in sequence['tokens']]
+    from tools.worldstream_m123.latency_controls import load_capture
+    frames=[load_capture(capture/'m3_inputs'/(t+'.pt')) for t in sequence['tokens']]
     native_rows=[json.loads(x) for x in (capture/'per_question_metrics.jsonl').read_text().splitlines()]
     native={(r['frame_id'],r['question']):r for r in native_rows}
     # Thresholds come from natural calibration-scene deltas only, in native dtype.
@@ -236,6 +266,12 @@ def calibrate(args):
     runtimes={t:M3Runtime(M3Config(block_size=args.block_size,quality_budget=args.quality_budget)) for t in thresholds}
     for t,runtime in runtimes.items():runtime.planner=ReusePlanner(runtime.scheduler,calibration_threshold=t,
         calibration_max_visual_tokens=args.max_visual_tokens)
+    for runtime in runtimes.values():
+        original=runtime.planner.plan
+        def observed_plan(*a,_runtime=runtime,_original=original,**kw):
+            _runtime._calibration_input_overhead_ms=kw.get('overhead_ms',0.)
+            return _original(*a,**kw)
+        runtime.planner.plan=observed_plan
     records=[];binding=None
     for ordinal,frame in enumerate(frames):
         scene=frame['context']['scene_id'];fid=frame['context']['frame_id']
@@ -268,6 +304,8 @@ def calibrate(args):
                     split=sequence.get('frame_splits',{}).get(fid,sequence['scene_splits'][scene]),
                     max_visual_tokens=args.max_visual_tokens,profile=d['task_profile'],question=question,reference=gt.get(question),
                     threshold=threshold,baseline_wall_ms=baseline_ms,candidate_wall_ms=elapsed,
+                    cost_reference='native LM head on identical M1/M2 carriers',
+                    scheduler_overhead_ms=runtime._calibration_input_overhead_ms+d['planning_ms'],
                     baseline_answer=baseline,answer=answer,quality=paired_quality(answer,baseline,gt.get(question)),
                     diagnostics=d,token_ids=output[0].cpu().tolist())
                 records.append(record)

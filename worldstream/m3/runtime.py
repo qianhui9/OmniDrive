@@ -133,6 +133,7 @@ class M3Runtime:
                 matched_prefix=matched,prefix_admission=reason,state_retrieval=retrieval,
                 full_prefill_reason=reason if not diag['reused_tokens'] else None,
                 visual_tokens=int(expanded.visual_mask.sum()),
+                visual_group_spans=expanded.visual_group_spans,
                 historical_text_consumed=bool(retrieval['admitted']),current_visual_complete=True,
                 executor='PrefillExecutor',reuse_strategy='wsdr_kv',
                 prefix_rejection_reason=reason if not decision.reuse_length else None,

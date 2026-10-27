@@ -1,0 +1,96 @@
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 37%]
+........................................................................ [ 49%]
+........................................................................ [ 62%]
+........................................................................ [ 74%]
+........................................................................ [ 87%]
+.........................................F.............................. [ 99%]
+.                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_missing_or_same_frame_metadata_cannot_certify_approximate_policy _____
+
+    def test_missing_or_same_frame_metadata_cannot_certify_approximate_policy():
+        q=request(163,kind='bounded_approx')
+        row=dict(frame_id='new',diagnostics=q['reuse_diagnostics'])
+>       assert cross_frame_visual(row)
+
+tests/worldstream_m123/test_crossframe_report.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+row = {'diagnostics': {'approx_reuse_depth': 1, 'cache_age_frames': 1, 'cache_source_frame': 'old', 'computed_source': ['s', 'old', 1.0, 0], ...}, 'frame_id': 'new'}
+
+    def cross_frame_visual(row):
+        """Require actual cross-frame visual reuse, not inherited same-frame KV."""
+        d=row['diagnostics']
+        source=d.get('cache_source_frame')
+        spans=d.get('visual_group_spans') or [(b['group'],b['start'],b['end']) for b in d.get('block_changes',[])]
+        return bool(source and source!=row.get('frame_id') and spans
+>           and d['reused_tokens']>min(s[1] for s in spans))
+E       KeyError: 'reused_tokens'
+
+tools/worldstream_m123/benchmark/quality_calibration.py:93: KeyError
+=============================== warnings summary ===============================
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/trimesh/curvature.py:12: DeprecationWarning: Please use `coo_matrix` from the `scipy.sparse` namespace, the `scipy.sparse.coo` namespace is deprecated.
+    from scipy.sparse.coo import coo_matrix
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:64: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    family = Regex(
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:68: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    size = Regex(
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:72: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    name = Regex(
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:76: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    value = Regex(
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:80: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    families = (
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:87: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    point_sizes = (
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:94: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    property = (
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:127: PyparsingDeprecationWarning: 'parseString' deprecated - use 'parse_string'
+    self._parser.parseString(pattern)
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/fontconfig_pattern.py:134: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    self._parser.resetCache()
+
+tests/worldstream_m1/test_integration.py::test_disabled_and_observe_only_equal_at_real_entry[False]
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/matplotlib/_mathtext.py:30: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+tests/worldstream_m123/test_always_execute.py::test_formal_request_always_runs_all_modules[formal_unapproved]
+tests/worldstream_m123/test_always_execute.py::test_formal_request_always_runs_all_modules[missing]
+tests/worldstream_m123/test_always_execute.py::test_formal_route_detects_visual_bypass
+tests/worldstream_m123/test_always_execute.py::test_request_trace_does_not_inherit_previous_success
+  /home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/transformers/generation/utils.py:1270: UserWarning: You have modified the pretrained model configuration to control generation. This is a deprecated strategy to control generation and will be removed soon, in a future version. Please use a generation configuration file (see https://huggingface.co/docs/transformers/main_classes/text_generation )
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/worldstream_m123/test_crossframe_report.py::test_missing_or_same_frame_metadata_cannot_certify_approximate_policy
+1 failed, 576 passed, 23 warnings in 9.20s
