@@ -209,6 +209,12 @@ def run(args):
         if value is not None:
             if args.condition!='B3':raise ValueError('Anchor calibration requires the formal B3 algorithm')
             cfg.model.m2_config[key]=value
+    if getattr(args,'m2_risk_config',None):
+        if args.condition!='B3':raise ValueError('Risk configuration requires B3')
+        risk=json.loads(Path(args.m2_risk_config).read_text())
+        allowed={'global_anchor_interval','global_drift_threshold','global_risk_weights','global_risk_scales','global_risk_threshold','global_tail_fraction'}
+        if set(risk)-allowed:raise ValueError('Unsupported risk parameter')
+        cfg.model.m2_config.update(risk)
     if getattr(args,'m3_policy',None):
         cfg.model.m3_config.reuse_policy=args.m3_policy
     write(dest/'effective_config.json', dict(config=cfg._cfg_dict.to_dict(),
@@ -306,6 +312,11 @@ def run(args):
         from .decision_replay import DecisionTrace
         decision_trace = DecisionTrace(model.m3_runtime)
     observer.capture_inputs=bool(getattr(args,'capture_m3_inputs',False))
+    shadow=None
+    if getattr(args,'shadow_global_labels',False):
+        if model.m2_runtime is None:raise ValueError('Shadow labels need actual M2')
+        from .residual_labels import ResidualLabels
+        shadow=ResidualLabels(model.m2_runtime,observer)
     if getattr(args,'m3_policy',None):
         # Read-only timers have the same portable backend identity as serving.
         from worldstream.m3.visual_state import deployment_key
@@ -322,9 +333,17 @@ def run(args):
         from tools.worldstream_m1.dataset import load_oracle
         scorer = IdentityScorer(load_oracle(selected, 'data/nuscenes'))
     frames, questions, outputs = [], [], []
+    prepared_samples=None
+    if getattr(args,'preload_inputs',False):
+        prepared_samples=[dataset[i] for i in range(len(selected))]
+        def image_values(value):
+            if hasattr(value,'data') and not isinstance(value,(torch.Tensor,np.ndarray)):return image_values(value.data)
+            if isinstance(value,(tuple,list)):return [image_values(v) for v in value]
+            return value
+        write(dest/'prepared_input_hashes.json',{info['token']:typed_digest(image_values(s['img'])) for info,s in zip(selected,prepared_samples)})
     warmup_count = min(args.warmup, len(selected))
     for ordinal in range(warmup_count):
-        sample = dataset[ordinal]
+        sample = dataset[ordinal] if prepared_samples is None else copy.deepcopy(prepared_samples[ordinal])
         data = scatter(collate([sample], samples_per_gpu=1), [0])[0]
         if args.workload == 'language':
             names=specification.get('questions',{}).get(selected[ordinal]['token'])
@@ -339,6 +358,7 @@ def run(args):
     # skip without modifying its native generation implementation.
     model.save_path = str(dest/'measured_answers')+'/'
     reset(model)
+    if shadow is not None:shadow.reset()
     observer.clear()
     if m2_evidence is not None: m2_evidence.clear()
     torch.cuda.empty_cache()
@@ -352,6 +372,7 @@ def run(args):
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         observer.clear()
+        if shadow is not None:shadow.clear()
         if decision_trace is not None:
             decision_trace.clear()
         torch.cuda.synchronize()
@@ -366,7 +387,7 @@ def run(args):
                 if runtime is not None:
                     runtime.reset()
         previous_scene = info['scene_token']
-        sample = dataset[ordinal]
+        sample = dataset[ordinal] if prepared_samples is None else copy.deepcopy(prepared_samples[ordinal])
         prepared = perf_counter()
         data = scatter(collate([sample], samples_per_gpu=1), [0])[0]
         if args.workload == 'language':
@@ -395,6 +416,8 @@ def run(args):
         model_end = perf_counter()
         result = cpu_result(result[0])
         request_end = perf_counter()
+        if shadow is not None:
+            for label in shadow.rows:append(dest/'residual_labels.jsonl',label)
         stages = observer.collect()
         row = dict(condition=args.condition, workload=args.workload, repeat=args.repeat,
             m3_strategy=getattr(args,'m3_strategy',None),
@@ -405,6 +428,8 @@ def run(args):
             preprocessing_ms=(prepared-request_tick)*1000, transfer_and_collate_ms=(model_tick-prepared)*1000,
             model_ms=(model_end-model_tick)*1000, output_transfer_ms=(request_end-model_end)*1000,
             request_ms=(request_end-request_tick)*1000, gpu_stream_span_ms=a.elapsed_time(b),
+            input_boundary='preloaded_cpu_tensors' if prepared_samples is not None else 'real_dataset_preprocessing',
+            shadow_suffix_labels=shadow is not None,
             stages=stages, native_eva_cameras=observer.backbone_cameras,
             observed_window_attention_batches=dict(observer.window_attention_batches),
             peak_gpu_allocated_bytes=torch.cuda.max_memory_allocated(),
@@ -672,6 +697,9 @@ def main():
     parser.add_argument('--condition', choices=['B0', 'B1', 'B2', 'B3'], required=True)
     parser.add_argument('--m2-global-anchor-interval',type=int,help='Offline calibration override of the same M2 policy')
     parser.add_argument('--m2-global-drift-threshold',type=float,help='Offline calibration override of the same M2 policy')
+    parser.add_argument('--m2-risk-config',help='Offline fixed risk-parameter JSON; same Global-State Update')
+    parser.add_argument('--shadow-global-labels',action='store_true',help='Offline exact suffix labels; exclude entire run from latency evidence')
+    parser.add_argument('--preload-inputs',action='store_true',help='Prepare identical CPU input tensors before model-only controls')
     parser.add_argument('--workload', choices=['planning', 'language'], default='planning')
     parser.add_argument('--checkpoint', default='ckpts/iter_10548.pth')
     parser.add_argument('--limit', type=int, default=0)

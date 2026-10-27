@@ -1,0 +1,107 @@
+{
+  "threshold_m": 2.0,
+  "classes": {
+    "car": {
+      "gt": 268,
+      "predictions": 3377,
+      "tp": 226,
+      "fp": 3151,
+      "fn": 42,
+      "recall": 0.8432835820895522,
+      "precision": 0.06692330470832099
+    },
+    "truck": {
+      "gt": 116,
+      "predictions": 596,
+      "tp": 100,
+      "fp": 496,
+      "fn": 16,
+      "recall": 0.8620689655172413,
+      "precision": 0.16778523489932887
+    },
+    "bus": {
+      "gt": 7,
+      "predictions": 56,
+      "tp": 5,
+      "fp": 51,
+      "fn": 2,
+      "recall": 0.7142857142857143,
+      "precision": 0.08928571428571429
+    },
+    "trailer": {
+      "gt": 0,
+      "predictions": 16,
+      "tp": null,
+      "fp": null,
+      "fn": null,
+      "recall": null,
+      "precision": null,
+      "reason": "SDK returns no_predictions for absent GT class; predictions are not scored here"
+    },
+    "construction_vehicle": {
+      "gt": 0,
+      "predictions": 45,
+      "tp": null,
+      "fp": null,
+      "fn": null,
+      "recall": null,
+      "precision": null,
+      "reason": "SDK returns no_predictions for absent GT class; predictions are not scored here"
+    },
+    "pedestrian": {
+      "gt": 257,
+      "predictions": 2426,
+      "tp": 229,
+      "fp": 2197,
+      "fn": 28,
+      "recall": 0.8910505836575876,
+      "precision": 0.09439406430338004
+    },
+    "motorcycle": {
+      "gt": 9,
+      "predictions": 82,
+      "tp": 6,
+      "fp": 76,
+      "fn": 3,
+      "recall": 0.6666666666666666,
+      "precision": 0.07317073170731707
+    },
+    "bicycle": {
+      "gt": 25,
+      "predictions": 300,
+      "tp": 23,
+      "fp": 277,
+      "fn": 2,
+      "recall": 0.92,
+      "precision": 0.07666666666666666
+    },
+    "traffic_cone": {
+      "gt": 112,
+      "predictions": 608,
+      "tp": 100,
+      "fp": 508,
+      "fn": 12,
+      "recall": 0.8928571428571429,
+      "precision": 0.16447368421052633
+    },
+    "barrier": {
+      "gt": 24,
+      "predictions": 149,
+      "tp": 24,
+      "fp": 125,
+      "fn": 0,
+      "recall": 1.0,
+      "precision": 0.1610738255033557
+    }
+  },
+  "totals": {
+    "gt": 818,
+    "predictions": 7655,
+    "tp": 713,
+    "fp": 6881,
+    "fn": 105,
+    "recall": 0.871638141809291,
+    "precision_scored_classes": 0.093889913089281
+  },
+  "scope": "Actual unchanged SDK score-ordered XY matching, all retained scores, strict distance < threshold; raw uninterpolated counts, NOT mAP/NDS or prediction agreement. Indices refer to formatted prediction order and filtered official GT list."
+}

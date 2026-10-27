@@ -207,6 +207,8 @@ class WorldStateManager:
             if any((p.region is not None for p in projections[aid].values())):
                 result.association_candidate_ids.append(aid)
         projection_ms = (perf_counter() - projection_start) * 1000
+        from .occlusion import projected_occlusion
+        occlusion={cid:projected_occlusion(projections,cid,self.config) for cid in frame.cameras}
         temporal_times = dict(temporal_correspondence=0.0, visibility_verification=0.0, geometry_support=0.0)
         self.last_evidence = {}
         gray_cache={cid:{} for cid in frame.cameras}
@@ -222,7 +224,7 @@ class WorldStateManager:
                     if p.region is None:
                         continue
                     dynamic = anchor.anchor_type == 'object' and anchor.semantic_class not in STATIC_CLASSES
-                    occluded = any((other != aid and q[cid].region is not None and (q[cid].depth < p.depth - self.config.occlusion_depth_margin_m) and (intersect_area(p.region, q[cid].region) > self.config.occlusion_overlap_fraction * region_area(p.region)) for (other, q) in projections.items()))
+                    occluded = occlusion[cid][aid]
                     if dynamic or occluded:
                         anchor_excluded[region_slices(p.region, camera.image.shape)] = True
                         region = p.region
@@ -265,13 +267,7 @@ class WorldStateManager:
             eligible = []
             for (cid, camera) in frame.cameras.items():
                 p = projections[aid][cid]
-                occluded = False
-                if p.region is not None:
-                    for (other, views) in projections.items():
-                        q = views[cid]
-                        if other != aid and q.region is not None and (q.depth < p.depth - self.config.occlusion_depth_margin_m) and (intersect_area(p.region, q.region) > self.config.occlusion_overlap_fraction * region_area(p.region)):
-                            occluded = True
-                            break
+                occluded = occlusion[cid][aid]
                 validation = self.validator.validate(anchor.observation_support.get(cid), camera, p, occluded, self.last_evidence.get(cid), anchor=anchor, previous_camera=self._previous_cameras.get(cid))
                 if self.config.observation_diagnostics:
                     from .observation_diagnostics import attach_observation_funnel

@@ -13,9 +13,10 @@ def digest(path):
 
 
 def build_index(root):
-    reassessment=json.loads((root/'historical_quality_reassessment/reassessment.json').read_text())
-    old=Path(reassessment['evidence_root'])
-    checks={name:digest(old/name)==expected for name,expected in reassessment['evidence_sha256'].items()}
+    previous=root/'historical_quality_reassessment/reassessment.json'
+    reassessment=json.loads(previous.read_text()) if previous.exists() else None
+    old=Path(reassessment['evidence_root']) if reassessment else None
+    checks={name:digest(old/name)==expected for name,expected in reassessment['evidence_sha256'].items()} if reassessment else {}
     if not all(checks.values()):raise ValueError('Historical evidence changed')
     files={};links={}
     for p in sorted(root.rglob('*')):

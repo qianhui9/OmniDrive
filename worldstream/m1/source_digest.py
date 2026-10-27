@@ -4,6 +4,12 @@ import hashlib
 import json
 import math
 import numpy as np
+from functools import lru_cache
+
+
+@lru_cache(maxsize=64)
+def schema_names(cls):
+    return tuple(f.name for f in fields(cls))
 
 
 def normalized(value):
@@ -13,7 +19,7 @@ def normalized(value):
     if isinstance(value, np.generic):
         return normalized(value.item())
     if is_dataclass(value):
-        return {f.name: normalized(getattr(value, f.name)) for f in fields(value)}
+        return {name: normalized(getattr(value,name)) for name in schema_names(type(value))}
     if isinstance(value, dict):
         return {str(k): normalized(v) for k,v in value.items()}
     if isinstance(value, (tuple, list)):
@@ -29,7 +35,7 @@ def source_digest(store):
     # geometry hashes and certificate reprs before walking everything again.
     features = {}
     for fid, record in store.features.items():
-        row = {f.name: normalized(getattr(record, f.name)) for f in fields(record) if f.name != 'tensor'}
+        row = {name: normalized(getattr(record,name)) for name in schema_names(type(record)) if name != 'tensor'}
         tensor = record.tensor
         if isinstance(tensor, np.ndarray):
             row['tensor'] = normalized(tensor)
@@ -43,4 +49,6 @@ def source_digest(store):
         store.execution_signature, store.next_anchor_id, sorted(store.committed_frame_ids),
         store.last_timestamp, store.commit_count, normalized(store.anchors), features,
         normalized(store.provenance))
-    return hashlib.sha256(json.dumps(value, sort_keys=True, allow_nan=False).encode()).hexdigest()
+    # normalized() creates an owned acyclic JSON tree. Circular bookkeeping is
+    # redundant here; the canonical bytes and complete live-state binding stay identical.
+    return hashlib.sha256(json.dumps(value, sort_keys=True, allow_nan=False,check_circular=False).encode()).hexdigest()

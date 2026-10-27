@@ -75,17 +75,19 @@ def m1_control(root):
                 tick=perf_counter();snapshot=manager.export_m2_inputs(expected_context=context,computation_only=True);export=(perf_counter()-tick)*1000
                 snapshot=clean(snapshot)
                 tick=perf_counter();manager.commit(frame,outputs,result);commit=(perf_counter()-tick)*1000
+                tick=perf_counter();digest=manager.store.source_digest();digest_ms=(perf_counter()-tick)*1000
                 outcomes[label]=dict(precheck_ms=pre,snapshot_ms=export,commit_ms=commit,total_ms=pre+export+commit,
+                    source_digest=digest,source_digest_ms=digest_ms,
                     snapshot=snapshot,anchors=clean(manager.store.anchors),
                     associations=clean(manager.last_commit_diagnostics['association_pairs']))
-            checks={key:outcomes['before'][key]==outcomes['after'][key] for key in ('snapshot','anchors','associations')}
+            checks={key:outcomes['before'][key]==outcomes['after'][key] for key in ('snapshot','anchors','associations','source_digest')}
             if not all(checks.values()):
                 write(root/'m1_control_failure.json',dict(frame=path.stem,checks=checks,before=outcomes['before'],after=outcomes['after']))
                 raise ValueError('M1 semantic control differs: '+str(checks))
             records.append(dict(frame_id=path.stem,repeat=repeat,checks=checks,
                 **{k:{kk:vv for kk,vv in v.items() if kk.endswith('_ms')} for k,v in outcomes.items()}))
     if not records:raise ValueError('No captured real M1 states')
-    summary={label:{key:distribution(r[label][key] for r in records) for key in ('precheck_ms','snapshot_ms','commit_ms','total_ms')} for label in ('before','after')}
+    summary={label:{key:distribution(r[label][key] for r in records) for key in ('precheck_ms','snapshot_ms','commit_ms','source_digest_ms','total_ms')} for label in ('before','after')}
     write(root/'m1_same_state_control.json',dict(records=records,summary=summary,all_semantics_equal=True,
         scope='Same actual frame, committed state, perception outputs and M2 receipt; alternating three repeats; diagnostic CPU replay, not E2E timing'))
     print('M1 CONTROL', {k:v['total_ms']['mean'] for k,v in summary.items()},flush=True)

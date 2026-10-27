@@ -10,6 +10,7 @@ from .state_cache import StateCache
 from .window_executor import WindowExecutor,NUMERICAL_POLICY
 from .region_refresh import pooled_descriptors,select_regions
 from .global_residual import update_global
+from .anchor_risk import world_signal
 
 
 def finite_time(value):
@@ -146,6 +147,9 @@ class IncrementalVisionRuntime:
         else:plans=None
         scoring_ms=(perf_counter()-scoring_start)*1000
         validation_ms=(perf_counter()-start)*1000
+        size=self.model.blocks[0].window_size
+        total=len(x0)*((x0.shape[1]+size-1)//size)*((x0.shape[2]+size-1)//size)
+        self.global_world_signal=world_signal(bundle,refresh,total)
         execution_start=perf_counter()
         features,stages,outputs,sources,executed_ids,anchor,global_diag=self._execute(x0,context,plans,reason,signature)
         execution_ms=(perf_counter()-execution_start)*1000
@@ -221,7 +225,7 @@ class IncrementalVisionRuntime:
         self.cache.commit(images,outputs,context,signature,features.stride(),sources,block0_input=x0,
             region_states=region_states,window_ages=ages,descriptors=descriptors,
             _transfer_outputs=True,_validated_inputs=True,_finite_extras=(features,),
-            _overhead_bytes=self.executor.metadata_bytes,global_anchor=anchor,_transfer_global=True)
+            _overhead_bytes=self.executor.metadata_bytes,global_anchor=anchor,_transfer_global=True,_transfer_policy=True)
         publication_ms=(perf_counter()-publication_start)*1000
         now=context.get('timestamp');old=(previous or {}).get('timestamp')
         diag=dict(mode='incremental' if skipped or global_diag['approx_global_residual_reuse'] else 'full_update',full_update_reason=reason,
@@ -305,7 +309,8 @@ class IncrementalVisionRuntime:
                     executed_windows=sum(j//per_camera==c for j in id_values),
                     reused_windows=per_camera-sum(j//per_camera==c for j in id_values)) for c,cid in enumerate(context['camera_ids'])]
             if self.stage_observer is not None:self.stage_observer(i,x)
-        global_context=dict(context,_global_full_refresh=reason=='m1_full_refresh')
+        global_context=dict(context,_global_full_refresh=reason=='m1_full_refresh',
+                            _global_world_signal=getattr(self,'global_world_signal',{}))
         x,anchor,suffix_stages,global_diag=self._update_global(x,global_context,
             signature if signature is not None else self.signature(context))
         stages.extend(suffix_stages)

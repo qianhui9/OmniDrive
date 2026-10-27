@@ -1,0 +1,15 @@
+START before_profile
+DONE before_profile
+START decode_fixed_tokens
+Traceback (most recent call last):
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/world_risk_experiment.py", line 181, in <module>
+    p.add_argument('--stage',choices=['fit','develop','verify','summarize','controls'],required=True);a=p.parse_args()
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/world_risk_experiment.py", line 173, in controls
+    # Parent already owns the cross-job lock; do not reacquire it in the child.
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m2/global_residual_benchmark.py", line 28, in execute
+    if result.returncode:raise RuntimeError('Experiment failed: '+record['log'])
+RuntimeError: Experiment failed: outputs/m123_world_risk_optimization_20261027_run01/decode_fixed_tokens.log

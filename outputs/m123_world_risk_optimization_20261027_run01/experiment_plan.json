@@ -1,0 +1,54 @@
+{
+  "source_commit": "3492c962",
+  "development_scenes": [
+    "21a7ba093614493b83838b9656b3558d",
+    "c92fdd793fbb4401b12782a9b8d4a499",
+    "2abb3f3517c64446a5768df5665da49d",
+    "c5224b9b454b4ded9b5d2d2634bbda8a"
+  ],
+  "validation_scenes": [
+    "16e50a63b809463099cb4c378fe0641e",
+    "197a7e4d3de84e57af17b3d65fcb3893",
+    "19d97841d6f64eba9f6eb9b6e8c257dc",
+    "1aa633b683174280b243e0a9a7ad9171"
+  ],
+  "development_frames": 32,
+  "validation_frames": 24,
+  "anchor_interval": 3,
+  "old_rms_threshold": 0.9120883047580719,
+  "tail_fraction": 0.1,
+  "fitting": "Development-only nonnegative ridge linear regression of exact suffix relative RMS on normalized four risk signals; leave-one-scene-out diagnostics",
+  "candidate_count": 2,
+  "threshold_rule": "Two development fitted-risk quantiles (0.40 and 0.65), no heldout tuning",
+  "selection": "Pass every .10 task budget; shortlist within 1% of minimum controlled model mean, minimize worst-scene candidate/native model ratio; no heldout tuning",
+  "manifests": {
+    "development": "cf3374f105b8dc01b36651fe2c6bf4f1937be7d9e4d85a25648fca93d7f7fbf1",
+    "validation": "ce3493282505ebc9fc634a006edfaad8849edcd7e537186772f6091bd862df29",
+    "profile": "6690cec29aaab64b7377f66c02a7168730d702fbdb5945b5e10eb59dbf42d719"
+  },
+  "unseen_exclusions": [
+    "01452fbfbf4543af8acdfd3e8a1ee806",
+    "01e4fcbe6e49483293ce45727152b36e",
+    "034dee1695304630b0692da8c1f153fc",
+    "04219bfdc9004ba2af16d3079ecc4353",
+    "07aed9dae37340a997535ad99138e243",
+    "080a52cb8f59489b9cddc7b721808088",
+    "0ac05652a4c44374998be876ba5cd6fd",
+    "0dae482684ce4cd69a7258f55bc98d73",
+    "0e7ede02718341558414865d5c604745",
+    "112ca771e318478a88cfa692f61ffcac",
+    "16be583c31a2403caa6c158bb55ae616",
+    "2ed0fcbfc214478ca3b3ce013e7723ba",
+    "905cfed4f0fc46679e8df8890cca4141",
+    "bed67ef03c4a4066a74f6c0117d512ee",
+    "d29527ec841045d18d04a933e7a0afd2"
+  ],
+  "development_input_displacement": {
+    "21a7ba093614493b83838b9656b3558d": 1.2033450246429316e-07,
+    "c92fdd793fbb4401b12782a9b8d4a499": 10.748901425873147,
+    "2abb3f3517c64446a5768df5665da49d": 23.864539178940284,
+    "c5224b9b454b4ded9b5d2d2634bbda8a": 45.70564663642501
+  },
+  "quality_budget": 0.1,
+  "m3_quality_budget": 0.02
+}

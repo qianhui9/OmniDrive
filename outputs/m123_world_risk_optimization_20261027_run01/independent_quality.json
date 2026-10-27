@@ -1,0 +1,217 @@
+{
+  "metrics": {
+    "mAP": {
+      "native": 0.2162058212446604,
+      "candidate": 0.15601901326466955,
+      "loss": 0.06018680797999085,
+      "relative_loss": 0.27837737038487476
+    },
+    "NDS": {
+      "native": 0.25077217818070113,
+      "candidate": 0.20692543106789846,
+      "loss": 0.043846747112802675,
+      "relative_loss": 0.17484693649391853
+    },
+    "DET_l": {
+      "native": 0.2542574107646942,
+      "candidate": 0.19881248474121094,
+      "loss": 0.055444926023483276,
+      "relative_loss": 0.2180661159756539
+    },
+    "Token_F1": {
+      "native": 0.48179962072643345,
+      "candidate": 0.4776302268514055,
+      "loss": 0.00416939387502796,
+      "relative_loss": 0.008653792356128375
+    }
+  },
+  "quality_budgets": {
+    "mAP": 0.1,
+    "NDS": 0.1,
+    "DET_l": 0.1,
+    "Token_F1": 0.1
+  },
+  "metric_budget_pass": {
+    "mAP": true,
+    "NDS": true,
+    "DET_l": true,
+    "Token_F1": true
+  },
+  "within_quality_budgets": true,
+  "budget_units": "absolute score loss: native minus candidate; not relative percent",
+  "historical_wsgrr_matched_questions": 0,
+  "critical_proxy_regressions_vs_native": 0,
+  "new_critical_proxy_regressions_vs_wsgrr": null,
+  "retained_critical_cases": [],
+  "scope": "OFFICIAL EVALUATOR ON DECLARED SUBSET, NOT full-val mAP/NDS/Map Score",
+  "limitations": "Numeric/spatial/motion/safety parsers are lexical proxies, not human semantic judgements",
+  "quality_by_anchor_age": [
+    {
+      "mode": "anchor_update",
+      "age": 0,
+      "questions": 4,
+      "mean_f1_loss": 0.0,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "anchor_update",
+      "age": 1,
+      "questions": 1,
+      "mean_f1_loss": 0.024183234507615392,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "anchor_update",
+      "age": 2,
+      "questions": 8,
+      "mean_f1_loss": 0.0017094017094017033,
+      "critical_proxy_regressions": 0
+    },
+    {
+      "mode": "approx_global_residual_reuse",
+      "age": 1,
+      "questions": 11,
+      "mean_f1_loss": 0.005655182256167482,
+      "critical_proxy_regressions": 0
+    }
+  ],
+  "native_questions_below_perfect_f1": 24,
+  "per_scene": {
+    "16e50a63b809463099cb4c378fe0641e": {
+      "frames": 6,
+      "global_suffix_reuse_frames": 3,
+      "mAP_loss": 0.014898527104033665,
+      "NDS_loss": 0.015002644649755675,
+      "DET_l_loss": 0.034166932106018066,
+      "metrics": {
+        "mAP": {
+          "native": 0.19761881210387872,
+          "candidate": 0.18272028499984505,
+          "loss": 0.014898527104033665,
+          "relative_loss": 0.07539022700026263
+        },
+        "NDS": {
+          "native": 0.2319128317131936,
+          "candidate": 0.21691018706343793,
+          "loss": 0.015002644649755675,
+          "relative_loss": 0.06469087777044365
+        },
+        "DET_l": {
+          "native": 0.32759198546409607,
+          "candidate": 0.293425053358078,
+          "loss": 0.034166932106018066,
+          "relative_loss": 0.10429721611660962
+        },
+        "Token_F1": {
+          "native": 0.5187195862343682,
+          "candidate": 0.5187195862343682,
+          "loss": 0.0,
+          "relative_loss": 0.0
+        }
+      },
+      "critical_proxy_regressions": 0
+    },
+    "197a7e4d3de84e57af17b3d65fcb3893": {
+      "frames": 6,
+      "global_suffix_reuse_frames": 2,
+      "mAP_loss": 0.04025696177386592,
+      "NDS_loss": 0.04128382474164631,
+      "DET_l_loss": 0.04299306869506836,
+      "metrics": {
+        "mAP": {
+          "native": 0.10259606542552269,
+          "candidate": 0.06233910365165677,
+          "loss": 0.04025696177386592,
+          "relative_loss": 0.3923830958516587
+        },
+        "NDS": {
+          "native": 0.13702433665546085,
+          "candidate": 0.09574051191381454,
+          "loss": 0.04128382474164631,
+          "relative_loss": 0.30128826564183203
+        },
+        "DET_l": {
+          "native": 0.11960381269454956,
+          "candidate": 0.0766107439994812,
+          "loss": 0.04299306869506836,
+          "relative_loss": 0.3594623593218244
+        },
+        "Token_F1": {
+          "native": 0.5285259330602989,
+          "candidate": 0.5222161916964941,
+          "loss": 0.0063097413638047994,
+          "relative_loss": 0.01193837609305148
+        }
+      },
+      "critical_proxy_regressions": 0
+    },
+    "19d97841d6f64eba9f6eb9b6e8c257dc": {
+      "frames": 6,
+      "global_suffix_reuse_frames": 3,
+      "mAP_loss": 0.05279143074130649,
+      "NDS_loss": 0.0459164229403749,
+      "DET_l_loss": 0.07900196313858032,
+      "metrics": {
+        "mAP": {
+          "native": 0.17306433025378878,
+          "candidate": 0.1202728995124823,
+          "loss": 0.05279143074130649,
+          "relative_loss": 0.30503934961000295
+        },
+        "NDS": {
+          "native": 0.2716692656961822,
+          "candidate": 0.22575284275580731,
+          "loss": 0.0459164229403749,
+          "relative_loss": 0.1690158907843662
+        },
+        "DET_l": {
+          "native": 0.23361746966838837,
+          "candidate": 0.15461550652980804,
+          "loss": 0.07900196313858032,
+          "relative_loss": 0.33816804561200314
+        },
+        "Token_F1": {
+          "native": 0.47146078561760985,
+          "candidate": 0.4587056835767935,
+          "loss": 0.012755102040816368,
+          "relative_loss": 0.02705442834255512
+        }
+      },
+      "critical_proxy_regressions": 0
+    },
+    "1aa633b683174280b243e0a9a7ad9171": {
+      "frames": 6,
+      "global_suffix_reuse_frames": 3,
+      "mAP_loss": 0.050964325373300784,
+      "NDS_loss": 0.027563317783199037,
+      "DET_l_loss": 0.04812631011009216,
+      "metrics": {
+        "mAP": {
+          "native": 0.12250428242049387,
+          "candidate": 0.07153995704719308,
+          "loss": 0.050964325373300784,
+          "relative_loss": 0.41602076569345225
+        },
+        "NDS": {
+          "native": 0.11066439414732335,
+          "candidate": 0.08310107636412431,
+          "loss": 0.027563317783199037,
+          "relative_loss": 0.24907123917838495
+        },
+        "DET_l": {
+          "native": 0.19806568324565887,
+          "candidate": 0.1499393731355667,
+          "loss": 0.04812631011009216,
+          "relative_loss": 0.24298156713195787
+        },
+        "Token_F1": {
+          "native": 0.4084921779934568,
+          "candidate": 0.4108794458979661,
+          "loss": -0.002387267904509327,
+          "relative_loss": -0.005844096981821685
+        }
+      },
+      "critical_proxy_regressions": 0
+    }
+  }
+}

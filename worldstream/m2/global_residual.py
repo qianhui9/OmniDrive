@@ -6,6 +6,7 @@ windows; no suffix tokens or attention KV are treated as independent units.
 from dataclasses import dataclass, replace
 from time import perf_counter
 import torch
+from .anchor_risk import feature_statistics, risk_score
 
 
 @dataclass(frozen=True)
@@ -24,6 +25,7 @@ class GlobalAnchor:
     age: int
     generation: int
     publication_version: int
+    world_change: float = 0.
 
     def tensors(self):
         return (self.residual, self.h2)
@@ -34,16 +36,20 @@ class GlobalAnchor:
 
 
 def update_global(x, blocks, prefix, cache, context, signature, config, observer=None):
-    """Decide BEFORE suffix execution. Drift is maximum per-camera relative RMS.
+    """Decide BEFORE suffix execution using one fixed nonnegative risk sum.
 
     interval=2 means anchors on frames 0,2,4 (one reuse between anchors).
-    The float32 drift reduction is read once; threshold is a fixed offline
-    calibration parameter, never a cost or task-quality approval mechanism.
+    Global drift, local change tail and hot-token fraction share a float32
+    delta and one compact host read. M1 events accumulate since the anchor.
+    Weights/scales/threshold are fixed offline parameters. Necessary initial,
+    maximum-age and explicit M1 whole-frame updates use this same suffix.
     """
     start = perf_counter()
     anchor = cache.global_anchor
     age = anchor.age + 1 if anchor is not None else 0
     drift = None
+    stats=None;risk=None;features=None;normalized=None
+    world=min(1.,(anchor.world_change if anchor is not None else 0.)+context.get('_global_world_signal',{}).get('score',0.))
     if anchor is None:
         reason = 'initial_anchor'
     else:
@@ -55,13 +61,12 @@ def update_global(x, blocks, prefix, cache, context, signature, config, observer
                 or anchor.residual.dtype != x.dtype or anchor.residual.device != x.device
                 or anchor.publication_version != cache.version):
             raise ValueError('global_anchor_source_mismatch')
-        dims = tuple(range(1, x.ndim))
-        current, previous = x.float(), anchor.h2.float()
-        drift = float((((current-previous).square().mean(dims) /
-                        previous.square().mean(dims).clamp_min(1e-12)).sqrt()).max())
+        stats=feature_statistics(x,anchor.h2,config.global_tail_fraction)
+        drift=stats['global_drift']
+        risk,features,normalized=risk_score(stats,world,age,config)
         reason = ('m1_full_refresh' if context.get('_global_full_refresh') else
                   'anchor_expired' if age >= config.global_anchor_interval else
-                  'feature_drift' if drift > config.global_drift_threshold else None)
+                  'feature_drift' if risk >= config.risk_threshold else None)
     decision_ms = (perf_counter()-start)*1000
     tick = perf_counter()
     suffix_count = len(blocks)-len(prefix)
@@ -88,7 +93,7 @@ def update_global(x, blocks, prefix, cache, context, signature, config, observer
         result = torch.empty_strided(x.shape, x.stride(), dtype=x.dtype, device=x.device)
         torch.add(x, anchor.residual, out=result)
         x = result
-        candidate = replace(anchor, age=age, publication_version=cache.version+1)
+        candidate = replace(anchor, age=age, publication_version=cache.version+1,world_change=world)
         stages = [dict(block=i, mode='approx_global_residual_reuse',
                        reason='temporal_anchor_residual') for i in range(len(prefix),len(blocks))]
     update_ms = (perf_counter()-tick)*1000
@@ -102,6 +107,11 @@ def update_global(x, blocks, prefix, cache, context, signature, config, observer
         global_feature_stride=tuple(x.stride()), global_feature_dtype=str(x.dtype),
         global_anchor_bytes=sum(t.numel()*t.element_size() for t in candidate.tensors()),
         global_feature_drift=drift, global_drift_definition='max_camera_relative_h2_rms',
+        global_risk_score=risk,global_risk_threshold=config.risk_threshold,
+        global_risk_features=features,global_risk_normalized=normalized,
+        global_risk_weights=config.global_risk_weights,global_risk_scales=config.global_risk_scales,
+        global_local_statistics=stats,global_world_change=world,
+        global_world_signal=context.get('_global_world_signal'),
         global_anchor_interval=config.global_anchor_interval, global_drift_threshold=config.global_drift_threshold,
         global_suffix_executed_blocks=suffix_count if reason else 0,
         global_suffix_skipped_blocks=0 if reason else suffix_count,

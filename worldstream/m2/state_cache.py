@@ -50,7 +50,7 @@ class StateCache:
     def commit(self, images, outputs, context, signature, output_stride=None, sources=None, *, block0_input,
                region_states=(), window_ages=None, descriptors=None,
                _transfer_outputs=False, _validated_inputs=False, _finite_extras=(), _overhead_bytes=0,
-               global_anchor=None, _transfer_global=False):
+               global_anchor=None, _transfer_global=False, _transfer_policy=False):
         """Publish atomically; public callers get private tensor copies.
 
         _transfer_outputs is internal to M2Runtime: WindowExecutor's packed
@@ -78,6 +78,7 @@ class StateCache:
                     or len(global_anchor.h2) != len(context.get('camera_ids',()))
                     or type(global_anchor.age) is not int or global_anchor.age < 0
                     or type(global_anchor.generation) is not int or global_anchor.generation < 1
+                    or not math.isfinite(global_anchor.world_change) or not 0<=global_anchor.world_change<=1
                     or not math.isfinite(global_anchor.timestamp)
                     or global_anchor.timestamp > context.get('timestamp',-math.inf)):
                 raise CachePublicationError('global_anchor_contract_incompatible')
@@ -108,8 +109,14 @@ class StateCache:
         else: owned_anchor = None
         owned_context = copy.deepcopy(context)
         owned_regions = copy.deepcopy(region_states)
-        owned_ages = {i:t.detach().clone() for i,t in window_ages.items()}
-        owned_descriptors = descriptors.detach().clone() if descriptors is not None else None
+        policy_values=list(window_ages.values())+([descriptors] if descriptors is not None else [])
+        if _transfer_policy:
+            forbidden.update(t.storage().data_ptr() for t in (self.descriptors,*self.window_ages.values()) if t is not None)
+            addresses=[t.storage().data_ptr() for t in policy_values]
+            if len(set(addresses))!=len(addresses) or any(a in forbidden for a in addresses):
+                raise CachePublicationError('policy_storage_alias')
+        owned_ages = {i:t.detach() if _transfer_policy else t.detach().clone() for i,t in window_ages.items()}
+        owned_descriptors = (descriptors.detach() if _transfer_policy else descriptors.detach().clone()) if descriptors is not None else None
         owned_sources = copy.deepcopy(sources) if sources is not None else {
             i: [dict(computation_frame_id=context['frame_id'], computation_timestamp=context.get('timestamp'),
                 computation_version=self.version+1, camera_id=context['camera_ids'][j//(len(values)//len(images))],

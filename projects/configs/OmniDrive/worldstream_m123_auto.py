@@ -3,6 +3,9 @@
 # New AR3 / drift 0.912088305 lost mAP 0.105005685 > 0.10 on fresh heldout data.
 # Retain AR2 / 0.772102788; do not tune on the failed independent scenes.
 # See outputs/m123_latency_quality_20261027_run01/experiment_report.md.
+# World-risk follow-up passes fresh subset quality, but does not establish
+# stable computation speedup after controlling for scene and answer length.
+# Keep these parameters; see m123_world_risk_optimization_20261027_run01 report.
 # Aggregate task acceptance and complete service acceleration are separate results.
 _base_ = ['./mask_eva_lane_det_vlm.py']
 model = dict(
