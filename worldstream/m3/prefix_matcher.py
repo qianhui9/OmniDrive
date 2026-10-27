@@ -27,7 +27,7 @@ class PrefixProof:
 
 
 @torch.no_grad()
-def prefix_statistics(previous, current, block_size=32):
+def prefix_statistics(previous, current, block_size=32, *, include_blocks=True):
     """One metadata transfer; blocks are LLM spans, never EVA windows/IDs."""
     if (previous.scope != current.scope or previous.signature != current.signature
             or previous.layout_signature != current.layout_signature
@@ -51,7 +51,7 @@ def prefix_statistics(previous, current, block_size=32):
     values = [torch.where(embed_equal & metadata & finite, n, indices).min().float(),
               torch.where(legal, n, indices).min().float()]
     spans = []
-    for group, start, stop in current.visual_group_spans:
+    for group, start, stop in (current.visual_group_spans if include_blocks else ()):
         for lo in range(start, min(stop, n), block_size):
             hi = min(lo + block_size, stop, n)
             old, new = a[0, lo:hi].float(), b[0, lo:hi].float()

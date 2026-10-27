@@ -5,6 +5,7 @@ the observed scheduler overhead held fixed. Removing a signal means neutral
 validity / zero M2 refresh and age, not changing policy thresholds.
 """
 import copy
+import hashlib
 from dataclasses import asdict
 from functools import wraps
 from types import SimpleNamespace as NS
@@ -46,7 +47,10 @@ class DecisionTrace:
                 cache=None if entry is None else dict(source=list(entry.expanded.source),
                     root_frame_index=entry.root_frame_index, approx_reuse_depth=entry.approx_reuse_depth,
                     quality_risk=entry.quality_risk, risk_profile=entry.risk_profile,
-                    computed_source=list(entry.computed_source), input_tokens=entry.expanded.length))
+                    computed_source=list(entry.computed_source), input_tokens=entry.expanded.length,
+                    frame_index=entry.frame_index,source_state_epoch=entry.expanded.scope[2] if len(entry.expanded.scope)>2 else None,
+                    kv_tensor_versions=[[t._version for t in layer] for layer in entry.kv],
+                    storage_revision_sha256=hashlib.sha256(repr(cache.revision).encode()).hexdigest()))
             self.pending = row
             try:
                 decision, details = original_plan(question, expanded, cache, history, context,
@@ -55,6 +59,14 @@ class DecisionTrace:
                 self.pending = None
             row.update(decision=decision.diagnostics(), details=copy.deepcopy(details),
                 cache_validated=cache.entry is not None)
+            if cache.entry is not None and not details.get('block_changes'):
+                # Diagnostic only, AFTER the actual planner made its decision.
+                # Never include traced runs in performance claims.
+                from worldstream.m3.prefix_matcher import prefix_statistics
+                exact,legal,blocks=prefix_statistics(cache.entry.expanded,expanded,runtime.config.block_size)
+                row['offline_full_statistics']=dict(exact=exact,legal=legal,blocks=blocks)
+            if 'candidates' in row and hasattr(runtime.scheduler,'explain'):
+                row['candidate_evaluations']=runtime.scheduler.explain(row['candidates'],row['scheduler_context'],row['overhead_ms'])
             self.rows.append(row)
             return decision, details
 

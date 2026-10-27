@@ -154,12 +154,13 @@ class Observer:
             original=executor.generate
             @wraps(original)
             def prefill(*args,_original=original,**kwargs):
+                rng=(torch.get_rng_state(),torch.cuda.get_rng_state()) if self.capture_inputs else None
                 start,end=(torch.cuda.Event(enable_timing=True) for _ in range(2));start.record()
                 tick=perf_counter();result,diag=_original(*args,**kwargs);wall=(perf_counter()-tick)*1000;end.record()
                 output=result.sequences if hasattr(result,'sequences') else result
                 self.prefill_generations.append(dict(output=output,host_wall_ms=wall,
                     input_tokens=diag['input_tokens'],generated_tokens=output.shape[-1]-1,
-                    start=start,end=end))
+                    start=start,end=end,captured_rng=rng))
                 self.events.append(('prefill_executor_generate',start,end,wall))
                 return result,diag
             executor.generate=prefill

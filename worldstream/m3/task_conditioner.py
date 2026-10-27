@@ -16,6 +16,10 @@ def task_type(question):
 def task_profile(question):
     """Refine the existing classifier for dependency priority, never authorization."""
     task=task_type(question);q=str(question).lower()
+    # Clearance, area descriptions and driving decisions require full scene
+    # evidence. A vehicle noun alone does not make them object attributes.
+    if re.search(r'\b(sufficient space|enough space|pass or park|parking situation|in response to|needs to change lanes|needs to make a turn|should the vehicle|type of area|kind of area)\b',q):
+        return task,'full_visual',('object','ego','map')
     if task in ('global_safety','unknown') or re.search(r'\b(how many|count|number|any|none|all|absence|missing|no)\b',q):
         return task,'full_visual',('object','ego','map')
     if task=='map':return task,'map_relations',('map',)

@@ -318,6 +318,10 @@ def run(args):
             raise ValueError('Fixed tokens require a standalone language performance run')
         from .fixed_tokens import FixedTokenBenchmark
         fixed=FixedTokenBenchmark(model,args.fixed_token_reference)
+    if getattr(args,'m3_zero_reuse',False):
+        if model.m3_runtime is None:raise ValueError('Zero-reuse control requires the formal M3 runtime')
+        from .m3_recovery import ZeroReuseControl
+        ZeroReuseControl(model.m3_runtime)
     equivalence=None
     if getattr(args,'risk_equivalence_reference',None):
         if model.m2_runtime is None or fixed is not None:raise ValueError('Risk equivalence requires a separate M2 diagnostic run')
@@ -555,8 +559,9 @@ def run(args):
             if not calls:
                 call=observer.last_m3_call
                 if call is None:raise RuntimeError('No executed M3 call to capture')
-                calls=[dict(ids=ids,carriers=call['vision_carriers'],cpu_rng=observer.last_m3_rng[0],
-                    cuda_rng=observer.last_m3_rng[1],generation={k:call[k] for k in ('do_sample','temperature','top_p','num_beams','max_new_tokens','use_cache')}) for ids in call['input_ids_list']]
+                calls=[dict(ids=ids,carriers=call['vision_carriers'],cpu_rng=observed['captured_rng'][0],
+                    cuda_rng=observed['captured_rng'][1],generation={k:call[k] for k in ('do_sample','temperature','top_p','num_beams','max_new_tokens','use_cache')})
+                    for ids,observed in zip(call['input_ids_list'],observer.prefill_generations)]
             if calls[0]['carriers'].shape[1]!=513:raise ValueError('Unexpected real OmniDrive carrier layout')
             state=getattr(model,'m3_verified_state',None)
             if state is None:raise RuntimeError('Capture requires real frozen M1 state')
@@ -725,6 +730,7 @@ def main():
     parser.add_argument('--m2-risk-config',help='Offline fixed risk-parameter JSON; same Global-State Update')
     parser.add_argument('--shadow-global-labels',action='store_true',help='Offline exact suffix labels; exclude entire run from latency evidence')
     parser.add_argument('--preload-inputs',action='store_true',help='Prepare identical CPU input tensors before model-only controls')
+    parser.add_argument('--m3-zero-reuse',action='store_true',help='Benchmark only: same planner/cache/executor with reuse length fixed to zero')
     parser.add_argument('--fixed-token-reference',help='Benchmark only: common Native reference tokens, real HF forwards, no task-quality scoring')
     parser.add_argument('--risk-equivalence-reference',help='Offline frozen pre-pruning M2 package; extra reference suffixes, no latency claims')
     parser.add_argument('--workload', choices=['planning', 'language'], default='planning')

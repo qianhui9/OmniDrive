@@ -71,9 +71,13 @@ class ReusePlanner:
         if entry is None:
             details['matched_prefix_tokens'] = 0
             return none('cold_or_invalid_cache')
-        exact, legal, blocks = prefix_statistics(entry.expanded, expanded, self.scheduler.config.block_size)
-        details.update(matched_prefix_tokens=exact, structural_prefix_tokens=legal, block_changes=blocks)
         same_frame = entry.expanded.source[:2] == expanded.source[:2]
+        need_blocks=(not same_frame and signals['m1_state_valid']
+            and self.scheduler.config.reuse_strategy!='exact_prefix'
+            and (self.calibration_threshold is not None or self.scheduler.needs_approximate_statistics(profile)))
+        exact, legal, blocks = prefix_statistics(entry.expanded, expanded, self.scheduler.config.block_size,
+            include_blocks=need_blocks)
+        details.update(matched_prefix_tokens=exact, structural_prefix_tokens=legal, block_changes=blocks)
         age = frame_index - entry.root_frame_index
         if age < 0:
             raise ValueError('Cache frame order is invalid')

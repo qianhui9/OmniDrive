@@ -89,7 +89,7 @@
         "quality_loss_upper": 0.0,
         "calibration_quality_loss_upper": 0.0,
         "validation_quality_loss_upper": 0.0,
-        "critical_regressions": 0,
+        "critical_regressions": 1,
         "calibration_samples": 5,
         "validation_samples": 1,
         "cost": {
@@ -106,6 +106,13 @@
           "prefill_ms": 134.81790580749512,
           "decode_ms": 638.7215454101563,
           "cache_update_enqueue_ms": 3.8519442081451416
+        },
+        "manual_semantic_qualification": {
+          "automatic_critical_regressions": 0,
+          "semantic_rejections": 1,
+          "evidence": "outputs/m3_reuse_recovery_20261027_run01/semantic_failure_review.json",
+          "evidence_sha256": "5482c6e6b73437ce4f66bb26894cb1df49779443c4f3963cfc4205051cec0003",
+          "action": "disable_existing_rule_only_no_threshold_or_cost_refit"
         }
       }
     },
@@ -204,5 +211,17 @@
     ],
     "threshold_retuned": false,
     "limitation": "Post-rejection replay is regression evidence; further fresh-scene confirmation remains needed"
+  },
+  "recovery_qualification": {
+    "original_policy_sha256": "87433fbfe5c1bb97c88e06977005ab9790cb2fcf49f087989b5497d62c98274a",
+    "evidence": "outputs/m3_reuse_recovery_20261027_run01/semantic_failure_review.json",
+    "rule_disabled": [
+      "map_relations",
+      "approx"
+    ],
+    "new_rules_admitted": false,
+    "validation_data_are_now_observed": true,
+    "require_fresh_validation": true,
+    "quality_budget_unchanged": 0.02
   }
 }
