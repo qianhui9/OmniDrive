@@ -13,7 +13,7 @@ import torch
 from torch import nn
 from .stable_world import digest
 
-LAYOUT_VERSION = 'wrcps_stable_dynamic_v1'
+LAYOUT_VERSION = 'wrcps_semantic_core_v2'
 
 
 @dataclass(frozen=True)
@@ -44,11 +44,15 @@ class VisualResampler(nn.Module):
         self.key = nn.Linear(hidden_size, rank, bias=False)
         self.value = nn.Linear(hidden_size, rank, bias=False)
         self.output = nn.Linear(rank, hidden_size)
+        # Preserve native embedding dimensions through attention pooling;
+        # learn a low-rank residual instead of forcing all current evidence
+        # through a rank-128 value bottleneck before the frozen LLM.
+        nn.init.zeros_(self.output.weight);nn.init.zeros_(self.output.bias)
 
     def forward(self, current):
         keys = self.key(current)+self.positions
         attention = torch.softmax(self.queries @ keys.transpose(-1, -2)/math.sqrt(keys.shape[-1]), -1)
-        return self.output(attention @ self.value(current))
+        return attention @ current + self.output(attention @ self.value(current))
 
 
 class WorldPrefixComposer(nn.Module):
@@ -80,7 +84,10 @@ class WorldPrefixComposer(nn.Module):
             (self.forward,self.encode_stable,self.objects.forward,self.maps.forward))
 
     def encode_stable(self, anchor):
-        data = json.dumps(anchor.facts, separators=(',', ':'), ensure_ascii=False).encode('utf8')
+        # Opaque tracking IDs control membership/lifetime, never adapter input.
+        # Sorting semantic fields makes arbitrary ID renaming nonsemantic.
+        semantic_content=sorted((kind,label) for _,kind,label in anchor.facts)
+        data = json.dumps(semantic_content, separators=(',', ':'), ensure_ascii=False).encode('utf8')
         if len(data) > self.spec['max_state_bytes']:
             raise ValueError('Stable state exceeds declared adapter capacity; no silent truncation')
         device = self.stable_queries.device
@@ -129,5 +136,6 @@ class WorldPrefixComposer(nn.Module):
         adapter.to(device=device, dtype=dtype).eval().requires_grad_(False)
         adapter.adapter_sha256 = hashlib.sha256(raw).hexdigest()
         adapter.base_weights_sha256 = artifact['base_weights_sha256']
+        adapter.semantic_qualification_sha256=artifact.get('semantic_qualification_sha256','')
         adapter.loaded_revision = adapter.revision()
         return adapter

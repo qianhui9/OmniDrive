@@ -30,6 +30,9 @@ class M3Runtime:
         from .stable_world import StableAnchorManager
         self.stable_anchors=StableAnchorManager(self.config.stable_anchor_max_frames)
         self.composer=None
+        self.last_composed_carriers=None  # current-request observer reference, never history lookup
+        from .semantic_core import SemanticQualifier
+        self.semantic_qualifier=SemanticQualifier(self.config.semantic_qualification) if self.config.semantic_qualification else None
 
     def reset(self):
         self.cache.reset();self._scope=self._signature=self._timestamp=None
@@ -37,6 +40,7 @@ class M3Runtime:
         self._frame_index=0
         self.stable_anchors.reset()
         if self.composer is not None:self.composer.reset()
+        self.last_composed_carriers=None
 
     @staticmethod
     def validate_contract(base,generation):
@@ -70,7 +74,8 @@ class M3Runtime:
         if (not context.get('scene_id') or not context.get('frame_id') or not cameras
                 or len(set(cameras))!=len(cameras) or type(timestamp) not in (int,float) or not math.isfinite(timestamp)):
             raise ValueError('M3 requires a bound scene/frame/time/camera lifecycle')
-        composer_ms=anchor_ms=0.
+        composer_ms=anchor_ms=anchor_update_ms=core_extraction_ms=0.
+        self.last_composed_carriers=None
         anchor=None;anchor_hit=False
         if self.config.prefix_adapter:
             from .world_prefix_composer import WorldPrefixComposer
@@ -81,35 +86,40 @@ class M3Runtime:
             tick=perf_counter()
             anchor,anchor_hit=self.stable_anchors.update(stable_world_state,
                 dict(context,state_version=context.get('stable_state_version')))
-            anchor_ms=(perf_counter()-tick)*1000+context.get('stable_snapshot_wall_ms',0.)
+            anchor_update_ms=(perf_counter()-tick)*1000
+            core_extraction_ms=context.get('stable_snapshot_wall_ms',0.)
+            anchor_ms=anchor_update_ms+core_extraction_ms
             tick=perf_counter()
             if self.composer is None:
                 weight=base.get_input_embeddings().weight
                 self.composer=WorldPrefixComposer.load_adapter(self.config.prefix_adapter,
-                    base.config.hidden_size,weight.device,weight.dtype)
+                    base.config.hidden_size,weight.device,torch.float32)
             if self.composer.base_weights_sha256 != context.get('weights_sha256'):
                 raise ValueError('WRCPS adapter base checkpoint mismatch')
+            if (self.composer.semantic_qualification_sha256
+                    and self.composer.semantic_qualification_sha256!=stable_world_state.qualification_id):
+                raise ValueError('WRCPS adapter semantic qualification mismatch')
             if self.composer.revision() != self.composer.loaded_revision:
                 raise ValueError('Loaded WRCPS adapter weights were modified')
-            vision_carriers=self.composer(vision_carriers,anchor,use_anchor_cache=True)
+            vision_carriers=self.composer(vision_carriers.to(dtype=self.composer.stable_queries.dtype),
+                anchor,use_anchor_cache=True)
+            if context.get('profile'):self.last_composed_carriers=vision_carriers
             layout=self.composer.layout
             composer_ms=(perf_counter()-tick)*1000
             context['adapter_sha256']=self.composer.adapter_sha256
+            context['semantic_qualification_sha256']=stable_world_state.qualification_id
         start=perf_counter();signature=execution_signature(lm_head,context['model_version'])
         signature=(signature,WSDR_VERSION)
         scope=(str(context['scene_id']),tuple(cameras),context.get('state_epoch'))
         if anchor is not None:
-            # Invalid/changed anchors never inherit KV, even when an empty-state
-            # encoder happens to emit identical bytes. Matcher still checks all
-            # actual embeddings, positions and causal attention metadata.
-            scope+=(anchor.anchor_id,)
+            # Visual anchor metadata is checked at its causal span boundary.
+            # A changed/invalid anchor can still reuse identical fixed TEXT;
+            # equal null embeddings never legalize cross-frame visual reuse.
             signature+=(self.composer.adapter_sha256,self.composer.revision(),
                 self.composer.implementation_signature(),layout.order_contract)
         invalidation=None
         if self._scope is None:invalidation='cold_cache'
-        elif scope!=self._scope:
-            invalidation=('stable_anchor_changed' if anchor is not None and scope[:3]==self._scope[:3]
-                else 'scene_camera_or_epoch_changed')
+        elif scope!=self._scope:invalidation='scene_camera_or_epoch_changed'
         elif signature!=self._signature:invalidation='model_execution_signature_changed'
         elif self._timestamp is not None and timestamp<=self._timestamp:
             same_frame=(timestamp==self._timestamp and context['frame_id']==self._frame_id
@@ -123,7 +133,9 @@ class M3Runtime:
         if signature!=self._signature or self._deployment_key is None:
             key=deployment_key(lm_head)
             self._deployment_key=(hashlib.sha256((key+self.composer.adapter_sha256+layout.order_contract
-                +repr(self.composer.implementation_signature())).encode()).hexdigest()
+                +repr(self.composer.implementation_signature())+anchor.qualification_id
+                +repr(tuple((n,str(p.dtype)) for n,p in self.composer.named_parameters()))
+                +(self.semantic_qualifier.implementation_signature() if self.semantic_qualifier else '')).encode()).hexdigest()
                 if anchor is not None else key)
         if invalidation:self._frame_index=0
         elif new_frame:self._frame_index+=1
@@ -152,7 +164,8 @@ class M3Runtime:
                         raise ValueError('Historical context exceeds position budget')
             tick=perf_counter()
             expanded=expand_input(lm_head,ids,vision_carriers,scope=scope,signature=signature,
-                source=(context['scene_id'],context['frame_id'],timestamp,index),carrier_layout=layout)
+                source=(context['scene_id'],context['frame_id'],timestamp,index),carrier_layout=layout,
+                stable_anchor=(anchor.anchor_id,anchor.stable_state_valid) if anchor else ())
             preparation_ms=(perf_counter()-tick)*1000
             had_cache=self.cache.entry is not None
             decision,plan=self.planner.plan(question,expanded,self.cache,retrieval,context,m2_diagnostics,
@@ -180,15 +193,18 @@ class M3Runtime:
                 visual_tokens=int(expanded.visual_mask.sum()),
                 visual_group_spans=expanded.visual_group_spans,
                 historical_text_consumed=bool(retrieval['admitted']),current_visual_complete=True,
-                executor='PrefillExecutor',reuse_strategy='wsdr_kv',
+                executor='PrefillExecutor',reuse_strategy=self.config.reuse_strategy,
                 prefix_rejection_reason=reason if not decision.reuse_length else None,
                 cache_invalidation_reason=q_invalidation,layout_preparation_ms=preparation_ms,
                 composer_wall_ms=composer_ms/max(1,len(ids_list)),
                 stable_anchor_wall_ms=anchor_ms/max(1,len(ids_list)),
+                stable_core_extraction_wall_ms=core_extraction_ms/max(1,len(ids_list)),
+                anchor_update_wall_ms=anchor_update_ms/max(1,len(ids_list)),
                 stable_anchor_id=anchor.anchor_id if anchor else None,
                 stable_anchor_hit=anchor_hit,stable_anchor_valid=anchor.stable_state_valid if anchor else False,
                 stable_anchor_source_frame=anchor.source_frame if anchor else None,
                 stable_anchor_age=anchor.anchor_age if anchor else None,
+                semantic_qualification_sha256=anchor.qualification_id if anchor else None,
                 stable_anchor_update_reason=anchor.update_reason if anchor and not anchor_hit else None,
                 stable_prefix_tokens=layout.stable_tokens if anchor else 0,
                 adapter_sha256=context.get('adapter_sha256'),
@@ -202,9 +218,12 @@ class M3Runtime:
                 end_to_end_ms=(perf_counter()-question_tick)*1000,
                 diagnostic_timing_scope='M3 question host wall; CUDA spans only with profile=True')
             answers.append(answer);rows.append(diag)
-        self.last_diagnostics.update(mode='quality_bounded_wsdr',execution_completed=True,
-            reuse_strategy=self.config.reuse_strategy,runtime_host_elapsed_ms=(perf_counter()-runtime_tick)*1000,
+        runtime_elapsed_ms=(perf_counter()-runtime_tick)*1000
+        self.last_diagnostics.update(mode='wrcps_eq_ssc_exact' if anchor is not None else 'quality_bounded_wsdr',execution_completed=True,
+            reuse_strategy=self.config.reuse_strategy,runtime_host_elapsed_ms=runtime_elapsed_ms,
+            complete_m3_wall_ms=runtime_elapsed_ms+core_extraction_ms,
             cache_bytes=self.cache.nbytes,config=asdict(self.config),
             composer_wall_ms=composer_ms,stable_anchor_wall_ms=anchor_ms,
+            stable_core_extraction_wall_ms=core_extraction_ms,anchor_update_wall_ms=anchor_update_ms,
             effective_history_records=sum(len(r['state_retrieval']['records']) for r in rows if r['historical_text_consumed']))
         return answers,self.last_diagnostics

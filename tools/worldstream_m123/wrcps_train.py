@@ -17,6 +17,7 @@ import torch.nn.functional as F
 from tools.worldstream_m123.benchmark.common import sha256, write
 from worldstream.m3.stable_world import StableAnchorManager, StableWorldSnapshot
 from worldstream.m3.world_prefix_composer import WorldPrefixComposer, LAYOUT_VERSION
+from tools.worldstream_m123.latency_controls import load_capture
 
 
 def validate_manifest(manifest):
@@ -31,6 +32,17 @@ def validate_manifest(manifest):
     from nuscenes.utils.splits import create_splits_scenes
     scene_table = json.loads(Path(manifest['nuscenes_scene_table']).read_text())
     names = {s['token']:s['name'] for s in scene_table}
+    if manifest.get('semantic_qualification'):
+        logs = {s['token']:s['log_token'] for s in scene_table}
+        from worldstream.m3.semantic_core import SemanticQualifier
+        qualifier=SemanticQualifier(manifest['semantic_qualification'])
+        reserved=set(qualifier.policy['calibration_log_ids']+qualifier.policy['validation_log_ids'])
+        reserved.update(logs[s] for s,p in splits.items() if p in ('calibration','independent_acceptance'))
+        train_logs={logs[s] for s,p in splits.items() if p=='train'}
+        validation_logs={logs[s] for s,p in splits.items() if p=='validation'}
+        if train_logs&validation_logs or (train_logs|validation_logs)&reserved:
+            raise ValueError('Adapter train/validation/qualification/acceptance logs must be disjoint')
+    else:qualifier=None
     official_train = set(create_splits_scenes()['train'])
     prior = {}; seen = set(); valid_pairs = Counter(); represented = Counter()
     for sample in samples:
@@ -49,8 +61,12 @@ def validate_manifest(manifest):
             facts=tuple(tuple(f) for f in sample['stable_snapshot']['facts'])))
         if snapshot.content_sha256 != sample['stable_snapshot']['content_sha256']:
             raise ValueError('Stable snapshot digest mismatch')
-        if (snapshot.scene_id,snapshot.frame_id) != key or not snapshot.facts:
+        if (snapshot.scene_id,snapshot.frame_id) != key:
+            raise ValueError('Training snapshot/frame binding mismatch')
+        if not snapshot.facts and qualifier is None:
             raise ValueError('No qualified stable facts: adapter training cannot establish WRCPS feasibility')
+        if qualifier is not None and snapshot.qualification_id!=qualifier.sha256:
+            raise ValueError('Adapter snapshot has different semantic qualification')
         context = dict(scene_id=scene,frame_id=sample['frame_id'],timestamp=snapshot.timestamp,
             state_epoch=snapshot.state_epoch,state_version=snapshot.state_version,
             state_execution_signature=snapshot.execution_signature)
@@ -75,6 +91,9 @@ def multimodal_embeddings(base, ids, carriers, answer_ids):
     if len(markers) != 1: raise ValueError('Training requires one native visual marker')
     pos = int(markers[0])
     embedding = base.get_input_embeddings()
+    # Match LlavaMetaForCausalLM's actual native assembly: detection/map heads
+    # publish FP32 carriers, then the assembler casts them to the LLM dtype.
+    carriers=carriers.to(device=embedding.weight.device,dtype=embedding.weight.dtype)
     answer_ids = answer_ids.reshape(-1).to(ids.device)
     prompt = torch.cat((embedding(ids[:pos]).unsqueeze(0),carriers,
                         embedding(ids[pos+1:]).unsqueeze(0)),1)
@@ -106,6 +125,11 @@ def train(args):
     cfg=effective_config('B0','language',root)
     model=load_model(cfg,args.checkpoint,root).eval().requires_grad_(False)
     base=base_model(model.lm_head)
+    # Captured carriers make the native perception modules unnecessary on GPU
+    # for distillation. Move them without modifying any weights.
+    for name,module in model.named_children():
+        if name!='lm_head':module.cpu()
+    torch.cuda.empty_cache()
     base_hash=sha256(args.checkpoint)
     if manifest['base_weights_sha256'] != base_hash:raise ValueError('Teacher checkpoint mismatch')
     composer=WorldPrefixComposer(base.config.hidden_size,args.stable_tokens,args.rank).to('cuda')
@@ -120,7 +144,7 @@ def train(args):
             composer.train(split=='train');managers={};losses=[]
             for sample in manifest['samples']:
                 if manifest['scene_splits'][sample['scene_id']] != split:continue
-                capture=torch.load(sample['capture'],map_location='cpu')
+                capture=load_capture(sample['capture'])
                 snapshot=StableWorldSnapshot(**dict(sample['stable_snapshot'],
                     facts=tuple(tuple(f) for f in sample['stable_snapshot']['facts'])))
                 if snapshot.content_sha256 != capture['stable_snapshot'].content_sha256:
@@ -130,6 +154,7 @@ def train(args):
                 anchor,_=manager.update(snapshot,capture['stable_context'])
                 native=capture['carriers'].cuda().detach()
                 for pair in sample['pairs']:
+                    torch.cuda.reset_peak_memory_stats()
                     index=pair['question_index']
                     if capture['questions'][index] != pair['question']:raise ValueError('Capture question ordering mismatch')
                     ids=capture['ids'][index].cuda()
@@ -143,17 +168,35 @@ def train(args):
                     with torch.set_grad_enabled(split=='train'):
                         composed=composer(native.float(),anchor).to(native.dtype)
                         student,offset,_=multimodal_embeddings(base,ids,composed,answer)
+                        decoder=base.model
+                        decoder.gradient_checkpointing=bool(args.gradient_checkpointing and split=='train')
+                        # Only the decoder checkpoint dispatch flag changes.
+                        # Frozen LoRA/dropout children stay in eval mode.
+                        decoder.training=bool(args.gradient_checkpointing and split=='train')
                         logits=base(inputs_embeds=student,use_cache=False).logits[:,offset:offset+labels.numel()]
                         critical=task_profile(pair['question'])[1] in ('object_ego_motion','map_relations','full_visual')
                         loss,details=distillation_loss(logits[0],target[0],labels,args.task_weight,critical)
                         if not torch.isfinite(loss):raise ValueError('Nonfinite adapter distillation loss')
                     if split=='train':
-                        optimizer.zero_grad(set_to_none=True);loss.backward()
+                        optimizer.zero_grad(set_to_none=True)
+                        try:loss.backward()
+                        except torch.cuda.OutOfMemoryError:
+                            write(root/'memory_probe.json',dict(status='OOM',step=steps,
+                                peak_allocated_bytes=torch.cuda.max_memory_allocated(),
+                                gradient_checkpointing=args.gradient_checkpointing));raise
+                        if not steps:
+                            write(root/'memory_probe.json',dict(status='PASS',step=0,
+                                peak_allocated_bytes=torch.cuda.max_memory_allocated(),
+                                peak_reserved_bytes=torch.cuda.max_memory_reserved(),
+                                input_tokens=student.shape[1],answer_tokens=labels.numel(),
+                                gradient_checkpointing=args.gradient_checkpointing))
                         torch.nn.utils.clip_grad_norm_(composer.parameters(),1.);optimizer.step();steps+=1
+                    decoder.training=False;decoder.gradient_checkpointing=False
                     losses.append(float(loss.detach()))
                     with (root/'training_log.jsonl').open('a') as f:
                         f.write(json.dumps(dict(epoch=epoch,split=split,step=steps,frame_id=snapshot.frame_id,
-                            scene_id=snapshot.scene_id,loss=losses[-1],**details))+'\n')
+                            scene_id=snapshot.scene_id,loss=losses[-1],
+                            peak_gpu_allocated_bytes=torch.cuda.max_memory_allocated(),**details))+'\n')
             if not losses:raise ValueError('Empty training/validation partition')
             mean=sum(losses)/len(losses)
             if split=='validation' and mean < best:
@@ -161,7 +204,9 @@ def train(args):
                 torch.save(dict(spec=composer.spec,layout_version=LAYOUT_VERSION,state_dict=composer.state_dict(),
                     trained_steps=steps,training_scene_ids=evidence['training_scene_ids'],
                     validation_scene_ids=evidence['validation_scene_ids'],base_weights_sha256=base_hash,
-                    data_manifest_sha256=sha256(args.manifest),seed=args.seed,validation_loss=best),root/'adapter.pt')
+                    data_manifest_sha256=sha256(args.manifest),seed=args.seed,validation_loss=best,
+                    semantic_qualification_sha256=(sha256(manifest['semantic_qualification'])
+                        if manifest.get('semantic_qualification') else '')),root/'adapter.pt')
     write(root/'training_result.json',dict(trained_steps=steps,best_validation_loss=best,
         adapter_sha256=sha256(root/'adapter.pt'),deployment_qualified=False))
 
@@ -173,9 +218,15 @@ def main():
     p.add_argument('--stable-tokens',type=int,default=128);p.add_argument('--rank',type=int,default=128)
     p.add_argument('--epochs',type=int,default=3);p.add_argument('--lr',type=float,default=1e-4)
     p.add_argument('--task-weight',type=float,default=1.);p.add_argument('--seed',type=int,default=20261028)
+    p.add_argument('--no-gradient-checkpointing',dest='gradient_checkpointing',action='store_false',default=True)
     p.add_argument('--preflight-only',action='store_true');a=p.parse_args()
     if set(os.sched_getaffinity(0)) & {4,5}:p.error('Use taskset -c 0-3,6-31')
-    train(a)
+    try:train(a)
+    except torch.cuda.OutOfMemoryError:
+        write(Path(a.output)/'memory_probe.json',dict(status='OOM',
+            peak_allocated_bytes=torch.cuda.max_memory_allocated(),peak_reserved_bytes=torch.cuda.max_memory_reserved(),
+            gradient_checkpointing=a.gradient_checkpointing))
+        raise
 
 
 if __name__=='__main__':main()

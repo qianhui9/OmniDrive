@@ -7,7 +7,23 @@ def input_revision(x):
     return (tuple((getattr(x, name).data_ptr(), getattr(x, name)._version,
                    tuple(getattr(x, name).shape), getattr(x, name).dtype, getattr(x, name).device)
                   for name in ('embeddings', 'token_ids', 'position_ids', 'attention_mask', 'visual_mask')),
-            x.scope, x.signature, x.source, x.layout_signature, x.visual_group_spans)
+            x.scope, x.signature, x.source, x.layout_signature, x.visual_group_spans,x.stable_anchor)
+
+
+def anchor_contiguous_limit(previous,current,length):
+    """An invalidated world anchor revokes visual KV, not fixed text KV.
+
+    Same-frame exact current vision remains legal. Across frames, even equal
+    null/car embeddings cannot inherit visual KV from an invalid/different core.
+    Both matching functions apply this bound before any actual-value proof.
+    """
+    a,b=previous.stable_anchor,current.stable_anchor
+    if not a and not b:return length
+    if any(len(v)!=2 or type(v[1]) is not bool for v in (a,b)):
+        return 0
+    same_frame=len(previous.source)>=2 and len(current.source)>=2 and previous.source[:2]==current.source[:2]
+    if a==b and (a[1] or same_frame):return length
+    return min(length,current.visual_group_spans[0][1]) if current.visual_group_spans else 0
 
 
 @dataclass(frozen=True)
@@ -52,7 +68,7 @@ def prefix_statistics(previous, current, block_size=32, *, include_blocks=True, 
             or previous.embeddings.device != current.embeddings.device
             or previous.embeddings.shape[2:] != current.embeddings.shape[2:]):
         return 0, 0, []
-    n = min(previous.length, current.length)
+    n = anchor_contiguous_limit(previous,current,min(previous.length, current.length))
     if not n:
         return 0, 0, []
     a, b = previous.embeddings[:, :n], current.embeddings[:, :n]
@@ -86,7 +102,7 @@ def exact_lcp(previous, current):
     a, b = previous.embeddings, current.embeddings
     if a.dtype != b.dtype or a.device != b.device or a.shape[2:] != b.shape[2:]:
         return 0
-    n = min(previous.length, current.length)
+    n = anchor_contiguous_limit(previous,current,min(previous.length, current.length))
     same = (a[:, :n] == b[:, :n]).all(-1)[0]
     same &= torch.isfinite(a[:, :n]).all(-1)[0] & torch.isfinite(b[:, :n]).all(-1)[0]
     for name in ('token_ids', 'position_ids', 'attention_mask', 'visual_mask'):

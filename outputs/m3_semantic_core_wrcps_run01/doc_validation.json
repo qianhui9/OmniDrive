@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "validation": "agent-follows-doc",
+  "validator": "fresh independent subagent /root/eq_environment_doc_check",
+  "status": "PASS_WITH_SANDBOX_ACCESS_NOTE",
+  "scope": "Only the two commands in REPRODUCE.md 环境核验（独立文档验证仅执行本节）; no training, tests, or replay executed; no code or environment modified.",
+  "working_directory": "/data/qh/phdCode/work4/OmniDrive",
+  "documents_read": [
+    "/home/qh/.codex/skills/run-experiment/SKILL.md",
+    "/home/qh/.codex/skills/shared-references/compute-env-contract.md",
+    ".aris/compute/local.md",
+    "outputs/m3_semantic_core_wrcps_run01/REPRODUCE.md"
+  ],
+  "commands": [
+    {
+      "command": "taskset -c 0-3,6-31 nvidia-smi --query-gpu=index,name,memory.used,memory.total --format=csv,noheader",
+      "execution_mode": "sandbox",
+      "return_code": 0,
+      "raw_output": "0, NVIDIA GeForce RTX 3090, 15 MiB, 24576 MiB\n"
+    },
+    {
+      "command": "taskset -c 0-3,6-31 env OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 /home/qh/miniconda3/envs/OmniDrive/bin/python -c 'import os,torch; torch.manual_seed(0); assert not ({4,5}&set(os.sched_getaffinity(0))); x=torch.arange(64,dtype=torch.float32,device=\"cuda\").reshape(8,8); value=float((x@x.T).sum()); assert value==510720.0; print(\"WITNESS\",value,torch.cuda.get_device_name(0)); print(\"AFFINITY\",sorted(os.sched_getaffinity(0)))'",
+      "execution_mode": "sandbox",
+      "return_code": 1,
+      "raw_output": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/torch/cuda/__init__.py\", line 229, in _lazy_init\n    torch._C._cuda_init()\nRuntimeError: No CUDA GPUs are available\n"
+    },
+    {
+      "command": "taskset -c 0-3,6-31 nvidia-smi --query-gpu=index,name,memory.used,memory.total --format=csv,noheader",
+      "execution_mode": "host_gpu_require_escalated",
+      "return_code": 0,
+      "raw_output": "0, NVIDIA GeForce RTX 3090, 15 MiB, 24576 MiB\n"
+    },
+    {
+      "command": "taskset -c 0-3,6-31 env OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 /home/qh/miniconda3/envs/OmniDrive/bin/python -c 'import os,torch; torch.manual_seed(0); assert not ({4,5}&set(os.sched_getaffinity(0))); x=torch.arange(64,dtype=torch.float32,device=\"cuda\").reshape(8,8); value=float((x@x.T).sum()); assert value==510720.0; print(\"WITNESS\",value,torch.cuda.get_device_name(0)); print(\"AFFINITY\",sorted(os.sched_getaffinity(0)))'",
+      "execution_mode": "host_gpu_require_escalated",
+      "return_code": 0,
+      "raw_output": "WITNESS 510720.0 NVIDIA GeForce RTX 3090\nAFFINITY [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]\n"
+    }
+  ],
+  "gpu_availability": {
+    "threshold_mib": 500,
+    "observed_memory_used_mib": 15,
+    "action": "Free GPU verified before witness; no processes stopped."
+  },
+  "expected": {
+    "witness": "WITNESS 510720.0 NVIDIA GeForce RTX 3090",
+    "cpu_affinity_excludes": [
+      4,
+      5
+    ]
+  },
+  "observed": {
+    "witness_matches": true,
+    "cpu_affinity_excludes_4_5": true,
+    "host_gpu_witness_return_code": 0
+  },
+  "doc_vs_reality_divergences": [
+    {
+      "layer": "execution_access",
+      "observation": "Sandbox nvidia-smi succeeds and reports 15 MiB used, but the identical documented CUDA witness fails with RuntimeError: No CUDA GPUs are available. Both commands rerun verbatim with require_escalated; witness then passes.",
+      "document_acknowledges": true,
+      "environment_rebuild_required": false
+    }
+  ],
+  "limitations": [
+    "This pass verifies only the two documented environment commands and expected witness/CPU affinity. Package version claims, training results, and replay behavior were not independently checked."
+  ],
+  "changes": [
+    "outputs/m3_semantic_core_wrcps_run01/doc_validation.json"
+  ]
+}

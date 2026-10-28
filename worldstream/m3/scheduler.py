@@ -37,6 +37,8 @@ class Scheduler:
                 'layout_signature', 'dtype')
         if self.config.prefix_adapter:
             keys += ('adapter_sha256',)
+        if self.config.semantic_qualification:
+            keys += ('semantic_qualification_sha256',)
         return (self.policy.get('block_size') == self.config.block_size
                 and all(context.get(k) and context[k] == binding.get(k) for k in keys))
 

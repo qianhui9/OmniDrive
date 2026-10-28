@@ -16,6 +16,7 @@ class M3Config:
     block_size: int = 32
     prefix_adapter: str = ''
     stable_anchor_max_frames: int = 8
+    semantic_qualification: str = ''
 
     def __post_init__(self):
         if self.mode != 'auto' or self.state_context != 'augment':

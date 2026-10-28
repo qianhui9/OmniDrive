@@ -209,8 +209,13 @@ def run(args):
     write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if Path(k).parent in directories[:2]})
     write(dest/'m1_m2_m3_source_hashes.json', hashes)
     cfg = effective_config(args.condition, args.workload, dest,getattr(args,'m3_strategy',None))
+    if getattr(args,'wrcps_teacher_diagnostic',False) and not (
+            args.condition=='B3' and args.m3_zero_reuse and args.capture_m3_inputs and args.wrcps_adapter):
+        raise ValueError('Teacher attribution requires captured WRCPS ZeroKV inputs')
     if getattr(args,'dataset_split','val') == 'train':
-        if (args.condition!='B3' or not args.capture_m3_inputs or not args.capture_stable_world
+        teacher_capture=args.capture_m3_inputs and args.capture_stable_world
+        semantic_capture=getattr(args,'capture_semantic_candidates',False)
+        if (args.condition!='B3' or not (teacher_capture or semantic_capture)
                 or not args.m3_zero_reuse or getattr(args,'wrcps_adapter',None)):
             raise ValueError('Training split is restricted to native-layout, zero-KV real teacher captures')
         cfg.data.test.ann_file=cfg.data.train.ann_file
@@ -236,6 +241,9 @@ def run(args):
         if args.condition!='B3' or args.m3_strategy!='exact_prefix':
             raise ValueError('WRCPS experiments require B3 with exact_prefix')
         cfg.model.m3_config.prefix_adapter=args.wrcps_adapter
+    if getattr(args,'semantic_qualification',None):
+        if args.condition!='B3':raise ValueError('Semantic qualification consumes formal M1 commits')
+        cfg.model.m3_config.semantic_qualification=args.semantic_qualification
     write(dest/'effective_config.json', dict(config=cfg._cfg_dict.to_dict(),
         note='Explicit benchmark workload/output/policy overrides; production source config unchanged.'))
     importlib.import_module('projects.mmdet3d_plugin')
@@ -396,6 +404,7 @@ def run(args):
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
     previous_scene = None
+    semantic_previous_labels={}
     for ordinal, info in enumerate(selected):
         if m2_evidence is not None: m2_evidence.clear()
         seed = (args.seed + int(hashlib.sha256(info['token'].encode()).hexdigest()[:8], 16)) % (2**31)
@@ -477,10 +486,16 @@ def run(args):
             output_digest=typed_digest({k: v for k, v in result.items() if k != 'text_out'}),
             timing_scope='Single sequential request: dataset access/preprocess, collate/H2D, model including language and native answer write, CPU result materialization. Audit serialization and counterfactual checks excluded.',
             gpu_scope='CUDA events on default stream; includes host submission gaps, not sum of active kernel durations. Nested stage spans must not be added.')
+        row['post_failure_teacher_diagnostic']=bool(getattr(args,'wrcps_teacher_diagnostic',False))
         row['input_tensor_digest']=typed_digest(image_values(sample['img']))
         if fixed is not None:row['fixed_tokens']=fixed.collect(result['text_out'])
         if equivalence is not None:append(dest/'risk_equivalence.jsonl',equivalence.collect())
         row['identity'] = model.worldstream_audit_identity
+        current_composed=getattr(model.m3_runtime,'last_composed_carriers',None)
+        if current_composed is not None:
+            from worldstream.m3.visual_state import base_model
+            row['wrcps_expanded_visual_digest']=typed_digest(current_composed.to(
+                dtype=base_model(model.lm_head).get_input_embeddings().weight.dtype))
         if getattr(args, 'capture_stable_world', False):
             from dataclasses import asdict
             from worldstream.m3.stable_world import freeze_stable_world
@@ -488,7 +503,7 @@ def run(args):
             snapshot = freeze_stable_world(manager, dict(scene_id=info['scene_token'],
                 frame_id=info['token'], timestamp=info['timestamp']/1e6,
                 state_epoch=manager.store.generation, state_version=manager.store.commit_count,
-                state_execution_signature=manager.store.execution_signature))
+                state_execution_signature=manager.store.execution_signature),model.m3_runtime.semantic_qualifier)
             append(dest/'stable_world_snapshots.jsonl', asdict(snapshot))
         if model.m1_manager is not None:
             # Existing CPU timers; read outside request timing without copying
@@ -498,6 +513,26 @@ def run(args):
         if observer.commits and not getattr(args,'perception_only',False):
             frame, anchors, audit = m1_record(model, observer.commits[-1])
             row['m1_edges'] = scorer.update(frame, anchors, audit['commit'])
+            if getattr(args,'capture_semantic_candidates',False):
+                from worldstream.m3.semantic_core import committed_semantic_candidates
+                manager=model.m1_manager
+                semantic_context=dict(scene_id=frame.scene_id,frame_id=frame.frame_id,timestamp=frame.timestamp,
+                    state_epoch=manager.store.generation,state_version=manager.store.commit_count,
+                    state_execution_signature=manager.store.execution_signature)
+                online=committed_semantic_candidates(manager,semantic_context)
+                append(dest/'semantic_candidates.jsonl',online)
+                # Evaluation-only unique class/size/2m assignment. These labels
+                # are written separately AFTER the model and never reach M1/M3.
+                from tools.worldstream_m1.identity_metrics import strict_labels
+                labels=strict_labels(anchors,scorer.annotations.get(frame.frame_id,[]),gate=2.)
+                current={aid:labels.get(index) for aid,index in zip(audit['commit']['committed_anchor_ids'],
+                    audit['commit']['selected_prediction_indices'])}
+                previous=semantic_previous_labels.get(frame.scene_id,{})
+                edges=[dict(anchor_id=aid,previous_gt=previous.get(aid),current_gt=current.get(aid))
+                    for aid,_ in audit['commit']['association_pairs']]
+                append(dest/'semantic_labels_offline.jsonl',dict(scene_id=frame.scene_id,frame_id=frame.frame_id,
+                    current_labels=current,edges=edges,oracle='unique class/size/2m partial oracle',online_use=False))
+                semantic_previous_labels[frame.scene_id]=current
             row['m1_commit'] = audit['commit']
             row['m1_precheck'] = audit['precheck']['diagnostics']
             row['m1_valid_anchors'] = len(audit['precheck'].get('valid_anchor_ids', []))
@@ -565,6 +600,8 @@ def run(args):
                     actual_reuse_length=detail.get('reused_tokens', 0),
                     effective_prefill_tokens=detail.get('effective_prefill_tokens', qrow['input_tokens']),
                     candidate_reuse_lengths=detail.get('candidate_prefix_tokens', []))
+                if 'wrcps_expanded_visual_digest' in row:
+                    qrow['input_witness']['wrcps_expanded_visual']=row['wrcps_expanded_visual_digest']
             questions.append(qrow)
             append(dest/'per_question_metrics.jsonl', qrow)
         if decision_trace is not None:
@@ -592,7 +629,7 @@ def run(args):
             stable_context=dict(scene_id=state.scene_id,frame_id=state.frame_id,timestamp=state.timestamp,
                 state_epoch=manager.store.generation,state_version=manager.store.commit_count,
                 state_execution_signature=manager.store.execution_signature)
-            stable_snapshot=freeze_stable_world(manager,stable_context)
+            stable_snapshot=freeze_stable_world(manager,stable_context,model.m3_runtime.semantic_qualifier)
             folder=dest/'m3_inputs';folder.mkdir(exist_ok=True)
             torch.save(dict(carriers=calls[0]['carriers'].detach().cpu(),
                 ids=[c['ids'].detach().cpu().reshape(-1) for c in calls],
@@ -623,6 +660,26 @@ def run(args):
         if m2_evidence is not None:
             m2_evidence.collect(info['token'])
             row['m2_evidence_scope']='Extra profiling outside request timing; cumulative GPU peak may include evidence workspace'
+        if getattr(args,'wrcps_teacher_diagnostic',False):
+            # Focused post-failure attribution, NEVER service latency evidence.
+            # Same current M1/M2 carriers, IDs and per-question sampling RNG;
+            # only the original Native layout replaces the Composer layout.
+            call=observer.last_m3_call
+            saved_cpu,saved_cuda=torch.get_rng_state(),torch.cuda.get_rng_state()
+            kw={k:call[k] for k in ('do_sample','temperature','top_p','num_beams','max_new_tokens','use_cache')}
+            carrier_digest=typed_digest(call['vision_carriers'])
+            for qi,observed in enumerate(observer.prefill_generations):
+                cpu_rng,cuda_rng=observed['captured_rng']
+                torch.set_rng_state(cpu_rng);torch.cuda.set_rng_state(cuda_rng)
+                with torch.no_grad():
+                    teacher=model.lm_head.generate(inputs=call['input_ids_list'][qi].reshape(1,-1),
+                        images=call['vision_carriers'],**kw)
+                append(dest/'teacher_attribution.jsonl',dict(scene_id=info['scene_token'],frame_id=info['token'],
+                    question=result['text_out'][qi]['Q'],zero_answer=result['text_out'][qi]['A'][0],
+                    teacher_answer=model.tokenizer.batch_decode(teacher,skip_special_tokens=True)[0],
+                    reference=gt.get(result['text_out'][qi]['Q']),native_current_carriers=carrier_digest,
+                    rng=typed_digest(cuda_rng),same_M1_M2=True,history_KV=False,diagnostic_only=True))
+            torch.set_rng_state(saved_cpu);torch.cuda.set_rng_state(saved_cuda)
         frames.append(row)
         append(dest/'per_frame_metrics.jsonl', row)
         if getattr(args, 'execution_audit', False):
@@ -773,6 +830,7 @@ def main():
     parser.add_argument('--sequence-file', help='Explicit ordered real sample tokens for paired multi-scene runs')
     parser.add_argument('--capture-m1-controls',action='store_true',help='Save real committed inputs outside timed requests for identical-state CPU controls')
     parser.add_argument('--capture-stable-world', action='store_true', help='Audit qualified current M1 stable facts after actual six-camera inference')
+    parser.add_argument('--capture-semantic-candidates',action='store_true',help='Save causal M1 semantic candidates plus separate offline GT labels')
     parser.add_argument('--dataset-split', choices=['val','train'], default='val', help='train is capture-only adapter development; never acceptance evidence')
     parser.add_argument('--runtime-profile',action='store_true',help='Diagnostic only: sampled cProfile and CUDA trace, not performance evidence')
     parser.add_argument('--profile-frame',type=int,default=1)
@@ -781,6 +839,8 @@ def main():
         help='Read-only candidate statistics for offline signal replay; no embeddings or KV copies')
     parser.add_argument('--m3-policy', help='Unified fitted WSDR policy for this experiment')
     parser.add_argument('--wrcps-adapter', help='Trained experimental Composer; requires a newly bound exact policy, never changes production config')
+    parser.add_argument('--semantic-qualification',help='Independent EQ-SSC identity/class policy; no online GT input')
+    parser.add_argument('--wrcps-teacher-diagnostic',action='store_true',help='Post-failure Native teacher on identical current carriers/RNG, outside measured timing; not efficiency evidence')
     parser.add_argument('--repeat', type=int, default=0)
     parser.add_argument('--measurement-set', choices=['main', 'attribution', 'efficiency', 'smoke'], default='smoke')
     parser.add_argument('--seed', type=int, default=0)

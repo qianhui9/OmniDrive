@@ -1,9 +1,9 @@
-"""Causal, claim-scoped stable facts from M1's committed state.
+"""Causal stable semantic cores over M1's current committed observations.
 
-Geometric associations and RGB support are candidates, not stable identities.
-Only M1's authenticated, independently qualified continuity certificates can
-publish identity/class facts. Metric geometry, pose, velocity and signal state
-are deliberately outside that certificate's claim and remain current vision.
+EQ-SSC admits only its independently evaluated identity/class continuity scope.
+The historical physical-certificate export remains available for old audits;
+neither interface upgrades ordinary associations to physical certification.
+Geometry, pose, motion, signal state and current visibility remain current vision.
 """
 from collections import Counter
 from dataclasses import asdict, dataclass, replace
@@ -28,6 +28,7 @@ class StableWorldSnapshot:
     facts: tuple
     provenance_json: str
     content_sha256: str = ''
+    qualification_id: str = ''
 
     def __post_init__(self):
         if (not isinstance(self.facts, tuple) or any(not isinstance(f, tuple) or len(f)!=3
@@ -35,10 +36,12 @@ class StableWorldSnapshot:
                 or self.facts != tuple(sorted(set(self.facts)))):
             raise ValueError('Stable facts must be canonical immutable identity/type/class triples')
         payload = asdict(self); payload.pop('content_sha256')
+        if not self.qualification_id:payload.pop('qualification_id')
         object.__setattr__(self, 'content_sha256', digest(payload))
 
     def validate(self, context):
         payload = asdict(self); payload.pop('content_sha256')
+        if not self.qualification_id:payload.pop('qualification_id')
         if digest(payload) != self.content_sha256:
             raise ValueError('Stable snapshot was modified')
         for name in ('scene_id', 'frame_id', 'timestamp', 'state_epoch', 'state_version'):
@@ -48,9 +51,18 @@ class StableWorldSnapshot:
             raise ValueError('Stable snapshot execution mismatch')
 
 
-def freeze_stable_world(manager, context):
+def freeze_stable_world(manager, context, semantic_qualifier=None):
     """Read only the current commit; never use pending or future perception."""
     store = manager.store
+    if semantic_qualifier is not None:
+        from .semantic_core import committed_semantic_candidates
+        candidates=committed_semantic_candidates(manager,context)
+        selected=semantic_qualifier.select(candidates)
+        provenance=dict(selected,candidates=len(candidates['records']),source='M1 committed semantic observations',
+            protocol_signature=candidates['protocol_signature'],no_observation_grace_frames=0)
+        return StableWorldSnapshot(str(store.scene_id),str(context['frame_id']),context['timestamp'],
+            store.generation,store.commit_count,store.execution_signature,selected['facts'],
+            json.dumps(provenance,sort_keys=True,allow_nan=False),qualification_id=semantic_qualifier.sha256)
     certifications = manager.get_current_certifications()
     if (certifications.scene_id != context['scene_id']
             or certifications.frame_id != context['frame_id']
@@ -94,14 +106,17 @@ class StableWorldAnchor:
     facts: tuple
     source_snapshot_sha256: str
     update_reason: str
+    qualification_id: str = ''
 
 
 class StableAnchorManager:
     """One bounded anchor, revalidated from each real current M1 snapshot."""
-    def __init__(self, max_age_frames=8, max_gap_s=1.):
+    def __init__(self, max_age_frames=8, max_gap_s=1., max_core_facts=1):
         if type(max_age_frames) is not int or max_age_frames < 1 or not math.isfinite(max_gap_s) or max_gap_s <= 0:
             raise ValueError('Invalid stable anchor horizon')
         self.max_age_frames, self.max_gap_s = max_age_frames, max_gap_s
+        if type(max_core_facts) is not int or max_core_facts<1:raise ValueError('Invalid core size')
+        self.max_core_facts=max_core_facts
         self.reset()
 
     def reset(self):
@@ -117,25 +132,29 @@ class StableAnchorManager:
             if snapshot.content_sha256 != prior.content_sha256:
                 raise ValueError('Same-frame stable snapshot changed')
             return self.anchor, self.anchor.stable_state_valid
-        semantic_digest = digest(snapshot.facts)
         reason = 'cold_anchor'
         if prior is not None:
             if snapshot.scene_id != prior.scene_id: reason = 'scene_changed'
             elif snapshot.state_epoch != prior.state_epoch: reason = 'state_epoch_changed'
             elif snapshot.execution_signature != prior.execution_signature: reason = 'state_execution_changed'
+            elif snapshot.qualification_id != prior.qualification_id: reason = 'semantic_qualification_changed'
             elif snapshot.state_version < prior.state_version: reason = 'state_version_rollback'
             elif not 0 < snapshot.timestamp-prior.timestamp <= self.max_gap_s: reason = 'time_discontinuity'
             elif not snapshot.facts: reason = 'no_qualified_stable_facts'
-            elif semantic_digest != self.anchor.stable_state_digest: reason = 'stable_content_changed'
+            elif not set(self.anchor.facts).issubset(snapshot.facts): reason = 'stable_content_changed'
             elif self.anchor.anchor_age+1 >= self.max_age_frames: reason = 'anchor_horizon_expired'
             elif self.anchor.stable_state_valid:
                 self.anchor = replace(self.anchor, anchor_age=self.anchor.anchor_age+1)
                 self.previous = snapshot
                 return self.anchor, True
         if not snapshot.facts: reason = 'no_qualified_stable_facts'
+        priorities=json.loads(snapshot.provenance_json).get('priority_ids',[])
+        ranking={aid:i for i,aid in enumerate(priorities)}
+        core=tuple(sorted(sorted(snapshot.facts,key=lambda f:(ranking.get(f[0],len(ranking)),f))[:self.max_core_facts]))
+        semantic_digest=digest(core)
         self.generation += 1
         identity = digest((snapshot.scene_id, snapshot.frame_id, snapshot.content_sha256, self.generation))
         self.anchor = StableWorldAnchor(identity, snapshot.scene_id, semantic_digest, snapshot.frame_id,
-            0, bool(snapshot.facts), snapshot.facts, snapshot.content_sha256, reason)
+            0, bool(core), core, snapshot.content_sha256, reason,snapshot.qualification_id)
         self.previous = snapshot
         return self.anchor, False

@@ -504,11 +504,13 @@ class Petr3D(MVXTwoStageDetector):
                 if m3.config.prefix_adapter:
                     stable_snapshot_tick = time.perf_counter()
                     from worldstream.m3.stable_world import freeze_stable_world
+                    if m3.semantic_qualifier is None:
+                        raise ValueError('WRCPS requires a validated EQ-SSC semantic qualification policy')
                     stable_state = freeze_stable_world(self.m1_manager, dict(
                         scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']), timestamp=timestamp,
                         state_epoch=self.m1_manager.store.generation,
                         state_version=self.m1_manager.store.commit_count,
-                        state_execution_signature=self.m1_manager.store.execution_signature))
+                        state_execution_signature=self.m1_manager.store.execution_signature),m3.semantic_qualifier)
                     stable_snapshot_ms = (time.perf_counter()-stable_snapshot_tick)*1000
                 m3_answers, self.m3_diagnostics = m3.generate(
                     lm_head=self.lm_head, input_ids_list=data['input_ids'][0],

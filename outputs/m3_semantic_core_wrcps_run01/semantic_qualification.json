@@ -1,0 +1,128 @@
+{
+  "version": "eq_ssc_identity_class_v1",
+  "claim": "empirical_associated_identity_and_observed_class_continuity",
+  "protocol_signature": "d077d5c3b8005767598a959a8107b5fc66a7e495decd74a9bb032ac135e3324b",
+  "selector_implementation": "437c6fa47e348baf622359556abce6ed10eafb4459503d8242733d7ca35aabad",
+  "independent_validation_completed": true,
+  "rules": {
+    "car": {
+      "min_score": 0.8753361701965332,
+      "max_residual_m": 0.11885742408930715,
+      "min_observations": 3,
+      "admitted": true,
+      "trial": 1,
+      "calibration": {
+        "candidates": 57,
+        "scored": 56,
+        "correct": 56,
+        "wrong": 0,
+        "unknown": 1,
+        "scenes": 4,
+        "unique_tracks": 21,
+        "identity_retention": 1.0,
+        "unknown_fraction": 0.017543859649122806,
+        "scene_mean_wrong_fraction_ci95": [
+          0.0,
+          0.0
+        ],
+        "interval_scope": "descriptive scene bootstrap; unknowns separate; zero observed errors do not guarantee unseen risk"
+      },
+      "validation": {
+        "candidates": 72,
+        "scored": 71,
+        "correct": 71,
+        "wrong": 0,
+        "unknown": 1,
+        "scenes": 7,
+        "unique_tracks": 28,
+        "identity_retention": 1.0,
+        "unknown_fraction": 0.013888888888888888,
+        "scene_mean_wrong_fraction_ci95": [
+          0.0,
+          0.0
+        ],
+        "interval_scope": "descriptive scene bootstrap; unknowns separate; zero observed errors do not guarantee unseen risk"
+      },
+      "rejection_reason": null
+    }
+  },
+  "qualification_limits": {
+    "trials": 3,
+    "max_observed_wrong_edges": 0,
+    "max_unknown_fraction": 0.05,
+    "min_scored_edges": 30,
+    "min_scenes": 3,
+    "rules": "score quantiles .50/.75/.90; residual quantiles .75/.50/.25; consecutive counts 2/3/3",
+    "qualification_scope": "empirical identity and observed class continuity; no physical identity or motion claim",
+    "uncertainty": "scene-cluster descriptive intervals; unobserved population risk is not guaranteed"
+  },
+  "calibration_scene_ids": [
+    "0053e9c440a94c1b84bd9c4223efc4b0",
+    "00590cbfa24a430a8c274b51e1c71231",
+    "010fb5bcc7984d0f8f07f99e02366df1",
+    "01796494e25c448dadaba70cfcc3532d",
+    "019b370afb444a2e8ce85654898307c8",
+    "01c3f5e39956402da3e37845632fadca"
+  ],
+  "validation_scene_ids": [
+    "01c8c59260db4a3682d7b4f8da65425e",
+    "0287702725184161af95373198546a59",
+    "02e484442a2f411b971edcf96ebbe885",
+    "02f1e5e2fc544798aad223f5ae5e8440",
+    "034256c9639044f98da7562ef3de3646",
+    "03ee880dd4e348f4b3407f0d073c7c70",
+    "04061484361145f5ac6f90a5103b84a6",
+    "04e5f089805540a5a9e73c1b7c54ee8c",
+    "055a607b74e04001adef097225a8661a",
+    "06c43bc74aff453081ce83eb126a756e",
+    "078e6d7a3d4a429bba404bf12c7a98f2",
+    "087c6e521e974c708d49cac1db095691",
+    "08be42eb2186411d8e2201225329f1c6",
+    "095d9b93b583425f910ae2afaf1d017d",
+    "098c11f50ff2425a9ff994e004de1216",
+    "09f67057dd8346388b28f79d9bb1cf04",
+    "0be1ff07a8f148ca9535fb7f0deaf828",
+    "0c12123d57594f4d81d32fd4aa89fb1f"
+  ],
+  "calibration_log_ids": [
+    "3313a6a85b264e4c86ee44d6e6329cf3",
+    "34d0574ea8f340179c82162c6ac069bc",
+    "69271ec7af1f446ca16820ac46d2047a",
+    "2f3c08142bc04ac3af6a8cf6c721b816",
+    "6f5b61bfb298454eb6fe7ba279792815",
+    "7a0fde44c3504eaeb18f9ad83bed65bc"
+  ],
+  "validation_log_ids": [
+    "343d984344e440c7952d1e403b572b2a",
+    "8e0ced20b9d847608afcfbc23056460e",
+    "0986cb758b1d43fdaa051ab23d45582b",
+    "6577357788b24c35a3b0419c138f50db",
+    "75f5ca2350b346d19a39aa7439f61755",
+    "bc41a49366734ebf978d6a71981537dc",
+    "b5622d4dcb0d4549b813b3ffb96fbdc9",
+    "8fefc430cbfa4c2191978c0df302eb98",
+    "89a56a5dc3aa4e56a2e57b52de738da5",
+    "6f7fe59adf984e55a82571ab4f17e4e2",
+    "3a43824b84534c98bda1d07548db5817",
+    "246e7da6bb344941bac92be421a545e2",
+    "84ff0dbb8d7343ab95e776c4955d5884",
+    "f38ef5a1e9c941aabb2155768670b92a",
+    "65629cfc47fe489fabc497ead466a313",
+    "6175c3299ae0482791f4ab1e9d54b326",
+    "700b800c787842ba83493d9b2775234a",
+    "6c12081a828548b6b0a36f12d53be6ca"
+  ],
+  "calibration_frozen_sha256": "cd6aa89568b1d193edee9f986e4d284597f4d4ed3884231ca275775549b6730c",
+  "candidates_sha256": "b45e125e6247aa314cbc8ad9dcaf6321589bec26e79e8de58a6d24d113f5ec4a",
+  "labels_sha256": "370da14e46aaa5152a7ac38c72e1a2d694b8e7a7c901ed7d2fe5c9fa009a7c60",
+  "validation_extension_sources": [
+    {
+      "path": "outputs/m3_semantic_core_wrcps_run01/validation_extension_capture/semantic_candidates.jsonl",
+      "sha256": "c93e23a115f5c8df08bcb14e81726313428c8f8a90445c65852d9527f8db04f8",
+      "labels_sha256": "88fabd7c85f6a95c15dee79ff8117481493c45f7a2f7e0ef3b95630053ea2c05"
+    }
+  ],
+  "absence_grace_frames": 0,
+  "physical_certification": false,
+  "limitation": "Empirical claim on observed identity/class only; partial oracle unknowns explicit; no population risk guarantee"
+}

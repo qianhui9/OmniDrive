@@ -488,6 +488,14 @@ class WorldStateManager:
                 a.identity_link_qualified = False
             a.association_count = prior.association_count + 1 if prior else 0
             a.association_history = ((prior.association_history if prior else []) + [dict(frame_id=frame.frame_id, timestamp=frame.timestamp, source_epoch=self.store.generation, prediction_index=selected[j][0], status=a.association_basis if prior else 'new_observation', certified=a.identity_link_qualified, source_state_version=state_geometry_version(prior) if prior else None)])[-self.config.association_history_limit:]
+            edge = track_diagnostics.get('accepted_edge_evidence', {}).get((row,j), {})
+            a.association_history[-1].update(semantic_class=a.semantic_class,
+                source_frame_id=prior.source_frame_id if prior else None,
+                source_timestamp=prior.source_timestamp if prior else None,
+                source_is_previous_frame=bool(prior and prior.source_frame_id==self._previous_frame_id),
+                association_residual_m=edge.get('residual_m'),
+                association_margin_m=edge.get('margin_m'),
+                no_competing_edge=edge.get('no_competing_edge',False))
             a.last_innovation_m = float(np.linalg.norm(pred.geometry_world.center-prior.geometry_world.center)) if prior is not None else None
             a.state_version = state_geometry_version(a)
             for (cid, camera) in frame.cameras.items():

@@ -1,0 +1,35 @@
+{
+  "requests": 24,
+  "scenes": 1,
+  "repeated_scene_not_new_acceptance": true,
+  "zero_rerun_answers_equal_original": 24,
+  "case": {
+    "scene_id": "40209c4e465d4b4e8341ebd52be0d842",
+    "frame_id": "5193a061a8c24adb9663daa3a3c8e2cc",
+    "question": "Is there a bus stop nearby, and if so, what does that suggest?",
+    "zero_answer": "Yes, there is a bus stop to the left, which suggests that we are in an urban area with public transportation facilities.",
+    "teacher_answer": "Yes, there is a bus stop to the right, which suggests that there may be pedestrians or buses nearby.",
+    "reference": "Yes, there is a bus stop to the right-front, suggesting the vehicle is on a main route that accommodates public transport.",
+    "native_current_carriers": {
+      "shape": [
+        1,
+        513,
+        4096
+      ],
+      "dtype": "torch.float32",
+      "sha256": "8546d50178c638ba10174e8825d64421a80c4d882923d9982b3f3b7ae03d190e"
+    },
+    "rng": {
+      "shape": [
+        816
+      ],
+      "dtype": "torch.uint8",
+      "sha256": "591f3efbdb1e5bd3329c500b99ab2cc282fd44512a934624263f7112d5d900e2"
+    },
+    "same_M1_M2": true,
+    "history_KV": false,
+    "diagnostic_only": true
+  },
+  "attribution": "On identical current M1/M2 carriers and identical per-question sampling RNG, Native Teacher answers right and WRCPS-ZeroKV answers left. New representation is a sufficient cause of this spatial answer change; historical KV reuse is zero.",
+  "visual_review": "Front/front-right/front-left frames inspected; they show a large bus to the right but do not unambiguously verify the literal bus-stop sign location. Reference-backed spatial regression and uncertainty are retained, not promoted as physically certified truth."
+}

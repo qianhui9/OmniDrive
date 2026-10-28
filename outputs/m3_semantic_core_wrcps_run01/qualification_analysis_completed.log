@@ -1,0 +1,78 @@
+{
+  "stage_one_pass": false,
+  "frames": 96,
+  "scenes": 12,
+  "qualified_semantic_types": [],
+  "anchor_hits": 0,
+  "crossframe_transitions": 84,
+  "anchor_hit_rate": 0.0,
+  "valid_anchor_mean_frames": 0.0,
+  "all_anchor_mean_frames": 1.0,
+  "new_objects_without_refresh": 0,
+  "core_fact_wrong_extensions": 0,
+  "core_fact_unknown_extensions": 0,
+  "refresh_reasons": {
+    "no_qualified_stable_facts": 96
+  },
+  "per_split": {
+    "calibration": {
+      "frames": 48,
+      "raw_candidates": 1058,
+      "history_candidates": 669,
+      "qualified_facts": 0,
+      "selected_core_facts": 0,
+      "anchor_hits": 0,
+      "transitions": 42,
+      "anchor_hit_rate": 0.0
+    },
+    "qualification_validation": {
+      "frames": 48,
+      "raw_candidates": 1006,
+      "history_candidates": 678,
+      "qualified_facts": 0,
+      "selected_core_facts": 0,
+      "anchor_hits": 0,
+      "transitions": 42,
+      "anchor_hit_rate": 0.0
+    }
+  },
+  "mean_selection_replay_ms": 0.004897442219468455,
+  "mean_anchor_replay_ms": 0.02633355325087905,
+  "timing_scope": "real M1 candidate CPU replay, excludes image/model inference; not E2E performance",
+  "policy_sha256": "38a4157fd4004e0b95ce94e72057b1cc824cc8c7da596258cc2dca01e6eb393f",
+  "calibration_summary": {
+    "candidates": 606,
+    "scored": 243,
+    "correct": 243,
+    "wrong": 0,
+    "unknown": 363,
+    "scenes": 6,
+    "unique_tracks": 216,
+    "identity_retention": 1.0,
+    "unknown_fraction": 0.599009900990099,
+    "scene_mean_wrong_fraction_ci95": [
+      0.0,
+      0.0
+    ],
+    "interval_scope": "descriptive scene bootstrap; unknowns separate; zero observed errors do not guarantee unseen risk"
+  },
+  "validation_summary": {
+    "candidates": 613,
+    "scored": 177,
+    "correct": 176,
+    "wrong": 1,
+    "unknown": 436,
+    "scenes": 6,
+    "unique_tracks": 182,
+    "identity_retention": 0.9943502824858758,
+    "unknown_fraction": 0.7112561174551386,
+    "scene_mean_wrong_fraction_ci95": [
+      0.0,
+      0.0078125
+    ],
+    "interval_scope": "descriptive scene bootstrap; unknowns separate; zero observed errors do not guarantee unseen risk"
+  },
+  "GT_online": false,
+  "no_observation_grace_frames": 0,
+  "limitation": "Native M1 class-gating prevents observing same-ID class flips directly. Missing/changed identity is withdrawn; unseen/occluded entities never extend a core."
+}

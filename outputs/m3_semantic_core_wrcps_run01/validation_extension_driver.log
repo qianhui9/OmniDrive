@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/wrcps_semantic_experiment.py", line 236, in <module>
+    if __name__=='__main__':main()
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/wrcps_semantic_experiment.py", line 226, in main
+    elif a.stage=='extend-validation':extend_validation(root)
+  File "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/wrcps_semantic_experiment.py", line 119, in extend_validation
+    shutil.copy2(root/name,preserved/name)
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/shutil.py", line 444, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/shutil.py", line 264, in copyfile
+    with open(src, 'rb') as fsrc:
+FileNotFoundError: [Errno 2] No such file or directory: 'outputs/m3_semantic_core_wrcps_run01/stable_anchor_timeline.json'

@@ -1,0 +1,53 @@
+{
+  "qualification_replay": {
+    "hits": 18,
+    "transitions": 126,
+    "rate": 0.14285714285714285,
+    "scope": "18 independent official train log units, CPU core lifecycle replay of real online committed outputs"
+  },
+  "acceptance_service": {
+    "hits": 0,
+    "transitions": 42,
+    "qualified_core_frames": 0,
+    "frames": 48,
+    "requests": 144,
+    "crossframe_exact_visual_kv_tokens": 0,
+    "actual_reused_tokens": 0,
+    "actual_prefill_tokens_skipped": 0,
+    "core_refreshes": 48,
+    "reason": "ZeroKV; failed quality gate, no ExactKV campaign"
+  },
+  "exact_service": {
+    "executed": false,
+    "prefill_cuda_reduction": null,
+    "paired_scene_ci95": null
+  },
+  "lifetime_frames": {
+    "calibration": {
+      "valid_anchors": 6,
+      "valid_frame_records": 17,
+      "mean_frames": 2.8333333333333335,
+      "distribution": {
+        "6": 1,
+        "2": 2,
+        "3": 2,
+        "1": 1
+      },
+      "right_censored_at_eight_frame_boundary": 2
+    },
+    "qualification_validation": {
+      "valid_anchors": 16,
+      "valid_frame_records": 34,
+      "mean_frames": 2.125,
+      "distribution": {
+        "3": 2,
+        "1": 8,
+        "6": 1,
+        "4": 2,
+        "2": 3
+      },
+      "right_censored_at_eight_frame_boundary": 5
+    }
+  },
+  "limitation": "Anchor hits are not KV hits. No same-frame KV savings counted as cross-frame. Exact runtime safety validated by tests, not a substitute for service performance."
+}

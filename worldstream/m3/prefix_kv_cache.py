@@ -50,6 +50,7 @@ class PrefixKVCache:
         return (tuple((t.data_ptr(),t._version,tuple(t.shape),tuple(t.stride()),t.dtype,t.device) for t in tensors),
                 repr((entry.expanded.scope,entry.expanded.signature,entry.expanded.source,entry.prefix_lineage,
                       entry.expanded.layout_signature,entry.expanded.visual_group_spans,
+                      entry.expanded.stable_anchor,
                       entry.frame_index,entry.root_frame_index,entry.approx_reuse_depth,entry.quality_risk,entry.risk_profile)))
 
     @property

@@ -1,0 +1,36 @@
+{
+  "replace_formal_config": false,
+  "deployment_qualified": false,
+  "stage_one": {
+    "pass": true,
+    "scope": "within official train-domain, 18 independent log units; qualified subset only"
+  },
+  "stage_two": {
+    "pass": false,
+    "four_scalar_budgets_pass": true,
+    "critical_semantics_accepted": false
+  },
+  "target_domain_coverage": {
+    "pass": false,
+    "core_hits": 0,
+    "transitions": 42,
+    "core_frames": 0,
+    "frames": 48
+  },
+  "stage_three_exactkv": {
+    "executed": false,
+    "reason": "ZeroKV quality gate failed"
+  },
+  "stage_four_e2e": {
+    "executed": false,
+    "reason": "No quality-qualified ExactKV service"
+  },
+  "blockers": [
+    "Representation-induced reference-backed left/right regressions",
+    "No qualified core coverage in six heldout VAL log units"
+  ],
+  "unchanged_formal_config": true,
+  "adapter_sha256": "949d93aae435f1f9ef1c085ee657651c21d9ecc9902744035bf25fda55b89ebd",
+  "qualification_sha256": "8e33edcf1e8ca57ad961daef50cb700909d03a8c568c5ea8a854d5877e9caad3",
+  "next_research": "Use new development logs for any revised spatially faithful Composer and target-domain qualification coverage; freeze before fresh heldout acceptance. Do not retune on this acceptance set."
+}

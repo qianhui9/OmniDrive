@@ -134,6 +134,12 @@ def associate(anchors, predictions, timestamp, config, source_context=None, diag
     if diagnostics is not None:
         diagnostics.update(legal_edges=legal_count,ambiguous_edges=sum(d['ambiguous'] for d in ambiguous.values()),
                            admissible_edges=int(admissible.sum()),matched=len(pairs))
+        # Export the already measured selected-edge diagnostics. This does not
+        # alter assignment or certify identity/geometry.
+        diagnostics['accepted_edge_evidence'] = {(i,j): dict(
+            residual_m=float(costs[i,j]),
+            margin_m=float(ambiguous[i,j]['margin_m']) if np.isfinite(ambiguous[i,j]['margin_m']) else None,
+            no_competing_edge=not np.isfinite(ambiguous[i,j]['margin_m'])) for i,j in pairs}
     return pairs,costs
 
 

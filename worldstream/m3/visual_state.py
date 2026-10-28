@@ -18,6 +18,7 @@ class ExpandedInput:
     source: tuple = ()
     layout_signature: str = ''
     visual_group_spans: tuple = ()
+    stable_anchor: tuple = ()  # WRCPS identity/validity, scoped to visual spans
 
     @property
     def length(self):
@@ -140,7 +141,7 @@ def deployment_key(lm_head, include_observer=False):
 @torch.no_grad()
 def expand_input(lm_head, input_ids, images, attention_mask=None, position_ids=None,
                  scope=(), signature=(), source=(), carrier_layout=None, carrier_order=None,
-                 layout_signature=''):
+                 layout_signature='',stable_anchor=()):
     if input_ids.ndim == 1:
         input_ids = input_ids.unsqueeze(0)
     if input_ids.ndim != 2 or input_ids.shape[0] != 1 or input_ids.shape[1] == 0:
@@ -206,7 +207,7 @@ def expand_input(lm_head, input_ids, images, attention_mask=None, position_ids=N
             spans=tuple(rows)
         layout_signature = layout_signature or carrier_layout_signature(carrier_layout)
     return ExpandedInput(embeds, ids, positions, mask, visual, tuple(scope), signature, tuple(source),
-                         layout_signature,spans)
+                         layout_signature,spans,tuple(stable_anchor))
 
 
 def carrier_layout_signature(layout):

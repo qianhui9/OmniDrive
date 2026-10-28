@@ -1,0 +1,76 @@
+{
+  "scene_id": "40209c4e465d4b4e8341ebd52be0d842",
+  "frame_id": "5193a061a8c24adb9663daa3a3c8e2cc",
+  "question": "What type of area is the vehicle currently in?",
+  "reference": "The vehicle is in an urban area with ongoing development as indicated by the construction zone and crane on the left-front, and a mix of modern and older buildings behind.",
+  "native_answer": "The vehicle is in an urban area with a mix of commercial and residential buildings.",
+  "zero_answer": "The vehicle is in an urban area with a mix of commercial and residential buildings.",
+  "f1": 0.5652173913043478,
+  "baseline_f1": 0.5652173913043478,
+  "f1_loss": 0.0,
+  "answer_equal": true,
+  "output_token_f1": 1.0,
+  "task_metrics": {
+    "numeric_applicable": false,
+    "numeric_exact": null,
+    "numeric_values": [],
+    "reference_numeric_values": [],
+    "numeric_value_precision": null,
+    "numeric_value_recall": null,
+    "numeric_aligned_mae": null,
+    "spatial_label_match": false,
+    "spatial_label_f1": 0.0,
+    "motion_label_match": null,
+    "motion_label_f1": null,
+    "safety_label_match": null,
+    "safety_label_f1": null
+  },
+  "baseline_task_metrics": {
+    "numeric_applicable": false,
+    "numeric_exact": null,
+    "numeric_values": [],
+    "reference_numeric_values": [],
+    "numeric_value_precision": null,
+    "numeric_value_recall": null,
+    "numeric_aligned_mae": null,
+    "spatial_label_match": false,
+    "spatial_label_f1": 0.0,
+    "motion_label_match": null,
+    "motion_label_f1": null,
+    "safety_label_match": null,
+    "safety_label_f1": null
+  },
+  "critical_regressions": 0,
+  "new_pedestrian_claims_needing_review": [],
+  "contradicted_pedestrian_claims": [],
+  "new_traffic_claims_needing_review": {},
+  "images": {
+    "CAM_FRONT": {
+      "path": "./data/nuscenes/samples/CAM_FRONT/n008-2018-08-30-15-31-50-0400__CAM_FRONT__1535657832512404.jpg",
+      "sha256": "71af2ec01a59b498e6e5b718738ff01b3f0f9ba8d1e4c8da7f7058aa1defc50a"
+    },
+    "CAM_FRONT_RIGHT": {
+      "path": "./data/nuscenes/samples/CAM_FRONT_RIGHT/n008-2018-08-30-15-31-50-0400__CAM_FRONT_RIGHT__1535657832520482.jpg",
+      "sha256": "33dec5ea32a35bc3e07c8ea5afd719ef2594a053397afcf298be16580932bd1e"
+    },
+    "CAM_FRONT_LEFT": {
+      "path": "./data/nuscenes/samples/CAM_FRONT_LEFT/n008-2018-08-30-15-31-50-0400__CAM_FRONT_LEFT__1535657832504799.jpg",
+      "sha256": "d83896a109a3e0e98d656ed268817c6c937937faaad5816c6b9d6c979573b4a0"
+    },
+    "CAM_BACK": {
+      "path": "./data/nuscenes/samples/CAM_BACK/n008-2018-08-30-15-31-50-0400__CAM_BACK__1535657832537558.jpg",
+      "sha256": "300de99ef6eca42ec2840d450dd83006a6ab34279787bda26d5cefe6e576d207"
+    },
+    "CAM_BACK_LEFT": {
+      "path": "./data/nuscenes/samples/CAM_BACK_LEFT/n008-2018-08-30-15-31-50-0400__CAM_BACK_LEFT__1535657832547405.jpg",
+      "sha256": "1d0ff9094303a0cd9ddfc096211d3d1ca229bfb9ea874629731645d5562a3969"
+    },
+    "CAM_BACK_RIGHT": {
+      "path": "./data/nuscenes/samples/CAM_BACK_RIGHT/n008-2018-08-30-15-31-50-0400__CAM_BACK_RIGHT__1535657832528113.jpg",
+      "sha256": "41fdfafdfb3ea80c44535105b45574d77ecb4913965ebc3adb763b5e18f21ace"
+    }
+  },
+  "reason": "Native and original annotation agree on right; ZeroKV asserts left; inspect/replay identical current carriers",
+  "selected_after_failure": true,
+  "acceptance_tuned": false
+}
