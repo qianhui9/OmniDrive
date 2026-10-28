@@ -24,9 +24,9 @@ class M3Config:
             raise ValueError('M3 supports one automatic prefill/decode path')
         if self.reuse_strategy not in ('exact_prefix', 'wsdr_kv'):
             raise ValueError('Unknown M3 reuse strategy')
-        if self.prefix_layout not in ('legacy_fixed','sf_adaptive'):
+        if self.prefix_layout not in ('legacy_fixed','sf_adaptive','world_compact_memory'):
             raise ValueError('Unknown visual prefix layout')
-        if (self.prefix_adapter or self.prefix_layout=='sf_adaptive') and self.reuse_strategy != 'exact_prefix':
+        if (self.prefix_adapter or self.prefix_layout in ('sf_adaptive','world_compact_memory')) and self.reuse_strategy != 'exact_prefix':
             raise ValueError('WRCPS requires exact_prefix; native approximate policy is inapplicable')
         if type(self.stable_anchor_max_frames) is not int or self.stable_anchor_max_frames < 1:
             raise ValueError('Invalid stable anchor horizon')

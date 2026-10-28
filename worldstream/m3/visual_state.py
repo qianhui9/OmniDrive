@@ -192,8 +192,8 @@ def expand_input(lm_head, input_ids, images, attention_mask=None, position_ids=N
             raise ValueError('Carrier provenance requires one complete visual carrier')
         expected_order=tuple(g for g,_ in carrier_layout.groups)
         if not isinstance(carrier_layout, CarrierLayout):
-            from .world_prefix_composer import WorldPrefixLayout,SpatialPrefixLayout
-            if not isinstance(carrier_layout, (WorldPrefixLayout,SpatialPrefixLayout)):
+            from .world_prefix_composer import WorldPrefixLayout,SpatialPrefixLayout,CompactMemoryLayout
+            if not isinstance(carrier_layout, (WorldPrefixLayout,SpatialPrefixLayout,CompactMemoryLayout)):
                 raise ValueError('Unknown visual layout contract')
         order=tuple(carrier_order or expected_order)
         if order != expected_order:raise ValueError('Carrier reorder is unsupported')

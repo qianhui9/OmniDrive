@@ -1,0 +1,76 @@
+{
+  "status": "COMPLETED",
+  "pairs": [
+    {
+      "sample": "natural",
+      "scene_id": "080a52cb8f59489b9cddc7b721808088",
+      "source_frame": "c0e18beded2d45d29662c2129503d4f7",
+      "target_frame": "c3286d413f524369ac040fbcd0b0e9b6",
+      "selected_grid_indices": [
+        819,
+        820,
+        821,
+        899,
+        900,
+        901,
+        979,
+        981
+      ],
+      "historical_memory_sha256": "ca507bbe6f5538573608c8a294d83748637bc4826cb303d895d9c01fd9dd0f5f",
+      "qualification_sha256": "290c5d88da0795122c9e1cd79a3ae808ba51507e56bb8b9683bc1126909aee65",
+      "source_carriers": "outputs/m3_compact_visual_memory_run01/natural_live/bridge_capture/m3_inputs/c0e18beded2d45d29662c2129503d4f7.pt",
+      "target_carriers": "outputs/m3_compact_visual_memory_run01/natural_live/bridge_capture/m3_inputs/c3286d413f524369ac040fbcd0b0e9b6.pt",
+      "pair": 0,
+      "source_carriers_sha256": "20ac97d5ac0fefb39fe3048f2b48cde1b70d3b81f63fe56f7fe549cb70955512",
+      "target_carriers_sha256": "33057f2ae165f83ba3b75246e1a9feb5ae2ba886f035ff08651c1852edb9f851"
+    },
+    {
+      "sample": "enriched",
+      "scene_id": "0053e9c440a94c1b84bd9c4223efc4b0",
+      "source_frame": "656b4207ba9542b2a9bb7c03aa61b325",
+      "target_frame": "2f789ae558a84df9b8daee0674a7985f",
+      "selected_grid_indices": [
+        617,
+        665,
+        692,
+        1052,
+        1065,
+        1098,
+        1572,
+        1585
+      ],
+      "historical_memory_sha256": "0e0e6bfa18630c3a6551e1e66782defaedf6ee38ed3f1b8fc5f71016810f61ee",
+      "qualification_sha256": "290c5d88da0795122c9e1cd79a3ae808ba51507e56bb8b9683bc1126909aee65",
+      "source_carriers": "outputs/m3_compact_visual_memory_run01/enriched_live/bridge_capture/m3_inputs/656b4207ba9542b2a9bb7c03aa61b325.pt",
+      "target_carriers": "outputs/m3_compact_visual_memory_run01/enriched_live/bridge_capture/m3_inputs/2f789ae558a84df9b8daee0674a7985f.pt",
+      "pair": 1,
+      "source_carriers_sha256": "94e939bf605d4017ec816f708be9c53b09c81e120e9e59f7e03e3b0dcd8b54ca",
+      "target_carriers_sha256": "b41567c6f5e5b420c7868cea61b8272b61dfb961c04a5a155e140d0107b3acf5"
+    },
+    {
+      "sample": "enriched",
+      "scene_id": "078e6d7a3d4a429bba404bf12c7a98f2",
+      "source_frame": "867243a39a7f4c979780e76726bc2264",
+      "target_frame": "3bef4724849847ce938f6658eb56ce20",
+      "selected_grid_indices": [
+        809,
+        845,
+        855,
+        893,
+        930,
+        965,
+        1086,
+        1095
+      ],
+      "historical_memory_sha256": "47fe5da2338125324a2eac7e709e0c60a97721e3a68b904c128f783ffe00b282",
+      "qualification_sha256": "290c5d88da0795122c9e1cd79a3ae808ba51507e56bb8b9683bc1126909aee65",
+      "source_carriers": "outputs/m3_compact_visual_memory_run01/enriched_live/bridge_capture/m3_inputs/867243a39a7f4c979780e76726bc2264.pt",
+      "target_carriers": "outputs/m3_compact_visual_memory_run01/enriched_live/bridge_capture/m3_inputs/3bef4724849847ce938f6658eb56ce20.pt",
+      "pair": 2,
+      "source_carriers_sha256": "b8355d66b0a22b43a9a5b6c2c406d5ecd8f989e5b1199f12ff785a5bbf54a914",
+      "target_carriers_sha256": "050d2b1b8294e1412c378018e105f4e84186b581e988f3e62a05bee6e6ebb23a"
+    }
+  ],
+  "selection": "Exactly first K8 keep per scene in natural then enriched order, first three; same as executed cost tool.",
+  "untrained_scaffold_note": "Cost controls construct untrained projection instances in the recorded seed/order. untrained_composer_8.pt retains the final K8 pair instance; K16 retains its single diagnostic pair. Earlier K8 parameter instances were overwritten by the executed tool, so no separate adapter-file SHA is claimed for them. No trained adapter exists."
+}

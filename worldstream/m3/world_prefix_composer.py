@@ -15,6 +15,109 @@ from .stable_world import digest
 
 LAYOUT_VERSION = 'wrcps_semantic_core_v2'
 SF_LAYOUT_VERSION = 'sf_wrcps_slot_preserving_v1'
+COMPACT_LAYOUT_VERSION = 'wr_cvms_real_region_v1'
+
+
+@dataclass(frozen=True)
+class CompactMemoryLayout:
+    stable_tokens: int = 8
+    order_contract: str = COMPACT_LAYOUT_VERSION
+
+    def __post_init__(self):
+        if self.stable_tokens not in (8, 16) or self.order_contract != COMPACT_LAYOUT_VERSION:
+            raise ValueError('Invalid compact memory layout')
+
+    @property
+    def groups(self):
+        n = 256-self.stable_tokens//2
+        return (('stable_memory', self.stable_tokens), ('object', n), ('ego', 1), ('map', n))
+
+    @property
+    def total(self):
+        return 513
+
+
+class CompactSlotMerge(nn.Module):
+    """Merge a small fixed, distributed set of adjacent learned query slots.
+
+    These slots are global queries, not objects or map pixels. Removed evidence
+    enters its immediate successor inside the same group. This is lossy and
+    requires quality validation; no spatial locality is attributed to queries.
+    """
+    def __init__(self, removed):
+        super().__init__()
+        source = torch.arange(removed)* (256//removed) + (256//removed)//2-1
+        keep = torch.ones(256, dtype=torch.bool); keep[source] = False
+        self.register_buffer('source', source)
+        self.register_buffer('destination', source+1)
+        self.register_buffer('retained', torch.arange(256)[keep])
+        self.merge_logit = nn.Parameter(torch.zeros(removed, 1))
+
+    def forward(self, current):
+        merged = current.clone()
+        alpha = torch.sigmoid(self.merge_logit).to(current)
+        merged[:, self.destination] = ((1-alpha)*current[:, self.destination]
+                                       + alpha*current[:, self.source])
+        return merged.index_select(1, self.retained)
+
+
+class CompactVisualComposer(nn.Module):
+    """Single compact candidate; untrained instances are cost scaffolds only."""
+    def __init__(self, hidden_size=4096, stable_tokens=8, input_dim=1024):
+        super().__init__()
+        from .visual_memory import VisualMemoryProjection
+        self.layout = CompactMemoryLayout(stable_tokens)
+        self.spec = dict(hidden_size=hidden_size, stable_tokens=stable_tokens, input_dim=input_dim)
+        self.memory_projection = VisualMemoryProjection(input_dim, hidden_size)
+        self.objects = CompactSlotMerge(stable_tokens//2)
+        self.maps = CompactSlotMerge(stable_tokens//2)
+        self.adapter_sha256 = ''
+
+    def reset(self):
+        self.memory_projection.reset()
+
+    def revision(self):
+        return tuple((n, p.data_ptr(), p._version) for n, p in
+                     list(self.named_parameters())+list(self.named_buffers()))
+
+    def implementation_signature(self):
+        from worldstream.code_signature import stable_function_hash
+        return tuple(stable_function_hash(f) for f in (self.forward, self.objects.forward,
+                     self.memory_projection.forward))
+
+    def forward(self, current, memory):
+        if memory is None:
+            return current
+        if tuple(current.shape) != (1, 513, self.spec['hidden_size']):
+            raise ValueError('Compact composer requires native 256/1/256')
+        if len(memory.grid_indices) != self.layout.stable_tokens:
+            raise ValueError('Memory and compact layout budget mismatch')
+        stable = self.memory_projection(memory).to(current)
+        return torch.cat((stable, self.objects(current[:, :256]), current[:, 256:257],
+                          self.maps(current[:, 257:])), dim=1)
+
+    @classmethod
+    def load_adapter(cls, path, hidden_size, device):
+        raw = Path(path).read_bytes()
+        artifact = torch.load(path, map_location='cpu', weights_only=False)
+        if (artifact.get('layout_version') != COMPACT_LAYOUT_VERSION
+                or artifact.get('trained_steps', 0) < 1
+                or artifact.get('cost_gate') != 'GO'
+                or artifact.get('quality_gate') != 'PASS'
+                or not all(artifact.get(k) for k in ('training_scene_ids', 'base_weights_sha256',
+                            'data_manifest_sha256', 'semantic_qualification_sha256'))
+                or artifact['spec']['hidden_size'] != hidden_size):
+            raise ValueError('Compact adapter requires passed cost/training/quality provenance')
+        adapter = cls(**artifact['spec'])
+        adapter.load_state_dict(artifact['state_dict'], strict=True)
+        if not all(torch.isfinite(p).all() for p in adapter.parameters()):
+            raise ValueError('Nonfinite compact adapter')
+        adapter.to(device=device).eval().requires_grad_(False)
+        adapter.adapter_sha256 = hashlib.sha256(raw).hexdigest()
+        adapter.base_weights_sha256 = artifact['base_weights_sha256']
+        adapter.semantic_qualification_sha256 = artifact['semantic_qualification_sha256']
+        adapter.loaded_revision = adapter.revision()
+        return adapter
 
 
 @dataclass(frozen=True)

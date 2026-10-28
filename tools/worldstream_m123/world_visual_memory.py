@@ -96,6 +96,16 @@ def audit(root):
         model = load_model(cfg, 'ckpts/iter_10548.pth', dest).eval().requires_grad_(False)
         observer = Observer(model)
         observer.capture_m1_controls = True
+        compact_manager = None
+        if plan.get('compact_memory_tokens'):
+            from worldstream.m3.visual_memory import VisualMemoryManager
+            compact_manager = VisualMemoryManager(plan['compact_memory_tokens'])
+            (dest/'m3_inputs').mkdir()
+            buffers = {}
+            for name, head in [('object', model.pts_bbox_head), ('map', model.map_head)]:
+                def collect(module, args, output, _name=name):
+                    buffers[_name] = output[1].detach()
+                observer.handles.append(head.register_forward_hook(collect))
         qualifier = SemanticQualifier(plan['qualification_path'])
         annotations = load_oracle(infos, 'data/nuscenes')
         previous_scene = None
@@ -107,6 +117,8 @@ def audit(root):
                 if previous_scene != info['scene_token']:
                     reset(model)
                 data = scatter(collate([dataset[ordinal]], samples_per_gpu=1), [0])[0]
+                if compact_manager is not None:
+                    saved_ids = [t.detach().cpu() for t in data['input_ids'][0][0][:3]]
                 clear_questions(data)
                 with torch.no_grad():
                     model(return_loss=False, rescale=True, **data)
@@ -136,6 +148,25 @@ def audit(root):
                 wall_ms = (perf_counter()-tick)*1000
                 extraction_wall_ms = (perf_counter()-extraction_start)*1000
                 cuda_ms = start.elapsed_time(end)
+                compact_record = None
+                if compact_manager is not None:
+                    from worldstream.m3.visual_feature_bridge import update_visual_memory
+                    from tools.worldstream_m123.world_visual_memory_semantics import context as memory_context
+                    torch.cuda.synchronize()
+                    compact_tick = perf_counter()
+                    memory, event, _, costs = update_visual_memory(compact_manager, frame,
+                        anchors, feature, manager.config, memory_context(context), qualified,
+                        plan['qualification_sha256'])
+                    sync_tick = perf_counter(); torch.cuda.synchronize()
+                    costs['completion_sync_ms'] = (perf_counter()-sync_tick)*1000
+                    costs['m1_qualification_ms'] = read_ms
+                    costs['complete_bridge_wall_ms'] = (perf_counter()-compact_tick)*1000+read_ms
+                    compact_record = dict(event=event, costs=costs,
+                        anchor_id=memory.anchor_id if memory else None,
+                        content_sha256=memory.content_sha256 if memory else None)
+                    torch.save(dict(carriers=torch.cat((buffers['object'],buffers['map']),1).cpu(),
+                        ids=saved_ids,questions=['captured_native_question_'+str(i) for i in range(len(saved_ids))],
+                        context=context),dest/'m3_inputs'/(frame.frame_id+'.pt'))
                 # Extra objects for semantic controls are OUTSIDE the online cost.
                 diagnostic_ids = [a.anchor_id for a in sorted(anchors,
                     key=lambda a: (-(a.source_score or 0), a.anchor_id))
@@ -186,6 +217,10 @@ def audit(root):
                     bridge_total_wall_ms=wall_ms, bridge_stream_elapsed_ms=cuda_ms,
                     stream_elapsed_scope='CUDA events encompass host projection gaps; not GPU kernel time',
                     memory_or_LLM_tokens_constructed=False, LLM_decode_requests=0, GT_online=False)
+                if compact_record is not None:
+                    row['compact_bridge'] = compact_record
+                    row['memory_or_LLM_tokens_constructed'] = compact_record['event'].startswith('create:')
+                    row['memory_token_scope'] = 'Raw regional memory only; no projected LLM tokens or generation in live audit'
                 log.write(json.dumps(row, allow_nan=False)+'\n'); log.flush()
                 timeline.append(row)
                 previous_scene = frame.scene_id

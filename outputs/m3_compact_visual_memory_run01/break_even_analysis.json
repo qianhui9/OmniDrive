@@ -1,0 +1,125 @@
+{
+  "status": "COMPLETED",
+  "natural_memory_coverage": 0.25,
+  "actual_hit_probability": 0.20833333333333334,
+  "incremental_hit_net_ms": -5.568637875380156,
+  "memory_miss_net_ms": -5.050001525101655,
+  "no_memory_extra_ms": 0.22566116725405058,
+  "expected_net_ms_per_single_question_frame": -1.5397954963573062,
+  "paired_scene_net": {
+    "mean": -1.539795496357306,
+    "ci95": [
+      -1.762521320258348,
+      -1.412706985713247
+    ],
+    "scenes": 3,
+    "method": "10000 paired scene bootstrap samples; three cost scenes, exploratory only"
+  },
+  "P_break_even": null,
+  "maximum_hit_probability_at_observed_coverage": 0.25,
+  "break_even_status": "NO_FINITE_PROBABILITY",
+  "break_even_null_reason": "No finite break-even: both the memory hit and miss have nonpositive measured net gain.",
+  "break_even_feasible_at_observed_coverage": false,
+  "all_requests_have_memory_P_break_even": null,
+  "formula": "p*g_hit + (q-p)*g_miss - (1-q)*no_memory_extra",
+  "single_question_extra": {
+    "composer_cold_ms": 0.23977261864476734,
+    "composer_keep_ms": 0.1970458154877027,
+    "expanded_preparation_ms": 0.4547954562844502,
+    "planner_including_matching_ms": 0.9877214763014589,
+    "bridge_create_ms": 1.3734898529946804,
+    "bridge_keep_ms": 0.9448740631341934
+  },
+  "effects": {
+    "B_minus_C_wall": {
+      "request_pair_distribution": {
+        "n": 81,
+        "mean": -0.9899789432960527,
+        "median": -0.5807443521916866,
+        "p95": 0.049517955631017685
+      },
+      "paired_scene": {
+        "mean": -0.9899789432960527,
+        "ci95": [
+          -2.127653763939937,
+          -0.3916564638967867
+        ],
+        "scenes": 3,
+        "method": "10000 paired scene bootstrap samples; three cost scenes, exploratory only"
+      }
+    },
+    "A_minus_C_wall": {
+      "request_pair_distribution": {
+        "n": 81,
+        "mean": -2.98420106417235,
+        "median": -2.7510500513017178,
+        "p95": -1.909731887280941
+      },
+      "paired_scene": {
+        "mean": -2.98420106417235,
+        "ci95": [
+          -4.064716829883832,
+          -2.3761266083629042
+        ],
+        "scenes": 3,
+        "method": "10000 paired scene bootstrap samples; three cost scenes, exploratory only"
+      }
+    },
+    "stable8_only_wall": {
+      "request_pair_distribution": {
+        "n": 81,
+        "mean": 0.6406448356071373,
+        "median": 0.6108889356255531,
+        "p95": 1.3033398427069187
+      },
+      "paired_scene": {
+        "mean": 0.6406448356071371,
+        "ci95": [
+          0.5567407373476911,
+          0.7602620904368383
+        ],
+        "scenes": 3,
+        "method": "10000 paired scene bootstrap samples; three cost scenes, exploratory only"
+      }
+    },
+    "stable8_only_cuda": {
+      "request_pair_distribution": {
+        "n": 81,
+        "mean": 0.6122873565297068,
+        "median": 0.6187896728515625,
+        "p95": 1.221343994140625
+      },
+      "paired_scene": {
+        "mean": 0.6122873565297068,
+        "ci95": [
+          0.5149824354383681,
+          0.7351876718026621
+        ],
+        "scenes": 3,
+        "method": "10000 paired scene bootstrap samples; three cost scenes, exploratory only"
+      }
+    },
+    "A_minus_C_cuda": {
+      "request_pair_distribution": {
+        "n": 81,
+        "mean": 0.28807651849440585,
+        "median": 0.506866455078125,
+        "p95": 1.3905181884765625
+      },
+      "paired_scene": {
+        "mean": 0.28807651849440585,
+        "ci95": [
+          -0.8123468469690392,
+          0.9256970440899884
+        ],
+        "scenes": 3,
+        "method": "10000 paired scene bootstrap samples; three cost scenes, exploratory only"
+      }
+    }
+  },
+  "three_question_crossframe_hit_probability": 0.20833333333333334,
+  "three_question_frame_net_optimistic_ms": -3.6706562494617643,
+  "three_question_scope": "Upper model treating all three questions as isolated crossframe controls. Same-frame full-visual KV gain is never credited to world memory. Not measured E2E.",
+  "accounting": "Executor wall already contains branch, validation, output KV capture. Planner already includes equality matching. Bridge includes M1 qualification and D2H. Expansion/composer outside executor are charged once. Source KV setup is optimistic/excluded; a negative result remains NO_GO.",
+  "limits": "Three controlled scenes, one natural memory-bearing scene. Conditional costs are not a deployment population estimate. Decode and complete M1/M2 request service were not timed."
+}

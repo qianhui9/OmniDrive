@@ -31,18 +31,21 @@ class M3Runtime:
         self.stable_anchors=StableAnchorManager(self.config.stable_anchor_max_frames)
         self.composer=None
         self._adaptive_adapter_hash=''
-        if self.config.prefix_layout=='sf_adaptive' and self.config.prefix_adapter:
+        if self.config.prefix_layout in ('sf_adaptive','world_compact_memory') and self.config.prefix_adapter:
             from pathlib import Path
             self._adaptive_adapter_hash=hashlib.sha256(Path(self.config.prefix_adapter).read_bytes()).hexdigest()
         self.last_composed_carriers=None  # current-request observer reference, never history lookup
         from .semantic_core import SemanticQualifier
         self.semantic_qualifier=SemanticQualifier(self.config.semantic_qualification) if self.config.semantic_qualification else None
+        from .visual_memory import VisualMemoryManager
+        self.visual_memories=VisualMemoryManager(8, self.config.stable_anchor_max_frames)
 
     def reset(self):
         self.cache.reset();self._scope=self._signature=self._timestamp=None
         self._state_version=self._frame_id=None
         self._frame_index=0
         self.stable_anchors.reset()
+        self.visual_memories.reset()
         if self.composer is not None:self.composer.reset()
         self.last_composed_carriers=None
 
@@ -63,7 +66,7 @@ class M3Runtime:
             raise ValueError('Unsupported M3 model or generation contract; PrefillExecutor is required')
 
     @torch.no_grad()
-    def generate(self,lm_head,input_ids_list,vision_carriers,context=None,questions=None,layout=None,verified_state=None,tokenizer=None,m2_diagnostics=None,stable_world_state=None,**generation):
+    def generate(self,lm_head,input_ids_list,vision_carriers,context=None,questions=None,layout=None,verified_state=None,tokenizer=None,m2_diagnostics=None,stable_world_state=None,visual_memory_inputs=None,**generation):
         runtime_tick=perf_counter()
         rows=[]
         self.last_diagnostics=dict(runtime_entered=True,execution_completed=False,requests=rows)
@@ -84,7 +87,67 @@ class M3Runtime:
         adaptive=self.config.prefix_layout=='sf_adaptive'
         layout_mode='native_full_visual'
         adapter_binding=()
-        if self.config.prefix_adapter or adaptive:
+        compact=self.config.prefix_layout=='world_compact_memory'
+        bridge_timings={};memory_event=None
+        if compact:
+            from types import SimpleNamespace
+            from .visual_feature_bridge import update_visual_memory
+            from .world_prefix_composer import CompactVisualComposer
+            if not isinstance(layout,CarrierLayout) or layout.groups != (('object',256),('ego',1),('map',256)):
+                raise ValueError('Compact memory requires native source carrier')
+            if stable_world_state is None:
+                raise ValueError('Compact memory requires current M1 snapshot')
+            stable_world_state.validate(dict(context,state_version=context.get('stable_state_version')))
+            if not stable_world_state.qualification_id:
+                raise ValueError('Compact memory requires independently qualified M1 identities')
+            qualification=stable_world_state.qualification_id
+            if self.semantic_qualifier is None or qualification!=self.semantic_qualifier.sha256:
+                raise ValueError('Compact qualification does not match configured policy')
+            adapter_sha=self._adaptive_adapter_hash
+            memory_context=dict(context,state_version=stable_world_state.state_version,
+                model_sha256=context.get('weights_sha256',''),adapter_sha256=adapter_sha,
+                memory_version='wr_cvms_real_region_v1')
+            qualified_ids=[aid for aid,kind,_ in stable_world_state.facts if kind=='object']
+            if qualified_ids:
+                if visual_memory_inputs is None:
+                    raise ValueError('Qualified compact candidates require real EVA source')
+                frame=visual_memory_inputs['frame']
+                if (frame.scene_id,frame.frame_id,frame.timestamp)!=(context['scene_id'],context['frame_id'],timestamp):
+                    raise ValueError('Compact visual source frame mismatch')
+                memory,memory_event,_,bridge_timings=update_visual_memory(self.visual_memories,
+                    frame,visual_memory_inputs['anchors'],visual_memory_inputs['feature_map'],
+                    visual_memory_inputs['config'],memory_context,qualified_ids,qualification)
+            else:
+                tick=perf_counter()
+                memory,memory_event=self.visual_memories.update(memory_context,[],[],qualification)
+                bridge_timings=dict(bridge_total_host_ms=(perf_counter()-tick)*1000)
+            anchor_ms=bridge_timings['bridge_total_host_ms']
+            core_extraction_ms=context.get('stable_snapshot_wall_ms',0.)
+            anchor_ms+=core_extraction_ms
+            if memory is not None:
+                if not self.config.prefix_adapter:
+                    raise ValueError('Compact memory cost scaffold is not a deployable trained adapter')
+                if self.composer is None:
+                    self.composer=CompactVisualComposer.load_adapter(self.config.prefix_adapter,
+                        base.config.hidden_size,vision_carriers.device)
+                if (self.composer.adapter_sha256!=adapter_sha
+                        or self.composer.base_weights_sha256!=context.get('weights_sha256')
+                        or self.composer.semantic_qualification_sha256!=qualification
+                        or self.composer.revision()!=self.composer.loaded_revision):
+                    raise ValueError('Compact adapter binding/revision mismatch')
+                tick=perf_counter()
+                vision_carriers=self.composer(vision_carriers,memory)
+                composer_ms=(perf_counter()-tick)*1000
+                layout=self.composer.layout;layout_mode='world_compact_memory'
+            anchor=SimpleNamespace(anchor_id=repr((memory.scope,memory.revision)) if memory else 'invalid',
+                stable_state_valid=memory is not None,qualification_id=qualification,
+                source_frame=memory.generating_frame if memory else None,
+                anchor_age=memory.age if memory else 0,update_reason=memory_event)
+            anchor_hit=memory_event in ('keep','same_frame')
+            adapter_binding=(adapter_sha,'wr_cvms_real_region_v1')
+            context.update(adapter_sha256=adapter_sha,semantic_qualification_sha256=qualification)
+            if context.get('profile'):self.last_composed_carriers=vision_carriers
+        elif self.config.prefix_adapter or adaptive:
             from .world_prefix_composer import WorldPrefixComposer,SpatiallyFaithfulComposer
             if not isinstance(layout,CarrierLayout) or layout.groups != (('object',256),('ego',1),('map',256)):
                 raise ValueError('WRCPS requires the native source carrier contract')
@@ -225,6 +288,7 @@ class M3Runtime:
                 stable_anchor_update_reason=anchor.update_reason if anchor and not anchor_hit else None,
                 stable_prefix_tokens=getattr(layout,'stable_tokens',0) if anchor else 0,
                 visual_layout_mode=layout_mode,
+                visual_memory_event=memory_event,visual_bridge_timings=bridge_timings,
                 adapter_sha256=context.get('adapter_sha256'),
                 planned_actual_reuse_equal=decision.reuse_length==diag['reused_tokens'],
                 actual_exact_visual_kv_tokens=reused_visual if decision.reuse_type=='exact' else 0,
