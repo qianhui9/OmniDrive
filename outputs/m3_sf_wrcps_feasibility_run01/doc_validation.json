@@ -1,0 +1,32 @@
+{
+  "status": "PASS_WITH_SANDBOX_ACCESS_NOTE",
+  "validation": "fresh_agent_follows_doc_environment_only",
+  "document": "outputs/m3_sf_wrcps_feasibility_run01/REPRODUCE.md",
+  "section": "环境核验（独立文档验证仅执行本节）",
+  "environment_ledger": ".aris/compute/local.md",
+  "commands_executed_verbatim": true,
+  "gpu_preflight": {
+    "exit_code": 0,
+    "index": 0,
+    "name": "NVIDIA GeForce RTX 3090",
+    "memory_used_mib": 15,
+    "memory_total_mib": 24576,
+    "free_threshold_mib": 500,
+    "eligible": true
+  },
+  "witness": {
+    "sandbox_attempt_exit_code": 1,
+    "sandbox_attempt_error": "RuntimeError: No CUDA GPUs are available",
+    "documented_host_gpu_fallback_used": true,
+    "host_attempt_exit_code": 0,
+    "value": 510720.0,
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "affinity": [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+    "faulty_cpus_excluded": true
+  },
+  "doc_vs_reality_divergences": [],
+  "access_note": "Sandbox CUDA initialization failed; the document explicitly permits host GPU access, where the unchanged documented witness command passed.",
+  "dependencies_installed": false,
+  "environment_rebuilt": false,
+  "model_training_tests_or_code_review_performed": false
+}

@@ -1,0 +1,100 @@
+{
+  "command_prefix": [
+    "taskset",
+    "-c",
+    "0-3,6-31",
+    "env",
+    "OMP_NUM_THREADS=4",
+    "MKL_NUM_THREADS=4",
+    "OPENBLAS_NUM_THREADS=4",
+    "/home/qh/miniconda3/envs/OmniDrive/bin/python"
+  ],
+  "executions": [
+    {
+      "module": "tools.worldstream_m123.sf_feasibility",
+      "stage": "prepare",
+      "root": "outputs/m3_sf_wrcps_feasibility_run01",
+      "returncode": 0
+    },
+    {
+      "module": "tools.worldstream_m123.sf_feasibility",
+      "stage": "audit",
+      "root": "outputs/m3_sf_wrcps_feasibility_run01",
+      "returncode": 0,
+      "log": "state_audit_driver.log"
+    },
+    {
+      "module": "tools.worldstream_m123.sf_feasibility_analysis",
+      "stage": "data",
+      "root": "outputs/m3_sf_wrcps_feasibility_run01",
+      "returncode": 0,
+      "log": "data_analysis_driver.log"
+    },
+    {
+      "module": "tools.worldstream_m123.wrcps_train",
+      "args": [
+        "--manifest",
+        "outputs/m3_sf_wrcps_feasibility_run01/training_dataset_manifest.json",
+        "--output",
+        "outputs/m3_sf_wrcps_feasibility_run01/training_preflight",
+        "--spatial",
+        "--stable-tokens",
+        "64",
+        "--rank",
+        "128",
+        "--epochs",
+        "3",
+        "--seed",
+        "20261028",
+        "--preflight-only"
+      ],
+      "returncode": 0,
+      "log": "training_preflight.log"
+    },
+    {
+      "module": "tools.worldstream_m123.sf_feasibility_micro",
+      "root": "outputs/m3_sf_wrcps_feasibility_run01",
+      "attempt_returncodes": [
+        1,
+        1,
+        0
+      ],
+      "logs": [
+        "micro_failed01.log",
+        "micro_failed02.log",
+        "micro_driver.log"
+      ]
+    },
+    {
+      "module": "tools.worldstream_m123.sf_feasibility_analysis",
+      "stage": "estimate",
+      "root": "outputs/m3_sf_wrcps_feasibility_run01",
+      "returncode": 0,
+      "log": "estimate_driver.log"
+    },
+    {
+      "module": "tools.worldstream_m123.sf_feasibility_report",
+      "root": "outputs/m3_sf_wrcps_feasibility_run01",
+      "returncode": 0,
+      "log": "report_driver.log"
+    }
+  ],
+  "final_cuda_regression": {
+    "returncode": 0,
+    "command": [
+      "taskset",
+      "-c",
+      "0-3,6-31",
+      "/home/qh/miniconda3/envs/OmniDrive/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/worldstream_m1",
+      "tests/worldstream_m2",
+      "tests/worldstream_m3",
+      "tests/worldstream_m123"
+    ],
+    "cuda_available": true
+  },
+  "note": "Every module command uses -m MODULE --root ROOT and --stage STAGE when present; explicit training-preflight argv shown. Tool failures preserved; no optimizer training or formal E2E command executed."
+}

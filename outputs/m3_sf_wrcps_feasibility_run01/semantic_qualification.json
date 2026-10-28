@@ -1,0 +1,99 @@
+{
+  "version": "eq_ssc_identity_class_v1",
+  "claim": "empirical_associated_identity_and_observed_class_continuity",
+  "protocol_signature": "d077d5c3b8005767598a959a8107b5fc66a7e495decd74a9bb032ac135e3324b",
+  "selector_implementation": "437c6fa47e348baf622359556abce6ed10eafb4459503d8242733d7ca35aabad",
+  "independent_validation_completed": true,
+  "rules": {
+    "car": {
+      "min_score": 0.8753361701965332,
+      "max_residual_m": 0.11885742408930715,
+      "min_observations": 3,
+      "trial": 1,
+      "admitted": true,
+      "calibration": {
+        "candidates": 61,
+        "scored": 60,
+        "correct": 60,
+        "wrong": 0,
+        "unknown": 1,
+        "scenes": 5,
+        "unique_tracks": 27,
+        "identity_retention": 1.0,
+        "unknown_fraction": 0.01639344262295082,
+        "scene_mean_wrong_fraction_ci95": [
+          0.0,
+          0.0
+        ],
+        "interval_scope": "descriptive scene bootstrap; unknowns separate; zero observed errors do not guarantee unseen risk"
+      },
+      "validation": {
+        "candidates": 30,
+        "scored": 30,
+        "correct": 30,
+        "wrong": 0,
+        "unknown": 0,
+        "scenes": 3,
+        "unique_tracks": 14,
+        "identity_retention": 1.0,
+        "unknown_fraction": 0.0,
+        "scene_mean_wrong_fraction_ci95": [
+          0.0,
+          0.0
+        ],
+        "interval_scope": "descriptive scene bootstrap; unknowns separate; zero observed errors do not guarantee unseen risk"
+      },
+      "rejection_reason": null
+    }
+  },
+  "qualification_limits": {
+    "trials": 3,
+    "max_observed_wrong_edges": 0,
+    "max_unknown_fraction": 0.05,
+    "min_scored_edges": 30,
+    "min_scenes": 3
+  },
+  "calibration_scene_ids": [
+    "13c6a31ab85547b08dab2544024553a8",
+    "14b96c255dee4a838a8d401302ac2852",
+    "181bf34123514c329e2cef72847607a4",
+    "19284973bd0342998c37848e931a90d0",
+    "01452fbfbf4543af8acdfd3e8a1ee806",
+    "01e4fcbe6e49483293ce45727152b36e",
+    "034dee1695304630b0692da8c1f153fc"
+  ],
+  "validation_scene_ids": [
+    "1959c8f440a340fda3ea2cac0ac528ec",
+    "19640fe4b6894f97b16e0faad51432b4",
+    "19dce2ebc7bd4f138aea6d645a4afec7",
+    "19f47b8941094af29b8db20b255717fc",
+    "04219bfdc9004ba2af16d3079ecc4353",
+    "07aed9dae37340a997535ad99138e243",
+    "080a52cb8f59489b9cddc7b721808088"
+  ],
+  "calibration_log_ids": [
+    "169c1773af08486c80ed3e9540528290",
+    "cb3e914a6f0b4deea0efc8521ca1e671",
+    "efa31cf3cd2f452789ca7f3e7541ea69",
+    "18f99982fba24684a9ea03c0cdc53fc8",
+    "53cf9c55dd8644bea67b9f009fc1ee38",
+    "8c66d9d518c54aed98dce7e3095501bc",
+    "e55205b1f2894b49957905d7ddfdb96d"
+  ],
+  "validation_log_ids": [
+    "ab1e1b004548466f86b31f879a2d9e50",
+    "c9b039c47ec54cc7b5c0fcc7a5730e38",
+    "20db5722b62c4c17bbff2d7b265a3c51",
+    "08ba46dd716d42a69d108638fef5bbb9",
+    "5bd40b613ac740cd9dbacdfbc3d68201",
+    "8ff48ad1df8e4966a2151730c92b7f3c",
+    "a5bb7f9dd1884f1ea0de299caefe7ef4"
+  ],
+  "calibration_frozen_sha256": "9657eb6bc4f61ea9498b01af864569803079b21caa57006e2cac90d4068a5ed5",
+  "candidates_sha256": "dcff46697e568326db4e5d108d9afe0caae5eb4b92c23d549660dedfa9d9ebf5",
+  "labels_sha256": "442b182de948d8eb184a0eefefce0db3902fac669bab4fe57f907fc5bf307fd9",
+  "validation_extension_sources": [],
+  "absence_grace_frames": 0,
+  "physical_certification": false,
+  "limitation": "Empirical claim on observed identity/class only; partial oracle unknowns explicit; no population risk guarantee"
+}
