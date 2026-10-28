@@ -1,0 +1,35 @@
+{
+  "base_commit": "25d782296ff119fad945c1f9a029689a0ded3389",
+  "seed": 20261028,
+  "stages": [
+    "bridge",
+    "semantic",
+    "cost",
+    "conditional_training"
+  ],
+  "selection": "Three sorted TRAIN scenes with >=6 previous extensions; two positive development scenes, all causal first32. Biased for availability, not coverage.",
+  "frames": 160,
+  "sequence_sha256": "de1b8bea35e855f7befded7c415c834c3587d5bad8a9a3852034662f51d08a35",
+  "source_manifest": "outputs/m3_sf_wrcps_feasibility_run01/training_dataset_manifest.json",
+  "source_manifest_sha256": "10649c7d70618b31a79cc8b4868fa027c937da8bfe1145dbe8c9e8f2890d1050",
+  "qualification_path": "outputs/m3_sf_wrcps_optimization_run01/semantic_qualification.json",
+  "qualification_sha256": "290c5d88da0795122c9e1cd79a3ae808ba51507e56bb8b9683bc1126909aee65",
+  "bridge": {
+    "patch_stride": 16,
+    "minimum_cells": 4,
+    "maximum_diagnostic_objects": 8,
+    "exclusions": "Other currently observed object projection AABBs, all depths",
+    "gate": {
+      "min_scored": 30,
+      "min_scenes": 3,
+      "max_unknown_fraction": 0.05,
+      "min_projected_box_cell_support": 0.8,
+      "min_supported_fraction": 0.95,
+      "max_wrong_continuations": 0
+    },
+    "gate_scope": "Conservative preregistered geometric region suitability; GT box support is not foreground purity. No tuning on audit results."
+  },
+  "language_decode_requests": 0,
+  "trained_adapter": null,
+  "training_guard": "Do not train unless real bridge, semantic content and net cost all pass."
+}

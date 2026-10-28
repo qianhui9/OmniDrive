@@ -1,0 +1,681 @@
+{
+  "status": "NO_GO",
+  "reason": "No natural K64/128/256 memory opportunities; complete-current513 append layout is also slower than Native on every measured hit control.",
+  "selected_layout": "Historical regional prefix + complete current513; diagnostic only, no formal adapter",
+  "main_candidate_K": null,
+  "K_diagnostics": {
+    "64": {
+      "current_native_tokens": 513,
+      "total_visual_tokens": 577,
+      "hypothetical_fixed513_current_tokens": 449,
+      "hypothetical_fixed513_removed_native_tokens": 64,
+      "fixed513_compressed_layout": "NOT_IMPLEMENTED_OR_QUALITY_VALIDATED",
+      "by_kind": {
+        "native": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 177.3592003716363,
+            "median": 176.9674530029297,
+            "min": 176.38809204101562,
+            "max": 179.25424194335938,
+            "p95": 178.96847076416014
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 178.2813606335333,
+            "median": 177.86093801259995,
+            "min": 177.30794800445437,
+            "max": 180.21627515554428,
+            "p95": 179.87578622996807
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 0.9726885602706008,
+            "median": 0.9460779838263988,
+            "min": 0.9151711128652096,
+            "max": 1.1565680615603924,
+            "p95": 1.1016128119081259
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.0052518229241725,
+            "median": 0.9945719502866268,
+            "min": 0.9642131626605988,
+            "max": 1.0874150320887566,
+            "p95": 1.0759522672742605
+          }
+        },
+        "memory_zero": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 216.64588815194588,
+            "median": 216.28720092773438,
+            "min": 215.04409790039062,
+            "max": 218.78179931640625,
+            "p95": 218.69004669189454
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 219.7260574299704,
+            "median": 219.31664599105716,
+            "min": 218.1602092459798,
+            "max": 221.76739992573857,
+            "p95": 221.73322075977921
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 0.984229820056094,
+            "median": 0.9711221791803837,
+            "min": 0.9346599690616131,
+            "max": 1.1394741013646126,
+            "p95": 1.0454141069203615
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.011683640104753,
+            "median": 0.9975428692996502,
+            "min": 0.9554103016853333,
+            "max": 1.0899999178946018,
+            "p95": 1.0736790485680103
+          }
+        },
+        "memory_exact": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 180.23444394712095,
+            "median": 180.0446014404297,
+            "min": 178.5630645751953,
+            "max": 181.86752319335938,
+            "p95": 181.7993148803711
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 184.59681295617312,
+            "median": 184.43640414625406,
+            "min": 183.03649500012398,
+            "max": 186.22581521049142,
+            "p95": 186.14151603542268
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 0.9570212827788459,
+            "median": 0.943291001021862,
+            "min": 0.9082122705876827,
+            "max": 1.0750461369752884,
+            "p95": 1.0420123115181923
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.0071251437895827,
+            "median": 0.9900261647999287,
+            "min": 0.9535378776490688,
+            "max": 1.157557126134634,
+            "p95": 1.0770710185170174
+          }
+        }
+      },
+      "K_only_prefill_cuda_saved": {
+        "n": 27,
+        "mean": 2.768307156032986,
+        "median": 2.7566986083984375,
+        "min": 2.0869140625,
+        "max": 3.4477996826171875,
+        "p95": 3.196588134765625,
+        "timing_bootstrap_CI95_ms": [
+          2.6567280663384327,
+          2.901101077044452
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "zeroKV_minus_exact_wall": {
+        "n": 27,
+        "mean": 35.12924447379731,
+        "median": 35.170715767890215,
+        "min": 34.28108897060156,
+        "max": 36.32418904453516,
+        "p95": 36.07406038790941,
+        "timing_bootstrap_CI95_ms": [
+          34.887579404662745,
+          35.373494570160766
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "native_minus_exact_wall": {
+        "n": 27,
+        "mean": -6.315452322639801,
+        "median": -6.265928037464619,
+        "min": -7.37514765933156,
+        "max": -5.207281094044447,
+        "p95": -5.501818656921387,
+        "timing_bootstrap_CI95_ms": [
+          -6.589773547818401,
+          -6.038456957321613
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "memory_transaction": {
+        "create": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.24207779723736975,
+            "median": 0.23579690605401993,
+            "min": 0.22588111460208893,
+            "max": 0.29322365298867226,
+            "p95": 0.27531133964657784
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.23455644150575003,
+            "median": 0.22835199534893036,
+            "min": 0.21830399334430695,
+            "max": 0.285535991191864,
+            "p95": 0.2676415920257568
+          }
+        },
+        "keep": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.01625049238403638,
+            "median": 0.015744008123874664,
+            "min": 0.014699995517730713,
+            "max": 0.022159889340400696,
+            "p95": 0.019863434135913845
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.009422222152352333,
+            "median": 0.008799999952316284,
+            "min": 0.007903999648988247,
+            "max": 0.015231999568641186,
+            "p95": 0.012979199923574922
+          }
+        },
+        "projection": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.08998775026864475,
+            "median": 0.08786097168922424,
+            "min": 0.08249841630458832,
+            "max": 0.11003576219081879,
+            "p95": 0.10393224656581879
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.08344888852702247,
+            "median": 0.08111999928951263,
+            "min": 0.07609599828720093,
+            "max": 0.10345599800348282,
+            "p95": 0.09728639870882033
+          }
+        }
+      },
+      "natural_valid_frames": 0,
+      "natural_extensions": 0
+    },
+    "128": {
+      "current_native_tokens": 513,
+      "total_visual_tokens": 641,
+      "hypothetical_fixed513_current_tokens": 385,
+      "hypothetical_fixed513_removed_native_tokens": 128,
+      "fixed513_compressed_layout": "NOT_IMPLEMENTED_OR_QUALITY_VALIDATED",
+      "by_kind": {
+        "native": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 179.78916026927806,
+            "median": 179.5106201171875,
+            "min": 178.6904296875,
+            "max": 181.4713897705078,
+            "p95": 181.07733764648438
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 180.8007707198461,
+            "median": 180.59325916692615,
+            "min": 179.62778685614467,
+            "max": 182.45331291109324,
+            "p95": 182.07990736700594
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 0.9831311008720486,
+            "median": 0.9590080007910728,
+            "min": 0.9139659814536572,
+            "max": 1.1725598014891148,
+            "p95": 1.1109605431556702
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.0356677316681102,
+            "median": 1.0229130275547504,
+            "min": 0.9933090768754482,
+            "max": 1.1436659842729568,
+            "p95": 1.115020690485835
+          }
+        },
+        "memory_zero": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 230.15332652904368,
+            "median": 229.91448974609375,
+            "min": 228.73239135742188,
+            "max": 231.8078155517578,
+            "p95": 231.59563751220702
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 233.32890799200092,
+            "median": 233.0919257365167,
+            "min": 232.02211828902364,
+            "max": 234.91334030404687,
+            "p95": 234.72291929647326
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 0.9823213676335635,
+            "median": 0.9757974185049534,
+            "min": 0.9275400079786777,
+            "max": 1.1097090318799019,
+            "p95": 1.0534165892750025
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.0429402226927105,
+            "median": 1.0218308307230473,
+            "min": 0.9977049194276333,
+            "max": 1.1844909749925137,
+            "p95": 1.1206532828509808
+          }
+        },
+        "memory_exact": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 183.85681717484087,
+            "median": 183.38851928710938,
+            "min": 182.3802490234375,
+            "max": 185.53721618652344,
+            "p95": 185.39632263183594
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 188.45023175149603,
+            "median": 188.18586505949497,
+            "min": 187.02739290893078,
+            "max": 190.12975320219994,
+            "p95": 189.98915031552315
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 0.9686547779926548,
+            "median": 0.9587900713086128,
+            "min": 0.9252768941223621,
+            "max": 1.0982961393892765,
+            "p95": 1.0522386059165
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.0281417139426425,
+            "median": 1.012708991765976,
+            "min": 0.9998437017202377,
+            "max": 1.127044204622507,
+            "p95": 1.067167753353715
+          }
+        }
+      },
+      "K_only_prefill_cuda_saved": {
+        "n": 27,
+        "mean": 41.46654595269097,
+        "median": 41.429443359375,
+        "min": 40.47381591796875,
+        "max": 42.84263610839844,
+        "p95": 42.50869140625,
+        "timing_bootstrap_CI95_ms": [
+          41.27455137747305,
+          41.70363108317058
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "zeroKV_minus_exact_wall": {
+        "n": 27,
+        "mean": 44.878676240504895,
+        "median": 44.8249657638371,
+        "min": 43.60905708745122,
+        "max": 45.995368622243404,
+        "p95": 45.78940570354462,
+        "timing_bootstrap_CI95_ms": [
+          44.6573790266282,
+          45.10243737173301
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "native_minus_exact_wall": {
+        "n": 27,
+        "mean": -7.649461031649952,
+        "median": -7.661936338990927,
+        "min": -8.656321093440056,
+        "max": -6.440252996981144,
+        "p95": -6.90420912578702,
+        "timing_bootstrap_CI95_ms": [
+          -7.8742963395564365,
+          -7.413284443060145
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "memory_transaction": {
+        "create": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.44045380006233853,
+            "median": 0.4168660379946232,
+            "min": 0.3690929152071476,
+            "max": 0.5362182855606079,
+            "p95": 0.5299827083945274
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.4315164453453488,
+            "median": 0.4078719913959503,
+            "min": 0.3606719970703125,
+            "max": 0.5273280143737793,
+            "p95": 0.5212480068206787
+          }
+        },
+        "keep": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.01716292980644438,
+            "median": 0.016876962035894394,
+            "min": 0.016159843653440475,
+            "max": 0.018728896975517273,
+            "p95": 0.018611736595630646
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.009614222476051914,
+            "median": 0.009375999681651592,
+            "min": 0.00886400043964386,
+            "max": 0.010816000401973724,
+            "p95": 0.010764800384640694
+          }
+        },
+        "projection": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.11318451207545069,
+            "median": 0.11176895350217819,
+            "min": 0.10805437341332436,
+            "max": 0.1278771087527275,
+            "p95": 0.12387875467538834
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.10649955521027248,
+            "median": 0.10512000322341919,
+            "min": 0.10127999633550644,
+            "max": 0.12115199863910675,
+            "p95": 0.11713279783725739
+          }
+        }
+      },
+      "natural_valid_frames": 0,
+      "natural_extensions": 0
+    },
+    "256": {
+      "current_native_tokens": 513,
+      "total_visual_tokens": 769,
+      "hypothetical_fixed513_current_tokens": 257,
+      "hypothetical_fixed513_removed_native_tokens": 256,
+      "fixed513_compressed_layout": "NOT_IMPLEMENTED_OR_QUALITY_VALIDATED",
+      "by_kind": {
+        "native": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 180.16268525300202,
+            "median": 180.22000122070312,
+            "min": 179.14735412597656,
+            "max": 181.35411071777344,
+            "p95": 180.93120269775392
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 181.18198985164915,
+            "median": 181.2759810127318,
+            "min": 180.17799593508244,
+            "max": 182.30550177395344,
+            "p95": 181.90605132840574
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 1.0179035813996085,
+            "median": 1.0131029412150383,
+            "min": 0.9560370817780495,
+            "max": 1.159823965281248,
+            "p95": 1.0877713095396757
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.0778528327743213,
+            "median": 1.0517132468521595,
+            "min": 1.0272059589624405,
+            "max": 1.1950121261179447,
+            "p95": 1.1701959650963545
+          }
+        },
+        "memory_zero": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 272.07519870334204,
+            "median": 272.34210205078125,
+            "min": 270.5625,
+            "max": 273.22723388671875,
+            "p95": 273.07273864746094
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 275.4330125775326,
+            "median": 275.7722828537226,
+            "min": 273.9060982130468,
+            "max": 276.5202568843961,
+            "p95": 276.48390168324113
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 1.0119477045480851,
+            "median": 1.0049440898001194,
+            "min": 0.9662238880991936,
+            "max": 1.1089970357716084,
+            "p95": 1.075138757005334
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.0754138196784038,
+            "median": 1.056575682014227,
+            "min": 1.0269288904964924,
+            "max": 1.1935839429497719,
+            "p95": 1.1579396668821573
+          }
+        },
+        "memory_exact": {
+          "model_prefill_cuda_ms": {
+            "n": 27,
+            "mean": 188.04106705277056,
+            "median": 188.33126831054688,
+            "min": 186.6386260986328,
+            "max": 189.03164672851562,
+            "p95": 188.91861877441406
+          },
+          "executor_wall_ms": {
+            "n": 27,
+            "mean": 192.91632903601837,
+            "median": 193.29537404701114,
+            "min": 191.48623710498214,
+            "max": 193.8847959972918,
+            "p95": 193.77315514720976
+          },
+          "matcher_wall_ms": {
+            "n": 27,
+            "mean": 0.9998430808385214,
+            "median": 0.9898869320750237,
+            "min": 0.9519387967884541,
+            "max": 1.1443761177361012,
+            "p95": 1.1110804975032806
+          },
+          "planner_wall_ms": {
+            "n": 27,
+            "mean": 1.0718639629582565,
+            "median": 1.0580471716821194,
+            "min": 1.0241447016596794,
+            "max": 1.1852458119392395,
+            "p95": 1.1347141116857529
+          }
+        }
+      },
+      "K_only_prefill_cuda_saved": {
+        "n": 27,
+        "mean": 82.86879532425492,
+        "median": 82.79374694824219,
+        "min": 81.735107421875,
+        "max": 84.22721862792969,
+        "p95": 83.97443389892578,
+        "timing_bootstrap_CI95_ms": [
+          82.56799930996365,
+          83.19327629937067
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "zeroKV_minus_exact_wall": {
+        "n": 27,
+        "mean": 82.51668354151425,
+        "median": 82.47501961886883,
+        "min": 81.5767771564424,
+        "max": 83.65255733951926,
+        "p95": 83.41136104427278,
+        "timing_bootstrap_CI95_ms": [
+          82.2601644912976,
+          82.7730214714797
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "native_minus_exact_wall": {
+        "n": 27,
+        "mean": -11.734339184369203,
+        "median": -11.64605701342225,
+        "min": -12.770424131304026,
+        "max": -11.062308680266142,
+        "p95": -11.103130085393786,
+        "timing_bootstrap_CI95_ms": [
+          -11.932061169365488,
+          -11.56118423677981
+        ],
+        "CI_scope": "Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence."
+      },
+      "memory_transaction": {
+        "create": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.6366616321934594,
+            "median": 0.635610893368721,
+            "min": 0.6328108720481396,
+            "max": 0.6433771923184395,
+            "p95": 0.6420882418751717
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.6278080079290602,
+            "median": 0.6268479824066162,
+            "min": 0.624064028263092,
+            "max": 0.6343039870262146,
+            "p95": 0.6330495953559876
+          }
+        },
+        "keep": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.016809182448519602,
+            "median": 0.016773119568824768,
+            "min": 0.01645134761929512,
+            "max": 0.01720711588859558,
+            "p95": 0.0171806663274765
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.009251555531389184,
+            "median": 0.009151999838650227,
+            "min": 0.00902399979531765,
+            "max": 0.009503999724984169,
+            "p95": 0.009491200000047684
+          }
+        },
+        "projection": {
+          "wall_ms": {
+            "n": 9,
+            "mean": 0.15567832936843237,
+            "median": 0.15531806275248528,
+            "min": 0.1549520529806614,
+            "max": 0.1581110991537571,
+            "p95": 0.15731872990727425
+          },
+          "cuda_stream_ms": {
+            "n": 9,
+            "mean": 0.1490026662747065,
+            "median": 0.14876799285411835,
+            "min": 0.1480959951877594,
+            "max": 0.15142400562763214,
+            "p95": 0.15060480535030366
+          }
+        }
+      },
+      "natural_valid_frames": 0,
+      "natural_extensions": 0
+    }
+  },
+  "natural_frames": 24,
+  "natural_scenes": 3,
+  "natural_qualified_object_frames": 6,
+  "natural_qualified_region_cells": [
+    15,
+    15,
+    15,
+    15,
+    15,
+    15
+  ],
+  "natural_extensions_by_K": {
+    "64": 0,
+    "128": 0,
+    "256": 0
+  },
+  "world_only_expected_saved_prefill_ms": 0.0,
+  "incremental_world_method_net_upper_ms_per_request": {
+    "one_question": -0.5699252446733967,
+    "three_questions": -0.18997508155779888
+  },
+  "incremental_cost_scene_bootstrap_CI95_ms": [
+    -1.0464982220178676,
+    -0.32008923072781825
+  ],
+  "CI_scope": "Observed three natural development logs only; not population or formal E2E CI.",
+  "natural_bridge_wall_ms": {
+    "n": 24,
+    "mean": 0.5681013766055306,
+    "median": 0.33483398146927357,
+    "min": 0.2511930651962757,
+    "max": 1.3665701262652874,
+    "p95": 1.3297548983246088
+  },
+  "natural_memory_update_wall_ms": {
+    "n": 24,
+    "mean": 0.0018238680678661224,
+    "median": 0.001823245030310419,
+    "min": 0.0015302147302362653,
+    "max": 0.0023014015621609157,
+    "p95": 0.002119348694880803
+  },
+  "added_projection_matcher_planner_KV_cache_reassembly_sync_ms": 0.0,
+  "omitted_cost_scope": "Optimistic incremental upper bound on this zero-memory playback: no memory projection, no memory KV/cache ownership, no assembly are executed. All unmeasured runtime/binding/allocator costs set to zero, never counted as measured. Generic existing text/same-frame caching held equal.",
+  "old_K64_net_upper_ms": 0.08388127007719959,
+  "beats_old_K64": false,
+  "LLM_quality": "NOT_RUN",
+  "full_E2E_speedup": null,
+  "alternative_15_to64_learned_resampler": "NOT_IMPLEMENTED: could convey 15 real regions to64 learned slots, but cannot be counted as64 independently observed cells; requires new layout/content/cost/quality evidence. This result does not prove that alternative impossible."
+}

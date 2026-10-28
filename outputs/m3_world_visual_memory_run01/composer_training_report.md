@@ -1,0 +1,5 @@
+# 训练准入
+
+NOT_RUN。真实特征桥接与预训练内容门通过，成本门NO_GO。`assert_training_ready`在创建训练模型/optimizer前拒绝；trained_steps=0，无WRVMP训练adapter。
+
+上一轮424帧/1272QA训练manifest保持不变，SHA见experiment_plan.json。本轮160帧只补必要区域特征，旧Core资格未自动授予视觉记忆资格。未重新进行完整语言解码。controlled_cost中的untrained_cost_projection.pt只保存成本脚手架参数，trained=false，不能作为训练交付或正式质量输入。冻结原始模型与M1/M2，不重建环境。
