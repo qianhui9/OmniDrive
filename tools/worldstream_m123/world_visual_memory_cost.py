@@ -68,11 +68,12 @@ def run(root, text_control=False):
         config=M3Config(reuse_strategy='exact_prefix'); planner=ReusePlanner(Scheduler(config))
         for k in (64,128,256):
             manager = VisualMemoryManager(k)
-            memory,event = manager.update(context(arow), regions(avalues), arow['qualified_ids'], qualification)
+            memory,event = manager.update(context(arow),
+                [replace(r, features=r.features.cuda()) for r in regions(avalues)], arow['qualified_ids'], qualification)
             assert memory is not None
-            same, event = manager.update(context(brow), regions(bvalues), brow['qualified_ids'], qualification)
+            same, event = manager.update(context(brow),
+                [replace(r, features=r.features.cuda()) for r in regions(bvalues)], brow['qualified_ids'], qualification)
             assert same is memory and event == 'keep'
-            memory.features = memory.features.cuda(); memory.tensor_version = memory.features._version
             memories = projection(memory)
             aimages = projection.compose(current_a, memory); bimages=projection.compose(current_b, memory)
             assert projection(memory) is memories and torch.equal(aimages[:,:k], bimages[:,:k])

@@ -828,6 +828,20 @@ index f5cc1343..de91ebb2 100644
 +                    row['compact_bridge'] = compact_record
 +                    row['memory_or_LLM_tokens_constructed'] = compact_record['event'].startswith('create:')
 +                    row['memory_token_scope'] = 'Raw regional memory only; no projected LLM tokens or generation in live audit'
+diff --git a/tools/worldstream_m123/world_visual_memory_cost.py b/tools/worldstream_m123/world_visual_memory_cost.py
+index 584a28dd..aaa3bf1d 100644
+--- a/tools/worldstream_m123/world_visual_memory_cost.py
++++ b/tools/worldstream_m123/world_visual_memory_cost.py
+@@ -71 +71,2 @@ def run(root, text_control=False):
+-            memory,event = manager.update(context(arow), regions(avalues), arow['qualified_ids'], qualification)
++            memory,event = manager.update(context(arow),
++                [replace(r, features=r.features.cuda()) for r in regions(avalues)], arow['qualified_ids'], qualification)
+@@ -73 +74,2 @@ def run(root, text_control=False):
+-            same, event = manager.update(context(brow), regions(bvalues), brow['qualified_ids'], qualification)
++            same, event = manager.update(context(brow),
++                [replace(r, features=r.features.cuda()) for r in regions(bvalues)], brow['qualified_ids'], qualification)
+@@ -75 +76,0 @@ def run(root, text_control=False):
+-            memory.features = memory.features.cuda(); memory.tensor_version = memory.features._version
 diff --git a/worldstream/m3/config.py b/worldstream/m3/config.py
 index e33bc9ea..a37db636 100644
 --- a/worldstream/m3/config.py
