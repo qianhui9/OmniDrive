@@ -1,0 +1,33 @@
+{
+  "policy_unchanged": true,
+  "formal_m3": {
+    "mode": "auto",
+    "state_context": "augment",
+    "memory_budget_mb": 512,
+    "reuse_strategy": "wsdr_kv",
+    "block_size": 32,
+    "quality_budget": 0.02,
+    "reuse_policy": "outputs/final_route/m3_reuse_policy.json"
+  },
+  "formal_m2": {
+    "mode": "auto",
+    "reuse_boundary": "window",
+    "state_interface": "source_linked",
+    "m1_service": "maintain",
+    "memory_budget_mb": 512,
+    "ordinary_budget": 3,
+    "max_reuse_frames": 8,
+    "global_anchor_interval": 2,
+    "global_drift_threshold": 0.7721027880907059
+  },
+  "new_rules_admitted": false,
+  "single_formal_route": true,
+  "system_quality_pass": true,
+  "m3_quality_pass": false,
+  "cross_scene_e2e_gain_proven": {
+    "multi": false,
+    "single": false
+  },
+  "reason": "Automatic lexical proxies missed new unsupported road-rule claims; disable the implicated approximate rule and verify a restricted policy on fresh scenes. This frozen candidate is not the final qualified deployment.",
+  "candidate_rejected_semantic_review": true
+}

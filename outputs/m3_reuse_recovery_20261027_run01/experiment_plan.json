@@ -1,0 +1,52 @@
+{
+  "initial_commit": "09e258d3532c4c0634f0df64adc98a6abf63d10d",
+  "policy_update": false,
+  "quality_budget": 0.02,
+  "task_quality_budgets": {
+    "mAP": 0.1,
+    "NDS": 0.1,
+    "DET_l": 0.1,
+    "Token_F1": 0.1
+  },
+  "multi_scenes": {
+    "fcc020250f884397965ba00c1d9ad9e6": "independent_validation",
+    "b94fbf78579f4ff5ab5dbd897d5e3199": "independent_validation",
+    "d3b86ca0a17840109e9e049b3dd40037": "independent_validation",
+    "6741d407b1b44511853e5ec7aaee2992": "independent_validation"
+  },
+  "multi_frames": 24,
+  "multi_questions": 72,
+  "single_frames": 48,
+  "single_questions": 48,
+  "control": "Same production runtime with benchmark-only decision length fixed to zero; planner and cache capture still execute",
+  "performance": {
+    "rounds": 3,
+    "orders": [
+      [
+        "native",
+        "zero",
+        "reuse"
+      ],
+      [
+        "reuse",
+        "zero",
+        "native"
+      ],
+      [
+        "zero",
+        "native",
+        "reuse"
+      ]
+    ],
+    "fixed_tokens": true,
+    "reference": "Native free-generation sequence per original question",
+    "bootstrap": "scene-cluster means over all three repeats; 10000 resamples seed 20261027"
+  },
+  "manifest_sha256": {
+    "historical_sequence24.json": "e4a27b2b4d1182958e3f9a27f1bca91ddbe5d529ff5ba676298e42e7d3e9dee3",
+    "single_sequence48.json": "0319995302226c666c89be7b052004d2624da35a8c8d0674e1acddfab1f3d54c",
+    "multi_sequence24.json": "9100a6492f94e752f96f69f040d68752fc69e30a6299815923a4b2c65a2c500d",
+    "frozen_m3_policy.json": "87433fbfe5c1bb97c88e06977005ab9790cb2fcf49f087989b5497d62c98274a"
+  },
+  "historical_replay": "Current full pipeline on same historical questions plus isolated M3 replay of exact historical native_reference carriers; do not conflate current M1/M2 with historical visuals"
+}

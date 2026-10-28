@@ -1,0 +1,29 @@
+diff --git a/worldstream/m3/prefill_executor.py b/worldstream/m3/prefill_executor.py
+index f982979a..3765e20e 100644
+--- a/worldstream/m3/prefill_executor.py
++++ b/worldstream/m3/prefill_executor.py
+@@ -26,6 +26,10 @@ class GenerationFacade(nn.Module, GenerationMixin):
+         self.expanded = expanded
+         self.first_forward = first_forward
+         self.first = True
++        # HF appends exactly one unmasked token per step for batch-one decoding.
++        # Keep the prompt count on-device instead of rescanning its complete
++        # attention mask with cumsum/masked_fill for every generated token.
++        self.prompt_unmasked = expanded.attention_mask.long().sum(-1, keepdim=True)
+ 
+     @property
+     def device(self):
+@@ -40,9 +44,10 @@ class GenerationFacade(nn.Module, GenerationMixin):
+         if self.first:
+             return dict(inputs_embeds=inputs_embeds, attention_mask=attention_mask,
+                         use_cache=True)
+-        return self.model.prepare_inputs_for_generation(input_ids,
+-            past_key_values=past_key_values, attention_mask=attention_mask,
+-            use_cache=True)
++        added = attention_mask.shape[-1] - self.expanded.length
++        position_ids = self.prompt_unmasked + (added - 1)
++        return dict(input_ids=input_ids[:, -1:], position_ids=position_ids,
++            past_key_values=past_key_values, attention_mask=attention_mask, use_cache=True)
+ 
+     def forward(self, input_ids=None, attention_mask=None, position_ids=None,
+                 past_key_values=None, inputs_embeds=None, use_cache=True,

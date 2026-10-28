@@ -1,0 +1,227 @@
+{
+  "version": "quality_bounded_wsdr_v1",
+  "binding": {
+    "model_version": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+    "weights_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+    "execution_key": "b005c1208f71af5ca94861a89c6c521bb4b971791244c3e68483e398fd2dcd15",
+    "generation_key": "0ad71eb87f5adcfb6538038716caa2d4ffc32afcf42a3b0269e7629d4c6d5647",
+    "layout_signature": "17329596d6973e0234a0e353d9481b5be61320f74162a62eadbf0c4c7b9fa39a",
+    "dtype": "torch.float16"
+  },
+  "block_size": 32,
+  "quality_budget": 0.02,
+  "max_cache_age_frames": 2,
+  "max_approx_depth": 1,
+  "history_text": false,
+  "profiles": {
+    "full_visual": {
+      "exact": {
+        "risk_limit": 0.0,
+        "max_rms": 2.0,
+        "max_token_change": 2.0,
+        "max_visual_tokens": 128,
+        "quality_loss_upper": 0.0022474374657274216,
+        "calibration_quality_loss_upper": 0.000286128244401209,
+        "validation_quality_loss_upper": 0.0,
+        "critical_regressions": 1,
+        "calibration_samples": 17,
+        "validation_samples": 13,
+        "cost": {
+          "net_saved_ms_per_token": 0.26181143046845534,
+          "fixed_overhead_ms": 16.04898558200959,
+          "min_input_tokens": 572,
+          "max_input_tokens": 655,
+          "min_reuse_tokens": 35,
+          "max_reuse_tokens": 561,
+          "samples": 17,
+          "cost_scope": "paired complete M3 wall incl. match, branch, cache update, prefill and affected decode",
+          "planning_ms": 2.100201679722351,
+          "branch_ms": 0.771678123403998,
+          "prefill_ms": 76.3211290696088,
+          "decode_ms": 1073.214479334214,
+          "cache_update_enqueue_ms": 1.7472709090832401
+        },
+        "service_validation": {
+          "samples": 8,
+          "quality_loss_upper": 0.0022474374657274216,
+          "critical_regressions": 1
+        }
+      }
+    },
+    "map_relations": {
+      "exact": {
+        "risk_limit": 0.8446199800819159,
+        "max_rms": 2.0,
+        "max_token_change": 2.0,
+        "max_visual_tokens": 128,
+        "quality_loss_upper": 0.0,
+        "calibration_quality_loss_upper": 0.0,
+        "validation_quality_loss_upper": 0.0,
+        "critical_regressions": 0,
+        "calibration_samples": 3,
+        "validation_samples": 1,
+        "cost": {
+          "net_saved_ms_per_token": 0.25492724144704454,
+          "fixed_overhead_ms": 0.0,
+          "min_input_tokens": 572,
+          "max_input_tokens": 580,
+          "min_reuse_tokens": 558,
+          "max_reuse_tokens": 559,
+          "samples": 3,
+          "cost_scope": "paired complete M3 wall incl. match, branch, cache update, prefill and affected decode",
+          "planning_ms": 2.0917407236993313,
+          "branch_ms": 0.9318186640739441,
+          "prefill_ms": 30.476256052652996,
+          "decode_ms": 791.7898356119791,
+          "cache_update_enqueue_ms": 0.0
+        },
+        "service_validation": {
+          "samples": 2,
+          "quality_loss_upper": 0.0,
+          "critical_regressions": 0
+        }
+      },
+      "approx": {
+        "risk_limit": 0.8446199800819159,
+        "max_rms": 2.0,
+        "max_token_change": 2.0,
+        "max_visual_tokens": 128,
+        "quality_loss_upper": 0.0,
+        "calibration_quality_loss_upper": 0.0,
+        "validation_quality_loss_upper": 0.0,
+        "critical_regressions": 1,
+        "calibration_samples": 5,
+        "validation_samples": 1,
+        "cost": {
+          "net_saved_ms_per_token": 0.33608478364310684,
+          "fixed_overhead_ms": 43.15889472424795,
+          "min_input_tokens": 573,
+          "max_input_tokens": 582,
+          "min_reuse_tokens": 163,
+          "max_reuse_tokens": 558,
+          "samples": 5,
+          "cost_scope": "paired complete M3 wall incl. match, branch, cache update, prefill and affected decode",
+          "planning_ms": 2.0825003273785114,
+          "branch_ms": 0.5209600031375885,
+          "prefill_ms": 134.81790580749512,
+          "decode_ms": 638.7215454101563,
+          "cache_update_enqueue_ms": 3.8519442081451416
+        },
+        "manual_semantic_qualification": {
+          "automatic_critical_regressions": 0,
+          "semantic_rejections": 1,
+          "evidence": "outputs/m3_reuse_recovery_20261027_run01/semantic_failure_review.json",
+          "evidence_sha256": "5482c6e6b73437ce4f66bb26894cb1df49779443c4f3963cfc4205051cec0003",
+          "action": "disable_existing_rule_only_no_threshold_or_cost_refit"
+        }
+      }
+    },
+    "object_attributes": {
+      "exact": {
+        "risk_limit": 0.8446199800819159,
+        "max_rms": 2.0,
+        "max_token_change": 2.0,
+        "max_visual_tokens": 128,
+        "quality_loss_upper": 0.025974025974025983,
+        "calibration_quality_loss_upper": 0.0,
+        "validation_quality_loss_upper": 0.025974025974025983,
+        "critical_regressions": 0,
+        "calibration_samples": 7,
+        "validation_samples": 1,
+        "cost": {
+          "net_saved_ms_per_token": 8.824608987198532,
+          "fixed_overhead_ms": 4784.343930241419,
+          "min_input_tokens": 574,
+          "max_input_tokens": 585,
+          "min_reuse_tokens": 558,
+          "max_reuse_tokens": 559,
+          "samples": 7,
+          "cost_scope": "paired complete M3 wall incl. match, branch, cache update, prefill and affected decode",
+          "planning_ms": 2.1880918315478732,
+          "branch_ms": 0.9095040134021214,
+          "prefill_ms": 30.056283405848912,
+          "decode_ms": 732.0345415387835,
+          "cache_update_enqueue_ms": 0.0
+        }
+      },
+      "approx": {
+        "risk_limit": 0.8446199800819159,
+        "max_rms": 2.0,
+        "max_token_change": 2.0,
+        "max_visual_tokens": 128,
+        "quality_loss_upper": 0.0,
+        "calibration_quality_loss_upper": 0.0,
+        "validation_quality_loss_upper": 0.0,
+        "critical_regressions": 0,
+        "calibration_samples": 1,
+        "validation_samples": 1,
+        "cost": {
+          "net_saved_ms_per_token": 0.26032665584196324,
+          "fixed_overhead_ms": 0.0,
+          "min_input_tokens": 573,
+          "max_input_tokens": 576,
+          "min_reuse_tokens": 558,
+          "max_reuse_tokens": 558,
+          "samples": 1,
+          "cost_scope": "paired complete M3 wall incl. match, branch, cache update, prefill and affected decode",
+          "planning_ms": 2.1008169278502464,
+          "branch_ms": 0.971776008605957,
+          "prefill_ms": 30.3768310546875,
+          "decode_ms": 562.551025390625,
+          "cache_update_enqueue_ms": 0.0
+        }
+      }
+    }
+  },
+  "threshold_selection": {
+    "full_visual": 0.0,
+    "map_relations": 0.8446199800819159,
+    "object_attributes": 0.8446199800819159
+  },
+  "scene_splits": {
+    "d1e57234fd6a463d963670938f9f556e": "calibration",
+    "e60ef590e3614187b7800db3e5284e1a": "calibration",
+    "82cabcf15a1a48aca6bbf082f8710e39": "validation"
+  },
+  "calibration_samples": 72,
+  "validation_samples": 36,
+  "quality_definition": "paired GT Token F1 upper bound + no new correct-to-incorrect numeric/spatial/motion/safety parser errors",
+  "limitations": [
+    "Small-sample empirical bounds, not a mathematical guarantee",
+    "Task labels are explicit lexical proxies, not human semantic approval",
+    "Unseen profiles/input lengths stay on the same executor with reuse_length=0"
+  ],
+  "checkpoint": "ckpts/iter_10548.pth",
+  "checkpoint_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+  "data_manifest_sha256": "693a213bf608f8c8a000a258e82b928666ae29c6f49840abef5607a932ef17c4",
+  "paired_records_sha256": "398909abd21b9f786aa61dae194e93f5ebe8cc7bf9aeb0a4f7dab79a539ef4e1",
+  "paired_records_path": "outputs/m3_quality_bounded_20261026_run01/calibration_short/paired_records.jsonl",
+  "thresholds": [
+    0.0,
+    0.8446199800819159
+  ],
+  "service_qualification": {
+    "evidence_path": "outputs/m3_quality_bounded_20261026_run01/service_qualification/service_evidence.jsonl",
+    "evidence_sha256": "72ed8348eb624569493b5c359b3e23d05c1ea49b7d9d7e008b3f1cf6bf50c018",
+    "rejected_rules": [
+      {
+        "profile": "full_visual",
+        "reuse_type": "exact"
+      }
+    ],
+    "threshold_retuned": false,
+    "limitation": "Post-rejection replay is regression evidence; further fresh-scene confirmation remains needed"
+  },
+  "recovery_qualification": {
+    "original_policy_sha256": "87433fbfe5c1bb97c88e06977005ab9790cb2fcf49f087989b5497d62c98274a",
+    "evidence": "outputs/m3_reuse_recovery_20261027_run01/semantic_failure_review.json",
+    "rule_disabled": [
+      "map_relations",
+      "approx"
+    ],
+    "new_rules_admitted": false,
+    "validation_data_are_now_observed": true,
+    "require_fresh_validation": true,
+    "quality_budget_unchanged": 0.02
+  }
+}
