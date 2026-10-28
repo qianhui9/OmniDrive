@@ -1,0 +1,7 @@
+# Final validation
+
+Final host RTX 3090 regression: **724 passed**, 23 warnings, 10.66 seconds. The complete pytest log is `tests_gpu.log` (also `p3/tests_gpu.log`); `gpu_regression.json` records the actual CUDA kernel witness, CPU affinity excluding 4/5, installed Torch version and original checkpoint hash. Earlier P2 validation is retained separately as `p2_gpu_regression.json` and `p2_tests_gpu.log`.
+
+Both P2 frozen sources and final P3 source bytes match every SHA256 recorded at execution. All required reports exist; JSON/JSONL parsing passed. `delivery_audit.json` lists these bindings. `artifact_manifest.json` indexes raw measurements, local-only visual carriers, logs and source evidence. Carrier tensors and duplicate per-frame answer exports stay local; complete answer tokens and timings are committed as JSONL. Git commit identity is supplied by repository history and the final delivery message to avoid a self-referential artifact hash.
+
+Final qualification is **NO_GO** for the M1-guided contribution. Three-QA fixed-stream full E2E: B 1.342×, C 1.305× versus Native; C/B 0.973×. Natural C/Native 0.991×. Partial independent fact scores show zero paired loss on covered labels; complete driving-quality qualification remains incomplete. Final-policy single-QA E2E was not repeated after the single P3 policy revision and is explicitly NOT_RUN. No formal deployment change was made.

@@ -1,0 +1,54 @@
+{
+  "status": "NO_GO",
+  "reason": "M1-guided C is reproducibly slower than history-only B in at least one primary workload; semantic candidates did not establish independent E2E benefit.",
+  "exact_go": false,
+  "numerical_mode": "APPROXIMATE_FP16",
+  "full_e2e_positive_both_workloads": false,
+  "m1_incremental_positive_both_workloads": false,
+  "independent_task_quality_coverage": "PARTIAL",
+  "quality_deltas": [
+    {
+      "workload": "natural",
+      "condition": "B",
+      "paired_scored_answers": 63,
+      "fact_score_loss": 0.0,
+      "scene_ci95_loss": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "workload": "natural",
+      "condition": "C",
+      "paired_scored_answers": 63,
+      "fact_score_loss": 0.0,
+      "scene_ci95_loss": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "workload": "fixed",
+      "condition": "B",
+      "paired_scored_answers": 18,
+      "fact_score_loss": 0.0,
+      "scene_ci95_loss": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "workload": "fixed",
+      "condition": "C",
+      "paired_scored_answers": 18,
+      "fact_score_loss": 0.0,
+      "scene_ci95_loss": [
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "final_policy_single_question_e2e": "NOT_RUN: follow-up restricted to primary three-QA cohort after P2 single-QA controls",
+  "formal_configuration_modified": false,
+  "automatic_deployment": false
+}

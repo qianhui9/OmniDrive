@@ -122,12 +122,12 @@ class GenerationFacade(nn.Module, GenerationMixin):
             value = processors(ids, raw.clone()) if processors is not None else raw
             return logits_warper(ids, value) if sampling and logits_warper is not None else value
 
-        def emit(token, value):
+        def emit(token, value, known_token=None):
             nonlocal ids, scores
             ids = torch.cat((ids, token.reshape(1, 1)), -1)
             if scores is not None:
                 scores += (value,)
-            return int(token) in eos or bool(stopping(ids, scores))
+            return (known_token if known_token is not None else int(token)) in eos or bool(stopping(ids, scores))
 
         while True:
             generated = ids.shape[-1]-1
@@ -175,7 +175,7 @@ class GenerationFacade(nn.Module, GenerationMixin):
                     rejected = True
                     active = False
                     log['rejection_position'] = j
-                finished = emit(token, value)
+                finished = emit(token, value, candidate if accepted else None)
                 if rejected or finished:
                     break
             crop_tick = perf_counter()

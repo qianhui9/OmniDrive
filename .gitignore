@@ -267,3 +267,9 @@ deploy/llm_lib/llm_safetensor*/
 # WSG-SD: raw native visual tensors remain local, content-addressed in delivery.
 /outputs/m3_world_guided_decode_run01/**/*.pt
 /outputs/m3_world_guided_decode_run01/**/answers/
+
+# WSG-SD v2: local visual tensors and duplicate per-frame answer files are SHA-indexed.
+/outputs/m3_world_guided_decode_run02/**/*.pt
+/outputs/m3_world_guided_decode_run02/**/*.pkl
+/outputs/m3_world_guided_decode_run02/**/e2e/*q_*/
+/outputs/m3_world_guided_decode_run02/**/development_coverage/

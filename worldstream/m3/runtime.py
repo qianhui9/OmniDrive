@@ -37,6 +37,9 @@ class M3Runtime:
             from pathlib import Path
             self._adaptive_adapter_hash=hashlib.sha256(Path(self.config.prefix_adapter).read_bytes()).hexdigest()
         self.last_composed_carriers=None  # current-request observer reference, never history lookup
+        self._decode_model_revision=self._decode_model_key=None
+        self._decode_tokenizer_revision=self._decode_tokenizer_key=None
+        self._decode_previous_world=None
         from .semantic_core import SemanticQualifier
         self.semantic_qualifier=SemanticQualifier(self.config.semantic_qualification) if self.config.semantic_qualification else None
         from .visual_memory import VisualMemoryManager
@@ -51,6 +54,7 @@ class M3Runtime:
         self.visual_memories.reset()
         if self.composer is not None:self.composer.reset()
         self.last_composed_carriers=None
+        self._decode_previous_world=None
 
     @staticmethod
     def validate_contract(base,generation):
@@ -69,7 +73,7 @@ class M3Runtime:
             raise ValueError('Unsupported M3 model or generation contract; PrefillExecutor is required')
 
     @torch.no_grad()
-    def generate(self,lm_head,input_ids_list,vision_carriers,context=None,questions=None,layout=None,verified_state=None,tokenizer=None,m2_diagnostics=None,stable_world_state=None,visual_memory_inputs=None,**generation):
+    def generate(self,lm_head,input_ids_list,vision_carriers,context=None,questions=None,layout=None,verified_state=None,tokenizer=None,m2_diagnostics=None,stable_world_state=None,visual_memory_inputs=None,committed_world_state=None,**generation):
         runtime_tick=perf_counter()
         rows=[]
         self.last_diagnostics=dict(runtime_entered=True,execution_completed=False,requests=rows)
@@ -78,13 +82,16 @@ class M3Runtime:
         ids_list=list(input_ids_list);questions=list(questions) if questions is not None else ['']*len(ids_list)
         if len(questions)!=len(ids_list):raise ValueError('Question order must match input IDs')
         base=base_model(lm_head);self.validate_contract(base,generation)
-        history_decode=self.config.decode_strategy=='history_draft'
+        history_decode=self.config.decode_strategy in ('history_draft','world_guided')
         if layout is not None and vision_carriers is not None and vision_carriers.shape[1]!=layout.total:
             raise ValueError('M3 requires the complete declared current visual layout')
         cameras=context.get('camera_ids',());timestamp=context.get('timestamp')
         if (not context.get('scene_id') or not context.get('frame_id') or not cameras
                 or len(set(cameras))!=len(cameras) or type(timestamp) not in (int,float) or not math.isfinite(timestamp)):
             raise ValueError('M3 requires a bound scene/frame/time/camera lifecycle')
+        if history_decode:
+            return self._decode_current_frame(lm_head,base,ids_list,questions,vision_carriers,
+                layout,context,tokenizer,committed_world_state,generation,runtime_tick)
         composer_ms=anchor_ms=anchor_update_ms=core_extraction_ms=0.
         self.last_composed_carriers=None
         anchor=None;anchor_hit=False
@@ -342,4 +349,104 @@ class M3Runtime:
             composer_wall_ms=composer_ms,stable_anchor_wall_ms=anchor_ms,
             stable_core_extraction_wall_ms=core_extraction_ms,anchor_update_wall_ms=anchor_update_ms,
             effective_history_records=sum(len(r['state_retrieval']['records']) for r in rows if r['historical_text_consumed']))
+        return answers,self.last_diagnostics
+
+    def _decode_binding(self,lm_head,base,context,tokenizer,generation):
+        """Cache expensive metadata, while checking real mutable revisions."""
+        revision=(context['model_version'],repr(base.config.to_dict()),
+            tuple((id(p),p._version,p.data_ptr(),p.dtype,p.device) for p in base.parameters()),
+            tuple((id(b),b._version,b.data_ptr()) for n,b in base.named_buffers()
+                  if not n.endswith(('cos_cached','sin_cached'))),
+            tuple((id(m),repr(getattr(m,'active_adapters',None)),repr(getattr(m,'disable_adapters',None)),
+                   repr(getattr(m,'merged_adapters',None))) for m in base.modules() if hasattr(m,'lora_A')),
+            tuple(id(getattr(m.forward,'__func__',m.forward)) for m in base.modules()),
+            torch.is_autocast_enabled(),torch.get_autocast_gpu_dtype(),
+            torch.backends.cuda.matmul.allow_tf32,torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction)
+        model_hit=revision==self._decode_model_revision
+        if not model_hit:
+            self._decode_model_key=hashlib.sha256(repr(execution_signature(lm_head,context['model_version'])).encode()).hexdigest()
+            self._decode_model_revision=revision
+        if tokenizer is None:vocab=None
+        elif hasattr(tokenizer,'sp_model'):
+            vocab=hashlib.sha256(tokenizer.sp_model.serialized_model_proto()).hexdigest()
+            vocab=(vocab,repr(tokenizer.get_added_vocab()))
+        elif hasattr(tokenizer,'backend_tokenizer'):vocab=tokenizer.backend_tokenizer.to_str()
+        else:vocab=sorted(tokenizer.get_vocab().items())
+        tokenizer_revision=(id(tokenizer),repr(getattr(tokenizer,'special_tokens_map',None)),repr(vocab))
+        tokenizer_hit=tokenizer_revision==self._decode_tokenizer_revision
+        if not tokenizer_hit:
+            self._decode_tokenizer_key=hashlib.sha256(repr(tokenizer_revision).encode()).hexdigest()
+            self._decode_tokenizer_revision=tokenizer_revision
+        genkey=hashlib.sha256(json.dumps(dict(defaults=base.generation_config.to_dict(),overrides=generation),
+                                       sort_keys=True,default=repr).encode()).hexdigest()
+        return (self._decode_model_key,self._decode_tokenizer_key,genkey),model_hit,tokenizer_hit
+
+    def _decode_current_frame(self,lm_head,base,ids_list,questions,carriers,layout,context,
+                              tokenizer,current_world,generation,runtime_tick):
+        """History and world-guided proposals share the same current-context verifier.
+
+        No prefix planner, inherited visual prefix, or persistent prefill K/V.
+        This branch begins before any legacy prefix-layout/signature work.
+        """
+        guided=self.config.decode_strategy=='world_guided'
+        if current_world is not None:current_world.validate(context)
+        tick=perf_counter()
+        binding,model_hit,tokenizer_hit=self._decode_binding(lm_head,base,context,tokenizer,generation)
+        metadata_ms=(perf_counter()-tick)*1000
+        scope=(context['scene_id'],tuple(context['camera_ids']),context.get('state_epoch'))
+        same_frame=context['frame_id']==self._frame_id and context['timestamp']==self._timestamp
+        invalid=(scope!=self._scope or binding[0]!=self._signature or
+                 (self._timestamp is not None and context['timestamp']<=self._timestamp and not same_frame))
+        if invalid:
+            self.answer_memory.reset();self.cache.reset();self._frame_index=0;self._decode_previous_world=None
+        elif not same_frame:self._frame_index+=1
+        self._scope,self._signature=scope,binding[0]
+        self._frame_id,self._timestamp=context['frame_id'],context['timestamp']
+        context['frame_index']=self._frame_index
+        context['current_state_version']=current_world.version if current_world else context.get('current_state_version')
+        answers=[];rows=self.last_diagnostics['requests']
+        for index,(ids,question) in enumerate(zip(ids_list,questions)):
+            question_tick=perf_counter()
+            tick=perf_counter();prompt_ids=tuple(ids.reshape(-1).tolist())
+            selection=self.answer_memory.retrieve(question,prompt_ids,context,binding,current_world,guided)
+            retrieval_ms=(perf_counter()-tick)*1000
+            draft=selection.record.tokens if selection.record is not None else None
+            k=min(self.config.draft_length,selection.length) if draft else self.config.draft_length
+            # A changed-state proposal is a short prefix, not permission to
+            # keep proposing an entire stale answer with four-token blocks.
+            if draft and selection.length<8:draft=draft[:selection.length]
+            tick=perf_counter()
+            expanded=expand_input(lm_head,ids,carriers,scope=scope,signature=(binding[0],),
+                source=(context['scene_id'],context['frame_id'],context['timestamp'],index),carrier_layout=layout)
+            preparation_ms=(perf_counter()-tick)*1000
+            self.last_diagnostics['active_request_index']=index
+            answer,diag=self.executor.generate(base,expanded,capture=False,profile=context.get('profile',False),
+                draft_tokens=draft,draft_length=k,experimental_sampling=self.config.experimental_speculative_sampling,**generation)
+            tick=perf_counter()
+            tokens=answer.sequences if hasattr(answer,'sequences') else answer
+            token_ids=tokens[0,1:].tolist()
+            answer_start=tokenizer.decode(token_ids[:8],skip_special_tokens=True) if tokenizer is not None else ''
+            self.answer_memory.observe_acceptance(selection,diag,self._frame_index)
+            self.answer_memory.remember(question,prompt_ids,token_ids,context,binding,current_world,answer_start)
+            management_ms=(perf_counter()-tick)*1000
+            diag.update(request_index=index,executor='PrefillExecutor',mode='full_prefill',decode_strategy=self.config.decode_strategy,
+                current_visual_complete=True,visual_tokens=int(expanded.visual_mask.sum()),historical_text_consumed=False,
+                prefix_planner_executed=False,persistent_prefill_kv=False,draft_match_type=selection.match_type,
+                draft_exact_available=selection.exact_available,draft_semantic_available=selection.semantic_available,
+                draft_source_frame=selection.record.frame_id if selection.record else None,
+                draft_source_question=selection.record.question if selection.record else None,
+                proposed_block_length=k if draft else 0,draft_decision_reason=selection.reason,
+                world_delta=selection.delta.to_dict() if selection.delta else None,
+                output_token_ids=token_ids,
+                draft_selection_wall_ms=retrieval_ms-selection.world_diff_ms,draft_management_wall_ms=management_ms,
+                metadata_wall_ms=metadata_ms/max(1,len(ids_list)),model_metadata_cache_hit=model_hit,
+                tokenizer_metadata_cache_hit=tokenizer_hit,layout_preparation_ms=preparation_ms,
+                prefill_ms=diag.get('prefill_including_cache_gpu_ms'),decode_ms=diag.get('decode_loop_gpu_span_ms'),
+                world_diff_wall_ms=selection.world_diff_ms,end_to_end_ms=(perf_counter()-question_tick)*1000)
+            answers.append(answer);rows.append(diag)
+        self._decode_previous_world=current_world
+        elapsed=(perf_counter()-runtime_tick)*1000
+        self.last_diagnostics.update(mode=self.config.decode_strategy,execution_completed=True,
+            runtime_host_elapsed_ms=elapsed,complete_m3_wall_ms=elapsed,cache_bytes=self.cache.nbytes,
+            config=asdict(self.config),numerical_contract='approximate_block_fp16',prefix_planner_executed=False)
         return answers,self.last_diagnostics

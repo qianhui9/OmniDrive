@@ -23,7 +23,7 @@ class M3Config:
     experimental_speculative_sampling: bool = False
 
     def __post_init__(self):
-        if self.decode_strategy not in ('native','history_draft'):
+        if self.decode_strategy not in ('native','history_draft','world_guided'):
             raise ValueError('Unknown decode strategy')
         if type(self.draft_length) is not int or not 1 <= self.draft_length <= 32:
             raise ValueError('Invalid draft length')

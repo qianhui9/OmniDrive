@@ -1,0 +1,1 @@
+Excluded aborted development/measurement attempt: camera AnchorObservation timestamp was compared to lidar/keyframe timestamp instead of each current CameraFrame.timestamp. All observed flags were incorrectly false. No rows from this attempt enter final performance or quality statistics. The fix and asynchronous exposure regression test are retained in the research branch.

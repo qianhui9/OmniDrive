@@ -519,10 +519,13 @@ class Petr3D(MVXTwoStageDetector):
                     tokenizer=self.tokenizer,
                     m2_diagnostics=getattr(self,'m2_diagnostics',None),
                     stable_world_state=stable_state,
+                    committed_world_state=getattr(self,'m3_committed_state',None),
                     context=dict(scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']),
                         weights_sha256=getattr(self,'worldstream_audit_identity',{}).get('checkpoint_sha256'),
                         state_epoch=getattr(getattr(self.m1_manager,'store',None),'generation',None),
                         state_version=getattr(getattr(self,'m3_verified_state',None),'state_version',None),
+                        current_state_version=getattr(getattr(self.m1_manager,'store',None),'commit_count',None),
+                        committed_snapshot_wall_ms=getattr(self,'m3_committed_snapshot_wall_ms',0.),
                         stable_state_version=self.m1_manager.store.commit_count if stable_state is not None else None,
                         stable_snapshot_wall_ms=stable_snapshot_ms,
                         state_execution_signature=getattr(getattr(self.m1_manager,'store',None),'execution_signature',None),
@@ -598,6 +601,8 @@ class Petr3D(MVXTwoStageDetector):
                     coordinate_space='preprocessed_image')
                 self._m2_context['timestamp'] = float(data['timestamp'].reshape(-1)[0])
             self.m3_verified_state = None
+            self.m3_committed_state = None
+            self.m3_committed_snapshot_wall_ms = 0.
             run_m1 = self.m1_manager is not None
             if run_m1:
                 from worldstream.m1.omnidrive_adapter import frame_from_model, outputs_from_model, append_result, measure_transfers
@@ -627,7 +632,8 @@ class Petr3D(MVXTwoStageDetector):
                     full_refresh_reasons=precheck.diagnostics.get('full_refresh_reasons', []))
                 def publish_precheck():
                     trace['stage'] = 'history_snapshot'
-                    if getattr(self,'m3_runtime',None) is not None or getattr(self,'worldstream_capture_m3_inputs',False):
+                    if ((getattr(self,'m3_runtime',None) is not None and self.m3_runtime.config.decode_strategy=='native')
+                            or getattr(self,'worldstream_capture_m3_inputs',False)):
                         from worldstream.m3.world_state import freeze_verified_state
                         self.m3_verified_state=freeze_verified_state(self.m1_manager,frame)
                     if getattr(self,'m2_runtime',None) is not None:self._m2_context.update(execution_signature=frame.execution_signature)
@@ -649,6 +655,12 @@ class Petr3D(MVXTwoStageDetector):
                     trace['m1']['commit_entered'] = True
                     trace['stage'] = 'm1_commit'
                     self.m1_manager.commit(frame, outputs, precheck)
+                    if (getattr(self,'m3_runtime',None) is not None
+                            and self.m3_runtime.config.decode_strategy=='world_guided'):
+                        from worldstream.m3.world_state import freeze_committed_state
+                        snapshot_tick=time.perf_counter()
+                        self.m3_committed_state=freeze_committed_state(self.m1_manager,frame,self.m3_runtime.semantic_qualifier)
+                        self.m3_committed_snapshot_wall_ms=(time.perf_counter()-snapshot_tick)*1000
                     trace['m1'].update(commit_completed=True,
                         transaction_status=precheck.diagnostics.get('transaction_status'))
                     self.m1_manager.last_commit_diagnostics['output_adapter_including_transfers_ms'] = output_ms
