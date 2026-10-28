@@ -1,0 +1,38 @@
+{
+  "status": "DELIVERED_COST_NO_GO",
+  "branch": "research/m3-compact-visual-memory",
+  "base_commit": "7e26bc10a6861caf29727817241f011e75b7b521",
+  "implementation_commit": "f513936c2ffffbb52000f618fb14efb135251bbd",
+  "archive_commit_locator": "git log -1 --format=%H -- outputs/m3_compact_visual_memory_run01/delivery.json",
+  "implementation_and_evidence_committed": true,
+  "formal_config_changed": false,
+  "requirements_delivered": 15,
+  "real_recomputed_frames": {
+    "natural": 24,
+    "enriched": 160
+  },
+  "cuda_control_rows": 432,
+  "regression": {
+    "passed": 644,
+    "failed": 0,
+    "skipped": 0
+  },
+  "post_review_targeted_passed": 50,
+  "cost_gate": "NO_GO",
+  "training": "NOT_RUN",
+  "trained_adapter": null,
+  "memory_quality": "NOT_RUN",
+  "formal_E2E": "NOT_RUN",
+  "raw_tensor_hash_manifest": "artifact_sha256.json",
+  "limitations": [
+    "Finite development coverage, not population estimate",
+    "Prefill-only cost control, no full-service acceleration claim",
+    "Earlier per-pair untrained K8 weights overwritten; final K8 and diagnostic K16 scaffolds retained and hashed; see controlled_pair_sources.json",
+    "Original live capture legacy memory_or_LLM_tokens_constructed flag predates compact addition; compact_bridge.event is authoritative and the final source fixes metadata; raw measurements retained",
+    "Memory pointer/version ownership does not defend raw-storage/.data version-counter bypass; actual KV admission still requires exact value/position/mask matching"
+  ],
+  "main_implementation_commit": "211f5b96f0abfce3f230cab79ca3d3b231bd323d",
+  "legacy_compatibility_regression_passed": 23,
+  "source_hash_verification": "PASS",
+  "artifact_files_hashed": 428
+}
