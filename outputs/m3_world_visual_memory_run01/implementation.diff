@@ -1,0 +1,1451 @@
+diff --git a/tests/worldstream_m3/test_visual_feature_bridge.py b/tests/worldstream_m3/test_visual_feature_bridge.py
+new file mode 100644
+index 00000000..4b9cd508
+--- /dev/null
++++ b/tests/worldstream_m3/test_visual_feature_bridge.py
+@@ -0,0 +1,70 @@
++from copy import deepcopy
++import numpy as np
++import pytest
++import torch
++
++from worldstream.m1 import CameraFrame, Frame, WorldAnchor
++from worldstream.m1.config import M1Config
++from worldstream.m1.geometry import box_geometry, project_anchor
++from worldstream.m1.state_types import AnchorObservation
++from worldstream.m3.visual_feature_bridge import inside_convex, projected_region_features
++
++
++def fixture():
++    cam = CameraFrame('front', np.zeros((96, 128, 3), np.uint8),
++        np.array([[80., 0, 64], [0, 80., 48], [0, 0, 1]]), np.eye(4), 1.)
++    frame = Frame('s', 'f', 1., np.eye(4), {'front': cam})
++    anchor = WorldAnchor('a', 's', 'object', 'car', box_geometry([0, 0, 10], [6, 6, 4]), 1., None)
++    anchor.source_frame_id = 'f'; anchor.state_version = 'v1'
++    cfg = M1Config(uncertainty_px=0, min_region_area_px=1)
++    p = project_anchor(anchor, cam, cfg)
++    assert p.valid
++    anchor.observation_support['front'] = AnchorObservation('front', p.region, np.ones(4), 1., 1.)
++    features = torch.arange(64.).reshape(1, 1, 1, 8, 8)
++    return frame, anchor, features, cfg
++
++
++def test_native_grid_geometry_padding_and_owned_gather():
++    frame, anchor, features, cfg = fixture()
++    regions, rejected = projected_region_features(frame, [anchor], features, cfg, camera_ids=['front'])
++    assert not rejected and len(regions) == 1
++    r = regions[0]
++    assert not r.foreground_certified and r.source_state_version == 'v1'
++    # Image is unpadded height 96, features cover padded 128. Never stretch y.
++    idx = np.asarray(r.grid_indices)
++    assert ((idx // 8+.5)*16 < 96).all()
++    assert torch.equal(r.features[:, 0], torch.as_tensor(idx).float())
++    old = r.features.clone(); features.fill_(-1)
++    assert torch.equal(old, r.features)
++
++
++def test_current_competing_projection_cannot_become_object_feature():
++    frame, anchor, features, cfg = fixture()
++    other = deepcopy(anchor); other.anchor_id = 'b'
++    regions, rejected = projected_region_features(frame, [anchor, other], features, cfg,
++        camera_ids=['front'], selected_ids=['a'])
++    assert not regions and rejected['a'] == 'insufficient_unambiguous_projected_grid_support'
++
++
++def test_stale_or_asynchronous_observation_rejected():
++    frame, anchor, features, cfg = fixture()
++    anchor.source_frame_id = 'old'
++    regions, rejected = projected_region_features(frame, [anchor], features, cfg, camera_ids=['front'])
++    assert not regions and rejected['a'] == 'not_current_committed_object'
++    anchor.source_frame_id = 'f'; frame.cameras['front'].timing_reliable = False
++    assert not projected_region_features(frame, [anchor], features, cfg, camera_ids=['front'])[0]
++
++
++def test_camera_order_and_patch_coverage_fail_closed():
++    frame, anchor, features, cfg = fixture()
++    with pytest.raises(ValueError, match='camera order'):
++        projected_region_features(frame, [anchor], features, cfg, camera_ids=['rear'])
++    with pytest.raises(ValueError, match='cover'):
++        projected_region_features(frame, [anchor], features[..., :3, :3], cfg, camera_ids=['front'])
++
++
++def test_hull_uses_projected_polygon_not_axis_aligned_box():
++    polygon = np.array([[0, 2], [2, 0], [4, 2], [2, 4]])
++    points = np.array([[2, 2], [0, 0], [2, 0]])
++    assert inside_convex(points, polygon).tolist() == [True, False, True]
++    assert np.array_equal(inside_convex(points, polygon), inside_convex(points, polygon[::-1]))
+diff --git a/tests/worldstream_m3/test_visual_memory.py b/tests/worldstream_m3/test_visual_memory.py
+new file mode 100644
+index 00000000..cd830b40
+--- /dev/null
++++ b/tests/worldstream_m3/test_visual_memory.py
+@@ -0,0 +1,98 @@
++from dataclasses import replace
++import pytest
++import torch
++
++from worldstream.m3.visual_feature_bridge import RegionFeature
++from worldstream.m3.visual_memory import VisualMemoryManager, VisualMemoryProjection
++
++
++def inputs(frame='f1', timestamp=1., **changes):
++    context = dict(scene_id='s',frame_id=frame,timestamp=timestamp,state_epoch=1,
++        state_version=int(timestamp*2),model_sha256='model',adapter_sha256='adapter',memory_version='v1')
++    context.update(changes)
++    region = RegionFeature('objectA','car','front',frame,'geometry-v1',(0,0,128,128),
++        tuple(range(80)),torch.arange(80*8).float().reshape(80,8),80,0)
++    return context,region
++
++
++def test_actual_historical_feature_and_embedding_pointer_retention():
++    manager=VisualMemoryManager();projection=VisualMemoryProjection(8,16).eval()
++    ctx,region=inputs(); memory,event=manager.update(ctx,[region],['objectA'],'qualification')
++    assert event=='create:cold' and len(memory.features)==64
++    embedding=projection(memory);old=memory.features.clone()
++    ctx,current=inputs('f2',1.5);current.features+=300
++    kept,event=manager.update(ctx,[current],['objectA'],'qualification')
++    assert kept is memory and event=='keep' and kept.age==1
++    assert projection(kept) is embedding and torch.equal(kept.features,old)
++    assert kept.generating_frame=='f1' and kept.latest_frame=='f2'
++    native=torch.randn(1,513,16);composed=projection.compose(native,kept)
++    assert composed.shape==(1,577,16) and torch.equal(composed[:,64:],native)
++    assert projection.compose(native,None) is native
++
++
++@pytest.mark.parametrize('field,value', [('scene_id','new'),('state_epoch',2),
++    ('model_sha256','new'),('adapter_sha256','new'),('memory_version','new')])
++def test_execution_changes_replace_and_revoke_previous_memory(field,value):
++    manager=VisualMemoryManager();ctx,region=inputs()
++    old,_=manager.update(ctx,[region],['objectA'],'qualification')
++    ctx,current=inputs('f2',1.5,**{field:value})
++    memory,event=manager.update(ctx,[current],['objectA'],'qualification')
++    assert memory is not old and memory.revision>old.revision and old.invalidation_reason
++    assert event.startswith('create:')
++
++
++def test_revocation_cannot_resurrect_identical_visual_kv(llm):
++    from worldstream.m3.visual_state import expand_input
++    from worldstream.m3.prefix_matcher import exact_lcp
++    manager=VisualMemoryManager();ctx,region=inputs();old,_=manager.update(ctx,[region],['objectA'],'qualification')
++    ctx2,_=inputs('f2',1.5);assert manager.update(ctx2,[],[],'qualification')[0] is None
++    ctx3,current=inputs('f3',2.);new,_=manager.update(ctx3,[current],['objectA'],'qualification')
++    assert torch.equal(old.features,new.features) and old.revision!=new.revision
++    # Even identical embedding values cannot inherit a revoked memory's KV.
++    images=torch.ones(1,64,32);ids=torch.tensor([1,7,-200,9])
++    a=expand_input(llm,ids,images,source=('s','f1'),stable_anchor=(str(old.revision),True))
++    b=expand_input(llm,ids,images,source=('s','f3'),stable_anchor=(str(new.revision),True))
++    a.visual_group_spans=b.visual_group_spans=(('stable',2,66),)
++    assert exact_lcp(a,b)==2
++
++
++def test_source_ids_never_enter_learned_projection():
++    ctx,a=inputs();b=replace(a,anchor_id='unrelated-world-ID')
++    one,_=VisualMemoryManager().update(ctx,[a],[a.anchor_id],'q')
++    two,_=VisualMemoryManager().update(ctx,[b],[b.anchor_id],'q')
++    projection=VisualMemoryProjection(8,16).eval()
++    assert torch.equal(projection(one),projection(two))
++
++
++def test_no_repeat_expansion_mutation_guard_and_stale_observation():
++    ctx,a=inputs();manager=VisualMemoryManager(128)
++    assert manager.update(ctx,[a],[a.anchor_id],'q')[0] is None
++    manager=VisualMemoryManager();old,_=manager.update(ctx,[a],[a.anchor_id],'q')
++    ctx2,_=inputs('f2',1.5)
++    assert manager.update(ctx2,[a],[a.anchor_id],'q')[0] is None
++    manager=VisualMemoryManager();old,_=manager.update(ctx,[a],[a.anchor_id],'q')
++    old.features.add_(1)
++    with pytest.raises(ValueError,match='mutated'):
++        manager.update(ctx2,[],[],'q')
++
++
++def test_horizon_and_projection_parameter_changes():
++    manager=VisualMemoryManager(max_age_frames=2);projection=VisualMemoryProjection(8,16).eval()
++    ctx,a=inputs();old,_=manager.update(ctx,[a],['objectA'],'q');first=projection(old)
++    with torch.no_grad():projection.projection.bias.add_(1)
++    assert not torch.equal(first,projection(old))
++    ctx,a=inputs('f2',1.5);assert manager.update(ctx,[a],['objectA'],'q')[1]=='keep'
++    ctx,a=inputs('f3',2.);new,event=manager.update(ctx,[a],['objectA'],'q')
++    assert new.revision!=old.revision and event=='create:memory_horizon_expired'
++
++
++def test_failed_cost_gate_refuses_training_before_any_artifact(tmp_path):
++    import json
++    from tools.worldstream_m123.world_visual_memory_report import assert_training_ready
++    for name in ('bridge_analysis.json','memory_semantic_probe.json'):
++        (tmp_path/name).write_text(json.dumps(dict(status='PASS')))
++    (tmp_path/'prefix_cost_feasibility.json').write_text(json.dumps(dict(status='NO_GO')))
++    before=set(tmp_path.iterdir())
++    with pytest.raises(ValueError,match='training refused'):
++        assert_training_ready(tmp_path)
++    assert set(tmp_path.iterdir())==before
+diff --git a/tools/worldstream_m123/world_visual_memory.py b/tools/worldstream_m123/world_visual_memory.py
+new file mode 100644
+index 00000000..f5cc1343
+--- /dev/null
++++ b/tools/worldstream_m123/world_visual_memory.py
+@@ -0,0 +1,236 @@
++"""Bounded real WRVMP bridge audit. No language generation or new online GT."""
++import argparse
++from collections import Counter, defaultdict
++import json
++import os
++from pathlib import Path
++from time import perf_counter
++
++from tools.worldstream_m123.benchmark.common import sha256, write
++
++ROOT = Path('outputs/m3_world_visual_memory_run01')
++PRIOR = Path('outputs/m3_sf_wrcps_feasibility_run01')
++
++
++def prepare(root):
++    root.mkdir(exist_ok=False, parents=True)
++    sequence = json.loads((PRIOR/'audit_sequence.json').read_text())
++    counts = defaultdict(Counter)
++    for line in (PRIOR/'state_audit/frames.jsonl').open():
++        row = json.loads(line)
++        counts[row['scene_id']]['hits'] += row['anchor_hit']
++    train = sorted(s for s, role in sequence['scene_splits'].items()
++                   if role == 'train' and counts[s]['hits'] >= 6)[:3]
++    dev = sorted(s for s, role in sequence['scene_splits'].items()
++                 if role == 'validation' and counts[s]['hits'])
++    scenes = train + dev
++    assert len(train) == 3 and len(dev) == 2
++    # Positive selection is for bridge diagnosis, never deployment coverage.
++    import pickle
++    from mmcv import Config
++    cfg = Config.fromfile('projects/configs/OmniDrive/worldstream_m123_auto.py')
++    infos = pickle.load(open(cfg.data.train.ann_file, 'rb'))['infos']
++    token_scene = {r['token']: r['scene_token'] for r in infos}
++    seq = dict(tokens=[t for t in sequence['tokens'] if token_scene[t] in scenes],
++        scene_splits={s: sequence['scene_splits'][s] for s in scenes},
++        scene_logs={s: sequence['scene_logs'][s] for s in scenes})
++    write(root/'bridge_sequence.json', seq)
++    write(root/'experiment_plan.json', dict(base_commit='25d782296ff119fad945c1f9a029689a0ded3389',
++        seed=20261028, stages=['bridge', 'semantic', 'cost', 'conditional_training'],
++        selection='Three sorted TRAIN scenes with >=6 previous extensions; two positive development scenes, all causal first32. Biased for availability, not coverage.',
++        frames=len(seq['tokens']), sequence_sha256=sha256(root/'bridge_sequence.json'),
++        source_manifest=str(PRIOR/'training_dataset_manifest.json'),
++        source_manifest_sha256=sha256(PRIOR/'training_dataset_manifest.json'),
++        qualification_path='outputs/m3_sf_wrcps_optimization_run01/semantic_qualification.json',
++        qualification_sha256=sha256('outputs/m3_sf_wrcps_optimization_run01/semantic_qualification.json'),
++        bridge=dict(patch_stride=16, minimum_cells=4, maximum_diagnostic_objects=8,
++            exclusions='Other currently observed object projection AABBs, all depths',
++            gate=dict(min_scored=30, min_scenes=3, max_unknown_fraction=.05,
++                min_projected_box_cell_support=.8, min_supported_fraction=.95,
++                max_wrong_continuations=0),
++            gate_scope='Conservative preregistered geometric region suitability; GT box support is not foreground purity. No tuning on audit results.'),
++        language_decode_requests=0, trained_adapter=None,
++        training_guard='Do not train unless real bridge, semantic content and net cost all pass.'))
++
++
++def audit(root):
++    import random
++    import hashlib
++    import numpy as np
++    import torch
++    import projects.mmdet3d_plugin  # noqa: F401
++    from mmcv.parallel import collate, scatter
++    from mmdet3d.datasets import build_dataset
++    from tools.worldstream_m123.benchmark.worker import effective_config, load_model, clear_questions, reset
++    from tools.worldstream_m123.benchmark.observe import Observer
++    from tools.worldstream_m123.benchmark.gpu_lock import gpu_job_lock
++    from tools.worldstream_m2.global_residual_benchmark import wait_gpu
++    from tools.worldstream_m1.dataset import load_oracle
++    from tools.worldstream_m1.identity_metrics import strict_labels
++    from worldstream.m1.geometry import project_points
++    from worldstream.m3.semantic_core import SemanticQualifier, committed_semantic_candidates
++    from worldstream.m3.visual_feature_bridge import projected_region_features, inside_convex
++    plan = json.loads((root/'experiment_plan.json').read_text())
++    sequence = json.loads((root/'bridge_sequence.json').read_text())
++    assert sha256(root/'bridge_sequence.json') == plan['sequence_sha256']
++    assert sha256(plan['qualification_path']) == plan['qualification_sha256']
++    dest = root/'bridge_capture'
++    dest.mkdir(exist_ok=False)
++    write(dest/'status.json', dict(status='RUNNING'))
++    features_saved, timeline = [], []
++    with gpu_job_lock():
++        wait_gpu()
++        cfg = effective_config('B3', 'language', dest, 'native_full')
++        if plan.get('dataset_split', 'train') == 'train':
++            cfg.data.test.ann_file = cfg.data.train.ann_file
++            for node in cfg.data.test.pipeline:
++                if node['type'] == 'LoadAnnoatationVQATest':
++                    node['base_conv_path'] = './data/nuscenes/conv/train/'
++                    node['base_vqa_path'] = './data/nuscenes/vqa/train/'
++        write(dest/'effective_config.json', dict(config=cfg._cfg_dict.to_dict(),
++            scope='Read-only feature bridge, zero LLM questions, native M1/M2; not service latency'))
++        dataset = build_dataset(cfg.data.test)
++        lookup = {r['token']: r for r in dataset.data_infos}
++        infos = [lookup[t] for t in sequence['tokens']]
++        dataset.data_infos = infos
++        model = load_model(cfg, 'ckpts/iter_10548.pth', dest).eval().requires_grad_(False)
++        observer = Observer(model)
++        observer.capture_m1_controls = True
++        qualifier = SemanticQualifier(plan['qualification_path'])
++        annotations = load_oracle(infos, 'data/nuscenes')
++        previous_scene = None
++        with (dest/'frames.jsonl').open('w') as log:
++            for ordinal, info in enumerate(infos):
++                seed = int(hashlib.sha256(info['token'].encode()).hexdigest()[:8], 16) % (2**31)
++                random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
++                observer.clear()
++                if previous_scene != info['scene_token']:
++                    reset(model)
++                data = scatter(collate([dataset[ordinal]], samples_per_gpu=1), [0])[0]
++                clear_questions(data)
++                with torch.no_grad():
++                    model(return_loss=False, rescale=True, **data)
++                torch.cuda.synchronize()
++                assert len(observer.commits) == 1 and not observer.native_generations
++                frame = observer.commits[0][0]
++                manager = model.m1_manager
++                outputs = observer.m1_control['outputs']
++                feature = next(f.tensor for f in outputs.features if f.feature_kind == 'backbone')
++                context = dict(scene_id=frame.scene_id, frame_id=frame.frame_id,
++                    timestamp=frame.timestamp, state_epoch=manager.store.generation,
++                    state_version=manager.store.commit_count,
++                    state_execution_signature=manager.store.execution_signature)
++                # Timed online path reads only existing state and current features.
++                torch.cuda.synchronize()
++                start, end = (torch.cuda.Event(enable_timing=True) for _ in range(2))
++                tick = perf_counter(); start.record()
++                candidates = committed_semantic_candidates(manager, context)
++                selection = qualifier.select(candidates)
++                qualified = [r[0] for r in selection['facts']]
++                anchors = [manager.store.anchors[a] for a in manager.last_commit_diagnostics['committed_anchor_ids']]
++                read_ms = (perf_counter()-tick)*1000
++                extraction_start = perf_counter()
++                regions, rejected = projected_region_features(frame, anchors, feature,
++                    manager.config, camera_ids=list(frame.cameras), selected_ids=qualified)
++                end.record(); end.synchronize()
++                wall_ms = (perf_counter()-tick)*1000
++                extraction_wall_ms = (perf_counter()-extraction_start)*1000
++                cuda_ms = start.elapsed_time(end)
++                # Extra objects for semantic controls are OUTSIDE the online cost.
++                diagnostic_ids = [a.anchor_id for a in sorted(anchors,
++                    key=lambda a: (-(a.source_score or 0), a.anchor_id))
++                    if a.anchor_type == 'object' and a.anchor_id not in qualified][:8]
++                controls, _ = projected_region_features(frame, anchors, feature,
++                    manager.config, camera_ids=list(frame.cameras), selected_ids=diagnostic_ids)
++                # GT begins only here; it cannot alter extraction or eligibility.
++                labels = strict_labels(anchors, annotations.get(frame.frame_id, []), gate=2.)
++                identities = {a.anchor_id: labels.get(i) for i, a in enumerate(anchors)}
++                gt_by_id = {g['instance_id']: g for g in annotations.get(frame.frame_id, [])}
++                records = []
++                for region in regions + controls:
++                    identity = identities.get(region.anchor_id)
++                    camera = frame.cameras[region.camera_id]
++                    support = None
++                    if identity is not None:
++                        uv, _, good = project_points(gt_by_id[identity]['geometry'].points,
++                            camera.intrinsic, camera.world_to_camera)
++                        if good.all():
++                            idx = np.asarray(region.grid_indices)
++                            points = np.stack(((idx % feature.shape[-1]+.5)*16,
++                                               (idx // feature.shape[-1]+.5)*16), -1)
++                            support = float(inside_convex(points, uv).mean())
++                    values = region.features.detach().cpu()
++                    vector = values.float().mean(0)
++                    # Different image region from the SAME contextual camera grid.
++                    grid = feature[0, list(frame.cameras).index(region.camera_id)].flatten(1).T
++                    background = grid.float().mean(0).detach().cpu()
++                    record = dict(anchor_id=region.anchor_id, semantic_class=region.semantic_class,
++                        camera_id=region.camera_id, source_frame=region.frame_id,
++                        source_state_version=region.source_state_version, region=region.region,
++                        grid_indices=region.grid_indices, cells=len(region.grid_indices),
++                        excluded_cells=region.excluded_cells, candidate_cells=region.candidate_cells,
++                        qualified=region.anchor_id in qualified, offline_gt_identity=identity,
++                        offline_projected_gt_cell_support=support,
++                        feature_sha256=hashlib.sha256(values.numpy().tobytes()).hexdigest(),
++                        source_kind=region.source_kind, foreground_certified=False)
++                    records.append(record)
++                    features_saved.append(dict(**record, scene_id=frame.scene_id,
++                        split=sequence['scene_splits'][frame.scene_id], timestamp=frame.timestamp,
++                        features=values, vector=vector, same_camera_global_vector=background))
++                row = dict(ordinal=ordinal, **context, split=sequence['scene_splits'][frame.scene_id],
++                    log_id=sequence['scene_logs'][frame.scene_id], qualified_ids=qualified,
++                    regions=records, bridge_rejections=rejected, feature_shape=list(feature.shape),
++                    feature_dtype=str(feature.dtype), camera_order=list(frame.cameras),
++                    image_shapes={cid:list(c.image.shape) for cid,c in frame.cameras.items()},
++                    m1_read_qualification_ms=read_ms, extraction_wall_ms=extraction_wall_ms,
++                    bridge_total_wall_ms=wall_ms, bridge_stream_elapsed_ms=cuda_ms,
++                    stream_elapsed_scope='CUDA events encompass host projection gaps; not GPU kernel time',
++                    memory_or_LLM_tokens_constructed=False, LLM_decode_requests=0, GT_online=False)
++                log.write(json.dumps(row, allow_nan=False)+'\n'); log.flush()
++                timeline.append(row)
++                previous_scene = frame.scene_id
++                if (ordinal+1) % 8 == 0:
++                    print('VISUAL_BRIDGE', ordinal+1, '/', len(infos), flush=True)
++        torch.save(features_saved, dest/'region_features.pt')
++        write(dest/'capture_hashes.json', dict(region_features_sha256=sha256(dest/'region_features.pt'),
++            frames_sha256=sha256(dest/'frames.jsonl'),
++            sources={str(p):sha256(p) for p in [Path(__file__), Path('worldstream/m3/visual_feature_bridge.py')]}))
++        write(dest/'status.json', dict(status='COMPLETED', frames=len(timeline),
++            features=len(features_saved), LLM_decode_requests=0))
++
++
++def prepare_natural(root):
++    """Reuse all old independent qualification VAL frames without hit selection."""
++    old = Path('outputs/m3_sf_wrcps_optimization_run01')
++    previous = json.loads((old/'experiment_plan.json').read_text())
++    rows = [json.loads(l) for l in (old/'stable_anchor_timeline.jsonl').open()]
++    rows = [r for r in rows if r['split'] == 'qualification_validation'
++            and previous['scene_datasets'][r['scene_id']] == 'val']
++    source = json.loads((old/'qualification_sequence.json').read_text())
++    scenes = sorted({r['scene_id'] for r in rows})
++    target = json.loads((old/'target_sequence.json').read_text())
++    assert len(rows) == 24 and len(scenes) == 3
++    assert not ({source['scene_logs'][s] for s in scenes} & set(target['scene_logs'].values()))
++    dest = root/'natural_audit'; dest.mkdir(exist_ok=False)
++    write(dest/'bridge_sequence.json', dict(tokens=[r['frame_id'] for r in rows],
++        scene_splits={s:'natural_development' for s in scenes},
++        scene_logs={s:source['scene_logs'][s] for s in scenes}))
++    plan = json.loads((root/'experiment_plan.json').read_text())
++    plan.update(dataset_split='val', frames=24,
++        selection='All24 previously reserved qualification validation VAL frames, three logs, original first8 causal frames each. Not selected for WRVMP success. Not a population estimate.',
++        sequence_sha256=sha256(dest/'bridge_sequence.json'))
++    write(dest/'experiment_plan.json',plan)
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--root', type=Path, default=ROOT)
++    p.add_argument('--stage', choices=['prepare', 'audit', 'prepare-natural'], required=True)
++    a = p.parse_args()
++    if {4, 5} & set(os.sched_getaffinity(0)):
++        p.error('Use taskset -c 0-3,6-31')
++    {'prepare': prepare, 'audit': audit, 'prepare-natural': prepare_natural}[a.stage](a.root)
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/tools/worldstream_m123/world_visual_memory_analysis.py b/tools/worldstream_m123/world_visual_memory_analysis.py
+new file mode 100644
+index 00000000..ac35ce7c
+--- /dev/null
++++ b/tools/worldstream_m123/world_visual_memory_analysis.py
+@@ -0,0 +1,118 @@
++"""Deterministic pretraining WRVMP evidence; no synthetic language quality."""
++import argparse
++from collections import Counter, defaultdict
++import json
++from pathlib import Path
++import numpy as np
++import torch
++
++from tools.worldstream_m123.benchmark.common import write, sha256
++
++
++def distribution(values):
++    x = np.asarray(values, float)
++    if not len(x):
++        return dict(n=0, mean=None, median=None, min=None, max=None, p95=None)
++    if not np.isfinite(x).all():
++        raise ValueError('Nonfinite audit measurement')
++    return dict(n=len(x), mean=float(x.mean()), median=float(np.median(x)),
++        min=float(x.min()), max=float(x.max()), p95=float(np.quantile(x, .95)))
++
++
++def analyze(root):
++    plan = json.loads((root/'experiment_plan.json').read_text())
++    dest = root/'bridge_capture'
++    status = json.loads((dest/'status.json').read_text())
++    assert status['status'] == 'COMPLETED'
++    binding = json.loads((dest/'capture_hashes.json').read_text())
++    assert sha256(dest/'frames.jsonl') == binding['frames_sha256']
++    assert sha256(dest/'region_features.pt') == binding['region_features_sha256']
++    frames = [json.loads(l) for l in (dest/'frames.jsonl').open()]
++    features = torch.load(dest/'region_features.pt', map_location='cpu', weights_only=False)
++    qualified = [x for x in features if x['qualified']]
++    gate = plan['bridge']['gate']
++    known = [x for x in qualified if x['offline_projected_gt_cell_support'] is not None]
++    supported = [x for x in known if x['offline_projected_gt_cell_support'] >= gate['min_projected_box_cell_support']]
++    unknown_fraction = (len(qualified)-len(known))/len(qualified) if qualified else None
++    supported_fraction = len(supported)/len(known) if known else None
++    previous = {}; edges = []
++    for frame in frames:
++        now = {}
++        for x in frame['regions']:
++            if not x['qualified']:
++                continue
++            key = (frame['scene_id'], x['anchor_id'])
++            if key in previous:
++                a, b = previous[key]['offline_gt_identity'], x['offline_gt_identity']
++                edges.append(dict(scene_id=frame['scene_id'], anchor_id=x['anchor_id'],
++                    frame_id=frame['frame_id'], status='unknown' if a is None or b is None
++                    else 'correct' if a == b else 'wrong'))
++            now[key] = x
++        previous = now
++    wrong = sum(e['status'] == 'wrong' for e in edges)
++    checks = dict(scored=len(known) >= gate['min_scored'],
++        scenes=len({x['scene_id'] for x in known}) >= gate['min_scenes'],
++        unknown=unknown_fraction is not None and unknown_fraction <= gate['max_unknown_fraction'],
++        geometric_region_support=supported_fraction is not None and supported_fraction >= gate['min_supported_fraction'],
++        identity_continuations=wrong <= gate['max_wrong_continuations'])
++    by_scene = {}
++    for scene in sorted({x['scene_id'] for x in qualified}):
++        xs = [x for x in qualified if x['scene_id'] == scene]
++        ks = [x['offline_projected_gt_cell_support'] for x in xs if x['offline_projected_gt_cell_support'] is not None]
++        by_scene[scene] = dict(regions=len(xs), known=len(ks),
++            support_distribution=distribution(ks), supported=sum(x >= .8 for x in ks))
++    costs = {name: distribution([r[name] for r in frames]) for name in
++        ('m1_read_qualification_ms', 'extraction_wall_ms', 'bridge_total_wall_ms', 'bridge_stream_elapsed_ms')}
++    costs['core_present_wall_ms'] = distribution([r['bridge_total_wall_ms'] for r in frames if r['qualified_ids']])
++    costs['no_core_wall_ms'] = distribution([r['bridge_total_wall_ms'] for r in frames if not r['qualified_ids']])
++    evidence = dict(status='PASS' if all(checks.values()) else 'NO_GO', checks=checks,
++        thresholds=gate, frames=len(frames), scenes=len(by_scene),
++        qualified_objects=sum(len(f['qualified_ids']) for f in frames),
++        qualified_regions=len(qualified), scored=len(known), unknown_fraction=unknown_fraction,
++        supported=len(supported), supported_fraction=supported_fraction,
++        qualified_rejections=dict(Counter(reason for r in frames for reason in r['bridge_rejections'].values())),
++        identity_edges=dict(Counter(e['status'] for e in edges)), by_scene=by_scene,
++        grid_cells=distribution([len(x['grid_indices']) for x in qualified]),
++        K_native_cell_availability={str(k):sum(len(x['grid_indices']) >= k for x in qualified) for k in (64, 128, 256)},
++        feature_shapes=sorted({tuple(f['feature_shape']) for f in frames}), costs=costs,
++        gpu_kernel_cost_ms=None, gpu_cost_note='Stream event intervals include CPU launch/projection gaps, not summed kernel time.',
++        deployment_coverage=None, selection_bias=plan['selection'],
++        foreground_or_appearance_certified=False, online_GT=False,
++        failures=[dict(scene_id=x['scene_id'], frame_id=x['source_frame'], anchor_id=x['anchor_id'],
++            support=x['offline_projected_gt_cell_support'], camera_id=x['camera_id'], cells=x['cells'])
++            for x in known if x['offline_projected_gt_cell_support'] < .8])
++    write(root/'bridge_analysis.json', evidence)
++    write(root/'bridge_identity_edges.json', edges)
++    # Feature distinctness is a provenance diagnostic, not a semantic accuracy
++    # gate or proof that the representation is stable in the current scene.
++    vectors = torch.stack([x['vector'] for x in qualified]) if qualified else torch.empty(0, 0)
++    unique = len({x['feature_sha256'] for x in qualified})
++    matched = []; different = []; same_camera = []
++    for i, x in enumerate(qualified):
++        same_camera.append(float(torch.nn.functional.cosine_similarity(x['vector'][None], x['same_camera_global_vector'][None])))
++        for j in range(i):
++            y = qualified[j]
++            if x['offline_gt_identity'] is None or y['offline_gt_identity'] is None:
++                continue
++            cosine = float(torch.nn.functional.cosine_similarity(vectors[i:i+1], vectors[j:j+1]))
++            if (x['scene_id'] == y['scene_id'] and x['anchor_id'] == y['anchor_id']
++                    and 0 < x['timestamp']-y['timestamp'] <= 1.):
++                matched.append(cosine)
++            elif x['source_frame'] == y['source_frame'] and x['offline_gt_identity'] != y['offline_gt_identity']:
++                different.append(cosine)
++    write(root/'feature_content_diagnostics.json', dict(regions=len(qualified),
++        unique_feature_hashes=unique, real_features_differ=unique > 1,
++        same_identity_within_1s_cosine=distribution(matched),
++        different_identity_same_frame_cosine=distribution(different),
++        region_vs_same_camera_global_cosine=distribution(same_camera),
++        learned_class_or_appearance_probe='NOT_RUN', memory_embedding_retention='NOT_RUN',
++        dynamic_state_leakage='Contextual grid includes position/background/current appearance; not certified invariant.',
++        language_quality='NOT_RUN', semantic_gate='NOT_RUN' if not all(checks.values()) else 'PENDING'))
++    print(json.dumps({k:evidence[k] for k in ('status', 'checks', 'qualified_regions', 'scored', 'supported_fraction', 'identity_edges')}))
++
++
++if __name__ == '__main__':
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--root', type=Path, default=Path('outputs/m3_world_visual_memory_run01'))
++    a = p.parse_args()
++    analyze(a.root)
+diff --git a/tools/worldstream_m123/world_visual_memory_cost.py b/tools/worldstream_m123/world_visual_memory_cost.py
+new file mode 100644
+index 00000000..584a28dd
+--- /dev/null
++++ b/tools/worldstream_m123/world_visual_memory_cost.py
+@@ -0,0 +1,165 @@
++"""Finite real-prefix CUDA costs; no decoding/quality or deployment claims."""
++import argparse
++from dataclasses import replace
++from functools import wraps
++import json
++from pathlib import Path
++from time import perf_counter
++import torch
++
++from tools.worldstream_m123.benchmark.common import write, sha256
++from tools.worldstream_m123.world_visual_memory_analysis import distribution
++from tools.worldstream_m123.latency_controls import load_capture
++from tools.worldstream_m123.benchmark.gpu_lock import gpu_job_lock
++from tools.worldstream_m2.global_residual_benchmark import wait_gpu
++
++
++@torch.no_grad()
++def run(root, text_control=False):
++    import projects.mmdet3d_plugin  # noqa: F401
++    from tools.worldstream_m123.benchmark.worker import effective_config, load_model
++    from worldstream.m3.visual_state import expand_input, base_model, execution_signature
++    from worldstream.m3.visual_memory import VisualMemoryProjection, VisualMemoryManager
++    from tools.worldstream_m123.world_visual_memory_semantics import context, regions
++    from worldstream.m3.prefix_kv_cache import PrefixKVCache
++    from worldstream.m3.prefill_executor import PrefillExecutor
++    from worldstream.m3.reuse_planner import ReusePlanner
++    from worldstream.m3.scheduler import Scheduler
++    from worldstream.m3.config import M3Config
++    assert json.loads((root/'bridge_analysis.json').read_text())['status'] == 'PASS'
++    assert json.loads((root/'memory_semantic_probe.json').read_text())['status'] == 'PASS'
++    dest = root/('controlled_text_cost' if text_control else 'controlled_cost'); dest.mkdir(exist_ok=False)
++    frames = [json.loads(l) for l in (root/'bridge_capture/frames.jsonl').open()]
++    captures = torch.load(root/'bridge_capture/region_features.pt', weights_only=False, map_location='cpu')
++    events = json.loads((root/'memory_lifecycle.json').read_text())['events']['256']
++    target_event = next(e for e in events if e['event'] == 'keep')
++    source_frame = target_event['generating_frame']; target_frame = target_event['frame_id']
++    arow = next(r for r in frames if r['frame_id'] == source_frame)
++    brow = next(r for r in frames if r['frame_id'] == target_frame)
++    assert brow['timestamp']-arow['timestamp'] <= 1.
++    avalues = [x for x in captures if x['source_frame'] == source_frame]
++    bvalues = [x for x in captures if x['source_frame'] == target_frame]
++    prior = Path('outputs/m3_sf_wrcps_feasibility_run01/state_audit/m3_inputs')
++    source = load_capture(prior/(source_frame+'.pt'))
++    target = load_capture(prior/(target_frame+'.pt'))
++    qualification = json.loads((root/'experiment_plan.json').read_text())['qualification_sha256']
++    timing, overhead, activities = [], [], []
++    with gpu_job_lock():
++        wait_gpu(); torch.manual_seed(20261028)
++        model = load_model(effective_config('B0','language',dest),'ckpts/iter_10548.pth',dest).eval().requires_grad_(False)
++        for name, module in model.named_children():
++            if name != 'lm_head': module.cpu()
++        base = base_model(model.lm_head); torch.cuda.empty_cache()
++        projection = VisualMemoryProjection().cuda().eval().requires_grad_(False)
++        torch.save(dict(state_dict=projection.state_dict(), trained=False, purpose='Cost scaffold only, never deploy'), dest/'untrained_cost_projection.pt')
++        current_a, current_b = source['carriers'].cuda(), target['carriers'].cuda()
++        forward_events = []; original = base.forward
++        @wraps(original)
++        def observed(*args, **kwargs):
++            a,b = (torch.cuda.Event(enable_timing=True) for _ in range(2)); a.record()
++            result = original(*args, **kwargs); b.record()
++            forward_events.append((a,b,kwargs['inputs_embeds'].shape[1] if kwargs.get('inputs_embeds') is not None else 1))
++            return result
++        observed._worldstream_read_only_observer = True; base.forward = observed
++        def timed(fn):
++            torch.cuda.synchronize(); a,b = (torch.cuda.Event(enable_timing=True) for _ in range(2))
++            tick=perf_counter(); a.record(); result=fn(); b.record(); b.synchronize()
++            return result, dict(wall_ms=(perf_counter()-tick)*1000, stream_ms=a.elapsed_time(b))
++        config=M3Config(reuse_strategy='exact_prefix'); planner=ReusePlanner(Scheduler(config))
++        for k in (64,128,256):
++            manager = VisualMemoryManager(k)
++            memory,event = manager.update(context(arow), regions(avalues), arow['qualified_ids'], qualification)
++            assert memory is not None
++            same, event = manager.update(context(brow), regions(bvalues), brow['qualified_ids'], qualification)
++            assert same is memory and event == 'keep'
++            memory.features = memory.features.cuda(); memory.tensor_version = memory.features._version
++            memories = projection(memory)
++            aimages = projection.compose(current_a, memory); bimages=projection.compose(current_b, memory)
++            assert projection(memory) is memories and torch.equal(aimages[:,:k], bimages[:,:k])
++            signature, binding_cost = timed(lambda:execution_signature(base, context(arow)['model_sha256']))
++            for repeat in range(11):
++                projection._key = None
++                _, cold = timed(lambda:projection.compose(current_b, memory))
++                _, warm = timed(lambda:projection.compose(current_b, memory))
++                if repeat >= 2: overhead.append(dict(K=k,repeat=repeat-2,cold=cold,warm=warm,
++                    execution_binding_ms=binding_cost['wall_ms']))
++            for qi in range(3):
++                def expanded(cap, images, frame):
++                    ex=expand_input(base,cap['ids'][qi].cuda(),images,scope=('wrvmp_cost',arow['scene_id']),
++                        signature=signature,source=(arow['scene_id'],frame),
++                        stable_anchor=(str((memory.scope,memory.revision)),True))
++                    start=int(ex.visual_mask[0].nonzero()[0])
++                    return replace(ex,layout_signature='wrvmp_append_full_native_cost_v1',
++                        visual_group_spans=(('stable',start,start+k),('current_native',start+k,start+k+513)))
++                aex=expanded(source,aimages,source_frame); bex=expanded(target,bimages,target_frame)
++                text=bex.visual_group_spans[0][1]
++                assert text == aex.visual_group_spans[0][1]
++                computed=base(inputs_embeds=aex.embeddings,position_ids=aex.position_ids,
++                    attention_mask=aex.attention_mask,use_cache=True,return_dict=True)
++                cache=PrefixKVCache(1024*1024**2); executor=PrefillExecutor(cache)
++                for repeat in range(11):
++                    order=['native','memory_text_only','memory_exact'] if text_control else ['native','memory_zero','memory_exact']
++                    if repeat%3==1:order.reverse()
++                    if repeat%3==2:order=order[1:]+order[:1]
++                    for kind in order:
++                        assert cache.put(aex,computed.past_key_values,computed.logits)
++                        match, matching = timed(lambda:cache.match(bex))
++                        assert match >= text+k
++                        (decision,details), planning = timed(lambda:planner.plan(target['questions'][qi],bex,cache,
++                            dict(state_valid=True),dict(frame_index=1),overhead_ms=0.))
++                        forward_events.clear()
++                        length=text+k if kind=='memory_exact' else text if kind=='memory_text_only' else 0
++                        if kind=='native':
++                            _, measurement=timed(lambda:model.lm_head.generate(inputs=target['ids'][qi].cuda()[None],
++                                images=current_b,max_new_tokens=1,do_sample=False,num_beams=1,use_cache=True))
++                            expected=bex.length-k; diag={}
++                        else:
++                            (_,diag), measurement=timed(lambda:executor.generate(base,bex,reuse_length=length,capture=True,
++                                profile=True,max_new_tokens=1,do_sample=False,num_beams=1,use_cache=True))
++                            expected=bex.length-length
++                        assert sum(n for _,_,n in forward_events)==expected
++                        cuda_ms=sum(a.elapsed_time(b) for a,b,_ in forward_events)
++                        if repeat>=2:
++                            row=dict(K=k,question_index=qi,repeat=repeat-2,round=(repeat-2)//3,
++                                kind=kind,input_tokens=bex.length if kind!='native' else bex.length-k,
++                                actual_matched_tokens=match,controlled_skipped_tokens=length,
++                                actual_scheduler_admitted_tokens=decision.reuse_length,
++                                scheduler_reason=decision.decision_reason,model_prefill_cuda_ms=cuda_ms,
++                                executor_wall_ms=measurement['wall_ms'],executor_stream_ms=measurement['stream_ms'],
++                                matcher_wall_ms=matching['wall_ms'],planner_wall_ms=planning['wall_ms'],
++                                effective_forward_tokens=expected,decode_forward_steps=0,diagnostics=diag)
++                            timing.append(row)
++                            with (dest/'records.jsonl').open('a') as f:f.write(json.dumps(row)+'\n')
++                del computed;cache.reset()
++            # Separate actual GPU activity probe, excluded from wall estimates.
++            projection._key=None
++            with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU,torch.profiler.ProfilerActivity.CUDA]) as prof:
++                projection.compose(current_b,memory);torch.cuda.synchronize()
++            gpu=[e for e in prof.events() if str(e.device_type).endswith('CUDA')]
++            activities.append(dict(K=k,projection_composition_gpu_activity_ms=sum(e.time_range.elapsed_us() for e in gpu)/1000,
++                gpu_events=len(gpu),scope='Separate cold projection+assembly profiler probe, not extraction GPU or E2E'))
++            print('WRVMP_COST',k,flush=True)
++        base.forward=original
++        write(dest/'overhead.json',overhead);write(dest/'gpu_activity_probes.json',activities)
++        write(dest/'summary.json',dict(status='COMPLETED',rows=len(timing),
++            by_K={str(k):{kind:{metric:distribution([r[metric] for r in timing if r['K']==k and r['kind']==kind])
++                for metric in ('model_prefill_cuda_ms','executor_wall_ms','matcher_wall_ms','planner_wall_ms')}
++                for kind in (('native','memory_text_only','memory_exact') if text_control else ('native','memory_zero','memory_exact'))} for k in (64,128,256)},
++            source_frame=source_frame,target_frame=target_frame,source_raw_feature_hash=memory.content_sha256,
++            source_carriers_sha256=sha256(prior/(source_frame+'.pt')),
++            target_carriers_sha256=sha256(prior/(target_frame+'.pt')),
++            untrained_projection_sha256=sha256(dest/'untrained_cost_projection.pt'),
++            base_weights_sha256=context(arow)['model_sha256'],
++            projection_trained=False,LLM_quality='NOT_RUN',formal_service_KV_tokens=0,
++            layout='K historical real regional embeddings + complete current513',
++            repeats=9,questions=3,alternating_rounds=3,decode_forward_steps=0,
++            peak_GPU_allocated_bytes=torch.cuda.max_memory_allocated(),
++            scope='Finite prefix/executor cost only. Existing planner admission reported separately; controlled executor length is not formal scheduler success. No LLM answers or quality are evaluated.'))
++
++
++if __name__=='__main__':
++    p=argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--root',type=Path,default=Path('outputs/m3_world_visual_memory_run01'))
++    p.add_argument('--text-control',action='store_true',help='Separate matched control to isolate K from generic fixed text reuse')
++    args=p.parse_args()
++    run(args.root,args.text_control)
+diff --git a/tools/worldstream_m123/world_visual_memory_overhead.py b/tools/worldstream_m123/world_visual_memory_overhead.py
+new file mode 100644
+index 00000000..f72c2ee6
+--- /dev/null
++++ b/tools/worldstream_m123/world_visual_memory_overhead.py
+@@ -0,0 +1,81 @@
++"""Small real-regional-tensor memory transaction costs, without the LLM."""
++import argparse
++from dataclasses import replace
++import json
++from pathlib import Path
++from time import perf_counter
++import torch
++
++from tools.worldstream_m123.benchmark.common import write
++from tools.worldstream_m123.benchmark.gpu_lock import gpu_job_lock
++from tools.worldstream_m2.global_residual_benchmark import wait_gpu
++from tools.worldstream_m123.world_visual_memory_semantics import context, regions, replay
++from tools.worldstream_m123.world_visual_memory_analysis import distribution
++from worldstream.m3.visual_memory import VisualMemoryManager, VisualMemoryProjection
++
++
++@torch.no_grad()
++def run(root):
++    # Entire untouched natural sequence, including all no-memory frames.
++    natural=root/'natural_audit'
++    life={str(k):replay(natural,k) for k in (64,128,256)}
++    write(natural/'memory_lifecycle.json',dict(events=life,scope='All24 original natural development VAL frames, no positive-event selection'))
++    nrows=[json.loads(l) for l in (natural/'bridge_capture/frames.jsonl').open()]
++    nfeatures=torch.load(natural/'bridge_capture/region_features.pt',weights_only=False,map_location='cpu')
++    indexed={r['frame_id']:regions([x for x in nfeatures if x['source_frame']==r['frame_id']]) for r in nrows}
++    qualification=json.loads((root/'experiment_plan.json').read_text())['qualification_sha256']
++    update_cost=[]
++    for rep in range(11):
++        manager=VisualMemoryManager(64)
++        for row in nrows:
++            start=perf_counter()
++            memory,event=manager.update(context(row),indexed[row['frame_id']],row['qualified_ids'],qualification)
++            elapsed=(perf_counter()-start)*1000
++            assert memory is None
++            if rep>=2:update_cost.append(dict(repeat=rep-2,scene_id=row['scene_id'],frame_id=row['frame_id'],wall_ms=elapsed,event=event))
++    write(root/'natural_memory_update_cost.json',dict(records=update_cost,
++        wall_ms=distribution([r['wall_ms'] for r in update_cost]),
++        scope='Actual CPU memory update of natural no-memory path, current real qualified IDs and regions. No GT input. No GPU work in this path.'))
++    chosen=json.loads((root/'controlled_cost/summary.json').read_text())
++    frames=[json.loads(l) for l in (root/'bridge_capture/frames.jsonl').open()]
++    captures=torch.load(root/'bridge_capture/region_features.pt',weights_only=False,map_location='cpu')
++    arow=next(r for r in frames if r['frame_id']==chosen['source_frame'])
++    brow=next(r for r in frames if r['frame_id']==chosen['target_frame'])
++    first=regions([x for x in captures if x['source_frame']==arow['frame_id']])
++    second=regions([x for x in captures if x['source_frame']==brow['frame_id']])
++    rows=[];probes=[]
++    with gpu_job_lock():
++        wait_gpu();torch.manual_seed(20261028)
++        first=[replace(r,features=r.features.cuda()) for r in first]
++        second=[replace(r,features=r.features.cuda()) for r in second]
++        projection=VisualMemoryProjection().cuda().eval().requires_grad_(False)
++        def timed(fn):
++            torch.cuda.synchronize();a,b=(torch.cuda.Event(enable_timing=True) for _ in range(2))
++            tick=perf_counter();a.record();value=fn();b.record();b.synchronize()
++            return value,dict(wall_ms=(perf_counter()-tick)*1000,cuda_stream_ms=a.elapsed_time(b))
++        for k in (64,128,256):
++            for rep in range(11):
++                manager=VisualMemoryManager(k)
++                (memory,_),cold=timed(lambda:manager.update(context(arow),first,arow['qualified_ids'],qualification))
++                assert memory is not None
++                (_,event),warm=timed(lambda:manager.update(context(brow),second,brow['qualified_ids'],qualification))
++                assert event=='keep'
++                projection._key=None
++                _,project=timed(lambda:projection(memory))
++                if rep>=2:rows.append(dict(K=k,repeat=rep-2,create=cold,keep=warm,projection=project))
++            with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU,torch.profiler.ProfilerActivity.CUDA]) as prof:
++                manager=VisualMemoryManager(k)
++                manager.update(context(arow),first,arow['qualified_ids'],qualification)
++                torch.cuda.synchronize()
++            gpu=[e for e in prof.events() if str(e.device_type).endswith('CUDA')]
++            probes.append(dict(K=k,GPU_activity_ms=sum(e.time_range.elapsed_us() for e in gpu)/1000,
++                events=len(gpu),scope='Separate actual memory creation activity probe, includes finite check/hash D2H/allocation. Projection/bridge excluded.'))
++    write(root/'memory_transaction_cost.json',dict(records=rows,gpu_activity_probes=probes,
++        source_frame=chosen['source_frame'],target_frame=chosen['target_frame'],
++        scope='Real captured source/target regional tensors, CUDA lifecycle and projection; extraction and M1 read measured separately in live captures.'))
++
++
++if __name__=='__main__':
++    p=argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--root',type=Path,default=Path('outputs/m3_world_visual_memory_run01'))
++    run(p.parse_args().root)
+diff --git a/tools/worldstream_m123/world_visual_memory_report.py b/tools/worldstream_m123/world_visual_memory_report.py
+new file mode 100644
+index 00000000..5845e188
+--- /dev/null
++++ b/tools/worldstream_m123/world_visual_memory_report.py
+@@ -0,0 +1,236 @@
++"""Archive WRVMP stage decisions without upgrading microbenchmarks to E2E."""
++import argparse
++from collections import Counter
++import json
++from pathlib import Path
++import numpy as np
++
++from tools.worldstream_m123.benchmark.common import write, sha256
++from tools.worldstream_m123.world_visual_memory_analysis import distribution
++
++
++def assert_training_ready(root):
++    """Refuse before any optimizer/model/artifact is created."""
++    for file in ('bridge_analysis.json','memory_semantic_probe.json','prefix_cost_feasibility.json'):
++        if json.loads((Path(root)/file).read_text())['status'] != 'PASS':
++            raise ValueError('WRVMP training refused: '+file+' did not pass')
++
++
++def generate(root):
++    bridge=json.loads((root/'bridge_analysis.json').read_text())
++    semantic=json.loads((root/'memory_semantic_probe.json').read_text())
++    content=json.loads((root/'feature_content_diagnostics.json').read_text())
++    content['semantic_gate']=semantic['status']
++    content['semantic_gate_source']='memory_semantic_probe.json; raw feature pretraining probe only'
++    write(root/'feature_content_diagnostics.json',content)
++    lifecycle=json.loads((root/'natural_audit/memory_lifecycle.json').read_text())['events']
++    natural=[json.loads(l) for l in (root/'natural_audit/bridge_capture/frames.jsonl').open()]
++    transactions=json.loads((root/'memory_transaction_cost.json').read_text())
++    update=json.loads((root/'natural_memory_update_cost.json').read_text())['records']
++    controls=[json.loads(l) for l in (root/'controlled_cost/records.jsonl').open()]
++    text_controls=[json.loads(l) for l in (root/'controlled_text_cost/records.jsonl').open()]
++    rng=np.random.default_rng(20261028)
++    def paired(records,left,right,k,metric):
++        index={(r['question_index'],r['repeat'],r['kind']):r for r in records if r['K']==k}
++        return [r[metric]-index[(r['question_index'],r['repeat'],right)][metric]
++            for r in records if r['K']==k and r['kind']==left]
++    def timing_summary(values):
++        array=np.asarray(values).reshape(3,9).mean(0)
++        means=array[rng.integers(0,len(array),(5000,len(array)))].mean(1)
++        return dict(distribution(values), timing_bootstrap_CI95_ms=np.quantile(means,[.025,.975]).tolist(),
++            CI_scope='Resample nine hardware repetitions, grouping the three questions; one real frame pair. Not scene/population/E2E confidence.')
++    cost_table={}
++    for k in (64,128,256):
++        records=[r for r in controls if r['K']==k]
++        source=[r for r in transactions['records'] if r['K']==k]
++        cost_table[str(k)]=dict(current_native_tokens=513,total_visual_tokens=513+k,
++            hypothetical_fixed513_current_tokens=513-k,
++            hypothetical_fixed513_removed_native_tokens=k,
++            fixed513_compressed_layout='NOT_IMPLEMENTED_OR_QUALITY_VALIDATED',
++            by_kind={kind:{metric:distribution([r[metric] for r in records if r['kind']==kind])
++                for metric in ('model_prefill_cuda_ms','executor_wall_ms','matcher_wall_ms','planner_wall_ms')}
++                for kind in ('native','memory_zero','memory_exact')},
++            K_only_prefill_cuda_saved=timing_summary(paired(text_controls,'memory_text_only','memory_exact',k,'model_prefill_cuda_ms')),
++            zeroKV_minus_exact_wall=timing_summary(paired(controls,'memory_zero','memory_exact',k,'executor_wall_ms')),
++            native_minus_exact_wall=timing_summary(paired(controls,'native','memory_exact',k,'executor_wall_ms')),
++            memory_transaction={kind:{metric:distribution([r[kind][metric] for r in source])
++                for metric in ('wall_ms','cuda_stream_ms')} for kind in ('create','keep','projection')},
++            natural_valid_frames=sum(e['memory_valid'] for e in lifecycle[str(k)]),
++            natural_extensions=sum(e['event']=='keep' for e in lifecycle[str(k)]))
++    uby={r['frame_id']:np.mean([x['wall_ms'] for x in update if x['frame_id']==r['frame_id']]) for r in natural}
++    overhead=[r['bridge_total_wall_ms']+uby[r['frame_id']] for r in natural]
++    scenes=sorted({r['scene_id'] for r in natural})
++    scene_costs=np.array([np.mean([cost for r,cost in zip(natural,overhead) if r['scene_id']==scene]) for scene in scenes])
++    boot=scene_costs[rng.integers(0,len(scenes),(5000,len(scenes)))].mean(1)
++    no_memory=all(not e['memory_valid'] for es in lifecycle.values() for e in es)
++    # This experiment's conditional stop is deliberate. Do not invent a PASS
++    # result or start a training campaign if future data changes this assumption.
++    if not no_memory:
++        raise ValueError('Natural evidence changed: implement/review full event-weighted costs before deciding training')
++    cost=dict(status='NO_GO',reason='No natural K64/128/256 memory opportunities; complete-current513 append layout is also slower than Native on every measured hit control.',
++        selected_layout='Historical regional prefix + complete current513; diagnostic only, no formal adapter',
++        main_candidate_K=None,K_diagnostics=cost_table,
++        natural_frames=24,natural_scenes=3,natural_qualified_object_frames=6,
++        natural_qualified_region_cells=[r['cells'] for f in natural for r in f['regions'] if r['qualified']],
++        natural_extensions_by_K={k:sum(e['event']=='keep' for e in es) for k,es in lifecycle.items()},
++        world_only_expected_saved_prefill_ms=0.,
++        incremental_world_method_net_upper_ms_per_request={
++            'one_question':-float(np.mean(overhead)), 'three_questions':-float(np.mean(overhead))/3},
++        incremental_cost_scene_bootstrap_CI95_ms=(-np.quantile(boot,[.975,.025])).tolist(),
++        CI_scope='Observed three natural development logs only; not population or formal E2E CI.',
++        natural_bridge_wall_ms=distribution([r['bridge_total_wall_ms'] for r in natural]),
++        natural_memory_update_wall_ms=distribution([uby[r['frame_id']] for r in natural]),
++        added_projection_matcher_planner_KV_cache_reassembly_sync_ms=0.,
++        omitted_cost_scope='Optimistic incremental upper bound on this zero-memory playback: no memory projection, no memory KV/cache ownership, no assembly are executed. All unmeasured runtime/binding/allocator costs set to zero, never counted as measured. Generic existing text/same-frame caching held equal.',
++        old_K64_net_upper_ms=json.loads(Path('outputs/m3_sf_wrcps_feasibility_run01/delivery.json').read_text())['optimistic_one_question_net_ms'],
++        beats_old_K64=False,LLM_quality='NOT_RUN',full_E2E_speedup=None,
++        alternative_15_to64_learned_resampler='NOT_IMPLEMENTED: could convey 15 real regions to64 learned slots, but cannot be counted as64 independently observed cells; requires new layout/content/cost/quality evidence. This result does not prove that alternative impossible.')
++    write(root/'prefix_cost_feasibility.json',cost)
++    refusal=None
++    try:assert_training_ready(root)
++    except ValueError as error:refusal=str(error)
++    assert refusal is not None
++    write(root/'training_gate.json',dict(status='REFUSED_BEFORE_MODEL_OPTIMIZER',reason=refusal,
++        adapter_artifact=None,trained_steps=0))
++    write(root/'crossframe_reuse_summary.json',dict(status='FORMAL_NOT_RUN',
++        bridge_object_identity_correct_continuations=bridge['identity_edges'].get('correct',0),
++        enriched_memory_extensions={k:v['extensions'] for k,v in semantic['finite_K_playback'].items()},
++        natural_memory_extensions=cost['natural_extensions_by_K'],
++        natural_exact_visual_prefix_tokens=0,natural_scheduler_admitted_visual_tokens=0,
++        formal_PrefillExecutor_skipped_visual_tokens=None,
++        formal_matched_tokens=None,formal_reused_tokens=None,
++        controlled_cost_PrefillExecutor_skipped_tokens=sum(r['controlled_skipped_tokens'] for r in controls+text_controls),
++        controlled_cost_rows=len(controls)+len(text_controls),
++        controlled_scheduler_admitted_tokens=sum(r['actual_scheduler_admitted_tokens'] for r in controls+text_controls),
++        scope='Controlled skips include fixed text and are not service/world contribution. Natural memory remains absent; formal serving never ran.'))
++    write(root/'deployment_decision.json',dict(decision='NO_GO',deploy=False,
++        bridge_gate='PASS_POOLED_REGION_GEOMETRY',semantic_gate='PASS_PRETRAINING_FEATURE_PROBES',
++        cost_gate='NO_GO',training='NOT_RUN',core_valid_quality='NOT_RUN',
++        official_quality='NOT_RUN',ExactKV_service='NOT_RUN',E2E='NOT_RUN',
++        formal_config_changed=False,original_weights_modified=False,M1_M2_algorithms_modified=False,
++        additional_formal_executors=0,adapter_trained=False,
++        failure_axes=['Real supported prefix length/coverage','Added-input cost against complete native visual preservation'],
++        next_step='Study a qualified few-region tokenizer/compressor with an explicit current-visual information budget. Do not train this complete513 append candidate, relax identity gates, or claim class-only soft-token gains.',
++        limitations=['Five positive bridge scenes, pooled 95% box support is not foreground ownership or broad calibration.',
++            'Natural24/three logs is a bounded independent playback, not deployment population coverage.',
++            'Real raw feature content is useful in simple probes; LLM usefulness and dynamic-state quality remain unknown.']))
++    text=lambda name,content:(root/name).write_text(content.strip()+'\n')
++    text('visual_feature_bridge_audit.md',f'''# 真实视觉桥接审计
++
++结论：投影区域接口的有界预训练检查通过；不存在 WorldAnchor 与原生 VLM token 的一一对应。正式部署资格未获认证。
++
++六相机经实际输入 metadata 顺序排列，RGB归一化、resize/crop与K同步更新，本轮处理后输入640×640。EVA/M2输出 `[1,6,1024,40,40]`，原生patch stride16，camera-major、随后row-major。M2复用的是前部窗口及近似全局残差，其后仍有当前视觉计算；不能把窗口复用当作最终LLM输入相等。
++
++`petr3d.extract_img_feat`将M2输出整理为上述网格，Object/Map Head先投影1024→256并结合当前相机几何与历史时序状态。`streampetr_head.py:533–562`把256额外学习查询放在检测查询之前，额外query的reference/query_pos置零，检测框来自去掉额外查询后的分支。最终256个额外输出投影至4096，再追加1个CANbus/ego token。`petr_head_map.py:404–430`同样把256额外查询与1800个lane查询分开，lane由control points表达，额外map输出不构成道路栅格。Native视觉顺序固定为object256、ego1、map256，即 `[1,513,4096]`，LLM扩展时转其计算dtype。Head输出含当前ego/历史变换和全局上下文，通常跨帧不同。
++
++M1通过`omnidrive_adapter.outputs_from_model`把当前检测的ego坐标gravity center/corners经ego_to_world转换为世界框，按类别/大小/距离合法门加一次全局分配关联。普通关联不等于物理身份认证。`state_manager.py:519–528`将整份backbone/object_carrier/map_carrier来源绑定到多个anchor，`associated_feature_ids`没有token级归属或框索引映射。每个anchor的observation support则保存真实相机时间、投影xyxy区域和RGB描述子；描述子也不是前景mask。
++
++新增`worldstream/m3/visual_feature_bridge.py`只读当前提交的M1对象与已有EVA/M2网格。用已校验的camera-time外参、预处理K重新投影选中框的8角，取投影凸包内原生网格中心；按padding前真实image bounds裁剪，并排除其他当前对象support AABB，选择剩余位置最多的相机。无需新编码器、检测器或tracker。读取的是实际观测区域的上下文化特征，既非独立纯对象特征，也不宣称不含背景/全局影响。其他框排除保守，不构成遮挡/前景证明。
++
++160帧/5个日志的富集诊断产生262个合格身份观测，233个可提取区域；29个因支持不足拒绝。独立离线GT只在提取完成后评分，233/233可评分，222/233={bridge['supported_fraction']:.4%}区域满足“至少80%网格中心落在对应GT 3D框投影凸包”，通过预设95%门；137次相邻身份延续正确。11个几何失败例保存在`bridge_analysis.json`，最差支持率50%。GT框投影包含背景，95%门是区域适用性预检，并非95%真实前景纯度；两个开发日志中一个仅有2个区域且1个失败，不外推单日志保证。
++
++原始网格位置中位数52，K64/128/256分别仅95/34/10个区域有足够位置。独立自然24帧中6个合格对象区域均只有15个位置。旧car Core资格没有自动授予64个真实视觉观测的资格。
++
++生成帧字段表示当前M2输出的读取帧，不表示该张量的每个上游窗口都首次在此帧计算；本轮未额外导出每个EVA输出位置的完整M2计算谱系。内容hash绑定实际读取的张量。所有新增桥接代码保持研究接口，未写入正式detector路径。
++''')
++    text('world_visual_memory_design.md','''# 单个历史区域视觉记忆
++
++实现：`worldstream/m3/visual_memory.py`，一份VisualMemory与一个VisualMemoryManager。记录身份、类别、相机、读取帧、源几何状态版本、最新有效观测、age、revision、scope、真实特征及内容hash。身份仅作生命周期key，投影层只接收实际1024维特征；同类不同对象可以不同。
++
++本轮选择每个memory token对应一个不同原生网格观测，K64/128/256只作有限预算诊断；少于K个位置拒绝，不做补零、复制或把类别复制成K个token。多于K时按原始row-major位置等距下采样成K个。该选择是本轮最小路线的约束，不是所有可学习resampler的信息论下界。
++
++当前帧首次满足身份与区域条件才创建，后续每帧同时重验当前身份资格和区域支持。保持直接返回相同feature tensor与相同projected embedding tensor，未重新生成近似前缀。新对象、类变化、缺失支持、超过8帧、时间断裂、state回滚及scene/epoch/model/adapter/memory/qualification版本变化撤销或重建；revision防止偶然相同内容继承已撤销的视觉KV。修改保存tensor会fail closed。
++
++历史EVA区域仍含旧的外观、位置和背景。本实现承诺其为固定历史上下文，不承诺当前外观不变。位置/速度/朝向/灯态/新对象必须由完整当前513个Native tokens提供，不从旧框或velocity生成稳定语义。语义/运动质量尚未通过训练后LLM测试，不能据此部署。
++
++唯一具体候选布局为 `[P, historical K, current native513, Q]`，无memory直接返回原Native tensor，指针/dtype/顺序不变。投影为单个1024→4096 Linear，测试参数未训练，仅用于实际张量保持和计算成本；不得加载为正式adapter。成本门NO_GO后未选主训练K、未压缩当前视觉、未扩展M3Runtime正式布局。
++
++成本控制直接调用既有PrefixKVCache/PrefixMatcher/ReusePlanner/PrefillExecutor；没有新执行器。源KV由真实LLM forward产生，严格比较实际embedding/position/mask与live执行签名，stable_anchor元数据绑定合法memory scope与revision，动态suffix仍实际prefill。控制实验的显式reuse_length独立于scheduler准入；正式链路集成与scheduler成本表均未获准发布。撤销边界沿用既有matcher裁掉视觉前缀，单测覆盖偶然同值重建。
++''')
++    text('memory_semantic_analysis.md',f'''# 真实特征语义与保持
++
++桥接门通过后，原始区域特征进行预注册的简单诊断，不输出随机未训练前缀的语言答案。233个合格区域有233个不同实际特征hash。同一身份1秒内观测cosine均值0.9684，不同身份同帧均值0.8540；这并不意味着天然Embedding严格不变。
++
++三个TRAIN日志建立cosine类别原型，两个日志独立开发场景测试；只使用离线GT能确认类别/身份的检测样本，条件宏平均准确率{semantic['category_macro_accuracy']:.4%}，四类均匀机会水平25%。这是一项“给定检测类别正确”的特征信息探针，不是新的检测准确率。相邻帧多候选对象检索{semantic['retrieval_accuracy']:.3%}，按候选数计算的随机水平{semantic['retrieval_chance']:.3%}。离线标签只用于探针/评分，从未传入在线记忆接口。
++
++K64真实富集播放有32次严格同tensor保持；K128为18次，K256为8次。自然24帧在三个K下均为0，详见memory_lifecycle.json与natural_audit/memory_lifecycle.json。历史保持是策略产生的真实相等，不是当前网络特征天然相等。
++
++类别、对象差异证据支持继续成本诊断；车辆颜色/材质等稳定外观属性没有独立标注和测试，不作保证。EVA含位置/背景/当前外观，不能称作状态不变编码器。保留完整当前513以提供当前动态信息，但其能否阻止LLM误用旧上下文仍需训练后空间/运动质量验收，本轮因成本门失败未运行。
++''')
++    text('composer_training_report.md','''# 训练准入
++
++NOT_RUN。真实特征桥接与预训练内容门通过，成本门NO_GO。`assert_training_ready`在创建训练模型/optimizer前拒绝；trained_steps=0，无WRVMP训练adapter。
++
++上一轮424帧/1272QA训练manifest保持不变，SHA见experiment_plan.json。本轮160帧只补必要区域特征，旧Core资格未自动授予视觉记忆资格。未重新进行完整语言解码。controlled_cost中的untrained_cost_projection.pt只保存成本脚手架参数，trained=false，不能作为训练交付或正式质量输入。冻结原始模型与M1/M2，不重建环境。
++''')
++    text('core_valid_quality_report.md','''# 真正有Memory的LLM质量
++
++NOT_RUN：成本门失败，未训练WRVMP投影、未运行Core-Valid Native/WRVMP-ZeroKV空间/运动/数量/道路/灯态/新对象问答对比。所有这些任务精度与关键错误数量为null，不用特征分类探针代替LLM质量，不用No-Core多数请求提高质量平均。
++
++No-memory张量直通、保留current513以及撤销边界通过代码单测；没有新真实LLM问答质量试验。有限CUDA控制仅max_new_tokens=1、零decode forward，不进行语言质量归因。
++''')
++    text('quality_report.md','''# 正式独立质量
++
++NOT_RUN：桥接/内容通过，成本失败使后续训练与六个保留VAL日志正式质量门不具备前置条件。原正式配置与四项绝对下降预算0.10保持不变。
++
++| 指标 | Native A | WRVMP ZeroKV B | WRVMP ExactKV C |
++|---|---|---|---|
++| mAP | null | null | null |
++| NDS | null | null | null |
++| DET_l | null | null | null |
++| Token F1 | null | null | null |
++| 空间/运动严重错误 | null | null | null |
++
++没有未解决严重错误为0的结论；关键错误审查未运行。No-Core原样返回输入是结构保证，不代替完整精度验收。
++''')
++    table='\n'.join(f"| {k} | {v['by_kind']['native']['executor_wall_ms']['mean']:.3f} | {v['by_kind']['memory_zero']['executor_wall_ms']['mean']:.3f} | {v['by_kind']['memory_exact']['executor_wall_ms']['mean']:.3f} | {v['K_only_prefill_cuda_saved']['mean']:.3f} | 0 |" for k,v in cost_table.items())
++    text('performance_report.md',f'''# 成本与性能结论
++
++NO_GO。以下486条计时是原始冻结LLM与既有PrefillExecutor的有限prefix硬件控制；两阶段各243条、原始三个问题、9次计时/问题/K、3轮交替。max_new_tokens=1，真实decode forward数为0；因此不是固定长输出的正式E2E实验，不报告QPS/FPS或整模型speedup。
++
++| K | Native请求wall ms | Memory ZeroKV wall ms | Memory ExactKV wall ms | K本身边际prefill CUDA节省 ms | 自然延续 |
++|---|---:|---:|---:|---:|---:|
++{table}
++
++K本身节省来自第二阶段相同memory输入的“仅P复用”减“P+K复用”，不把固定文本节省算世界贡献。ZeroKV和ExactKV间的差值是新增布局内局部KV成功；每个K下ExactKV仍比Native慢。追加历史记忆保留全部当前513，命中时仍要计算完整当前视觉并关注新增历史keys，创建帧还增加K个prefill；不能通过跳过K就断言加速。空间预算表同时列出固定513会移除K个当前tokens，未伪造其保真或训练后速度。
++
++自然24帧/3日志保留旧的6个car Core帧/5次延续，但各区域只有15个原生位置，三个K均无memory。相对保持相同通用缓存行为的基线，观察样本内世界增量节省为0，桥接＋实际无记忆update平均{np.mean(overhead):.4f}ms/帧，单问乐观增量净收益{-np.mean(overhead):.4f}ms/请求；三问按帧开销摊销为{-np.mean(overhead)/3:.4f}ms/请求。这不是完整A/B/C服务延迟，未量测项乐观置0，仍不支持训练。场景重采样区间与局限见prefix_cost_feasibility.json；正式配对E2E CI为null。
++
++实时正样本桥接wall均值1.8490ms/帧（其中M1读取/资格0.5393ms，提取/同步1.3098ms；正样本富集分布）；CUDA stream event跨度均值1.8345ms包含CPU投影/launch间隙，不能当成纯GPU kernel时间。该跨度提供本路径GPU活动的上界，纯桥接kernel累计时间为null。独立真实memory创建/保持/投影的CUDA event与GPU profiler活动见memory_transaction_cost.json，projection+组装活动见controlled_cost/gpu_activity_probes.json；分开计量，不能把profiler活动和wall重复相加。
++
++M1/M2/特征矩阵已经计算，源captured KV的初始化不在目标hit wall内；目标executor的branch clone、当前KV更新/ownership/capture和同步在wall内。显式match/planner另计，live执行签名构建在overhead.json记录。真实memory creation包括clone/finite/hash D2H，未把它藏在warm投影成本中。正式服务未运行，所有实际GPU峰值仅对硬件控制有效，见summary.json。三问通用同帧缓存收益未重做，未记作WRVMP世界贡献。
++''')
++    text('result_answers.md',f'''# 十四个问题的证据回答
++
++1. WorldAnchor对应当前检测/世界几何与连续关联；VLM object256/map256是额外全局学习查询，整组associated_feature_ids不提供token↔对象映射。
++2. 可以建立有界可信的相机投影区域↔EVA/M2网格接口：233区域、222通过框支持、137正确身份延续；不升级为纯前景/对象专属embedding，11失败和29拒绝保留。
++3. 是，原始记忆特征来自真实1024维视觉网格且每个区域hash不同；并非只含car字符串。LLM可用性尚未证明。
++4. 同类不同对象可不同。历史特征与投影tensor直接持有同一实例；K64富集32次严格保持。当前特征本身并不严格相等。
++5. 只把旧区域当历史上下文，当前513全部保留；不把旧pose/velocity/灯态声明为当前事实。是否造成LLM误用历史，质量NOT_RUN。
++6. 富集数据每区域4–423个不同网格位置，中位52。自然合格对象只有15个位置；本轮K64/128/256路线可创建/保持的真实视觉prefix为0。15→64学习重采样未实现，不能把它当64个独立观测。
++7. 不能。自然观察内世界节省0，单问新增开销使乐观增量净收益约{-np.mean(overhead):.3f}ms/请求，未明显优于旧+0.084ms。样本外总体净收益未知。
++8. 富集桥接平均wall1.849ms，其中读取/资格0.539ms、提取同步1.310ms；自然成本和memory各阶段见prefix_cost_feasibility.json。桥接CUDA stream1.834ms含CPU间隙，纯kernel未知；真实创建/投影GPU活动已单独profile。
++9. 未训练，成本门在创建optimizer前拒绝；cost projection是untrained脚手架，无正式adapter。
++10. 未证明，真正有memory的空间/运动问答NOT_RUN，不能用原始特征90.1%类别探针代替。
++11. 正式Prefill跳过NOT_RUN，正式世界视觉服务tokens=0；有限控制确实跳过P+K，另记controlled计数，scheduler准入为0，不把对象关联乘K冒充服务复用。
++12. 有局部硬件控制ZeroKV→ExactKV收益；训练后/自然服务B→C收益NOT_RUN。
++13. 没有已验证的完整E2E加速；完整当前513＋memory即使控制命中也慢于Native。正式A/B/C、decode CUDA、QPS/FPS和scene配对CI均NOT_RUN/null。
++14. 本轮主要失败于可支持prefix粒度/自然覆盖和完整视觉保留时的新增输入成本。真实视觉关联与特征内容已有正证据；对象纯前景、稳定外观和LLM输入适配仍未证明。该NO_GO仅针对所实现最小路线，不声称所有少区域resampler/有损视觉压缩必然失败。
++''')
++    sources=[p for folder in ('worldstream/m3','tools/worldstream_m123') for p in Path(folder).glob('*visual_memory*.py')]
++    sources += [Path('worldstream/m3/visual_feature_bridge.py')]
++    write(root/'source_and_artifact_bindings.json',dict(
++        base_commit='25d782296ff119fad945c1f9a029689a0ded3389',
++        base_weights_sha256='6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d',
++        adapter_trained=None,untrained_cost_projection_sha256=sha256(root/'controlled_cost/untrained_cost_projection.pt'),
++        source_sha256={str(p):sha256(p) for p in sources},
++        raw_files_sha256={str(p):sha256(p) for folder in ('bridge_capture','natural_audit/bridge_capture')
++            for p in (root/folder).glob('*.pt')},
++        note='Raw tensors stay local/gitignored with hashes. bridge_capture/executed_capture_source.py and controlled_cost/executed_cost_source.py preserve earlier stage source snapshots. Final post-capture validation-only/reproduction options do not change reported forward inputs. Memory timestamp validation added after initial semantics/cost launch; CPU semantic playback rerun with final code.'))
++    print('WRVMP_REPORT NO_GO; training refused; formal configuration retained')
++
++
++if __name__=='__main__':
++    p=argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--root',type=Path,default=Path('outputs/m3_world_visual_memory_run01'))
++    generate(p.parse_args().root)
+diff --git a/tools/worldstream_m123/world_visual_memory_semantics.py b/tools/worldstream_m123/world_visual_memory_semantics.py
+new file mode 100644
+index 00000000..d110013b
+--- /dev/null
++++ b/tools/worldstream_m123/world_visual_memory_semantics.py
+@@ -0,0 +1,135 @@
++"""Real-feature probes and one-memory causal playback, never LLM quality."""
++import argparse
++from collections import Counter, defaultdict
++import json
++from pathlib import Path
++import numpy as np
++import torch
++
++from tools.worldstream_m123.benchmark.common import write
++from tools.worldstream_m123.world_visual_memory_analysis import distribution
++from worldstream.m3.visual_feature_bridge import RegionFeature
++from worldstream.m3.visual_memory import VisualMemoryManager, VisualMemoryProjection
++
++
++def context(row):
++    return {**{k:row[k] for k in ('scene_id', 'frame_id', 'timestamp', 'state_epoch', 'state_version')},
++        'model_sha256':'6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d',
++        'adapter_sha256':'UNTRAINED_COST_ONLY', 'memory_version':'wrvmp_region_v1'}
++
++
++def regions(values):
++    return [RegionFeature(x['anchor_id'], x['semantic_class'], x['camera_id'], x['source_frame'],
++        x['source_state_version'], tuple(x['region']), tuple(x['grid_indices']), x['features'],
++        x['candidate_cells'], x['excluded_cells']) for x in values if x['qualified']]
++
++
++def replay(root, tokens, *, capture='bridge_capture'):
++    rows = [json.loads(l) for l in (root/capture/'frames.jsonl').open()]
++    xs = torch.load(root/capture/'region_features.pt', map_location='cpu', weights_only=False)
++    by_frame = defaultdict(list)
++    for x in xs:
++        by_frame[x['source_frame']].append(x)
++    manager = VisualMemoryManager(tokens)
++    # Actual tensors held by the manager, not regenerated approximate features.
++    projection = VisualMemoryProjection().eval().requires_grad_(False)
++    events = []; previous_embedding = None; previous_memory = None
++    qualification = json.loads((root/'experiment_plan.json').read_text())['qualification_sha256']
++    with torch.no_grad():
++        for row in rows:
++            values = by_frame[row['frame_id']]
++            memory, event = manager.update(context(row), regions(values), row['qualified_ids'], qualification)
++            retained = False
++            if memory is not None:
++                embedding = projection(memory)
++                if event == 'keep':
++                    assert memory is previous_memory and embedding is previous_embedding
++                    retained = torch.equal(embedding, previous_embedding)
++                previous_memory, previous_embedding = memory, embedding
++            else:
++                previous_memory = previous_embedding = None
++            events.append(dict(scene_id=row['scene_id'], frame_id=row['frame_id'], split=row['split'],
++                event=event, memory_valid=memory is not None,
++                anchor_id=memory.anchor_id if memory else None, revision=memory.revision if memory else None,
++                generating_frame=memory.generating_frame if memory else None,
++                source_camera=memory.camera_id if memory else None,
++                source_state_version=memory.source_state_version if memory else None,
++                latest_frame=memory.latest_frame if memory else None,
++                age=memory.age if memory else None, content_sha256=memory.content_sha256 if memory else None,
++                scope=list(memory.scope) if memory else None,
++                qualification_sha256=qualification, exact_same_embedding_tensor=retained,
++                raw_observations=tokens if memory else 0,
++                historical_context_only=True, current_visual_tokens=513, actual_skipped_KV_tokens=0))
++    return events
++
++
++def run(root):
++    assert json.loads((root/'bridge_analysis.json').read_text())['status'] == 'PASS'
++    # Freeze the semantic check before computing any probe outcome.
++    protocol = dict(category_probe='Untrained cosine nearest centroid, raw mean regional features. TRAIN centroids -> log-disjoint development. Only independently GT-matched detections; conditional on detector-correct class.',
++        retrieval='Adjacent frame object retrieval among qualified GT-known cars, cosine; score GT equality offline only. Do not use GT for memory.',
++        go='Real feature hashes differ; actual historical embedding is held exactly; category macro accuracy and identity retrieval each exceed their uniform candidate chance. These are pretraining content checks, not task quality or appearance invariance.',
++        dynamic_leakage='Historical EVA regions contain old appearance, background and absolute image position. Never replace current full513 or claim current state equals history.')
++    write(root/'semantic_probe_protocol.json', protocol)
++    xs = torch.load(root/'bridge_capture/region_features.pt', map_location='cpu', weights_only=False)
++    xs = [x for x in xs if x['offline_gt_identity'] is not None]
++    train = [x for x in xs if x['split'] == 'train']
++    val = [x for x in xs if x['split'] == 'validation']
++    classes = sorted({x['semantic_class'] for x in train} & {x['semantic_class'] for x in val})
++    normalize = lambda a: torch.nn.functional.normalize(a.float(), dim=-1)
++    centers = torch.stack([normalize(torch.stack([normalize(x['vector']) for x in train
++        if x['semantic_class'] == c]).mean(0)) for c in classes])
++    category = []
++    for x in val:
++        if x['semantic_class'] in classes:
++            pred = classes[int((normalize(x['vector']) @ centers.T).argmax())]
++            category.append(dict(frame_id=x['source_frame'], truth=x['semantic_class'], predicted=pred))
++    recalls = {c:float(np.mean([r['truth'] == r['predicted'] for r in category if r['truth'] == c])) for c in classes}
++    macro = float(np.mean(list(recalls.values())))
++    by_frame = defaultdict(list)
++    for x in xs:
++        if x['qualified']:
++            by_frame[(x['scene_id'], x['source_frame'])].append(x)
++    timeline = [json.loads(l) for l in (root/'bridge_capture/frames.jsonl').open()]
++    previous = []; previous_scene = None; retrieval = []
++    for row in timeline:
++        current = by_frame[(row['scene_id'], row['frame_id'])]
++        if row['scene_id'] == previous_scene and len(previous) > 1:
++            source = torch.stack([normalize(x['vector']) for x in previous])
++            for x in current:
++                if not any(x['offline_gt_identity'] == y['offline_gt_identity'] for y in previous):
++                    continue
++                j = int((normalize(x['vector']) @ source.T).argmax())
++                retrieval.append(dict(scene_id=row['scene_id'], frame_id=row['frame_id'],
++                    correct=x['offline_gt_identity'] == previous[j]['offline_gt_identity'],
++                    chance=1/len(previous), candidates=len(previous)))
++        previous, previous_scene = current, row['scene_id']
++    accuracy = float(np.mean([x['correct'] for x in retrieval])) if retrieval else None
++    chance = float(np.mean([x['chance'] for x in retrieval])) if retrieval else None
++    events = {str(k):replay(root, k) for k in (64,128,256)}
++    exact = sum(e['exact_same_embedding_tensor'] for e in events['64'])
++    unique = len({x['feature_sha256'] for x in xs if x['qualified']})
++    checks = dict(distinct_real_features=unique > 1, actual_tensor_retention=exact > 0,
++        category_information=macro > 1/len(classes),
++        identity_information=accuracy is not None and accuracy > chance)
++    write(root/'memory_lifecycle.json', dict(status='REAL_FEATURE_RESEARCH_PLAYBACK',
++        main_semantic_tokens=64, finite_K_availability_only=True, events=events,
++        scope='Positive-enriched bridge scenes. Finite K playback is not deployment coverage, LLM quality or actual KV reuse. One state per budget, no multi-level cache.',
++        actual_service_KV_tokens=0))
++    report = dict(status='PASS' if all(checks.values()) else 'NO_GO', checks=checks,
++        classes=classes, category_examples=len(category), category_macro_accuracy=macro,
++        category_uniform_chance=1/len(classes), category_recalls=recalls,
++        category_predictions=category, retrieval_examples=len(retrieval), retrieval_accuracy=accuracy,
++        retrieval_chance=chance, retrieval=retrieval, exact_held_embeddings=exact,
++        finite_K_playback={k:dict(events=dict(Counter(e['event'] for e in es)),
++            valid_frames=sum(e['memory_valid'] for e in es), extensions=sum(e['event']=='keep' for e in es)) for k,es in events.items()},
++        current_state_invariance_certified=False, LLM_quality='NOT_RUN', trained_projection=False,
++        semantics_scope='Raw real regional feature information and historical context retention only. Projection parameters are untrained cost scaffolding; no language/appearance quality attributed to them.')
++    write(root/'memory_semantic_probe.json', report)
++    print(json.dumps({k:report[k] for k in ('status','checks','category_macro_accuracy','retrieval_accuracy','retrieval_chance','finite_K_playback')}))
++
++
++if __name__ == '__main__':
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--root', type=Path, default=Path('outputs/m3_world_visual_memory_run01'))
++    run(p.parse_args().root)
+diff --git a/worldstream/m3/visual_feature_bridge.py b/worldstream/m3/visual_feature_bridge.py
+new file mode 100644
+index 00000000..3aa2940f
+--- /dev/null
++++ b/worldstream/m3/visual_feature_bridge.py
+@@ -0,0 +1,115 @@
++"""Read-only, causal projection into the existing EVA output grid.
++
++These are contextual image-region features, never detection-query embeddings or
++certified foreground pixels. No GT, track ID encoding, interpolation, or encoder
++is used. This diagnostic interface does not enable an M3 deployment policy.
++"""
++from dataclasses import dataclass
++import numpy as np
++import torch
++
++from worldstream.m1.geometry import project_anchor
++
++
++@dataclass
++class RegionFeature:
++    anchor_id: str
++    semantic_class: str
++    camera_id: str
++    frame_id: str
++    source_state_version: str
++    region: tuple
++    grid_indices: tuple
++    features: torch.Tensor
++    candidate_cells: int
++    excluded_cells: int
++    source_kind: str = 'EVA_output_contextual_projected_region'
++    foreground_certified: bool = False
++
++
++def inside_convex(points, polygon):
++    """Half-plane test, including edges, independent of polygon winding."""
++    import cv2
++    hull = cv2.convexHull(np.asarray(polygon, np.float32)).reshape(-1, 2)
++    if len(hull) < 3 or abs(cv2.contourArea(hull)) < 1e-6:
++        return np.zeros(len(points), dtype=bool)
++    edges = np.roll(hull, -1, axis=0) - hull
++    delta = points[:, None, :] - hull[None, :, :]
++    cross = edges[None, :, 0] * delta[:, :, 1] - edges[None, :, 1] * delta[:, :, 0]
++    return (cross >= -1e-5).all(1) | (cross <= 1e-5).all(1)
++
++
++@torch.no_grad()
++def projected_region_features(frame, anchors, feature_map, config, *,
++                              camera_ids, patch_stride=16, minimum_cells=4,
++                              selected_ids=None):
++    """Select the largest supported camera region after geometric exclusions.
++
++    Camera order must be supplied from the actual model input, and the stride
++    from the existing patch embed. Scaling by the unpadded image size is wrong.
++    Other projected boxes are conservative exclusions regardless of depth;
++    unobserved occluders/background remain unknown. Call after current commit.
++    """
++    if (feature_map.ndim != 5 or feature_map.shape[0] != 1
++            or feature_map.shape[1] != len(camera_ids)
++            or tuple(camera_ids) != tuple(frame.cameras)
++            or len(set(camera_ids)) != len(camera_ids)):
++        raise ValueError('Feature grid/camera order contract mismatch')
++    if type(patch_stride) is not int or patch_stride <= 0 or minimum_cells < 1:
++        raise ValueError('Invalid patch geometry')
++    _, _, channels, height, width = feature_map.shape
++    y, x = np.meshgrid((np.arange(height)+.5)*patch_stride,
++                       (np.arange(width)+.5)*patch_stride, indexing='ij')
++    points = np.stack((x.ravel(), y.ravel()), -1)
++    anchors = list(anchors)
++    selected_ids = set(selected_ids) if selected_ids is not None else {a.anchor_id for a in anchors}
++    regions, rejections = [], {}
++    projections, exclusions = {}, {}
++    for cid, camera in frame.cameras.items():
++        if camera.image.shape[0] > height*patch_stride or camera.image.shape[1] > width*patch_stride:
++            raise ValueError('Feature grid does not cover the observation image')
++        projections[cid] = {a.anchor_id: project_anchor(a, camera, config)
++                            for a in anchors if a.anchor_type == 'object' and a.anchor_id in selected_ids}
++        # Reuse current M1 support boxes for other detections. Do not reproject
++        # the entire state or infer per-pixel foreground from those boxes.
++        exclusions[cid] = [(a.anchor_id, a.observation_support[cid].region)
++            for a in anchors if a.anchor_type == 'object' and cid in a.observation_support
++            and a.source_frame_id == frame.frame_id
++            and a.observation_support[cid].timestamp == camera.timestamp]
++    for anchor in anchors:
++        if anchor.anchor_id not in selected_ids or anchor.anchor_type != 'object':
++            continue
++        if anchor.scene_id != frame.scene_id or anchor.source_frame_id != frame.frame_id:
++            rejections[anchor.anchor_id] = 'not_current_committed_object'
++            continue
++        choices = []
++        for ci, (cid, camera) in enumerate(frame.cameras.items()):
++            support = anchor.observation_support.get(cid)
++            projection = projections[cid][anchor.anchor_id]
++            if support is None or support.timestamp != camera.timestamp or not projection.valid:
++                continue
++            valid = ((points[:, 0] < camera.image.shape[1])
++                     & (points[:, 1] < camera.image.shape[0]))
++            mask = inside_convex(points, projection.uv) & valid
++            count = int(mask.sum())
++            exclusion = np.zeros(len(points), bool)
++            boxes = np.asarray([box for aid, box in exclusions[cid] if aid != anchor.anchor_id])
++            if len(boxes):
++                exclusion = ((points[:, None, 0] >= boxes[None, :, 0])
++                    & (points[:, None, 0] < boxes[None, :, 2])
++                    & (points[:, None, 1] >= boxes[None, :, 1])
++                    & (points[:, None, 1] < boxes[None, :, 3])).any(1)
++            clean = mask & ~exclusion
++            indices = np.flatnonzero(clean)
++            if len(indices) >= minimum_cells:
++                choices.append((len(indices), cid, ci, indices, count, projection.region))
++        if not choices:
++            rejections[anchor.anchor_id] = 'insufficient_unambiguous_projected_grid_support'
++            continue
++        _, cid, ci, indices, count, region = sorted(choices, key=lambda c: (-c[0], c[1]))[0]
++        device_indices = torch.as_tensor(indices, device=feature_map.device)
++        values = feature_map[0, ci].reshape(channels, -1).index_select(1, device_indices).T.contiguous()
++        regions.append(RegionFeature(anchor.anchor_id, anchor.semantic_class, cid,
++            frame.frame_id, anchor.state_version, tuple(region), tuple(map(int, indices)),
++            values, count, count-len(indices)))
++    return regions, rejections
+diff --git a/worldstream/m3/visual_memory.py b/worldstream/m3/visual_memory.py
+new file mode 100644
+index 00000000..34ba0e56
+--- /dev/null
++++ b/worldstream/m3/visual_memory.py
+@@ -0,0 +1,137 @@
++"""One historical visual-region memory, for gated WRVMP research only.
++
++The retained feature is a historical observation, including its old contextual
++position/appearance. It is never a claim about unchanged current visual state.
++"""
++from dataclasses import dataclass
++import hashlib
++import math
++import torch
++
++
++@dataclass
++class VisualMemory:
++    anchor_id: str
++    semantic_class: str
++    camera_id: str
++    generating_frame: str
++    source_state_version: str
++    latest_frame: str
++    age: int
++    revision: int
++    content_sha256: str
++    features: torch.Tensor
++    grid_indices: tuple
++    scope: tuple
++    tensor_version: int
++    association_qualification: str
++    invalidation_reason: str = ''
++
++
++class VisualMemoryManager:
++    """Create/keep/replace/revoke one memory after EVERY current observation.
++
++    No GT enters this interface. Actual qualified IDs come from the existing
++    independent semantic policy; region validity is checked separately. Fewer
++    than K real grid cells cannot be expanded into K purported observations.
++    """
++    def __init__(self, tokens=64, max_age_frames=8):
++        if tokens not in (64, 128, 256) or max_age_frames < 1:
++            raise ValueError('Unsupported finite memory budget')
++        self.tokens, self.max_age_frames = tokens, max_age_frames
++        self.memory = None
++        self.revision = 0
++        self.previous = None
++
++    def update(self, context, regions, qualified_ids, qualification_sha256):
++        required = ('scene_id', 'frame_id', 'timestamp', 'state_epoch', 'state_version',
++                    'model_sha256', 'adapter_sha256', 'memory_version')
++        if any(k not in context for k in required) or not qualification_sha256:
++            raise ValueError('Memory requires fully versioned current context')
++        if (not math.isfinite(context['timestamp']) or type(context['state_version']) is not int
++                or context['state_version'] < 0):
++            raise ValueError('Invalid current memory time/state')
++        scope = tuple(context[k] for k in ('scene_id', 'state_epoch', 'model_sha256',
++                      'adapter_sha256', 'memory_version')) + (qualification_sha256, self.tokens)
++        available = {r.anchor_id:r for r in regions if r.anchor_id in qualified_ids
++            and r.frame_id == context['frame_id'] and len(r.grid_indices) >= self.tokens}
++        old = self.memory
++        if old is not None and old.features._version != old.tensor_version:
++            self.memory = None
++            raise ValueError('Historical visual memory tensor mutated')
++        reason = 'cold'
++        if self.previous is not None:
++            if (context['scene_id'], context['frame_id']) == (self.previous['scene_id'], self.previous['frame_id']):
++                if context != self.previous:
++                    raise ValueError('Same-frame memory context changed')
++                if old is not None and old.anchor_id in available and old.scope == scope:
++                    return old, 'same_frame'
++                self.memory = None
++                return None, 'revoked_same_frame'
++            if context['scene_id'] != self.previous['scene_id']:
++                reason = 'scene_changed'
++            elif context['state_version'] < self.previous['state_version']:
++                reason = 'state_rollback'
++            elif not 0 < context['timestamp']-self.previous['timestamp'] <= 1.:
++                reason = 'time_discontinuity'
++            elif old is not None and old.scope != scope:
++                reason = 'execution_or_memory_version_changed'
++            elif old is not None and old.anchor_id not in available:
++                reason = 'current_identity_or_region_unavailable'
++            elif old is not None and available[old.anchor_id].semantic_class != old.semantic_class:
++                reason = 'semantic_class_changed'
++            elif old is not None and old.age+1 >= self.max_age_frames:
++                reason = 'memory_horizon_expired'
++            elif old is not None:
++                old.age += 1
++                old.latest_frame = context['frame_id']
++                self.previous = dict(context)
++                return old, 'keep'
++        self.previous = dict(context)
++        self.memory = None
++        if old is not None:
++            old.invalidation_reason = reason
++        if not available:
++            return None, 'revoke:'+reason if old else 'no_memory'
++        self.revision += 1
++        # Identity orders lifecycle only; it is never passed to a learned module.
++        region = available[sorted(available)[0]]
++        indices = torch.linspace(0, len(region.grid_indices)-1, self.tokens,
++            device=region.features.device).long()
++        values = region.features.index_select(0, indices).detach().clone()
++        if not torch.isfinite(values).all():
++            raise ValueError('Nonfinite regional memory')
++        content = hashlib.sha256(values.cpu().contiguous().numpy().tobytes()).hexdigest()
++        selected = tuple(region.grid_indices[i] for i in indices.cpu().tolist())
++        self.memory = VisualMemory(region.anchor_id, region.semantic_class, region.camera_id,
++            region.frame_id, region.source_state_version, region.frame_id, 0, self.revision,
++            content, values, selected, scope, values._version, qualification_sha256)
++        return self.memory, 'create:'+reason
++
++
++class VisualMemoryProjection(torch.nn.Module):
++    """Cost-only projection until all gates license a trained artifact.
++
++    No identity, pose, velocity, signal or class-string embedding is accepted.
++    Repeated calls on a retained memory return the SAME projected tensor.
++    """
++    def __init__(self, input_dim=1024, output_dim=4096):
++        super().__init__()
++        self.projection = torch.nn.Linear(input_dim, output_dim)
++        self._key = self._embedding = None
++
++    def forward(self, memory):
++        signature = tuple((p.data_ptr(), p._version) for p in self.parameters())
++        key = (memory.scope, memory.revision, memory.content_sha256, memory.features.data_ptr(),
++               memory.features._version, signature)
++        if memory.features._version != memory.tensor_version:
++            raise ValueError('Historical memory was mutated')
++        if self._key != key:
++            self._embedding = self.projection(memory.features).unsqueeze(0)
++            self._key = key
++        return self._embedding
++
++    def compose(self, current, memory):
++        if memory is None:
++            return current
++        return torch.cat((self(memory).to(current), current), 1)
