@@ -15,7 +15,8 @@ def test_entry_m3_reexecutes_existing_answer_and_keeps_heads(tmp_path):
     def generate(**kwargs):
         calls.append(kwargs)
         return [torch.tensor([[1, 7, 2]])], dict(actual=True)
-    model.m3_runtime = SimpleNamespace(generate=generate)
+    from worldstream.m3 import M3Config
+    model.m3_runtime = SimpleNamespace(generate=generate, config=M3Config())
     # A previous answer must not skip an enabled M3 request.
     (tmp_path/'100.0').write_text('old_answer')
     meta, data = helpers.inputs(100.)

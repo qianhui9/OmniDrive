@@ -499,16 +499,30 @@ class Petr3D(MVXTwoStageDetector):
                     trace['stage'] = 'm3_generation'
                 meta = img_metas[0]
                 timestamp = float(data['timestamp'].reshape(-1)[0])
+                stable_state = None
+                stable_snapshot_ms = 0.
+                if m3.config.prefix_adapter:
+                    stable_snapshot_tick = time.perf_counter()
+                    from worldstream.m3.stable_world import freeze_stable_world
+                    stable_state = freeze_stable_world(self.m1_manager, dict(
+                        scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']), timestamp=timestamp,
+                        state_epoch=self.m1_manager.store.generation,
+                        state_version=self.m1_manager.store.commit_count,
+                        state_execution_signature=self.m1_manager.store.execution_signature))
+                    stable_snapshot_ms = (time.perf_counter()-stable_snapshot_tick)*1000
                 m3_answers, self.m3_diagnostics = m3.generate(
                     lm_head=self.lm_head, input_ids_list=data['input_ids'][0],
                     vision_carriers=vision_embeded,
                     verified_state=getattr(self, 'm3_verified_state', None),
                     tokenizer=self.tokenizer,
                     m2_diagnostics=getattr(self,'m2_diagnostics',None),
+                    stable_world_state=stable_state,
                     context=dict(scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']),
                         weights_sha256=getattr(self,'worldstream_audit_identity',{}).get('checkpoint_sha256'),
                         state_epoch=getattr(getattr(self.m1_manager,'store',None),'generation',None),
                         state_version=getattr(getattr(self,'m3_verified_state',None),'state_version',None),
+                        stable_state_version=self.m1_manager.store.commit_count if stable_state is not None else None,
+                        stable_snapshot_wall_ms=stable_snapshot_ms,
                         state_execution_signature=getattr(getattr(self.m1_manager,'store',None),'execution_signature',None),
                         profile=getattr(self, 'worldstream_profile', False),
                         timestamp=timestamp, camera_ids=list(meta.get('cam_infos', {})) or

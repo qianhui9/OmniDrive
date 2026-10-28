@@ -1,0 +1,67 @@
+{
+  "status": "NOT_RUN_STAGE_ONE_FAILED",
+  "baselines": [
+    "Native",
+    "WRCPS-ZeroKV",
+    "WRCPS-ExactKV"
+  ],
+  "workloads": [
+    1,
+    3
+  ],
+  "frames_per_scene": [
+    6,
+    8
+  ],
+  "minimum_independent_scenes": 6,
+  "rounds": 3,
+  "orders": [
+    [
+      "Native",
+      "WRCPS-ZeroKV",
+      "WRCPS-ExactKV"
+    ],
+    [
+      "WRCPS-ExactKV",
+      "WRCPS-ZeroKV",
+      "Native"
+    ],
+    [
+      "WRCPS-ZeroKV",
+      "Native",
+      "WRCPS-ExactKV"
+    ]
+  ],
+  "generation": [
+    "natural",
+    "same_native_reference_tokens_and_decode_forwards"
+  ],
+  "bootstrap": {
+    "unit": "scene",
+    "confidence": 0.95,
+    "repetitions": 10000,
+    "seed": 20261028
+  },
+  "quality_budgets": {
+    "mAP": 0.1,
+    "NDS": 0.1,
+    "DET_l": 0.1,
+    "Token_F1": 0.1
+  },
+  "critical_regressions_allowed": 0,
+  "measurements": [
+    "Prefill CUDA",
+    "Decode CUDA",
+    "M3 Wall",
+    "Composer Wall",
+    "Anchor Wall",
+    "Model Wall",
+    "Request Wall",
+    "peak GPU memory",
+    "cache memory",
+    "throughput",
+    "paired E2E CI",
+    "C-minus-B net benefit"
+  ],
+  "rule": "A/B quality before admitting C; never count forced decode as natural quality"
+}

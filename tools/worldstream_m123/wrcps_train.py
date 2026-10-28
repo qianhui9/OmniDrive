@@ -1,0 +1,181 @@
+"""Frozen native teacher/LLM distillation of the fixed-budget WRCPS adapter.
+
+Consumes real, hashed native captures and original language answer labels.
+Training is deliberately refused when M1 cannot produce stable world facts.
+Validation loss is development evidence, never the four-metric quality gate.
+"""
+import argparse
+from collections import Counter
+from dataclasses import asdict
+import hashlib
+import json
+import os
+from pathlib import Path
+import random
+import torch
+import torch.nn.functional as F
+from tools.worldstream_m123.benchmark.common import sha256, write
+from worldstream.m3.stable_world import StableAnchorManager, StableWorldSnapshot
+from worldstream.m3.world_prefix_composer import WorldPrefixComposer, LAYOUT_VERSION
+
+
+def validate_manifest(manifest):
+    splits = manifest['scene_splits']
+    allowed = {'train', 'validation', 'calibration', 'independent_acceptance'}
+    if not splits or set(splits.values())-allowed or not all(isinstance(s,str) and s for s in splits):
+        raise ValueError('Invalid scene partition')
+    if not {'train', 'validation'} <= set(splits.values()):
+        raise ValueError('Disjoint training and validation scenes are required')
+    samples = manifest['samples']
+    if not samples: raise ValueError('Real training captures are missing')
+    from nuscenes.utils.splits import create_splits_scenes
+    scene_table = json.loads(Path(manifest['nuscenes_scene_table']).read_text())
+    names = {s['token']:s['name'] for s in scene_table}
+    official_train = set(create_splits_scenes()['train'])
+    prior = {}; seen = set(); valid_pairs = Counter(); represented = Counter()
+    for sample in samples:
+        scene = sample['scene_id']; split = splits[scene]
+        if split not in ('train', 'validation'):
+            raise ValueError('Calibration/acceptance data must not enter adapter training')
+        represented[split] += 1
+        if names.get(scene) not in official_train:
+            raise ValueError('Adapter development must use official nuScenes training scenes')
+        key = (scene, sample['frame_id'])
+        if key in seen: raise ValueError('Duplicate frame capture')
+        seen.add(key)
+        if sha256(sample['capture']) != sample['capture_sha256']:
+            raise ValueError('Capture digest mismatch')
+        snapshot = StableWorldSnapshot(**dict(sample['stable_snapshot'],
+            facts=tuple(tuple(f) for f in sample['stable_snapshot']['facts'])))
+        if snapshot.content_sha256 != sample['stable_snapshot']['content_sha256']:
+            raise ValueError('Stable snapshot digest mismatch')
+        if (snapshot.scene_id,snapshot.frame_id) != key or not snapshot.facts:
+            raise ValueError('No qualified stable facts: adapter training cannot establish WRCPS feasibility')
+        context = dict(scene_id=scene,frame_id=sample['frame_id'],timestamp=snapshot.timestamp,
+            state_epoch=snapshot.state_epoch,state_version=snapshot.state_version,
+            state_execution_signature=snapshot.execution_signature)
+        manager = prior.setdefault(scene,StableAnchorManager())
+        _, hit = manager.update(snapshot,context); valid_pairs[split] += int(hit)
+        questions = json.loads(Path(sample['question_source']).read_text())
+        if sha256(sample['question_source']) != sample['question_source_sha256']:
+            raise ValueError('Natural question source changed')
+        for pair in sample['pairs']:
+            if not any(p.get('question') == pair['question'] and p.get('answer') == pair['answer'] for p in questions):
+                raise ValueError('Training labels must be original real natural-language labels')
+    if any(not represented[s] or not valid_pairs[s] for s in ('train','validation')):
+        raise ValueError('Both train and validation need real frames and cross-frame stable anchors')
+    return dict(frames=len(samples),stable_transitions=dict(valid_pairs),
+        training_scene_ids=sorted(s for s,p in splits.items() if p=='train'),
+        validation_scene_ids=sorted(s for s,p in splits.items() if p=='validation'))
+
+
+def multimodal_embeddings(base, ids, carriers, answer_ids):
+    ids = ids.reshape(-1)
+    markers = (ids == -200).nonzero().flatten()
+    if len(markers) != 1: raise ValueError('Training requires one native visual marker')
+    pos = int(markers[0])
+    embedding = base.get_input_embeddings()
+    answer_ids = answer_ids.reshape(-1).to(ids.device)
+    prompt = torch.cat((embedding(ids[:pos]).unsqueeze(0),carriers,
+                        embedding(ids[pos+1:]).unsqueeze(0)),1)
+    full = torch.cat((prompt,embedding(answer_ids).unsqueeze(0)),1)
+    return full, prompt.shape[1]-1, answer_ids
+
+
+def distillation_loss(student_logits, teacher_logits, labels, task_weight=1., critical=False):
+    # Answer positions only: no task supervision on visual pseudo-token IDs.
+    kl = F.kl_div(F.log_softmax(student_logits.float(),-1),
+        F.softmax(teacher_logits.float(),-1),reduction='batchmean')
+    ce = F.cross_entropy(student_logits.float(),labels)
+    loss = kl+task_weight*(2. if critical else 1.)*ce
+    return loss, dict(kl=float(kl.detach()),task_ce=float(ce.detach()),critical=critical)
+
+
+def train(args):
+    root=Path(args.output);root.mkdir(parents=True,exist_ok=False)
+    manifest=json.loads(Path(args.manifest).read_text())
+    evidence=validate_manifest(manifest)
+    write(root/'data_validation.json',evidence)
+    if args.preflight_only:return
+    if args.epochs < 1 or args.lr <= 0 or args.task_weight < 0:raise ValueError('Invalid training parameters')
+    import projects.mmdet3d_plugin
+    from tools.worldstream_m123.benchmark.worker import effective_config,load_model
+    from worldstream.m3.visual_state import base_model
+    from worldstream.m3.task_conditioner import task_profile
+    torch.manual_seed(args.seed);random.seed(args.seed)
+    cfg=effective_config('B0','language',root)
+    model=load_model(cfg,args.checkpoint,root).eval().requires_grad_(False)
+    base=base_model(model.lm_head)
+    base_hash=sha256(args.checkpoint)
+    if manifest['base_weights_sha256'] != base_hash:raise ValueError('Teacher checkpoint mismatch')
+    composer=WorldPrefixComposer(base.config.hidden_size,args.stable_tokens,args.rank).to('cuda')
+    optimizer=torch.optim.AdamW(composer.parameters(),lr=args.lr)
+    write(root/'training_config.json',dict(vars(args),**evidence,manifest_sha256=sha256(args.manifest),
+        base_weights_sha256=base_hash,loss='answer KL + task CE (critical query weight 2)',
+        temporal_loss='zero by construction for the same immutable world facts',
+        frozen='all native perception, heads, and LLM parameters',spec=composer.spec))
+    steps=0;best=float('inf')
+    for epoch in range(args.epochs):
+        for split in ('train','validation'):
+            composer.train(split=='train');managers={};losses=[]
+            for sample in manifest['samples']:
+                if manifest['scene_splits'][sample['scene_id']] != split:continue
+                capture=torch.load(sample['capture'],map_location='cpu')
+                snapshot=StableWorldSnapshot(**dict(sample['stable_snapshot'],
+                    facts=tuple(tuple(f) for f in sample['stable_snapshot']['facts'])))
+                if snapshot.content_sha256 != capture['stable_snapshot'].content_sha256:
+                    raise ValueError('Training snapshot differs from the real causal capture')
+                snapshot.validate(capture['stable_context'])
+                manager=managers.setdefault(snapshot.scene_id,StableAnchorManager())
+                anchor,_=manager.update(snapshot,capture['stable_context'])
+                native=capture['carriers'].cuda().detach()
+                for pair in sample['pairs']:
+                    index=pair['question_index']
+                    if capture['questions'][index] != pair['question']:raise ValueError('Capture question ordering mismatch')
+                    ids=capture['ids'][index].cuda()
+                    answer=model.tokenizer(pair['answer'],add_special_tokens=False,return_tensors='pt').input_ids.cuda()
+                    eos=model.tokenizer.eos_token_id
+                    answer=torch.cat((answer,torch.tensor([[eos]],device='cuda')),1)
+                    # Teacher retains original layout and original checkpoint.
+                    with torch.no_grad():
+                        teacher,start,labels=multimodal_embeddings(base,ids,native,answer)
+                        target=base(inputs_embeds=teacher,use_cache=False).logits[:,start:start+labels.numel()].detach()
+                    with torch.set_grad_enabled(split=='train'):
+                        composed=composer(native.float(),anchor).to(native.dtype)
+                        student,offset,_=multimodal_embeddings(base,ids,composed,answer)
+                        logits=base(inputs_embeds=student,use_cache=False).logits[:,offset:offset+labels.numel()]
+                        critical=task_profile(pair['question'])[1] in ('object_ego_motion','map_relations','full_visual')
+                        loss,details=distillation_loss(logits[0],target[0],labels,args.task_weight,critical)
+                        if not torch.isfinite(loss):raise ValueError('Nonfinite adapter distillation loss')
+                    if split=='train':
+                        optimizer.zero_grad(set_to_none=True);loss.backward()
+                        torch.nn.utils.clip_grad_norm_(composer.parameters(),1.);optimizer.step();steps+=1
+                    losses.append(float(loss.detach()))
+                    with (root/'training_log.jsonl').open('a') as f:
+                        f.write(json.dumps(dict(epoch=epoch,split=split,step=steps,frame_id=snapshot.frame_id,
+                            scene_id=snapshot.scene_id,loss=losses[-1],**details))+'\n')
+            if not losses:raise ValueError('Empty training/validation partition')
+            mean=sum(losses)/len(losses)
+            if split=='validation' and mean < best:
+                best=mean
+                torch.save(dict(spec=composer.spec,layout_version=LAYOUT_VERSION,state_dict=composer.state_dict(),
+                    trained_steps=steps,training_scene_ids=evidence['training_scene_ids'],
+                    validation_scene_ids=evidence['validation_scene_ids'],base_weights_sha256=base_hash,
+                    data_manifest_sha256=sha256(args.manifest),seed=args.seed,validation_loss=best),root/'adapter.pt')
+    write(root/'training_result.json',dict(trained_steps=steps,best_validation_loss=best,
+        adapter_sha256=sha256(root/'adapter.pt'),deployment_qualified=False))
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--manifest',required=True);p.add_argument('--output',required=True)
+    p.add_argument('--checkpoint',default='ckpts/iter_10548.pth')
+    p.add_argument('--stable-tokens',type=int,default=128);p.add_argument('--rank',type=int,default=128)
+    p.add_argument('--epochs',type=int,default=3);p.add_argument('--lr',type=float,default=1e-4)
+    p.add_argument('--task-weight',type=float,default=1.);p.add_argument('--seed',type=int,default=20261028)
+    p.add_argument('--preflight-only',action='store_true');a=p.parse_args()
+    if set(os.sched_getaffinity(0)) & {4,5}:p.error('Use taskset -c 0-3,6-31')
+    train(a)
+
+
+if __name__=='__main__':main()

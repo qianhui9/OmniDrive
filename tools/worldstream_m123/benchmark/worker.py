@@ -209,6 +209,15 @@ def run(args):
     write(dest/'m1_m2_source_hashes.json', {k:v for k,v in hashes.items() if Path(k).parent in directories[:2]})
     write(dest/'m1_m2_m3_source_hashes.json', hashes)
     cfg = effective_config(args.condition, args.workload, dest,getattr(args,'m3_strategy',None))
+    if getattr(args,'dataset_split','val') == 'train':
+        if (args.condition!='B3' or not args.capture_m3_inputs or not args.capture_stable_world
+                or not args.m3_zero_reuse or getattr(args,'wrcps_adapter',None)):
+            raise ValueError('Training split is restricted to native-layout, zero-KV real teacher captures')
+        cfg.data.test.ann_file=cfg.data.train.ann_file
+        for node in cfg.data.test.pipeline:
+            if node['type']=='LoadAnnoatationVQATest':
+                node['base_conv_path']='./data/nuscenes/conv/train/'
+                node['base_vqa_path']='./data/nuscenes/vqa/train/'
     configure_m2_evidence(cfg,args,dest)
     for key in ('global_anchor_interval','global_drift_threshold'):
         value=getattr(args,'m2_'+key,None)
@@ -223,6 +232,10 @@ def run(args):
         cfg.model.m2_config.update(risk)
     if getattr(args,'m3_policy',None):
         cfg.model.m3_config.reuse_policy=args.m3_policy
+    if getattr(args,'wrcps_adapter',None):
+        if args.condition!='B3' or args.m3_strategy!='exact_prefix':
+            raise ValueError('WRCPS experiments require B3 with exact_prefix')
+        cfg.model.m3_config.prefix_adapter=args.wrcps_adapter
     write(dest/'effective_config.json', dict(config=cfg._cfg_dict.to_dict(),
         note='Explicit benchmark workload/output/policy overrides; production source config unchanged.'))
     importlib.import_module('projects.mmdet3d_plugin')
@@ -468,6 +481,15 @@ def run(args):
         if fixed is not None:row['fixed_tokens']=fixed.collect(result['text_out'])
         if equivalence is not None:append(dest/'risk_equivalence.jsonl',equivalence.collect())
         row['identity'] = model.worldstream_audit_identity
+        if getattr(args, 'capture_stable_world', False):
+            from dataclasses import asdict
+            from worldstream.m3.stable_world import freeze_stable_world
+            manager = model.m1_manager
+            snapshot = freeze_stable_world(manager, dict(scene_id=info['scene_token'],
+                frame_id=info['token'], timestamp=info['timestamp']/1e6,
+                state_epoch=manager.store.generation, state_version=manager.store.commit_count,
+                state_execution_signature=manager.store.execution_signature))
+            append(dest/'stable_world_snapshots.jsonl', asdict(snapshot))
         if model.m1_manager is not None:
             # Existing CPU timers; read outside request timing without copying
             # dense M1 audit/observation arrays into a 6019-frame result file.
@@ -565,12 +587,19 @@ def run(args):
             if calls[0]['carriers'].shape[1]!=513:raise ValueError('Unexpected real OmniDrive carrier layout')
             state=getattr(model,'m3_verified_state',None)
             if state is None:raise RuntimeError('Capture requires real frozen M1 state')
+            from worldstream.m3.stable_world import freeze_stable_world
+            manager=model.m1_manager
+            stable_context=dict(scene_id=state.scene_id,frame_id=state.frame_id,timestamp=state.timestamp,
+                state_epoch=manager.store.generation,state_version=manager.store.commit_count,
+                state_execution_signature=manager.store.execution_signature)
+            stable_snapshot=freeze_stable_world(manager,stable_context)
             folder=dest/'m3_inputs';folder.mkdir(exist_ok=True)
             torch.save(dict(carriers=calls[0]['carriers'].detach().cpu(),
                 ids=[c['ids'].detach().cpu().reshape(-1) for c in calls],
                 generated_ids=[g['output'].detach().cpu() for g in (observer.native_generations or observer.prefill_generations)],
                 rng=[(c['cpu_rng'],c['cuda_rng']) for c in calls],generation=calls[0]['generation'],
                 questions=[a['Q'] for a in result['text_out']],verified_state=state,
+                stable_snapshot=stable_snapshot,stable_context=stable_context,
                 layout=CarrierLayout(256,1,256),m2=row['m2'],
                 context=dict(scene_id=state.scene_id,frame_id=state.frame_id,timestamp=state.timestamp,
                     camera_ids=list(info['cams']),state_epoch=state.state_epoch,state_version=state.state_version,
@@ -743,12 +772,15 @@ def main():
     parser.add_argument('--question-selection', choices=['ordered','balanced'], default='ordered')
     parser.add_argument('--sequence-file', help='Explicit ordered real sample tokens for paired multi-scene runs')
     parser.add_argument('--capture-m1-controls',action='store_true',help='Save real committed inputs outside timed requests for identical-state CPU controls')
+    parser.add_argument('--capture-stable-world', action='store_true', help='Audit qualified current M1 stable facts after actual six-camera inference')
+    parser.add_argument('--dataset-split', choices=['val','train'], default='val', help='train is capture-only adapter development; never acceptance evidence')
     parser.add_argument('--runtime-profile',action='store_true',help='Diagnostic only: sampled cProfile and CUDA trace, not performance evidence')
     parser.add_argument('--profile-frame',type=int,default=1)
     parser.add_argument('--capture-m3-inputs', action='store_true', help='Capture real native inputs outside service timing for offline calibration')
     parser.add_argument('--trace-m3-decisions', action='store_true',
         help='Read-only candidate statistics for offline signal replay; no embeddings or KV copies')
     parser.add_argument('--m3-policy', help='Unified fitted WSDR policy for this experiment')
+    parser.add_argument('--wrcps-adapter', help='Trained experimental Composer; requires a newly bound exact policy, never changes production config')
     parser.add_argument('--repeat', type=int, default=0)
     parser.add_argument('--measurement-set', choices=['main', 'attribution', 'efficiency', 'smoke'], default='smoke')
     parser.add_argument('--seed', type=int, default=0)

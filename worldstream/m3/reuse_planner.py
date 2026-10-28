@@ -61,7 +61,8 @@ class ReusePlanner:
         task, profile, relevant = task_profile(question)
         signals = risk_signals(history, context, m2_diagnostics)
         details = dict(task_type=task, task_profile=profile, relevant_groups=relevant,
-            layout_signature=expanded.layout_signature, layout_permutation=GROUPS,
+            layout_signature=expanded.layout_signature,
+            layout_permutation=tuple(g for g,_,_ in expanded.visual_group_spans) or GROUPS,
             strategy_version=WSDR_VERSION, **signals)
         entry = cache.validate_storage()
         frame_index = context.get('frame_index', 0)

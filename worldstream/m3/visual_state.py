@@ -189,14 +189,27 @@ def expand_input(lm_head, input_ids, images, attention_mask=None, position_ids=N
     if carrier_layout is not None:
         if images is None or images.shape[0]!=1 or images.shape[1]!=carrier_layout.total:
             raise ValueError('Carrier provenance requires one complete visual carrier')
-        order=tuple(carrier_order or ('object','ego','map'))
-        if order != ('object','ego','map'):raise ValueError('Carrier reorder is unsupported')
+        expected_order=tuple(g for g,_ in carrier_layout.groups)
+        if not isinstance(carrier_layout, CarrierLayout):
+            from .world_prefix_composer import WorldPrefixLayout
+            if not isinstance(carrier_layout, WorldPrefixLayout):
+                raise ValueError('Unknown visual layout contract')
+        order=tuple(carrier_order or expected_order)
+        if order != expected_order:raise ValueError('Carrier reorder is unsupported')
         markers=(raw==IMAGE_TOKEN_INDEX).nonzero(as_tuple=False).flatten().tolist()
+        if len(markers)!=1:
+            raise ValueError('Carrier provenance requires exactly one image marker')
         if len(markers)==1:
             cursor=markers[0];rows=[];sizes=dict(carrier_layout.groups)
             for group in order:
                 rows.append((group,cursor,cursor+sizes[group]));cursor+=sizes[group]
             spans=tuple(rows)
-        layout_signature = layout_signature or hashlib.sha256(repr(carrier_layout.groups).encode()).hexdigest()
+        layout_signature = layout_signature or carrier_layout_signature(carrier_layout)
     return ExpandedInput(embeds, ids, positions, mask, visual, tuple(scope), signature, tuple(source),
                          layout_signature,spans)
+
+
+def carrier_layout_signature(layout):
+    # Preserve the native signature; new layouts explicitly bind their schema.
+    description = layout.groups if isinstance(layout, CarrierLayout) else (layout.order_contract, layout.groups)
+    return hashlib.sha256(repr(description).encode()).hexdigest()

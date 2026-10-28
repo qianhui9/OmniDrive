@@ -35,6 +35,8 @@ class Scheduler:
         binding = self.policy.get('binding', {})
         keys = ('model_version', 'weights_sha256', 'execution_key', 'generation_key',
                 'layout_signature', 'dtype')
+        if self.config.prefix_adapter:
+            keys += ('adapter_sha256',)
         return (self.policy.get('block_size') == self.config.block_size
                 and all(context.get(k) and context[k] == binding.get(k) for k in keys))
 
