@@ -4,6 +4,10 @@ Llava.generate refuses inputs_embeds. A request-local GenerationMixin facade
 uses native expanded embeddings for its first forward and delegates every decode
 to the original model. HF retains its BOS convention, processors, RNG, EOS and
 stopping criteria. No images are passed back into the model.
+
+History blocks are an opt-in research path. Their ideal-arithmetic selection
+rule is target-equivalent, but real FP16 block/serial numerical identity must
+be qualified separately before deployment (the 3090 study found differences).
 """
 import copy
 import math
@@ -12,6 +16,7 @@ import torch
 from torch import nn
 from transformers.generation.utils import GenerationMixin
 from transformers.modeling_outputs import CausalLMOutputWithPast
+from transformers.generation.utils import GreedySearchDecoderOnlyOutput, SampleDecoderOnlyOutput
 from .prefix_matcher import input_revision
 
 
@@ -26,6 +31,12 @@ class GenerationFacade(nn.Module, GenerationMixin):
         self.expanded = expanded
         self.first_forward = first_forward
         self.first = True
+        self.draft_tokens = ()
+        self.draft_length = 8
+        self.diagnostics = dict(decode_forward_calls=0,decode_forward_input_lengths=[],
+                                decode_forward_host_enqueue_ms=0.)
+        self.decode_events = []
+        self.profile = False
         # HF appends exactly one unmasked token per step for batch-one decoding.
         # Keep the prompt count on-device instead of rescanning its complete
         # attention mask with cumsum/masked_fill for every generated token.
@@ -55,10 +66,158 @@ class GenerationFacade(nn.Module, GenerationMixin):
         if self.first:
             self.first = False
             return self.first_forward()
-        return self.model(input_ids=input_ids, attention_mask=attention_mask,
+        tick = perf_counter()
+        if self.profile and self.device.type == 'cuda':
+            a, b = (torch.cuda.Event(enable_timing=True) for _ in range(2)); a.record()
+        result = self.model(input_ids=input_ids, attention_mask=attention_mask,
             position_ids=position_ids, past_key_values=past_key_values,
             use_cache=True, return_dict=True, output_attentions=output_attentions,
             output_hidden_states=output_hidden_states)
+        if self.profile and self.device.type == 'cuda':
+            b.record(); self.decode_events.append((a, b, input_ids.shape[-1]))
+        self.diagnostics['decode_forward_calls'] = self.diagnostics.get('decode_forward_calls', 0) + 1
+        self.diagnostics['decode_forward_input_lengths'].append(input_ids.shape[-1])
+        self.diagnostics['decode_forward_host_enqueue_ms'] += (perf_counter()-tick)*1000
+        return result
+
+    def greedy_search(self, input_ids, logits_processor=None, stopping_criteria=None, **kwargs):
+        if not self.draft_tokens:
+            return super().greedy_search(input_ids, logits_processor=logits_processor,
+                stopping_criteria=stopping_criteria, **kwargs)
+        return self._history_decode(input_ids, logits_processor, stopping_criteria, **kwargs)
+
+    def sample(self, input_ids, logits_processor=None, stopping_criteria=None, logits_warper=None, **kwargs):
+        if not self.draft_tokens:
+            return super().sample(input_ids, logits_processor=logits_processor,
+                stopping_criteria=stopping_criteria, logits_warper=logits_warper, **kwargs)
+        return self._history_decode(input_ids, logits_processor, stopping_criteria,
+            logits_warper=logits_warper, sampling=True, **kwargs)
+
+    def _history_decode(self, ids, processors, stopping, logits_warper=None, sampling=False,
+                        eos_token_id=None, pad_token_id=None, output_scores=False,
+                        return_dict_in_generate=False, synced_gpus=False, streamer=None, **kwargs):
+        """One request-local target verifier; K/V always derives from this prefill.
+
+        A correction/bonus is pending until the next forward. Feed it together
+        with the next block so a fully accepted block costs one forward. A
+        rejected suffix is sliced off before any continuation. History is
+        abandoned after the first rejection to bound wasted verification work.
+        HF generate has already prepared the actual processors/warpers/stoppers.
+        """
+        if synced_gpus or streamer is not None or ids.shape != (1, 1):
+            raise ValueError('History verification supports batch-one local decoding')
+        output = self.forward(inputs_embeds=self.expanded.embeddings,
+                              attention_mask=self.expanded.attention_mask)
+        kv, logits = output.past_key_values, output.logits[:, -1]
+        del output
+        eos = {eos_token_id} if isinstance(eos_token_id, int) else set(eos_token_id or ())
+        pending = None
+        active = True
+        scores = () if return_dict_in_generate and output_scores else None
+        diag = self.diagnostics
+        diag.update(verification_forward_calls=0, draft_candidate_tokens=0,
+                    draft_accepted_tokens=0, verification_log=[], kv_crop_host_ms=0.)
+
+        def transform(raw):
+            value = processors(ids, raw.clone()) if processors is not None else raw
+            return logits_warper(ids, value) if sampling and logits_warper is not None else value
+
+        def emit(token, value):
+            nonlocal ids, scores
+            ids = torch.cat((ids, token.reshape(1, 1)), -1)
+            if scores is not None:
+                scores += (value,)
+            return int(token) in eos or bool(stopping(ids, scores))
+
+        while True:
+            generated = ids.shape[-1]-1
+            room = stopping.max_length-ids.shape[-1]
+            candidates = self.draft_tokens[generated:generated+min(self.draft_length, room)] if active else ()
+            if not candidates:
+                if pending is not None:
+                    length = kv[0][0].shape[-2]
+                    output = self._target_forward(pending.reshape(1,1), kv, length)
+                    kv, logits = output.past_key_values, output.logits[:, -1]
+                    del output
+                value = transform(logits)
+                token = torch.multinomial(torch.softmax(value, -1), 1)[0,0] if sampling else value.argmax(-1)[0]
+                pending = token
+                if emit(token, value):
+                    break
+                continue
+            proposed = ids.new_tensor(candidates).reshape(1,-1)
+            block = torch.cat((pending.reshape(1,1), proposed), -1) if pending is not None else proposed
+            length = kv[0][0].shape[-2]
+            output = self._target_forward(block, kv, length)
+            target = output.logits
+            kv = output.past_key_values
+            # logits before d_0 come from prefill, or from the pending token.
+            distributions = target[:, :-1] if pending is not None else torch.cat((logits[:,None],target[:,:-1]),1)
+            base_length = length + int(pending is not None)
+            log = dict(output_offset=generated, proposed=list(candidates), accepted=0,
+                       rejection_position=None, forward_input_tokens=block.shape[-1])
+            diag['verification_forward_calls'] += 1
+            diag['draft_candidate_tokens'] += len(candidates)
+            diag['verification_log'].append(log)
+            rejected = False
+            finished = False
+            for j, candidate in enumerate(candidates):
+                value = transform(distributions[:,j])
+                if sampling:
+                    token, accepted = deterministic_draft_sample(torch.softmax(value,-1), candidate)
+                else:
+                    token = value.argmax(-1)[0]
+                    accepted = int(token) == candidate
+                if accepted:
+                    log['accepted'] += 1
+                    diag['draft_accepted_tokens'] += 1
+                else:
+                    rejected = True
+                    active = False
+                    log['rejection_position'] = j
+                finished = emit(token, value)
+                if rejected or finished:
+                    break
+            crop_tick = perf_counter()
+            kv = tuple(tuple(t[..., :base_length+log['accepted'], :] for t in layer) for layer in kv)
+            diag['kv_crop_host_ms'] += (perf_counter()-crop_tick)*1000
+            if finished:
+                break
+            if rejected:
+                pending = token
+            else:
+                value = transform(target[:,-1])
+                pending = torch.multinomial(torch.softmax(value,-1),1)[0,0] if sampling else value.argmax(-1)[0]
+                if emit(pending, value):
+                    break
+            del output, target, distributions
+        if return_dict_in_generate:
+            cls = SampleDecoderOnlyOutput if sampling else GreedySearchDecoderOnlyOutput
+            return cls(sequences=ids, scores=scores)
+        return ids
+
+    def _target_forward(self, tokens, kv, length):
+        count = tokens.shape[-1]
+        added = length-self.expanded.length
+        attention = torch.cat((self.expanded.attention_mask,
+            self.expanded.attention_mask.new_ones((1, added+count))), -1)
+        positions = self.prompt_unmasked + added + torch.arange(count,device=self.device)[None]
+        return self.forward(input_ids=tokens, attention_mask=attention,
+            position_ids=positions, past_key_values=kv)
+
+
+def deterministic_draft_sample(probabilities, candidate, generator=None):
+    """q=delta(candidate): accept p(d); reject using p with d removed.
+
+    Mixing accepted proposals and residual corrections returns a token with law p.
+    Kept separate for exact transition-law and Monte Carlo boundary tests.
+    """
+    p = probabilities.reshape(-1)
+    if torch.rand((), device=p.device, generator=generator) < p[candidate]:
+        return p.new_tensor(candidate, dtype=torch.long), True
+    residual = p.clone()
+    residual[candidate] = 0
+    return torch.multinomial(residual, 1, generator=generator)[0], False
 
 
 class PrefillExecutor:
@@ -72,10 +231,12 @@ class PrefillExecutor:
 
     @torch.no_grad()
     def generate(self, model, expanded, reuse_length=0, capture=True, profile=False, decision=None,
+                 draft_tokens=None, draft_length=8, experimental_sampling=False,
                  **generation):
         if any(m.training for m in model.modules()):
             raise ValueError('M3 execution is inference only')
-        effective = lambda name, default=None: generation.get(name, getattr(model.generation_config, name, default))
+        config = generation.get('generation_config') or model.generation_config
+        effective = lambda name, default=None: generation.get(name, getattr(config, name, default))
         if effective('num_beams', 1) != 1 or effective('num_return_sequences', 1) != 1 or effective('penalty_alpha') is not None:
             raise ValueError('M3 supports one greedy or sampling sequence')
         if generation.get('use_cache', True) is not True:
@@ -128,6 +289,8 @@ class PrefillExecutor:
             effective_prefill_tokens=n - reuse_length, forward_prefill_lengths=[],
             computed_source=list(self.cache.entry.computed_source) if reuse_length else list(expanded.source),
             suffix_computed_source=list(expanded.source))
+        diagnostics.update(decode_forward_calls=0, decode_forward_input_lengths=[],
+            decode_forward_host_enqueue_ms=0., draft_status='none')
         diagnostics.update(reuse_type=decision.reuse_type if decision else ('exact' if reuse_length else 'none'),
             cache_age_frames=decision.cache_age_frames if decision else 0,
             approx_reuse_depth=decision.approx_reuse_depth if decision else 0)
@@ -203,6 +366,20 @@ class PrefillExecutor:
             return output
 
         facade = GenerationFacade(model, expanded, first_forward)
+        facade.diagnostics = diagnostics
+        facade.profile = profile
+        if type(draft_length) is not int or not 1 <= draft_length <= 32:
+            raise ValueError('draft_length must be in [1,32]')
+        draft = list(draft_tokens) if draft_tokens is not None else []
+        valid = all(type(t) is int and 0 <= t < model.config.vocab_size for t in draft)
+        if draft and valid:
+            if effective('do_sample', False) and not experimental_sampling:
+                raise ValueError('Sampling verifier requires explicit experimental_sampling validation opt-in')
+            facade.draft_tokens = tuple(draft)
+            facade.draft_length = draft_length
+            diagnostics['draft_status'] = 'target_verification'
+        elif draft:
+            diagnostics['draft_status'] = 'invalid_tokens_native'
         tick = perf_counter()
         answer = facade.generate(inputs_embeds=expanded.embeddings,
             attention_mask=expanded.attention_mask, **generation)
@@ -216,6 +393,9 @@ class PrefillExecutor:
             diagnostics['decode_loop_gpu_span_ms'] = events[-1][1].elapsed_time(generation_end)
             diagnostics['generation_gpu_span_ms'] = generation_start.elapsed_time(generation_end)
             diagnostics['cache_branch_gpu_span_ms']=sum(a.elapsed_time(b) for a,b in branch_events)
+            diagnostics['decode_forward_cuda_ms'] = sum(a.elapsed_time(b) for a,b,_ in facade.decode_events)
+            diagnostics['verification_forward_cuda_ms'] = sum(a.elapsed_time(b) for a,b,k in facade.decode_events if k>1)
+            diagnostics['decode_forward_cuda_events'] = [dict(input_tokens=k,cuda_ms=a.elapsed_time(b)) for a,b,k in facade.decode_events]
             diagnostics['timing_method'] = 'CUDA event stream spans; includes host gaps; decode includes HF sampling loop'
         diagnostics['llm_wall_ms' if profile else 'llm_cpu_enqueue_ms'] = (perf_counter() - tick) * 1000
         diagnostics['cache_bytes'] = self.cache.nbytes

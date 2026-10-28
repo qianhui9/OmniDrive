@@ -1,0 +1,7 @@
+# Deterministic-history speculative sampling
+
+Condition on the current accepted prefix, current visual prefill and actual target weights. Let p be softmax of the logits after the exact installed HF logits processors and warpers. A deterministic history proposal d has q(x)=1[x=d]. Accept d iff U < p(d), U uniform on [0,1). On rejection sample r(d)=0, r(x)=p(x)/(1-p(d)) for x != d. Then P(output=d)=p(d), and for x!=d, P(output=x)=(1-p(d))*r(x)=p(x). Apply inductively at each accepted prefix. This also covers history proposals chosen from the prior random output, conditional on that history.
+
+Boundary p(d)=1 always accepts and never constructs a zero-mass residual; p(d)=0 always rejects. Future draft tokens must remain causally masked. On rejection crop K/V to the current prefix plus accepted draft tokens; generate the correction from the residual and recompute its K/V in the current context. If the entire block is accepted, sample a bonus token from the final target logits. Stopping and processors must see the actual emitted prefix at each position. A fixed random seed need not produce the same token sequence as native sampling.
+
+This algebra proves the ideal-arithmetic transition rule. It does not establish numerical equivalence of multi-token versus single-token GPU forwards. Statistical tests of the transition rule, real model logits/greedy agreement and deployed sampling checks are separate required evidence. Tests and measurements will report their own status.

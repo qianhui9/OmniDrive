@@ -13,6 +13,7 @@ from .prefill_executor import PrefillExecutor
 from .scheduler import Scheduler
 from .world_state import query_world_state,insert_state_context
 from .reuse_planner import ReusePlanner,WSDR_VERSION
+from .answer_memory import AnswerMemory
 
 
 class M3Runtime:
@@ -20,6 +21,7 @@ class M3Runtime:
         self.config=config if isinstance(config,M3Config) else M3Config(**(config or {}))
         self.cache=PrefixKVCache(self.config.memory_budget_mb*1024**2)
         self.executor=PrefillExecutor(self.cache)
+        self.answer_memory=AnswerMemory()
         self.scheduler=Scheduler(self.config)
         self.planner=ReusePlanner(self.scheduler)
         self._scope=self._signature=self._timestamp=None
@@ -41,6 +43,7 @@ class M3Runtime:
         self.visual_memories=VisualMemoryManager(8, self.config.stable_anchor_max_frames)
 
     def reset(self):
+        self.answer_memory.reset()
         self.cache.reset();self._scope=self._signature=self._timestamp=None
         self._state_version=self._frame_id=None
         self._frame_index=0
@@ -75,6 +78,7 @@ class M3Runtime:
         ids_list=list(input_ids_list);questions=list(questions) if questions is not None else ['']*len(ids_list)
         if len(questions)!=len(ids_list):raise ValueError('Question order must match input IDs')
         base=base_model(lm_head);self.validate_contract(base,generation)
+        history_decode=self.config.decode_strategy=='history_draft'
         if layout is not None and vision_carriers is not None and vision_carriers.shape[1]!=layout.total:
             raise ValueError('M3 requires the complete declared current visual layout')
         cameras=context.get('camera_ids',());timestamp=context.get('timestamp')
@@ -210,7 +214,9 @@ class M3Runtime:
         if type(version) is int and type(self._state_version) is int and version<self._state_version:
             invalidation='state_version_rollback'
         new_frame=context['frame_id']!=self._frame_id
-        if invalidation:self.cache.reset()
+        if invalidation:
+            self.cache.reset()
+            self.answer_memory.reset()
         if signature!=self._signature or self._deployment_key is None:
             key=deployment_key(lm_head)
             self._deployment_key=(hashlib.sha256((key+repr(adapter_binding)+layout_mode
@@ -225,6 +231,13 @@ class M3Runtime:
         context['execution_key']=self._deployment_key
         context['generation_key']=hashlib.sha256(json.dumps(dict(defaults=base.generation_config.to_dict(),
             overrides=generation),sort_keys=True,default=repr).encode()).hexdigest()
+        if history_decode:
+            tokenizer_tick=perf_counter()
+            tokenizer_key=hashlib.sha256(repr((type(tokenizer).__qualname__,
+                getattr(tokenizer,'name_or_path',None),getattr(tokenizer,'special_tokens_map',None),
+                sorted(tokenizer.get_vocab().items()) if tokenizer is not None else None)).encode()).hexdigest()
+            answer_binding=(signature,tokenizer_key,context['generation_key'])
+            tokenizer_binding_ms=(perf_counter()-tokenizer_tick)*1000
         context['layout_signature']=carrier_layout_signature(layout) if layout else ''
         context['dtype']=str(base.get_input_embeddings().weight.dtype)
         signature_ms=(perf_counter()-start)*1000
@@ -233,6 +246,8 @@ class M3Runtime:
             question_tick=perf_counter();q_invalidation=invalidation if index==0 else None
             retrieval=query_world_state(verified_state,question,context)
             retrieval=dict(retrieval)
+            if history_decode:
+                retrieval.update(admitted=False,reason='history_draft_keeps_native_prompt')
             if retrieval['admitted']:
                 if not self.scheduler.history_enabled(context):
                     retrieval.update(admitted=False,reason='history_text_not_calibrated')
@@ -250,6 +265,16 @@ class M3Runtime:
             had_cache=self.cache.entry is not None
             decision,plan=self.planner.plan(question,expanded,self.cache,retrieval,context,m2_diagnostics,
                 overhead_ms=preparation_ms+(signature_ms+composer_ms+anchor_ms)/max(1,len(ids_list)))
+            draft=None
+            selection_ms=0.
+            if history_decode:
+                from .reuse_planner import ReuseDecision
+                decision=ReuseDecision(decision_reason='history_decode_current_full_prefill',frame_index=self._frame_index)
+                tick=perf_counter()
+                prompt_ids=tuple(ids.reshape(-1).tolist())
+                record=self.answer_memory.select(prompt_ids,context,answer_binding)
+                draft=record.tokens if record else None
+                selection_ms=(perf_counter()-tick)*1000
             if had_cache and self.cache.entry is None:q_invalidation='cache_storage_revision_changed'
             matched=plan.get('matched_prefix_tokens',0)
             reason=decision.decision_reason
@@ -259,13 +284,22 @@ class M3Runtime:
             self.executor.last_diagnostics = {}
             try:
                 answer,diag=self.executor.generate(base,expanded,decision=decision,capture=True,
-                    profile=context.get('profile',False),**generation)
+                    profile=context.get('profile',False),draft_tokens=draft,draft_length=self.config.draft_length,
+                    experimental_sampling=self.config.experimental_speculative_sampling,**generation)
             except Exception as error:
                 rows.append(dict(self.executor.last_diagnostics, request_index=index,
                     executor='PrefillExecutor', matched_prefix=matched, prefix_admission=reason,
                     state_retrieval=retrieval, error_type=type(error).__name__, error=str(error)))
                 raise
             diag.update(plan,**decision.diagnostics())
+            if history_decode:
+                tick=perf_counter()
+                tokens=answer.sequences if hasattr(answer,'sequences') else answer
+                self.answer_memory.remember(question,prompt_ids,tokens[0,1:].tolist(),context,answer_binding)
+                diag.update(decode_strategy='history_draft',draft_selection_wall_ms=selection_ms,
+                    draft_management_wall_ms=(perf_counter()-tick)*1000,
+                    tokenizer_binding_wall_ms=tokenizer_binding_ms/max(1,len(ids_list)),
+                    draft_source_frame=record.frame_id if record else None)
             reused_visual=int(expanded.visual_mask[:,:diag['reused_tokens']].sum())
             diag.update(request_index=index,mode='prefix_prefill' if diag['reused_tokens'] else 'full_prefill',
                 matched_prefix=matched,prefix_admission=reason,state_retrieval=retrieval,

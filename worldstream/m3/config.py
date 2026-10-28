@@ -18,8 +18,18 @@ class M3Config:
     stable_anchor_max_frames: int = 8
     semantic_qualification: str = ''
     prefix_layout: str = 'legacy_fixed'
+    decode_strategy: str = 'native'  # history_draft is an unqualified research option
+    draft_length: int = 8
+    experimental_speculative_sampling: bool = False
 
     def __post_init__(self):
+        if self.decode_strategy not in ('native','history_draft'):
+            raise ValueError('Unknown decode strategy')
+        if type(self.draft_length) is not int or not 1 <= self.draft_length <= 32:
+            raise ValueError('Invalid draft length')
+        if self.decode_strategy != 'native' and (self.prefix_adapter or self.prefix_layout != 'legacy_fixed'
+                or self.reuse_strategy != 'exact_prefix'):
+            raise ValueError('History decode requires complete native vision and exact_prefix configuration')
         if self.mode != 'auto' or self.state_context != 'augment':
             raise ValueError('M3 supports one automatic prefill/decode path')
         if self.reuse_strategy not in ('exact_prefix', 'wsdr_kv'):
