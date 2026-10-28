@@ -17,13 +17,16 @@ class M3Config:
     prefix_adapter: str = ''
     stable_anchor_max_frames: int = 8
     semantic_qualification: str = ''
+    prefix_layout: str = 'legacy_fixed'
 
     def __post_init__(self):
         if self.mode != 'auto' or self.state_context != 'augment':
             raise ValueError('M3 supports one automatic prefill/decode path')
         if self.reuse_strategy not in ('exact_prefix', 'wsdr_kv'):
             raise ValueError('Unknown M3 reuse strategy')
-        if self.prefix_adapter and self.reuse_strategy != 'exact_prefix':
+        if self.prefix_layout not in ('legacy_fixed','sf_adaptive'):
+            raise ValueError('Unknown visual prefix layout')
+        if (self.prefix_adapter or self.prefix_layout=='sf_adaptive') and self.reuse_strategy != 'exact_prefix':
             raise ValueError('WRCPS requires exact_prefix; native approximate policy is inapplicable')
         if type(self.stable_anchor_max_frames) is not int or self.stable_anchor_max_frames < 1:
             raise ValueError('Invalid stable anchor horizon')

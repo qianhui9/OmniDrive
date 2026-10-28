@@ -30,6 +30,10 @@ class M3Runtime:
         from .stable_world import StableAnchorManager
         self.stable_anchors=StableAnchorManager(self.config.stable_anchor_max_frames)
         self.composer=None
+        self._adaptive_adapter_hash=''
+        if self.config.prefix_layout=='sf_adaptive' and self.config.prefix_adapter:
+            from pathlib import Path
+            self._adaptive_adapter_hash=hashlib.sha256(Path(self.config.prefix_adapter).read_bytes()).hexdigest()
         self.last_composed_carriers=None  # current-request observer reference, never history lookup
         from .semantic_core import SemanticQualifier
         self.semantic_qualifier=SemanticQualifier(self.config.semantic_qualification) if self.config.semantic_qualification else None
@@ -77,8 +81,11 @@ class M3Runtime:
         composer_ms=anchor_ms=anchor_update_ms=core_extraction_ms=0.
         self.last_composed_carriers=None
         anchor=None;anchor_hit=False
-        if self.config.prefix_adapter:
-            from .world_prefix_composer import WorldPrefixComposer
+        adaptive=self.config.prefix_layout=='sf_adaptive'
+        layout_mode='native_full_visual'
+        adapter_binding=()
+        if self.config.prefix_adapter or adaptive:
+            from .world_prefix_composer import WorldPrefixComposer,SpatiallyFaithfulComposer
             if not isinstance(layout,CarrierLayout) or layout.groups != (('object',256),('ego',1),('map',256)):
                 raise ValueError('WRCPS requires the native source carrier contract')
             if stable_world_state is None:
@@ -90,23 +97,35 @@ class M3Runtime:
             core_extraction_ms=context.get('stable_snapshot_wall_ms',0.)
             anchor_ms=anchor_update_ms+core_extraction_ms
             tick=perf_counter()
-            if self.composer is None:
-                weight=base.get_input_embeddings().weight
-                self.composer=WorldPrefixComposer.load_adapter(self.config.prefix_adapter,
-                    base.config.hidden_size,weight.device,torch.float32)
-            if self.composer.base_weights_sha256 != context.get('weights_sha256'):
-                raise ValueError('WRCPS adapter base checkpoint mismatch')
-            if (self.composer.semantic_qualification_sha256
-                    and self.composer.semantic_qualification_sha256!=stable_world_state.qualification_id):
-                raise ValueError('WRCPS adapter semantic qualification mismatch')
-            if self.composer.revision() != self.composer.loaded_revision:
-                raise ValueError('Loaded WRCPS adapter weights were modified')
-            vision_carriers=self.composer(vision_carriers.to(dtype=self.composer.stable_queries.dtype),
-                anchor,use_anchor_cache=True)
+            if not adaptive or anchor.stable_state_valid:
+                if not self.config.prefix_adapter:
+                    raise ValueError('Valid SF-WRCPS core requires a trained spatial adapter')
+                if self.composer is None:
+                    weight=base.get_input_embeddings().weight
+                    self.composer=WorldPrefixComposer.load_adapter(self.config.prefix_adapter,
+                        base.config.hidden_size,weight.device,torch.float32)
+                if adaptive != isinstance(self.composer,SpatiallyFaithfulComposer):
+                    raise ValueError('Adapter and requested adaptive visual layout mismatch')
+                if self.composer.base_weights_sha256 != context.get('weights_sha256'):
+                    raise ValueError('WRCPS adapter base checkpoint mismatch')
+                if (self.composer.semantic_qualification_sha256
+                        and self.composer.semantic_qualification_sha256!=stable_world_state.qualification_id):
+                    raise ValueError('WRCPS adapter semantic qualification mismatch')
+                if self.composer.revision() != self.composer.loaded_revision:
+                    raise ValueError('Loaded WRCPS adapter weights were modified')
+                vision_carriers=self.composer(vision_carriers.to(dtype=self.composer.stable_queries.dtype),
+                    anchor,use_anchor_cache=True)
+                layout=self.composer.layout
+                layout_mode='stable_core_visual'
+                adapter_binding=(self.composer.adapter_sha256,self.composer.revision(),
+                    self.composer.implementation_signature(),layout.order_contract)
+            else:
+                # No learned computation, casting, padding, permutation or
+                # query conditioning: this is the SAME native tensor/layout.
+                adapter_binding=(self._adaptive_adapter_hash,'sf_native_identity_v1')
             if context.get('profile'):self.last_composed_carriers=vision_carriers
-            layout=self.composer.layout
             composer_ms=(perf_counter()-tick)*1000
-            context['adapter_sha256']=self.composer.adapter_sha256
+            context['adapter_sha256']=self.composer.adapter_sha256 if layout_mode=='stable_core_visual' else self._adaptive_adapter_hash
             context['semantic_qualification_sha256']=stable_world_state.qualification_id
         start=perf_counter();signature=execution_signature(lm_head,context['model_version'])
         signature=(signature,WSDR_VERSION)
@@ -115,8 +134,7 @@ class M3Runtime:
             # Visual anchor metadata is checked at its causal span boundary.
             # A changed/invalid anchor can still reuse identical fixed TEXT;
             # equal null embeddings never legalize cross-frame visual reuse.
-            signature+=(self.composer.adapter_sha256,self.composer.revision(),
-                self.composer.implementation_signature(),layout.order_contract)
+            signature+=(adapter_binding,layout_mode,anchor.qualification_id,carrier_layout_signature(layout))
         invalidation=None
         if self._scope is None:invalidation='cold_cache'
         elif scope!=self._scope:invalidation='scene_camera_or_epoch_changed'
@@ -132,9 +150,8 @@ class M3Runtime:
         if invalidation:self.cache.reset()
         if signature!=self._signature or self._deployment_key is None:
             key=deployment_key(lm_head)
-            self._deployment_key=(hashlib.sha256((key+self.composer.adapter_sha256+layout.order_contract
-                +repr(self.composer.implementation_signature())+anchor.qualification_id
-                +repr(tuple((n,str(p.dtype)) for n,p in self.composer.named_parameters()))
+            self._deployment_key=(hashlib.sha256((key+repr(adapter_binding)+layout_mode
+                +carrier_layout_signature(layout)+anchor.qualification_id
                 +(self.semantic_qualifier.implementation_signature() if self.semantic_qualifier else '')).encode()).hexdigest()
                 if anchor is not None else key)
         if invalidation:self._frame_index=0
@@ -206,7 +223,8 @@ class M3Runtime:
                 stable_anchor_age=anchor.anchor_age if anchor else None,
                 semantic_qualification_sha256=anchor.qualification_id if anchor else None,
                 stable_anchor_update_reason=anchor.update_reason if anchor and not anchor_hit else None,
-                stable_prefix_tokens=layout.stable_tokens if anchor else 0,
+                stable_prefix_tokens=getattr(layout,'stable_tokens',0) if anchor else 0,
+                visual_layout_mode=layout_mode,
                 adapter_sha256=context.get('adapter_sha256'),
                 planned_actual_reuse_equal=decision.reuse_length==diag['reused_tokens'],
                 actual_exact_visual_kv_tokens=reused_visual if decision.reuse_type=='exact' else 0,
@@ -219,7 +237,7 @@ class M3Runtime:
                 diagnostic_timing_scope='M3 question host wall; CUDA spans only with profile=True')
             answers.append(answer);rows.append(diag)
         runtime_elapsed_ms=(perf_counter()-runtime_tick)*1000
-        self.last_diagnostics.update(mode='wrcps_eq_ssc_exact' if anchor is not None else 'quality_bounded_wsdr',execution_completed=True,
+        self.last_diagnostics.update(mode='sf_wrcps' if adaptive else 'wrcps_eq_ssc_exact' if anchor is not None else 'quality_bounded_wsdr',visual_layout_mode=layout_mode,execution_completed=True,
             reuse_strategy=self.config.reuse_strategy,runtime_host_elapsed_ms=runtime_elapsed_ms,
             complete_m3_wall_ms=runtime_elapsed_ms+core_extraction_ms,
             cache_bytes=self.cache.nbytes,config=asdict(self.config),

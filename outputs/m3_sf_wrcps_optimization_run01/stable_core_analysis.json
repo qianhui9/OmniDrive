@@ -1,0 +1,87 @@
+{
+  "stage_one_pass": true,
+  "frames": 112,
+  "scenes": 14,
+  "qualified_semantic_types": [
+    "car"
+  ],
+  "anchor_hits": 19,
+  "crossframe_transitions": 98,
+  "anchor_hit_rate": 0.19387755102040816,
+  "valid_anchor_mean_frames": 2.0,
+  "all_anchor_mean_frames": 1.2043010752688172,
+  "new_objects_without_refresh": 15,
+  "core_fact_wrong_extensions": 0,
+  "core_fact_unknown_extensions": 0,
+  "refresh_reasons": {
+    "no_qualified_stable_facts": 74,
+    "cold_anchor": 10,
+    "stable_content_changed": 9
+  },
+  "per_split": {
+    "calibration": {
+      "frames": 56,
+      "raw_candidates": 2000,
+      "history_candidates": 1290,
+      "qualified_facts": 61,
+      "selected_core_facts": 23,
+      "anchor_hits": 10,
+      "transitions": 49,
+      "new_objects_core_kept": 9,
+      "core_fact_correct": 10,
+      "anchor_hit_rate": 0.20408163265306123
+    },
+    "qualification_validation": {
+      "frames": 56,
+      "raw_candidates": 922,
+      "history_candidates": 535,
+      "qualified_facts": 30,
+      "selected_core_facts": 15,
+      "anchor_hits": 9,
+      "transitions": 49,
+      "new_objects_core_kept": 6,
+      "core_fact_correct": 9,
+      "anchor_hit_rate": 0.1836734693877551
+    }
+  },
+  "mean_selection_replay_ms": 0.008669162135837334,
+  "mean_anchor_replay_ms": 0.032585505063512495,
+  "timing_scope": "real M1 candidate CPU replay, excludes image/model inference; not E2E performance",
+  "policy_sha256": "290c5d88da0795122c9e1cd79a3ae808ba51507e56bb8b9683bc1126909aee65",
+  "calibration_summary": {
+    "candidates": 1191,
+    "scored": 426,
+    "correct": 426,
+    "wrong": 0,
+    "unknown": 765,
+    "scenes": 7,
+    "unique_tracks": 308,
+    "identity_retention": 1.0,
+    "unknown_fraction": 0.6423173803526449,
+    "scene_mean_wrong_fraction_ci95": [
+      0.0,
+      0.0
+    ],
+    "interval_scope": "descriptive scene bootstrap; unknowns separate; zero observed errors do not guarantee unseen risk"
+  },
+  "validation_summary": {
+    "candidates": 478,
+    "scored": 198,
+    "correct": 198,
+    "wrong": 0,
+    "unknown": 280,
+    "scenes": 7,
+    "unique_tracks": 150,
+    "identity_retention": 1.0,
+    "unknown_fraction": 0.5857740585774058,
+    "scene_mean_wrong_fraction_ci95": [
+      0.0,
+      0.0
+    ],
+    "interval_scope": "descriptive scene bootstrap; unknowns separate; zero observed errors do not guarantee unseen risk"
+  },
+  "GT_online": false,
+  "no_observation_grace_frames": 0,
+  "unadmitted_frozen_rule_observations": {},
+  "limitation": "Native M1 class-gating prevents observing same-ID class flips directly. Missing/changed identity is withdrawn; unseen/occluded entities never extend a core."
+}

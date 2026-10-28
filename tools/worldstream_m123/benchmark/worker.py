@@ -241,6 +241,10 @@ def run(args):
         if args.condition!='B3' or args.m3_strategy!='exact_prefix':
             raise ValueError('WRCPS experiments require B3 with exact_prefix')
         cfg.model.m3_config.prefix_adapter=args.wrcps_adapter
+    if getattr(args,'sf_wrcps',False):
+        if args.condition!='B3' or args.m3_strategy!='exact_prefix' or not args.semantic_qualification:
+            raise ValueError('SF-WRCPS requires the formal exact path and frozen semantic qualification')
+        cfg.model.m3_config.prefix_layout='sf_adaptive'
     if getattr(args,'semantic_qualification',None):
         if args.condition!='B3':raise ValueError('Semantic qualification consumes formal M1 commits')
         cfg.model.m3_config.semantic_qualification=args.semantic_qualification
@@ -839,6 +843,7 @@ def main():
         help='Read-only candidate statistics for offline signal replay; no embeddings or KV copies')
     parser.add_argument('--m3-policy', help='Unified fitted WSDR policy for this experiment')
     parser.add_argument('--wrcps-adapter', help='Trained experimental Composer; requires a newly bound exact policy, never changes production config')
+    parser.add_argument('--sf-wrcps',action='store_true',help='Adaptive identity without a core, trained slot-preserving Composer with a valid core')
     parser.add_argument('--semantic-qualification',help='Independent EQ-SSC identity/class policy; no online GT input')
     parser.add_argument('--wrcps-teacher-diagnostic',action='store_true',help='Post-failure Native teacher on identical current carriers/RNG, outside measured timing; not efficiency evidence')
     parser.add_argument('--repeat', type=int, default=0)

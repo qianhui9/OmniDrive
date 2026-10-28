@@ -14,6 +14,7 @@ from torch import nn
 from .stable_world import digest
 
 LAYOUT_VERSION = 'wrcps_semantic_core_v2'
+SF_LAYOUT_VERSION = 'sf_wrcps_slot_preserving_v1'
 
 
 @dataclass(frozen=True)
@@ -124,12 +125,13 @@ class WorldPrefixComposer(nn.Module):
     def load_adapter(cls, path, hidden_size, device, dtype):
         raw = Path(path).read_bytes()
         artifact = torch.load(path, map_location='cpu')
-        if (artifact.get('layout_version') != LAYOUT_VERSION or artifact.get('trained_steps', 0) < 1
+        if (artifact.get('layout_version') not in (LAYOUT_VERSION,SF_LAYOUT_VERSION) or artifact.get('trained_steps', 0) < 1
                 or not artifact.get('training_scene_ids') or not artifact.get('base_weights_sha256')
                 or not artifact.get('data_manifest_sha256')
                 or artifact['spec']['hidden_size'] != hidden_size):
             raise ValueError('A trained, provenance-bound WRCPS adapter is required')
-        adapter = cls(**artifact['spec'])
+        constructor=SpatiallyFaithfulComposer if artifact['layout_version']==SF_LAYOUT_VERSION else cls
+        adapter = constructor(**artifact['spec'])
         adapter.load_state_dict(artifact['state_dict'], strict=True)
         if not all(torch.isfinite(p).all() for p in adapter.parameters()):
             raise ValueError('Nonfinite adapter weights')
@@ -139,3 +141,88 @@ class WorldPrefixComposer(nn.Module):
         adapter.semantic_qualification_sha256=artifact.get('semantic_qualification_sha256','')
         adapter.loaded_revision = adapter.revision()
         return adapter
+
+
+@dataclass(frozen=True)
+class SpatialPrefixLayout:
+    stable_tokens: int = 64
+    order_contract: str = SF_LAYOUT_VERSION
+
+    def __post_init__(self):
+        if self.stable_tokens not in (32,64) or self.order_contract!=SF_LAYOUT_VERSION:
+            raise ValueError('SF-WRCPS permits only the declared K=64/32 layouts')
+
+    @property
+    def groups(self):
+        count=256-self.stable_tokens//2
+        return (('stable_world',self.stable_tokens),('object',count),('ego',1),('map',count))
+
+    @property
+    def total(self):return 513
+
+
+class SlotPreservingCompression(nn.Module):
+    """Merge only a bounded subset using current feature dependence.
+
+    Extra VLM queries are learned latent slots, NOT a physical raster. Even/odd
+    is only a bipartite matching partition: edges use cosine similarity, never
+    index distance as a spatial proxy. Unmerged native slots remain bit-exact,
+    kept slots retain native order, and every removed slot contributes to its
+    selected destination. This is a constrained approximation, not a claim of
+    lossless spatial reconstruction.
+    """
+    def __init__(self,hidden_size,count,rank):
+        super().__init__()
+        self.removed=256-count
+        self.merge_logit=nn.Parameter(torch.zeros(()))
+        self.value=nn.Linear(hidden_size,rank,bias=False)
+        self.output=nn.Linear(rank,hidden_size,bias=False)
+        nn.init.zeros_(self.output.weight)
+
+    def plan(self,current):
+        with torch.no_grad():
+            feature=torch.nn.functional.normalize(current[0].float(),dim=-1)
+            scores=feature[::2]@feature[1::2].T
+            similarity,destination=scores.max(-1)
+            selected=torch.argsort(similarity,descending=True,stable=True)[:self.removed]
+            source=2*selected;destination=2*destination[selected]+1
+            keep=torch.ones(256,device=current.device,dtype=torch.bool);keep[source]=False
+            retained=torch.arange(256,device=current.device)[keep]
+            return source,destination,retained
+
+    def forward(self,current):
+        source,destination,retained=self.plan(current)
+        contributions=torch.zeros_like(current).index_add(1,destination,current[:,source])
+        counts=torch.zeros(256,device=current.device,dtype=current.dtype)
+        counts.index_add_(0,destination,torch.ones_like(destination,dtype=current.dtype))
+        mean=contributions/counts.clamp_min(1)[None,:,None]
+        changed=(counts>0)[None,:,None]
+        residual=self.output(self.value(mean-current))
+        merged=current+changed*(torch.sigmoid(self.merge_logit)*(mean-current)+residual)
+        return merged[:,retained]
+
+
+class SpatiallyFaithfulComposer(WorldPrefixComposer):
+    """Adaptive input layout within the SAME M3 runtime/executor."""
+    def __init__(self,hidden_size,stable_tokens=64,rank=128,max_state_bytes=8192):
+        super().__init__(hidden_size,stable_tokens,rank,max_state_bytes)
+        self.layout=SpatialPrefixLayout(stable_tokens)
+        count=256-stable_tokens//2
+        self.objects=SlotPreservingCompression(hidden_size,count,rank)
+        self.maps=SlotPreservingCompression(hidden_size,count,rank)
+
+    def forward(self,current,anchor,*,use_anchor_cache=False):
+        if tuple(current.shape)!=(1,513,self.spec['hidden_size']):
+            raise ValueError('Composer requires the complete native current carrier')
+        if digest(anchor.facts)!=anchor.stable_state_digest:
+            raise ValueError('Stable anchor content mismatch')
+        if not anchor.stable_state_valid:
+            if anchor.facts:raise ValueError('Invalid core must not publish facts')
+            return current  # identity, including dtype, layout and storage
+        if not anchor.facts:raise ValueError('A valid semantic core requires facts')
+        return super().forward(current,anchor,use_anchor_cache=use_anchor_cache)
+
+    def implementation_signature(self):
+        from worldstream.code_signature import stable_function_hash
+        return super().implementation_signature()+(stable_function_hash(self.objects.plan),
+            stable_function_hash(WorldPrefixComposer.forward))

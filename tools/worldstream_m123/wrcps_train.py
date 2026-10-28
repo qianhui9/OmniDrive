@@ -16,7 +16,7 @@ import torch
 import torch.nn.functional as F
 from tools.worldstream_m123.benchmark.common import sha256, write
 from worldstream.m3.stable_world import StableAnchorManager, StableWorldSnapshot
-from worldstream.m3.world_prefix_composer import WorldPrefixComposer, LAYOUT_VERSION
+from worldstream.m3.world_prefix_composer import WorldPrefixComposer,SpatiallyFaithfulComposer
 from tools.worldstream_m123.latency_controls import load_capture
 
 
@@ -101,13 +101,24 @@ def multimodal_embeddings(base, ids, carriers, answer_ids):
     return full, prompt.shape[1]-1, answer_ids
 
 
-def distillation_loss(student_logits, teacher_logits, labels, task_weight=1., critical=False):
+def distillation_loss(student_logits, teacher_logits, labels, task_weight=1., critical=False,
+                      spatial_mask=None,spatial_weight=0.):
     # Answer positions only: no task supervision on visual pseudo-token IDs.
     kl = F.kl_div(F.log_softmax(student_logits.float(),-1),
         F.softmax(teacher_logits.float(),-1),reduction='batchmean')
     ce = F.cross_entropy(student_logits.float(),labels)
     loss = kl+task_weight*(2. if critical else 1.)*ce
-    return loss, dict(kl=float(kl.detach()),task_ce=float(ce.detach()),critical=critical)
+    spatial=kl.new_zeros(());aligned=conflicts=0
+    if spatial_mask is not None:
+        agrees=teacher_logits.argmax(-1)==labels
+        selected=spatial_mask & agrees
+        aligned=int(selected.sum());conflicts=int((spatial_mask & ~agrees).sum())
+        if aligned:
+            spatial=F.kl_div(F.log_softmax(student_logits[selected].float(),-1),
+                F.softmax(teacher_logits[selected].float(),-1),reduction='batchmean')
+            loss=loss+spatial_weight*spatial
+    return loss, dict(kl=float(kl.detach()),task_ce=float(ce.detach()),critical=critical,
+        spatial_kl=float(spatial.detach()),spatial_aligned_tokens=aligned,teacher_reference_direction_conflicts=conflicts)
 
 
 def train(args):
@@ -132,16 +143,18 @@ def train(args):
     torch.cuda.empty_cache()
     base_hash=sha256(args.checkpoint)
     if manifest['base_weights_sha256'] != base_hash:raise ValueError('Teacher checkpoint mismatch')
-    composer=WorldPrefixComposer(base.config.hidden_size,args.stable_tokens,args.rank).to('cuda')
+    composer_class=SpatiallyFaithfulComposer if args.spatial else WorldPrefixComposer
+    composer=composer_class(base.config.hidden_size,args.stable_tokens,args.rank).to('cuda')
     optimizer=torch.optim.AdamW(composer.parameters(),lr=args.lr)
     write(root/'training_config.json',dict(vars(args),**evidence,manifest_sha256=sha256(args.manifest),
         base_weights_sha256=base_hash,loss='answer KL + task CE (critical query weight 2)',
         temporal_loss='zero by construction for the same immutable world facts',
+        spatial_supervision='0.5 answer-position KL on directional reference tokens where frozen Teacher argmax agrees; conflicts not promoted to truth' if args.spatial else 'none',
         frozen='all native perception, heads, and LLM parameters',spec=composer.spec))
     steps=0;best=float('inf')
     for epoch in range(args.epochs):
         for split in ('train','validation'):
-            composer.train(split=='train');managers={};losses=[]
+            composer.train(split=='train');managers={};losses=[];core_losses=[]
             for sample in manifest['samples']:
                 if manifest['scene_splits'][sample['scene_id']] != split:continue
                 capture=load_capture(sample['capture'])
@@ -175,9 +188,15 @@ def train(args):
                         decoder.training=bool(args.gradient_checkpointing and split=='train')
                         logits=base(inputs_embeds=student,use_cache=False).logits[:,offset:offset+labels.numel()]
                         critical=task_profile(pair['question'])[1] in ('object_ego_motion','map_relations','full_visual')
-                        loss,details=distillation_loss(logits[0],target[0],labels,args.task_weight,critical)
+                        spatial_mask=None
+                        if args.spatial:
+                            directional={'left','right','front','behind','ahead','straight','opposite','rear'}
+                            spatial_mask=torch.tensor([model.tokenizer.decode([int(t)]).strip().lower() in directional for t in labels],device=labels.device)
+                        loss,details=distillation_loss(logits[0],target[0],labels,args.task_weight,critical,
+                            spatial_mask=spatial_mask,spatial_weight=.5 if args.spatial else 0.)
                         if not torch.isfinite(loss):raise ValueError('Nonfinite adapter distillation loss')
-                    if split=='train':
+                    updated=split=='train' and loss.requires_grad
+                    if updated:
                         optimizer.zero_grad(set_to_none=True)
                         try:loss.backward()
                         except torch.cuda.OutOfMemoryError:
@@ -193,15 +212,19 @@ def train(args):
                         torch.nn.utils.clip_grad_norm_(composer.parameters(),1.);optimizer.step();steps+=1
                     decoder.training=False;decoder.gradient_checkpointing=False
                     losses.append(float(loss.detach()))
+                    if anchor.stable_state_valid:core_losses.append(losses[-1])
                     with (root/'training_log.jsonl').open('a') as f:
                         f.write(json.dumps(dict(epoch=epoch,split=split,step=steps,frame_id=snapshot.frame_id,
-                            scene_id=snapshot.scene_id,loss=losses[-1],
+                            scene_id=snapshot.scene_id,loss=losses[-1],core_valid=anchor.stable_state_valid,
+                            optimizer_updated=updated,
                             peak_gpu_allocated_bytes=torch.cuda.max_memory_allocated(),**details))+'\n')
             if not losses:raise ValueError('Empty training/validation partition')
-            mean=sum(losses)/len(losses)
+            selection_losses=core_losses if args.spatial else losses
+            if not selection_losses:raise ValueError('No real core-valid validation/training questions')
+            mean=sum(selection_losses)/len(selection_losses)
             if split=='validation' and mean < best:
                 best=mean
-                torch.save(dict(spec=composer.spec,layout_version=LAYOUT_VERSION,state_dict=composer.state_dict(),
+                torch.save(dict(spec=composer.spec,layout_version=composer.layout.order_contract,state_dict=composer.state_dict(),
                     trained_steps=steps,training_scene_ids=evidence['training_scene_ids'],
                     validation_scene_ids=evidence['validation_scene_ids'],base_weights_sha256=base_hash,
                     data_manifest_sha256=sha256(args.manifest),seed=args.seed,validation_loss=best,
@@ -219,6 +242,7 @@ def main():
     p.add_argument('--epochs',type=int,default=3);p.add_argument('--lr',type=float,default=1e-4)
     p.add_argument('--task-weight',type=float,default=1.);p.add_argument('--seed',type=int,default=20261028)
     p.add_argument('--no-gradient-checkpointing',dest='gradient_checkpointing',action='store_false',default=True)
+    p.add_argument('--spatial',action='store_true',help='SF adaptive Composer and fixed directional answer KL; select validation checkpoint on core-valid questions')
     p.add_argument('--preflight-only',action='store_true');a=p.parse_args()
     if set(os.sched_getaffinity(0)) & {4,5}:p.error('Use taskset -c 0-3,6-31')
     try:train(a)

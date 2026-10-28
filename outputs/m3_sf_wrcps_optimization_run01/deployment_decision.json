@@ -1,0 +1,36 @@
+{
+  "recommended": false,
+  "replace_formal_configuration": false,
+  "stage_one_independent_qualification_pass": true,
+  "target_domain_nonzero_correct_core": true,
+  "development_training_data_pass": false,
+  "adapter_training_started": false,
+  "optimizer_updates": 0,
+  "no_core_native_equivalence_pass": true,
+  "core_valid_trained_quality_pass": null,
+  "overall_four_metric_quality_pass": null,
+  "exact_KV_pass": null,
+  "E2E_pass": null,
+  "final_acceptance_logs_opened": false,
+  "stop_stage": "real_adaptation_data_admission",
+  "reason": "Both train and validation need real frames and cross-frame stable anchors",
+  "qualified_semantic_types": [
+    "car"
+  ],
+  "newly_admitted_semantic_types": [],
+  "semantic_expansion_pass": false,
+  "formal_configuration": "projects/configs/OmniDrive/worldstream_m123_auto.py",
+  "quality_budgets": {
+    "mAP": 0.1,
+    "NDS": 0.1,
+    "DET_l": 0.1,
+    "Token_F1": 0.1
+  },
+  "quality_measured": {
+    "mAP": null,
+    "NDS": null,
+    "DET_l": null,
+    "Token_F1": null
+  },
+  "limitation": "Qualification target-domain hits concentrate in one of three scenes; coverage is not a guarantee on new logs."
+}

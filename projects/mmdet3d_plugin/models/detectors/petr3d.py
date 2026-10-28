@@ -501,7 +501,7 @@ class Petr3D(MVXTwoStageDetector):
                 timestamp = float(data['timestamp'].reshape(-1)[0])
                 stable_state = None
                 stable_snapshot_ms = 0.
-                if m3.config.prefix_adapter:
+                if m3.config.prefix_adapter or m3.config.prefix_layout=='sf_adaptive':
                     stable_snapshot_tick = time.perf_counter()
                     from worldstream.m3.stable_world import freeze_stable_world
                     if m3.semantic_qualifier is None:

@@ -1,0 +1,20 @@
+{
+  "frame_id": "5193a061a8c24adb9663daa3a3c8e2cc",
+  "question": "Is there a bus stop nearby, and if so, what does that suggest?",
+  "reference": "Yes, there is a bus stop to the right-front, suggesting the vehicle is on a main route that accommodates public transport.",
+  "old_composer_answer": "Yes, there is a bus stop to the left, which suggests that we are in an urban area with public transportation facilities.",
+  "native_answer": "Yes, there is a bus stop to the right, which suggests that there may be pedestrians or buses nearby.",
+  "sf_no_core_answer": "Yes, there is a bus stop to the right, which suggests that there may be pedestrians or buses nearby.",
+  "checks": {
+    "embeddings": true,
+    "position_ids": true,
+    "attention_mask": true,
+    "token_ids": true,
+    "visual_mask": true,
+    "storage_identity": true,
+    "prefill_logits": true,
+    "generated_tokens": true
+  },
+  "conclusion": "Old no-core left/right regression removed by strict native identity; no conclusion about trained core-valid compression.",
+  "scope": "Previously exposed diagnostic scene, not independent acceptance; reference/Teacher are not physical certification."
+}
