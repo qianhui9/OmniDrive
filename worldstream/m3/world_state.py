@@ -28,6 +28,7 @@ class CommittedAnchor:
     state_version: str
     evidence_origin: str
     score: object
+    observation_kind: str = 'current_photometric_support'
 
 
 @dataclass(frozen=True)
@@ -52,7 +53,7 @@ class CommittedWorldState:
             raise ValueError('Committed world execution mismatch')
 
 
-def freeze_committed_state(manager, frame, qualifier=None):
+def freeze_committed_state(manager, frame, qualifier=None,current_detection_support=False):
     """Read current published store only; immutable scalar/tuple observations.
 
     Identity qualification is separate from current detector evidence. Missing
@@ -73,6 +74,12 @@ def freeze_committed_state(manager, frame, qualifier=None):
             state_epoch=store.generation,state_version=store.commit_count,state_execution_signature=store.execution_signature)
         qualified={f[0] for f in qualifier.select(committed_semantic_candidates(manager,ctx))['facts']}
     transform=np.linalg.inv(frame.ego_to_world)
+    geometric_cameras=[]
+    if current_detection_support:
+        from worldstream.m1.geometry import valid_projection_camera
+        geometric_cameras=[(cid,cam) for cid,cam in frame.cameras.items()
+            if cam.timing_reliable and abs(cam.timestamp-frame.timestamp)<=manager.config.max_state_age_s
+            and valid_projection_camera(cam)]
     records=[]
     for a in sorted(store.anchors.values(),key=lambda a:a.anchor_id):
         # Online targets cannot promote annotation/oracle history to perception.
@@ -81,6 +88,22 @@ def freeze_committed_state(manager, frame, qualifier=None):
         # M1 stores camera.timestamp, not frame.timestamp, in AnchorObservation.
         cameras=tuple(sorted(k for k,v in a.observation_support.items()
             if k in frame.cameras and v.timestamp==frame.cameras[k].timestamp))
+        observation_kind='current_photometric_support'
+        if (current_detection_support and a.anchor_type=='object' and not cameras
+                and a.source_frame_id==frame.frame_id and a.source_timestamp==frame.timestamp):
+            # Current detector evidence does not require a reusable historical
+            # image descriptor or >=90% whole-box coverage in one camera.
+            # This never promotes old geometry or authorizes M1/M2 reuse.
+            projected=[]
+            point=np.asarray(a.geometry_world.center)
+            for cid,cam in geometric_cameras:
+                c=cam.world_to_camera[:3,:3]@point+cam.world_to_camera[:3,3]
+                uvh=cam.intrinsic@c
+                if c[2]>.1:
+                    u,v=uvh[:2]/uvh[2]
+                    if 0<=u<cam.image.shape[1] and 0<=v<cam.image.shape[0]:projected.append(cid)
+            cameras=tuple(sorted(projected))
+            if cameras:observation_kind='current_detector_center_projection_not_reuse_certificate'
         observed=(a.source_frame_id==frame.frame_id and a.source_timestamp==frame.timestamp and bool(cameras))
         center=transform[:3,:3]@a.geometry_world.center+transform[:3,3]
         velocity=transform[:3,:3]@a.velocity_world if a.velocity_reliable and a.velocity_world is not None else None
@@ -91,7 +114,8 @@ def freeze_committed_state(manager, frame, qualifier=None):
             observed,cameras,bool(a.identity_link_qualified or a.anchor_id in qualified),
             bool(last.get('source_is_previous_frame') and last.get('no_competing_edge')),
             a.source_frame_id or '',float(a.source_timestamp),a.state_version,a.evidence_origin,
-            float(a.source_score) if a.source_score is not None and np.isfinite(a.source_score) else None))
+            float(a.source_score) if a.source_score is not None and np.isfinite(a.source_score) else None,
+            observation_kind))
     return CommittedWorldState(frame.scene_id,frame.frame_id,frame.timestamp,store.generation,store.commit_count,
         store.execution_signature,tuple(records),tuple(map(float,frame.ego_to_world.reshape(-1))))
 

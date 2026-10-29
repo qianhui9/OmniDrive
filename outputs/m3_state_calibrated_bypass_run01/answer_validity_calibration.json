@@ -1,0 +1,158 @@
+{
+  "stage": "DEV_SHADOW",
+  "configs": [
+    {
+      "index": 0,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.35,
+      "temporal_risk_enabled": false,
+      "requests": 54,
+      "hits": 34,
+      "scored_hits": 31,
+      "correct": 31.0,
+      "UNKNOWN": 3,
+      "paired_loss": -0.23255813953488372,
+      "new_severe": 0,
+      "estimated_saved_ms": 11045.572016388178,
+      "distinct_scored_frames": 18
+    },
+    {
+      "index": 1,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "temporal_risk_enabled": false,
+      "requests": 54,
+      "hits": 40,
+      "scored_hits": 37,
+      "correct": 35.0,
+      "UNKNOWN": 3,
+      "paired_loss": -0.32558139534883723,
+      "new_severe": 0,
+      "estimated_saved_ms": 12672.669047024101,
+      "distinct_scored_frames": 18
+    },
+    {
+      "index": 2,
+      "min_confidence": 0.65,
+      "max_binding_risk": 0.75,
+      "temporal_risk_enabled": false,
+      "requests": 54,
+      "hits": 28,
+      "scored_hits": 28,
+      "correct": 28.0,
+      "UNKNOWN": 0,
+      "paired_loss": -0.18604651162790697,
+      "new_severe": 0,
+      "estimated_saved_ms": 8475.533509626985,
+      "distinct_scored_frames": 18
+    },
+    {
+      "index": 3,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "temporal_risk_enabled": true,
+      "requests": 54,
+      "hits": 33,
+      "scored_hits": 30,
+      "correct": 30.0,
+      "UNKNOWN": 3,
+      "paired_loss": -0.23255813953488372,
+      "new_severe": 0,
+      "estimated_saved_ms": 10779.765157494694,
+      "distinct_scored_frames": 17
+    }
+  ],
+  "bins": [
+    {
+      "observation_kind": "current_photometric_support",
+      "confidence_interval": [
+        0.35,
+        0.65
+      ],
+      "candidates": 17,
+      "scored": 11,
+      "UNKNOWN": 6,
+      "errors": 2,
+      "descriptive_wilson95": [
+        0.05136660067100063,
+        0.4769861375782448
+      ]
+    },
+    {
+      "observation_kind": "current_photometric_support",
+      "confidence_interval": [
+        0.65,
+        0.85
+      ],
+      "candidates": 13,
+      "scored": 13,
+      "UNKNOWN": 0,
+      "errors": 0,
+      "descriptive_wilson95": [
+        0.0,
+        0.22810184305529166
+      ]
+    },
+    {
+      "observation_kind": "current_photometric_support",
+      "confidence_interval": [
+        0.85,
+        1.01
+      ],
+      "candidates": 4,
+      "scored": 4,
+      "UNKNOWN": 0,
+      "errors": 0,
+      "descriptive_wilson95": [
+        0.0,
+        0.48990002040399916
+      ]
+    },
+    {
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence_interval": [
+        0.35,
+        0.65
+      ],
+      "candidates": 0,
+      "scored": 0,
+      "UNKNOWN": 0,
+      "errors": 0,
+      "descriptive_wilson95": null
+    },
+    {
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence_interval": [
+        0.65,
+        0.85
+      ],
+      "candidates": 2,
+      "scored": 2,
+      "UNKNOWN": 0,
+      "errors": 0,
+      "descriptive_wilson95": [
+        0.0,
+        0.6576280471103807
+      ]
+    },
+    {
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence_interval": [
+        0.85,
+        1.01
+      ],
+      "candidates": 9,
+      "scored": 9,
+      "UNKNOWN": 0,
+      "errors": 0,
+      "descriptive_wilson95": [
+        0.0,
+        0.2991527535509594
+      ]
+    }
+  ],
+  "known_requests": 43,
+  "actual_skips": 0,
+  "normal_m3_ms": 341.3008442321033,
+  "note": "Temporal counterfactual is offline CPU on same actual current M1 snapshots. Only subsequent online Pareto measures savings. Scores are not error probabilities."
+}

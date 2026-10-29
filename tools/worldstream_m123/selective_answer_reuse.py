@@ -96,12 +96,20 @@ def run(root,stage):
     from tools.worldstream_m2.global_residual_benchmark import wait_gpu
     from worldstream.m3 import M3Runtime
     plan=json.loads((root/'experiment_plan.json').read_text())
-    temporal_v2=plan.get('version')=='wrsar2'
+    temporal_v2=plan.get('version') in ('wrsar2','wrsar3')
+    calibrated_v3=plan.get('version')=='wrsar3'
     out=root/stage;out.mkdir(exist_ok=False)
     hashes={str(p):sha256(p) for p in source_files()}
+    if calibrated_v3:
+        hashes.update({str(p):sha256(p) for p in (Path('tools/worldstream_m123/state_calibrated_bypass.py'),
+            Path('worldstream/m1/omnidrive_adapter.py'),Path('worldstream/m1/state_manager.py'))})
     for p in source_files():
         relative=p.relative_to(Path.cwd()) if p.is_absolute() else p
         copy=out/'executed_sources'/relative;copy.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,copy)
+    if calibrated_v3:
+        for p in map(Path,hashes):
+            relative=p.relative_to(Path.cwd()) if p.is_absolute() else p
+            dest=out/'executed_sources'/relative;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
     write(out/'execution_sources.json',dict(base_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),sources=hashes))
     with gpu_job_lock():
         wait_gpu();assert not {4,5}&os.sched_getaffinity(0)
@@ -122,7 +130,10 @@ def run(root,stage):
         hook=base_model(model.lm_head).register_forward_pre_hook(lambda *a:calls.append(
             model.m3_runtime.last_diagnostics.get('active_request_index') if model.m3_runtime else None))
         jobs=[]
-        if temporal_v2 and stage in ('diagnostic','pareto','ablation'):
+        if calibrated_v3:
+            from .state_calibrated_bypass import stage_jobs
+            jobs=stage_jobs(root,stage,plan)
+        elif temporal_v2 and stage in ('diagnostic','pareto','ablation'):
             from .temporal_selective_bypass import stage_jobs
             jobs=stage_jobs(root,stage,plan)
         elif stage=='shadow':
@@ -147,12 +158,17 @@ def run(root,stage):
         with torch.no_grad():
             for workload,count,repeat,condition,mode,policy in jobs:
                 isolated=temporal_v2 and 'legacy' not in condition
+                temporal_enabled=temporal_v2 and stage!='diagnostic' and condition!='C-current'
+                if calibrated_v3:
+                    temporal_enabled=bool(policy and json.loads(policy.read_text()).get('temporal_risk_enabled',False))
+                    if condition=='C-temporal':temporal_enabled=True
+                    if condition=='C-current':temporal_enabled=False
                 model.m3_runtime=None if condition=='A' else M3Runtime(dict(reuse_strategy='exact_prefix',
                     decode_strategy='world_guided',target_aware_exact_only=True,
                     experimental_speculative_sampling=True,selective_answer_mode=mode,
                     selective_answer_policy=str(policy) if policy else '',
                     question_rng_enabled=isolated,target_binding_enabled=temporal_v2 and stage!='diagnostic',
-                    temporal_risk_enabled=temporal_v2 and stage!='diagnostic' and condition!='C-current'))
+                    temporal_risk_enabled=temporal_enabled,current_detection_support=calibrated_v3))
                 model.worldstream_question_rng_enabled=isolated
                 if temporal_v2 and stage=='diagnostic':
                     from .temporal_selective_bypass import DiagnosticCapture
@@ -174,7 +190,10 @@ def run(root,stage):
                         assert len(meta['cam_infos'])==6
                         original_questions=list(meta['vlm_labels'].data)[1:4]
                         if fixed_questions is None:fixed_questions=list(original_questions)
-                        if workload in ('addressable','diagnostic'):
+                        if calibrated_v3 and workload=='mixed':
+                            questions=[QUESTIONS[fi%3]]+original_questions[:2]
+                            ids=encode_questions(model,questions,original[token]['location'])
+                        elif workload in ('addressable','diagnostic'):
                             questions=(QUESTIONS if workload=='addressable' else DIAGNOSTIC_QUESTIONS)[:count]
                             questions=list(questions)
                             ids=encode_questions(model,questions,original[token]['location'])
@@ -230,7 +249,7 @@ def run(root,stage):
         if temporal_v2 and stage=='diagnostic':
             from .temporal_selective_bypass import diagnostic_replay
             diagnostic_replay(model,out)
-        assert hashes=={str(p):sha256(p) for p in source_files()},'Measured source changed during run'
+        assert all(sha256(p)==h for p,h in hashes.items()),'Measured source changed during run'
         write(out/'run_status.json',dict(status='COMPLETED',gpu=torch.cuda.get_device_name(0),checkpoint_sha256=checkpoint_sha,
             full_model_requests=sum(1 for _ in (out/'requests.jsonl').open()),weights_changed=False))
 

@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import hashlib
 import json
 import torch
+from time import perf_counter
 
 
 def request_seed(context, question_index):
@@ -29,6 +30,7 @@ def question_rng(context, question_index, device, enabled=False):
     if not enabled:
         yield dict(enabled=False)
         return
+    setup_tick=perf_counter()
     device=torch.device(device)
     devices=[device.index if device.index is not None else torch.cuda.current_device()] if device.type=='cuda' else []
     audit=bool(context.get('rng_audit',False))
@@ -40,8 +42,12 @@ def question_rng(context, question_index, device, enabled=False):
         if devices:
             with torch.cuda.device(devices[0]):torch.cuda.manual_seed(diagnostic['seed'])
         if audit:diagnostic['sampling_before']=rng_digest(device)
+        diagnostic['setup_wall_ms']=(perf_counter()-setup_tick)*1000
         try:
             yield diagnostic
         finally:
+            restore_tick=perf_counter()
             if audit:diagnostic['sampling_after']=rng_digest(device)
     if audit:diagnostic['outer_after']=rng_digest(device)
+    diagnostic['restore_wall_ms']=(perf_counter()-restore_tick)*1000
+    diagnostic['management_wall_ms']=diagnostic['setup_wall_ms']+diagnostic['restore_wall_ms']

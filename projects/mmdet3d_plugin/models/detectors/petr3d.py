@@ -665,7 +665,8 @@ class Petr3D(MVXTwoStageDetector):
                             and self.m3_runtime.config.decode_strategy=='world_guided'):
                         from worldstream.m3.world_state import freeze_committed_state
                         snapshot_tick=time.perf_counter()
-                        self.m3_committed_state=freeze_committed_state(self.m1_manager,frame,self.m3_runtime.semantic_qualifier)
+                        self.m3_committed_state=freeze_committed_state(self.m1_manager,frame,self.m3_runtime.semantic_qualifier,
+                            current_detection_support=self.m3_runtime.config.current_detection_support)
                         self.m3_committed_snapshot_wall_ms=(time.perf_counter()-snapshot_tick)*1000
                     trace['m1'].update(commit_completed=True,
                         transaction_status=precheck.diagnostics.get('transaction_status'))

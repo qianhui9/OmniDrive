@@ -27,6 +27,7 @@ class M3Config:
     question_rng_enabled: bool = False
     target_binding_enabled: bool = False
     temporal_risk_enabled: bool = False
+    current_detection_support: bool = False
 
     def __post_init__(self):
         if self.temporal_risk_enabled and not self.target_binding_enabled:

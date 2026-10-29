@@ -30,7 +30,9 @@ def target_binding_risk(profile,witness,witnesses,current,previous,temporal=Fals
     out=dict(current_risk=current_risk,temporal_risk=0.,current_competitors=competitors,
         boundary=bool(boundary),temporal_enabled=temporal,temporal_competitors=[],
         current_binding_wall_ms=(perf_counter()-tick)*1000,temporal_risk_wall_ms=0.,
-        temporal_status='disabled',score_kind='UNCALIBRATED_BINDING_RISK')
+        temporal_status='disabled',score_kind='UNCALIBRATED_BINDING_RISK',
+        continuity=dict(current_observation_required=True,matched=False,identity_qualified=False,
+                        admission_credit=0.,reason='No calibrated positive-evidence admission credit'))
     tick=perf_counter()
     if temporal and nearest:
         out['temporal_status']='no_legal_history'
@@ -39,12 +41,23 @@ def target_binding_risk(profile,witness,witnesses,current,previous,temporal=Fals
                 and 0<current.timestamp-previous.timestamp<=1.5):
             dt=current.timestamp-previous.timestamp
             from worldstream.m1.geometry import valid_transform
-            old_pose=np.asarray(previous.ego_to_world).reshape(4,4)
-            pose=np.asarray(current.ego_to_world).reshape(4,4)
+            old_pose=np.asarray(previous.ego_to_world)
+            pose=np.asarray(current.ego_to_world)
+            old_pose=old_pose.reshape(4,4) if old_pose.size==16 else np.zeros((4,4))
+            pose=pose.reshape(4,4) if pose.size==16 else np.zeros((4,4))
             if valid_transform(old_pose) and valid_transform(pose):
                 transform=np.linalg.inv(pose)@old_pose
                 out['temporal_status']='legal_pose_age_motion_envelope'
                 out['dt_s']=dt
+                prior=next((a for a in previous.anchors if a.anchor_id==witness.anchor_id and a.observed
+                    and a.semantic_class==witness.semantic_class),None)
+                if prior is not None and witness.observed:
+                    pred=transform[:3,:3]@np.asarray(prior.center_ego)+transform[:3,3]
+                    if prior.velocity_ego:pred+=transform[:3,:3]@np.asarray(prior.velocity_ego)*dt
+                    out['continuity'].update(matched=True,previous_source_frame=prior.source_frame,
+                        residual_m=math.dist(pred[:2],witness.center_ego[:2]),
+                        association_unambiguous=witness.association_unambiguous,
+                        identity_qualified=bool(prior.identity_qualified and witness.identity_qualified))
                 for a in previous.anchors:
                     if (a.anchor_type!='object' or not a.observed or a.evidence_origin!='actual_perception'
                             or a.score is None or a.score<.35):continue

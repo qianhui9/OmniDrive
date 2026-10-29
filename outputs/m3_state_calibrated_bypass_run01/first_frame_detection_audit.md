@@ -1,0 +1,5 @@
+# First-frame Car/Truck chain
+
+The actual current head detects Car at(8.507,-3.859,0.942)m with score0.874642. It survives decoder,0.3 M1 score filter, semantic mapping, Ego/world transformation and commit. M1 stores it as a current actual_perception anchor, but no reusable photometric observation exists. The old M3 snapshot requires that observation to call the current detection observed and discards it from answering. Both GTy=-3.939 and predictedy=-3.859 are inside the unchanged4m direct ROI. This is a snapshot evidence mismatch, not a detector miss or DQTrack identity deletion.
+
+The minimal opt-in M3 fix accepts current committed detector evidence with calibrated current camera-center projection, actual exposure-time pose and current source receipt. No historical prediction becomes a positive fact, and no M1/M2 reuse certificate is created or loosened. All detector/score/ROI/model thresholds remain unchanged. Exact per-camera whole-box coverage and descriptor results, plus replay decisions on four actual captures, are in first_frame_detection_chain.json. CPU replay is not counted as a new GPU model call or as proof on new TEST.

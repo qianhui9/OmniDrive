@@ -1,5 +1,6 @@
 """Conservative question classification; no ground truth is accepted here."""
 import re
+from functools import lru_cache
 from dataclasses import dataclass
 
 
@@ -146,6 +147,11 @@ class QuestionFacts:
 
 
 def question_facts(question):
+    return _question_facts_cached(str(question))
+
+
+@lru_cache(maxsize=512)
+def _question_facts_cached(question):
     """No GT, history answer, or current answer participates in parsing.
 
     Plural categories, disjunctions, multi-part instructions, road roles and

@@ -31,3 +31,32 @@ def test_camera_exposure_time_is_not_lidar_frame_time(config,make_frame,make_pre
     snapshot=freeze_committed_state(manager,frame)
     assert snapshot.anchors and snapshot.anchors[0].observed
     assert snapshot.anchors[0].cameras==('front',)
+
+
+def test_current_detector_evidence_does_not_need_reusable_texture(config,make_frame,make_prediction):
+    import numpy as np
+    manager=WorldStateManager(config);frame=make_frame()
+    frame.cameras['front'].image[:]=100
+    result=manager.precheck(frame);manager.commit(frame,FullOutputs([make_prediction(semantic='car')]),result)
+    assert not next(iter(manager.store.anchors.values())).observation_support
+    assert not freeze_committed_state(manager,frame).anchors[0].observed
+    current=freeze_committed_state(manager,frame,current_detection_support=True)
+    assert current.anchors[0].observed and current.anchors[0].cameras==('front',)
+    assert 'not_reuse_certificate' in current.anchors[0].observation_kind
+    assert not next(iter(manager.store.anchors.values())).observation_support
+
+
+def test_geometric_current_support_does_not_promote_history(config,make_frame,make_prediction):
+    manager=WorldStateManager(config);frame=make_frame();frame.cameras['front'].image[:]=100
+    result=manager.precheck(frame);manager.commit(frame,FullOutputs([make_prediction(semantic='car')]),result)
+    frame2=make_frame(100.5);result=manager.precheck(frame2);manager.commit(frame2,FullOutputs([]),result)
+    current=freeze_committed_state(manager,frame2,current_detection_support=True)
+    assert current.anchors and not any(a.observed for a in current.anchors)
+
+
+def test_current_support_requires_valid_visible_camera_and_actual_source(config,make_frame,make_prediction):
+    manager=WorldStateManager(config);frame=make_frame();frame.cameras['front'].image[:]=100
+    result=manager.precheck(frame);manager.commit(frame,FullOutputs([make_prediction(x=100.,semantic='car')]),result)
+    assert not freeze_committed_state(manager,frame,current_detection_support=True).anchors[0].observed
+    frame.cameras['front'].timing_reliable=False
+    assert not freeze_committed_state(manager,frame,current_detection_support=True).anchors[0].observed

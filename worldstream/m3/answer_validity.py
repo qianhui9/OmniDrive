@@ -278,6 +278,7 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
                source_timestamp=witness.source_timestamp,state_version=current.version,
                state_epoch=current.epoch,evidence_origin=witness.evidence_origin,
                identity_qualified=witness.identity_qualified,
+               observation_kind=witness.observation_kind,
                identity_required=False,association_unambiguous=witness.association_unambiguous)
     prior=next((a for a in previous.anchors if a.anchor_id==witness.anchor_id),None) if (
         previous is not None and previous.scene_id==current.scene_id and previous.epoch==current.epoch

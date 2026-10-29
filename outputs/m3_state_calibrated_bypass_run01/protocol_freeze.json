@@ -1,0 +1,35 @@
+{
+  "plan_sha256": "03de40879304bfc64a06901a84ee684ce24bc20b5a7671fbe0c46ad84796bb2b",
+  "configs": [
+    {
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.35,
+      "temporal_risk_enabled": false
+    },
+    {
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "temporal_risk_enabled": false
+    },
+    {
+      "min_confidence": 0.65,
+      "max_binding_risk": 0.75,
+      "temporal_risk_enabled": false
+    },
+    {
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "temporal_risk_enabled": true
+    }
+  ],
+  "quality_budgets": [
+    0.01,
+    0.02,
+    0.03
+  ],
+  "default_budget": 0.02,
+  "temporal_rule": "Do not choose temporal without measured DEV improvement in quality/E2E; never treat UNKNOWN vetoes beneficial",
+  "no_test_threshold_or_seed_tuning": true,
+  "current_positive_only": true,
+  "production_defaults_unchanged": true
+}
