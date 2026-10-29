@@ -1,0 +1,10 @@
+{
+  "scope": "Assistant textual QA-reference review only; no human/image safety certification.",
+  "current_primary_reference_conflicts": [],
+  "shared_direction_rule_artifact": {
+    "frame_id": "ac16b737276c46fdb4a34d707d491c66",
+    "question": "Are there any vehicles or pedestrians visible to the right-front of the vehicle?",
+    "observation": "All A/B/C explicitly say parked cars to the right-front and no pedestrians, agreeing with the reference. The uniform contrast-abstention extractor drops the prediction direction because of but, while its reference uses and. The nine repeated rule findings are a scope artifact, not nine independently verified driving direction errors."
+  },
+  "native_error_preservation": "Full predictions/references, class and signal fact failures and raw rule findings remain in task_quality.json. No unmatched label or unscored answer is a measured success."
+}

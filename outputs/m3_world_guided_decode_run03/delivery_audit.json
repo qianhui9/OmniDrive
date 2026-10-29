@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "base_commit": "2bb65d8090194713e602fd9557cdd797b3aea658",
+  "branch": "research/m3-world-guided-decode-v3",
+  "required_artifacts": [
+    "implementation_summary.md",
+    "draft_construction_design.md",
+    "draft_construction_analysis.json",
+    "target_aware_selection_analysis.json",
+    "offline_acceptance_upper_bound.json",
+    "draft_retrieval_analysis.json",
+    "draft_acceptance_analysis.json",
+    "effective_draft_coverage.json",
+    "runtime_cost_report.md",
+    "decode_performance_report.md",
+    "abc_comparison.json",
+    "e2e_performance_report.md",
+    "quality_report.md",
+    "go_no_go.json",
+    "result_answers.md",
+    "REPRODUCE.md"
+  ],
+  "phase_source_sha256_verified": {
+    "final": [
+      "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/world_guided_decode_v2.py",
+      "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/runtime.py",
+      "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/answer_memory.py",
+      "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/world_state.py",
+      "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/world_delta.py",
+      "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/task_conditioner.py",
+      "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/config.py",
+      "/data/qh/phdCode/work4/OmniDrive/worldstream/m3/prefill_executor.py",
+      "/data/qh/phdCode/work4/OmniDrive/projects/mmdet3d_plugin/models/detectors/petr3d.py",
+      "/data/qh/phdCode/work4/OmniDrive/tools/worldstream_m123/world_guided_decode_v3.py"
+    ],
+    "development_fixed": [
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/tools/worldstream_m123/world_guided_decode_v2.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/worldstream/m3/runtime.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/worldstream/m3/answer_memory.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/worldstream/m3/world_state.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/worldstream/m3/world_delta.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/worldstream/m3/task_conditioner.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/worldstream/m3/config.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/worldstream/m3/prefill_executor.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/projects/mmdet3d_plugin/models/detectors/petr3d.py",
+      "outputs/m3_world_guided_decode_run03/development_fixed/executed_sources/tools/worldstream_m123/world_guided_decode_v3.py"
+    ],
+    "excluded_scope_debug": [
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/tools/worldstream_m123/world_guided_decode_v2.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/worldstream/m3/runtime.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/worldstream/m3/answer_memory.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/worldstream/m3/world_state.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/worldstream/m3/world_delta.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/worldstream/m3/task_conditioner.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/worldstream/m3/config.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/worldstream/m3/prefill_executor.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/projects/mmdet3d_plugin/models/detectors/petr3d.py",
+      "outputs/m3_world_guided_decode_run03/initial_scope_mismatch/executed_sources/tools/worldstream_m123/world_guided_decode_v3.py"
+    ]
+  },
+  "final_requests": 432,
+  "excluded_scope_debug_requests": 320,
+  "old_scene_development_requests": 24,
+  "final_scenes_and_logs_disjoint": true,
+  "gpu_tests_passed": 744,
+  "weights_sha256": "6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d",
+  "formal_config_modified": false,
+  "checkpoint_modified": false,
+  "quality_qualification": "INCOMPLETE: scored fixed-stream C answers have zero active verifications",
+  "research_decision": "NO_GO for independent M1-conditioned language reuse",
+  "fixed3_target_aware_component": "MEASURED 1.038x C/B E2E; all candidates exact, length-sensitive, not independent M1 contribution"
+}

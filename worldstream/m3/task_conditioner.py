@@ -13,6 +13,46 @@ class QuestionDependencies:
     complete_coverage_required: bool = False
 
 
+@dataclass(frozen=True)
+class AnswerFacts:
+    polarity: str = 'unknown'
+    classes: tuple = ()
+    directions: tuple = ()
+    motion: str = 'unknown'
+    uncertain: bool = False
+
+
+def answer_facts(answer):
+    """Conservative statements from OUR earlier output, never current truth.
+
+    Negated, modal and interrogative clauses cannot create positive facts.
+    Multi-object directions are deliberately left unbound rather than joining
+    the direction of one object to another object's class.
+    """
+    text=' '.join(str(answer).lower().split())
+    classes=set();directions=set();positive=False;negative=False;uncertain=False;motions=set()
+    for clause,ending in re.findall(r'([^.!?;]+)([.!?;]?)',text):
+        if not clause.strip():continue
+        found=question_dependencies('What type of '+clause+'?').classes
+        modal=bool(re.search(r'\b(may|might|possibly|perhaps|uncertain|unsure|cannot determine|could be|appears? to|seems? to)\b',clause))
+        question=ending=='?' or bool(re.match(r'\s*(?:is there|are there|what|which|where|whether|can you|do you)',clause))
+        negated=bool(re.search(r"\b(no|not|none|without|neither|cannot|can't|isn't|aren't|doesn't|don't)\b",clause))
+        uncertain|=modal or question
+        if negated:negative=True;continue
+        if modal or question:continue
+        assertion=bool(re.search(r'\b(yes|there (?:is|are)|visible|seen|see|present|ahead|front|left|right|behind|parked|moving|stationary|stopped)\b',clause))
+        if found and assertion:
+            positive=True;classes.update(found)
+            if len(found)==1:
+                for d,pattern in [('front','front|ahead'),('rear','behind|rear'),('left','left'),('right','right')]:
+                    if re.search(r'\b(?:'+pattern+r')\b',clause):directions.add(d)
+            if re.search(r'\b(parked|stationary|stopped)\b',clause):motions.add('stationary')
+            if re.search(r'\b(moving|driving|traveling|travelling)\b',clause):motions.add('moving')
+    polarity='positive' if positive and not negative else 'negative' if negative and not positive else 'unknown'
+    return AnswerFacts(polarity,tuple(sorted(classes)),tuple(sorted(directions)),
+                       next(iter(motions)) if len(motions)==1 else 'unknown',uncertain)
+
+
 def question_dependencies(question):
     """One deterministic parser for proposal retrieval, never answer authority."""
     q=' '.join(str(question).lower().split())
@@ -26,7 +66,7 @@ def question_dependencies(question):
     directions=tuple(d for d,pattern in (
         ('front',r'front|ahead|forward'),('rear',r'behind|rear|back'),
         ('left',r'left'),('right',r'right')) if re.search(r'\b(?:'+pattern+r')\b',q))
-    if re.search(r'\b(safe|safety|risk|collision|should|recommend|happen|action|planning|trajectory)\b',q):
+    if re.search(r'\b(safe|safety|risk|collision|should|recommend|happen|action|planning|trajectory|clear path|obstructed|blocked path)\b',q):
         intent='safety';attrs=('complete_scene','ego','motion')
     elif re.search(r'\b(traffic (?:light|signal|sign)|signals?|signs?)\b',q):
         intent='signal';attrs=('signal_state','complete_scene')
@@ -34,7 +74,8 @@ def question_dependencies(question):
         intent='road';attrs=('map_geometry','map_class','ego')
     elif re.search(r'\b(weather|environment|conditions|buildings?|establishments?|business|commercial|setting|area|overview|surroundings)\b',q):
         intent='environment';attrs=('scene_appearance','complete_scene')
-    elif re.search(r'\b(lanes?|roads?|intersection|junction|topology)\b',q) and not classes:
+    elif re.search(r'\b(lanes?|roads?|intersection|junction|topology)\b',q) and (
+            not classes or re.search(r'\b(?:type|kind|category) of (?:road|lane)\b',q)):
         intent='road';attrs=('map_geometry','map_class','ego')
     elif re.search(r'\b(how many|count|number of)\b',q):
         intent='count';attrs=('class','existence','complete_scene')
@@ -55,8 +96,10 @@ def question_dependencies(question):
         attrs+=('near',)
     scope='near' if 'near' in attrs else 'all_views'
     signature=(intent,classes,directions,scope)
+    negative_query=bool(re.search(r'\b(no|none|not|without|absence)\b',q))
+    if negative_query and 'complete_scene' not in attrs:attrs+=('complete_scene',)
     return QuestionDependencies(intent,classes,directions,attrs,signature,
-        intent in ('count','signal','safety','environment','unknown'))
+        negative_query or intent in ('count','signal','safety','environment','unknown'))
 
 
 def task_type(question):

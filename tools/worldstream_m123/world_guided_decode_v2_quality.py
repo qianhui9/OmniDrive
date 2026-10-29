@@ -90,7 +90,8 @@ def compare_facts(expected,observed):
     return rows
 
 
-def task_quality(root,trials):
+def task_quality(root,trials,fact_extractor=None):
+    extract=fact_extractor or facts
     evaluated=[];missing=Counter();critical=[]
     for row in trials:
         # Three-QA cohort is primary, avoiding double-counting Q1 from the
@@ -107,10 +108,10 @@ def task_quality(root,trials):
                 missing[(row['condition'],row['workload'],'question_not_in_current_frame_GT')]+=1;continue
             if not isinstance(reference,str) or not reference.strip():
                 missing[(row['condition'],row['workload'],'nontext_or_empty_current_frame_GT')]+=1;continue
-            expected=facts(question,reference)
+            expected=extract(question,reference)
             if not expected:
                 missing[(row['condition'],row['workload'],'reference_facts_not_unambiguously_extractable')]+=1;continue
-            scores=compare_facts(expected,facts(question,output['A'][0]))
+            scores=compare_facts(expected,extract(question,output['A'][0]))
             evaluated.append(dict(base,reference=reference,facts=scores,score=sum(s['correct'] for s in scores)/len(scores)))
             for score in scores:
                 if not score['correct'] and (score['fact'] in ('signal_color','relative_direction','motion_state') or base['task']=='safety'):
@@ -141,7 +142,8 @@ def world_accuracy(root,trials,development_root=None):
     snapshots={}
     for r in trials:
         if r['condition']=='C':snapshots[(r['frame_id'],r['committed_world']['epoch'])]=r['committed_world']
-    dev=[json.loads(s) for s in ((development_root or root)/'development_coverage.jsonl').read_text().splitlines()]
+    dev_path=(development_root or root)/'development_coverage.jsonl'
+    dev=[json.loads(s) for s in dev_path.read_text().splitlines()] if dev_path.exists() else []
     for r in dev:snapshots[(r['frame_id'],r['committed_world']['epoch'])]=r['committed_world']
     selected=[i for i in infos if i['token'] in {key[0] for key in snapshots}]
     oracle=load_oracle(selected,'data/nuscenes')

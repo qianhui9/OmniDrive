@@ -1,5 +1,5 @@
 """Frozen history supplements full current vision; every request uses PrefillExecutor."""
-from dataclasses import asdict
+from dataclasses import asdict,replace
 import hashlib
 import json
 import math
@@ -410,7 +410,11 @@ class M3Runtime:
             tick=perf_counter();prompt_ids=tuple(ids.reshape(-1).tolist())
             selection=self.answer_memory.retrieve(question,prompt_ids,context,binding,current_world,guided)
             retrieval_ms=(perf_counter()-tick)*1000
+            retrieval_only_ms=retrieval_ms-selection.world_diff_ms
+            if guided:
+                selection=self.answer_memory.construct(selection,question,prompt_ids,context,binding,current_world,tokenizer)
             draft=selection.record.tokens if selection.record is not None else None
+            if guided:draft=None
             k=min(self.config.draft_length,selection.length) if draft else self.config.draft_length
             # A changed-state proposal is a short prefix, not permission to
             # keep proposing an entire stale answer with four-token blocks.
@@ -421,13 +425,22 @@ class M3Runtime:
             preparation_ms=(perf_counter()-tick)*1000
             self.last_diagnostics['active_request_index']=index
             answer,diag=self.executor.generate(base,expanded,capture=False,profile=context.get('profile',False),
-                draft_tokens=draft,draft_length=k,experimental_sampling=self.config.experimental_speculative_sampling,**generation)
+                draft_tokens=draft,draft_candidates=selection.candidates if guided else None,
+                draft_length=k,experimental_sampling=self.config.experimental_speculative_sampling,**generation)
             tick=perf_counter()
             tokens=answer.sequences if hasattr(answer,'sequences') else answer
             token_ids=tokens[0,1:].tolist()
-            answer_start=tokenizer.decode(token_ids[:8],skip_special_tokens=True) if tokenizer is not None else ''
+            answer_start=tokenizer.decode(token_ids if guided else token_ids[:8],skip_special_tokens=True) if tokenizer is not None else ''
+            candidate_diag=[c.metadata() for c in selection.candidates]
+            selected=diag.get('selected_candidate_index')
+            if guided:
+                c=selection.candidates[selected] if selected is not None else None
+                selection=replace(selection,record=c.record if c else None,length=c.block_length if c else 0,
+                    match_type=('exact' if c.kind=='exact' else 'semantic') if c else 'none',delta=c.delta if c else selection.delta)
+            diag['output_token_ids']=token_ids
+            diag['draft_selection_wall_ms']=retrieval_ms+selection.construction_ms+selection.tokenizer_ms
             self.answer_memory.observe_acceptance(selection,diag,self._frame_index)
-            self.answer_memory.remember(question,prompt_ids,token_ids,context,binding,current_world,answer_start)
+            self.answer_memory.remember(question,prompt_ids,token_ids,context,binding,current_world,answer_start,extract_facts=guided)
             management_ms=(perf_counter()-tick)*1000
             diag.update(request_index=index,executor='PrefillExecutor',mode='full_prefill',decode_strategy=self.config.decode_strategy,
                 current_visual_complete=True,visual_tokens=int(expanded.visual_mask.sum()),historical_text_consumed=False,
@@ -435,10 +448,12 @@ class M3Runtime:
                 draft_exact_available=selection.exact_available,draft_semantic_available=selection.semantic_available,
                 draft_source_frame=selection.record.frame_id if selection.record else None,
                 draft_source_question=selection.record.question if selection.record else None,
-                proposed_block_length=k if draft else 0,draft_decision_reason=selection.reason,
+                proposed_block_length=selection.length if selection.record is not None else 0,draft_decision_reason=selection.reason,
+                draft_candidates=candidate_diag,draft_construction_wall_ms=selection.construction_ms,
+                draft_tokenizer_wall_ms=selection.tokenizer_ms,
                 world_delta=selection.delta.to_dict() if selection.delta else None,
                 output_token_ids=token_ids,
-                draft_selection_wall_ms=retrieval_ms-selection.world_diff_ms,draft_management_wall_ms=management_ms,
+                draft_selection_wall_ms=max(0.,retrieval_only_ms+selection.construction_ms+selection.tokenizer_ms),draft_management_wall_ms=management_ms,
                 metadata_wall_ms=metadata_ms/max(1,len(ids_list)),model_metadata_cache_hit=model_hit,
                 tokenizer_metadata_cache_hit=tokenizer_hit,layout_preparation_ms=preparation_ms,
                 prefill_ms=diag.get('prefill_including_cache_gpu_ms'),decode_ms=diag.get('decode_loop_gpu_span_ms'),

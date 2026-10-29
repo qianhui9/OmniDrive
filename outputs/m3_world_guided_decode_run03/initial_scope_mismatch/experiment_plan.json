@@ -1,0 +1,150 @@
+{
+  "base_commit": "2bb65d8090194713e602fd9557cdd797b3aea658",
+  "source": "Original validation conversation/VQA question order, first three real questions; loader-generated overview excluded from primary workload.",
+  "scenes": [
+    {
+      "scene_id": "2086743226764f268fe8d4b0b7c19590",
+      "log_id": "ee155e99938a4c2698fed50fc5b5d16a",
+      "tokens": [
+        "b2a93b022374432d917cc7db15ca023a",
+        "b7dd15eac3df4c4f950dff7b507a741e",
+        "5b5d5c07352b49f9bdaf16a0293db98c",
+        "2ff0482416cb4997bab12b0d7700f142"
+      ]
+    },
+    {
+      "scene_id": "21a7ba093614493b83838b9656b3558d",
+      "log_id": "bd38be48fba140f1941bf7c84a33255d",
+      "tokens": [
+        "5a3a15f4ebdb4e6b83eb58628dc8e83f",
+        "68e298ebeeb148f7888ea88da004f27f",
+        "e6e8246bd341467aa059457737cdfa7a",
+        "317fba7a6afb4dac8974af0d61afe325"
+      ]
+    },
+    {
+      "scene_id": "265f002f02d447ad9074813292eef75e",
+      "log_id": "d31dc715d1c34b99bd5afb0e3aea26ed",
+      "tokens": [
+        "88a090c54cc844cc878f00d08274a683",
+        "5ee110d014374ae093565bba2e81a3fd",
+        "a6261bd83c5e4e1985012b6c6c51fce0",
+        "684acda1d78c4a959762df565cba29f5"
+      ]
+    }
+  ],
+  "questions": {
+    "b2a93b022374432d917cc7db15ca023a": [
+      "Is there any immediate action required due to traffic signals or signs?",
+      "Are there any pedestrians in close proximity to the vehicle that may affect driving decisions?",
+      "What type of vehicles are visible in the vicinity, and what are they doing?"
+    ],
+    "b7dd15eac3df4c4f950dff7b507a741e": [
+      "What type of road are we currently on?",
+      "Is there any immediate traffic in our lane?",
+      "Can you see any pedestrians nearby?"
+    ],
+    "5b5d5c07352b49f9bdaf16a0293db98c": [
+      "What is the function of the arrows painted on the road directly in front of you?",
+      "Can you list the types of transportation seen in the vicinity?",
+      "Is there any signage to indicate the presence of a crosswalk or pedestrian zone?"
+    ],
+    "2ff0482416cb4997bab12b0d7700f142": [
+      "What type of road is the vehicle currently on?",
+      "Is there a traffic light present at the intersection?",
+      "Can you count the number of pedestrians seen from the vehicle?"
+    ],
+    "5a3a15f4ebdb4e6b83eb58628dc8e83f": [
+      "What type of buildings are lining the street?",
+      "Are there any traffic signs or signals visible?",
+      "Is there a designated pedestrian crossing area visible?"
+    ],
+    "68e298ebeeb148f7888ea88da004f27f": [
+      "Is there any visible traffic signage or signals?",
+      "Can you describe any vehicles near you?",
+      "What is the condition of the sky and what does that imply?"
+    ],
+    "e6e8246bd341467aa059457737cdfa7a": [
+      "What type of buildings are surrounding the vehicle?",
+      "Is there a visible traffic light or stop sign controlling the intersection?",
+      "What can be seen through the vehicle's windshield?"
+    ],
+    "317fba7a6afb4dac8974af0d61afe325": [
+      "What type of environment is the vehicle currently in?",
+      "Is there any immediate obstacle in front of the vehicle that would require it to stop or slow down?",
+      "What can be said about the current weather conditions from what we see around?"
+    ],
+    "88a090c54cc844cc878f00d08274a683": [
+      "What is the nature of the area you are driving in?",
+      "Are there any other vehicles or pedestrians in your immediate vicinity?",
+      "What weather conditions are you experiencing?"
+    ],
+    "5ee110d014374ae093565bba2e81a3fd": [
+      "What is the nature of the buildings adjacent to the road?",
+      "Is there any visible traffic signage that indicates how we should be driving?",
+      "What should we be aware of when driving in this type of neighborhood?"
+    ],
+    "a6261bd83c5e4e1985012b6c6c51fce0": [
+      "Are there any traffic signals or signs visible?",
+      "What kind of building is visible to the left of the vehicle?",
+      "Is there any other traffic or pedestrians visible in the vicinity of the vehicle?"
+    ],
+    "684acda1d78c4a959762df565cba29f5": [
+      "Is there any oncoming traffic visible?",
+      "Can you identify any traffic signs or signals?",
+      "What kind of road are you currently on?"
+    ]
+  },
+  "independent_of_prior_scenes_and_logs": true,
+  "qualification_path": "outputs/m3_sf_wrcps_optimization_run01/semantic_qualification.json",
+  "qualification_sha256": "290c5d88da0795122c9e1cd79a3ae808ba51507e56bb8b9683bc1126909aee65",
+  "frames": 12,
+  "rounds": 3,
+  "workloads": [
+    "natural",
+    "fixed"
+  ],
+  "questions_per_frame": [
+    1,
+    3
+  ],
+  "conditions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "generation": {
+    "do_sample": true,
+    "temperature": 0.1,
+    "top_p": 0.75,
+    "num_beams": 1,
+    "max_new_tokens": 320,
+    "use_cache": true
+  },
+  "candidate_length": 8,
+  "quality_budget_absolute": 0.02,
+  "quality": "Offline only after inference: original QA task facts; independent nuScenes annotation audit. No native-answer-as-truth and no text-similarity accuracy.",
+  "selection": "First three sorted VAL scenes with complete images/three QA, excluding prior scene/logs and M1 qualification calibration/validation scene/logs. First four contiguous frames. No output/outcome selection.",
+  "task_counts": {
+    "safety": 3,
+    "existence": 5,
+    "distance": 2,
+    "road": 6,
+    "category": 1,
+    "signal": 6,
+    "count": 1,
+    "environment": 8,
+    "unknown": 3,
+    "position": 1
+  },
+  "version": "v3",
+  "development_source": "outputs/m3_world_guided_decode_run02/p3/e2e_trials.jsonl",
+  "development_sha256": "ad4f2c28b16d8f750dd6823313412da6174aba61c21066bf204ccc5066b0430d",
+  "excluded_v2_scene_ids": [
+    "0ac05652a4c44374998be876ba5cd6fd",
+    "0e7ede02718341558414865d5c604745",
+    "16e50a63b809463099cb4c378fe0641e"
+  ],
+  "policy": "One K8 verifier. Preserve complete exact drafts; M1-supported historical positive facts form <=4 candidates. Current processed prefill distribution ranks them without RNG or extra forward. Two prior unproductive verifications suppress repeated candidates.",
+  "offline_analysis": "Only v2 development scenes before primary execution. Native current answers are diagnostic LCP/oracle reference ONLY, never online truth or runtime inputs."
+}

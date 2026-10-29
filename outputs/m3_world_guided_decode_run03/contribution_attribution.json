@@ -1,0 +1,17 @@
+{
+  "status": "MEASURED_PLUS_CODE_PATH_AUDIT",
+  "nonexact_proposals": 0,
+  "m1_conditioned_accepted_tokens": 0,
+  "fixed3": {
+    "history_output_tokens": 2246,
+    "world_output_tokens": 2188,
+    "history_target_calls": 1278,
+    "world_target_calls": 1192,
+    "raw_forward_reduction": 86,
+    "output_length_reduction": 58,
+    "additional_saved_forwards_relative_to_own_serial_length": 28,
+    "target_filtered_requests": 7,
+    "exact_only": true
+  },
+  "interpretation": "All final proposals are exact history. Their target score uses only current processed logits and prior target costs/acceptance; M1 semantic risk never truncates or scores those exact proposals. Thus the positive fixed3 C/B signal identifies target-aware ordinary-history scheduling plus changed sampled output lengths, not an independent M1-conditioned construction benefit. The arithmetic forward decomposition is accounting, not a wall-time causal ablation."
+}

@@ -1,0 +1,11 @@
+# Final validation
+
+Final RTX 3090 host regression: **744 passed**, 23 warnings, 9.93 seconds. `tests_gpu.log` and `gpu_regression.json` retain actual CUDA kernel witness510720, CPU affinity excluding4/5, installed Torch and unchanged original checkpoint SHA256. Earlier742-test evidence is retained separately before the two offline quality-scope regression cases.
+
+All final online sources match the SHA256 recorded at worker launch and rechecked at completion. Frozen old development24-request and excluded320-request sources also match their own execution bindings. Final432-request JSONL is complete. The final three scene IDs AND logs exclude all v1/v2, scope-debug and semantic-qualification development/calibration/validation streams. All required reports and JSON/JSONL parse checks pass. `delivery_audit.json` lists these checks; `report_source_bindings.json` binds final offline analysis code.
+
+Research qualification: **NO_GO for M1-conditioned language reuse**. Natural three-QA has0 new accepted tokens and0% net-cost coverage. Fixed three-QA C/B full E2E1.038x and C/Native1.383x are retained as real, limited target-aware exact-history results: all81 C proposals were exact; no M1-conditioned candidate was executed. Output length reduction58 tokens accounts for part of the86-forward reduction; the additional saving relative to each output's serial length is28 forwards. This is not a causal wall-time ablation or evidence of M1 semantic contribution.
+
+Quality coverage remains incomplete. Covered facts show zero paired score loss, but no scored C fixed-stream row actually used speculative verification. Missing later-frame current-question labels cannot qualify the2pp budget. Raw Native errors and rule artifacts remain available with the textual contextual review. Formal deployment remains native, no pretrained weights were changed, and no new models were downloaded or trained.
+
+The artifact manifest includes local-only carrier tensors and duplicate answer exports alongside committed full token/timing JSONL. Frozen source snapshots intentionally preserve inherited whitespace byte-for-byte; production/source changes pass diff whitespace checks. The final commit SHA is supplied by repository history and the final delivery message, avoiding a self-referential hash.

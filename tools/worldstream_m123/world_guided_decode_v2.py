@@ -31,7 +31,7 @@ def source_questions(token):
     return questions
 
 
-def prepare(root):
+def prepare(root,extra_excluded_scenes=()):
     import pickle
     from mmcv import Config
     from tools.worldstream_m1.dataset import resolve_image
@@ -40,7 +40,7 @@ def prepare(root):
     with open(cfg.data.test.ann_file,'rb') as handle:infos=pickle.load(handle)['infos']
     old=json.loads((PRIOR/'sequence.json').read_text())
     qualification=json.loads(QUALIFICATION.read_text())
-    excluded=set(old['scene_splits'])|set(qualification['calibration_scene_ids'])|set(qualification['validation_scene_ids'])
+    excluded=set(old['scene_splits'])|set(qualification['calibration_scene_ids'])|set(qualification['validation_scene_ids'])|set(extra_excluded_scenes)
     scene_table={s['token']:s for s in json.loads(Path('data/nuscenes/v1.0-trainval/scene.json').read_text())}
     excluded_logs={scene_table[s]['log_token'] for s in excluded}
     grouped=defaultdict(list)
@@ -109,7 +109,8 @@ def runtime_control(root,model):
 
 
 @torch.no_grad()
-def run(root,three_questions_only=False,skip_controls=False):
+def run(root,three_questions_only=False,skip_controls=False,skip_development=False,
+        rounds=3,conditions=('A','B','C'),workloads=('natural','fixed'),skip_greedy=False):
     import projects.mmdet3d_plugin  # noqa
     from mmcv.parallel import collate,scatter,DataContainer
     from mmdet3d.datasets import build_dataset
@@ -123,6 +124,7 @@ def run(root,three_questions_only=False,skip_controls=False):
     sources=[Path(__file__),Path('worldstream/m3/runtime.py'),Path('worldstream/m3/answer_memory.py'),
         Path('worldstream/m3/world_state.py'),Path('worldstream/m3/world_delta.py'),Path('worldstream/m3/task_conditioner.py'),
         Path('worldstream/m3/config.py'),Path('worldstream/m3/prefill_executor.py'),Path('projects/mmdet3d_plugin/models/detectors/petr3d.py')]
+    if plan.get('version')=='v3':sources.append(Path('tools/worldstream_m123/world_guided_decode_v3.py'))
     source_hashes={str(p):sha256(p) for p in sources}
     write(root/'execution_sources.json',dict(stage='run',code_head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),sources=source_hashes))
     with gpu_job_lock():
@@ -142,13 +144,13 @@ def run(root,three_questions_only=False,skip_controls=False):
         if not skip_controls:runtime_control(root,model)
         print('RUNTIME_CONTROL_REUSED' if skip_controls else 'P0_RUNTIME_CONTROL_DONE',flush=True)
         observer=Observer(model)
-        development_coverage(root,model,dataset,observer,by_token)
+        if not skip_development:development_coverage(root,model,dataset,observer,by_token)
         captures=root/'captures';captures.mkdir()
         rows=[]
         for count in ((3,) if three_questions_only else (1,3)):
-            for workload in ('natural','fixed'):
-                for repeat in range(3):
-                    order=['A','B','C'];order=order[repeat:]+order[:repeat]
+            for workload in workloads:
+                for repeat in range(rounds):
+                    order=list(conditions);order=order[repeat%len(order):]+order[:repeat%len(order)]
                     for condition in order:
                         model.m3_runtime=(None if condition=='A' else M3Runtime(dict(reuse_strategy='exact_prefix',
                             decode_strategy='history_draft' if condition=='B' else 'world_guided',
@@ -227,7 +229,7 @@ def run(root,three_questions_only=False,skip_controls=False):
                             print('E2E',count,workload,repeat,condition,scene['scene_id'],'rows',len(rows),flush=True)
         # Greedy probes on original QA using fresh current carriers and the same
         # committed M1 snapshots from actual C, no repeated backbone benchmark.
-        greedy_probe(root,model,plan)
+        if not skip_greedy:greedy_probe(root,model,plan)
         write(root/'run_status.json',dict(status='COMPLETED',e2e_rows=len(rows),gpu=torch.cuda.get_device_name(0),
             generation=plan['generation'],checkpoint_sha256=checkpoint_sha))
         if source_hashes!={str(p):sha256(p) for p in sources}:raise RuntimeError('Executed source changed during measured run')

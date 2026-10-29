@@ -32,6 +32,8 @@ class GenerationFacade(nn.Module, GenerationMixin):
         self.first_forward = first_forward
         self.first = True
         self.draft_tokens = ()
+        self.draft_candidates = ()
+        self.selection_events = []
         self.draft_length = 8
         self.diagnostics = dict(decode_forward_calls=0,decode_forward_input_lengths=[],
                                 decode_forward_host_enqueue_ms=0.)
@@ -81,13 +83,13 @@ class GenerationFacade(nn.Module, GenerationMixin):
         return result
 
     def greedy_search(self, input_ids, logits_processor=None, stopping_criteria=None, **kwargs):
-        if not self.draft_tokens:
+        if not self.draft_tokens and not self.draft_candidates:
             return super().greedy_search(input_ids, logits_processor=logits_processor,
                 stopping_criteria=stopping_criteria, **kwargs)
         return self._history_decode(input_ids, logits_processor, stopping_criteria, **kwargs)
 
     def sample(self, input_ids, logits_processor=None, stopping_criteria=None, logits_warper=None, **kwargs):
-        if not self.draft_tokens:
+        if not self.draft_tokens and not self.draft_candidates:
             return super().sample(input_ids, logits_processor=logits_processor,
                 stopping_criteria=stopping_criteria, logits_warper=logits_warper, **kwargs)
         return self._history_decode(input_ids, logits_processor, stopping_criteria,
@@ -129,6 +131,40 @@ class GenerationFacade(nn.Module, GenerationMixin):
                 scores += (value,)
             return (known_token if known_token is not None else int(token)) in eos or bool(stopping(ids, scores))
 
+        first_value = None
+        if self.draft_candidates:
+            # The prefill's real processor/warper-transformed distribution is
+            # used once. Selection consumes NO RNG and NO extra target forward.
+            # One tiny vector transfer covers all candidates, never full logits.
+            selection_tick=perf_counter()
+            if self.profile and self.device.type=='cuda':
+                sa,sb=torch.cuda.Event(enable_timing=True),torch.cuda.Event(enable_timing=True);sa.record()
+            first_value=transform(logits)
+            p=torch.softmax(first_value,-1).reshape(-1)
+            first=ids.new_tensor([c.tokens[0] for c in self.draft_candidates])
+            values=p.index_select(0,first) if sampling else (first==first_value.argmax(-1)[0]).to(p.dtype)
+            probabilities=values.detach().cpu().tolist()
+            rankings=[]
+            for i,(candidate,probability) in enumerate(zip(self.draft_candidates,probabilities)):
+                expected=min(candidate.expected_accepted,len(candidate.tokens),stopping.max_length-ids.shape[-1])
+                score=probability*expected-candidate.forward_cost_ratio-candidate.selection_cost_steps
+                rankings.append(dict(index=i,kind=candidate.kind,first_token_probability=probability,
+                    expected_accepted=expected,score=score))
+            best=max(range(len(rankings)),key=lambda i:rankings[i]['score'])
+            chosen=best if rankings[best]['score']>0 else None
+            if chosen is not None:
+                candidate=self.draft_candidates[chosen]
+                self.draft_tokens=candidate.tokens;self.draft_length=candidate.block_length
+            else:
+                self.draft_tokens=();active=False
+            if self.profile and self.device.type=='cuda':sb.record();self.selection_events.append((sa,sb))
+            diag.update(target_aware_enabled=True,target_selection_host_wall_ms=(perf_counter()-selection_tick)*1000,
+                target_selection_wall_includes_pending_prefill=True,target_selection_rng_draws=0,
+                target_selection_extra_forwards=0,target_selection_rankings=rankings,
+                selected_candidate_index=chosen,selected_candidate_kind=self.draft_candidates[chosen].kind if chosen is not None else 'none',
+                target_selection_skipped=chosen is None,
+                draft_status='target_verification' if chosen is not None else 'target_filtered_native')
+
         while True:
             generated = ids.shape[-1]-1
             room = stopping.max_length-ids.shape[-1]
@@ -139,7 +175,7 @@ class GenerationFacade(nn.Module, GenerationMixin):
                     output = self._target_forward(pending.reshape(1,1), kv, length)
                     kv, logits = output.past_key_values, output.logits[:, -1]
                     del output
-                value = transform(logits)
+                value = first_value if generated==0 and first_value is not None else transform(logits)
                 token = torch.multinomial(torch.softmax(value, -1), 1)[0,0] if sampling else value.argmax(-1)[0]
                 pending = token
                 if emit(token, value):
@@ -162,7 +198,7 @@ class GenerationFacade(nn.Module, GenerationMixin):
             rejected = False
             finished = False
             for j, candidate in enumerate(candidates):
-                value = transform(distributions[:,j])
+                value = first_value if generated==0 and j==0 and first_value is not None else transform(distributions[:,j])
                 if sampling:
                     token, accepted = deterministic_draft_sample(torch.softmax(value,-1), candidate)
                 else:
@@ -232,6 +268,7 @@ class PrefillExecutor:
     @torch.no_grad()
     def generate(self, model, expanded, reuse_length=0, capture=True, profile=False, decision=None,
                  draft_tokens=None, draft_length=8, experimental_sampling=False,
+                 draft_candidates=None,
                  **generation):
         if any(m.training for m in model.modules()):
             raise ValueError('M3 execution is inference only')
@@ -380,6 +417,17 @@ class PrefillExecutor:
             diagnostics['draft_status'] = 'target_verification'
         elif draft:
             diagnostics['draft_status'] = 'invalid_tokens_native'
+        if draft_candidates:
+            if draft_tokens is not None or len(draft_candidates)>4:
+                raise ValueError('One candidate set of at most four replaces a single draft')
+            if reuse_length:raise ValueError('Target-aware candidates require fresh full current prefill')
+            if effective('do_sample',False) and not experimental_sampling:
+                raise ValueError('Target-aware sampling requires research opt-in')
+            for candidate in draft_candidates:
+                if (not candidate.tokens or any(type(t) is not int or not 0<=t<model.config.vocab_size for t in candidate.tokens)
+                        or candidate.block_length!=8):
+                    raise ValueError('Invalid target-aware candidate')
+            facade.draft_candidates=tuple(draft_candidates)
         tick = perf_counter()
         answer = facade.generate(inputs_embeds=expanded.embeddings,
             attention_mask=expanded.attention_mask, **generation)
@@ -394,6 +442,7 @@ class PrefillExecutor:
             diagnostics['generation_gpu_span_ms'] = generation_start.elapsed_time(generation_end)
             diagnostics['cache_branch_gpu_span_ms']=sum(a.elapsed_time(b) for a,b in branch_events)
             diagnostics['decode_forward_cuda_ms'] = sum(a.elapsed_time(b) for a,b,_ in facade.decode_events)
+            diagnostics['target_selection_cuda_span_ms']=sum(a.elapsed_time(b) for a,b in facade.selection_events)
             diagnostics['verification_forward_cuda_ms'] = sum(a.elapsed_time(b) for a,b,k in facade.decode_events if k>1)
             diagnostics['decode_forward_cuda_events'] = [dict(input_tokens=k,cuda_ms=a.elapsed_time(b)) for a,b,k in facade.decode_events]
             diagnostics['timing_method'] = 'CUDA event stream spans; includes host gaps; decode includes HF sampling loop'

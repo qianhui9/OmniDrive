@@ -1,0 +1,5 @@
+# Excluded initial v3 scope-debug attempt
+
+Interrupted ONLY our own worker after320 complete requests when a real task-scope error was observed: “What type of road is the vehicle currently on?” was parsed as vehicle category because of an ego-vehicle noun. A composed bus-class hypothesis only matched three generic initial tokens, not road facts. This is not M1-fact reuse. The incomplete attempt is excluded entirely from final A/B/C timing/acceptance/quality results. Its three scenes and logs were promoted to development and excluded from the replacement heldout cohort. Negated current questions were also explicitly assigned incomplete full-scene dependencies. No answer templates were added. Exact source bytes are preserved in executed_sources/.
+
+The successful earlier fixed development24 B/C requests remain valid as targeted development evidence, with their own frozen sources. Final inference uses a new independently selected cohort; no old-scene current output is used to construct online candidates there.
