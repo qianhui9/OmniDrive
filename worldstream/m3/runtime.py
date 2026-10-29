@@ -44,6 +44,18 @@ class M3Runtime:
             from pathlib import Path
             self.fast_answer_policy=json.loads(Path(self.config.selective_answer_policy).read_text())
             p=self.fast_answer_policy
+            if p.get('main_path','legacy_reproduction') not in ('current_only','legacy_reproduction'):
+                raise ValueError('Unknown selective-answer main path')
+            if p.get('main_path')=='current_only' and (
+                    self.config.temporal_risk_enabled or self.config.target_completeness_enabled
+                    or p.get('temporal_risk_enabled') or p.get('target_completeness_enabled')):
+                raise ValueError('Current-only bypass cannot enable historical risk modules')
+            if p.get('main_path')=='current_only':
+                mode=p.get('position_mode','basic')
+                floor=p.get('position_min_confidence')
+                if mode not in ('basic','restricted','fallback') or (mode=='restricted' and
+                        (not isinstance(floor,(int,float)) or not math.isfinite(floor) or not .35<=floor<=1.)):
+                    raise ValueError('Invalid current-only Position policy')
             if (p.get('status')!='FROZEN_RESEARCH_POLICY' or not .35<=p.get('min_confidence',0)<=1.
                     or not math.isfinite(p.get('expected_normal_m3_ms',float('nan')))
                     or p['expected_normal_m3_ms']<=0 or not p.get('calibration_sha256')):

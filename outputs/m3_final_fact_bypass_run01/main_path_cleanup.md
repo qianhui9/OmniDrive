@@ -1,0 +1,5 @@
+# Current-only path
+
+Question parsing → committed current M1 facts → existing binding gate plus one Position support floor → fact rendering and zero LLM forwards, otherwise the original Target-Aware K8 History-Draft. There is one M3Runtime. `main_path=current_only` disables full-answer-history lookup and refuses Temporal Risk/Target Completeness flags. The legacy path remains available for source-frozen historical reproduction. Default selective_answer_mode remains off.
+
+Question-level RNG isolation, current observation interfaces, GPU timing, missing-witness UNKNOWN behavior, and the M2 reuse/current detection distinction remain unchanged. The Position confidence floor is detector support, not target correctness probability. Category and positive Existence do not pay this gate; absence never yields No. No new competing-object score, runtime, visual model, weight, M1/M2 algorithm or sampling change is introduced. Runtime admission additionally requires a FROZEN_RESEARCH_POLICY; this run delivers only diagnostic policy candidates.

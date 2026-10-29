@@ -26,6 +26,8 @@ class M3Config:
     selective_answer_policy: str = ''
     question_rng_enabled: bool = False
     target_binding_enabled: bool = False
+    # Legacy experiment switches. A current_only policy refuses both; retained
+    # solely so frozen historical experiments can still be reconstructed.
     target_completeness_enabled: bool = False
     temporal_risk_enabled: bool = False
     current_detection_support: bool = False

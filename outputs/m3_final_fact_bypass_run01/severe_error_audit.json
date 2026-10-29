@@ -1,0 +1,233 @@
+{
+  "status": "HISTORICAL_DIAGNOSTIC_ONLY",
+  "paired_denominator": 40,
+  "new_severe": 0,
+  "net_severe_change": -15,
+  "scene_CI95": [
+    0.0,
+    0.0
+  ],
+  "descriptive_request_wilson95": [
+    0.0,
+    0.08762453925039232
+  ],
+  "independent_logs": 3,
+  "cluster_unit": "log_id",
+  "cases": [],
+  "fast_new_severe": 0,
+  "fallback_new_severe": 0,
+  "nearest_identity_errors": {
+    "requests": 47,
+    "scored": 30,
+    "UNKNOWN": 17,
+    "score": 0.9666666666666667,
+    "unknown_reasons": {
+      "no_visible_GT_target": 4,
+      "multiple_equally_plausible_GT_targets": 4,
+      "visibility_ambiguous": 7,
+      "detector_GT_matching_ambiguous": 2,
+      "question_semantics_ambiguous": 0,
+      "missing_annotation_support": 0
+    },
+    "scored_scenes": 3,
+    "unique_scored_frame_questions": 30
+  },
+  "strict_2percent_certification": false,
+  "wrong_visible_witness_cases": [
+    {
+      "frame_id": "f602bdabb07a49518371b9fe3477fa0f",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "target": {
+        "known": true,
+        "reason": null,
+        "correct": false,
+        "matched_annotation": "73197d817edf47c99ba15e9834228b6c",
+        "acceptable_annotation_ids": [
+          "e5bd2da409cb413dababfda112c8a242"
+        ]
+      },
+      "object": {
+        "known": true,
+        "reason": null,
+        "annotation_id": "73197d817edf47c99ba15e9834228b6c",
+        "instance_id": "565e0409cfd745ac887ef99ffdc5556a",
+        "semantic_class": "car",
+        "class_correct": true,
+        "GT_center_ego": [
+          20.90537746054008,
+          18.22957932316723,
+          1.8213504102446163
+        ],
+        "center_distance_m": 1.519030250313713,
+        "geometry_within_2m": true,
+        "visible": false,
+        "cameras": [
+          "CAM_FRONT_LEFT"
+        ],
+        "source_frame": "f602bdabb07a49518371b9fe3477fa0f",
+        "source_timestamp": 1533114556.697064,
+        "correct": true
+      }
+    }
+  ],
+  "identity_severe_vs_B": "UNKNOWN: B generated answers have no independently matched instance receipt",
+  "frozen_v4_new_severe_cases": [
+    {
+      "workload": "addressable",
+      "question_count": 3,
+      "comparison": "B->C",
+      "round": 0,
+      "scene_id": "12cd5f88732749a58725528bb3d86958",
+      "frame_id": "2ea0bbd8c3ca442baa3f6c0db66c087d",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "request_index": 2,
+      "answer": "The nearest pedestrian is to the front-left.",
+      "baseline_answer": "The nearest pedestrian is on the sidewalk to the right-front of the vehicle.",
+      "quality": {
+        "known": true,
+        "score": 0.0,
+        "reference": {
+          "known": true,
+          "task": "position",
+          "semantic_class": "pedestrian",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "pedestrian"
+          ],
+          "directions": [
+            "front",
+            "right"
+          ],
+          "annotation_ids": [
+            "3d39f9e261624aec9556476f31e65dfc",
+            "acf870d66c8f424eb5eff1a4270dbe10",
+            "897157e641d54f9fb4c0b87fb68449f6",
+            "4a1ca0a2b82b4c3eb0ce3011c8ffc89b",
+            "6cd9e6af11d84ab2831ba6fd9ba07b3b"
+          ],
+          "selected_annotation": "3d39f9e261624aec9556476f31e65dfc",
+          "source_frame": "2ea0bbd8c3ca442baa3f6c0db66c087d",
+          "center_ego": [
+            19.766369359234147,
+            -2.404142263128165,
+            1.085897511310396
+          ],
+          "required_facts": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "position",
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "reason": "structured_position"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [
+            "front",
+            "left"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": true
+      },
+      "baseline_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "position",
+          "semantic_class": "pedestrian",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "pedestrian"
+          ],
+          "directions": [
+            "front",
+            "right"
+          ],
+          "annotation_ids": [
+            "3d39f9e261624aec9556476f31e65dfc",
+            "acf870d66c8f424eb5eff1a4270dbe10",
+            "897157e641d54f9fb4c0b87fb68449f6",
+            "4a1ca0a2b82b4c3eb0ce3011c8ffc89b",
+            "6cd9e6af11d84ab2831ba6fd9ba07b3b"
+          ],
+          "selected_annotation": "3d39f9e261624aec9556476f31e65dfc",
+          "source_frame": "2ea0bbd8c3ca442baa3f6c0db66c087d",
+          "center_ego": [
+            19.766369359234147,
+            -2.404142263128165,
+            1.085897511310396
+          ],
+          "required_facts": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "position",
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "reason": "structured_position"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [
+            "front",
+            "right"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "answer_source": "fact_grounded_response",
+      "llm_skipped": true,
+      "new_severe_error": true,
+      "path": "fast_current_fact"
+    }
+  ],
+  "frozen_v4_verdict": "NO_GO_UNCHANGED: 1/41 new severe, empirical scene CI upper 8.333%",
+  "caveat": "Small log-cluster empirical intervals cannot establish rare-error safety. UNKNOWN target identity is excluded, never counted correct. Historical v4 NO_GO unchanged."
+}

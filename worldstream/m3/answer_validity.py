@@ -228,12 +228,16 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
     Current facts can answer a structured question without historical identity.
     """
     tick=perf_counter();profile=question_facts(question)
+    current_only=(policy or {}).get('main_path')=='current_only'
+    if current_only and (temporal_risk_enabled or target_completeness_enabled):
+        raise ValueError('Current-only bypass excludes historical risk and target completeness')
     parse_ms=(perf_counter()-tick)*1000
     out=dict(supported=False,admitted=False,answer_source='none',answer_text='',
              profile=asdict(profile),required_facts=list(profile.required),
              reason=profile.reason,facts=[],history_candidate_count=0,
              question_fact_extraction_wall_ms=parse_ms,answer_validity_check_wall_ms=0.,
              current_fact_extraction_wall_ms=0.,target_completeness_wall_ms=0.,
+             position_admission_wall_ms=0.,main_path='current_only' if current_only else 'legacy_reproduction',
              fast_answer_construction_wall_ms=0.,score_kind='DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY')
     tick=perf_counter()
     def finish(reason):
@@ -281,6 +285,21 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
     directions=fact_directions(witness.center_ego)
     if profile.intent=='position' and (abs(abs(witness.center_ego[0])-1.)<.5 or abs(abs(witness.center_ego[1])-1.)<.5):
         return finish('position_sector_boundary_unknown')
+    # One task-specific gate. Its floor must be selected on DEV; it is detector
+    # support, never a calibrated probability of selecting the true nearest.
+    position_ok=True
+    if current_only and profile.intent=='position':
+        admission_tick=perf_counter()
+        mode=(policy or {}).get('position_mode','basic')
+        if mode not in ('basic','restricted','fallback'):
+            raise ValueError('Unknown position admission mode')
+        floor=(policy or {}).get('position_min_confidence')
+        if mode=='restricted' and (floor is None or not math.isfinite(float(floor)) or not .35<=float(floor)<=1.):
+            raise ValueError('Restricted Position requires a finite DEV confidence floor')
+        position_ok=mode!='fallback' and (mode!='restricted' or witness.score>=float(floor))
+        out['position_admission']=dict(mode=mode,eligible=position_ok,min_confidence=floor,
+            scope='current_detector_support_only_not_nearest_identity_certification')
+        out['position_admission_wall_ms']=(perf_counter()-admission_tick)*1000
     facts=dict(anchor_id=witness.anchor_id,semantic_class=witness.semantic_class,
                center_ego=witness.center_ego,directions=directions,motion=motion,
                velocity_ego=witness.velocity_ego,confidence=witness.score,
@@ -290,7 +309,7 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
                identity_qualified=witness.identity_qualified,
                observation_kind=witness.observation_kind,
                identity_required=False,association_unambiguous=witness.association_unambiguous)
-    prior=next((a for a in previous.anchors if a.anchor_id==witness.anchor_id),None) if (
+    prior=next((a for a in previous.anchors if a.anchor_id==witness.anchor_id),None) if (not current_only and
         previous is not None and previous.scene_id==current.scene_id and previous.epoch==current.epoch
         and previous.timestamp<current.timestamp and previous.execution_signature==current.execution_signature) else None
     out.update(supported=True,facts=[facts],support_score=witness.score,
@@ -299,17 +318,19 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
                current_commit=(current.epoch,current.version,current.frame_id),
                source_generation=None,source_age_s=None,original_model_binding=binding)
     build_tick=perf_counter();text=render_facts(profile,witness.semantic_class,directions,motion)
-    normalize=lambda s:' '.join(str(s).lower().strip().rstrip('.').split())
-    alternatives={normalize(text)}
-    if profile.intent=='existence':
-        alternatives.add(normalize(text.replace('Yes, there is','There is')))
-    if profile.direct:
-        alternatives|={t.replace('directly ahead','directly in front of us') for t in tuple(alternatives)}
-    history=[r for r in memory.records.values() if memory.valid(r,context,binding)
-             and r.source=='current_target_model_generation'
-             and question_facts(r.question).signature==profile.signature]
-    out['history_candidate_count']=len(history)
-    reusable=next((r for r in reversed(history) if normalize(r.answer_text) in alternatives),None)
+    reusable=None
+    if not current_only:
+        normalize=lambda s:' '.join(str(s).lower().strip().rstrip('.').split())
+        alternatives={normalize(text)}
+        if profile.intent=='existence':
+            alternatives.add(normalize(text.replace('Yes, there is','There is')))
+        if profile.direct:
+            alternatives|={t.replace('directly ahead','directly in front of us') for t in tuple(alternatives)}
+        history=[r for r in memory.records.values() if memory.valid(r,context,binding)
+                 and r.source=='current_target_model_generation'
+                 and question_facts(r.question).signature==profile.signature]
+        out['history_candidate_count']=len(history)
+        reusable=next((r for r in reversed(history) if normalize(r.answer_text) in alternatives),None)
     if reusable is not None:
         text=reusable.answer_text
         out.update(answer_source='full_answer_reuse',source_generation=reusable.original_generation,
@@ -325,7 +346,8 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
     risk_ok=(not target_binding_enabled or out['target_binding']['total_risk']<=float((policy or {}).get('max_binding_risk',.35)))
     complete_ok=not complete_enabled or out['target_completeness']['evidence_sufficient']
     out['admitted']=bool(policy and witness.score>=policy['min_confidence'] and
-        expected-check_ms>float((policy or {}).get('min_net_gain_ms',0.)) and risk_ok and complete_ok)
+        expected-check_ms>float((policy or {}).get('min_net_gain_ms',0.)) and risk_ok and complete_ok and position_ok)
+    if not position_ok:return finish('position_admission_requires_target_aware_generation')
     if not complete_ok:return finish('question_target_evidence_insufficient')
     if not risk_ok:return finish('target_binding_risk_exceeds_frozen_policy')
     return finish('supported_and_admitted' if out['admitted'] else 'supported_shadow_or_below_policy')

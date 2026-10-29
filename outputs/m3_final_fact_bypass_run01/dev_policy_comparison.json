@@ -1,0 +1,187 @@
+{
+  "status": "HISTORICAL_DEV_CPU_COUNTERFACTUAL_ONLY",
+  "source": "outputs/m3_target_complete_bypass_run01/shadow/requests.jsonl",
+  "source_sha256": "c7b1edbef54d4c785d1784b2d10fb87c5cb45a025fdfc18aade7491dcbf824f6",
+  "policies": [
+    {
+      "policy_id": "C-basic",
+      "requests": 48,
+      "hypothetical_hits": 13,
+      "actual_skips": 0,
+      "known": 12,
+      "UNKNOWN": 36,
+      "B_score": 0.0,
+      "candidate_score": 0.9166666666666666,
+      "paired_loss": -0.9166666666666666,
+      "scene_CI95": [
+        -1.0,
+        -0.5
+      ],
+      "new_severe": 0.0,
+      "new_severe_scene_CI95": [
+        0.0,
+        0.0
+      ],
+      "independent_logs": 2,
+      "hypothetical_avoided_request_ms": 3596.5052996762097,
+      "measured_M123_E2E_ms": null,
+      "tasks": [
+        {
+          "task": "category",
+          "requests": 16,
+          "hypothetical_hits": 3,
+          "paired_known": 4,
+          "B_score": 0.0,
+          "candidate_score": 0.75
+        },
+        {
+          "task": "existence",
+          "requests": 16,
+          "hypothetical_hits": 8,
+          "paired_known": 8,
+          "B_score": 0.0,
+          "candidate_score": 1.0
+        },
+        {
+          "task": "position",
+          "requests": 16,
+          "hypothetical_hits": 2,
+          "paired_known": 0,
+          "B_score": null,
+          "candidate_score": null
+        }
+      ],
+      "position_fallback_vs_basic": {
+        "additional_hypothetical_LLM_requests": 0,
+        "paired_known": 0,
+        "UNKNOWN": 0,
+        "paired_quality_delta_vs_basic": null,
+        "causal_GPU_E2E_measured": false
+      }
+    },
+    {
+      "policy_id": "C-position-restricted",
+      "requests": 48,
+      "hypothetical_hits": 13,
+      "actual_skips": 0,
+      "known": 12,
+      "UNKNOWN": 36,
+      "B_score": 0.0,
+      "candidate_score": 0.9166666666666666,
+      "paired_loss": -0.9166666666666666,
+      "scene_CI95": [
+        -1.0,
+        -0.5
+      ],
+      "new_severe": 0.0,
+      "new_severe_scene_CI95": [
+        0.0,
+        0.0
+      ],
+      "independent_logs": 2,
+      "hypothetical_avoided_request_ms": 3596.5052996762097,
+      "measured_M123_E2E_ms": null,
+      "tasks": [
+        {
+          "task": "category",
+          "requests": 16,
+          "hypothetical_hits": 3,
+          "paired_known": 4,
+          "B_score": 0.0,
+          "candidate_score": 0.75
+        },
+        {
+          "task": "existence",
+          "requests": 16,
+          "hypothetical_hits": 8,
+          "paired_known": 8,
+          "B_score": 0.0,
+          "candidate_score": 1.0
+        },
+        {
+          "task": "position",
+          "requests": 16,
+          "hypothetical_hits": 2,
+          "paired_known": 0,
+          "B_score": null,
+          "candidate_score": null
+        }
+      ],
+      "position_fallback_vs_basic": {
+        "additional_hypothetical_LLM_requests": 0,
+        "paired_known": 0,
+        "UNKNOWN": 0,
+        "paired_quality_delta_vs_basic": null,
+        "causal_GPU_E2E_measured": false
+      }
+    },
+    {
+      "policy_id": "C-position-fallback",
+      "requests": 48,
+      "hypothetical_hits": 11,
+      "actual_skips": 0,
+      "known": 12,
+      "UNKNOWN": 36,
+      "B_score": 0.0,
+      "candidate_score": 0.9166666666666666,
+      "paired_loss": -0.9166666666666666,
+      "scene_CI95": [
+        -1.0,
+        -0.5
+      ],
+      "new_severe": 0.0,
+      "new_severe_scene_CI95": [
+        0.0,
+        0.0
+      ],
+      "independent_logs": 2,
+      "hypothetical_avoided_request_ms": 2843.5852196998894,
+      "measured_M123_E2E_ms": null,
+      "tasks": [
+        {
+          "task": "category",
+          "requests": 16,
+          "hypothetical_hits": 3,
+          "paired_known": 4,
+          "B_score": 0.0,
+          "candidate_score": 0.75
+        },
+        {
+          "task": "existence",
+          "requests": 16,
+          "hypothetical_hits": 8,
+          "paired_known": 8,
+          "B_score": 0.0,
+          "candidate_score": 1.0
+        },
+        {
+          "task": "position",
+          "requests": 16,
+          "hypothetical_hits": 0,
+          "paired_known": 0,
+          "B_score": null,
+          "candidate_score": null
+        }
+      ],
+      "position_fallback_vs_basic": {
+        "additional_hypothetical_LLM_requests": 2,
+        "paired_known": 0,
+        "UNKNOWN": 2,
+        "paired_quality_delta_vs_basic": null,
+        "causal_GPU_E2E_measured": false
+      }
+    }
+  ],
+  "threshold_fit": {
+    "method": "Just above maximum known incorrect admitted Position support on historical DEV; no TEST input",
+    "position_errors": 0,
+    "position_min_confidence": 0.45,
+    "status": "NO_EVIDENCE_FOR_STRICTER_FLOOR"
+  },
+  "new_dev_scenes": 0,
+  "qualified_best_policy": null,
+  "actual_full_M123_calls": 0,
+  "actual_skips": 0,
+  "reason": "No fresh independent evaluation pool; old DEV replay may diagnose but cannot freeze a new quality-E2E optimum",
+  "shadow_is_not_e2e": true
+}
