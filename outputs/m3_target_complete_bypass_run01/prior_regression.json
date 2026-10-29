@@ -1,0 +1,2140 @@
+{
+  "scope": "CPU replay on actual raw/current scalar captures; not GPU calls or new TEST",
+  "results": [
+    {
+      "index": 0,
+      "frame_id": "73c335a2a207457ea36cc855b2417bd9",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "The nearest pedestrian is to the rear-left.",
+        "profile": {
+          "intent": "position",
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [],
+          "near_m": 50.0,
+          "direct": false,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "reason": "structured_position"
+        },
+        "required_facts": [
+          "target_class",
+          "longitudinal_direction",
+          "lateral_direction",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "04219bfdc9004ba2af16d3079ecc4353:g5:a1",
+            "semantic_class": "pedestrian",
+            "center_ego": [
+              -15.863026908511188,
+              7.782783607928195,
+              1.3176081014442076
+            ],
+            "directions": [
+              "rear",
+              "left"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.5015766620635986,
+            "cameras": [
+              "CAM_BACK"
+            ],
+            "source_frame": "73c335a2a207457ea36cc855b2417bd9",
+            "source_timestamp": 1538984560.547586,
+            "state_version": 1,
+            "state_epoch": 5,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_photometric_support",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 2.2303233854472637,
+        "answer_validity_check_wall_ms": 0.25650905445218086,
+        "current_fact_extraction_wall_ms": 0.012811273336410522,
+        "target_completeness_wall_ms": 0.0,
+        "fast_answer_construction_wall_ms": 0.008878763765096664,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_binding": {
+          "current_risk": 0.1996846675872803,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.003975816071033478,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.1996846675872803
+        },
+        "support_score": 0.5015766620635986,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          5,
+          1,
+          "73c335a2a207457ea36cc855b2417bd9"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 997.5066217593849,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 1,
+      "frame_id": "73c335a2a207457ea36cc855b2417bd9",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "proposal": {
+        "supported": true,
+        "admitted": false,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "The nearest pedestrian is to the rear-left.",
+        "profile": {
+          "intent": "position",
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [],
+          "near_m": 50.0,
+          "direct": false,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "reason": "structured_position"
+        },
+        "required_facts": [
+          "target_class",
+          "longitudinal_direction",
+          "lateral_direction",
+          "current_observation"
+        ],
+        "reason": "question_target_evidence_insufficient",
+        "facts": [
+          {
+            "anchor_id": "04219bfdc9004ba2af16d3079ecc4353:g5:a1",
+            "semantic_class": "pedestrian",
+            "center_ego": [
+              -15.863026908511188,
+              7.782783607928195,
+              1.3176081014442076
+            ],
+            "directions": [
+              "rear",
+              "left"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.5015766620635986,
+            "cameras": [
+              "CAM_BACK"
+            ],
+            "source_frame": "73c335a2a207457ea36cc855b2417bd9",
+            "source_timestamp": 1538984560.547586,
+            "state_version": 1,
+            "state_epoch": 5,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_photometric_support",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.0006440095603466034,
+        "answer_validity_check_wall_ms": 0.11060107499361038,
+        "current_fact_extraction_wall_ms": 0.008575152605772018,
+        "target_completeness_wall_ms": 0.07812585681676865,
+        "fast_answer_construction_wall_ms": 0.0057658180594444275,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.49842333793640137,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 17.669390011768538,
+          "witness_confidence": 0.5015766620635986,
+          "position_min_confidence": 0.55,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 1,
+          "observation_kind": "current_photometric_support",
+          "competitors": [],
+          "evidence_sufficient": false,
+          "complete_scene_certified": false,
+          "wall_ms": 0.07812585681676865
+        },
+        "target_binding": {
+          "current_risk": 0.1996846675872803,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.002794899046421051,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.1996846675872803
+        },
+        "support_score": 0.5015766620635986,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          5,
+          1,
+          "73c335a2a207457ea36cc855b2417bd9"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.8845467343926,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 2,
+      "frame_id": "73c335a2a207457ea36cc855b2417bd9",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "proposal": {
+        "supported": true,
+        "admitted": false,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "The nearest pedestrian is to the rear-left.",
+        "profile": {
+          "intent": "position",
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [],
+          "near_m": 50.0,
+          "direct": false,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "reason": "structured_position"
+        },
+        "required_facts": [
+          "target_class",
+          "longitudinal_direction",
+          "lateral_direction",
+          "current_observation"
+        ],
+        "reason": "question_target_evidence_insufficient",
+        "facts": [
+          {
+            "anchor_id": "04219bfdc9004ba2af16d3079ecc4353:g5:a1",
+            "semantic_class": "pedestrian",
+            "center_ego": [
+              -15.863026908511188,
+              7.782783607928195,
+              1.3176081014442076
+            ],
+            "directions": [
+              "rear",
+              "left"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.5015766620635986,
+            "cameras": [
+              "CAM_BACK"
+            ],
+            "source_frame": "73c335a2a207457ea36cc855b2417bd9",
+            "source_timestamp": 1538984560.547586,
+            "state_version": 1,
+            "state_epoch": 5,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_photometric_support",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.0005927868187427521,
+        "answer_validity_check_wall_ms": 0.10042870417237282,
+        "current_fact_extraction_wall_ms": 0.007628928869962692,
+        "target_completeness_wall_ms": 0.07136492058634758,
+        "fast_answer_construction_wall_ms": 0.005252659320831299,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.49842333793640137,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 17.669390011768538,
+          "witness_confidence": 0.5015766620635986,
+          "position_min_confidence": 0.65,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 1,
+          "observation_kind": "current_photometric_support",
+          "competitors": [],
+          "evidence_sufficient": false,
+          "complete_scene_certified": false,
+          "wall_ms": 0.07136492058634758
+        },
+        "target_binding": {
+          "current_risk": 0.1996846675872803,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0025690533220767975,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.1996846675872803
+        },
+        "support_score": 0.5015766620635986,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          5,
+          1,
+          "73c335a2a207457ea36cc855b2417bd9"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.8952178284526,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 3,
+      "frame_id": "73c335a2a207457ea36cc855b2417bd9",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "The nearest pedestrian is to the rear-left.",
+        "profile": {
+          "intent": "position",
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [],
+          "near_m": 50.0,
+          "direct": false,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "reason": "structured_position"
+        },
+        "required_facts": [
+          "target_class",
+          "longitudinal_direction",
+          "lateral_direction",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "04219bfdc9004ba2af16d3079ecc4353:g5:a1",
+            "semantic_class": "pedestrian",
+            "center_ego": [
+              -15.863026908511188,
+              7.782783607928195,
+              1.3176081014442076
+            ],
+            "directions": [
+              "rear",
+              "left"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.5015766620635986,
+            "cameras": [
+              "CAM_BACK"
+            ],
+            "source_frame": "73c335a2a207457ea36cc855b2417bd9",
+            "source_timestamp": 1538984560.547586,
+            "state_version": 1,
+            "state_epoch": 5,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_photometric_support",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.0005508773028850555,
+        "answer_validity_check_wall_ms": 0.0989055261015892,
+        "current_fact_extraction_wall_ms": 0.007153023034334183,
+        "target_completeness_wall_ms": 0.07163034752011299,
+        "fast_answer_construction_wall_ms": 0.005076173692941666,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.49842333793640137,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 17.669390011768538,
+          "witness_confidence": 0.5015766620635986,
+          "position_min_confidence": 0.45,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 1,
+          "observation_kind": "current_photometric_support",
+          "competitors": [],
+          "evidence_sufficient": true,
+          "complete_scene_certified": false,
+          "wall_ms": 0.07163034752011299
+        },
+        "target_binding": {
+          "current_risk": 0.1996846675872803,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0023208558559417725,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.1996846675872803
+        },
+        "support_score": 0.5015766620635986,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          5,
+          1,
+          "73c335a2a207457ea36cc855b2417bd9"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.8969621956348,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 0,
+      "frame_id": "dcdbd1100ef14eb0b00e272bc01b8b21",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "The nearest pedestrian is to the front-right.",
+        "profile": {
+          "intent": "position",
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [],
+          "near_m": 50.0,
+          "direct": false,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "reason": "structured_position"
+        },
+        "required_facts": [
+          "target_class",
+          "longitudinal_direction",
+          "lateral_direction",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "07aed9dae37340a997535ad99138e243:g7:a218",
+            "semantic_class": "pedestrian",
+            "center_ego": [
+              27.5339063406459,
+              -8.744233004216767,
+              0.8524219018794383
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.4530470371246338,
+            "cameras": [
+              "CAM_FRONT"
+            ],
+            "source_frame": "dcdbd1100ef14eb0b00e272bc01b8b21",
+            "source_timestamp": 1538448847.147828,
+            "state_version": 7,
+            "state_epoch": 7,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_photometric_support",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.0017597340047359467,
+        "answer_validity_check_wall_ms": 0.045209191739559174,
+        "current_fact_extraction_wall_ms": 0.016868114471435547,
+        "target_completeness_wall_ms": 0.0,
+        "fast_answer_construction_wall_ms": 0.009158160537481308,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_binding": {
+          "current_risk": 0.20939059257507325,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.006669200956821442,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.20939059257507325
+        },
+        "support_score": 0.4530470371246338,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          7,
+          7,
+          "dcdbd1100ef14eb0b00e272bc01b8b21"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9459302052855,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 1,
+      "frame_id": "dcdbd1100ef14eb0b00e272bc01b8b21",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "proposal": {
+        "supported": true,
+        "admitted": false,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "The nearest pedestrian is to the front-right.",
+        "profile": {
+          "intent": "position",
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [],
+          "near_m": 50.0,
+          "direct": false,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "reason": "structured_position"
+        },
+        "required_facts": [
+          "target_class",
+          "longitudinal_direction",
+          "lateral_direction",
+          "current_observation"
+        ],
+        "reason": "question_target_evidence_insufficient",
+        "facts": [
+          {
+            "anchor_id": "07aed9dae37340a997535ad99138e243:g7:a218",
+            "semantic_class": "pedestrian",
+            "center_ego": [
+              27.5339063406459,
+              -8.744233004216767,
+              0.8524219018794383
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.4530470371246338,
+            "cameras": [
+              "CAM_FRONT"
+            ],
+            "source_frame": "dcdbd1100ef14eb0b00e272bc01b8b21",
+            "source_timestamp": 1538448847.147828,
+            "state_version": 7,
+            "state_epoch": 7,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_photometric_support",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.00046798959374427795,
+        "answer_validity_check_wall_ms": 0.07500406354665756,
+        "current_fact_extraction_wall_ms": 0.007961876690387726,
+        "target_completeness_wall_ms": 0.05038361996412277,
+        "fast_answer_construction_wall_ms": 0.0033229589462280273,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.633241361381358,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 28.88905691100861,
+          "witness_confidence": 0.4530470371246338,
+          "position_min_confidence": 0.55,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 1,
+          "observation_kind": "current_photometric_support",
+          "competitors": [
+            {
+              "candidate_id": "decoded:8",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                22.161014556884766,
+                3.9243545532226562,
+                1.1795387268066406
+              ],
+              "score": 0.28688812255859375,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -6.383254884645321,
+              "angular_gap_rad": 0.4827734261769018,
+              "competition_risk": 0.633241361381358,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:10",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.28287124633789,
+                3.8213272094726562,
+                1.1740217208862305
+              ],
+              "score": 0.27092427015304565,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.26584831168061,
+              "angular_gap_rad": 0.48516315586502723,
+              "competition_risk": 0.5980047278810788,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:12",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.259395599365234,
+                3.8674850463867188,
+                1.115617275238037
+              ],
+              "score": 0.2563774287700653,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.28074041401295,
+              "angular_gap_rad": 0.4874576464155323,
+              "competition_risk": 0.5658958292658154,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:25",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.330150604248047,
+                3.854602813720703,
+                1.162217140197754
+              ],
+              "score": 0.18438749015331268,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.21341879695423,
+              "angular_gap_rad": 0.48628868214419496,
+              "competition_risk": 0.40699414198483647,
+              "can_support_answer": false
+            }
+          ],
+          "evidence_sufficient": false,
+          "complete_scene_certified": false,
+          "wall_ms": 0.05038361996412277
+        },
+        "target_binding": {
+          "current_risk": 0.20939059257507325,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0032498501241207123,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.20939059257507325
+        },
+        "support_score": 0.4530470371246338,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          7,
+          7,
+          "dcdbd1100ef14eb0b00e272bc01b8b21"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9222853220999,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 2,
+      "frame_id": "dcdbd1100ef14eb0b00e272bc01b8b21",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "proposal": {
+        "supported": true,
+        "admitted": false,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "The nearest pedestrian is to the front-right.",
+        "profile": {
+          "intent": "position",
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [],
+          "near_m": 50.0,
+          "direct": false,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "reason": "structured_position"
+        },
+        "required_facts": [
+          "target_class",
+          "longitudinal_direction",
+          "lateral_direction",
+          "current_observation"
+        ],
+        "reason": "question_target_evidence_insufficient",
+        "facts": [
+          {
+            "anchor_id": "07aed9dae37340a997535ad99138e243:g7:a218",
+            "semantic_class": "pedestrian",
+            "center_ego": [
+              27.5339063406459,
+              -8.744233004216767,
+              0.8524219018794383
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.4530470371246338,
+            "cameras": [
+              "CAM_FRONT"
+            ],
+            "source_frame": "dcdbd1100ef14eb0b00e272bc01b8b21",
+            "source_timestamp": 1538448847.147828,
+            "state_version": 7,
+            "state_epoch": 7,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_photometric_support",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.00027799978852272034,
+        "answer_validity_check_wall_ms": 0.05035055801272392,
+        "current_fact_extraction_wall_ms": 0.006017740815877914,
+        "target_completeness_wall_ms": 0.03150897100567818,
+        "fast_answer_construction_wall_ms": 0.0038282014429569244,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.633241361381358,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 28.88905691100861,
+          "witness_confidence": 0.4530470371246338,
+          "position_min_confidence": 0.65,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 1,
+          "observation_kind": "current_photometric_support",
+          "competitors": [
+            {
+              "candidate_id": "decoded:8",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                22.161014556884766,
+                3.9243545532226562,
+                1.1795387268066406
+              ],
+              "score": 0.28688812255859375,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -6.383254884645321,
+              "angular_gap_rad": 0.4827734261769018,
+              "competition_risk": 0.633241361381358,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:10",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.28287124633789,
+                3.8213272094726562,
+                1.1740217208862305
+              ],
+              "score": 0.27092427015304565,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.26584831168061,
+              "angular_gap_rad": 0.48516315586502723,
+              "competition_risk": 0.5980047278810788,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:12",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.259395599365234,
+                3.8674850463867188,
+                1.115617275238037
+              ],
+              "score": 0.2563774287700653,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.28074041401295,
+              "angular_gap_rad": 0.4874576464155323,
+              "competition_risk": 0.5658958292658154,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:25",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.330150604248047,
+                3.854602813720703,
+                1.162217140197754
+              ],
+              "score": 0.18438749015331268,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.21341879695423,
+              "angular_gap_rad": 0.48628868214419496,
+              "competition_risk": 0.40699414198483647,
+              "can_support_answer": false
+            }
+          ],
+          "evidence_sufficient": false,
+          "complete_scene_certified": false,
+          "wall_ms": 0.03150897100567818
+        },
+        "target_binding": {
+          "current_risk": 0.20939059257507325,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.002837739884853363,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.20939059257507325
+        },
+        "support_score": 0.4530470371246338,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          7,
+          7,
+          "dcdbd1100ef14eb0b00e272bc01b8b21"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9464452266693,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 3,
+      "frame_id": "dcdbd1100ef14eb0b00e272bc01b8b21",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "The nearest pedestrian is to the front-right.",
+        "profile": {
+          "intent": "position",
+          "classes": [
+            "pedestrian"
+          ],
+          "directions": [],
+          "near_m": 50.0,
+          "direct": false,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "longitudinal_direction",
+            "lateral_direction",
+            "current_observation"
+          ],
+          "reason": "structured_position"
+        },
+        "required_facts": [
+          "target_class",
+          "longitudinal_direction",
+          "lateral_direction",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "07aed9dae37340a997535ad99138e243:g7:a218",
+            "semantic_class": "pedestrian",
+            "center_ego": [
+              27.5339063406459,
+              -8.744233004216767,
+              0.8524219018794383
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.4530470371246338,
+            "cameras": [
+              "CAM_FRONT"
+            ],
+            "source_frame": "dcdbd1100ef14eb0b00e272bc01b8b21",
+            "source_timestamp": 1538448847.147828,
+            "state_version": 7,
+            "state_epoch": 7,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_photometric_support",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.00024214386940002441,
+        "answer_validity_check_wall_ms": 0.05080690607428551,
+        "current_fact_extraction_wall_ms": 0.0058067962527275085,
+        "target_completeness_wall_ms": 0.033045653253793716,
+        "fast_answer_construction_wall_ms": 0.00248616561293602,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.633241361381358,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 28.88905691100861,
+          "witness_confidence": 0.4530470371246338,
+          "position_min_confidence": 0.45,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 1,
+          "observation_kind": "current_photometric_support",
+          "competitors": [
+            {
+              "candidate_id": "decoded:8",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                22.161014556884766,
+                3.9243545532226562,
+                1.1795387268066406
+              ],
+              "score": 0.28688812255859375,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -6.383254884645321,
+              "angular_gap_rad": 0.4827734261769018,
+              "competition_risk": 0.633241361381358,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:10",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.28287124633789,
+                3.8213272094726562,
+                1.1740217208862305
+              ],
+              "score": 0.27092427015304565,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.26584831168061,
+              "angular_gap_rad": 0.48516315586502723,
+              "competition_risk": 0.5980047278810788,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:12",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.259395599365234,
+                3.8674850463867188,
+                1.115617275238037
+              ],
+              "score": 0.2563774287700653,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.28074041401295,
+              "angular_gap_rad": 0.4874576464155323,
+              "competition_risk": 0.5658958292658154,
+              "can_support_answer": false
+            },
+            {
+              "candidate_id": "decoded:25",
+              "semantic_class": "pedestrian",
+              "center_ego": [
+                21.330150604248047,
+                3.854602813720703,
+                1.162217140197754
+              ],
+              "score": 0.18438749015331268,
+              "cameras": [
+                "CAM_FRONT"
+              ],
+              "distance_gap_m": -7.21341879695423,
+              "angular_gap_rad": 0.48628868214419496,
+              "competition_risk": 0.40699414198483647,
+              "can_support_answer": false
+            }
+          ],
+          "evidence_sufficient": true,
+          "complete_scene_certified": false,
+          "wall_ms": 0.033045653253793716
+        },
+        "target_binding": {
+          "current_risk": 0.20939059257507325,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0028102658689022064,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.20939059257507325
+        },
+        "support_score": 0.4530470371246338,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          7,
+          7,
+          "dcdbd1100ef14eb0b00e272bc01b8b21"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9473439529538,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 0,
+      "frame_id": "1a0f8e5b0cc248cd832716486455a257",
+      "question": "What type of vehicle is directly ahead?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A car is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "080a52cb8f59489b9cddc7b721808088:g9:a49",
+            "semantic_class": "car",
+            "center_ego": [
+              5.089184201497346,
+              -2.7677397269662833,
+              0.7585755113391741
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.8681005239486694,
+            "cameras": [
+              "CAM_FRONT_RIGHT"
+            ],
+            "source_frame": "1a0f8e5b0cc248cd832716486455a257",
+            "source_timestamp": 1531281637.150421,
+            "state_version": 8,
+            "state_epoch": 9,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+            "identity_required": false,
+            "association_unambiguous": true
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.038706231862306595,
+        "answer_validity_check_wall_ms": 0.026959460228681564,
+        "current_fact_extraction_wall_ms": 0.01370999962091446,
+        "target_completeness_wall_ms": 0.0,
+        "fast_answer_construction_wall_ms": 0.005176756531000137,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_binding": {
+          "current_risk": 0.12637989521026613,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.002800021320581436,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.12637989521026613
+        },
+        "support_score": 0.8681005239486694,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          9,
+          8,
+          "1a0f8e5b0cc248cd832716486455a257"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9302695505321,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 1,
+      "frame_id": "1a0f8e5b0cc248cd832716486455a257",
+      "question": "What type of vehicle is directly ahead?",
+      "proposal": {
+        "supported": true,
+        "admitted": false,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A car is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "question_target_evidence_insufficient",
+        "facts": [
+          {
+            "anchor_id": "080a52cb8f59489b9cddc7b721808088:g9:a49",
+            "semantic_class": "car",
+            "center_ego": [
+              5.089184201497346,
+              -2.7677397269662833,
+              0.7585755113391741
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.8681005239486694,
+            "cameras": [
+              "CAM_FRONT_RIGHT"
+            ],
+            "source_frame": "1a0f8e5b0cc248cd832716486455a257",
+            "source_timestamp": 1531281637.150421,
+            "state_version": 8,
+            "state_epoch": 9,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+            "identity_required": false,
+            "association_unambiguous": true
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.00028172507882118225,
+        "answer_validity_check_wall_ms": 0.04002731293439865,
+        "current_fact_extraction_wall_ms": 0.009276904165744781,
+        "target_completeness_wall_ms": 0.01803133636713028,
+        "fast_answer_construction_wall_ms": 0.0029918737709522247,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.13189947605133057,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 5.793114795427204,
+          "witness_confidence": 0.8681005239486694,
+          "position_min_confidence": 0.35,
+          "center_nearest_camera_qualified": false,
+          "observed_camera_count": 1,
+          "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+          "competitors": [],
+          "evidence_sufficient": false,
+          "complete_scene_certified": false,
+          "wall_ms": 0.01803133636713028
+        },
+        "target_binding": {
+          "current_risk": 0.12637989521026613,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0024372711777687073,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.12637989521026613
+        },
+        "support_score": 0.8681005239486694,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          9,
+          8,
+          "1a0f8e5b0cc248cd832716486455a257"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9576392583549,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 2,
+      "frame_id": "1a0f8e5b0cc248cd832716486455a257",
+      "question": "What type of vehicle is directly ahead?",
+      "proposal": {
+        "supported": true,
+        "admitted": false,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A car is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "question_target_evidence_insufficient",
+        "facts": [
+          {
+            "anchor_id": "080a52cb8f59489b9cddc7b721808088:g9:a49",
+            "semantic_class": "car",
+            "center_ego": [
+              5.089184201497346,
+              -2.7677397269662833,
+              0.7585755113391741
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.8681005239486694,
+            "cameras": [
+              "CAM_FRONT_RIGHT"
+            ],
+            "source_frame": "1a0f8e5b0cc248cd832716486455a257",
+            "source_timestamp": 1531281637.150421,
+            "state_version": 8,
+            "state_epoch": 9,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+            "identity_required": false,
+            "association_unambiguous": true
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.0002430751919746399,
+        "answer_validity_check_wall_ms": 0.037358608096838,
+        "current_fact_extraction_wall_ms": 0.009198207408189774,
+        "target_completeness_wall_ms": 0.01622922718524933,
+        "fast_answer_construction_wall_ms": 0.0029257498681545258,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.13189947605133057,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 5.793114795427204,
+          "witness_confidence": 0.8681005239486694,
+          "position_min_confidence": 0.35,
+          "center_nearest_camera_qualified": false,
+          "observed_camera_count": 1,
+          "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+          "competitors": [],
+          "evidence_sufficient": false,
+          "complete_scene_certified": false,
+          "wall_ms": 0.01622922718524933
+        },
+        "target_binding": {
+          "current_risk": 0.12637989521026613,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0021848827600479126,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.12637989521026613
+        },
+        "support_score": 0.8681005239486694,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          9,
+          8,
+          "1a0f8e5b0cc248cd832716486455a257"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9603596515954,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 3,
+      "frame_id": "1a0f8e5b0cc248cd832716486455a257",
+      "question": "What type of vehicle is directly ahead?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A car is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "080a52cb8f59489b9cddc7b721808088:g9:a49",
+            "semantic_class": "car",
+            "center_ego": [
+              5.089184201497346,
+              -2.7677397269662833,
+              0.7585755113391741
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.8681005239486694,
+            "cameras": [
+              "CAM_FRONT_RIGHT"
+            ],
+            "source_frame": "1a0f8e5b0cc248cd832716486455a257",
+            "source_timestamp": 1531281637.150421,
+            "state_version": 8,
+            "state_epoch": 9,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+            "identity_required": false,
+            "association_unambiguous": true
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.00023329630494117737,
+        "answer_validity_check_wall_ms": 0.0371420755982399,
+        "current_fact_extraction_wall_ms": 0.009350944310426712,
+        "target_completeness_wall_ms": 0.015573110431432724,
+        "fast_answer_construction_wall_ms": 0.002920161932706833,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.13189947605133057,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 5.793114795427204,
+          "witness_confidence": 0.8681005239486694,
+          "position_min_confidence": 0.35,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 1,
+          "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+          "competitors": [],
+          "evidence_sufficient": true,
+          "complete_scene_certified": false,
+          "wall_ms": 0.015573110431432724
+        },
+        "target_binding": {
+          "current_risk": 0.12637989521026613,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.002282671630382538,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.12637989521026613
+        },
+        "support_score": 0.8681005239486694,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          9,
+          8,
+          "1a0f8e5b0cc248cd832716486455a257"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9605715274811,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 0,
+      "frame_id": "79070dca796f4ffb868d84f1b067f9c2",
+      "question": "What type of vehicle is directly ahead?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A car is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "acc29386502047339e1ec6b9c7e512d2:g11:a1",
+            "semantic_class": "car",
+            "center_ego": [
+              8.5069585465003,
+              -3.8594400078196713,
+              0.9416495079797258
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.8746420741081238,
+            "cameras": [
+              "CAM_FRONT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "source_frame": "79070dca796f4ffb868d84f1b067f9c2",
+            "source_timestamp": 1531713369.298701,
+            "state_version": 1,
+            "state_epoch": 11,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.00030919909477233887,
+        "answer_validity_check_wall_ms": 0.02195918932557106,
+        "current_fact_extraction_wall_ms": 0.010977964848279953,
+        "target_completeness_wall_ms": 0.0,
+        "fast_answer_construction_wall_ms": 0.003201887011528015,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_binding": {
+          "current_risk": 0.37507158517837524,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": true,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0020470470190048218,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.37507158517837524
+        },
+        "support_score": 0.8746420741081238,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          11,
+          1,
+          "79070dca796f4ffb868d84f1b067f9c2"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9755150638521,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 1,
+      "frame_id": "79070dca796f4ffb868d84f1b067f9c2",
+      "question": "What type of vehicle is directly ahead?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A car is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "acc29386502047339e1ec6b9c7e512d2:g11:a1",
+            "semantic_class": "car",
+            "center_ego": [
+              8.5069585465003,
+              -3.8594400078196713,
+              0.9416495079797258
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.8746420741081238,
+            "cameras": [
+              "CAM_FRONT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "source_frame": "79070dca796f4ffb868d84f1b067f9c2",
+            "source_timestamp": 1531713369.298701,
+            "state_version": 1,
+            "state_epoch": 11,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.00025797635316848755,
+        "answer_validity_check_wall_ms": 0.0499580055475235,
+        "current_fact_extraction_wall_ms": 0.009187031537294388,
+        "target_completeness_wall_ms": 0.02736225724220276,
+        "fast_answer_construction_wall_ms": 0.0026812776923179626,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.12535792589187622,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 9.341499926983547,
+          "witness_confidence": 0.8746420741081238,
+          "position_min_confidence": 0.35,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 2,
+          "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+          "competitors": [],
+          "evidence_sufficient": true,
+          "complete_scene_certified": false,
+          "wall_ms": 0.02736225724220276
+        },
+        "target_binding": {
+          "current_risk": 0.37507158517837524,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": true,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0018482096493244171,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.37507158517837524
+        },
+        "support_score": 0.8746420741081238,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          11,
+          1,
+          "79070dca796f4ffb868d84f1b067f9c2"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9480317346752,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 2,
+      "frame_id": "79070dca796f4ffb868d84f1b067f9c2",
+      "question": "What type of vehicle is directly ahead?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A car is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "acc29386502047339e1ec6b9c7e512d2:g11:a1",
+            "semantic_class": "car",
+            "center_ego": [
+              8.5069585465003,
+              -3.8594400078196713,
+              0.9416495079797258
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.8746420741081238,
+            "cameras": [
+              "CAM_FRONT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "source_frame": "79070dca796f4ffb868d84f1b067f9c2",
+            "source_timestamp": 1531713369.298701,
+            "state_version": 1,
+            "state_epoch": 11,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.0002360902726650238,
+        "answer_validity_check_wall_ms": 0.04656985402107239,
+        "current_fact_extraction_wall_ms": 0.00939890742301941,
+        "target_completeness_wall_ms": 0.026145949959754944,
+        "fast_answer_construction_wall_ms": 0.00256439670920372,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.12535792589187622,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 9.341499926983547,
+          "witness_confidence": 0.8746420741081238,
+          "position_min_confidence": 0.35,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 2,
+          "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+          "competitors": [],
+          "evidence_sufficient": true,
+          "complete_scene_certified": false,
+          "wall_ms": 0.026145949959754944
+        },
+        "target_binding": {
+          "current_risk": 0.37507158517837524,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": true,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0016530975699424744,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.37507158517837524
+        },
+        "support_score": 0.8746420741081238,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          11,
+          1,
+          "79070dca796f4ffb868d84f1b067f9c2"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9514678493142,
+        "empirical_policy_id": null
+      }
+    },
+    {
+      "index": 3,
+      "frame_id": "79070dca796f4ffb868d84f1b067f9c2",
+      "question": "What type of vehicle is directly ahead?",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A car is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "acc29386502047339e1ec6b9c7e512d2:g11:a1",
+            "semantic_class": "car",
+            "center_ego": [
+              8.5069585465003,
+              -3.8594400078196713,
+              0.9416495079797258
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.8746420741081238,
+            "cameras": [
+              "CAM_FRONT",
+              "CAM_FRONT_RIGHT"
+            ],
+            "source_frame": "79070dca796f4ffb868d84f1b067f9c2",
+            "source_timestamp": 1531713369.298701,
+            "state_version": 1,
+            "state_epoch": 11,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.00022491440176963806,
+        "answer_validity_check_wall_ms": 0.04553468897938728,
+        "current_fact_extraction_wall_ms": 0.00908784568309784,
+        "target_completeness_wall_ms": 0.0256439670920372,
+        "fast_answer_construction_wall_ms": 0.0025760382413864136,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_completeness": {
+          "task": "nearest_object",
+          "risk": 0.12535792589187622,
+          "score_kind": "RELATIVE_SUPPORT_RISK_NOT_PROBABILITY",
+          "selected_distance_m": 9.341499926983547,
+          "witness_confidence": 0.8746420741081238,
+          "position_min_confidence": 0.35,
+          "center_nearest_camera_qualified": true,
+          "observed_camera_count": 2,
+          "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+          "competitors": [],
+          "evidence_sufficient": true,
+          "complete_scene_certified": false,
+          "wall_ms": 0.0256439670920372
+        },
+        "target_binding": {
+          "current_risk": 0.37507158517837524,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": true,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0016069971024990082,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "continuity": {
+            "current_observation_required": true,
+            "matched": false,
+            "identity_qualified": false,
+            "admission_credit": 0.0,
+            "reason": "No calibrated positive-evidence admission credit"
+          },
+          "total_risk": 0.37507158517837524
+        },
+        "support_score": 0.8746420741081238,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          11,
+          1,
+          "79070dca796f4ffb868d84f1b067f9c2"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-regression"
+        ],
+        "estimated_net_gain_ms": 999.9525011517107,
+        "empirical_policy_id": null
+      }
+    }
+  ]
+}

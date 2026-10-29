@@ -220,7 +220,7 @@ def render_facts(profile, cls, directions=(), motion=''):
 
 
 def propose_fact_answer(question,current,context,memory,binding,policy=None,previous=None,
-                        target_binding_enabled=False,temporal_risk_enabled=False):
+                        target_binding_enabled=False,temporal_risk_enabled=False,target_completeness_enabled=False):
     """One fast-answer decision before expansion. Never accepts GT/current LLM.
 
     Full reuse is admitted only for the closed assertion grammar below; richer
@@ -233,6 +233,7 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
              profile=asdict(profile),required_facts=list(profile.required),
              reason=profile.reason,facts=[],history_candidate_count=0,
              question_fact_extraction_wall_ms=parse_ms,answer_validity_check_wall_ms=0.,
+             current_fact_extraction_wall_ms=0.,target_completeness_wall_ms=0.,
              fast_answer_construction_wall_ms=0.,score_kind='DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY')
     tick=perf_counter()
     def finish(reason):
@@ -244,6 +245,7 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
     try:current.validate(context)
     except ValueError:return finish('current_commit_context_mismatch')
     from .world_delta import VEHICLES
+    extraction_tick=perf_counter()
     classes=set(profile.classes)
     if 'vehicle' in classes:classes=(classes-{'vehicle'})|VEHICLES
     if 'object' in classes:classes=set()
@@ -253,9 +255,17 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
                and a.score is not None and math.isfinite(a.score) and a.score>=.35
                and (not classes or a.semantic_class in classes)
                and all(math.isfinite(v) for v in a.center_ego) and fact_region(a.center_ego,profile)]
-    if not witnesses:return finish('no_positive_current_witness_UNKNOWN_not_absent')
+    if not witnesses:
+        out['current_fact_extraction_wall_ms']=(perf_counter()-extraction_tick)*1000
+        return finish('no_positive_current_witness_UNKNOWN_not_absent')
     witnesses.sort(key=lambda a:(math.hypot(*a.center_ego[:2]),-a.score,a.anchor_id))
     witness=max(witnesses,key=lambda a:a.score) if profile.selector=='any' else witnesses[0]
+    out['current_fact_extraction_wall_ms']=(perf_counter()-extraction_tick)*1000
+    complete_enabled=target_completeness_enabled and (policy or {}).get('target_completeness_enabled',True)
+    if complete_enabled:
+        from .target_binding import question_target_completeness
+        out['target_completeness']=question_target_completeness(profile,witness,current,policy or {})
+        out['target_completeness_wall_ms']=out['target_completeness']['wall_ms']
     if target_binding_enabled:
         from .target_binding import target_binding_risk
         out['target_binding']=target_binding_risk(profile,witness,witnesses,current,previous,temporal_risk_enabled)
@@ -313,7 +323,9 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
     out['estimated_net_gain_ms']=expected-check_ms
     out['empirical_policy_id']=(policy or {}).get('policy_id')
     risk_ok=(not target_binding_enabled or out['target_binding']['total_risk']<=float((policy or {}).get('max_binding_risk',.35)))
+    complete_ok=not complete_enabled or out['target_completeness']['evidence_sufficient']
     out['admitted']=bool(policy and witness.score>=policy['min_confidence'] and
-        expected-check_ms>float((policy or {}).get('min_net_gain_ms',0.)) and risk_ok)
+        expected-check_ms>float((policy or {}).get('min_net_gain_ms',0.)) and risk_ok and complete_ok)
+    if not complete_ok:return finish('question_target_evidence_insufficient')
     if not risk_ok:return finish('target_binding_risk_exceeds_frozen_policy')
     return finish('supported_and_admitted' if out['admitted'] else 'supported_shadow_or_below_policy')

@@ -32,6 +32,19 @@ class CommittedAnchor:
 
 
 @dataclass(frozen=True)
+class CurrentCompetitionEvidence:
+    candidate_id: str
+    semantic_class: str
+    center_ego: tuple
+    score: float
+    cameras: tuple
+    source_frame: str
+    source_timestamp: float
+    evidence_origin: str = 'actual_current_decoded_perception'
+    answer_witness_eligible: bool = False
+
+
+@dataclass(frozen=True)
 class CommittedWorldState:
     scene_id: str
     frame_id: str
@@ -42,6 +55,7 @@ class CommittedWorldState:
     anchors: tuple
     ego_to_world: tuple
     complete_scene_coverage: bool = False
+    competition_evidence: tuple = ()
 
     def validate(self, context):
         for key,expected in (('scene_id',self.scene_id),('frame_id',self.frame_id),
@@ -53,7 +67,7 @@ class CommittedWorldState:
             raise ValueError('Committed world execution mismatch')
 
 
-def freeze_committed_state(manager, frame, qualifier=None,current_detection_support=False):
+def freeze_committed_state(manager, frame, qualifier=None,current_detection_support=False,competition_candidates=None):
     """Read current published store only; immutable scalar/tuple observations.
 
     Identity qualification is separate from current detector evidence. Missing
@@ -75,7 +89,7 @@ def freeze_committed_state(manager, frame, qualifier=None,current_detection_supp
         qualified={f[0] for f in qualifier.select(committed_semantic_candidates(manager,ctx))['facts']}
     transform=np.linalg.inv(frame.ego_to_world)
     geometric_cameras=[]
-    if current_detection_support:
+    if current_detection_support or competition_candidates is not None:
         from worldstream.m1.geometry import valid_projection_camera
         geometric_cameras=[(cid,cam) for cid,cam in frame.cameras.items()
             if cam.timing_reliable and abs(cam.timestamp-frame.timestamp)<=manager.config.max_state_age_s
@@ -116,8 +130,23 @@ def freeze_committed_state(manager, frame, qualifier=None,current_detection_supp
             a.source_frame_id or '',float(a.source_timestamp),a.state_version,a.evidence_origin,
             float(a.source_score) if a.source_score is not None and np.isfinite(a.source_score) else None,
             observation_kind))
+    competition=[]
+    for a in competition_candidates or ():
+        if (a.get('source_frame')!=frame.frame_id or a.get('source_timestamp')!=frame.timestamp
+                or a.get('evidence_origin')!='actual_current_decoded_perception'):continue
+        center=np.asarray(a.get('center_ego',()),dtype=float);score=a.get('score')
+        if center.shape!=(3,) or not np.isfinite(center).all() or score is None or not np.isfinite(score) or not .15<=score<=1.:continue
+        point=frame.ego_to_world[:3,:3]@center+frame.ego_to_world[:3,3];cameras=[]
+        for cid,cam in geometric_cameras:
+            c=cam.world_to_camera[:3,:3]@point+cam.world_to_camera[:3,3];uvh=cam.intrinsic@c
+            if c[2]>.1:
+                u,v=uvh[:2]/uvh[2]
+                if 0<=u<cam.image.shape[1] and 0<=v<cam.image.shape[0]:cameras.append(cid)
+        if cameras:competition.append(CurrentCompetitionEvidence(a['candidate_id'],a['semantic_class'],
+            tuple(map(float,center)),float(score),tuple(sorted(cameras)),frame.frame_id,frame.timestamp))
     return CommittedWorldState(frame.scene_id,frame.frame_id,frame.timestamp,store.generation,store.commit_count,
-        store.execution_signature,tuple(records),tuple(map(float,frame.ego_to_world.reshape(-1))))
+        store.execution_signature,tuple(records),tuple(map(float,frame.ego_to_world.reshape(-1))),
+        competition_evidence=tuple(competition))
 
 
 @dataclass(frozen=True)

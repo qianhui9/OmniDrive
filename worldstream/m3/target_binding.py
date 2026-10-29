@@ -8,6 +8,50 @@ from time import perf_counter
 import numpy as np
 
 
+def question_target_completeness(profile,witness,current,policy):
+    """Task-conditioned current evidence sufficiency, not a probability.
+
+    Decoded candidates can only raise ambiguity, never supply an answer.
+    Same-answer competitors do not invalidate an otherwise supported fact.
+    All thresholds are fixed in the DEV policy, with no labels or history.
+    """
+    from .answer_validity import fact_directions,fact_region
+    from .world_delta import VEHICLES
+    tick=perf_counter();nearest=profile.selector=='nearest';competitors=[]
+    classes=set(profile.classes)
+    if 'vehicle' in classes:classes=(classes-{'vehicle'})|VEHICLES
+    if 'object' in classes:classes=set()
+    selected_distance=math.hypot(*witness.center_ego[:2]);margin=max(2.,.15*selected_distance)
+    if nearest:
+        for a in current.competition_evidence:
+            if (a.source_frame!=current.frame_id or a.source_timestamp!=current.timestamp
+                    or a.evidence_origin!='actual_current_decoded_perception' or a.answer_witness_eligible
+                    or not a.cameras or not .15<=a.score<=1. or not all(math.isfinite(v) for v in a.center_ego)
+                    or (classes and a.semantic_class not in classes) or not fact_region(a.center_ego,profile)):continue
+            changes=(a.semantic_class!=witness.semantic_class if profile.intent=='category' else
+                fact_directions(a.center_ego)!=fact_directions(witness.center_ego) if profile.intent=='position' else False)
+            gap=math.hypot(*a.center_ego[:2])-selected_distance
+            if not changes or gap>=margin:continue
+            dominance=max(0.,min(1.,1.-gap/margin))
+            risk=min(1.,a.score/max(witness.score,1e-8))*dominance
+            competitors.append(dict(candidate_id=a.candidate_id,semantic_class=a.semantic_class,
+                center_ego=a.center_ego,score=a.score,cameras=a.cameras,distance_gap_m=gap,
+                angular_gap_rad=abs(math.atan2(a.center_ego[1],a.center_ego[0])-math.atan2(witness.center_ego[1],witness.center_ego[0])),
+                competition_risk=risk,can_support_answer=False))
+    risk=max([1.-witness.score]+[a['competition_risk'] for a in competitors]) if nearest else 0.
+    center_only='center_projection' in witness.observation_kind
+    camera_ok=(not nearest or not center_only or len(witness.cameras)>=int(policy.get('center_nearest_min_cameras',1)))
+    confidence_floor=float(policy.get('position_min_confidence',.35)) if profile.intent=='position' else .35
+    sufficient=(witness.score>=confidence_floor and camera_ok and risk<=float(policy.get('max_target_risk',1.)))
+    return dict(task='positive_existence' if profile.intent=='existence' else
+        'nearest_object' if nearest else profile.intent,risk=risk,score_kind='RELATIVE_SUPPORT_RISK_NOT_PROBABILITY',
+        selected_distance_m=selected_distance,witness_confidence=witness.score,
+        position_min_confidence=confidence_floor,center_nearest_camera_qualified=camera_ok,
+        observed_camera_count=len(witness.cameras),observation_kind=witness.observation_kind,
+        competitors=competitors,evidence_sufficient=sufficient,complete_scene_certified=False,
+        wall_ms=(perf_counter()-tick)*1000)
+
+
 def target_binding_risk(profile,witness,witnesses,current,previous,temporal=False):
     from .answer_validity import fact_directions,fact_region
     tick=perf_counter()

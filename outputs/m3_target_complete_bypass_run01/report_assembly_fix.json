@@ -1,0 +1,9 @@
+{
+  "reason": "Repeated task keyword from completeness metadata caused report assembly TypeError",
+  "source": "tools/worldstream_m123/target_complete_report.py",
+  "original_sha256": "c64c7f57ba095d1e0cf4f388324d0cd59164d3b44b7287310e8ad7deccafb4a1",
+  "corrected_sha256": "3c92868688fcb702c62fc99faa5e8960e7d1a788413afc0522c93c04c3a16e4c",
+  "old_text": "task=e['task'],admitted=e['llm_skipped'],final_quality=e['quality'],",
+  "new_text": "question_intent=e['task'],admitted=e['llm_skipped'],final_quality=e['quality'],",
+  "scope": "Single report metadata key rename; no grading, inference, policies or pre-TEST freeze artifacts changed"
+}

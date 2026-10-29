@@ -1,0 +1,54 @@
+{
+  "plan_sha256": "5c1d7bf7d83d0c348bbb98ec67af50089593a09f7dbf01643bc7b4e5cd6e16e6",
+  "configs": [
+    {
+      "target_completeness_enabled": false,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75
+    },
+    {
+      "target_completeness_enabled": true,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "position_min_confidence": 0.55,
+      "max_target_risk": 0.5,
+      "center_nearest_min_cameras": 2
+    },
+    {
+      "target_completeness_enabled": true,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "position_min_confidence": 0.65,
+      "max_target_risk": 0.35,
+      "center_nearest_min_cameras": 2
+    },
+    {
+      "target_completeness_enabled": true,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "position_min_confidence": 0.45,
+      "max_target_risk": 0.65,
+      "center_nearest_min_cameras": 1
+    }
+  ],
+  "quality_budgets": [
+    0.01,
+    0.02,
+    0.03
+  ],
+  "default_budget": 0.02,
+  "research_admission": {
+    "average_quality": "Known paired loss and scene-CI upper <=budget; conservative all-request upper <=budget",
+    "severe": "New severe rate and scene-CI upper <=0.02 of scored requests; no post-TEST change",
+    "max_new_severe_rate": 0.02,
+    "minimum_scored_fast_unique_frames": 3,
+    "performance": "Positive B-to-C speed in every TEST log and upper scene delta CI<0",
+    "independent_contribution": "Same evidence C-basic/C-target quality or severe-risk improvement, independently measured E2E tradeoff",
+    "deployment_safety": "NOT_QUALIFIED; research eligibility never authorizes safety-critical deployment"
+  },
+  "sampling_unchanged": true,
+  "temporal_risk_enabled": false,
+  "no_test_tuning": true,
+  "no_unconditional_position_ban": true,
+  "competition_score_floor": 0.15
+}

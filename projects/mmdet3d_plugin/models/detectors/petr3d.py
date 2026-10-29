@@ -653,8 +653,11 @@ class Petr3D(MVXTwoStageDetector):
                 def m1_observer(boxes, lanes, features):
                     trace['stage'] = 'm1_output_adapter'
                     output_start = time.perf_counter()
+                    competition=[] if (getattr(self,'m3_runtime',None) is not None
+                        and self.m3_runtime.config.target_completeness_enabled) else None
                     with measure_transfers() as output_transfers:
-                        outputs = outputs_from_model(frame, boxes, lanes, features, settings)
+                        if competition is None:outputs = outputs_from_model(frame, boxes, lanes, features, settings)
+                        else:outputs = outputs_from_model(frame, boxes, lanes, features, settings,competition_sink=competition)
                     if getattr(self, 'm2_runtime', None) is not None and not self.with_img_neck:
                         outputs.execution_receipt = self.m2_diagnostics
                     output_ms = (time.perf_counter() - output_start) * 1000
@@ -666,7 +669,8 @@ class Petr3D(MVXTwoStageDetector):
                         from worldstream.m3.world_state import freeze_committed_state
                         snapshot_tick=time.perf_counter()
                         self.m3_committed_state=freeze_committed_state(self.m1_manager,frame,self.m3_runtime.semantic_qualifier,
-                            current_detection_support=self.m3_runtime.config.current_detection_support)
+                            current_detection_support=self.m3_runtime.config.current_detection_support,
+                            competition_candidates=competition)
                         self.m3_committed_snapshot_wall_ms=(time.perf_counter()-snapshot_tick)*1000
                     trace['m1'].update(commit_completed=True,
                         transaction_status=precheck.diagnostics.get('transaction_status'))

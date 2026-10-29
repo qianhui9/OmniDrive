@@ -441,7 +441,8 @@ class M3Runtime:
                 proposal=propose_fact_answer(question,current_world,context,self.answer_memory,binding,
                     self.fast_answer_policy,self._decode_previous_world,
                     target_binding_enabled=self.config.target_binding_enabled,
-                    temporal_risk_enabled=self.config.temporal_risk_enabled)
+                    temporal_risk_enabled=self.config.temporal_risk_enabled,
+                    target_completeness_enabled=self.config.target_completeness_enabled)
                 if (proposal['admitted'] and self.config.selective_answer_mode=='online'
                         and tokenizer is not None and not generation.get('output_scores',False)):
                     construct_tick=perf_counter()

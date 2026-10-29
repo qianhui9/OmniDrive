@@ -26,6 +26,7 @@ class M3Config:
     selective_answer_policy: str = ''
     question_rng_enabled: bool = False
     target_binding_enabled: bool = False
+    target_completeness_enabled: bool = False
     temporal_risk_enabled: bool = False
     current_detection_support: bool = False
 

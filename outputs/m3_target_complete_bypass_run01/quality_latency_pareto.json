@@ -1,0 +1,4714 @@
+{
+  "stage": "DEV_REAL_FULL_M123_GPU",
+  "points": [
+    {
+      "index": 0,
+      "target_completeness_enabled": false,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "mean_e2e_ms": 1517.5417871942045,
+      "hits": 26,
+      "unique_scored_fast_frames": 9,
+      "quality": {
+        "status": "PARTIAL_CURRENT_INDEPENDENT_FACT_LABELS",
+        "groups": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "all",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.038461538461538464,
+            "errors": 25,
+            "severe": 15,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "fast_hit",
+            "requests": 0,
+            "scored": 0,
+            "UNKNOWN": 0,
+            "label_coverage": null,
+            "score": null,
+            "errors": 0,
+            "severe": 0,
+            "independent_frame_questions": 0,
+            "independent_scenes": 0,
+            "independent_scored_scenes": 0
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "miss",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.038461538461538464,
+            "errors": 25,
+            "severe": 15,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C0",
+            "execution": "all",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.8461538461538461,
+            "errors": 4,
+            "severe": 0,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C0",
+            "execution": "fast_hit",
+            "requests": 26,
+            "scored": 22,
+            "UNKNOWN": 4,
+            "label_coverage": 0.8461538461538461,
+            "score": 1.0,
+            "errors": 0,
+            "severe": 0,
+            "independent_frame_questions": 11,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C0",
+            "execution": "miss",
+            "requests": 70,
+            "scored": 4,
+            "UNKNOWN": 66,
+            "label_coverage": 0.05714285714285714,
+            "score": 0.0,
+            "errors": 4,
+            "severe": 0,
+            "independent_frame_questions": 2,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 1
+          }
+        ],
+        "paired_losses": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C0",
+            "scored_pairs": 26,
+            "loss": -0.8076923076923077,
+            "scene_CI95": [
+              -0.95,
+              -0.3333333333333333
+            ],
+            "conservative_all_request_loss_bounds": [
+              -0.3229166666666667,
+              -0.11458333333333333
+            ],
+            "new_severe_rate": 0.0,
+            "new_severe_scene_CI95": [
+              0.0,
+              0.0
+            ],
+            "severe_rate_delta": -0.5769230769230769,
+            "severe_delta_scene_CI95": [
+              -0.75,
+              0.0
+            ],
+            "independent_scored_scenes": 2
+          }
+        ],
+        "errors": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C0",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C0",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "093bafec88934abfb5cfc7637310d0ea",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "request_index": 2,
+            "answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+            "baseline_answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C0",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C0",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "093bafec88934abfb5cfc7637310d0ea",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "request_index": 2,
+            "answer": "The nearest pedestrian is on the left side, walking on the sidewalk.",
+            "baseline_answer": "The nearest pedestrian is on the left side, walking on the sidewalk.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          }
+        ],
+        "scope": "UNKNOWN never scored as correct; identical UNKNOWN text means equal score, not correctness. Current visible positives; no complete safety/absence certification. Repeated rounds are correlated. Base-model training partition exposure possible; independent experimental logs are not proof of unseen-model generalization."
+      },
+      "workload": "addressable",
+      "question_count": 3,
+      "comparison": "B->C0",
+      "scored_pairs": 26,
+      "loss": -0.8076923076923077,
+      "scene_CI95": [
+        -0.95,
+        -0.3333333333333333
+      ],
+      "conservative_all_request_loss_bounds": [
+        -0.3229166666666667,
+        -0.11458333333333333
+      ],
+      "new_severe_rate": 0.0,
+      "new_severe_scene_CI95": [
+        0.0,
+        0.0
+      ],
+      "severe_rate_delta": -0.5769230769230769,
+      "severe_delta_scene_CI95": [
+        -0.75,
+        0.0
+      ],
+      "independent_scored_scenes": 2
+    },
+    {
+      "index": 1,
+      "target_completeness_enabled": true,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "position_min_confidence": 0.55,
+      "max_target_risk": 0.5,
+      "center_nearest_min_cameras": 2,
+      "mean_e2e_ms": 1679.661223271978,
+      "hits": 18,
+      "unique_scored_fast_frames": 8,
+      "quality": {
+        "status": "PARTIAL_CURRENT_INDEPENDENT_FACT_LABELS",
+        "groups": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "all",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.038461538461538464,
+            "errors": 25,
+            "severe": 15,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "fast_hit",
+            "requests": 0,
+            "scored": 0,
+            "UNKNOWN": 0,
+            "label_coverage": null,
+            "score": null,
+            "errors": 0,
+            "severe": 0,
+            "independent_frame_questions": 0,
+            "independent_scenes": 0,
+            "independent_scored_scenes": 0
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "miss",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.038461538461538464,
+            "errors": 25,
+            "severe": 15,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C1",
+            "execution": "all",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.6153846153846154,
+            "errors": 10,
+            "severe": 0,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C1",
+            "execution": "fast_hit",
+            "requests": 18,
+            "scored": 16,
+            "UNKNOWN": 2,
+            "label_coverage": 0.8888888888888888,
+            "score": 1.0,
+            "errors": 0,
+            "severe": 0,
+            "independent_frame_questions": 8,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 1
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C1",
+            "execution": "miss",
+            "requests": 78,
+            "scored": 10,
+            "UNKNOWN": 68,
+            "label_coverage": 0.1282051282051282,
+            "score": 0.0,
+            "errors": 10,
+            "severe": 0,
+            "independent_frame_questions": 5,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          }
+        ],
+        "paired_losses": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "scored_pairs": 26,
+            "loss": -0.5769230769230769,
+            "scene_CI95": [
+              -0.75,
+              0.0
+            ],
+            "conservative_all_request_loss_bounds": [
+              -0.1875,
+              -0.125
+            ],
+            "new_severe_rate": 0.0,
+            "new_severe_scene_CI95": [
+              0.0,
+              0.0
+            ],
+            "severe_rate_delta": -0.5769230769230769,
+            "severe_delta_scene_CI95": [
+              -0.75,
+              0.0
+            ],
+            "independent_scored_scenes": 2
+          }
+        ],
+        "errors": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "69fbcab21de34db3b064cd1881fd3ce0",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "3db428ae334541528de7a052738c2da6"
+                ],
+                "selected_annotation": "3db428ae334541528de7a052738c2da6",
+                "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+                "center_ego": [
+                  21.31778304016001,
+                  3.2816971516283786,
+                  1.2512269644934353
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "3db428ae334541528de7a052738c2da6"
+                ],
+                "selected_annotation": "3db428ae334541528de7a052738c2da6",
+                "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+                "center_ego": [
+                  21.31778304016001,
+                  3.2816971516283786,
+                  1.2512269644934353
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "093bafec88934abfb5cfc7637310d0ea",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "request_index": 2,
+            "answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+            "baseline_answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "69fbcab21de34db3b064cd1881fd3ce0",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead, there is a white van.",
+            "baseline_answer": "Directly ahead, there is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "3db428ae334541528de7a052738c2da6"
+                ],
+                "selected_annotation": "3db428ae334541528de7a052738c2da6",
+                "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+                "center_ego": [
+                  21.31778304016001,
+                  3.2816971516283786,
+                  1.2512269644934353
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "3db428ae334541528de7a052738c2da6"
+                ],
+                "selected_annotation": "3db428ae334541528de7a052738c2da6",
+                "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+                "center_ego": [
+                  21.31778304016001,
+                  3.2816971516283786,
+                  1.2512269644934353
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "093bafec88934abfb5cfc7637310d0ea",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "request_index": 2,
+            "answer": "The nearest pedestrian is on the left side, walking on the sidewalk.",
+            "baseline_answer": "The nearest pedestrian is on the left side, walking on the sidewalk.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 0,
+            "scene_id": "0d2cc345342a460e94ff54748338ac22",
+            "frame_id": "6f0c75b3c00f42768da57f52cb831ef4",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a large white truck.",
+            "baseline_answer": "Directly ahead is a large white truck.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "annotation_ids": [
+                  "f9dd7672d56544f69947c71b2132af9a"
+                ],
+                "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+                "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+                "center_ego": [
+                  0.1794978924140196,
+                  3.1116834560921802,
+                  1.0384848046792428
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "annotation_ids": [
+                  "f9dd7672d56544f69947c71b2132af9a"
+                ],
+                "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+                "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+                "center_ego": [
+                  0.1794978924140196,
+                  3.1116834560921802,
+                  1.0384848046792428
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 0,
+            "scene_id": "0d2cc345342a460e94ff54748338ac22",
+            "frame_id": "e00d31c09a1440969a2fd27e24ed94d6",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a large white truck.",
+            "baseline_answer": "Directly ahead is a large white truck.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "14d4f34bfed64bd79f74c7ead73d2196"
+                ],
+                "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+                "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+                "center_ego": [
+                  2.022079279088757,
+                  3.0611274791196195,
+                  1.0604178060447786
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "14d4f34bfed64bd79f74c7ead73d2196"
+                ],
+                "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+                "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+                "center_ego": [
+                  2.022079279088757,
+                  3.0611274791196195,
+                  1.0604178060447786
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 1,
+            "scene_id": "0d2cc345342a460e94ff54748338ac22",
+            "frame_id": "6f0c75b3c00f42768da57f52cb831ef4",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a large white truck.",
+            "baseline_answer": "Directly ahead is a large white truck.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "annotation_ids": [
+                  "f9dd7672d56544f69947c71b2132af9a"
+                ],
+                "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+                "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+                "center_ego": [
+                  0.1794978924140196,
+                  3.1116834560921802,
+                  1.0384848046792428
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "annotation_ids": [
+                  "f9dd7672d56544f69947c71b2132af9a"
+                ],
+                "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+                "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+                "center_ego": [
+                  0.1794978924140196,
+                  3.1116834560921802,
+                  1.0384848046792428
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C1",
+            "round": 1,
+            "scene_id": "0d2cc345342a460e94ff54748338ac22",
+            "frame_id": "e00d31c09a1440969a2fd27e24ed94d6",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a large white truck.",
+            "baseline_answer": "Directly ahead is a large white truck.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "14d4f34bfed64bd79f74c7ead73d2196"
+                ],
+                "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+                "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+                "center_ego": [
+                  2.022079279088757,
+                  3.0611274791196195,
+                  1.0604178060447786
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "14d4f34bfed64bd79f74c7ead73d2196"
+                ],
+                "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+                "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+                "center_ego": [
+                  2.022079279088757,
+                  3.0611274791196195,
+                  1.0604178060447786
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          }
+        ],
+        "scope": "UNKNOWN never scored as correct; identical UNKNOWN text means equal score, not correctness. Current visible positives; no complete safety/absence certification. Repeated rounds are correlated. Base-model training partition exposure possible; independent experimental logs are not proof of unseen-model generalization."
+      },
+      "workload": "addressable",
+      "question_count": 3,
+      "comparison": "B->C1",
+      "scored_pairs": 26,
+      "loss": -0.5769230769230769,
+      "scene_CI95": [
+        -0.75,
+        0.0
+      ],
+      "conservative_all_request_loss_bounds": [
+        -0.1875,
+        -0.125
+      ],
+      "new_severe_rate": 0.0,
+      "new_severe_scene_CI95": [
+        0.0,
+        0.0
+      ],
+      "severe_rate_delta": -0.5769230769230769,
+      "severe_delta_scene_CI95": [
+        -0.75,
+        0.0
+      ],
+      "independent_scored_scenes": 2
+    },
+    {
+      "index": 2,
+      "target_completeness_enabled": true,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "position_min_confidence": 0.65,
+      "max_target_risk": 0.35,
+      "center_nearest_min_cameras": 2,
+      "mean_e2e_ms": 1606.1130561429309,
+      "hits": 18,
+      "unique_scored_fast_frames": 8,
+      "quality": {
+        "status": "PARTIAL_CURRENT_INDEPENDENT_FACT_LABELS",
+        "groups": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "all",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.038461538461538464,
+            "errors": 25,
+            "severe": 15,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "fast_hit",
+            "requests": 0,
+            "scored": 0,
+            "UNKNOWN": 0,
+            "label_coverage": null,
+            "score": null,
+            "errors": 0,
+            "severe": 0,
+            "independent_frame_questions": 0,
+            "independent_scenes": 0,
+            "independent_scored_scenes": 0
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "miss",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.038461538461538464,
+            "errors": 25,
+            "severe": 15,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C2",
+            "execution": "all",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.6153846153846154,
+            "errors": 10,
+            "severe": 0,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C2",
+            "execution": "fast_hit",
+            "requests": 18,
+            "scored": 16,
+            "UNKNOWN": 2,
+            "label_coverage": 0.8888888888888888,
+            "score": 1.0,
+            "errors": 0,
+            "severe": 0,
+            "independent_frame_questions": 8,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 1
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C2",
+            "execution": "miss",
+            "requests": 78,
+            "scored": 10,
+            "UNKNOWN": 68,
+            "label_coverage": 0.1282051282051282,
+            "score": 0.0,
+            "errors": 10,
+            "severe": 0,
+            "independent_frame_questions": 5,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          }
+        ],
+        "paired_losses": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "scored_pairs": 26,
+            "loss": -0.5769230769230769,
+            "scene_CI95": [
+              -0.75,
+              0.0
+            ],
+            "conservative_all_request_loss_bounds": [
+              -0.1875,
+              -0.125
+            ],
+            "new_severe_rate": 0.0,
+            "new_severe_scene_CI95": [
+              0.0,
+              0.0
+            ],
+            "severe_rate_delta": -0.5769230769230769,
+            "severe_delta_scene_CI95": [
+              -0.75,
+              0.0
+            ],
+            "independent_scored_scenes": 2
+          }
+        ],
+        "errors": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "69fbcab21de34db3b064cd1881fd3ce0",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "3db428ae334541528de7a052738c2da6"
+                ],
+                "selected_annotation": "3db428ae334541528de7a052738c2da6",
+                "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+                "center_ego": [
+                  21.31778304016001,
+                  3.2816971516283786,
+                  1.2512269644934353
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "3db428ae334541528de7a052738c2da6"
+                ],
+                "selected_annotation": "3db428ae334541528de7a052738c2da6",
+                "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+                "center_ego": [
+                  21.31778304016001,
+                  3.2816971516283786,
+                  1.2512269644934353
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "093bafec88934abfb5cfc7637310d0ea",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "request_index": 2,
+            "answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+            "baseline_answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "69fbcab21de34db3b064cd1881fd3ce0",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead, there is a white van.",
+            "baseline_answer": "Directly ahead, there is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "3db428ae334541528de7a052738c2da6"
+                ],
+                "selected_annotation": "3db428ae334541528de7a052738c2da6",
+                "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+                "center_ego": [
+                  21.31778304016001,
+                  3.2816971516283786,
+                  1.2512269644934353
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "3db428ae334541528de7a052738c2da6"
+                ],
+                "selected_annotation": "3db428ae334541528de7a052738c2da6",
+                "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+                "center_ego": [
+                  21.31778304016001,
+                  3.2816971516283786,
+                  1.2512269644934353
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "093bafec88934abfb5cfc7637310d0ea",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "request_index": 2,
+            "answer": "The nearest pedestrian is on the left side, walking on the sidewalk.",
+            "baseline_answer": "The nearest pedestrian is on the left side, walking on the sidewalk.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 0,
+            "scene_id": "0d2cc345342a460e94ff54748338ac22",
+            "frame_id": "6f0c75b3c00f42768da57f52cb831ef4",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a large white truck.",
+            "baseline_answer": "Directly ahead is a large white truck.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "annotation_ids": [
+                  "f9dd7672d56544f69947c71b2132af9a"
+                ],
+                "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+                "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+                "center_ego": [
+                  0.1794978924140196,
+                  3.1116834560921802,
+                  1.0384848046792428
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "annotation_ids": [
+                  "f9dd7672d56544f69947c71b2132af9a"
+                ],
+                "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+                "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+                "center_ego": [
+                  0.1794978924140196,
+                  3.1116834560921802,
+                  1.0384848046792428
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 0,
+            "scene_id": "0d2cc345342a460e94ff54748338ac22",
+            "frame_id": "e00d31c09a1440969a2fd27e24ed94d6",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a large white truck.",
+            "baseline_answer": "Directly ahead is a large white truck.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "14d4f34bfed64bd79f74c7ead73d2196"
+                ],
+                "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+                "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+                "center_ego": [
+                  2.022079279088757,
+                  3.0611274791196195,
+                  1.0604178060447786
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "14d4f34bfed64bd79f74c7ead73d2196"
+                ],
+                "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+                "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+                "center_ego": [
+                  2.022079279088757,
+                  3.0611274791196195,
+                  1.0604178060447786
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 1,
+            "scene_id": "0d2cc345342a460e94ff54748338ac22",
+            "frame_id": "6f0c75b3c00f42768da57f52cb831ef4",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a large white truck.",
+            "baseline_answer": "Directly ahead is a large white truck.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "annotation_ids": [
+                  "f9dd7672d56544f69947c71b2132af9a"
+                ],
+                "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+                "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+                "center_ego": [
+                  0.1794978924140196,
+                  3.1116834560921802,
+                  1.0384848046792428
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "annotation_ids": [
+                  "f9dd7672d56544f69947c71b2132af9a"
+                ],
+                "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+                "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+                "center_ego": [
+                  0.1794978924140196,
+                  3.1116834560921802,
+                  1.0384848046792428
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C2",
+            "round": 1,
+            "scene_id": "0d2cc345342a460e94ff54748338ac22",
+            "frame_id": "e00d31c09a1440969a2fd27e24ed94d6",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a large white truck.",
+            "baseline_answer": "Directly ahead is a large white truck.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "14d4f34bfed64bd79f74c7ead73d2196"
+                ],
+                "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+                "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+                "center_ego": [
+                  2.022079279088757,
+                  3.0611274791196195,
+                  1.0604178060447786
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "car",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "14d4f34bfed64bd79f74c7ead73d2196"
+                ],
+                "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+                "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+                "center_ego": [
+                  2.022079279088757,
+                  3.0611274791196195,
+                  1.0604178060447786
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "truck"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          }
+        ],
+        "scope": "UNKNOWN never scored as correct; identical UNKNOWN text means equal score, not correctness. Current visible positives; no complete safety/absence certification. Repeated rounds are correlated. Base-model training partition exposure possible; independent experimental logs are not proof of unseen-model generalization."
+      },
+      "workload": "addressable",
+      "question_count": 3,
+      "comparison": "B->C2",
+      "scored_pairs": 26,
+      "loss": -0.5769230769230769,
+      "scene_CI95": [
+        -0.75,
+        0.0
+      ],
+      "conservative_all_request_loss_bounds": [
+        -0.1875,
+        -0.125
+      ],
+      "new_severe_rate": 0.0,
+      "new_severe_scene_CI95": [
+        0.0,
+        0.0
+      ],
+      "severe_rate_delta": -0.5769230769230769,
+      "severe_delta_scene_CI95": [
+        -0.75,
+        0.0
+      ],
+      "independent_scored_scenes": 2
+    },
+    {
+      "index": 3,
+      "target_completeness_enabled": true,
+      "min_confidence": 0.45,
+      "max_binding_risk": 0.75,
+      "position_min_confidence": 0.45,
+      "max_target_risk": 0.65,
+      "center_nearest_min_cameras": 1,
+      "mean_e2e_ms": 1518.4925120556727,
+      "hits": 26,
+      "unique_scored_fast_frames": 9,
+      "quality": {
+        "status": "PARTIAL_CURRENT_INDEPENDENT_FACT_LABELS",
+        "groups": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "all",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.038461538461538464,
+            "errors": 25,
+            "severe": 15,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "fast_hit",
+            "requests": 0,
+            "scored": 0,
+            "UNKNOWN": 0,
+            "label_coverage": null,
+            "score": null,
+            "errors": 0,
+            "severe": 0,
+            "independent_frame_questions": 0,
+            "independent_scenes": 0,
+            "independent_scored_scenes": 0
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "B",
+            "execution": "miss",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.038461538461538464,
+            "errors": 25,
+            "severe": 15,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C3",
+            "execution": "all",
+            "requests": 96,
+            "scored": 26,
+            "UNKNOWN": 70,
+            "label_coverage": 0.2708333333333333,
+            "score": 0.8461538461538461,
+            "errors": 4,
+            "severe": 0,
+            "independent_frame_questions": 13,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C3",
+            "execution": "fast_hit",
+            "requests": 26,
+            "scored": 22,
+            "UNKNOWN": 4,
+            "label_coverage": 0.8461538461538461,
+            "score": 1.0,
+            "errors": 0,
+            "severe": 0,
+            "independent_frame_questions": 11,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 2
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "condition": "C3",
+            "execution": "miss",
+            "requests": 70,
+            "scored": 4,
+            "UNKNOWN": 66,
+            "label_coverage": 0.05714285714285714,
+            "score": 0.0,
+            "errors": 4,
+            "severe": 0,
+            "independent_frame_questions": 2,
+            "independent_scenes": 2,
+            "independent_scored_scenes": 1
+          }
+        ],
+        "paired_losses": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C3",
+            "scored_pairs": 26,
+            "loss": -0.8076923076923077,
+            "scene_CI95": [
+              -0.95,
+              -0.3333333333333333
+            ],
+            "conservative_all_request_loss_bounds": [
+              -0.3229166666666667,
+              -0.11458333333333333
+            ],
+            "new_severe_rate": 0.0,
+            "new_severe_scene_CI95": [
+              0.0,
+              0.0
+            ],
+            "severe_rate_delta": -0.5769230769230769,
+            "severe_delta_scene_CI95": [
+              -0.75,
+              0.0
+            ],
+            "independent_scored_scenes": 2
+          }
+        ],
+        "errors": [
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C3",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C3",
+            "round": 0,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "093bafec88934abfb5cfc7637310d0ea",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "request_index": 2,
+            "answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+            "baseline_answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C3",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+            "question": "What type of vehicle is directly ahead?",
+            "request_index": 0,
+            "answer": "Directly ahead is a white van.",
+            "baseline_answer": "Directly ahead is a white van.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "category",
+                "semantic_class": "bicycle",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "bicycle"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "c770437e762845fe8100dc2eca53dd75"
+                ],
+                "selected_annotation": "c770437e762845fe8100dc2eca53dd75",
+                "source_frame": "8a5138eb7f874a32981953512f4d3c93",
+                "center_ego": [
+                  23.85669749387813,
+                  2.794127453814397,
+                  1.4255448555511094
+                ],
+                "required_facts": [
+                  "target_class",
+                  "target_region",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "category",
+                  "classes": [
+                    "vehicle"
+                  ],
+                  "directions": [
+                    "front"
+                  ],
+                  "near_m": 50.0,
+                  "direct": true,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "target_region",
+                    "current_observation"
+                  ],
+                  "reason": "structured_category"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "car"
+                ],
+                "directions": [
+                  "front"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          },
+          {
+            "workload": "addressable",
+            "question_count": 3,
+            "comparison": "B->C3",
+            "round": 1,
+            "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+            "frame_id": "093bafec88934abfb5cfc7637310d0ea",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "request_index": 2,
+            "answer": "The nearest pedestrian is on the left side, walking on the sidewalk.",
+            "baseline_answer": "The nearest pedestrian is on the left side, walking on the sidewalk.",
+            "quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "baseline_quality": {
+              "known": true,
+              "score": 0.0,
+              "reference": {
+                "known": true,
+                "task": "position",
+                "semantic_class": "pedestrian",
+                "positive": true,
+                "motion": null,
+                "available_classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "front",
+                  "left"
+                ],
+                "annotation_ids": [
+                  "8cf87a08836f49d6a129494b43ef04f5"
+                ],
+                "selected_annotation": "8cf87a08836f49d6a129494b43ef04f5",
+                "source_frame": "093bafec88934abfb5cfc7637310d0ea",
+                "center_ego": [
+                  12.782683714915038,
+                  43.75702665341828,
+                  3.1937061915354636
+                ],
+                "required_facts": [
+                  "target_class",
+                  "longitudinal_direction",
+                  "lateral_direction",
+                  "current_observation"
+                ],
+                "metric": "required_current_visible_object_facts",
+                "profile": {
+                  "intent": "position",
+                  "classes": [
+                    "pedestrian"
+                  ],
+                  "directions": [],
+                  "near_m": 50.0,
+                  "direct": false,
+                  "selector": "nearest",
+                  "required": [
+                    "target_class",
+                    "longitudinal_direction",
+                    "lateral_direction",
+                    "current_observation"
+                  ],
+                  "reason": "structured_position"
+                }
+              },
+              "metric": "required_current_visible_object_facts",
+              "extracted": {
+                "classes": [
+                  "pedestrian"
+                ],
+                "directions": [
+                  "left"
+                ],
+                "negative": false,
+                "uncertain": false
+              },
+              "severe_error": false
+            },
+            "answer_source": "current_target_model_generation",
+            "llm_skipped": false,
+            "new_severe_error": false,
+            "path": "normal_target_generation"
+          }
+        ],
+        "scope": "UNKNOWN never scored as correct; identical UNKNOWN text means equal score, not correctness. Current visible positives; no complete safety/absence certification. Repeated rounds are correlated. Base-model training partition exposure possible; independent experimental logs are not proof of unseen-model generalization."
+      },
+      "workload": "addressable",
+      "question_count": 3,
+      "comparison": "B->C3",
+      "scored_pairs": 26,
+      "loss": -0.8076923076923077,
+      "scene_CI95": [
+        -0.95,
+        -0.3333333333333333
+      ],
+      "conservative_all_request_loss_bounds": [
+        -0.3229166666666667,
+        -0.11458333333333333
+      ],
+      "new_severe_rate": 0.0,
+      "new_severe_scene_CI95": [
+        0.0,
+        0.0
+      ],
+      "severe_rate_delta": -0.5769230769230769,
+      "severe_delta_scene_CI95": [
+        -0.75,
+        0.0
+      ],
+      "independent_scored_scenes": 2
+    }
+  ],
+  "policies": [
+    {
+      "budget": 0.01,
+      "index": 0
+    },
+    {
+      "budget": 0.02,
+      "index": 0
+    },
+    {
+      "budget": 0.03,
+      "index": 0
+    }
+  ],
+  "preset_candidates": 4,
+  "no_test_tuning": true
+}

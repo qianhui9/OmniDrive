@@ -96,13 +96,16 @@ def run(root,stage):
     from tools.worldstream_m2.global_residual_benchmark import wait_gpu
     from worldstream.m3 import M3Runtime
     plan=json.loads((root/'experiment_plan.json').read_text())
-    temporal_v2=plan.get('version') in ('wrsar2','wrsar3')
-    calibrated_v3=plan.get('version')=='wrsar3'
+    temporal_v2=plan.get('version') in ('wrsar2','wrsar3','wrsar4')
+    calibrated_v3=plan.get('version') in ('wrsar3','wrsar4')
+    target_v4=plan.get('version')=='wrsar4'
     out=root/stage;out.mkdir(exist_ok=False)
     hashes={str(p):sha256(p) for p in source_files()}
     if calibrated_v3:
         hashes.update({str(p):sha256(p) for p in (Path('tools/worldstream_m123/state_calibrated_bypass.py'),
             Path('worldstream/m1/omnidrive_adapter.py'),Path('worldstream/m1/state_manager.py'))})
+    if target_v4:
+        hashes[str(Path('tools/worldstream_m123/target_complete_bypass.py'))]=sha256('tools/worldstream_m123/target_complete_bypass.py')
     for p in source_files():
         relative=p.relative_to(Path.cwd()) if p.is_absolute() else p
         copy=out/'executed_sources'/relative;copy.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,copy)
@@ -114,6 +117,14 @@ def run(root,stage):
     with gpu_job_lock():
         wait_gpu();assert not {4,5}&os.sched_getaffinity(0)
         cfg=effective_config('B3','language',out,'native_full')
+        if target_v4:
+            cfg.data.test.ann_file=plan['dataset_infos']
+            for node in cfg.data.test.pipeline:
+                if node['type']=='LoadAnnoatationVQATest':
+                    node['base_conv_path']='data/nuscenes/conv/'+plan['qa_split']+'/'
+                    node['base_vqa_path']='data/nuscenes/vqa/'+plan['qa_split']+'/'
+            write(out/'effective_config.json',dict(config=cfg._cfg_dict.to_dict(),
+                note='Only local metadata and QA partition change for new disjoint experimental logs; original weights/visual pipeline/generation unchanged. Base-model train exposure possible.'))
         model=load_model(cfg,'ckpts/iter_10548.pth',out).eval().requires_grad_(False)
         # Same original checkpoint identity as v3; no new checkpoint writes.
         checkpoint_sha=json.loads(Path('outputs/m3_world_guided_decode_run01/native_decode_profile.json').read_text())['model_sha256']
@@ -130,7 +141,10 @@ def run(root,stage):
         hook=base_model(model.lm_head).register_forward_pre_hook(lambda *a:calls.append(
             model.m3_runtime.last_diagnostics.get('active_request_index') if model.m3_runtime else None))
         jobs=[]
-        if calibrated_v3:
+        if target_v4:
+            from .target_complete_bypass import stage_jobs
+            jobs=stage_jobs(root,stage,plan)
+        elif calibrated_v3:
             from .state_calibrated_bypass import stage_jobs
             jobs=stage_jobs(root,stage,plan)
         elif temporal_v2 and stage in ('diagnostic','pareto','ablation'):
@@ -156,19 +170,23 @@ def run(root,stage):
                         order=['A','B','C'];order=order[repeat:]+order[:repeat]
                         jobs.extend((workload,count,repeat,c,'online' if c=='C' else 'off',root/'selected_policy.json' if c=='C' else None) for c in order)
         with torch.no_grad():
-            for workload,count,repeat,condition,mode,policy in jobs:
+            for job in jobs:
+                workload,count,repeat,condition,mode,policy=job[:6]
+                job_scenes=[s for s in scenes if len(job)==6 or s['scene_id']==job[6]]
                 isolated=temporal_v2 and 'legacy' not in condition
                 temporal_enabled=temporal_v2 and stage!='diagnostic' and condition!='C-current'
                 if calibrated_v3:
                     temporal_enabled=bool(policy and json.loads(policy.read_text()).get('temporal_risk_enabled',False))
                     if condition=='C-temporal':temporal_enabled=True
                     if condition=='C-current':temporal_enabled=False
+                target_control=target_v4 and (mode=='shadow' or bool(policy and json.loads(policy.read_text()).get('target_completeness_enabled',False)))
                 model.m3_runtime=None if condition=='A' else M3Runtime(dict(reuse_strategy='exact_prefix',
                     decode_strategy='world_guided',target_aware_exact_only=True,
                     experimental_speculative_sampling=True,selective_answer_mode=mode,
                     selective_answer_policy=str(policy) if policy else '',
                     question_rng_enabled=isolated,target_binding_enabled=temporal_v2 and stage!='diagnostic',
-                    temporal_risk_enabled=temporal_enabled,current_detection_support=calibrated_v3))
+                    temporal_risk_enabled=temporal_enabled,current_detection_support=calibrated_v3,
+                    target_completeness_enabled=target_control))
                 model.worldstream_question_rng_enabled=isolated
                 if temporal_v2 and stage=='diagnostic':
                     from .temporal_selective_bypass import DiagnosticCapture
@@ -176,9 +194,9 @@ def run(root,stage):
                 model.worldstream_require_m123=condition!='A'
                 model.worldstream_profile=True
                 model.worldstream_capture_m3_inputs=False
-                dest=out/f'{workload}_{count}q_r{repeat}_{condition}';dest.mkdir()
+                dest=out/f'{workload}_{count}q_r{repeat}_{condition}';dest.mkdir(exist_ok=target_v4)
                 model.save_path=str(dest)+'/'
-                for scene in scenes:
+                for scene in job_scenes:
                     reset(model);fixed_questions=None
                     for fi,token in enumerate(scene['tokens']):
                         frame_index=plan.get('legacy_frame_indices',{}).get(token,index[token])

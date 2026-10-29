@@ -92,7 +92,7 @@ def frame_from_model(img_metas, data, config, source_context=None):
     signature_info.update(metadata_log_source(meta, str(meta['scene_token']), str(meta['sample_idx']), source_context))
     return Frame(str(meta['scene_token']), str(meta['sample_idx']), timestamp, pose, cameras, signature, signature_info)
 
-def outputs_from_model(frame, bbox_results, lane_results, features, config):
+def outputs_from_model(frame, bbox_results, lane_results, features, config, competition_sink=None):
     anchors = []
     pose = frame.ego_to_world
     if not valid_transform(pose):
@@ -107,6 +107,14 @@ def outputs_from_model(frame, bbox_results, lane_results, features, config):
         values = numpy_copy(boxes.tensor)
         scores = numpy_copy(result['scores_3d'])
         for i in range(len(centers)):
+            # Optional M3 readout of existing decoded scalars, before M1's
+            # unchanged positive-anchor filter. Never commit these candidates.
+            if (competition_sink is not None and np.isfinite(scores[i])
+                    and np.isfinite(corners[i]).all() and np.isfinite(centers[i]).all()):
+                competition_sink.append(dict(candidate_id='decoded:'+str(i),
+                    semantic_class=CLASS_NAMES[int(labels[i])],center_ego=tuple(map(float,centers[i])),
+                    score=float(scores[i]),source_frame=frame.frame_id,source_timestamp=frame.timestamp,
+                    evidence_origin='actual_current_decoded_perception'))
             if scores[i] < config.min_detection_score:
                 continue
             if not np.isfinite(corners[i]).all() or not np.isfinite(centers[i]).all():

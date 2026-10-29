@@ -1,0 +1,8 @@
+# DEV Shadow
+
+16 real full M123 calls, 48 questions, zero actual skips. All questions still execute the original K8 target model. Counterfactual policy candidates and estimated saving remain offline estimates.
+
+{"index": 0, "target_completeness_enabled": false, "min_confidence": 0.45, "max_binding_risk": 0.75, "requests": 48, "estimated_hits": 13, "scored_hits": 11, "UNKNOWN": 2, "candidate_score": 1.0, "new_severe": 0, "unique_scored_frames": 9, "independent_scenes": 2, "estimated_saved_m3_ms": 3596.5052996762097}
+{"index": 1, "target_completeness_enabled": true, "min_confidence": 0.45, "max_binding_risk": 0.75, "position_min_confidence": 0.55, "max_target_risk": 0.5, "center_nearest_min_cameras": 2, "requests": 48, "estimated_hits": 9, "scored_hits": 8, "UNKNOWN": 1, "candidate_score": 1.0, "new_severe": 0, "unique_scored_frames": 8, "independent_scenes": 2, "estimated_saved_m3_ms": 2600.6780792959034}
+{"index": 2, "target_completeness_enabled": true, "min_confidence": 0.45, "max_binding_risk": 0.75, "position_min_confidence": 0.65, "max_target_risk": 0.35, "center_nearest_min_cameras": 2, "requests": 48, "estimated_hits": 9, "scored_hits": 8, "UNKNOWN": 1, "candidate_score": 1.0, "new_severe": 0, "unique_scored_frames": 8, "independent_scenes": 2, "estimated_saved_m3_ms": 2600.6780792959034}
+{"index": 3, "target_completeness_enabled": true, "min_confidence": 0.45, "max_binding_risk": 0.75, "position_min_confidence": 0.45, "max_target_risk": 0.65, "center_nearest_min_cameras": 1, "requests": 48, "estimated_hits": 13, "scored_hits": 11, "UNKNOWN": 2, "candidate_score": 1.0, "new_severe": 0, "unique_scored_frames": 9, "independent_scenes": 2, "estimated_saved_m3_ms": 3596.5052996762097}

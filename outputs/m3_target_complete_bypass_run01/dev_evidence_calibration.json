@@ -1,0 +1,1096 @@
+{
+  "rows": [
+    {
+      "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+      "frame_id": "4c648d21d7c741598bc7a467d7b815f7",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "task": "position",
+      "observation_kind": "current_photometric_support",
+      "confidence": 0.5250187516212463,
+      "camera_count": 1,
+      "target_risk": 0.47498124837875366,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": false,
+        "score": null,
+        "reference": {
+          "known": false,
+          "reason": "no_positive_visible_witness_absence_UNKNOWN"
+        },
+        "severe_error": null
+      },
+      "physical_class_correct": false
+    },
+    {
+      "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+      "frame_id": "8a5138eb7f874a32981953512f4d3c93",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "task": "position",
+      "observation_kind": "current_photometric_support",
+      "confidence": 0.6611810922622681,
+      "camera_count": 1,
+      "target_risk": 0.33881890773773193,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": false,
+        "score": null,
+        "reference": {
+          "known": false,
+          "reason": "no_positive_visible_witness_absence_UNKNOWN"
+        },
+        "severe_error": null
+      },
+      "physical_class_correct": false
+    },
+    {
+      "scene_id": "0cc28fe2c1064fb9a51f1647c28ca564",
+      "frame_id": "69fbcab21de34db3b064cd1881fd3ce0",
+      "question": "What type of vehicle is directly ahead?",
+      "task": "category",
+      "observation_kind": "current_photometric_support",
+      "confidence": 0.4866569936275482,
+      "camera_count": 1,
+      "target_risk": 0.5133430063724518,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "bicycle",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "bicycle"
+          ],
+          "directions": [
+            "front",
+            "left"
+          ],
+          "annotation_ids": [
+            "3db428ae334541528de7a052738c2da6"
+          ],
+          "selected_annotation": "3db428ae334541528de7a052738c2da6",
+          "source_frame": "69fbcab21de34db3b064cd1881fd3ce0",
+          "center_ego": [
+            21.31778304016001,
+            3.2816971516283786,
+            1.2512269644934353
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "bicycle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "f9878012c3f6412184c294c13ba4bac3",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "observation_kind": "current_photometric_support",
+      "confidence": 0.8691681027412415,
+      "camera_count": 1,
+      "target_risk": 0.0,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "right"
+          ],
+          "annotation_ids": [
+            "2c68ffe9dc3b4c3288e25f7bc2757d89",
+            "a583b8d590154fc1ad217fecb844f6d4",
+            "71c3a14eb2104f42be9711dc25457233",
+            "31986d22d2e8453c9625eb56e51ff4ac",
+            "82df452fc4b741e5992b1ff87ac7c07d",
+            "25d04fcdb5364b6ab65b607eabe2be73",
+            "4b79b03d25904f2ab6777fca57d43272",
+            "a51ccc036bbc45c198255b43977e1739",
+            "2e322cc291214ef1971dcaea4d614e4b",
+            "b821c9da6fb246dd9c1d504271514c6c",
+            "c1db747bb02546198122987ebf8c7d4d",
+            "ab658c08ba764e83ae96cf3dcef29b02",
+            "081ab1220f8e49d1a2a1753a05a6a65d",
+            "0b2edd44f6e34cc287b37464a930083e"
+          ],
+          "selected_annotation": "2c68ffe9dc3b4c3288e25f7bc2757d89",
+          "source_frame": "f9878012c3f6412184c294c13ba4bac3",
+          "center_ego": [
+            0.37197481340899685,
+            -4.7997627717513325,
+            0.803579367697818
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "f9878012c3f6412184c294c13ba4bac3",
+      "question": "Where is the nearest pedestrian relative to the vehicle?",
+      "task": "position",
+      "observation_kind": "current_photometric_support",
+      "confidence": 0.4512937366962433,
+      "camera_count": 1,
+      "target_risk": 0.6324232764984998,
+      "competitor_count": 7,
+      "candidate_quality": {
+        "known": false,
+        "score": null,
+        "reference": {
+          "known": false,
+          "reason": "annotated_nearest_or_sector_ambiguous"
+        },
+        "severe_error": null
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "dee909131941447b98da1f253c64c698",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.8823977112770081,
+      "camera_count": 1,
+      "target_risk": 0.0,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "right"
+          ],
+          "annotation_ids": [
+            "4515b1a0fdbd4bf7a887d33520cd7bc3",
+            "37f26eeb4e2047a3857afac75b2fb6c7",
+            "0ba7f4e771ab470a806d257e72a0f557",
+            "81e815d7cb8849e4ace75a2d2251251a",
+            "d81486f23fc34346bcfe3f28428c12bf",
+            "6a67a7128b684fd48068b32fd45c14dd",
+            "d239bcb9f34048da824cd66d33334b4d",
+            "a1418ea2a33b4296a5fa4ffdb5c6a542",
+            "b4529abf3ef644d8823bebafd7d34a0d",
+            "7f8de1a683b44e68ba33082ac6b4af75",
+            "41e12da507bb4f3da553bff32b995662",
+            "24ebce07ed6945cfb8e0736a41df0090",
+            "2be6a3b1f10745a293c97dce935f8fd2",
+            "521b6899db0e4943a0f98b04053ca86c"
+          ],
+          "selected_annotation": "4515b1a0fdbd4bf7a887d33520cd7bc3",
+          "source_frame": "dee909131941447b98da1f253c64c698",
+          "center_ego": [
+            0.37215453435783274,
+            -4.796016437558123,
+            0.8080193955893193
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "740c5e1c018845afb64a2a55d88d9ca1",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.8800770044326782,
+      "camera_count": 1,
+      "target_risk": 0.0,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "right"
+          ],
+          "annotation_ids": [
+            "a42ba7785e4b489dbd811ee921f930bc",
+            "c4f3b52bf7c14022bac64fd1941b7485",
+            "94a43f33a0394b3791e18e7156c1865c",
+            "44c2639bdb5e4c0794e394f648dbc134",
+            "c33ab2b0a1924a55873e361e89877f6a",
+            "ea0826fd450146f9a871f08c53332fa7",
+            "6d8d3a65bc924f629d1c1915e79f7d00",
+            "89ce2bca16804f77b138b34f9bca52fd",
+            "f40284b2f6954f719590a3465822bcb5",
+            "2d87210c1df24bf0a1a0e5ec7bbef48f",
+            "04090250ba6348d68f9d80c68c0639f9",
+            "2fc575150ee4412b91cd01f4d946407b",
+            "5ba0e0ea98f44f6db28ccfa5d88de9db"
+          ],
+          "selected_annotation": "a42ba7785e4b489dbd811ee921f930bc",
+          "source_frame": "740c5e1c018845afb64a2a55d88d9ca1",
+          "center_ego": [
+            0.37223646820848444,
+            -4.793619113487821,
+            0.8044762894497453
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "d2802e9afc14494496bb986bab20b59a",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.8842812180519104,
+      "camera_count": 1,
+      "target_risk": 0.0,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "right"
+          ],
+          "annotation_ids": [
+            "bceba7b8028447488ac9868929d9ff9c",
+            "5d0c35833ea5477298a9e91509d9dbd1",
+            "3282345bf9e64a87a834edc307a788ae",
+            "fc1f8553444e431d9cea4b1f73788b88",
+            "cfa3db59612e491c90fcef9362e0b361",
+            "8e5f426ff5f14bd68be8babe7f7e3238",
+            "5eb60837c788491293de3ec6684f322f",
+            "340c57c6e69e4083b0641402604065dd",
+            "a01085f41b5f4166a2ec141b1026e32e",
+            "4319e0b491b44946b2200ac03c901b30",
+            "4d735fb3530e4b75b0fc71bc04ea8a70",
+            "66bf656ed7e14f349803a818bb4570a7",
+            "873401821d56494ebfd1eb6138b8090c"
+          ],
+          "selected_annotation": "bceba7b8028447488ac9868929d9ff9c",
+          "source_frame": "d2802e9afc14494496bb986bab20b59a",
+          "center_ego": [
+            0.3713396121779624,
+            -4.791087301230931,
+            0.801434112505305
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "234549a607b046539a1a57ac8718edb7",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.8860129117965698,
+      "camera_count": 1,
+      "target_risk": 0.0,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "right"
+          ],
+          "annotation_ids": [
+            "34f85bb3cb5c43178aef0d55a5b6d680",
+            "588794e5271e4507a58cb65aa5077df6",
+            "e4e08b23cddc4a00899658bd173c3c26",
+            "0a6f16f617cd4b8fbd9c9bc61ecd7b0c",
+            "212f50d6541c49c3a919b5924c3350db",
+            "2e660dc30efd43eb93f383624ca397ac",
+            "6ec4ace4008442be8f7bdb3d9142a576",
+            "fbb2a7bbcb3444a98cc343313263ba66",
+            "95d8e15ac4544d26935015a336a2bd94",
+            "309c080c4a9d40589dd6127ee06575a1",
+            "105aa880809d4aa8a64a063be5acb05f",
+            "8729849edf2b4c5f9740797e03a92614",
+            "d81f5d33de404876b7db3372856e4485"
+          ],
+          "selected_annotation": "34f85bb3cb5c43178aef0d55a5b6d680",
+          "source_frame": "234549a607b046539a1a57ac8718edb7",
+          "center_ego": [
+            0.37140640095731214,
+            -4.7873323084456985,
+            0.8059827600163416
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "298ae5c93bdf4694a8574444b0153894",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.885580837726593,
+      "camera_count": 1,
+      "target_risk": 0.0,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "right"
+          ],
+          "annotation_ids": [
+            "6ac4dad191ec40108750d330e51204e5",
+            "e14ce42b5b7d42bebd57fdfb3c64e683",
+            "0fa87465b17f4dec87516e1902b4e95b",
+            "4210f6e48139452f8ddaf55690a0bb88",
+            "2309e842c5064be08cbdc9d4dfd0c57f",
+            "86b069b706584cd1b10a65918c6152ad",
+            "82e341ec6a0f408c986714555a7cebe7",
+            "b30a8ba0ab0d4b62a6168c5afc4ea5ac",
+            "234b14b0f82a4b14b588f7bf9db11224",
+            "86cb18924e3c4ccabf93a2dcd6626b76",
+            "052005b6e4a24ac89e001e19719a6747",
+            "bd0ab3758ee9413f8ce2f5d85d11feee",
+            "6e0bb16ffc4a4bbc82a80da67a4a4388",
+            "b7290952ddad4cfb96a468a0a74bc226"
+          ],
+          "selected_annotation": "6ac4dad191ec40108750d330e51204e5",
+          "source_frame": "298ae5c93bdf4694a8574444b0153894",
+          "center_ego": [
+            0.3716536918013844,
+            -4.784873740315405,
+            0.8027270155803521
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "6f0c75b3c00f42768da57f52cb831ef4",
+      "question": "What type of vehicle is directly ahead?",
+      "task": "category",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.8863866329193115,
+      "camera_count": 1,
+      "target_risk": 0.11361336708068848,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "left"
+          ],
+          "annotation_ids": [
+            "f9dd7672d56544f69947c71b2132af9a"
+          ],
+          "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+          "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+          "center_ego": [
+            0.1794978924140196,
+            3.1116834560921802,
+            1.0384848046792428
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "6f0c75b3c00f42768da57f52cb831ef4",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.8863866329193115,
+      "camera_count": 1,
+      "target_risk": 0.0,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "left"
+          ],
+          "annotation_ids": [
+            "f9dd7672d56544f69947c71b2132af9a",
+            "49ec53c43f2a4b17a874c56e311789b1",
+            "d73d4a039bd048dba7df5057136a6d59",
+            "b622e4b8280f4b9991a21b013cd4dd81",
+            "9a1a2d7b17d747dc8077d87e8ffc75a8",
+            "097fdb4df2434582ab532ba28c8d2380",
+            "1314b287c3df4b7ca29520d7d4c34909",
+            "db9c8d9668b64c36a87e2c6319944692",
+            "4d66609efd7b4c24906c6ae61e3d7738",
+            "ebec4129a5f84f95ad80ffa5bbbb8c77",
+            "08cc606b49e543bfa522387af45ff12a"
+          ],
+          "selected_annotation": "f9dd7672d56544f69947c71b2132af9a",
+          "source_frame": "6f0c75b3c00f42768da57f52cb831ef4",
+          "center_ego": [
+            0.1794978924140196,
+            3.1116834560921802,
+            1.0384848046792428
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "e00d31c09a1440969a2fd27e24ed94d6",
+      "question": "What type of vehicle is directly ahead?",
+      "task": "category",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.8572729825973511,
+      "camera_count": 1,
+      "target_risk": 0.14272701740264893,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front",
+            "left"
+          ],
+          "annotation_ids": [
+            "14d4f34bfed64bd79f74c7ead73d2196"
+          ],
+          "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+          "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+          "center_ego": [
+            2.022079279088757,
+            3.0611274791196195,
+            1.0604178060447786
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    },
+    {
+      "scene_id": "0d2cc345342a460e94ff54748338ac22",
+      "frame_id": "e00d31c09a1440969a2fd27e24ed94d6",
+      "question": "Is there a car in front?",
+      "task": "existence",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence": 0.8830788731575012,
+      "camera_count": 1,
+      "target_risk": 0.0,
+      "competitor_count": 0,
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front",
+            "left"
+          ],
+          "annotation_ids": [
+            "14d4f34bfed64bd79f74c7ead73d2196",
+            "91431faaae3d42189dc49628daf301f8",
+            "b1d0298973044f6a931bf2b3899d80fa",
+            "0514e22f595d4a8491e8f0d9643782a1",
+            "f809689ef6e942b290059ae4cebe353c",
+            "5606e8e4bdb2420f85605b50299d641b",
+            "a4aed5ea67544d6da5f071c4253e631a",
+            "a54cb522488b4e12a29c6a65f99632ff",
+            "ccc5be07bb9042cf9949d4036390eba4"
+          ],
+          "selected_annotation": "14d4f34bfed64bd79f74c7ead73d2196",
+          "source_frame": "e00d31c09a1440969a2fd27e24ed94d6",
+          "center_ego": [
+            2.022079279088757,
+            3.0611274791196195,
+            1.0604178060447786
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "physical_class_correct": true
+    }
+  ],
+  "bins": [
+    {
+      "task": "position",
+      "observation_kind": "current_photometric_support",
+      "confidence_bin": "0.35-0.55",
+      "target_risk_bin": "0.35-0.5",
+      "has_competitor": false,
+      "camera_count": 1,
+      "requests": 1,
+      "known": 0,
+      "UNKNOWN": 1,
+      "fact_score": null,
+      "physical_class_score": 0.0,
+      "independent_frames": 1,
+      "independent_scenes": 1
+    },
+    {
+      "task": "position",
+      "observation_kind": "current_photometric_support",
+      "confidence_bin": "0.55-0.75",
+      "target_risk_bin": "0.0-0.35",
+      "has_competitor": false,
+      "camera_count": 1,
+      "requests": 1,
+      "known": 0,
+      "UNKNOWN": 1,
+      "fact_score": null,
+      "physical_class_score": 0.0,
+      "independent_frames": 1,
+      "independent_scenes": 1
+    },
+    {
+      "task": "category",
+      "observation_kind": "current_photometric_support",
+      "confidence_bin": "0.35-0.55",
+      "target_risk_bin": "0.5-0.65",
+      "has_competitor": false,
+      "camera_count": 1,
+      "requests": 1,
+      "known": 1,
+      "UNKNOWN": 0,
+      "fact_score": 1.0,
+      "physical_class_score": 1.0,
+      "independent_frames": 1,
+      "independent_scenes": 1
+    },
+    {
+      "task": "existence",
+      "observation_kind": "current_photometric_support",
+      "confidence_bin": "0.75-1.01",
+      "target_risk_bin": "0.0-0.35",
+      "has_competitor": false,
+      "camera_count": 1,
+      "requests": 1,
+      "known": 1,
+      "UNKNOWN": 0,
+      "fact_score": 1.0,
+      "physical_class_score": 1.0,
+      "independent_frames": 1,
+      "independent_scenes": 1
+    },
+    {
+      "task": "position",
+      "observation_kind": "current_photometric_support",
+      "confidence_bin": "0.35-0.55",
+      "target_risk_bin": "0.5-0.65",
+      "has_competitor": true,
+      "camera_count": 1,
+      "requests": 1,
+      "known": 0,
+      "UNKNOWN": 1,
+      "fact_score": null,
+      "physical_class_score": 1.0,
+      "independent_frames": 1,
+      "independent_scenes": 1
+    },
+    {
+      "task": "existence",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence_bin": "0.75-1.01",
+      "target_risk_bin": "0.0-0.35",
+      "has_competitor": false,
+      "camera_count": 1,
+      "requests": 7,
+      "known": 7,
+      "UNKNOWN": 0,
+      "fact_score": 1.0,
+      "physical_class_score": 1.0,
+      "independent_frames": 7,
+      "independent_scenes": 1
+    },
+    {
+      "task": "category",
+      "observation_kind": "current_detector_center_projection_not_reuse_certificate",
+      "confidence_bin": "0.75-1.01",
+      "target_risk_bin": "0.0-0.35",
+      "has_competitor": false,
+      "camera_count": 1,
+      "requests": 2,
+      "known": 2,
+      "UNKNOWN": 0,
+      "fact_score": 1.0,
+      "physical_class_score": 1.0,
+      "independent_frames": 2,
+      "independent_scenes": 1
+    }
+  ],
+  "scope": "Same real DEV Shadow snapshot; one fixed feature extractor per question, no policy-repetition inflation. Object physical match and question-fact score differ. Bins are descriptive small-sample observations, not calibrated probabilities."
+}
