@@ -126,3 +126,51 @@ def task_profile(question):
     if re.search(r'\b(speed|velocity|moving|motion|relative|distance|direction)\b',q):
         return task,'object_ego_motion',('object','ego')
     return task,'object_attributes',('object',)
+
+
+@dataclass(frozen=True)
+class QuestionFacts:
+    """Required answer facts for the explicit, limited WRSAR language domain."""
+    intent: str = 'unsupported'
+    classes: tuple = ()
+    directions: tuple = ()
+    near_m: float = 50.
+    direct: bool = False
+    selector: str = 'any'
+    required: tuple = ()
+    reason: str = 'outside_structured_object_domain'
+
+    @property
+    def signature(self):
+        return (self.intent,self.classes,self.directions,self.near_m,self.direct,self.selector)
+
+
+def question_facts(question):
+    """No GT, history answer, or current answer participates in parsing.
+
+    Plural categories, disjunctions, multi-part instructions, road roles and
+    global decisions cannot be answered by one positive object witness.
+    """
+    q=' '.join(str(question).lower().strip().rstrip('?.').split())
+    dep=question_dependencies(q)
+    if re.search(r'\b(and|or|all|every|no|not|count|many|color|colour|lane|road|crosswalk|crossing|traffic|safe|safety|should|weather|construction|oncoming|following)\b',q):
+        # "moving or stationary" is the sole structured disjunction.
+        if not re.fullmatch(r'is the nearest (?:car|vehicle) moving or stationary',q):return QuestionFacts()
+    classes=dep.classes
+    near=30. if re.search(r'\b(near|nearby|close|vicinity|immediate)\b',q) else 50.
+    direct=bool(re.search(r'\bdirectly\b',q))
+    if re.fullmatch(r'what (?:type|kind) of (?:vehicle|object) is (?:directly )?(?:ahead|in front|on the right|on the left)(?: of (?:us|the vehicle))?',q):
+        dirs=dep.directions or ('front',)
+        return QuestionFacts('category',('object',) if 'of object' in q else ('vehicle',),dirs,near,direct,'nearest',
+                             ('target_class','target_region','current_observation'),'structured_category')
+    if (len(classes)==1 and re.fullmatch(r'(?:is|are) there (?:any |a |an )?(?:cars?|vehicles?|pedestrians?|people|trucks?|buses?|bicycles?|motorcycles?)(?: (?:visible |present )?(?:in front|ahead|on the left|on the right|behind|nearby|near the vehicle|close to the vehicle|in the immediate vicinity))?(?: of (?:us|the vehicle))?',q)):
+        return QuestionFacts('existence',classes,dep.directions,near,direct,'any',
+                             ('positive_existence','target_region','current_observation'),'positive_witness_only')
+    match=re.fullmatch(r'where is the nearest (car|vehicle|pedestrian) relative to (?:the vehicle|ego|us)',q)
+    if match:
+        return QuestionFacts('position',(match.group(1),),(),near,False,'nearest',
+                             ('target_class','longitudinal_direction','lateral_direction','current_observation'),'structured_position')
+    if re.fullmatch(r'is the nearest (?:car|vehicle) moving or stationary',q):
+        return QuestionFacts('motion',classes,(),near,False,'nearest',
+                             ('target_class','reliable_velocity','current_observation'),'requires_reliable_velocity')
+    return QuestionFacts()

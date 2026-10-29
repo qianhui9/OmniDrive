@@ -1,0 +1,143 @@
+{
+  "status": "MEASURED_DEV_FULL_M123; FINAL_TEST_SELECTED_POLICY_ONLY",
+  "measured_operating_points": [
+    {
+      "condition": "B",
+      "min_confidence": null,
+      "full_model_frames": 24,
+      "e2e_wall_ms": 1824.5924687750328,
+      "task_score": 0.4827586206896552,
+      "task_loss_vs_B": 0.0,
+      "fast_hits": 0,
+      "requests": 72,
+      "scored_pairs": 58,
+      "fast_scored": 0,
+      "new_severe_errors": 0
+    },
+    {
+      "condition": "C45",
+      "min_confidence": 0.45,
+      "full_model_frames": 24,
+      "e2e_wall_ms": 1155.4267890945387,
+      "task_score": 0.8275862068965517,
+      "task_loss_vs_B": -0.3448275862068966,
+      "fast_hits": 48,
+      "requests": 72,
+      "scored_pairs": 58,
+      "fast_scored": 46,
+      "new_severe_errors": 0
+    },
+    {
+      "condition": "C65",
+      "min_confidence": 0.65,
+      "full_model_frames": 24,
+      "e2e_wall_ms": 1397.8543482953683,
+      "task_score": 0.6724137931034483,
+      "task_loss_vs_B": -0.1896551724137931,
+      "fast_hits": 32,
+      "requests": 72,
+      "scored_pairs": 58,
+      "fast_scored": 32,
+      "new_severe_errors": 0
+    },
+    {
+      "condition": "C85",
+      "min_confidence": 0.85,
+      "full_model_frames": 24,
+      "e2e_wall_ms": 1682.3089324558775,
+      "task_score": 0.4827586206896552,
+      "task_loss_vs_B": 0.0,
+      "fast_hits": 14,
+      "requests": 72,
+      "scored_pairs": 58,
+      "fast_scored": 14,
+      "new_severe_errors": 0
+    }
+  ],
+  "budget_selected_policies": [
+    {
+      "status": "FROZEN_RESEARCH_POLICY",
+      "policy_id": "wrsar_dev_1pp",
+      "budget": 0.01,
+      "min_confidence": 0.45,
+      "expected_normal_m3_ms": 361.7878539306629,
+      "calibration_sha256": "844b416bc23423fda2528fd16abfaa105b29d7cfb19b10784996c1a5e296ea74",
+      "calibration_metrics": {
+        "min_confidence": 0.45,
+        "requests": 36,
+        "baseline_scored": 29,
+        "hits": 24,
+        "scored_hits": 23,
+        "scored_correct": 21,
+        "hit_label_coverage": 0.9583333333333334,
+        "coverage": 0.6666666666666666,
+        "absolute_task_quality_loss": -0.3448275862068966,
+        "false_fast_rate": 0.08695652173913043,
+        "new_severe_errors": 0,
+        "distinct_correct_frames": 10,
+        "estimated_saved_m3_ms": 7834.795641712844,
+        "UNKNOWN_hits": 1,
+        "empirical_metric_scope": "current positive witness task facts only; no unknown-as-correct"
+      },
+      "quality_qualification": "PARTIAL_FACT_LABELS; empirically within budget on scored requests, not a calibrated error probability",
+      "automatic_deployment": false
+    },
+    {
+      "status": "FROZEN_RESEARCH_POLICY",
+      "policy_id": "wrsar_dev_2pp",
+      "budget": 0.02,
+      "min_confidence": 0.45,
+      "expected_normal_m3_ms": 361.7878539306629,
+      "calibration_sha256": "844b416bc23423fda2528fd16abfaa105b29d7cfb19b10784996c1a5e296ea74",
+      "calibration_metrics": {
+        "min_confidence": 0.45,
+        "requests": 36,
+        "baseline_scored": 29,
+        "hits": 24,
+        "scored_hits": 23,
+        "scored_correct": 21,
+        "hit_label_coverage": 0.9583333333333334,
+        "coverage": 0.6666666666666666,
+        "absolute_task_quality_loss": -0.3448275862068966,
+        "false_fast_rate": 0.08695652173913043,
+        "new_severe_errors": 0,
+        "distinct_correct_frames": 10,
+        "estimated_saved_m3_ms": 7834.795641712844,
+        "UNKNOWN_hits": 1,
+        "empirical_metric_scope": "current positive witness task facts only; no unknown-as-correct"
+      },
+      "quality_qualification": "PARTIAL_FACT_LABELS; empirically within budget on scored requests, not a calibrated error probability",
+      "automatic_deployment": false
+    },
+    {
+      "status": "FROZEN_RESEARCH_POLICY",
+      "policy_id": "wrsar_dev_3pp",
+      "budget": 0.03,
+      "min_confidence": 0.45,
+      "expected_normal_m3_ms": 361.7878539306629,
+      "calibration_sha256": "844b416bc23423fda2528fd16abfaa105b29d7cfb19b10784996c1a5e296ea74",
+      "calibration_metrics": {
+        "min_confidence": 0.45,
+        "requests": 36,
+        "baseline_scored": 29,
+        "hits": 24,
+        "scored_hits": 23,
+        "scored_correct": 21,
+        "hit_label_coverage": 0.9583333333333334,
+        "coverage": 0.6666666666666666,
+        "absolute_task_quality_loss": -0.3448275862068966,
+        "false_fast_rate": 0.08695652173913043,
+        "new_severe_errors": 0,
+        "distinct_correct_frames": 10,
+        "estimated_saved_m3_ms": 7834.795641712844,
+        "UNKNOWN_hits": 1,
+        "empirical_metric_scope": "current positive witness task facts only; no unknown-as-correct"
+      },
+      "quality_qualification": "PARTIAL_FACT_LABELS; empirically within budget on scored requests, not a calibrated error probability",
+      "automatic_deployment": false
+    }
+  ],
+  "test_tuning": false,
+  "duplicate_budget_policies_are_same_operating_point": true,
+  "quality_metric": "Current positive-annotation required facts; missing labels UNKNOWN"
+}

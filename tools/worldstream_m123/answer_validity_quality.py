@@ -135,6 +135,12 @@ def load_current_annotations(infos_path, frame_ids, data_root):
         cls = None
         if name.startswith('human.pedestrian.'):
             cls = 'pedestrian'
+        elif name == 'vehicle.construction':
+            cls = 'construction_vehicle'
+        elif name == 'movable_object.barrier':
+            cls = 'barrier'
+        elif name == 'movable_object.trafficcone':
+            cls = 'traffic_cone'
         else:
             for c in sorted(VEHICLES, key=len, reverse=True):
                 if name == 'vehicle.' + c or name.startswith('vehicle.' + c + '.'):

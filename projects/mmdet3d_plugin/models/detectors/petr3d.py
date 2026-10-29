@@ -681,6 +681,7 @@ class Petr3D(MVXTwoStageDetector):
                     img_metas, _m1_observer=m1_observer, **data)
             if required:
                 trace['stage'] = 'execution_contract'
+                from worldstream.m3.runtime import language_request_completed
                 m2 = self.m2_diagnostics or {}
                 m3 = self.m3_diagnostics or {}
                 if (not trace['m1']['precheck_completed'] or not trace['m1']['commit_completed']
@@ -689,8 +690,8 @@ class Petr3D(MVXTwoStageDetector):
                         or m2.get('executor') != 'WindowExecutor'
                         or not trace['m3']['runtime_entered'] or not m3.get('execution_completed')
                         or len(m3.get('requests', [])) != len(data['input_ids'][0])
-                        or any(r.get('executor') != 'PrefillExecutor' or not r.get('prefill_completed')
-                               or not r.get('decode_completed') for r in m3.get('requests', []))):
+                        or any(not language_request_completed(self.m3_runtime,r,getattr(self,'m3_committed_state',None))
+                               for r in m3.get('requests', []))):
                     raise RuntimeError('Formal WorldStream request bypassed or did not complete M1/M2/M3')
             for result_dict, pts_bbox in zip(bbox_list, bbox_pts):
                 result_dict['pts_bbox'] = pts_bbox
@@ -733,6 +734,8 @@ class Petr3D(MVXTwoStageDetector):
                         reused_tokens=r.get('reused_tokens', 0), full_prefill=r.get('full_prefill', False),
                         full_prefill_reason=r.get('full_prefill_reason'),
                         prefill_completed=r.get('prefill_completed', False),
+                        llm_skipped=r.get('llm_skipped',False),llm_forward_calls=r.get('llm_forward_calls'),
+                        answer_source=r.get('answer_source'),
                         decode_completed=r.get('decode_completed', False)) for r in diag.get('requests', [])]
                     for compact,detail in zip(trace[name]['requests'],diag.get('requests',[])):
                         for key in ('reuse_strategy','task_type','task_profile','layout_signature','layout_permutation',

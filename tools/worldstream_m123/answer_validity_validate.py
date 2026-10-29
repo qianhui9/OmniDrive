@@ -27,6 +27,11 @@ def main():
     args = parser.parse_args()
     if {4, 5} & os.sched_getaffinity(0):
         raise RuntimeError('Launch with taskset -c 0-3,6-31')
+    for key in ('OMP_NUM_THREADS','MKL_NUM_THREADS','OPENBLAS_NUM_THREADS'):
+        os.environ[key]='4'
+    os.environ.setdefault('MPLCONFIGDIR','/tmp/omnidrive-wrsar-mpl')
+    os.environ['HF_HUB_OFFLINE']='1'
+    os.environ['TRANSFORMERS_OFFLINE']='1'
     if not args.gpu:
         os.environ['CUDA_VISIBLE_DEVICES'] = ''
     import pytest

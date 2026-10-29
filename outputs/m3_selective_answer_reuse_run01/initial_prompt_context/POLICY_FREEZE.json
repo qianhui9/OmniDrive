@@ -1,0 +1,44 @@
+{
+  "status": "FROZEN_BEFORE_TEST",
+  "files": {
+    "outputs/m3_selective_answer_reuse_run01/policy_conf45.json": "3bc29d25377010859dabfa2ded952be28ed0e5d47637898e79b278ef4721118e",
+    "outputs/m3_selective_answer_reuse_run01/policy_conf65.json": "1fff82acdfe477387f8dd9a78a642e8c1e331466b666474137533a7cd39e7a0a",
+    "outputs/m3_selective_answer_reuse_run01/policy_conf85.json": "4ddaf4fc74f46687cd629eff6bb20247d807a4441369e5b47789ac92246d68c3",
+    "outputs/m3_selective_answer_reuse_run01/policy_3pp.json": "774cefbbc39a8100ee00b8f34a914a8f5cccadb59813f6517b44c41b02bbc0af",
+    "outputs/m3_selective_answer_reuse_run01/policy_2pp.json": "a41ce3201176a313193a2d0a9d8d35c116851a52b65f11c978d1c4912f1d016c",
+    "outputs/m3_selective_answer_reuse_run01/policy_selection.json": "86d05a99fb3259ab8d56d75e0d93761bc43949f4a0365996449210bb9477eb86",
+    "outputs/m3_selective_answer_reuse_run01/policy_1pp.json": "c0ab03021c4e3e842e6e19b2bc24d96de76141de9f2331a961c4ae4b37473f1a",
+    "outputs/m3_selective_answer_reuse_run01/selected_policy.json": "a41ce3201176a313193a2d0a9d8d35c116851a52b65f11c978d1c4912f1d016c",
+    "outputs/m3_selective_answer_reuse_run01/answer_validity_calibration.json": "844b416bc23423fda2528fd16abfaa105b29d7cfb19b10784996c1a5e296ea74",
+    "outputs/m3_selective_answer_reuse_run01/experiment_plan.json": "3335920a2ad306f463a659233be7a82d959e02f7f889ed9638040e8bca8ebb43"
+  },
+  "quality_metric_source_sha256": "3292589aa63a00ca7452101c192f91a71f2f9a3dba3d849e13ff0854d9184bdf",
+  "test_results_read": false,
+  "default_policy": {
+    "status": "FROZEN_RESEARCH_POLICY",
+    "policy_id": "wrsar_dev_2pp",
+    "budget": 0.02,
+    "min_confidence": 0.45,
+    "expected_normal_m3_ms": 361.7878539306629,
+    "calibration_sha256": "844b416bc23423fda2528fd16abfaa105b29d7cfb19b10784996c1a5e296ea74",
+    "calibration_metrics": {
+      "min_confidence": 0.45,
+      "requests": 36,
+      "baseline_scored": 29,
+      "hits": 24,
+      "scored_hits": 23,
+      "scored_correct": 21,
+      "hit_label_coverage": 0.9583333333333334,
+      "coverage": 0.6666666666666666,
+      "absolute_task_quality_loss": -0.3448275862068966,
+      "false_fast_rate": 0.08695652173913043,
+      "new_severe_errors": 0,
+      "distinct_correct_frames": 10,
+      "estimated_saved_m3_ms": 7834.795641712844,
+      "UNKNOWN_hits": 1,
+      "empirical_metric_scope": "current positive witness task facts only; no unknown-as-correct"
+    },
+    "quality_qualification": "PARTIAL_FACT_LABELS; empirically within budget on scored requests, not a calibrated error probability",
+    "automatic_deployment": false
+  }
+}

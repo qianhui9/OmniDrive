@@ -16,12 +16,38 @@ from .reuse_planner import ReusePlanner,WSDR_VERSION
 from .answer_memory import AnswerMemory
 
 
+def language_request_completed(runtime,row,current_world=None):
+    """Explicit selective completion; default deployment still requires LLM."""
+    if row.get('executor')=='PrefillExecutor':
+        return bool(row.get('prefill_completed') and row.get('decode_completed'))
+    p=row.get('fast_answer') or {}
+    return bool(runtime is not None and runtime.config.selective_answer_mode=='online'
+        and runtime.fast_answer_policy and current_world is not None
+        and row.get('executor')=='QuestionReferencedFactReuse' and row.get('llm_skipped')
+        and row.get('llm_forward_calls')==0 and row.get('layout_preparation_ms')==0.
+        and not row.get('prefill_completed') and not row.get('decode_completed')
+        and p.get('supported') and p.get('admitted') and p.get('facts')
+        and tuple(p.get('current_commit',()))==(current_world.epoch,current_world.version,current_world.frame_id)
+        and all(f.get('evidence_origin')=='actual_perception' and f.get('source_frame')==current_world.frame_id
+                and f.get('source_timestamp')==current_world.timestamp
+                and f.get('state_version')==current_world.version for f in p['facts']))
+
+
 class M3Runtime:
     def __init__(self,config=None):
         self.config=config if isinstance(config,M3Config) else M3Config(**(config or {}))
         self.cache=PrefixKVCache(self.config.memory_budget_mb*1024**2)
         self.executor=PrefillExecutor(self.cache)
         self.answer_memory=AnswerMemory()
+        self.fast_answer_policy=None
+        if self.config.selective_answer_policy:
+            from pathlib import Path
+            self.fast_answer_policy=json.loads(Path(self.config.selective_answer_policy).read_text())
+            p=self.fast_answer_policy
+            if (p.get('status')!='FROZEN_RESEARCH_POLICY' or not .35<=p.get('min_confidence',0)<=1.
+                    or not math.isfinite(p.get('expected_normal_m3_ms',float('nan')))
+                    or p['expected_normal_m3_ms']<=0 or not p.get('calibration_sha256')):
+                raise ValueError('Invalid selective-answer development policy')
         self.scheduler=Scheduler(self.config)
         self.planner=ReusePlanner(self.scheduler)
         self._scope=self._signature=self._timestamp=None
@@ -408,11 +434,50 @@ class M3Runtime:
         for index,(ids,question) in enumerate(zip(ids_list,questions)):
             question_tick=perf_counter()
             tick=perf_counter();prompt_ids=tuple(ids.reshape(-1).tolist())
-            selection=self.answer_memory.retrieve(question,prompt_ids,context,binding,current_world,guided)
+            self.last_diagnostics['active_request_index']=index
+            proposal=None
+            if self.config.selective_answer_mode!='off':
+                from .answer_validity import propose_fact_answer
+                proposal=propose_fact_answer(question,current_world,context,self.answer_memory,binding,
+                    self.fast_answer_policy,self._decode_previous_world)
+                if (proposal['admitted'] and self.config.selective_answer_mode=='online'
+                        and tokenizer is not None and not generation.get('output_scores',False)):
+                    construct_tick=perf_counter()
+                    token_ids=list(tokenizer.encode(proposal['answer_text'],add_special_tokens=False))
+                    eos=generation.get('eos_token_id',base.generation_config.eos_token_id)
+                    if isinstance(eos,(list,tuple)):eos=eos[0] if eos else None
+                    if eos is not None:token_ids.append(eos)
+                    bos=base.generation_config.bos_token_id
+                    answer=ids.new_tensor([[bos if bos is not None else 1]+token_ids])
+                    if generation.get('return_dict_in_generate',False):
+                        from transformers.generation.utils import SampleDecoderOnlyOutput,GreedySearchDecoderOnlyOutput
+                        answer=(SampleDecoderOnlyOutput if generation.get('do_sample',False) else GreedySearchDecoderOnlyOutput)(sequences=answer)
+                    if proposal['answer_source']=='full_answer_reuse':
+                        key=(context['scene_id'],tuple(proposal['source_prompt_ids']))
+                        source=self.answer_memory.records[key]
+                        self.answer_memory.observe_validity(source,context['frame_id'],True,proposal['support_score'])
+                    # Fact answers never enter target-generated AnswerMemory.
+                    proposal['fast_answer_construction_wall_ms']+=(perf_counter()-construct_tick)*1000
+                    diag=dict(request_index=index,executor='QuestionReferencedFactReuse',mode='fast_answer',
+                        decode_strategy=self.config.decode_strategy,llm_skipped=True,llm_forward_calls=0,
+                        fast_answer=proposal,answer_source=proposal['answer_source'],output_token_ids=token_ids,
+                        input_tokens=0,visual_tokens=0,current_visual_complete=True,layout_preparation_ms=0.,
+                        prefill_completed=False,decode_completed=False,reused_tokens=0,full_prefill=False,
+                        prefill_including_cache_gpu_ms=0.,prefill_including_cache_cpu_enqueue_ms=0.,
+                        prefill_including_cache_wall_ms=0.,decode_loop_gpu_span_ms=0.,decode_forward_cuda_ms=0.,
+                        decode_forward_host_enqueue_ms=0.,decode_forward_calls=0,draft_status='not_run_fast_answer',
+                        prefix_planner_executed=False,persistent_prefill_kv=False,historical_text_consumed=False,
+                        metadata_wall_ms=metadata_ms/max(1,len(ids_list)),
+                        end_to_end_ms=(perf_counter()-question_tick)*1000)
+                    answers.append(answer);rows.append(diag)
+                    continue
+            selection=self.answer_memory.retrieve(question,prompt_ids,context,binding,current_world,
+                guided and not self.config.target_aware_exact_only)
             retrieval_ms=(perf_counter()-tick)*1000
             retrieval_only_ms=retrieval_ms-selection.world_diff_ms
             if guided:
-                selection=self.answer_memory.construct(selection,question,prompt_ids,context,binding,current_world,tokenizer)
+                selection=self.answer_memory.construct(selection,question,prompt_ids,context,binding,
+                    None if self.config.target_aware_exact_only else current_world,tokenizer)
             draft=selection.record.tokens if selection.record is not None else None
             if guided:draft=None
             k=min(self.config.draft_length,selection.length) if draft else self.config.draft_length
@@ -443,6 +508,8 @@ class M3Runtime:
             self.answer_memory.remember(question,prompt_ids,token_ids,context,binding,current_world,answer_start,extract_facts=guided)
             management_ms=(perf_counter()-tick)*1000
             diag.update(request_index=index,executor='PrefillExecutor',mode='full_prefill',decode_strategy=self.config.decode_strategy,
+                fast_answer=proposal,llm_skipped=False,llm_forward_calls=1+diag.get('decode_forward_calls',0),
+                answer_source='current_target_model_generation',
                 current_visual_complete=True,visual_tokens=int(expanded.visual_mask.sum()),historical_text_consumed=False,
                 prefix_planner_executed=False,persistent_prefill_kv=False,draft_match_type=selection.match_type,
                 draft_exact_available=selection.exact_available,draft_semantic_available=selection.semantic_available,
@@ -464,4 +531,6 @@ class M3Runtime:
         self.last_diagnostics.update(mode=self.config.decode_strategy,execution_completed=True,
             runtime_host_elapsed_ms=elapsed,complete_m3_wall_ms=elapsed,cache_bytes=self.cache.nbytes,
             config=asdict(self.config),numerical_contract='approximate_block_fp16',prefix_planner_executed=False)
+        if any(r.get('llm_skipped') for r in rows):
+            self.last_diagnostics['numerical_contract']='task_limited_approximate_fact_response; target_aware_fp16_on_misses'
         return answers,self.last_diagnostics

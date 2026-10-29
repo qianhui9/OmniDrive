@@ -21,8 +21,17 @@ class M3Config:
     decode_strategy: str = 'native'  # history_draft is an unqualified research option
     draft_length: int = 8
     experimental_speculative_sampling: bool = False
+    target_aware_exact_only: bool = False
+    selective_answer_mode: str = 'off'
+    selective_answer_policy: str = ''
 
     def __post_init__(self):
+        if self.selective_answer_mode not in ('off','shadow','online'):
+            raise ValueError('Unknown selective answer mode')
+        if (self.selective_answer_mode!='off' or self.target_aware_exact_only) and self.decode_strategy!='world_guided':
+            raise ValueError('Selective answers require existing target-aware world_guided decode')
+        if self.selective_answer_mode=='online' and not self.selective_answer_policy:
+            raise ValueError('Online selective answers require a frozen development policy')
         if self.decode_strategy not in ('native','history_draft','world_guided'):
             raise ValueError('Unknown decode strategy')
         if type(self.draft_length) is not int or not 1 <= self.draft_length <= 32:
