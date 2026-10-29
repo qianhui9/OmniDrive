@@ -1,0 +1,2553 @@
+{
+  "status": "MEASURED_LIMITED_ABLATION",
+  "performance": {
+    "status": "REAL_SYNCHRONIZED_RTX3090_FULL_M123",
+    "summaries": [
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "comparison": "C-current->C",
+        "pairs": 36,
+        "e2e_speedup": 0.9148826877010441,
+        "mean_delta_ms": 80.05633030552417,
+        "delta_scene_CI95_ms": [
+          -16.08762249816209,
+          244.73345508643737
+        ],
+        "scene_speedups": {
+          "01452fbfbf4543af8acdfd3e8a1ee806": 0.7069575660434009,
+          "01e4fcbe6e49483293ce45727152b36e": 1.015465191607757,
+          "034dee1695304630b0692da8c1f153fc": 0.9878220228642332
+        }
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "pairs": 36,
+        "e2e_speedup": 0.92755461030701,
+        "mean_delta_ms": 98.01067132502794,
+        "delta_scene_CI95_ms": [
+          -34.53695036781331,
+          305.856308589379
+        ],
+        "scene_speedups": {
+          "01452fbfbf4543af8acdfd3e8a1ee806": 0.7565070152525762,
+          "01e4fcbe6e49483293ce45727152b36e": 0.9806408670998669,
+          "034dee1695304630b0692da8c1f153fc": 1.0211970955181473
+        }
+      }
+    ],
+    "module_breakdown": [
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "condition": "C",
+        "frames": 36,
+        "questions": 36,
+        "fps": 1.0632177614701699,
+        "qps": 1.0632177614701699,
+        "peak_gpu_bytes": 16823660032,
+        "actual_m3_skips": 3,
+        "llm_forward_calls": 266,
+        "mean_tokens": 13.222222222222221,
+        "e2e_wall_ms": 940.5410972604942,
+        "m1_wall_ms": 173.52824676264493,
+        "m1_including_adapters_ms": 192.63782819163882,
+        "m2_wall_ms": 354.37414329499006,
+        "heads_wall_ms": 14.89039099154373,
+        "snapshot_wall_ms": 0.8213700105746587,
+        "m3_wall_ms": 346.3958410365093,
+        "prefill_cuda_ms_per_question": 164.8669670952691,
+        "decode_cuda_ms_per_question": 166.85094854566785,
+        "prefill_wall_ms_per_question": 92.02259846238627,
+        "decode_wall_ms_per_question": 170.98554229736328,
+        "end_to_end_ms_per_question": 338.6676365561369,
+        "question_fact_extraction_wall_ms_per_question": 0.052015180699527264,
+        "answer_validity_check_wall_ms_per_question": 0.18299967309253085,
+        "fast_answer_construction_wall_ms_per_question": 0.03490734121037854,
+        "current_binding_wall_ms_per_question": 0.0025126048260264927,
+        "temporal_risk_wall_ms_per_question": 0.1298878471263581,
+        "miss_decision_wall_ms": 0.26627933380730223
+      },
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "condition": "C-current",
+        "frames": 36,
+        "questions": 36,
+        "fps": 1.162135622154867,
+        "qps": 1.162135622154867,
+        "peak_gpu_bytes": 16814746112,
+        "actual_m3_skips": 12,
+        "llm_forward_calls": 215,
+        "mean_tokens": 12.222222222222221,
+        "e2e_wall_ms": 860.48476695497,
+        "m1_wall_ms": 168.54803811293095,
+        "m1_including_adapters_ms": 188.04490026862672,
+        "m2_wall_ms": 358.5243939370331,
+        "heads_wall_ms": 14.886940790650746,
+        "snapshot_wall_ms": 0.7411331817921665,
+        "m3_wall_ms": 267.0039965564178,
+        "prefill_cuda_ms_per_question": 118.31272888183594,
+        "decode_cuda_ms_per_question": 135.53200107150607,
+        "prefill_wall_ms_per_question": 66.01004209369421,
+        "decode_wall_ms_per_question": 138.8360153834025,
+        "end_to_end_ms_per_question": 259.31239544620945,
+        "question_fact_extraction_wall_ms_per_question": 0.08471052731490797,
+        "answer_validity_check_wall_ms_per_question": 0.052792757439116635,
+        "fast_answer_construction_wall_ms_per_question": 0.06119076473017534,
+        "current_binding_wall_ms_per_question": 0.0025419026820196044,
+        "temporal_risk_wall_ms_per_question": 0.0,
+        "miss_decision_wall_ms": 0.11278491001576185
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "condition": "C",
+        "frames": 36,
+        "questions": 108,
+        "fps": 0.7391581826099619,
+        "qps": 2.2174745478298856,
+        "peak_gpu_bytes": 16823661056,
+        "actual_m3_skips": 42,
+        "llm_forward_calls": 618,
+        "mean_tokens": 14.574074074074074,
+        "e2e_wall_ms": 1352.8903873714928,
+        "m1_wall_ms": 184.8649849028637,
+        "m1_including_adapters_ms": 204.10034603749713,
+        "m2_wall_ms": 353.595007961202,
+        "heads_wall_ms": 15.400057930188874,
+        "snapshot_wall_ms": 0.7569998528601395,
+        "m3_wall_ms": 747.4821062965525,
+        "prefill_cuda_ms_per_question": 110.0680475588198,
+        "decode_cuda_ms_per_question": 131.22366544935437,
+        "prefill_wall_ms_per_question": 61.404807842336595,
+        "decode_wall_ms_per_question": 134.61370471671776,
+        "end_to_end_ms_per_question": 246.5473772932051,
+        "question_fact_extraction_wall_ms_per_question": 0.03991872762088423,
+        "answer_validity_check_wall_ms_per_question": 0.11698750744539278,
+        "fast_answer_construction_wall_ms_per_question": 0.07134271112995015,
+        "current_binding_wall_ms_per_question": 0.0026658634413723593,
+        "temporal_risk_wall_ms_per_question": 0.07251732448046957,
+        "miss_decision_wall_ms": 0.18000472901445447
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "condition": "C-current",
+        "frames": 36,
+        "questions": 108,
+        "fps": 0.796889125876167,
+        "qps": 2.390667377628501,
+        "peak_gpu_bytes": 16814747136,
+        "actual_m3_skips": 51,
+        "llm_forward_calls": 567,
+        "mean_tokens": 14.24074074074074,
+        "e2e_wall_ms": 1254.8797160464649,
+        "m1_wall_ms": 167.31292381882668,
+        "m1_including_adapters_ms": 186.63790669395692,
+        "m2_wall_ms": 350.5122219341704,
+        "heads_wall_ms": 14.795572315860126,
+        "snapshot_wall_ms": 0.8210976763317982,
+        "m3_wall_ms": 670.2379120462057,
+        "prefill_cuda_ms_per_question": 94.8389865733959,
+        "decode_cuda_ms_per_question": 120.97608439127605,
+        "prefill_wall_ms_per_question": 52.90438099419353,
+        "decode_wall_ms_per_question": 124.09384052841752,
+        "end_to_end_ms_per_question": 220.56536962433407,
+        "question_fact_extraction_wall_ms_per_question": 0.04286273744785123,
+        "answer_validity_check_wall_ms_per_question": 0.041785943149416534,
+        "fast_answer_construction_wall_ms_per_question": 0.0743286779012393,
+        "current_binding_wall_ms_per_question": 0.0025079827065821046,
+        "temporal_risk_wall_ms_per_question": 0.0,
+        "miss_decision_wall_ms": 0.0945704646016422
+      }
+    ],
+    "timing": "Outer wall includes M1/M2/Heads/snapshot/M3/answer export; CUDA phase events and host phase wall separate. Binding/temporal costs are nested inside validity time, not added twice. Data loading/audit serialization excluded equally."
+  },
+  "quality": {
+    "status": "PARTIAL_CURRENT_INDEPENDENT_FACT_LABELS",
+    "groups": [
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "condition": "C",
+        "execution": "all",
+        "requests": 36,
+        "scored": 9,
+        "UNKNOWN": 27,
+        "label_coverage": 0.25,
+        "score": 1.0,
+        "errors": 0,
+        "severe": 0,
+        "independent_frame_questions": 3
+      },
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "condition": "C",
+        "execution": "fast_hit",
+        "requests": 3,
+        "scored": 0,
+        "UNKNOWN": 3,
+        "label_coverage": 0.0,
+        "score": null,
+        "errors": 0,
+        "severe": 0,
+        "independent_frame_questions": 0
+      },
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "condition": "C",
+        "execution": "miss",
+        "requests": 33,
+        "scored": 9,
+        "UNKNOWN": 24,
+        "label_coverage": 0.2727272727272727,
+        "score": 1.0,
+        "errors": 0,
+        "severe": 0,
+        "independent_frame_questions": 3
+      },
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "condition": "C-current",
+        "execution": "all",
+        "requests": 36,
+        "scored": 9,
+        "UNKNOWN": 27,
+        "label_coverage": 0.25,
+        "score": 1.0,
+        "errors": 0,
+        "severe": 0,
+        "independent_frame_questions": 3
+      },
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "condition": "C-current",
+        "execution": "fast_hit",
+        "requests": 12,
+        "scored": 0,
+        "UNKNOWN": 12,
+        "label_coverage": 0.0,
+        "score": null,
+        "errors": 0,
+        "severe": 0,
+        "independent_frame_questions": 0
+      },
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "condition": "C-current",
+        "execution": "miss",
+        "requests": 24,
+        "scored": 9,
+        "UNKNOWN": 15,
+        "label_coverage": 0.375,
+        "score": 1.0,
+        "errors": 0,
+        "severe": 0,
+        "independent_frame_questions": 3
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "condition": "C",
+        "execution": "all",
+        "requests": 108,
+        "scored": 60,
+        "UNKNOWN": 48,
+        "label_coverage": 0.5555555555555556,
+        "score": 0.8,
+        "errors": 12,
+        "severe": 9,
+        "independent_frame_questions": 20
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "condition": "C",
+        "execution": "fast_hit",
+        "requests": 42,
+        "scored": 33,
+        "UNKNOWN": 9,
+        "label_coverage": 0.7857142857142857,
+        "score": 1.0,
+        "errors": 0,
+        "severe": 0,
+        "independent_frame_questions": 11
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "condition": "C",
+        "execution": "miss",
+        "requests": 66,
+        "scored": 27,
+        "UNKNOWN": 39,
+        "label_coverage": 0.4090909090909091,
+        "score": 0.5555555555555556,
+        "errors": 12,
+        "severe": 9,
+        "independent_frame_questions": 9
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "condition": "C-current",
+        "execution": "all",
+        "requests": 108,
+        "scored": 60,
+        "UNKNOWN": 48,
+        "label_coverage": 0.5555555555555556,
+        "score": 0.8,
+        "errors": 12,
+        "severe": 9,
+        "independent_frame_questions": 20
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "condition": "C-current",
+        "execution": "fast_hit",
+        "requests": 51,
+        "scored": 33,
+        "UNKNOWN": 18,
+        "label_coverage": 0.6470588235294118,
+        "score": 1.0,
+        "errors": 0,
+        "severe": 0,
+        "independent_frame_questions": 11
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "condition": "C-current",
+        "execution": "miss",
+        "requests": 57,
+        "scored": 27,
+        "UNKNOWN": 30,
+        "label_coverage": 0.47368421052631576,
+        "score": 0.5555555555555556,
+        "errors": 12,
+        "severe": 9,
+        "independent_frame_questions": 9
+      }
+    ],
+    "paired_losses": [
+      {
+        "workload": "addressable",
+        "question_count": 1,
+        "comparison": "C-current->C",
+        "scored_pairs": 9,
+        "loss": 0.0,
+        "scene_CI95": null,
+        "conservative_all_request_loss_bounds": [
+          -0.25,
+          0.25
+        ]
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "scored_pairs": 60,
+        "loss": 0.0,
+        "scene_CI95": [
+          0.0,
+          0.0
+        ],
+        "conservative_all_request_loss_bounds": [
+          -0.08333333333333333,
+          0.08333333333333333
+        ]
+      }
+    ],
+    "errors": [
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 0,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "d5324133e1d241658a7b763831b3af2e",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "2a2c69ed2e0a4dfb981852c362a3b5a5"
+            ],
+            "selected_annotation": "2a2c69ed2e0a4dfb981852c362a3b5a5",
+            "source_frame": "d5324133e1d241658a7b763831b3af2e",
+            "center_ego": [
+              33.08585828739302,
+              17.702256845575334,
+              -0.07161696784285898
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "2a2c69ed2e0a4dfb981852c362a3b5a5"
+            ],
+            "selected_annotation": "2a2c69ed2e0a4dfb981852c362a3b5a5",
+            "source_frame": "d5324133e1d241658a7b763831b3af2e",
+            "center_ego": [
+              33.08585828739302,
+              17.702256845575334,
+              -0.07161696784285898
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 0,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "5945d0b7e74b46338fb0f8b6dda5e745",
+              "53d3a38f66b24b2ca0885df07e95b47d"
+            ],
+            "selected_annotation": "5945d0b7e74b46338fb0f8b6dda5e745",
+            "source_frame": "0f5cbb909e9544dd861dc2ff63ac4d13",
+            "center_ego": [
+              33.890859129102296,
+              17.430190288954975,
+              -0.005441947527100588
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "5945d0b7e74b46338fb0f8b6dda5e745",
+              "53d3a38f66b24b2ca0885df07e95b47d"
+            ],
+            "selected_annotation": "5945d0b7e74b46338fb0f8b6dda5e745",
+            "source_frame": "0f5cbb909e9544dd861dc2ff63ac4d13",
+            "center_ego": [
+              33.890859129102296,
+              17.430190288954975,
+              -0.005441947527100588
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 0,
+        "scene_id": "034dee1695304630b0692da8c1f153fc",
+        "frame_id": "cb4504edb87a40d4b650cd5860f6c3b7",
+        "question": "Is there a car in front?",
+        "request_index": 1,
+        "answer": "Yes, there is a car ahead with its rear lights on, indicating it might be slowing down or stopped.",
+        "baseline_answer": "Yes, there is a car ahead with its rear lights on, indicating it might be slowing down or stopped.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "existence",
+            "semantic_class": "car",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "car"
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "annotation_ids": [
+              "931e11967705420692448b7d60656036"
+            ],
+            "selected_annotation": "931e11967705420692448b7d60656036",
+            "source_frame": "cb4504edb87a40d4b650cd5860f6c3b7",
+            "center_ego": [
+              27.21620213738879,
+              -2.74408508692386,
+              1.246329525510582
+            ],
+            "required_facts": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "existence",
+              "classes": [
+                "car"
+              ],
+              "directions": [
+                "front"
+              ],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "any",
+              "required": [
+                "positive_existence",
+                "target_region",
+                "current_observation"
+              ],
+              "reason": "positive_witness_only"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front",
+              "rear"
+            ],
+            "negative": false,
+            "uncertain": true
+          },
+          "severe_error": false
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "existence",
+            "semantic_class": "car",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "car"
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "annotation_ids": [
+              "931e11967705420692448b7d60656036"
+            ],
+            "selected_annotation": "931e11967705420692448b7d60656036",
+            "source_frame": "cb4504edb87a40d4b650cd5860f6c3b7",
+            "center_ego": [
+              27.21620213738879,
+              -2.74408508692386,
+              1.246329525510582
+            ],
+            "required_facts": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "existence",
+              "classes": [
+                "car"
+              ],
+              "directions": [
+                "front"
+              ],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "any",
+              "required": [
+                "positive_existence",
+                "target_region",
+                "current_observation"
+              ],
+              "reason": "positive_witness_only"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front",
+              "rear"
+            ],
+            "negative": false,
+            "uncertain": true
+          },
+          "severe_error": false
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 1,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "d5324133e1d241658a7b763831b3af2e",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "2a2c69ed2e0a4dfb981852c362a3b5a5"
+            ],
+            "selected_annotation": "2a2c69ed2e0a4dfb981852c362a3b5a5",
+            "source_frame": "d5324133e1d241658a7b763831b3af2e",
+            "center_ego": [
+              33.08585828739302,
+              17.702256845575334,
+              -0.07161696784285898
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "2a2c69ed2e0a4dfb981852c362a3b5a5"
+            ],
+            "selected_annotation": "2a2c69ed2e0a4dfb981852c362a3b5a5",
+            "source_frame": "d5324133e1d241658a7b763831b3af2e",
+            "center_ego": [
+              33.08585828739302,
+              17.702256845575334,
+              -0.07161696784285898
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 1,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "5945d0b7e74b46338fb0f8b6dda5e745",
+              "53d3a38f66b24b2ca0885df07e95b47d"
+            ],
+            "selected_annotation": "5945d0b7e74b46338fb0f8b6dda5e745",
+            "source_frame": "0f5cbb909e9544dd861dc2ff63ac4d13",
+            "center_ego": [
+              33.890859129102296,
+              17.430190288954975,
+              -0.005441947527100588
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "5945d0b7e74b46338fb0f8b6dda5e745",
+              "53d3a38f66b24b2ca0885df07e95b47d"
+            ],
+            "selected_annotation": "5945d0b7e74b46338fb0f8b6dda5e745",
+            "source_frame": "0f5cbb909e9544dd861dc2ff63ac4d13",
+            "center_ego": [
+              33.890859129102296,
+              17.430190288954975,
+              -0.005441947527100588
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 1,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "da74550a10a8408299d7e6b1735963ae",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "e9c3d0c6b0314f4fb57c69a547a391b7",
+              "8f8df321a0594f9297369a14fe673a67"
+            ],
+            "selected_annotation": "e9c3d0c6b0314f4fb57c69a547a391b7",
+            "source_frame": "da74550a10a8408299d7e6b1735963ae",
+            "center_ego": [
+              34.68168344438391,
+              17.199476725234945,
+              -0.015403612046322068
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "e9c3d0c6b0314f4fb57c69a547a391b7",
+              "8f8df321a0594f9297369a14fe673a67"
+            ],
+            "selected_annotation": "e9c3d0c6b0314f4fb57c69a547a391b7",
+            "source_frame": "da74550a10a8408299d7e6b1735963ae",
+            "center_ego": [
+              34.68168344438391,
+              17.199476725234945,
+              -0.015403612046322068
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 1,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "cf86af90b622499b8214df0024a6ea29",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "21e7c8370e1f4dc28394f86433083b2b"
+            ],
+            "selected_annotation": "21e7c8370e1f4dc28394f86433083b2b",
+            "source_frame": "cf86af90b622499b8214df0024a6ea29",
+            "center_ego": [
+              42.01315438981379,
+              15.840504996765674,
+              0.5752692256953362
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "21e7c8370e1f4dc28394f86433083b2b"
+            ],
+            "selected_annotation": "21e7c8370e1f4dc28394f86433083b2b",
+            "source_frame": "cf86af90b622499b8214df0024a6ea29",
+            "center_ego": [
+              42.01315438981379,
+              15.840504996765674,
+              0.5752692256953362
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 1,
+        "scene_id": "034dee1695304630b0692da8c1f153fc",
+        "frame_id": "c24a9059f9f149a69a0d534026f5b20e",
+        "question": "Is there a car in front?",
+        "request_index": 1,
+        "answer": "Yes, there is a car ahead with its rear lights on, indicating it might be slowing down or stopped.",
+        "baseline_answer": "Yes, there is a car ahead with its rear lights on, indicating it might be slowing down or stopped.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "existence",
+            "semantic_class": "car",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "car"
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "annotation_ids": [
+              "05500caa3b0f489aa6212272c3b934f9"
+            ],
+            "selected_annotation": "05500caa3b0f489aa6212272c3b934f9",
+            "source_frame": "c24a9059f9f149a69a0d534026f5b20e",
+            "center_ego": [
+              25.638184307627853,
+              -3.204369258348379,
+              1.253631349879079
+            ],
+            "required_facts": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "existence",
+              "classes": [
+                "car"
+              ],
+              "directions": [
+                "front"
+              ],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "any",
+              "required": [
+                "positive_existence",
+                "target_region",
+                "current_observation"
+              ],
+              "reason": "positive_witness_only"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front",
+              "rear"
+            ],
+            "negative": false,
+            "uncertain": true
+          },
+          "severe_error": false
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "existence",
+            "semantic_class": "car",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "car"
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "annotation_ids": [
+              "05500caa3b0f489aa6212272c3b934f9"
+            ],
+            "selected_annotation": "05500caa3b0f489aa6212272c3b934f9",
+            "source_frame": "c24a9059f9f149a69a0d534026f5b20e",
+            "center_ego": [
+              25.638184307627853,
+              -3.204369258348379,
+              1.253631349879079
+            ],
+            "required_facts": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "existence",
+              "classes": [
+                "car"
+              ],
+              "directions": [
+                "front"
+              ],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "any",
+              "required": [
+                "positive_existence",
+                "target_region",
+                "current_observation"
+              ],
+              "reason": "positive_witness_only"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front",
+              "rear"
+            ],
+            "negative": false,
+            "uncertain": true
+          },
+          "severe_error": false
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 2,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "d5324133e1d241658a7b763831b3af2e",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "2a2c69ed2e0a4dfb981852c362a3b5a5"
+            ],
+            "selected_annotation": "2a2c69ed2e0a4dfb981852c362a3b5a5",
+            "source_frame": "d5324133e1d241658a7b763831b3af2e",
+            "center_ego": [
+              33.08585828739302,
+              17.702256845575334,
+              -0.07161696784285898
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "2a2c69ed2e0a4dfb981852c362a3b5a5"
+            ],
+            "selected_annotation": "2a2c69ed2e0a4dfb981852c362a3b5a5",
+            "source_frame": "d5324133e1d241658a7b763831b3af2e",
+            "center_ego": [
+              33.08585828739302,
+              17.702256845575334,
+              -0.07161696784285898
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 2,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "5945d0b7e74b46338fb0f8b6dda5e745",
+              "53d3a38f66b24b2ca0885df07e95b47d"
+            ],
+            "selected_annotation": "5945d0b7e74b46338fb0f8b6dda5e745",
+            "source_frame": "0f5cbb909e9544dd861dc2ff63ac4d13",
+            "center_ego": [
+              33.890859129102296,
+              17.430190288954975,
+              -0.005441947527100588
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "5945d0b7e74b46338fb0f8b6dda5e745",
+              "53d3a38f66b24b2ca0885df07e95b47d"
+            ],
+            "selected_annotation": "5945d0b7e74b46338fb0f8b6dda5e745",
+            "source_frame": "0f5cbb909e9544dd861dc2ff63ac4d13",
+            "center_ego": [
+              33.890859129102296,
+              17.430190288954975,
+              -0.005441947527100588
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 2,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "da74550a10a8408299d7e6b1735963ae",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the left of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the left of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "e9c3d0c6b0314f4fb57c69a547a391b7",
+              "8f8df321a0594f9297369a14fe673a67"
+            ],
+            "selected_annotation": "e9c3d0c6b0314f4fb57c69a547a391b7",
+            "source_frame": "da74550a10a8408299d7e6b1735963ae",
+            "center_ego": [
+              34.68168344438391,
+              17.199476725234945,
+              -0.015403612046322068
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "left"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": false
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "e9c3d0c6b0314f4fb57c69a547a391b7",
+              "8f8df321a0594f9297369a14fe673a67"
+            ],
+            "selected_annotation": "e9c3d0c6b0314f4fb57c69a547a391b7",
+            "source_frame": "da74550a10a8408299d7e6b1735963ae",
+            "center_ego": [
+              34.68168344438391,
+              17.199476725234945,
+              -0.015403612046322068
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "left"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": false
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      },
+      {
+        "workload": "addressable",
+        "question_count": 3,
+        "comparison": "C-current->C",
+        "round": 2,
+        "scene_id": "01452fbfbf4543af8acdfd3e8a1ee806",
+        "frame_id": "cf86af90b622499b8214df0024a6ea29",
+        "question": "Where is the nearest pedestrian relative to the vehicle?",
+        "request_index": 2,
+        "answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "baseline_answer": "The nearest pedestrian is walking on the sidewalk to the right of the vehicle.",
+        "quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "21e7c8370e1f4dc28394f86433083b2b"
+            ],
+            "selected_annotation": "21e7c8370e1f4dc28394f86433083b2b",
+            "source_frame": "cf86af90b622499b8214df0024a6ea29",
+            "center_ego": [
+              42.01315438981379,
+              15.840504996765674,
+              0.5752692256953362
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "baseline_quality": {
+          "known": true,
+          "score": 0.0,
+          "reference": {
+            "known": true,
+            "task": "position",
+            "semantic_class": "pedestrian",
+            "positive": true,
+            "motion": null,
+            "available_classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "front",
+              "left"
+            ],
+            "annotation_ids": [
+              "21e7c8370e1f4dc28394f86433083b2b"
+            ],
+            "selected_annotation": "21e7c8370e1f4dc28394f86433083b2b",
+            "source_frame": "cf86af90b622499b8214df0024a6ea29",
+            "center_ego": [
+              42.01315438981379,
+              15.840504996765674,
+              0.5752692256953362
+            ],
+            "required_facts": [
+              "target_class",
+              "longitudinal_direction",
+              "lateral_direction",
+              "current_observation"
+            ],
+            "metric": "required_current_visible_object_facts",
+            "profile": {
+              "intent": "position",
+              "classes": [
+                "pedestrian"
+              ],
+              "directions": [],
+              "near_m": 50.0,
+              "direct": false,
+              "selector": "nearest",
+              "required": [
+                "target_class",
+                "longitudinal_direction",
+                "lateral_direction",
+                "current_observation"
+              ],
+              "reason": "structured_position"
+            }
+          },
+          "metric": "required_current_visible_object_facts",
+          "extracted": {
+            "classes": [
+              "pedestrian"
+            ],
+            "directions": [
+              "right"
+            ],
+            "negative": false,
+            "uncertain": false
+          },
+          "severe_error": true
+        },
+        "answer_source": "current_target_model_generation",
+        "llm_skipped": false,
+        "new_severe_error": false,
+        "path": "normal_target_generation"
+      }
+    ],
+    "scope": "UNKNOWN never scored as correct; identical UNKNOWN text means equal score, not correctness. Current visible positives; no complete safety/absence certification. Repeated rounds are correlated."
+  },
+  "temporal_risk_events": 18,
+  "current_detection_equality_audit": [
+    {
+      "frame_id": "d5324133e1d241658a7b763831b3af2e",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "da74550a10a8408299d7e6b1735963ae",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "cf86af90b622499b8214df0024a6ea29",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "e693989d8ad141608999200df71aca71",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "bf3b9da1e7054458851f93f4a44ffb9c",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "2beac07fddfa49f38f5380f1ae761d6d",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "b8fd81311abd466b9975a21f69d8c357",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "cb4504edb87a40d4b650cd5860f6c3b7",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "c24a9059f9f149a69a0d534026f5b20e",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "98bf27ef19ff41fe9c46bb8fff168076",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "a6a8c30913934fae8c7dce55e3c8022b",
+      "round": 0,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "d5324133e1d241658a7b763831b3af2e",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "da74550a10a8408299d7e6b1735963ae",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "cf86af90b622499b8214df0024a6ea29",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "e693989d8ad141608999200df71aca71",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "bf3b9da1e7054458851f93f4a44ffb9c",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "2beac07fddfa49f38f5380f1ae761d6d",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "b8fd81311abd466b9975a21f69d8c357",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "cb4504edb87a40d4b650cd5860f6c3b7",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "c24a9059f9f149a69a0d534026f5b20e",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "98bf27ef19ff41fe9c46bb8fff168076",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "a6a8c30913934fae8c7dce55e3c8022b",
+      "round": 1,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "d5324133e1d241658a7b763831b3af2e",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "da74550a10a8408299d7e6b1735963ae",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "cf86af90b622499b8214df0024a6ea29",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "e693989d8ad141608999200df71aca71",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "bf3b9da1e7054458851f93f4a44ffb9c",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "2beac07fddfa49f38f5380f1ae761d6d",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "b8fd81311abd466b9975a21f69d8c357",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "cb4504edb87a40d4b650cd5860f6c3b7",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "c24a9059f9f149a69a0d534026f5b20e",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "98bf27ef19ff41fe9c46bb8fff168076",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "a6a8c30913934fae8c7dce55e3c8022b",
+      "round": 2,
+      "question_count": 1,
+      "equal": true
+    },
+    {
+      "frame_id": "d5324133e1d241658a7b763831b3af2e",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "da74550a10a8408299d7e6b1735963ae",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "cf86af90b622499b8214df0024a6ea29",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "e693989d8ad141608999200df71aca71",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "bf3b9da1e7054458851f93f4a44ffb9c",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "2beac07fddfa49f38f5380f1ae761d6d",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "b8fd81311abd466b9975a21f69d8c357",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "cb4504edb87a40d4b650cd5860f6c3b7",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "c24a9059f9f149a69a0d534026f5b20e",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "98bf27ef19ff41fe9c46bb8fff168076",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "a6a8c30913934fae8c7dce55e3c8022b",
+      "round": 0,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "d5324133e1d241658a7b763831b3af2e",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "da74550a10a8408299d7e6b1735963ae",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "cf86af90b622499b8214df0024a6ea29",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "e693989d8ad141608999200df71aca71",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "bf3b9da1e7054458851f93f4a44ffb9c",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "2beac07fddfa49f38f5380f1ae761d6d",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "b8fd81311abd466b9975a21f69d8c357",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "cb4504edb87a40d4b650cd5860f6c3b7",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "c24a9059f9f149a69a0d534026f5b20e",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "98bf27ef19ff41fe9c46bb8fff168076",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "a6a8c30913934fae8c7dce55e3c8022b",
+      "round": 1,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "d5324133e1d241658a7b763831b3af2e",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "0f5cbb909e9544dd861dc2ff63ac4d13",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "da74550a10a8408299d7e6b1735963ae",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "cf86af90b622499b8214df0024a6ea29",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "e693989d8ad141608999200df71aca71",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "bf3b9da1e7054458851f93f4a44ffb9c",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "2beac07fddfa49f38f5380f1ae761d6d",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "b8fd81311abd466b9975a21f69d8c357",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "cb4504edb87a40d4b650cd5860f6c3b7",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "c24a9059f9f149a69a0d534026f5b20e",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "98bf27ef19ff41fe9c46bb8fff168076",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    },
+    {
+      "frame_id": "a6a8c30913934fae8c7dce55e3c8022b",
+      "round": 2,
+      "question_count": 3,
+      "equal": true
+    }
+  ],
+  "only_switch": "Same current input/weights/RNG/policy/construction/generator; temporal_risk_enabled false in C-current",
+  "all_current_worlds_equal": true
+}

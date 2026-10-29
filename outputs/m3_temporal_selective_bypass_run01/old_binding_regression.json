@@ -1,0 +1,283 @@
+{
+  "scope": "Offline decisions on actual diagnostic committed M1 outputs, same DEV frozen policy; NOT online TEST performance",
+  "decisions": [
+    {
+      "mode": "previous_current_only",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A truck is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "acc29386502047339e1ec6b9c7e512d2:g17:a4",
+            "semantic_class": "truck",
+            "center_ego": [
+              19.906495023707976,
+              -1.433681706076868,
+              1.933143671081453
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.7312930226325989,
+            "cameras": [
+              "CAM_FRONT"
+            ],
+            "source_frame": "79070dca796f4ffb868d84f1b067f9c2",
+            "source_timestamp": 1531713369.298701,
+            "state_version": 1,
+            "state_epoch": 17,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.040743034332990646,
+        "answer_validity_check_wall_ms": 0.027696136385202408,
+        "fast_answer_construction_wall_ms": 0.006834045052528381,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "support_score": 0.7312930226325989,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          17,
+          1,
+          "79070dca796f4ffb868d84f1b067f9c2"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-diagnostic"
+        ],
+        "estimated_net_gain_ms": 359.10748940012934,
+        "empirical_policy_id": "temporal_dev_1"
+      }
+    },
+    {
+      "mode": "new_current_binding",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A truck is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "acc29386502047339e1ec6b9c7e512d2:g17:a4",
+            "semantic_class": "truck",
+            "center_ego": [
+              19.906495023707976,
+              -1.433681706076868,
+              1.933143671081453
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.7312930226325989,
+            "cameras": [
+              "CAM_FRONT"
+            ],
+            "source_frame": "79070dca796f4ffb868d84f1b067f9c2",
+            "source_timestamp": 1531713369.298701,
+            "state_version": 1,
+            "state_epoch": 17,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.026523135602474213,
+        "answer_validity_check_wall_ms": 0.16172835603356361,
+        "fast_answer_construction_wall_ms": 0.004462432116270065,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_binding": {
+          "current_risk": 0.15374139547348023,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": false,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.0019497238099575043,
+          "temporal_risk_wall_ms": 0.0,
+          "temporal_status": "disabled",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "total_risk": 0.15374139547348023
+        },
+        "support_score": 0.7312930226325989,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          17,
+          1,
+          "79070dca796f4ffb868d84f1b067f9c2"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-diagnostic"
+        ],
+        "estimated_net_gain_ms": 358.9902442698884,
+        "empirical_policy_id": "temporal_dev_1"
+      }
+    },
+    {
+      "mode": "new_temporal",
+      "proposal": {
+        "supported": true,
+        "admitted": true,
+        "answer_source": "fact_grounded_response",
+        "answer_text": "A truck is directly ahead.",
+        "profile": {
+          "intent": "category",
+          "classes": [
+            "vehicle"
+          ],
+          "directions": [
+            "front"
+          ],
+          "near_m": 50.0,
+          "direct": true,
+          "selector": "nearest",
+          "required": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "reason": "structured_category"
+        },
+        "required_facts": [
+          "target_class",
+          "target_region",
+          "current_observation"
+        ],
+        "reason": "supported_and_admitted",
+        "facts": [
+          {
+            "anchor_id": "acc29386502047339e1ec6b9c7e512d2:g17:a4",
+            "semantic_class": "truck",
+            "center_ego": [
+              19.906495023707976,
+              -1.433681706076868,
+              1.933143671081453
+            ],
+            "directions": [
+              "front",
+              "right"
+            ],
+            "motion": "",
+            "velocity_ego": [],
+            "confidence": 0.7312930226325989,
+            "cameras": [
+              "CAM_FRONT"
+            ],
+            "source_frame": "79070dca796f4ffb868d84f1b067f9c2",
+            "source_timestamp": 1531713369.298701,
+            "state_version": 1,
+            "state_epoch": 17,
+            "evidence_origin": "actual_perception",
+            "identity_qualified": false,
+            "identity_required": false,
+            "association_unambiguous": false
+          }
+        ],
+        "history_candidate_count": 0,
+        "question_fact_extraction_wall_ms": 0.025931280106306076,
+        "answer_validity_check_wall_ms": 0.019146129488945007,
+        "fast_answer_construction_wall_ms": 0.0034356489777565002,
+        "score_kind": "DETECTOR_SUPPORT_NOT_ERROR_PROBABILITY",
+        "target_binding": {
+          "current_risk": 0.15374139547348023,
+          "temporal_risk": 0.0,
+          "current_competitors": [],
+          "boundary": false,
+          "temporal_enabled": true,
+          "temporal_competitors": [],
+          "current_binding_wall_ms": 0.001484062522649765,
+          "temporal_risk_wall_ms": 0.00020209699869155884,
+          "temporal_status": "no_legal_history",
+          "score_kind": "UNCALIBRATED_BINDING_RISK",
+          "total_risk": 0.15374139547348023
+        },
+        "support_score": 0.7312930226325989,
+        "continuity": {
+          "same_anchor_observed": false,
+          "ego_displacement_m": null
+        },
+        "current_commit": [
+          17,
+          1,
+          "79070dca796f4ffb868d84f1b067f9c2"
+        ],
+        "source_generation": null,
+        "source_age_s": null,
+        "original_model_binding": [
+          "offline-diagnostic"
+        ],
+        "estimated_net_gain_ms": 359.13393849558713,
+        "empirical_policy_id": "temporal_dev_1"
+      }
+    }
+  ]
+}

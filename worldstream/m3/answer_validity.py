@@ -219,7 +219,8 @@ def render_facts(profile, cls, directions=(), motion=''):
     return ''
 
 
-def propose_fact_answer(question,current,context,memory,binding,policy=None,previous=None):
+def propose_fact_answer(question,current,context,memory,binding,policy=None,previous=None,
+                        target_binding_enabled=False,temporal_risk_enabled=False):
     """One fast-answer decision before expansion. Never accepts GT/current LLM.
 
     Full reuse is admitted only for the closed assertion grammar below; richer
@@ -255,6 +256,9 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
     if not witnesses:return finish('no_positive_current_witness_UNKNOWN_not_absent')
     witnesses.sort(key=lambda a:(math.hypot(*a.center_ego[:2]),-a.score,a.anchor_id))
     witness=max(witnesses,key=lambda a:a.score) if profile.selector=='any' else witnesses[0]
+    if target_binding_enabled:
+        from .target_binding import target_binding_risk
+        out['target_binding']=target_binding_risk(profile,witness,witnesses,current,previous,temporal_risk_enabled)
     if (profile.selector=='nearest' and any(a.semantic_class!=witness.semantic_class
             and abs(math.hypot(*a.center_ego[:2])-math.hypot(*witness.center_ego[:2]))<2. for a in witnesses[1:])):
         return finish('nearest_target_class_ambiguous')
@@ -307,5 +311,8 @@ def propose_fact_answer(question,current,context,memory,binding,policy=None,prev
     check_ms=(perf_counter()-tick)*1000+parse_ms
     out['estimated_net_gain_ms']=expected-check_ms
     out['empirical_policy_id']=(policy or {}).get('policy_id')
-    out['admitted']=bool(policy and witness.score>=policy['min_confidence'] and expected>check_ms)
+    risk_ok=(not target_binding_enabled or out['target_binding']['total_risk']<=float((policy or {}).get('max_binding_risk',.35)))
+    out['admitted']=bool(policy and witness.score>=policy['min_confidence'] and
+        expected-check_ms>float((policy or {}).get('min_net_gain_ms',0.)) and risk_ok)
+    if not risk_ok:return finish('target_binding_risk_exceeds_frozen_policy')
     return finish('supported_and_admitted' if out['admitted'] else 'supported_shadow_or_below_policy')

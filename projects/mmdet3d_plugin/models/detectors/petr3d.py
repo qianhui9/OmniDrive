@@ -521,6 +521,7 @@ class Petr3D(MVXTwoStageDetector):
                     stable_world_state=stable_state,
                     committed_world_state=getattr(self,'m3_committed_state',None),
                     context=dict(scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']),
+                        **getattr(self,'worldstream_request_rng_context',{}),
                         weights_sha256=getattr(self,'worldstream_audit_identity',{}).get('checkpoint_sha256'),
                         state_epoch=getattr(getattr(self.m1_manager,'store',None),'generation',None),
                         state_version=getattr(getattr(self,'m3_verified_state',None),'state_version',None),
@@ -541,7 +542,12 @@ class Petr3D(MVXTwoStageDetector):
                     raise RuntimeError('M3 must return one answer per question')
             for i, input_ids in enumerate(data['input_ids'][0]):
                 input_ids = input_ids.unsqueeze(0)
-                output_ids = m3_answers[i] if m3 is not None else self.lm_head.generate(
+                from worldstream.m3.request_rng import question_rng
+                rng_context=dict(scene_id=str(img_metas[0]['scene_token']),
+                    frame_id=str(img_metas[0]['sample_idx']),**getattr(self,'worldstream_request_rng_context',{}))
+                with question_rng(rng_context,i,input_ids.device,
+                        m3 is None and getattr(self,'worldstream_question_rng_enabled',False)):
+                    output_ids = m3_answers[i] if m3 is not None else self.lm_head.generate(
                     inputs=input_ids,
                     images=vision_embeded,
                     do_sample=True,

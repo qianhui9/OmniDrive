@@ -24,8 +24,13 @@ class M3Config:
     target_aware_exact_only: bool = False
     selective_answer_mode: str = 'off'
     selective_answer_policy: str = ''
+    question_rng_enabled: bool = False
+    target_binding_enabled: bool = False
+    temporal_risk_enabled: bool = False
 
     def __post_init__(self):
+        if self.temporal_risk_enabled and not self.target_binding_enabled:
+            raise ValueError('Temporal risk requires current target binding')
         if self.selective_answer_mode not in ('off','shadow','online'):
             raise ValueError('Unknown selective answer mode')
         if (self.selective_answer_mode!='off' or self.target_aware_exact_only) and self.decode_strategy!='world_guided':

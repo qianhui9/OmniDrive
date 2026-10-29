@@ -80,8 +80,9 @@ Policy is frozen before TEST. Research online outputs distinguish full_answer_re
 
 
 def source_files():
-    return [Path(__file__),Path('projects/mmdet3d_plugin/models/detectors/petr3d.py')]+[
-        Path('worldstream/m3')/n for n in ('runtime.py','config.py','answer_validity.py','answer_memory.py','task_conditioner.py','world_state.py','prefill_executor.py')]
+    return [Path(__file__),Path('projects/mmdet3d_plugin/models/detectors/petr3d.py'),
+            Path('tools/worldstream_m123/temporal_selective_bypass.py')]+[
+        Path('worldstream/m3')/n for n in ('runtime.py','config.py','answer_validity.py','answer_memory.py','task_conditioner.py','world_state.py','prefill_executor.py','request_rng.py','target_binding.py')]
 
 
 def run(root,stage):
@@ -95,6 +96,7 @@ def run(root,stage):
     from tools.worldstream_m2.global_residual_benchmark import wait_gpu
     from worldstream.m3 import M3Runtime
     plan=json.loads((root/'experiment_plan.json').read_text())
+    temporal_v2=plan.get('version')=='wrsar2'
     out=root/stage;out.mkdir(exist_ok=False)
     hashes={str(p):sha256(p) for p in source_files()}
     for p in source_files():
@@ -110,7 +112,7 @@ def run(root,stage):
         model.worldstream_audit_identity=dict(checkpoint_sha256=checkpoint_sha)
         dataset=build_dataset(cfg.data.test)
         original={i['token']:i for i in dataset.data_infos}
-        scenes=plan['development_scenes'] if stage in ('shadow','pareto') else plan['test_scenes']
+        scenes=plan['development_scenes'] if stage in ('shadow','pareto') else plan['diagnostic_scenes'] if stage=='diagnostic' else plan['test_scenes']
         dataset.data_infos=[original[t] for s in scenes for t in s['tokens']]
         index={f['token']:i for i,f in enumerate(dataset.data_infos)}
         validate_native_prompt_context(model,dataset,index,scenes,out)
@@ -120,7 +122,10 @@ def run(root,stage):
         hook=base_model(model.lm_head).register_forward_pre_hook(lambda *a:calls.append(
             model.m3_runtime.last_diagnostics.get('active_request_index') if model.m3_runtime else None))
         jobs=[]
-        if stage=='shadow':
+        if temporal_v2 and stage in ('diagnostic','pareto','ablation'):
+            from .temporal_selective_bypass import stage_jobs
+            jobs=stage_jobs(root,stage,plan)
+        elif stage=='shadow':
             jobs=[('addressable',3,0,'B','shadow',None),('diagnostic',2,0,'B','shadow',None)]
         elif stage=='pareto':
             policies={}
@@ -141,10 +146,17 @@ def run(root,stage):
                         jobs.extend((workload,count,repeat,c,'online' if c=='C' else 'off',root/'selected_policy.json' if c=='C' else None) for c in order)
         with torch.no_grad():
             for workload,count,repeat,condition,mode,policy in jobs:
+                isolated=temporal_v2 and 'legacy' not in condition
                 model.m3_runtime=None if condition=='A' else M3Runtime(dict(reuse_strategy='exact_prefix',
                     decode_strategy='world_guided',target_aware_exact_only=True,
                     experimental_speculative_sampling=True,selective_answer_mode=mode,
-                    selective_answer_policy=str(policy) if policy else ''))
+                    selective_answer_policy=str(policy) if policy else '',
+                    question_rng_enabled=isolated,target_binding_enabled=temporal_v2 and stage!='diagnostic',
+                    temporal_risk_enabled=temporal_v2 and stage!='diagnostic' and condition!='C-current'))
+                model.worldstream_question_rng_enabled=isolated
+                if temporal_v2 and stage=='diagnostic':
+                    from .temporal_selective_bypass import DiagnosticCapture
+                    capture=DiagnosticCapture(model,condition,out)
                 model.worldstream_require_m123=condition!='A'
                 model.worldstream_profile=True
                 model.worldstream_capture_m3_inputs=False
@@ -153,7 +165,10 @@ def run(root,stage):
                 for scene in scenes:
                     reset(model);fixed_questions=None
                     for fi,token in enumerate(scene['tokens']):
-                        torch.manual_seed(20261029+repeat*1000+index[token]);random.seed(20261029+index[token])
+                        frame_index=plan.get('legacy_frame_indices',{}).get(token,index[token])
+                        torch.manual_seed(20261029+repeat*1000+frame_index);random.seed(20261029+frame_index)
+                        model.worldstream_request_rng_context=dict(repeat=repeat,experiment_seed=plan.get('experiment_seed',20261029),rng_audit=stage=='diagnostic') if temporal_v2 else {}
+                        if temporal_v2 and stage=='diagnostic':capture.frame_id=token
                         data=scatter(collate([dataset[index[token]]],samples_per_gpu=1),[0])[0]
                         meta=data['img_metas'][0][0]
                         assert len(meta['cam_infos'])==6
@@ -208,8 +223,13 @@ def run(root,stage):
                             m2_completed=model.m2_diagnostics['execution_completed'],execution_completed=model.worldstream_execution['completed'])
                         assert row['execution_completed'] and row['m1_commit_completed'] and row['m2_completed']
                         append(out/'requests.jsonl',row)
+                        if temporal_v2 and stage=='diagnostic':capture.finish_frame(row)
                     print('WRSAR',stage,workload,count,repeat,condition,scene['scene_id'],flush=True)
+                if temporal_v2 and stage=='diagnostic':capture.close()
         hook.remove()
+        if temporal_v2 and stage=='diagnostic':
+            from .temporal_selective_bypass import diagnostic_replay
+            diagnostic_replay(model,out)
         assert hashes=={str(p):sha256(p) for p in source_files()},'Measured source changed during run'
         write(out/'run_status.json',dict(status='COMPLETED',gpu=torch.cuda.get_device_name(0),checkpoint_sha256=checkpoint_sha,
             full_model_requests=sum(1 for _ in (out/'requests.jsonl').open()),weights_changed=False))

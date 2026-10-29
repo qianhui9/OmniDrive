@@ -439,7 +439,9 @@ class M3Runtime:
             if self.config.selective_answer_mode!='off':
                 from .answer_validity import propose_fact_answer
                 proposal=propose_fact_answer(question,current_world,context,self.answer_memory,binding,
-                    self.fast_answer_policy,self._decode_previous_world)
+                    self.fast_answer_policy,self._decode_previous_world,
+                    target_binding_enabled=self.config.target_binding_enabled,
+                    temporal_risk_enabled=self.config.temporal_risk_enabled)
                 if (proposal['admitted'] and self.config.selective_answer_mode=='online'
                         and tokenizer is not None and not generation.get('output_scores',False)):
                     construct_tick=perf_counter()
@@ -489,9 +491,12 @@ class M3Runtime:
                 source=(context['scene_id'],context['frame_id'],context['timestamp'],index),carrier_layout=layout)
             preparation_ms=(perf_counter()-tick)*1000
             self.last_diagnostics['active_request_index']=index
-            answer,diag=self.executor.generate(base,expanded,capture=False,profile=context.get('profile',False),
-                draft_tokens=draft,draft_candidates=selection.candidates if guided else None,
-                draft_length=k,experimental_sampling=self.config.experimental_speculative_sampling,**generation)
+            from .request_rng import question_rng
+            with question_rng(context,index,ids.device,self.config.question_rng_enabled) as rng:
+                answer,diag=self.executor.generate(base,expanded,capture=False,profile=context.get('profile',False),
+                    draft_tokens=draft,draft_candidates=selection.candidates if guided else None,
+                    draft_length=k,experimental_sampling=self.config.experimental_speculative_sampling,**generation)
+            diag['question_rng']=rng
             tick=perf_counter()
             tokens=answer.sequences if hasattr(answer,'sequences') else answer
             token_ids=tokens[0,1:].tolist()

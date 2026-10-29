@@ -1,0 +1,62 @@
+{
+  "transformers_version": "4.31.0",
+  "sample_signature": "(self, input_ids: torch.LongTensor, logits_processor: Optional[transformers.generation.logits_process.LogitsProcessorList] = None, stopping_criteria: Optional[transformers.generation.stopping_criteria.StoppingCriteriaList] = None, logits_warper: Optional[transformers.generation.logits_process.LogitsProcessorList] = None, max_length: Optional[int] = None, pad_token_id: Optional[int] = None, eos_token_id: Union[int, List[int], NoneType] = None, output_attentions: Optional[bool] = None, output_hidden_states: Optional[bool] = None, output_scores: Optional[bool] = None, return_dict_in_generate: Optional[bool] = None, synced_gpus: bool = False, streamer: Optional[ForwardRef('BaseStreamer')] = None, **model_kwargs) -> Union[transformers.generation.utils.SampleEncoderDecoderOutput, transformers.generation.utils.SampleDecoderOnlyOutput, torch.LongTensor]",
+  "generator_explicitly_supported": false,
+  "sampling_sources": {
+    "worldstream/m3/prefill_executor.py": "ffad8964a5a43b9ce1db0a659cafc0b1bc810e313e555955cda090f11be6a7bc",
+    "tools/worldstream_m123/selective_answer_reuse.py": "0ce1e87a2909988c796445d34115fbd0cf127ff8a0603c46dac5c7e613f4d782",
+    "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/transformers/generation/utils.py": "048ee0f31f7d1b5093f865db0e4e95992a2c3e5d7dbbdf9d0e68f9ee990264f0"
+  },
+  "default_generator_draw_sites": {
+    "worldstream/m3/prefill_executor.py": [
+      {
+        "line": 179,
+        "text": "token = torch.multinomial(torch.softmax(value, -1), 1)[0,0] if sampling else value.argmax(-1)[0]"
+      },
+      {
+        "line": 203,
+        "text": "token, accepted = deterministic_draft_sample(torch.softmax(value,-1), candidate)"
+      },
+      {
+        "line": 226,
+        "text": "pending = torch.multinomial(torch.softmax(value,-1),1)[0,0] if sampling else value.argmax(-1)[0]"
+      },
+      {
+        "line": 245,
+        "text": "def deterministic_draft_sample(probabilities, candidate, generator=None):"
+      },
+      {
+        "line": 252,
+        "text": "if torch.rand((), device=p.device, generator=generator) < p[candidate]:"
+      },
+      {
+        "line": 256,
+        "text": "return torch.multinomial(residual, 1, generator=generator)[0], False"
+      }
+    ],
+    "tools/worldstream_m123/selective_answer_reuse.py": [
+      {
+        "line": 169,
+        "text": "torch.manual_seed(20261029+repeat*1000+frame_index);random.seed(20261029+frame_index)"
+      }
+    ],
+    "/home/qh/miniconda3/envs/OmniDrive/lib/python3.9/site-packages/transformers/generation/utils.py": [
+      {
+        "line": 2569,
+        "text": ">>> torch.manual_seed(0)  # doctest: +IGNORE_RESULT"
+      },
+      {
+        "line": 2678,
+        "text": "next_tokens = torch.multinomial(probs, num_samples=1).squeeze(1)"
+      },
+      {
+        "line": 3309,
+        "text": "next_tokens = torch.multinomial(probs, num_samples=2 * num_beams)"
+      },
+      {
+        "line": 4397,
+        "text": "selected_tokens = torch.multinomial(probs[0, :, :], num_samples=1).squeeze(1)[None, :]"
+      }
+    ]
+  }
+}
