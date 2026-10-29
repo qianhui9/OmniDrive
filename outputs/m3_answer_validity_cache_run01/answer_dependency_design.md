@@ -1,0 +1,13 @@
+# Answer dependencies and scoring
+
+AnswerRecord retains the real target-generated question/prompt tokens, complete answer text/tokens, original scene/frame/timestamp, committed version/snapshot and model/tokenizer/generation binding. Optional answer dependencies contain classes, directions, motion, semantic attributes, related anchors and confidence. Provenance/statistics are scalar bounded tuples; no GPU tensors. Cache observations never refresh source age or create an independent target validation.
+
+Answer-level semantic matching applies only to local object tasks with the same class/direction/proximity/selector/qualifier signature. Unsupported task types require exact question strings. This is deliberately separate from unchanged v3 token-draft parsing. Car subclasses map to car; ego mentions in road-type questions do not create vehicle-category dependencies.
+
+The scorer reads only source/current committed actual-perception observations. Epoch, scene, version, execution binding, original source age and camera observation support are checked. It checks all extracted answer classes and claimed directions, not every object in the scene. Partial identity raises risk instead of uniformly rejecting all requests. Motion statements require real velocity evidence. Unobserved objects never establish negative existence. Signal, safety, count, appearance and road/behavior dependencies are recorded as unknown or unsupported.
+
+Provisional risk weights are semantic .35, geometry .20, identity .10, staleness .15, unknown .20. Score = 1 - weighted risk. Local geometry movement is scaled by 10m, age by 4s, detector support floor .35; near <=30m and directly |ego_y|<=4m are explicit operational scope rules. These scores are uncalibrated. The .95/.90/.85 thresholds are only three a-priori candidates to evaluate against 1/2/3pp empirical task-quality budgets; a score is never advertised as an error probability.
+
+Online M1/M2 tracking, asynchronous-camera snapshot construction, M3Runtime, executor and formal deployment configuration remain unchanged. P1 produced no qualified cache policy, so no online cache path was added. Existing v3 History-Draft/Target-Aware behavior remains available.
+
+Offline labels are read by tools only after decisions. Current QA fact recall is separate from partial annotation-witness consistency. Camera projection uses each camera exposure pose; visibility>=3 and sensor-supported current annotations supply positive witnesses. Missing/occluded/unmapped objects are UNKNOWN. Annotation conflicts are automated findings for review, not human-certified severe driving errors. No Native output is truth.

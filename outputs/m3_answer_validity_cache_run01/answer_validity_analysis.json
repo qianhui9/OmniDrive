@@ -1,0 +1,44 @@
+{
+  "status": "MEASURED_OFFLINE_CPU_REPLAY",
+  "summaries": [
+    {
+      "workload": "natural",
+      "requests": 36,
+      "candidate_requests": 0,
+      "candidate_coverage": 0.0,
+      "eligible": 0,
+      "independent_current_QA_labeled": 0,
+      "actually_valid_task_fact_rate": null,
+      "rejection_reasons": {},
+      "unknown_candidate_ratio": null,
+      "decision_accuracy": null,
+      "false_reuse_rate": null,
+      "actual_E2E_speedup": null,
+      "actual_M3_skipped": 0
+    },
+    {
+      "workload": "fixed",
+      "requests": 36,
+      "candidate_requests": 27,
+      "candidate_coverage": 0.75,
+      "eligible": 1,
+      "independent_current_QA_labeled": 0,
+      "actually_valid_task_fact_rate": null,
+      "rejection_reasons": {
+        "M1_does_not_cover_task": 24,
+        "missing_answer_referenced_observation": 1,
+        "unbound_answer_class": 1
+      },
+      "unknown_candidate_ratio": 1.0,
+      "decision_accuracy": null,
+      "false_reuse_rate": null,
+      "actual_E2E_speedup": null,
+      "actual_M3_skipped": 0
+    }
+  ],
+  "score_kind": "UNCALIBRATED_RULE_SCORE",
+  "events_path": "offline_requests.jsonl",
+  "source": "outputs/m3_world_guided_decode_run02/p3",
+  "original_answer_source": "saved actual native target generations",
+  "current_world_source": "corresponding saved real M1 committed snapshots; not detector simulation"
+}

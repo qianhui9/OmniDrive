@@ -23,6 +23,11 @@ class AnswerRecord:
     polarity: str = 'unknown'
     facts: object = None
     answer_text: str = ''
+    answer_dependencies: object = None
+    original_generation: tuple = ()
+    generation_cost_ms: object = None
+    validity_statistics: tuple = ()
+    cache_provenance: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -237,15 +242,46 @@ class AnswerMemory:
             self.performance.move_to_end(key)
             while len(self.performance)>self.max_entries:self.performance.popitem(last=False)
 
-    def remember(self, question, prompt_ids, tokens, context, binding,world_state=None,answer_text='',extract_facts=True):
+    def remember(self, question, prompt_ids, tokens, context, binding,world_state=None,answer_text='',extract_facts=True,
+                 track_validity=False,generation_cost_ms=None):
         ids = tuple(prompt_ids)
         key = (context['scene_id'], ids)
         facts=answer_facts(answer_text) if extract_facts else None
+        if track_validity:
+            from .answer_validity import dependencies_for_answer
+            answer_dependencies=dependencies_for_answer(question,answer_text,world_state)
+        else:answer_dependencies=None
         self.records[key] = AnswerRecord(str(question), ids, tuple(tokens), context['scene_id'],
             context['frame_id'], context['frame_index'], context['timestamp'],
             context.get('current_state_version',context.get('state_version')), binding,
             dependencies=question_dependencies(question),world_state=world_state,
-            polarity=facts.polarity if facts else 'unknown',facts=facts,answer_text=str(answer_text))
+            polarity=facts.polarity if facts else 'unknown',facts=facts,answer_text=str(answer_text),
+            answer_dependencies=answer_dependencies,
+            original_generation=(context['scene_id'],context['frame_id'],context['timestamp']),
+            generation_cost_ms=generation_cost_ms)
         self.records.move_to_end(key)
         while len(self.records) > self.max_entries:
             self.records.popitem(last=False)
+
+    def validity_candidates(self,question,context,binding):
+        """Original generations only; exact or structured semantic equivalence.
+
+        No cache hit refreshes the source age or creates an independent witness.
+        """
+        from .answer_validity import validity_task
+        dep=validity_task(question)
+        return tuple(r for r in reversed(tuple(self.records.values()))
+            if self.valid(r,context,binding) and r.source=='current_target_model_generation'
+            and (r.question==question or (dep.intent in ('category','existence','position','motion')
+                 and validity_task(r.question).signature==dep.signature)))
+
+    def observe_validity(self,record,frame_id,hit,score):
+        """Update bounded scalar telemetry while retaining the original evidence."""
+        key=(record.scene_id,record.prompt_ids)
+        if self.records.get(key) is not record:return
+        stats=dict(record.validity_statistics)
+        stats['checks']=stats.get('checks',0)+1
+        stats['hits']=stats.get('hits',0)+int(hit)
+        stats['last_score']=float(score)
+        provenance=(record.cache_provenance+((str(frame_id),float(score)),))[-self.max_age_frames:] if hit else record.cache_provenance
+        self.records[key]=replace(record,validity_statistics=tuple(stats.items()),cache_provenance=provenance)
