@@ -1,0 +1,6102 @@
+{
+  "scope": "WITHIN_LOG_EXTENDED_EVALUATION",
+  "groups": [
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "condition": "A",
+      "frames": 72,
+      "questions": 36,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1028.4296595232768,
+        "p50": 908.0434660427272,
+        "p95": 1523.3520298730582,
+        "p99": 1667.2143534384693,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 36,
+        "mean": 1322.0015795797938,
+        "p50": 1340.3894158545882,
+        "p95": 1550.674341386184,
+        "p99": 1806.7756175063546,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 36,
+        "mean": 734.8577394667599,
+        "p50": 728.1782689969987,
+        "p95": 806.3067729817703,
+        "p99": 820.4162325011566,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 36,
+        "mean": 578.7882212445968,
+        "p50": 619.2647130228579,
+        "p95": 824.7724149841815,
+        "p99": 840.920322900638,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 36,
+        "mean": 1322.0015795797938,
+        "p50": 1340.3894158545882,
+        "p95": 1550.674341386184,
+        "p99": 1806.7756175063546,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 36,
+        "mean": 1322.0015795797938,
+        "p50": 1340.3894158545882,
+        "p95": 1550.674341386184,
+        "p99": 1806.7756175063546,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.9723562430740715,
+      "QPS": 0.48617812153703577,
+      "peak_GPU_bytes": 16489622528,
+      "LLM_forwards": 591,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 993.7904356047511,
+        "p50": 995.7428672350943,
+        "p95": 996.2464591022581,
+        "p99": 996.2912228237838,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1048.039682682914,
+        "p50": 948.2236301992089,
+        "p95": 1540.2423335704952,
+        "p99": 1713.7347747944282,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 481.89611562093097,
+        "p50": 481.8042449951172,
+        "p95": 483.61783905029296,
+        "p99": 484.0849847412109,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.4378120496864823,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 192.4378044398812,
+        "p50": 183.8770497124642,
+        "p95": 264.37888694927096,
+        "p99": 401.3523317454409,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 36,
+        "mean": 188.78851949961648,
+        "p50": 181.7719009704888,
+        "p95": 258.8471376802772,
+        "p99": 273.19489347282797,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 210.33215024767236,
+        "p50": 201.4096868224442,
+        "p95": 282.71127534098923,
+        "p99": 419.6800616476711,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 36,
+        "mean": 206.2147688638005,
+        "p50": 199.54216852784157,
+        "p95": 277.1156157832593,
+        "p99": 291.4683524519205,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 47.74079515158923,
+        "p50": 47.6380679756403,
+        "p95": 48.44962232746184,
+        "p99": 48.54079800192267,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 36,
+        "mean": 47.73571106812192,
+        "p50": 47.61169129051268,
+        "p95": 48.346905619837344,
+        "p99": 48.598581668920815,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.044673397723171,
+        "p50": 15.050510643050075,
+        "p95": 15.27369236573577,
+        "p99": 15.372900692746043,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 36,
+        "mean": 15.057830553915766,
+        "p50": 15.065473737195134,
+        "p95": 15.20740450359881,
+        "p99": 15.363734983839095,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 36,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 289.3941106222984,
+        "p50": 194.28015896119177,
+        "p95": 824.1403434891254,
+        "p99": 832.0453797560186,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 36,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.3048932477314439,
+        "p50": 0.25002891197800636,
+        "p95": 0.6803397787734866,
+        "p99": 0.7779546640813352,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 36,
+        "mean": 0.09363314085122612,
+        "p50": 0.0921695027500391,
+        "p95": 0.11732918210327625,
+        "p99": 0.1396933104842901,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 36,
+        "mean": 100.41117303383847,
+        "p50": 100.5392458755523,
+        "p95": 101.30974359344691,
+        "p99": 101.38461359310895,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 36,
+        "mean": 180.5239003499349,
+        "p50": 180.65152740478516,
+        "p95": 181.65171813964844,
+        "p99": 181.74571151733397,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 36,
+        "mean": 209.0637580000071,
+        "p50": 230.42284813709557,
+        "p95": 338.1658470025286,
+        "p99": 346.7719805892557,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 36,
+        "mean": 390.1666831970215,
+        "p50": 430.1740942001343,
+        "p95": 631.3646321296692,
+        "p99": 647.4133199691772,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 36,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 36,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 36,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "condition": "B",
+      "frames": 72,
+      "questions": 36,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 957.2946684202179,
+        "p50": 902.3443199694157,
+        "p95": 1460.9294236637654,
+        "p99": 1697.9980633547552,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 36,
+        "mean": 1209.8415001787039,
+        "p50": 1237.7585107460618,
+        "p95": 1515.7964288955554,
+        "p99": 1825.9975519729774,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 36,
+        "mean": 704.747836661732,
+        "p50": 746.9181914348155,
+        "p95": 863.8979147654027,
+        "p99": 1218.2361238170408,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 36,
+        "mean": 443.04610383955554,
+        "p50": 491.1258250940591,
+        "p95": 668.3835270814598,
+        "p99": 789.8674678755923,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 36,
+        "mean": 1209.8415001787039,
+        "p50": 1237.7585107460618,
+        "p95": 1515.7964288955554,
+        "p99": 1825.9975519729774,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 36,
+        "mean": 1209.8415001787039,
+        "p50": 1237.7585107460618,
+        "p95": 1515.7964288955554,
+        "p99": 1825.9975519729774,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.044610434998303,
+      "QPS": 0.5223052174991515,
+      "peak_GPU_bytes": 16831634432,
+      "LLM_forwards": 395,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1021.5384438633919,
+        "p50": 1017.8572414442897,
+        "p95": 1028.2519899308681,
+        "p99": 1029.1759675741196,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 968.7038261055326,
+        "p50": 887.9872118122876,
+        "p95": 1483.9627713197842,
+        "p99": 1740.6645595608268,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 460.275417804718,
+        "p50": 498.3888702392578,
+        "p95": 508.3550262451172,
+        "p99": 641.4573611450223,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.37248159475679016,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 203.29888212209983,
+        "p50": 187.85690097138286,
+        "p95": 302.47925473377114,
+        "p99": 535.7734551047931,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 36,
+        "mean": 211.82486198894264,
+        "p50": 182.41777969524264,
+        "p95": 288.0072395782918,
+        "p99": 642.6534314407029,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 220.6511003185167,
+        "p50": 205.2262199576944,
+        "p95": 320.7741260528565,
+        "p99": 554.3183532683204,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 36,
+        "mean": 229.14832897691264,
+        "p50": 199.96255286969244,
+        "p95": 306.29020859487355,
+        "p99": 660.8347429195412,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 460.25626668577183,
+        "p50": 498.3665889594704,
+        "p95": 508.3320589736104,
+        "p99": 641.4286631811437,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 36,
+        "mean": 421.34329511059656,
+        "p50": 492.65716248191893,
+        "p95": 506.34178472682834,
+        "p99": 510.4997018352151,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.05018409807235,
+        "p50": 15.044262167066336,
+        "p95": 15.376058057881892,
+        "p99": 15.571244512684645,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 36,
+        "mean": 15.053207093539337,
+        "p50": 15.046192100271583,
+        "p95": 15.343488776125014,
+        "p99": 15.45177309308201,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1540621376803353,
+        "p50": 1.1088326573371887,
+        "p95": 1.492556114681065,
+        "p99": 1.7255726875737352,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 36,
+        "mean": 1.1734821212788422,
+        "p50": 1.1088326573371887,
+        "p95": 1.5269187279045582,
+        "p99": 1.9654454896226516,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 228.74138885850294,
+        "p50": 115.05622835829854,
+        "p95": 638.9106280636043,
+        "p99": 759.3992117885507,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 36,
+        "mean": 6.839086327494846,
+        "p50": 6.680994527414441,
+        "p95": 7.067847182042897,
+        "p99": 9.894829127006227,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.23724480868420667,
+        "p50": 0.23906189016997814,
+        "p95": 0.4293785663321614,
+        "p99": 0.7929795328527761,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 36,
+        "mean": 0.13924291771319178,
+        "p50": 0.0955148134380579,
+        "p95": 0.11459679808467627,
+        "p99": 1.0884833987802245,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 36,
+        "mean": 100.43772338475618,
+        "p50": 100.68104299716651,
+        "p95": 101.097627193667,
+        "p99": 101.28834273200482,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 36,
+        "mean": 180.1982053120931,
+        "p50": 180.4559326171875,
+        "p95": 181.08134078979492,
+        "p99": 181.2198356628418,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 36,
+        "mean": 260.08496024873523,
+        "p50": 308.9606170654297,
+        "p95": 484.66085052490234,
+        "p99": 605.9634796142577,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 36,
+        "mean": 254.63883336385092,
+        "p50": 303.99555110931396,
+        "p95": 476.18144512176514,
+        "p99": 596.0801913261412,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 36,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 36,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 36,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "condition": "C",
+      "frames": 72,
+      "questions": 36,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 829.3255277482482,
+        "p50": 763.5981130879372,
+        "p95": 1521.4040762744844,
+        "p99": 1622.3485128255572,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 36,
+        "mean": 974.5383618994513,
+        "p50": 780.6515900883824,
+        "p95": 1559.5877367304638,
+        "p99": 1686.6759794065727,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 36,
+        "mean": 684.1126935970452,
+        "p50": 740.7103688456118,
+        "p95": 834.8309851717204,
+        "p99": 842.3911249032244,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 36,
+        "mean": 209.56160055680408,
+        "p50": 0.2798361238092184,
+        "p95": 749.0983291063458,
+        "p99": 843.153651850298,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 36,
+        "mean": 974.5383618994513,
+        "p50": 780.6515900883824,
+        "p95": 1559.5877367304638,
+        "p99": 1686.6759794065727,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 36,
+        "mean": 974.5383618994513,
+        "p50": 780.6515900883824,
+        "p95": 1559.5877367304638,
+        "p99": 1686.6759794065727,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.2057991301861408,
+      "QPS": 0.6028995650930704,
+      "peak_GPU_bytes": 16831634432,
+      "LLM_forwards": 206,
+      "actual_prefill_skips": 22,
+      "actual_decode_skips": 22,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 764.0402503311634,
+        "p50": 639.3973361700773,
+        "p95": 990.5303809791803,
+        "p99": 1021.7422071844339,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 841.8829968043914,
+        "p50": 764.8238046094775,
+        "p95": 1523.854369809851,
+        "p99": 1643.7910016858943,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 461.4115619659424,
+        "p50": 498.2716522216797,
+        "p95": 508.99242706298827,
+        "p99": 662.6443438720736,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.22285796998233715,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 190.94950238811887,
+        "p50": 176.73649918287992,
+        "p95": 263.9661023626104,
+        "p99": 391.4396050153324,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 36,
+        "mean": 190.7798669223363,
+        "p50": 179.95739076286554,
+        "p95": 262.2626713709906,
+        "p99": 264.5084134535864,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 208.33765889983624,
+        "p50": 194.79012256488204,
+        "p95": 282.0933949202299,
+        "p99": 409.7856849292317,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 36,
+        "mean": 208.16134630391994,
+        "p50": 197.66326039098203,
+        "p95": 280.48307716380805,
+        "p99": 282.4860278517008,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 461.39157384944457,
+        "p50": 498.2467503286898,
+        "p95": 508.9683068683371,
+        "p99": 662.6242591254446,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 36,
+        "mean": 421.8564804824483,
+        "p50": 494.17175562120974,
+        "p95": 507.78434763196856,
+        "p99": 508.447071374394,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.093503028361333,
+        "p50": 15.098707983270288,
+        "p95": 15.365210734307766,
+        "p99": 15.703164669685066,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 36,
+        "mean": 15.067372678054703,
+        "p50": 15.091433888301253,
+        "p95": 15.359981916844845,
+        "p99": 15.57913317810744,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1342346875203981,
+        "p50": 1.091256970539689,
+        "p95": 1.5190012520179152,
+        "p99": 1.588828070089221,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 36,
+        "mean": 1.1448661098256707,
+        "p50": 1.1149260681122541,
+        "p95": 1.5219140332192183,
+        "p99": 1.5748221427202225,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 111.93142247955419,
+        "p50": 6.835294421762228,
+        "p95": 623.8206244772305,
+        "p99": 839.695050492883,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 36,
+        "mean": 6.679203956284457,
+        "p50": 6.670315749943256,
+        "p95": 6.812574225477874,
+        "p99": 6.879002833738923,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.19936758973118332,
+        "p50": 0.16817054711282253,
+        "p95": 0.42757287155836826,
+        "p99": 0.4652526509016752,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 36,
+        "mean": 0.09398851802365647,
+        "p50": 0.09202724322676659,
+        "p95": 0.1104460097849369,
+        "p99": 0.1113291596993804,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 36,
+        "mean": 39.16385186473943,
+        "p50": 0.0,
+        "p95": 101.0613206308335,
+        "p99": 101.25839482061565,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 36,
+        "mean": 70.192443423801,
+        "p50": 0.0,
+        "p95": 181.0129165649414,
+        "p99": 181.22412185668946,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 36,
+        "mean": 138.0824385748969,
+        "p50": 0.0,
+        "p95": 565.5457916259766,
+        "p99": 659.013916015625,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 36,
+        "mean": 135.52742306391397,
+        "p50": 0.0,
+        "p95": 556.2761116027832,
+        "p99": 648.2231280326843,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 36,
+        "mean": 0.0021653896611597803,
+        "p50": 0.0021585728973150253,
+        "p95": 0.002469983883202076,
+        "p99": 0.0026444206014275547,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 36,
+        "mean": 0.03373361606564787,
+        "p50": 0.03849761560559273,
+        "p95": 0.04967127460986376,
+        "p99": 0.05362734664231538,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 36,
+        "mean": 0.00016428788916932212,
+        "p50": 0.0,
+        "p95": 0.0009924406185746193,
+        "p99": 0.0010418705642223358,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "condition": "A",
+      "frames": 72,
+      "questions": 18,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 862.8154994092054,
+        "p50": 734.5899064093828,
+        "p95": 1418.3521059574562,
+        "p99": 1546.6522109089422,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 18,
+        "mean": 1274.9870740549845,
+        "p50": 1265.21853543818,
+        "p95": 1539.7992201382294,
+        "p99": 1573.0851753102615,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 54,
+        "mean": 725.424974527279,
+        "p50": 712.5903435517102,
+        "p95": 796.3072164682671,
+        "p99": 802.822253764607,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 18,
+        "mean": 558.6201230891877,
+        "p50": 489.7374897263944,
+        "p95": 834.4938247930257,
+        "p99": 887.5262345280497,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 18,
+        "mean": 1274.9870740549845,
+        "p50": 1265.21853543818,
+        "p95": 1539.7992201382294,
+        "p99": 1573.0851753102615,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 18,
+        "mean": 1274.9870740549845,
+        "p50": 1265.21853543818,
+        "p95": 1539.7992201382294,
+        "p99": 1573.0851753102615,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.1589963331497044,
+      "QPS": 0.2897490832874261,
+      "peak_GPU_bytes": 16487353344,
+      "LLM_forwards": 283,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1035.0424253071349,
+        "p50": 992.6971066743135,
+        "p95": 1110.0511598400772,
+        "p99": 1120.4826312325895,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 876.2567216375222,
+        "p50": 736.7361967917532,
+        "p95": 1452.4418342392892,
+        "p99": 1552.5262029981238,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 480.0096151563856,
+        "p50": 480.6743621826172,
+        "p95": 482.33499603271486,
+        "p99": 515.0704730224617,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.4381378717139032,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 179.06550576703415,
+        "p50": 167.4531709868461,
+        "p95": 259.3566660536453,
+        "p99": 267.0688600931317,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 54,
+        "mean": 183.41100747973002,
+        "p50": 171.5736968908459,
+        "p95": 259.18640431482345,
+        "p99": 264.4983213208616,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 196.51860613763952,
+        "p50": 184.16294548660517,
+        "p95": 277.7322920039296,
+        "p99": 285.2249668864534,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 54,
+        "mean": 200.84251228857923,
+        "p50": 188.94522776827216,
+        "p95": 277.5345206260681,
+        "p99": 282.9249003203586,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 49.26585466212904,
+        "p50": 47.60745586827397,
+        "p95": 48.316663363948464,
+        "p99": 83.4033027151607,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 54,
+        "mean": 47.568705036408375,
+        "p50": 47.60745586827397,
+        "p95": 48.19999309256673,
+        "p99": 48.38982912711799,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.079688261418292,
+        "p50": 15.067997854202986,
+        "p95": 15.301720332354307,
+        "p99": 15.875326814129952,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 54,
+        "mean": 15.055560412023354,
+        "p50": 15.066488645970821,
+        "p95": 15.24044752586633,
+        "p99": 15.498078260570765,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 54,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 139.65503077229693,
+        "p50": 0.0,
+        "p95": 692.7858870942146,
+        "p99": 845.4122620914136,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 54,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.20216794736269447,
+        "p50": 0.09579048492014408,
+        "p95": 0.6618892308324577,
+        "p99": 0.7767958613112571,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 54,
+        "mean": 0.09305554407614249,
+        "p50": 0.0917329452931881,
+        "p95": 0.11988040059804915,
+        "p99": 0.12528876308351755,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 18,
+        "mean": 99.71159849212401,
+        "p50": 100.07872269488871,
+        "p95": 100.92913089320064,
+        "p99": 101.07749646529555,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 18,
+        "mean": 179.0799806382921,
+        "p50": 179.56342315673828,
+        "p95": 181.19812927246093,
+        "p99": 181.26001159667967,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 18,
+        "mean": 199.06906969845295,
+        "p50": 162.76719234883785,
+        "p95": 343.53409702889616,
+        "p99": 371.40227853320533,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 18,
+        "mean": 371.4175926844279,
+        "p50": 303.7611360549927,
+        "p95": 641.324044895172,
+        "p99": 693.1720981025694,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 18,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 18,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 18,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "condition": "B",
+      "frames": 72,
+      "questions": 18,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 862.7984253818997,
+        "p50": 767.2115357127041,
+        "p95": 1493.7657916219905,
+        "p99": 1722.5315437186534,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 18,
+        "mean": 1308.1303171606528,
+        "p50": 1304.1039605159312,
+        "p95": 1668.4932985808696,
+        "p99": 1930.9647749643766,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 54,
+        "mean": 714.3544614556487,
+        "p50": 745.4756204970181,
+        "p95": 840.4823395656422,
+        "p99": 1092.6447525387625,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 18,
+        "mean": 571.768284852927,
+        "p50": 491.0228771623224,
+        "p95": 837.3754145111888,
+        "p99": 889.4144980143755,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 18,
+        "mean": 1308.1303171606528,
+        "p50": 1304.1039605159312,
+        "p95": 1668.4932985808696,
+        "p99": 1930.9647749643766,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 18,
+        "mean": 1308.1303171606528,
+        "p50": 1304.1039605159312,
+        "p95": 1668.4932985808696,
+        "p99": 1930.9647749643766,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.1590192686749177,
+      "QPS": 0.2897548171687294,
+      "peak_GPU_bytes": 16830028288,
+      "LLM_forwards": 291,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1015.5217681700984,
+        "p50": 1015.6755219213665,
+        "p95": 1020.8925622049719,
+        "p99": 1021.3562991190702,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 887.6875449748089,
+        "p50": 767.8560786880553,
+        "p95": 1502.6267727138472,
+        "p99": 1768.8500395510332,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 458.00524314244586,
+        "p50": 494.4065856933594,
+        "p95": 503.5030792236328,
+        "p99": 648.0460894775422,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.44333987064771196,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 189.74171851813378,
+        "p50": 174.53812202438712,
+        "p95": 263.43037374317646,
+        "p99": 400.21449493710134,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 54,
+        "mean": 188.4946086599181,
+        "p50": 175.94810132868588,
+        "p95": 262.5083459308371,
+        "p99": 289.24734399653966,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 207.336958614178,
+        "p50": 191.70877034775913,
+        "p95": 281.95263089146465,
+        "p99": 417.38862965721813,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 54,
+        "mean": 206.1257471623658,
+        "p50": 193.56329855509102,
+        "p95": 280.84425874985754,
+        "p99": 307.2229656390845,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 457.98588629501563,
+        "p50": 494.39209629781544,
+        "p95": 503.4886132227257,
+        "p99": 648.0173244280771,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 54,
+        "mean": 454.1793504850594,
+        "p50": 494.09674433991313,
+        "p95": 503.4871411276981,
+        "p99": 737.1991168195376,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.072399970247513,
+        "p50": 15.099572949111462,
+        "p95": 15.325422608293593,
+        "p99": 15.39772904943675,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 54,
+        "mean": 15.057642521612623,
+        "p50": 15.089652501046658,
+        "p95": 15.323101705871522,
+        "p99": 15.425655418075621,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1259225429967046,
+        "p50": 1.0727287735790014,
+        "p95": 1.4816405484452844,
+        "p99": 1.5074630035087466,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 54,
+        "mean": 1.1177528994502846,
+        "p50": 1.0684097651392221,
+        "p95": 1.48091537412256,
+        "p99": 1.5070386044681072,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 150.00923158368096,
+        "p50": 6.723548751324415,
+        "p95": 726.913467142731,
+        "p99": 854.7076128469785,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 54,
+        "mean": 6.6968669114565404,
+        "p50": 6.676425226032734,
+        "p95": 6.897704559378326,
+        "p99": 6.978615000844002,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.16178302596219712,
+        "p50": 0.10210694745182991,
+        "p95": 0.41446369141340256,
+        "p99": 0.4721408430486918,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 54,
+        "mean": 0.10036157133678596,
+        "p50": 0.09810831397771835,
+        "p95": 0.12105740606784819,
+        "p99": 0.12858877424150705,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 18,
+        "mean": 99.91162583335407,
+        "p50": 100.02825618721545,
+        "p95": 100.98730381578207,
+        "p99": 101.0423831269145,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 18,
+        "mean": 179.0834672715929,
+        "p50": 179.0627212524414,
+        "p95": 180.9707145690918,
+        "p99": 181.00002670288086,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 18,
+        "mean": 389.7764129638672,
+        "p50": 309.38185119628906,
+        "p95": 653.3649322509765,
+        "p99": 705.4169317626952,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 18,
+        "mean": 383.1451649136013,
+        "p50": 303.9835834503174,
+        "p95": 642.4638220787048,
+        "p99": 693.8597031974791,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 18,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 18,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 18,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "condition": "C",
+      "frames": 72,
+      "questions": 18,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 803.1403222574024,
+        "p50": 746.5906427241862,
+        "p95": 1509.7788260085508,
+        "p99": 1568.6426550336187,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 18,
+        "mean": 1053.4816880762164,
+        "p50": 892.9957633372396,
+        "p95": 1560.4783889837563,
+        "p99": 1600.133395511657,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 54,
+        "mean": 719.6932003177978,
+        "p50": 739.3577811308205,
+        "p95": 842.9373077349737,
+        "p99": 1227.1424339106306,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 18,
+        "mean": 342.1438657419963,
+        "p50": 389.3515281379223,
+        "p95": 838.1142960162832,
+        "p99": 888.620355897583,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 18,
+        "mean": 1053.4816880762164,
+        "p50": 892.9957633372396,
+        "p95": 1560.4783889837563,
+        "p99": 1600.133395511657,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 18,
+        "mean": 1053.4816880762164,
+        "p50": 892.9957633372396,
+        "p95": 1560.4783889837563,
+        "p99": 1600.133395511657,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.2451124321454563,
+      "QPS": 0.3112781080363641,
+      "peak_GPU_bytes": 16830028288,
+      "LLM_forwards": 178,
+      "actual_prefill_skips": 8,
+      "actual_decode_skips": 8,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 755.9698699042201,
+        "p50": 629.1598700918257,
+        "p95": 977.7720365673304,
+        "p99": 1008.7597846984863,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 828.8827205620086,
+        "p50": 747.1175061073154,
+        "p95": 1512.2442404041067,
+        "p99": 1575.640597362071,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 451.79218509462146,
+        "p50": 495.85047912597656,
+        "p95": 504.93729400634766,
+        "p99": 506.64513092041017,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.33225602079486,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 193.78324321264193,
+        "p50": 171.53729149140418,
+        "p95": 264.69293034169823,
+        "p99": 652.5540156802164,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 54,
+        "mean": 202.29096322630843,
+        "p50": 173.51773753762245,
+        "p95": 264.4042717060074,
+        "p99": 655.9893436403945,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 211.2362273878211,
+        "p50": 188.29323980025947,
+        "p95": 283.095749351196,
+        "p99": 669.807493700646,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 54,
+        "mean": 219.76734067451346,
+        "p50": 190.51374774426222,
+        "p95": 282.7903100522235,
+        "p99": 673.5610530199483,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 451.774706682449,
+        "p50": 495.8367208018899,
+        "p95": 504.92311923298985,
+        "p99": 506.6200516652316,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 54,
+        "mean": 445.6936127713157,
+        "p50": 495.73155445978045,
+        "p95": 504.6539841219783,
+        "p99": 505.9382778033614,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.099626648912412,
+        "p50": 15.05725970491767,
+        "p95": 15.422275848686695,
+        "p99": 16.73527187667788,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 54,
+        "mean": 15.093816297680691,
+        "p50": 15.05725970491767,
+        "p95": 15.339127369225025,
+        "p99": 16.551301800645884,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1352806468494236,
+        "p50": 1.0784436017274857,
+        "p95": 1.4753433410078287,
+        "p99": 1.5462544886395335,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 54,
+        "mean": 1.1303720271421804,
+        "p50": 1.0784436017274857,
+        "p95": 1.4635770581662655,
+        "p99": 1.5443933755159378,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 92.59361872035596,
+        "p50": 6.7214814480394125,
+        "p95": 719.7383626829834,
+        "p99": 855.2562652388592,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 54,
+        "mean": 6.7829470736561,
+        "p50": 6.661292864009738,
+        "p95": 6.921278894878924,
+        "p99": 9.217312876135107,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.1597271766513586,
+        "p50": 0.11370331048965454,
+        "p95": 0.409838673658669,
+        "p99": 0.46775636728853026,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 54,
+        "mean": 0.10359695146757143,
+        "p50": 0.10033347643911839,
+        "p95": 0.12197685427963732,
+        "p99": 0.1300090318545699,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 18,
+        "mean": 55.619384394958615,
+        "p50": 99.42866559140384,
+        "p95": 100.64081684686244,
+        "p99": 100.7154353428632,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 18,
+        "mean": 99.75491417778863,
+        "p50": 178.36742401123047,
+        "p95": 180.60349349975587,
+        "p99": 180.66198287963869,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 18,
+        "mean": 239.87453375922308,
+        "p50": 206.48661041259766,
+        "p95": 654.3929473876952,
+        "p99": 704.837085571289,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 18,
+        "mean": 235.86041069030762,
+        "p50": 202.8310422897339,
+        "p95": 643.4590472221373,
+        "p99": 693.3232837486266,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 18,
+        "mean": 0.049796058899826474,
+        "p50": 0.002089887857437134,
+        "p95": 0.3280158154666423,
+        "p99": 0.3661733679473399,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 18,
+        "mean": 0.7178739955027899,
+        "p50": 0.0356950331479311,
+        "p95": 1.90679728984831,
+        "p99": 10.317968949675539,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 18,
+        "mean": 0.00010627425379223294,
+        "p50": 0.0,
+        "p95": 0.0009470153599977493,
+        "p99": 0.0009653810411691666,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "condition": "A",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1318.079390065072,
+        "p50": 1355.49586545676,
+        "p95": 1584.8552492447197,
+        "p99": 1626.212211376988,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1318.079390065072,
+        "p50": 1355.49586545676,
+        "p95": 1584.8552492447197,
+        "p99": 1626.212211376988,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 574.5511850756076,
+        "p50": 618.5646199155599,
+        "p95": 810.4541606735439,
+        "p99": 865.7039011828605,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 1318.079390065072,
+        "p50": 1355.49586545676,
+        "p95": 1584.8552492447197,
+        "p99": 1626.212211376988,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1318.079390065072,
+        "p50": 1355.49586545676,
+        "p95": 1584.8552492447197,
+        "p99": 1626.212211376988,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.7586796421652806,
+      "QPS": 0.7586796421652806,
+      "peak_GPU_bytes": 16487370240,
+      "LLM_forwards": 1169,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 997.5641580919424,
+        "p50": 997.5201250053942,
+        "p95": 1001.6950089018792,
+        "p99": 1002.0661096926779,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1334.6089635665219,
+        "p50": 1371.1391414981335,
+        "p95": 1584.6608829684556,
+        "p99": 1638.2055875519286,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 483.261951022678,
+        "p50": 483.50575256347656,
+        "p95": 484.4217254638672,
+        "p99": 484.61249450683596,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.43590028749879983,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 195.51871286886228,
+        "p50": 173.94532542675734,
+        "p95": 276.22877277899534,
+        "p99": 453.6741360230386,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 213.024313807384,
+        "p50": 191.4611419197172,
+        "p95": 295.0908719561994,
+        "p99": 471.6368978144616,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 47.87753272103146,
+        "p50": 47.76346101425588,
+        "p95": 48.53982583153993,
+        "p99": 48.71441913302988,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.084117107714215,
+        "p50": 15.078927157446742,
+        "p95": 15.29476698487997,
+        "p99": 15.395349869504571,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 574.5511850756076,
+        "p50": 618.5646199155599,
+        "p95": 810.4541606735439,
+        "p99": 865.7039011828605,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.5561323939926095,
+        "p50": 0.5700744222849607,
+        "p95": 0.7482084911316633,
+        "p99": 0.800853567197919,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 100.44517909409478,
+        "p50": 100.5142037756741,
+        "p95": 101.26406841445714,
+        "p99": 101.45417084451765,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 180.52607218424478,
+        "p50": 180.65664672851562,
+        "p95": 181.54550323486328,
+        "p99": 181.81683013916015,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 206.842649631047,
+        "p50": 230.2797888405621,
+        "p95": 330.9111892478541,
+        "p99": 360.13914408627915,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 385.8325928846995,
+        "p50": 429.6412944793701,
+        "p95": 617.4941348075868,
+        "p99": 671.7750543975833,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "condition": "B",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1146.0448135751196,
+        "p50": 1206.982999574393,
+        "p95": 1440.6697671860456,
+        "p99": 1663.630777248183,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1146.0448135751196,
+        "p50": 1206.982999574393,
+        "p95": 1440.6697671860456,
+        "p99": 1663.630777248183,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 409.71780918254,
+        "p50": 421.27797845751047,
+        "p95": 648.5774022294208,
+        "p99": 706.0511230118575,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 1146.0448135751196,
+        "p50": 1206.982999574393,
+        "p95": 1440.6697671860456,
+        "p99": 1663.630777248183,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1146.0448135751196,
+        "p50": 1206.982999574393,
+        "p95": 1440.6697671860456,
+        "p99": 1663.630777248183,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.8725662279125642,
+      "QPS": 0.8725662279125642,
+      "peak_GPU_bytes": 16829537280,
+      "LLM_forwards": 695,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1021.5325634926558,
+        "p50": 1020.5022897571325,
+        "p95": 1029.9591523129493,
+        "p99": 1030.7997623179108,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1145.6273028394207,
+        "p50": 1206.982999574393,
+        "p95": 1379.8735881922764,
+        "p99": 1613.149911575018,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 454.9630143907335,
+        "p50": 498.4398956298828,
+        "p95": 509.8265213012695,
+        "p99": 512.9163113403321,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.36356938700826835,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 209.16434806875057,
+        "p50": 181.89913663081825,
+        "p95": 348.2774013653398,
+        "p99": 653.335180226714,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 226.50370995850406,
+        "p50": 198.8447632174939,
+        "p95": 366.1514426814393,
+        "p99": 670.5279312748468,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 454.9439676015431,
+        "p50": 498.4129520598799,
+        "p95": 509.81088078115135,
+        "p99": 512.8878292907029,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.070725814439356,
+        "p50": 15.055696479976177,
+        "p95": 15.351432375609875,
+        "p99": 15.680390810593966,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1493679679309328,
+        "p50": 1.0678370017558336,
+        "p95": 1.5475866151973605,
+        "p99": 1.618003500625492,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 416.6668103555114,
+        "p50": 427.8900541830808,
+        "p95": 655.2367808064446,
+        "p99": 712.670267801732,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.3513416741043329,
+        "p50": 0.33676414750516415,
+        "p95": 0.4720872500911355,
+        "p99": 0.48945612739771605,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 100.55250318772677,
+        "p50": 100.63795465976,
+        "p95": 101.17273859214038,
+        "p99": 101.35033322032541,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 180.30978859795465,
+        "p50": 180.45536041259766,
+        "p95": 181.13136596679686,
+        "p99": 181.35675201416015,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 226.68287036154004,
+        "p50": 238.1308822631836,
+        "p95": 464.897607421875,
+        "p99": 522.3686444091799,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 221.49629508124457,
+        "p50": 231.6788969039917,
+        "p95": 456.88123922348024,
+        "p99": 513.7185913848879,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "condition": "C",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 935.3340035563128,
+        "p50": 797.4815699271858,
+        "p95": 1423.1751276412979,
+        "p99": 1729.9017230328195,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 935.3340035563128,
+        "p50": 797.4815699271858,
+        "p95": 1423.1751276412979,
+        "p99": 1729.9017230328195,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 206.39366305355603,
+        "p50": 0.2882361877709627,
+        "p95": 698.0604937998578,
+        "p99": 746.384138935246,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 935.3340035563128,
+        "p50": 797.4815699271858,
+        "p95": 1423.1751276412979,
+        "p99": 1729.9017230328195,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 935.3340035563128,
+        "p50": 797.4815699271858,
+        "p95": 1423.1751276412979,
+        "p99": 1729.9017230328195,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.0691367962650937,
+      "QPS": 1.0691367962650937,
+      "peak_GPU_bytes": 16829574144,
+      "LLM_forwards": 390,
+      "actual_prefill_skips": 42,
+      "actual_decode_skips": 42,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 759.1529567725956,
+        "p50": 630.122406873852,
+        "p95": 983.0874448642135,
+        "p99": 1014.4621149078012,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 964.7676876590898,
+        "p50": 801.5304668806493,
+        "p95": 1428.69946162682,
+        "p99": 1775.5447360407547,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 455.3482464154561,
+        "p50": 499.8643035888672,
+        "p95": 510.6384307861328,
+        "p99": 518.3298138427734,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.22812192792616673,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 201.42248212747896,
+        "p50": 180.39378128014505,
+        "p95": 299.0486257011071,
+        "p99": 429.3017038749557,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 218.85471422380456,
+        "p50": 197.66946090385318,
+        "p95": 317.1847489895299,
+        "p99": 448.1064619962152,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 455.3300012291099,
+        "p50": 499.8481140937656,
+        "p95": 510.62040561810136,
+        "p99": 518.3143054833636,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.065668208990246,
+        "p50": 15.041914768517017,
+        "p95": 15.315690846182406,
+        "p99": 15.59064342174679,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1446629068814218,
+        "p50": 1.076847780495882,
+        "p95": 1.5402160584926605,
+        "p99": 1.5888212667778139,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 213.37019614616617,
+        "p50": 7.000115234404802,
+        "p95": 704.7575338277966,
+        "p99": 753.055671579205,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.30941386163855594,
+        "p50": 0.27849827893078327,
+        "p95": 0.4685478284955025,
+        "p99": 0.4925761604681611,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 41.87654323565463,
+        "p50": 0.0,
+        "p95": 100.96377739682794,
+        "p99": 101.26826309598982,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 75.12268299526639,
+        "p50": 0.0,
+        "p95": 180.91315536499025,
+        "p99": 181.1953611755371,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 129.92620992660522,
+        "p50": 0.0,
+        "p95": 514.8823547363281,
+        "p99": 562.7594067382818,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 127.31995900472005,
+        "p50": 0.0,
+        "p95": 506.25975980758665,
+        "p99": 553.0443901443487,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.002196621304998795,
+        "p50": 0.0022135209292173386,
+        "p95": 0.00245007686316967,
+        "p99": 0.002674735151231289,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.03389545276554094,
+        "p50": 0.038336263969540596,
+        "p95": 0.0521503621712327,
+        "p99": 0.05566862877458335,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.00016497344606452517,
+        "p50": 0.0,
+        "p95": 0.0009447336196899414,
+        "p99": 0.001016659662127495,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "condition": "A",
+      "frames": 72,
+      "questions": 216,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 2497.618146260114,
+        "p50": 2465.068467427045,
+        "p95": 2833.2277931738645,
+        "p99": 3041.2784834532085,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 2497.618146260114,
+        "p50": 2465.068467427045,
+        "p95": 2833.2277931738645,
+        "p99": 3041.2784834532085,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 216,
+        "mean": 574.9227663295137,
+        "p50": 593.2921550702304,
+        "p95": 823.5795844811946,
+        "p99": 849.8827128205448,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 2497.618146260114,
+        "p50": 2465.068467427045,
+        "p95": 2833.2277931738645,
+        "p99": 3041.2784834532085,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.4003814600311826,
+      "QPS": 1.2011443800935477,
+      "peak_GPU_bytes": 16487543808,
+      "LLM_forwards": 3515,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 2285.865915939212,
+        "p50": 2336.03025181219,
+        "p95": 2340.709569538012,
+        "p99": 2341.1255088914186,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 2509.4728694142154,
+        "p50": 2480.0144364126027,
+        "p95": 2816.343316854909,
+        "p99": 2929.3325270386413,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 483.58021291097003,
+        "p50": 483.56126403808594,
+        "p95": 485.80396575927733,
+        "p99": 486.17159088134764,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.6905652497645313,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 222.95740654873146,
+        "p50": 201.52741973288357,
+        "p95": 332.8932424774394,
+        "p99": 657.2554655978457,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 240.98169770635045,
+        "p50": 221.07277857139707,
+        "p95": 351.6428542556242,
+        "p99": 674.2840748280288,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 47.886354001497644,
+        "p50": 47.803315334022045,
+        "p95": 48.638433101587,
+        "p99": 48.74504352454096,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.004942019004375,
+        "p50": 15.007929177954793,
+        "p95": 15.221458906307817,
+        "p99": 15.408289725892248,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 1724.768298988541,
+        "p50": 1728.368283715099,
+        "p95": 1971.2839650455862,
+        "p99": 2020.204659807496,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 1.3930626769757106,
+        "p50": 1.3659067917615175,
+        "p95": 1.6342982184141874,
+        "p99": 1.8324276339262733,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 216,
+        "mean": 100.45501804712264,
+        "p50": 100.4453282803297,
+        "p95": 101.09741252381355,
+        "p99": 101.29886113572866,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "prefill_cuda_ms": {
+        "n": 216,
+        "mean": 180.58944447835287,
+        "p50": 180.58086395263672,
+        "p95": 181.55719757080078,
+        "p99": 182.04211044311523,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_wall_ms": {
+        "n": 216,
+        "mean": 207.3064192211152,
+        "p50": 216.9057645369321,
+        "p95": 337.9040331346914,
+        "p99": 351.5372345922515,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_cuda_ms": {
+        "n": 216,
+        "mean": 386.4082235671856,
+        "p50": 404.88206481933594,
+        "p95": 630.7728476524353,
+        "p99": 656.074855041504,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "position_admission_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "condition": "B",
+      "frames": 72,
+      "questions": 216,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1811.8992362934578,
+        "p50": 1832.9664687626064,
+        "p95": 2410.7500286772847,
+        "p99": 2502.9346451023607,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1811.8992362934578,
+        "p50": 1832.9664687626064,
+        "p95": 2410.7500286772847,
+        "p99": 2502.9346451023607,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 216,
+        "mean": 358.5542514381275,
+        "p50": 271.97637083008885,
+        "p95": 644.8081566486508,
+        "p99": 697.5486957933754,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1811.8992362934578,
+        "p50": 1832.9664687626064,
+        "p95": 2410.7500286772847,
+        "p99": 2502.9346451023607,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.5519070707517195,
+      "QPS": 1.6557212122551586,
+      "peak_GPU_bytes": 16829538304,
+      "LLM_forwards": 1643,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 2313.8518249616027,
+        "p50": 2362.040502950549,
+        "p95": 2371.6687775216997,
+        "p99": 2372.5246241502464,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1801.9280430084716,
+        "p50": 1832.9664687626064,
+        "p95": 2404.883590526879,
+        "p99": 2515.2193813025942,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 456.7217043240865,
+        "p50": 500.7487030029297,
+        "p95": 510.39948120117185,
+        "p99": 525.514645996094,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.597593284461451,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 206.6951527311984,
+        "p50": 196.28850859589875,
+        "p95": 293.51942839566624,
+        "p99": 504.9427393078825,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 224.0955219280699,
+        "p50": 214.03336618095636,
+        "p95": 311.20448010042315,
+        "p99": 523.5909015173113,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 456.7040997984198,
+        "p50": 500.73059974238276,
+        "p95": 510.367485252209,
+        "p99": 525.4992100829262,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.006070814302397,
+        "p50": 15.014511998742819,
+        "p95": 15.302689699456096,
+        "p99": 15.378144648857415,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.189626417019301,
+        "p50": 1.0789481457322836,
+        "p95": 1.5952372690662742,
+        "p99": 2.28070134297014,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 1082.7788157298023,
+        "p50": 1048.4546818770468,
+        "p95": 1591.6781370295212,
+        "p99": 1746.1604428244755,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.7397712906822562,
+        "p50": 0.7342507597059011,
+        "p95": 0.8429015753790736,
+        "p99": 0.8613498648628592,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 216,
+        "mean": 100.84417579195427,
+        "p50": 100.9647254832089,
+        "p95": 101.48544318508357,
+        "p99": 101.63020412437618,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "prefill_cuda_ms": {
+        "n": 216,
+        "mean": 180.65564685397678,
+        "p50": 180.67711639404297,
+        "p95": 181.54928970336914,
+        "p99": 181.9673614501953,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_wall_ms": {
+        "n": 216,
+        "mean": 175.3001655296043,
+        "p50": 88.3499526977539,
+        "p95": 462.1865921020508,
+        "p99": 513.4954040527343,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_cuda_ms": {
+        "n": 216,
+        "mean": 170.30274928057636,
+        "p50": 82.94798278808594,
+        "p95": 455.37825775146484,
+        "p99": 505.2045912742615,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "position_admission_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "condition": "C",
+      "frames": 72,
+      "questions": 216,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1287.0764461695217,
+        "p50": 1293.1187329813838,
+        "p95": 2155.254394724034,
+        "p99": 2490.078984959985,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1287.0764461695217,
+        "p50": 1293.1187329813838,
+        "p95": 2155.254394724034,
+        "p99": 2490.078984959985,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 216,
+        "mean": 182.0188480368988,
+        "p50": 0.268502626568079,
+        "p95": 624.841021373868,
+        "p99": 698.4369125915691,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1287.0764461695217,
+        "p50": 1293.1187329813838,
+        "p95": 2155.254394724034,
+        "p99": 2490.078984959985,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.7769546268802509,
+      "QPS": 2.3308638806407527,
+      "peak_GPU_bytes": 16831635456,
+      "LLM_forwards": 961,
+      "actual_prefill_skips": 126,
+      "actual_decode_skips": 126,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1446.2084197439253,
+        "p50": 1335.8551519922912,
+        "p95": 2266.316655697301,
+        "p99": 2349.024344915524,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1304.1637701758493,
+        "p50": 1293.1187329813838,
+        "p95": 2123.328747949563,
+        "p99": 2461.398975509217,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 461.9762004216512,
+        "p50": 499.86456298828125,
+        "p95": 510.7239273071289,
+        "p99": 658.319861450198,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.430041990284071,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 205.93427225119538,
+        "p50": 177.2858127951622,
+        "p95": 331.48502223193645,
+        "p99": 477.37868383526956,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 223.43501888422503,
+        "p50": 194.6283197030425,
+        "p95": 350.38689062930644,
+        "p99": 497.88203747477536,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 461.9582468488564,
+        "p50": 499.84912225045264,
+        "p95": 510.7068184297532,
+        "p99": 658.3001335896579,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.036577947386023,
+        "p50": 15.026391251012683,
+        "p95": 15.398143068887293,
+        "p99": 15.558578972704709,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.226992740864969,
+        "p50": 1.2513797264546156,
+        "p95": 1.6235839808359744,
+        "p99": 1.9745061174035086,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 553.49691655849,
+        "p50": 498.44182399101555,
+        "p95": 1267.935259779916,
+        "p99": 1822.118063117379,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.652569895868914,
+        "p50": 0.6365438457578421,
+        "p95": 0.7922558346763254,
+        "p99": 1.2859830167144546,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 216,
+        "mean": 42.00528552152078,
+        "p50": 0.0,
+        "p95": 101.4281832613051,
+        "p99": 101.80666940286756,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "prefill_cuda_ms": {
+        "n": 216,
+        "mean": 75.27636860035084,
+        "p50": 0.0,
+        "p95": 181.42924880981445,
+        "p99": 182.03284606933593,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_wall_ms": {
+        "n": 216,
+        "mean": 105.41758310353315,
+        "p50": 0.0,
+        "p95": 442.2086868286133,
+        "p99": 514.0450897216797,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_cuda_ms": {
+        "n": 216,
+        "mean": 103.01562369311297,
+        "p50": 0.0,
+        "p95": 435.74605560302734,
+        "p99": 505.37224864959717,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 216,
+        "mean": 0.0015153976467748482,
+        "p50": 0.0015664845705032349,
+        "p95": 0.0024085165932774544,
+        "p99": 0.00309252645820379,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 216,
+        "mean": 0.030915479227486584,
+        "p50": 0.02894178032875061,
+        "p95": 0.058400328271090984,
+        "p99": 0.06827837787568569,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "position_admission_wall_ms": {
+        "n": 216,
+        "mean": 0.00016172675208912956,
+        "p50": 0.0,
+        "p95": 0.0010239891707897186,
+        "p99": 0.001181592233479023,
+        "p99_scope": "empirical, correlated stream frames"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "condition": "C-companion",
+      "frames": 72,
+      "questions": 216,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1446.1177119778263,
+        "p50": 1323.658233974129,
+        "p95": 2230.2931191166863,
+        "p99": 2619.0563537506405,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1446.1177119778263,
+        "p50": 1323.658233974129,
+        "p95": 2230.2931191166863,
+        "p99": 2619.0563537506405,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 216,
+        "mean": 236.10008252931206,
+        "p50": 241.96272483095527,
+        "p95": 644.513433217071,
+        "p99": 698.650641948916,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1446.1177119778263,
+        "p50": 1323.658233974129,
+        "p95": 2230.2931191166863,
+        "p99": 2619.0563537506405,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.6915066399624689,
+      "QPS": 2.0745199198874067,
+      "peak_GPU_bytes": 16829538816,
+      "LLM_forwards": 1236,
+      "actual_prefill_skips": 98,
+      "actual_decode_skips": 98,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1671.1385105736554,
+        "p50": 1323.7063400447369,
+        "p95": 2261.859791399911,
+        "p99": 2345.2512092981488,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1453.8974608993158,
+        "p50": 1379.2646166402847,
+        "p95": 2227.248189947568,
+        "p99": 2656.9381138449526,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 455.57058996624414,
+        "p50": 500.5946044921875,
+        "p95": 511.55548095703125,
+        "p99": 512.702680053711,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.49468076053346705,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 209.65081558743907,
+        "p50": 183.17797081544995,
+        "p95": 312.15087389573455,
+        "p99": 465.2640650374839,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 227.01042391256325,
+        "p50": 200.1785694155842,
+        "p95": 330.50819616764784,
+        "p99": 483.70316653046996,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 455.5512419384387,
+        "p50": 500.56813238188624,
+        "p95": 511.52598042972386,
+        "p99": 512.6861454593018,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.082549142082119,
+        "p50": 15.069660730659962,
+        "p95": 15.354610932990909,
+        "p99": 15.888011627830574,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1550056967987783,
+        "p50": 1.0968938004225492,
+        "p95": 1.5758887166157365,
+        "p99": 1.5985164558514953,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 715.3666095821084,
+        "p50": 624.3921618442982,
+        "p95": 1385.7117080595347,
+        "p99": 1818.6319599673168,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.6757697814868556,
+        "p50": 0.6633359007537365,
+        "p95": 0.7550002541393043,
+        "p99": 0.9040034934878354,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 216,
+        "mean": 55.08688950902541,
+        "p50": 99.98454106971622,
+        "p95": 101.50932776741683,
+        "p99": 101.8092893064022,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "prefill_cuda_ms": {
+        "n": 216,
+        "mean": 98.72230642813223,
+        "p50": 179.56659698486328,
+        "p95": 181.6233024597168,
+        "p99": 182.13097457885743,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_wall_ms": {
+        "n": 216,
+        "mean": 135.77467166935955,
+        "p50": 59.01449775695801,
+        "p95": 462.4021911621094,
+        "p99": 514.8568328857422,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_cuda_ms": {
+        "n": 216,
+        "mean": 132.52676150533887,
+        "p50": 54.19412899017334,
+        "p95": 455.44156885147095,
+        "p99": 506.3439287185669,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 216,
+        "mean": 0.0016853273673741907,
+        "p50": 0.001844950020313263,
+        "p95": 0.002666027285158634,
+        "p99": 0.002855574712157249,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 216,
+        "mean": 0.03073248080909252,
+        "p50": 0.027940841391682625,
+        "p95": 0.05543301813304424,
+        "p99": 0.06681741215288636,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "position_admission_wall_ms": {
+        "n": 216,
+        "mean": 0.00017043203115463257,
+        "p50": 0.0,
+        "p95": 0.0010748626664280891,
+        "p99": 0.0012895092368125913,
+        "p99_scope": "empirical, correlated stream frames"
+      }
+    },
+    {
+      "workload": "fixed",
+      "frequency": "one",
+      "condition": "A",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1444.8054113114874,
+        "p50": 1480.797175085172,
+        "p95": 1549.1789982886985,
+        "p99": 1579.2923399666329,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1444.8054113114874,
+        "p50": 1480.797175085172,
+        "p95": 1549.1789982886985,
+        "p99": 1579.2923399666329,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 704.4310760490285,
+        "p50": 722.7254204917699,
+        "p95": 773.9990785019472,
+        "p99": 804.4155793357642,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 1444.8054113114874,
+        "p50": 1480.797175085172,
+        "p95": 1549.1789982886985,
+        "p99": 1579.2923399666329,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1444.8054113114874,
+        "p50": 1480.797175085172,
+        "p95": 1549.1789982886985,
+        "p99": 1579.2923399666329,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.6921347277432149,
+      "QPS": 0.6921347277432149,
+      "peak_GPU_bytes": 16494170112,
+      "LLM_forwards": 1535,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1381.7954033923645,
+        "p50": 1383.411129936576,
+        "p95": 1383.9255549944937,
+        "p99": 1383.9712816663086,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1453.2127808546647,
+        "p50": 1485.8930904883891,
+        "p95": 1548.3393198112026,
+        "p99": 1586.784927737899,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 483.1520661248101,
+        "p50": 483.3738098144531,
+        "p95": 484.4954315185547,
+        "p99": 484.71115631103515,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.48756121103505434,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 192.4585033622053,
+        "p50": 183.01523034460843,
+        "p95": 276.1776838917285,
+        "p99": 308.18214184138964,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 209.87708784458744,
+        "p50": 200.1878721639514,
+        "p95": 293.1724011898041,
+        "p99": 326.4942389819775,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 47.80262186735248,
+        "p50": 47.77515958994627,
+        "p95": 48.33485835697502,
+        "p99": 49.16131326928736,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.00533510827356,
+        "p50": 15.01687802374363,
+        "p95": 15.195996942929924,
+        "p99": 15.280380160547793,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 704.4310760490285,
+        "p50": 722.7254204917699,
+        "p95": 773.9990785019472,
+        "p99": 804.4155793357642,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.650961825158447,
+        "p50": 0.6671459414064884,
+        "p95": 0.7391800405457616,
+        "p99": 0.7871238095685847,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 96.58612058006435,
+        "p50": 95.62741662375629,
+        "p95": 99.28752407431602,
+        "p99": 99.58651742432266,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 179.77422036064996,
+        "p50": 180.09805297851562,
+        "p95": 180.89712371826172,
+        "p99": 181.20989852905274,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 275.6849361596526,
+        "p50": 284.9742432590574,
+        "p95": 312.2607320314273,
+        "p99": 329.0215549152345,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 514.2873389985826,
+        "p50": 531.7023515701294,
+        "p95": 582.2595911026001,
+        "p99": 613.9866906738283,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "fixed",
+      "frequency": "one",
+      "condition": "B",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1217.162110538791,
+        "p50": 1116.401263512671,
+        "p95": 1625.5030870670453,
+        "p99": 1796.8199032591676,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1217.162110538791,
+        "p50": 1116.401263512671,
+        "p95": 1625.5030870670453,
+        "p99": 1796.8199032591676,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 467.5181948372887,
+        "p50": 343.59399345703423,
+        "p95": 774.1870590951294,
+        "p99": 792.0175474835563,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 1217.162110538791,
+        "p50": 1116.401263512671,
+        "p95": 1625.5030870670453,
+        "p99": 1796.8199032591676,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1217.162110538791,
+        "p50": 1116.401263512671,
+        "p95": 1625.5030870670453,
+        "p99": 1796.8199032591676,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.8215832479022357,
+      "QPS": 0.8215832479022357,
+      "peak_GPU_bytes": 16831110656,
+      "LLM_forwards": 854,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1403.5270727860432,
+        "p50": 1406.481881160289,
+        "p95": 1407.484679063782,
+        "p99": 1407.5738166552037,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1219.9137366609648,
+        "p50": 1088.0334575194865,
+        "p95": 1624.6085917809978,
+        "p99": 1797.4152735201628,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 468.85126463572186,
+        "p50": 499.96348571777344,
+        "p95": 522.9014709472657,
+        "p99": 948.0044049072267,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.38985420685923833,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 208.6148887820956,
+        "p50": 193.80857865326107,
+        "p95": 323.0223431950435,
+        "p99": 456.103677451613,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 225.94664520713397,
+        "p50": 211.69002237729728,
+        "p95": 340.9423828125,
+        "p99": 474.10324969794846,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 468.8318403204903,
+        "p50": 499.94965200312436,
+        "p95": 522.8753795381635,
+        "p99": 947.9819369455801,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.00049408706319,
+        "p50": 14.993288554251194,
+        "p95": 15.397043619304895,
+        "p99": 15.488017830066383,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1664421763271093,
+        "p50": 1.1017003562301397,
+        "p95": 1.5457387547940016,
+        "p99": 1.7328890133649129,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 474.5157692232169,
+        "p50": 350.1779993530363,
+        "p95": 783.6582257412374,
+        "p99": 803.1738985050473,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.39998914710142547,
+        "p50": 0.40720077231526375,
+        "p95": 0.4425550345331431,
+        "p99": 0.48260561190545603,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 96.6177654465557,
+        "p50": 95.58740607462823,
+        "p95": 99.31083261035383,
+        "p99": 99.55810828134418,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 179.47756470574274,
+        "p50": 180.12036895751953,
+        "p95": 180.94473876953126,
+        "p99": 181.10129821777343,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 285.18816322750513,
+        "p50": 160.75740814208984,
+        "p95": 591.2412536621093,
+        "p99": 608.3910949707034,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 278.3796708318922,
+        "p50": 156.23108959197998,
+        "p95": 582.3074964523315,
+        "p99": 597.9933720207217,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "fixed",
+      "frequency": "one",
+      "condition": "C",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1204.674059059471,
+        "p50": 1102.740969043225,
+        "p95": 1597.7905111620203,
+        "p99": 1669.2807395476852,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1204.674059059471,
+        "p50": 1102.740969043225,
+        "p95": 1597.7905111620203,
+        "p99": 1669.2807395476852,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 467.6731905848202,
+        "p50": 343.38311944156885,
+        "p95": 773.7938769394532,
+        "p99": 790.9210925269875,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 1204.674059059471,
+        "p50": 1102.740969043225,
+        "p95": 1597.7905111620203,
+        "p99": 1669.2807395476852,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1204.674059059471,
+        "p50": 1102.740969043225,
+        "p95": 1597.7905111620203,
+        "p99": 1669.2807395476852,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.8301000527733894,
+      "QPS": 0.8301000527733894,
+      "peak_GPU_bytes": 16831110656,
+      "LLM_forwards": 854,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1402.4572100800772,
+        "p50": 1406.7181069403887,
+        "p95": 1407.2657042182982,
+        "p99": 1407.3143795318902,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1208.2863644153501,
+        "p50": 1086.9437041692436,
+        "p95": 1600.9382111951709,
+        "p99": 1679.946325207129,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 455.60989830229016,
+        "p50": 501.0116271972656,
+        "p95": 511.1285171508789,
+        "p99": 517.0698571777344,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.3941080277723723,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 208.95794766773986,
+        "p50": 201.3326589949429,
+        "p95": 305.354154505767,
+        "p99": 362.7622510958469,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 226.35310361187697,
+        "p50": 217.91145973838866,
+        "p95": 323.0123607441783,
+        "p99": 381.06125023681733,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 455.5912309895373,
+        "p50": 500.99768373183906,
+        "p95": 511.1020286101848,
+        "p99": 517.0392598817125,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.05044917576015,
+        "p50": 15.0614557787776,
+        "p95": 15.34072170034051,
+        "p99": 15.401108218356967,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1864841346525483,
+        "p50": 1.1064046993851662,
+        "p95": 1.6826570034027102,
+        "p99": 1.9763769209384927,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 474.7717175244664,
+        "p50": 350.0655551906675,
+        "p95": 783.6070113582537,
+        "p99": 803.4887483762581,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.40311971032578087,
+        "p50": 0.4044496454298496,
+        "p95": 0.4406134597957134,
+        "p99": 0.4864659346640115,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 96.5503625662273,
+        "p50": 95.51154007203877,
+        "p95": 99.4044060818851,
+        "p99": 99.74569567013532,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 179.4840090009901,
+        "p50": 180.02330017089844,
+        "p95": 180.81090545654297,
+        "p99": 181.5369192504883,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 285.31155909432306,
+        "p50": 160.62532806396484,
+        "p95": 590.7357818603516,
+        "p99": 607.5120605468753,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 278.47855398390027,
+        "p50": 156.09073543548584,
+        "p95": 581.5829258918762,
+        "p99": 598.1866501998904,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.0023859902285039425,
+        "p50": 0.002369983121752739,
+        "p95": 0.002751871943473816,
+        "p99": 0.003040921874344352,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.0009540494324432479,
+        "p50": 0.0009431969374418259,
+        "p95": 0.0011608703061938286,
+        "p99": 0.0012479117140173914,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "condition": "A",
+      "frames": 72,
+      "questions": 216,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 2764.2076723859645,
+        "p50": 2761.115015251562,
+        "p95": 3136.9730304693803,
+        "p99": 3619.7147733718184,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 2764.2076723859645,
+        "p50": 2761.115015251562,
+        "p95": 3136.9730304693803,
+        "p99": 3619.7147733718184,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 216,
+        "mean": 661.0021926139275,
+        "p50": 644.8912676423788,
+        "p95": 927.4735016515478,
+        "p99": 1103.7141864420844,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 2764.2076723859645,
+        "p50": 2761.115015251562,
+        "p95": 3136.9730304693803,
+        "p99": 3619.7147733718184,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.3617673194347355,
+      "QPS": 1.0853019583042065,
+      "peak_GPU_bytes": 16497005056,
+      "LLM_forwards": 4238,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 2334.250193244467,
+        "p50": 2267.887017223984,
+        "p95": 2450.7972531486303,
+        "p99": 2467.0559407863766,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 2774.6675191136696,
+        "p50": 2785.263819852844,
+        "p95": 3085.4408748913556,
+        "p99": 3668.1070853769766,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 483.52934561835394,
+        "p50": 483.48919677734375,
+        "p95": 484.94927978515625,
+        "p99": 485.2577795410156,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.7173869740872698,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 231.1597393709235,
+        "p50": 211.43624791875482,
+        "p95": 367.3842928605156,
+        "p99": 711.1505742138258,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 249.07077037237792,
+        "p50": 229.50719739310443,
+        "p95": 386.30073582753556,
+        "p99": 729.4581135362394,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 48.108358738116095,
+        "p50": 47.81443113461137,
+        "p95": 48.46482335124165,
+        "p99": 54.55180954188121,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.050124480492538,
+        "p50": 15.032156137749553,
+        "p95": 15.22388958837837,
+        "p99": 15.272454959340394,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 1983.0065778417822,
+        "p50": 1949.802721152082,
+        "p95": 2294.3933695321903,
+        "p99": 2841.629295228052,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 1.5993117121979594,
+        "p50": 1.5760483220219612,
+        "p95": 1.9552484154701233,
+        "p99": 2.073660860769451,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 216,
+        "mean": 99.54777926517029,
+        "p50": 100.45588715001941,
+        "p95": 101.21353331487626,
+        "p99": 101.59430548083037,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "prefill_cuda_ms": {
+        "n": 216,
+        "mean": 180.6171593842683,
+        "p50": 180.74739837646484,
+        "p95": 181.7469482421875,
+        "p99": 182.53302001953125,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_wall_ms": {
+        "n": 216,
+        "mean": 252.45577604854824,
+        "p50": 243.88847616501153,
+        "p95": 392.65992655418813,
+        "p99": 485.85589553695166,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_cuda_ms": {
+        "n": 216,
+        "mean": 471.0082320195657,
+        "p50": 455.10339069366455,
+        "p95": 733.0096497535706,
+        "p99": 906.1977430343627,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "position_admission_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      }
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "condition": "B",
+      "frames": 72,
+      "questions": 216,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 2556.476691065149,
+        "p50": 2573.6836425494403,
+        "p95": 3100.3609121078625,
+        "p99": 3408.120983196427,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 2556.476691065149,
+        "p50": 2573.6836425494403,
+        "p95": 3100.3609121078625,
+        "p99": 3408.120983196427,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 216,
+        "mean": 599.7716999953371,
+        "p50": 595.4435640014708,
+        "p95": 928.6280345404521,
+        "p99": 1104.772798833437,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 2556.476691065149,
+        "p50": 2573.6836425494403,
+        "p95": 3100.3609121078625,
+        "p99": 3408.120983196427,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.391163355212659,
+      "QPS": 1.173490065637977,
+      "peak_GPU_bytes": 16829539840,
+      "LLM_forwards": 3701,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 2362.8406369437776,
+        "p50": 2300.8760628290474,
+        "p95": 2473.6112143844366,
+        "p99": 2488.965450078249,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 2552.1424205508083,
+        "p50": 2585.03126562573,
+        "p95": 3083.2078693667427,
+        "p99": 3492.642013719303,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 464.91423267788355,
+        "p50": 501.89527893066406,
+        "p95": 513.5650329589844,
+        "p99": 681.6989813232445,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.7068495537272754,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 218.56179618043825,
+        "p50": 205.61770000495017,
+        "p95": 297.9285899316892,
+        "p99": 479.92340564262344,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 236.16463046184637,
+        "p50": 223.42467191629112,
+        "p95": 314.607398561202,
+        "p99": 499.18237359263225,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 464.8959986386924,
+        "p50": 501.8731888849288,
+        "p95": 513.5389611590654,
+        "p99": 681.6740461159521,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.04665635810751,
+        "p50": 15.059756580740213,
+        "p95": 15.34377527423203,
+        "p99": 15.524106919765472,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1894205235876143,
+        "p50": 1.1079355608671904,
+        "p95": 1.643906650133431,
+        "p99": 1.7754909861832864,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 1807.0444081935825,
+        "p50": 1822.1106010023504,
+        "p95": 2355.656445911154,
+        "p99": 2635.6234018364967,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.857706395133088,
+        "p50": 0.8514097426086664,
+        "p95": 1.0550089413300157,
+        "p99": 1.2125820759683863,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 216,
+        "mean": 99.75906096924855,
+        "p50": 100.64716101624072,
+        "p95": 101.50911728851497,
+        "p99": 102.03783663455397,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "prefill_cuda_ms": {
+        "n": 216,
+        "mean": 180.5424271336308,
+        "p50": 180.5915985107422,
+        "p95": 181.9546012878418,
+        "p99": 182.45821533203124,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_wall_ms": {
+        "n": 216,
+        "mean": 416.4224970075819,
+        "p50": 412.34593200683594,
+        "p95": 745.0019836425781,
+        "p99": 921.1418334960936,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_cuda_ms": {
+        "n": 216,
+        "mean": 409.0020283593072,
+        "p50": 405.4532632827759,
+        "p95": 732.8374719619751,
+        "p99": 905.9665387153624,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "position_admission_wall_ms": {
+        "n": 216,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "empirical, correlated stream frames"
+      }
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "condition": "C",
+      "frames": 72,
+      "questions": 216,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 2343.5934851812717,
+        "p50": 2296.711411792785,
+        "p95": 3069.0555820241575,
+        "p99": 3277.2266336996113,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 2343.5934851812717,
+        "p50": 2296.711411792785,
+        "p95": 3069.0555820241575,
+        "p99": 3277.2266336996113,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 216,
+        "mean": 532.0166308816557,
+        "p50": 595.0994577724487,
+        "p95": 929.352592676878,
+        "p99": 1103.9304733276365,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 2343.5934851812717,
+        "p50": 2296.711411792785,
+        "p95": 3069.0555820241575,
+        "p99": 3277.2266336996113,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.42669516122274603,
+      "QPS": 1.280085483668238,
+      "peak_GPU_bytes": 16831636480,
+      "LLM_forwards": 3396,
+      "actual_prefill_skips": 42,
+      "actual_decode_skips": 42,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 2098.9120543623962,
+        "p50": 2104.9478109925985,
+        "p95": 2279.1922122240067,
+        "p99": 2294.6806034445763,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 2365.9326462385557,
+        "p50": 2326.5523803420365,
+        "p95": 2995.921827293932,
+        "p99": 3289.01721403934,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 457.80455133650037,
+        "p50": 500.48663330078125,
+        "p95": 512.0703552246093,
+        "p99": 543.534306640625,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.684161638886264,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 216.11435690687762,
+        "p50": 206.3357827719301,
+        "p95": 294.0399759216234,
+        "p99": 538.6418621242061,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 233.94579047776966,
+        "p50": 223.98648620583117,
+        "p95": 312.16534737031907,
+        "p99": 557.4750016815975,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 457.78478456324797,
+        "p50": 500.4704825114459,
+        "p95": 512.0512704364955,
+        "p99": 543.5129507444799,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.110907144844532,
+        "p50": 15.09885722771287,
+        "p95": 15.432166331447661,
+        "p99": 15.81027552019805,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1930436465061374,
+        "p50": 1.121890963986516,
+        "p95": 1.6325104981660843,
+        "p99": 1.7889442434534448,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 1603.3967597047902,
+        "p50": 1582.6799641363323,
+        "p95": 2209.736672905274,
+        "p99": 2472.149264281617,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.8295842950853208,
+        "p50": 0.8293569553643465,
+        "p95": 1.0053712874650955,
+        "p99": 1.1952408961951744,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 216,
+        "mean": 80.14274544634476,
+        "p50": 100.39917496033013,
+        "p95": 101.40729718841612,
+        "p99": 101.62011331412941,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "prefill_cuda_ms": {
+        "n": 216,
+        "mean": 145.39479686595774,
+        "p50": 180.33692932128906,
+        "p95": 181.51598739624023,
+        "p99": 182.49958038330078,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_wall_ms": {
+        "n": 216,
+        "mean": 384.26424350561916,
+        "p50": 412.66990661621094,
+        "p95": 745.4716186523438,
+        "p99": 919.9039398193358,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "decode_cuda_ms": {
+        "n": 216,
+        "mean": 377.64568798630324,
+        "p50": 405.57718563079834,
+        "p95": 733.233690738678,
+        "p99": 905.2312722206115,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 216,
+        "mean": 0.012198842510029121,
+        "p50": 0.0023925676941871643,
+        "p95": 0.04095025360584259,
+        "p99": 0.04543538670986891,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 216,
+        "mean": 0.012654177327122953,
+        "p50": 0.0009096693247556686,
+        "p95": 0.04819349851459265,
+        "p99": 0.05666508805006741,
+        "p99_scope": "empirical, correlated stream frames"
+      },
+      "position_admission_wall_ms": {
+        "n": 216,
+        "mean": 5.667054749749325e-05,
+        "p50": 0.0,
+        "p95": 0.0008314382284879684,
+        "p99": 0.0010108109563589096,
+        "p99_scope": "empirical, correlated stream frames"
+      }
+    },
+    {
+      "workload": "natural",
+      "frequency": "one",
+      "condition": "A",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1447.3064432580334,
+        "p50": 1412.9067678004503,
+        "p95": 1764.1357274260374,
+        "p99": 1818.8948208326474,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1447.3064432580334,
+        "p50": 1412.9067678004503,
+        "p95": 1764.1357274260374,
+        "p99": 1818.8948208326474,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 699.6465643751435,
+        "p50": 646.8540534842759,
+        "p95": 975.5267044063659,
+        "p99": 1095.9217440616342,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 1447.3064432580334,
+        "p50": 1412.9067678004503,
+        "p95": 1764.1357274260374,
+        "p99": 1818.8948208326474,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1447.3064432580334,
+        "p50": 1412.9067678004503,
+        "p95": 1764.1357274260374,
+        "p99": 1818.8948208326474,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.6909386776092136,
+      "QPS": 0.6909386776092136,
+      "peak_GPU_bytes": 16494366208,
+      "LLM_forwards": 1520,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1381.489572270463,
+        "p50": 1383.8705560192466,
+        "p95": 1386.1452934797853,
+        "p99": 1386.3474923651665,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1448.6238629634802,
+        "p50": 1414.0569977462292,
+        "p95": 1742.9901321884242,
+        "p99": 1820.7759251492098,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 483.10788981119794,
+        "p50": 483.0989685058594,
+        "p95": 484.46263580322267,
+        "p99": 485.0462643432617,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.4834128719831912,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 199.72700650234603,
+        "p50": 195.1869186013937,
+        "p95": 291.67191383894533,
+        "p99": 313.84923861362074,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 217.1814989285647,
+        "p50": 212.00225106440485,
+        "p95": 309.9319619126618,
+        "p99": 332.15416246559505,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 48.27391466824338,
+        "p50": 47.686352860182524,
+        "p95": 48.498889757320285,
+        "p99": 63.62927466630936,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.053101679465422,
+        "p50": 15.01392968930304,
+        "p95": 15.290596429258585,
+        "p99": 15.691444608382882,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 699.6465643751435,
+        "p50": 646.8540534842759,
+        "p95": 975.5267044063659,
+        "p99": 1095.9217440616342,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.6587191859984564,
+        "p50": 0.6252021994441748,
+        "p95": 0.9211163502186537,
+        "p99": 0.9960670210421088,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 99.23480762841388,
+        "p50": 100.28066020458937,
+        "p95": 101.20505096856505,
+        "p99": 101.3097250694409,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 180.3895524342855,
+        "p50": 180.54756927490234,
+        "p95": 181.52762908935546,
+        "p99": 181.77450424194336,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 273.09635984581996,
+        "p50": 244.71953604370356,
+        "p95": 418.21429226547485,
+        "p99": 481.42525408882665,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 508.94782487551373,
+        "p50": 456.04179191589355,
+        "p95": 780.4225314140322,
+        "p99": 898.3748083686831,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "natural",
+      "frequency": "one",
+      "condition": "B",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1431.44465810878,
+        "p50": 1428.6293529439718,
+        "p95": 1798.7693771487102,
+        "p99": 1885.794859761373,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1431.44465810878,
+        "p50": 1428.6293529439718,
+        "p95": 1798.7693771487102,
+        "p99": 1885.794859761373,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 685.0338053126405,
+        "p50": 645.9925221279263,
+        "p95": 1016.5016062557698,
+        "p99": 1098.6052682995798,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 1431.44465810878,
+        "p50": 1428.6293529439718,
+        "p95": 1798.7693771487102,
+        "p99": 1885.794859761373,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1431.44465810878,
+        "p50": 1428.6293529439718,
+        "p95": 1798.7693771487102,
+        "p99": 1885.794859761373,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.6985949434616612,
+      "QPS": 0.6985949434616612,
+      "peak_GPU_bytes": 16831110656,
+      "LLM_forwards": 1476,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1407.384794826309,
+        "p50": 1406.7973010241985,
+        "p95": 1408.819476235658,
+        "p99": 1408.9992251433432,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1436.2589550670236,
+        "p50": 1428.8322606589645,
+        "p95": 1797.67372997012,
+        "p99": 1897.3691704589871,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 462.08999072180853,
+        "p50": 500.2273864746094,
+        "p95": 512.6029998779297,
+        "p99": 652.1507379150418,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.4836306193388427,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 211.4276904354079,
+        "p50": 184.76635171100497,
+        "p95": 310.9836841933429,
+        "p99": 478.99084667675436,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 229.1015155885058,
+        "p50": 203.42107443138957,
+        "p95": 329.5437238877639,
+        "p99": 496.2009773310298,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 462.0707964641042,
+        "p50": 500.19988627173007,
+        "p95": 512.584099220112,
+        "p99": 652.1109831053791,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.032232493265635,
+        "p50": 15.037441393360496,
+        "p95": 15.33180100377649,
+        "p99": 15.43066300917417,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.1891134393711884,
+        "p50": 1.1049369350075722,
+        "p95": 1.6242814715951681,
+        "p99": 1.7066472256556167,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 692.2904665504271,
+        "p50": 652.7014549355954,
+        "p95": 1023.1553712161259,
+        "p99": 1105.4861094616356,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.39236257240797084,
+        "p50": 0.3712000325322151,
+        "p95": 0.5324525991454722,
+        "p99": 0.5600320966914297,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 99.187747154954,
+        "p50": 100.24772398173809,
+        "p95": 101.2348416261375,
+        "p99": 101.3795750727877,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 179.96832444932727,
+        "p50": 180.30438232421875,
+        "p95": 181.1931167602539,
+        "p99": 181.32320724487306,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 502.0918270746867,
+        "p50": 463.3611145019531,
+        "p95": 833.9759643554688,
+        "p99": 914.5592315673831,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 493.47081510225934,
+        "p50": 455.6187992095947,
+        "p95": 820.4086253166199,
+        "p99": 899.6750598526004,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "natural",
+      "frequency": "one",
+      "condition": "C",
+      "frames": 72,
+      "questions": 72,
+      "independent_scenes": 3,
+      "independent_logs": 3,
+      "e2e_ms": {
+        "n": 72,
+        "mean": 1427.9887901502661,
+        "p50": 1425.2598891034722,
+        "p95": 1797.3834433592856,
+        "p99": 1865.1137730246414,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 72,
+        "mean": 1427.9887901502661,
+        "p50": 1425.2598891034722,
+        "p95": 1797.3834433592856,
+        "p99": 1865.1137730246414,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 72,
+        "mean": 691.5609129419964,
+        "p50": 646.2154211476445,
+        "p95": 1042.055759136565,
+        "p99": 1136.6813096450642,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 72,
+        "mean": 1427.9887901502661,
+        "p50": 1425.2598891034722,
+        "p95": 1797.3834433592856,
+        "p99": 1865.1137730246414,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 72,
+        "mean": 1427.9887901502661,
+        "p50": 1425.2598891034722,
+        "p95": 1797.3834433592856,
+        "p99": 1865.1137730246414,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.7002856093112403,
+      "QPS": 0.7002856093112403,
+      "peak_GPU_bytes": 16831110656,
+      "LLM_forwards": 1476,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 3,
+        "mean": 1409.4974872035284,
+        "p50": 1409.2792617157102,
+        "p95": 1413.8491604011506,
+        "p99": 1414.2553736176342,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 60,
+        "mean": 1432.0037070351343,
+        "p50": 1442.4541955813766,
+        "p95": 1785.2286657784132,
+        "p99": 1874.1987048042936,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 72,
+        "mean": 455.9089795748393,
+        "p50": 499.6187286376953,
+        "p95": 510.31591339111327,
+        "p99": 526.704826049805,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.489472292379908,
+      "m1_wall_ms": {
+        "n": 72,
+        "mean": 207.77911255653532,
+        "p50": 187.13701819069684,
+        "p95": 312.6985545502976,
+        "p99": 509.1842585429567,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 72,
+        "mean": 225.18324855223506,
+        "p50": 203.9028147701174,
+        "p95": 330.2993322955445,
+        "p99": 527.3380458122136,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 72,
+        "mean": 455.88965721738833,
+        "p50": 499.59054472856224,
+        "p95": 510.2991936728358,
+        "p99": 526.6775299701842,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 72,
+        "mean": 15.144832257647067,
+        "p50": 15.069287968799472,
+        "p95": 15.38185125682503,
+        "p99": 17.662755623459862,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 72,
+        "mean": 1.2162912494709923,
+        "p50": 1.2005125172436237,
+        "p95": 1.663640234619379,
+        "p99": 2.0542772021144655,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 72,
+        "mean": 698.9609466076622,
+        "p50": 652.9363028239459,
+        "p95": 1048.7006679642946,
+        "p99": 1143.3863866329193,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 72,
+        "mean": 0.3992709486434857,
+        "p50": 0.38218218833208084,
+        "p95": 0.5301497178152204,
+        "p99": 0.5713775102049113,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 72,
+        "mean": 99.30481382697407,
+        "p50": 100.38372804410756,
+        "p95": 101.30755419377238,
+        "p99": 101.57262738328427,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 72,
+        "mean": 180.12426206800671,
+        "p50": 180.3826675415039,
+        "p95": 181.44745788574218,
+        "p99": 181.66925399780274,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 72,
+        "mean": 508.37942854563397,
+        "p50": 463.3490753173828,
+        "p95": 858.6920440673829,
+        "p99": 953.3925549316407,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 72,
+        "mean": 499.7520197497474,
+        "p50": 455.59199714660645,
+        "p95": 844.8294591903688,
+        "p99": 940.0613669776918,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 72,
+        "mean": 0.052899426211499505,
+        "p50": 0.053863273933529854,
+        "p95": 0.07192045450210571,
+        "p99": 0.2076133573427797,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 72,
+        "mean": 0.001282146614458826,
+        "p50": 0.0009613577276468277,
+        "p95": 0.0013018958270549774,
+        "p99": 0.007443013601005205,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 72,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "comparison": "A->B",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1028.4296595232768,
+      "to_ms": 957.2946684202179,
+      "speedup": 1.0743083539997667,
+      "delta_ms": -71.1349911030589,
+      "speedup_log_CI95": [
+        1.0019235703530545,
+        1.2159192822631546
+      ],
+      "delta_log_CI95_ms": [
+        -175.6479325510251,
+        -2.0647157604495683
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0019235703530545,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.0362351878088083,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.2159192822631546
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "comparison": "B->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 957.2946684202179,
+      "to_ms": 829.3255277482482,
+      "speedup": 1.154305078512929,
+      "delta_ms": -127.9691406719697,
+      "speedup_log_CI95": [
+        1.0712380564874993,
+        1.2890785265189573
+      ],
+      "delta_log_CI95_ms": [
+        -220.89240342999497,
+        -71.38028335369502
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0712380564874993,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.2890785265189573,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.1269435624831183
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "comparison": "A->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1028.4296595232768,
+      "to_ms": 829.3255277482482,
+      "speedup": 1.2400795889107963,
+      "delta_ms": -199.10413177502858,
+      "speedup_log_CI95": [
+        1.0732986582540223,
+        1.3702724076455557
+      ],
+      "delta_log_CI95_ms": [
+        -267.2826677832442,
+        -73.4449991141446
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0732986582540223,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.3357885290276734,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.3702724076455557
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "comparison": "A->B",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 862.8154994092054,
+      "to_ms": 862.7984253818997,
+      "speedup": 1.0000197891266411,
+      "delta_ms": -0.01707402730567588,
+      "speedup_log_CI95": [
+        0.9448595075139113,
+        1.134601782633856
+      ],
+      "delta_log_CI95_ms": [
+        -100.10706452885643,
+        50.82244932418689
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 0.9466036212542225,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 0.9448595075139113,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.134601782633856
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "comparison": "B->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 862.7984253818997,
+      "to_ms": 803.1403222574024,
+      "speedup": 1.0742810458785272,
+      "delta_ms": -59.65810312449725,
+      "speedup_log_CI95": [
+        0.9967902734655132,
+        1.1790722687758959
+      ],
+      "delta_log_CI95_ms": [
+        -135.60541690094396,
+        3.0648415558971465
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 0.9967902734655132,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.1790722687758959,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.0665913389274095
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "comparison": "A->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 862.8154994092054,
+      "to_ms": 803.1403222574024,
+      "speedup": 1.0743023049621923,
+      "delta_ms": -59.67517715180293,
+      "speedup_log_CI95": [
+        0.9435652824934414,
+        1.2101564344888702
+      ],
+      "delta_log_CI95_ms": [
+        -146.54079855730137,
+        53.88729088008404
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 0.9435652824934414,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.114057643198903,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.2101564344888702
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "comparison": "A->B",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1318.079390065072,
+      "to_ms": 1146.0448135751196,
+      "speedup": 1.1501115614783732,
+      "delta_ms": -172.0345764899523,
+      "speedup_log_CI95": [
+        1.0873272958369387,
+        1.2384944351690346
+      ],
+      "delta_log_CI95_ms": [
+        -242.35286936163902,
+        -111.17784762366985
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0873272958369387,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.1415106593612032,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.2384944351690346
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "comparison": "B->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1146.0448135751196,
+      "to_ms": 935.3340035563128,
+      "speedup": 1.22527868036193,
+      "delta_ms": -210.71081001880682,
+      "speedup_log_CI95": [
+        1.0860936702635986,
+        1.403721014748818
+      ],
+      "delta_log_CI95_ms": [
+        -330.41507479113835,
+        -100.91882604562367
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0860936702635986,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.403721014748818,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.2462638107468142
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "comparison": "A->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1318.079390065072,
+      "to_ms": 935.3340035563128,
+      "speedup": 1.4092071763172198,
+      "delta_ms": -382.7453865087591,
+      "speedup_log_CI95": [
+        1.1809392935133343,
+        1.6023625011051006
+      ],
+      "delta_log_CI95_ms": [
+        -492.9880872756864,
+        -212.09667366929352
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.1809392935133343,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.6023625011051006,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.5434907943624845
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "comparison": "A->B",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 2497.618146260114,
+      "to_ms": 1811.8992362934578,
+      "speedup": 1.378453114958759,
+      "delta_ms": -685.7189099666559,
+      "speedup_log_CI95": [
+        1.2043482207619687,
+        1.5391958539141963
+      ],
+      "delta_log_CI95_ms": [
+        -847.681360396867,
+        -438.1130713348587
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.2043482207619687,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.4485648158849265,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.5391958539141963
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "comparison": "B->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1811.8992362934578,
+      "to_ms": 1287.0764461695217,
+      "speedup": 1.407763495078995,
+      "delta_ms": -524.8227901239362,
+      "speedup_log_CI95": [
+        1.208290759420576,
+        1.845033853250353
+      ],
+      "delta_log_CI95_ms": [
+        -787.5950371768946,
+        -369.5846278569661
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.208290759420576,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.845033853250353,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.3613412523622708
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "comparison": "A->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 2497.618146260114,
+      "to_ms": 1287.0764461695217,
+      "speedup": 1.9405359749168705,
+      "delta_ms": -1210.541700090592,
+      "speedup_log_CI95": [
+        1.4552028262712986,
+        2.6726511239350543
+      ],
+      "delta_log_CI95_ms": [
+        -1558.9573353451367,
+        -807.6976991918249
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.4552028262712986,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 2.6726511239350543,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 2.0953708113983667
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "comparison": "C->C-companion",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1287.0764461695217,
+      "to_ms": 1446.1177119778263,
+      "speedup": 0.8900219086655214,
+      "delta_ms": 159.04126580830456,
+      "speedup_log_CI95": [
+        0.780828601796062,
+        1.0125107260254798
+      ],
+      "delta_log_CI95_ms": [
+        -14.269276890748491,
+        261.6116188194913
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 0.88534719230375,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 0.780828601796062,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.0125107260254798
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "comparison": "B->C-companion",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1811.8992362934578,
+      "to_ms": 1446.1177119778263,
+      "speedup": 1.2529403528398526,
+      "delta_ms": -365.78152431563166,
+      "speedup_log_CI95": [
+        1.0697568313395729,
+        1.4406552038998737
+      ],
+      "delta_log_CI95_ms": [
+        -525.9834183574034,
+        -139.80317236079523
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0697568313395729,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.4406552038998737,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.3783726197977588
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "fixed",
+      "frequency": "one",
+      "comparison": "A->B",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1444.8054113114874,
+      "to_ms": 1217.162110538791,
+      "speedup": 1.1870279224120173,
+      "delta_ms": -227.6433007726963,
+      "speedup_log_CI95": [
+        0.9522418988329865,
+        1.5571321724040224
+      ],
+      "delta_log_CI95_ms": [
+        -526.3178505313894,
+        75.98625726920243
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 0.9522418988329865,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.2084718876017295,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.5571321724040224
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "fixed",
+      "frequency": "one",
+      "comparison": "B->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1217.162110538791,
+      "to_ms": 1204.674059059471,
+      "speedup": 1.0103663321920204,
+      "delta_ms": -12.488051479320145,
+      "speedup_log_CI95": [
+        0.9988114532064938,
+        1.0179141313310747
+      ],
+      "delta_log_CI95_ms": [
+        -22.16633890445034,
+        1.327675146361192
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0141285956204693,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 0.9988114532064938,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.0179141313310747
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "fixed",
+      "frequency": "one",
+      "comparison": "A->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1444.8054113114874,
+      "to_ms": 1204.674059059471,
+      "speedup": 1.1993330481769442,
+      "delta_ms": -240.13135225201646,
+      "speedup_log_CI95": [
+        0.9656957395544655,
+        1.5850268426403096
+      ],
+      "delta_log_CI95_ms": [
+        -542.9433412112606,
+        53.819918364752084
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 0.9656957395544655,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.207035562214678,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.5850268426403096
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "comparison": "A->B",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 2764.2076723859645,
+      "to_ms": 2556.476691065149,
+      "speedup": 1.0812567476350683,
+      "delta_ms": -207.73098132081537,
+      "speedup_log_CI95": [
+        1.0619396390572966,
+        1.0914938127642575
+      ],
+      "delta_log_CI95_ms": [
+        -238.18158290426558,
+        -161.6833838246142
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.090937555929426,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.0619396390572966,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.0914938127642575
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "comparison": "B->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 2556.476691065149,
+      "to_ms": 2343.5934851812717,
+      "speedup": 1.090836233856236,
+      "delta_ms": -212.88320588387757,
+      "speedup_log_CI95": [
+        1.0370611143712019,
+        1.1537648151073774
+      ],
+      "delta_log_CI95_ms": [
+        -347.885557411549,
+        -87.76350880119328
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0370611143712019,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.1537648151073774,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.0845746514152377
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "comparison": "A->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 2764.2076723859645,
+      "to_ms": 2343.5934851812717,
+      "speedup": 1.1794740384218807,
+      "delta_ms": -420.61418720469294,
+      "speedup_log_CI95": [
+        1.1313689174615662,
+        1.2252285913121368
+      ],
+      "delta_log_CI95_ms": [
+        -509.5689412361632,
+        -311.0914860347596
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.1313689174615662,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.2252285913121368,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.1838065215006834
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "natural",
+      "frequency": "one",
+      "comparison": "A->B",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1447.3064432580334,
+      "to_ms": 1431.44465810878,
+      "speedup": 1.0110809628995439,
+      "delta_ms": -15.86178514925349,
+      "speedup_log_CI95": [
+        0.9714445513777877,
+        1.0607710623203799
+      ],
+      "delta_log_CI95_ms": [
+        -84.79286111347999,
+        42.5669668863217
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0038054277080974,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 0.9714445513777877,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.0607710623203799
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "natural",
+      "frequency": "one",
+      "comparison": "B->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1431.44465810878,
+      "to_ms": 1427.9887901502661,
+      "speedup": 1.0024200945990271,
+      "delta_ms": -3.455867958513813,
+      "speedup_log_CI95": [
+        0.9935245969428905,
+        1.0100519395679335
+      ],
+      "delta_log_CI95_ms": [
+        -14.835079569214335,
+        9.09390983482202
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.0032957761855066,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 1.0100519395679335,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 0.9935245969428905
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    },
+    {
+      "workload": "natural",
+      "frequency": "one",
+      "comparison": "A->C",
+      "paired_frames": 72,
+      "independent_logs": 3,
+      "from_ms": 1447.3064432580334,
+      "to_ms": 1427.9887901502661,
+      "speedup": 1.013527874477036,
+      "delta_ms": -19.317653107767303,
+      "speedup_log_CI95": [
+        0.9812094533018356,
+        1.0539021421405372
+      ],
+      "delta_log_CI95_ms": [
+        -75.69895127865796,
+        27.73188731710737
+      ],
+      "log_speedups": {
+        "5bd40b613ac740cd9dbacdfbc3d68201": 1.00711374573162,
+        "8ff48ad1df8e4966a2151730c92b7f3c": 0.9812094533018356,
+        "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.0539021421405372
+      },
+      "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+    }
+  ],
+  "timing": "Real synchronized outer full-model wall incl answer export; input preparation and audit serialization excluded equally. Stage spans are nested, not additive. FPS/QPS are service throughput, not paced real-time arrival throughput."
+}

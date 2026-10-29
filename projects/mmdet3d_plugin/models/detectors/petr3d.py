@@ -540,6 +540,7 @@ class Petr3D(MVXTwoStageDetector):
                     max_new_tokens=320, use_cache=True)
                 if m3_answers is None or len(m3_answers) != len(data['input_ids'][0]):
                     raise RuntimeError('M3 must return one answer per question')
+            export_ms=0.
             for i, input_ids in enumerate(data['input_ids'][0]):
                 input_ids = input_ids.unsqueeze(0)
                 from worldstream.m3.request_rng import question_rng
@@ -557,13 +558,17 @@ class Petr3D(MVXTwoStageDetector):
                     max_new_tokens=320,
                     use_cache=True
                 )
+                export_tick=time.perf_counter()
                 generated_text.append(
                     dict(
                     Q=img_metas[0]['vlm_labels'].data[i],
                     A=self.tokenizer.batch_decode(output_ids, skip_special_tokens=True),
                     ))
+                export_ms+=(time.perf_counter()-export_tick)*1000
+            export_tick=time.perf_counter()
             with open(self.save_path+img_metas[0]['sample_idx'], 'w') as file:
                 json.dump(generated_text, file)
+            self.language_export_wall_ms=export_ms+(time.perf_counter()-export_tick)*1000
         return bbox_results, generated_text, lane_results
     
     def simple_test(self, img_metas, **data):
@@ -581,6 +586,7 @@ class Petr3D(MVXTwoStageDetector):
         self.worldstream_execution = trace
         # Per-request diagnostics must never inherit a previous request's success.
         self.m2_diagnostics = self.m3_diagnostics = None
+        self.language_export_wall_ms=0.
         for name in ('m2_runtime', 'm3_runtime'):
             runtime = getattr(self, name, None)
             if runtime is not None and hasattr(runtime, 'last_diagnostics'):
@@ -595,8 +601,10 @@ class Petr3D(MVXTwoStageDetector):
                         or getattr(self, 'm3_runtime', None) is None
                         or not self.with_pts_bbox or not self.with_map_head or not self.with_lm_head):
                     raise RuntimeError('Formal WorldStream inference requires M1, M2, M3 and native task heads')
-                if len(data.get('input_ids', ())) != 1 or not len(data['input_ids'][0]):
+                if len(data.get('input_ids', ())) != 1 or (not len(data['input_ids'][0])
+                        and not getattr(self,'worldstream_allow_idle_frames',False)):
                     raise ValueError('Formal WorldStream VLM request requires at least one language prompt')
+                trace['idle_visual_frame']=not bool(data['input_ids'][0])
             m1_observer = None
             if getattr(self, 'm2_runtime', None) is not None:
                 meta = img_metas[0]

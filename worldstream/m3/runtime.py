@@ -56,7 +56,9 @@ class M3Runtime:
                 if mode not in ('basic','restricted','fallback') or (mode=='restricted' and
                         (not isinstance(floor,(int,float)) or not math.isfinite(floor) or not .35<=floor<=1.)):
                     raise ValueError('Invalid current-only Position policy')
-            if (p.get('status')!='FROZEN_RESEARCH_POLICY' or not .35<=p.get('min_confidence',0)<=1.
+            retrospective=(p.get('status')=='FROZEN_RETROSPECTIVE_POLICY' and p.get('main_path')=='current_only'
+                and p.get('evaluation_scope')=='WITHIN_LOG_EXTENDED_EVALUATION' and p.get('automatic_deployment') is False)
+            if ((p.get('status')!='FROZEN_RESEARCH_POLICY' and not retrospective) or not .35<=p.get('min_confidence',0)<=1.
                     or not math.isfinite(p.get('expected_normal_m3_ms',float('nan')))
                     or p['expected_normal_m3_ms']<=0 or not p.get('calibration_sha256')):
                 raise ValueError('Invalid selective-answer development policy')

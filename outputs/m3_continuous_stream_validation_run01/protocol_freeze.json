@@ -1,0 +1,34 @@
+{
+  "scope": "WITHIN_LOG_EXTENDED_EVALUATION",
+  "selection_sha256": "11f2bde13e4665cdfb43d1284baf66e7eaeffadd90b8f505e2d7a9e0d7bfb9a8",
+  "seed": 20261030,
+  "cold_frame": 0,
+  "steady_start_index": 4,
+  "default_budget": 0.02,
+  "budgets": [
+    0.01,
+    0.02,
+    0.03
+  ],
+  "request_frequencies": [
+    "every4",
+    "every2",
+    "one",
+    "three"
+  ],
+  "workloads": [
+    "addressable",
+    "natural",
+    "fixed",
+    "mixed"
+  ],
+  "DEV": "B shadow then CPU restricted gate fitting from DEV only; compare online policies only if admission changes; compare fallback if any Position hit",
+  "selection_criterion": "Minimum measured DEV E2E among policies with paired known answer loss<=budget; report severe and UNKNOWN independently; no strict 2% certification",
+  "restricted_fit": "Just above maximum incorrect admitted Position support on extended DEV; if no known Position errors, retain the prior .45 floor and mark indistinguishable",
+  "evaluation_jobs": "A/B/C on 4 addressable frequencies; A/B/C natural1Q/fixed1Q/mixed3Q; one meaningful Position companion on addressable3Q",
+  "same_visual_stream": true,
+  "no_idle_visual_skip": true,
+  "no_sampling_changes": true,
+  "no_GT_online": true,
+  "strict_generalization_GO": false
+}
