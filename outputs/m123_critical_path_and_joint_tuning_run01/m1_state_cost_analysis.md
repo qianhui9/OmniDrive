@@ -1,0 +1,9 @@
+# M1 measured state cost
+
+M1 is the current WorldStateManager geometry/class association and bounded state maintenance. This checkout does not execute a separate DQTrack neural network in this path; no tracker weights were changed.
+
+The prior230ms steady-state mean came from different evaluation scenes. This run separates input/output adapters, optical flow/observation support, projection, matching, immutable transaction forks, complete live-state hashing and state publication; see m1_cpu_profile.json and raw per-frame m1_precheck/m1_commit. CPU process and calling-thread times are separate from host elapsed. Nested spans must not be summed. Heavy profiler results identify hotspots and are not formal latency claims.
+
+Representative profiled steady frames show roughly47ms temporal correspondences +8ms geometric visibility +5ms patch support,23-25ms observation checking,10-12ms precheck projection,21-26ms matching, about42ms across three complete source-digest calls under cProfile, and19ms across two exact frame digests. These operations depend on anchor count, frame contents, immutable transaction metadata and retained history. Input D2H was about2.2ms; output heads had already produced CPU scalars. No evidence supports attributing the entire cold/steady gap to redundant GPU transfer.
+
+Only redundant scalar reflection and temporary byte materialization were changed. Complete source-state traversal, frame hashing, object association, optical flow and immutable publication remain. No cached hash bypasses live mutation checks and no synchronization was relocated. The before/after source copies and canonical-hash regression tests preserve byte compatibility. Actual paired M1/E2E results are in before_after_executor_comparison.json and executor_pilot_comparison.json. An outlier in the pilot is retained; its lower-frequency mean is inconclusive.

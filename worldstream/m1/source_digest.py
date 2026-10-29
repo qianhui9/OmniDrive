@@ -13,8 +13,15 @@ def schema_names(cls):
 
 
 def normalized(value):
+    # Most leaves in live state are scalar metadata. Avoid the NumPy/dataclass
+    # reflection path for each leaf, retaining exactly the canonical JSON tree.
+    kind=type(value)
+    if kind in (str,int,bool,type(None)):
+        return value
+    if kind is float:
+        return value if math.isfinite(value) else ('nonfinite',repr(value))
     if isinstance(value, np.ndarray):
-        payload = normalized(value.tolist()) if value.dtype.hasobject else hashlib.sha256(np.ascontiguousarray(value).tobytes()).hexdigest()
+        payload = normalized(value.tolist()) if value.dtype.hasobject else hashlib.sha256(np.ascontiguousarray(value)).hexdigest()
         return ('ndarray', str(value.dtype), value.shape, payload)
     if isinstance(value, np.generic):
         return normalized(value.item())

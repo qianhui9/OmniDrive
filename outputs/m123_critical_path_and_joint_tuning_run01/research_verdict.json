@@ -1,0 +1,100 @@
+{
+  "executor_status": "EXECUTOR_OPTIMIZED_AND_RETROSPECTIVELY_VALIDATED",
+  "independent_generalization": "INDEPENDENT_GENERALIZATION_INCOMPLETE",
+  "scope": "RETROSPECTIVE_EVALUATION_WITHIN_HISTORICALLY_EXPOSED_LOGS_AND_FRAMES",
+  "main_B_to_C": {
+    "workload": "addressable",
+    "frequency": "three",
+    "comparison": "B->C",
+    "paired_frames": 72,
+    "independent_logs": 3,
+    "from_ms": 1724.8606668500643,
+    "to_ms": 1172.1305335716654,
+    "speedup": 1.4715602208519758,
+    "delta_ms": -552.7301332783989,
+    "speedup_log_CI95": [
+      1.2350055485161613,
+      1.976635795223018
+    ],
+    "delta_log_CI95_ms": [
+      -801.8849447835237,
+      -385.24340516111505
+    ],
+    "log_speedups": {
+      "5bd40b613ac740cd9dbacdfbc3d68201": 1.2350055485161613,
+      "8ff48ad1df8e4966a2151730c92b7f3c": 1.976635795223018,
+      "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.4460696134490747
+    },
+    "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+  },
+  "main_A_to_C": {
+    "workload": "addressable",
+    "frequency": "three",
+    "comparison": "A->C",
+    "paired_frames": 72,
+    "independent_logs": 3,
+    "from_ms": 2259.356511407532,
+    "to_ms": 1172.1305335716654,
+    "speedup": 1.927563907513712,
+    "delta_ms": -1087.2259778358664,
+    "speedup_log_CI95": [
+      1.394633451905441,
+      2.787967146385421
+    ],
+    "delta_log_CI95_ms": [
+      -1468.0436079312738,
+      -646.9206185235331
+    ],
+    "log_speedups": {
+      "5bd40b613ac740cd9dbacdfbc3d68201": 1.394633451905441,
+      "8ff48ad1df8e4966a2151730c92b7f3c": 2.787967146385421,
+      "a5bb7f9dd1884f1ea0de299caefe7ef4": 2.0858742285875818
+    },
+    "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+  },
+  "mixed": {
+    "workload": "mixed",
+    "frequency": "three",
+    "comparison": "B->C",
+    "paired_frames": 72,
+    "independent_logs": 3,
+    "from_ms": 2447.7178116535974,
+    "to_ms": 2245.600723241094,
+    "speedup": 1.090005799481925,
+    "delta_ms": -202.11708841250382,
+    "speedup_log_CI95": [
+      1.0439225126107359,
+      1.1296317253082155
+    ],
+    "delta_log_CI95_ms": [
+      -281.3177186374863,
+      -99.86858706300457
+    ],
+    "log_speedups": {
+      "5bd40b613ac740cd9dbacdfbc3d68201": 1.0439225126107359,
+      "8ff48ad1df8e4966a2151730c92b7f3c": 1.1296317253082155,
+      "a5bb7f9dd1884f1ea0de299caefe7ef4": 1.0981997881910208
+    },
+    "interval_scope": "Exact empirical whole-log cluster bootstrap; small log count, not rare-error certification"
+  },
+  "known_primary_2pp_pass": true,
+  "new_severe": 1,
+  "strict_rare_risk_certification": false,
+  "per_cell_known_quality_or_severe_gate_failures": [
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "loss": -0.2033898305084746,
+      "new_severe": 1,
+      "scored": 118
+    }
+  ],
+  "full_task_quality_budget_certified": false,
+  "independent_TEST": false,
+  "historical_v3_NO_GO": "UNCHANGED",
+  "historical_v4_NO_GO": "UNCHANGED",
+  "previous_INCOMPLETE": "UNCHANGED",
+  "production_enabled": false,
+  "not_exhaustive_global_optimum": true,
+  "selected_policy_retrospective_quality_gate": "FAILED"
+}

@@ -1,0 +1,5 @@
+# Data roles and independence
+
+All104 selected frames/5 scenes/5 logs were executed in the previous study and their logs have method-development exposure. Two16-frame streams supply profiling/executor DEV/hyperparameter DEV; three24-frame streams supply retrospective frozen-policy evaluation. None is a new independent TEST or a new unexecuted-frame extension. Official val is outside the configured nuScenes training split, while exact pretraining exposure is unknown. GT is read only by offline grading. See data_roles.json and the previous retained frame-exposure audit. Historical v3/v4 NO_GO, previous INCOMPLETE, dataset split and checkpoint are preserved.
+
+The raw worker/policy scope enum WITHIN_LOG_EXTENDED_EVALUATION is inherited from the prior runtime interface. This run reuses the already-executed selection and is classified retrospectively regardless of that legacy enum. Original selection role names and the copied historical QA protocol are reference semantics, not fresh-data claims. See raw_scope_addendum.json.

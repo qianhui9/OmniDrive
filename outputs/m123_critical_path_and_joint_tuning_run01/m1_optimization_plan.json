@@ -1,0 +1,13 @@
+{
+  "profile_evidence": "profile/profile_output/*: normalized30k calls and frame byte copies",
+  "changes": [
+    "Scalar leaf fast path in complete state normalization, same canonical JSON",
+    "Hash contiguous NumPy buffers directly instead of allocating tobytes copies"
+  ],
+  "preserves_complete_live_mutation_checks": true,
+  "no_digest_memo": true,
+  "no_sync_removed_or_moved": true,
+  "original_sources": "baseline_sources/worldstream/m1",
+  "paired_same_process": true,
+  "no_M2_code_change": "Before tuning, determine whether measured prefix packing cost warrants any executor change; full suffix required on drift frames"
+}

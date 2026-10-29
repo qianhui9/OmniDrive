@@ -1,0 +1,18 @@
+{
+  "status": "RESOLVED_BY_RETURN_VALUE_AUDIT",
+  "old_worker_sha256": "30b8a12d475cb5ac182eb930093e24b9b7aef5fcade87a9987a5f9dce25f07d0",
+  "cause": "Stage observer is called inside executed global blocks; global residual reuse bypasses those hooks, leaving feature_holder at the previous full-suffix frame.",
+  "invalid_fields": "Legacy visual_quality.feature and full_feature_difference on global-suffix reuse frames only.",
+  "unaffected": [
+    "actual model vision/heads outputs",
+    "independent GT QA and detection scoring",
+    "actual LLM forwards/skips",
+    "synchronized outer E2E",
+    "WorldState/ID/refresh/answer equivalence"
+  ],
+  "correction_plan": "Preserve raw receipts, mark invalid legacy feature witnesses, directly capture returned M2 tensor in a minimal post-final audit; serving executor/parameters unchanged.",
+  "main_final_run_continues_with_frozen_sources": true,
+  "resolution": "corrected_feature_audit.json",
+  "legacy_invalid_feature_rows": 548,
+  "actual_returned_M1_exact_pairs": 16
+}

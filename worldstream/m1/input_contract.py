@@ -34,7 +34,7 @@ def frame_digest(frame):
         else:
             array = np.ascontiguousarray(value)
             digest.update(str((array.shape, str(array.dtype))).encode())
-            digest.update(array.tobytes())
+            digest.update(array)
     digest.update(repr((frame.scene_id, frame.frame_id, frame.timestamp, frame.execution_signature)).encode())
     add(frame.ego_to_world)
     for cid, camera in frame.cameras.items():
@@ -61,5 +61,5 @@ def camera_snapshot_digest(camera):
             digest.update(b'None;')
         else:
             value=np.ascontiguousarray(value)
-            digest.update(repr((value.shape,str(value.dtype))).encode());digest.update(value.tobytes())
+            digest.update(repr((value.shape,str(value.dtype))).encode());digest.update(value)
     return digest.hexdigest()
