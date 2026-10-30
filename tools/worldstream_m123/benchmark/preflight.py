@@ -14,10 +14,10 @@ from .common import sha256, write
 BASELINE = 'projects/configs/OmniDrive/mask_eva_lane_det_vlm.py'
 FINAL = 'projects/configs/OmniDrive/worldstream_m123_auto.py'
 PROTECTED = [BASELINE, FINAL, 'configs/worldstream_m1_final.yaml',
-             'outputs/final_route/window_costs.json',
-             'outputs/final_route/m3_prefill_costs.json',
-             'outputs/final_route/m3_prefill_quality.json',
-             'outputs/final_route/m3_state_quality.json']
+             'outputs/m123_final_quality_validation_run01/resources/final_route/window_costs.json',
+             'outputs/m123_final_quality_validation_run01/resources/final_route/m3_prefill_costs.json',
+             'outputs/m123_final_quality_validation_run01/resources/final_route/m3_prefill_quality.json',
+             'outputs/m123_final_quality_validation_run01/resources/final_route/m3_state_quality.json']
 
 
 def command(args):

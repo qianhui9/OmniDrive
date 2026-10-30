@@ -111,7 +111,7 @@ def run(root,stage):
         write(out/'kernel_witness.json',dict(gpu=torch.cuda.get_device_name(0),seed=20261030,result=witness,cpu_affinity=sorted(os.sched_getaffinity(0))))
         cfg=effective_config('B3','language',out,'native_full')
         model=load_model(cfg,'ckpts/iter_10548.pth',out).eval().requires_grad_(False)
-        cp=json.loads(Path('outputs/m3_final_fact_bypass_run01/checkpoint_verification.json').read_text())['actual_sha256']
+        cp=json.loads(Path('outputs/m123_final_quality_validation_run01/resources/checkpoint_verification.json').read_text())['actual_sha256']
         actual=sha256('ckpts/iter_10548.pth');assert cp==actual
         model.worldstream_audit_identity=dict(checkpoint_sha256=actual)
         dataset=build_dataset(cfg.data.test);original={i['token']:i for i in dataset.data_infos}

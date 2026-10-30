@@ -1,0 +1,26 @@
+{
+  "source_commit": "4758ad62130221ca499f9f85e585664bf09d6756",
+  "main_directory": "outputs/m123_final_quality_validation_run01",
+  "policy": "outputs/m123_final_quality_validation_run01/final_research_policy.json",
+  "policy_sha256": "31d8f3b3d5f206bf0d3d3898d22ce1b000b87c966abaaa8b588050201790efd4",
+  "policy_parameters": {
+    "M1_min_detection_score": 0.3,
+    "M2_ordinary_budget": 3,
+    "M3": "current_only/C-basic/.45/.75"
+  },
+  "protected_tracked_sha256": "fb2b692056a6bc3da221853761cfc7b0d0fb18fc6c01ed0173b37b8ef2bcc8bb",
+  "protected_checkpoints_sha256": "21ec82c9a3cc6767855e1b7e4fb9cddd36b07c320d231ee3500719d54527cafd",
+  "dataset_symlink": {
+    "path": "data/nuscenes",
+    "target": "/data/qh/nuscenes/v1.0-trainval",
+    "touched": false
+  },
+  "keep_reasons": "Only the current main experiment is kept in outputs. Original stage sources are archived separately from current resource-path maintenance.",
+  "risk": "FAILED_OBSERVED_RESIDUAL_SEVERE; INDEPENDENT_VALIDATION_INCOMPLETE",
+  "production_deployment_allowed": false,
+  "historical_output_storage": "Git at source_commit; only actual main-study dependencies migrated live",
+  "main_consolidation": "consolidation/plan.json",
+  "maintenance_tag": "m123-main-r0-consolidated-20261030",
+  "source_hashes_role": "Post-consolidation source bytes; source_commit is the pre-maintenance base, maintenance_tag identifies the finalized maintenance commit.",
+  "original_result_commit": "c8ddb66bf90ee2c4d4627751d5f9d3961133f810"
+}

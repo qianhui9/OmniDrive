@@ -1,48 +1,26 @@
-# 复现
+# 冻结主实验复现
 
-基准提交40c8cdce74ef2e5cbdb8c2bb6eaa5ef42e2ad071；当前审计提交包含本目录与两个外部脚本。环境warm reuse，无安装/训练/下载；权重ckpts/iter_10548.pth，SHA256 6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d。GPU RTX3090。所有命令必须使用上述taskset；GPU被占用只等待，锁/tmp/omnidrive_m123_latency_gpu.lock。
+当前唯一活动路线为 R0：M1 阈值 0.3、M2 budget 3、M3 current_only / C-basic / .45 / .75。配置、GPU 实测收据及报告均在本目录。生产默认关闭；残余严重错误与独立 TEST 不完整结论不变。
 
-以下命令须在 /data/qh/phdCode/work4/OmniDrive 项目根目录执行。select仅允许第一次选择，已有final_research_policy.json时拒绝覆盖；之后只能report重新核验，或使用新的复现目录。
-
-最终参数只有R0一套。policy_archive/pre_confirmation_policy.json保留确认前的原始冻结文件及SHA；final_research_policy.json随后只补充已观察到的残余严重错误风险元数据。policy_qualification_revision.json逐项证明M1/M2/M3、质量预算、候选选择均未修改。档案不构成第二套推荐运行路径。
-
-无GPU历史完整性校验：
+在项目根目录执行完整保留校验（不进行 GPU 推理）：
 
 ```sh
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_analysis verify
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.freeze_cleanup verify
 ```
 
-本次三个真实GPU阶段的执行状态、源文件哈希、严格checkpoint验证、seeded CUDA witness与原始请求均在对应子目录。完整请求JSONL已无损gzip，receipt_archive.json包含原文与压缩SHA256；读取器可直接读取.gz，不需要大型Tensor。
-
-在现有收据上重新组装离线报告（不会训练或运行推理，保留冻结策略）：
+只重放冻结主路线，不重新搜索或选择参数：
 
 ```sh
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_analysis report
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.freeze_cleanup prepare-replay --output /tmp/omnidrive-r0-main-replay
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_capture main --root /tmp/omnidrive-r0-main-replay
 ```
 
-重新推理必须使用全新输出目录；复用相同帧只是回归/性能重放，不是新的独立TEST。顺序如下：
+第二条需要空闲 GPU 并持有既有锁；GPU 被占用只等待，不终止其他进程。新目录必须不存在。A/B/C 五种负载共 240 次新执行；原始主报告是 208 次新执行加 32 个历史收据复用，不能合并均值。重放既有 DEV 不构成独立 TEST。
 
-```sh
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_analysis prepare --root /tmp/omnidrive-final-quality-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_capture causal --root /tmp/omnidrive-final-quality-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_capture dev_quality --root /tmp/omnidrive-final-quality-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_analysis select --root /tmp/omnidrive-final-quality-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_capture selected_confirm --root /tmp/omnidrive-final-quality-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_analysis prepare_scene_start --root /tmp/omnidrive-final-quality-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_capture scene_start_causal --root /tmp/omnidrive-final-quality-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_analysis map_quality --root /tmp/omnidrive-final-quality-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_analysis report --root /tmp/omnidrive-final-quality-replay
-```
+离线报告重组建议先复制本目录到 /tmp，再对副本运行 final_quality_analysis report --root <副本路径>，以保留冻结输出字节。读取器直接使用 requests.jsonl.gz，无需恢复大型 Tensor。
 
-Full必须先于对应Incremental，以在/tmp/omnidrive-final-quality-features生成同序列当前返回NCHW参照。不能同时运行两个重复实验写同一临时特征命名空间；GPU锁串行整个阶段。临时Tensor不提交Git，不参与在线准入。
+provenance/parent_evidence 只包含本主实验实际依赖的历史对照收据及小型报告；resources 是原运行资源的逐字节副本。consolidation/plan.json 记录删除的旧输出及原始 Git 提交。历史完整性校验将已删除文件与该提交的 Git blob 比较，将执行源文件与 original_sources 中原始快照比较，明确区分当前文件、历史源码和 Git 归档；不宣称旧目录仍然存在。
 
-新阶段统计从实际请求逐行计算，历史复用不计新增；causal40帧、DEV128帧、冻结后五负载确认208帧、官方Scene首帧起点causal80帧。确认中的32个三问B/C收据来自先前DEV，其余208实际执行。既有正式R1五负载实验保持独立，绝不混入本轮均值。
+原始完整历史复现说明保存在 consolidation/original_docs/REPRODUCE.md，仅为来源记录。恢复整个旧研究流程须在旧标签 m123-main-r0-frozen-20261030 对应的独立 checkout 中进行，不向当前 outputs 恢复旧目录。全部旧审计与 NO_GO 结论可从该标签读取。
 
-CPU/CUDA回归：
-
-```sh
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.answer_validity_validate --output /tmp/omnidrive-final-quality-cpu
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.answer_validity_validate --gpu --output /tmp/omnidrive-final-quality-cuda
-```
-
-GPU命令需要真实主机CUDA访问；沙箱可能隐藏CUDA/NVML，应在已授权主机执行，不能把沙箱不可见误记为GPU实验失败。生产默认关闭；零DEV新严重错误并非严格风险认证。独立TEST不足与历史NO_GO均保留。
+权重 ckpts/iter_10548.pth 的 SHA256 为 6468af836dbdbc41034545d2a4669abc3b5288a669b4e13ac9a99bf9bb53c30d；权重、数据集软链接、Conda 环境和 Git 历史保留。本轮仅修改资源路径与离线保留校验，不重新运行 GPU 实验。

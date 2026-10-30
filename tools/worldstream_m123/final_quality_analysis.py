@@ -18,7 +18,7 @@ from .continuous_stream_analysis import quality_summary, mean, dist
 from .fact_bypass_identity import match_instances, question_target
 
 ROOT = Path('outputs/m123_final_quality_validation_run01')
-OLD = Path('outputs/m123_critical_path_and_joint_tuning_run01')
+OLD = ROOT / 'provenance/parent_evidence'
 ERROR_FRAME = 'a7753324e1e44e4598ed2b9a9c26c4c1'
 
 
@@ -1029,7 +1029,7 @@ GT最近可见Pedestrian是前左方，中心约(10.0937,8.1488,1.3329)m；其�
     (root/'e2e_performance_report.md').write_text('# 冻结配置性能确认\n\n'+
         f'{selected}，一条暴露DEV流、每格16帧；三问B/C的32个收据复用先前实际执行，其余208次新完整模型调用。无独立TEST意义；一个日志无法估计日志总体不确定性，因此不提供退化bootstrap置信区间。\n\n'+
         perf_table+'\n低问答频率C慢于纯Native，M1/M2管理代价仍存在。FPS/QPS为计算服务吞吐，不是传感器到达或排队时延。M3阶段字段定义见JSON，不把CPU enqueue或CUDA loop span当同步纯阶段Host Wall。\n\n'+
-        '全部三日志历史R1结果引用 ../m123_critical_path_and_joint_tuning_run01/abc_comparison.json，仅归属于R1；不与本轮R0单日志值拼成总体，也不跨日志把差值当参数因果收益。\n')
+        '全部三日志历史R1结果引用 provenance/parent_evidence/abc_comparison.json，仅归属于R1；不与本轮R0单日志值拼成总体，也不跨日志把差值当参数因果收益。\n')
     py='taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python'
     reproduce=f'''# 复现
 
@@ -1085,8 +1085,8 @@ GPU命令需要真实主机CUDA访问；沙箱可能隐藏CUDA/NVML，应在已�
 
 def verify(root):
     original=read(root/'historical_integrity_manifest.json')
-    failures=[p for p,h in original.items() if not Path(p).is_file() or sha256(p)!=h]
-    assert not failures, failures
+    from .consolidated_outputs import historical_check
+    historical=historical_check(original,root)
     freezes=read(root/'pre_GPU_freeze.json')
     assert freezes['protocol_sha256']==sha256(root/'protocol_freeze.json')
     for stage,h in freezes['job_hashes'].items():assert sha256(root/(stage+'_jobs.json'))==h
@@ -1098,6 +1098,11 @@ def verify(root):
         hashes=read(root/stage/'execution_sources.json')
         for name,h in hashes.items():
             if sha256(name)==h:continue
+            snapshots=root/'consolidation/source_snapshots.json'
+            if snapshots.exists() and name in read(snapshots):
+                snapshot=root/read(snapshots)[name]['snapshot']
+                assert sha256(snapshot)==h,(stage,name)
+                continue
             alternate=root/'capture_v1_sources/final_quality_capture.py'
             assert stage in ('causal','dev_quality') and name=='tools/worldstream_m123/final_quality_capture.py' and sha256(alternate)==h,(stage,name)
         rows=list(stream(root/stage/'requests.jsonl'))
@@ -1141,7 +1146,7 @@ def verify(root):
             assert r['job_spec']['scene']['tokens']==base['job_spec']['scene']['tokens']
         if stage=='scene_start_causal' and causal:
             assert ref[0]['frame_id']==read(root/'scene_start_protocol_addendum.json')['true_scene_first_sample']
-    result=dict(status='PASS',historical_files_unchanged=len(original),stages=stages,
+    result=dict(status='PASS',historical_files_verified=len(original),historical_storage=historical,stages=stages,
         job_protocol_parameter_freezes_unchanged=True,policy_qualification_metadata_revision_attested=True,GT_cache_unchanged=True,
         causal_inputs_and_full_prefix_identical=True,source_revisions_attested=True,
         no_GT_online=True,strict_risk_or_generalization_certified=False)

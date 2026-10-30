@@ -12,4 +12,4 @@ R0，一条暴露DEV流、每格16帧；三问B/C的32个收据复用先前实�
 
 低问答频率C慢于纯Native，M1/M2管理代价仍存在。FPS/QPS为计算服务吞吐，不是传感器到达或排队时延。M3阶段字段定义见JSON，不把CPU enqueue或CUDA loop span当同步纯阶段Host Wall。
 
-全部三日志历史R1结果引用 ../m123_critical_path_and_joint_tuning_run01/abc_comparison.json，仅归属于R1；不与本轮R0单日志值拼成总体，也不跨日志把差值当参数因果收益。
+全部三日志历史R1结果引用 provenance/parent_evidence/abc_comparison.json，仅归属于R1；不与本轮R0单日志值拼成总体，也不跨日志把差值当参数因果收益。

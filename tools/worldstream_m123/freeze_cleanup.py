@@ -19,9 +19,9 @@ import sys
 import shutil
 
 REPO = Path(__file__).resolve().parents[2]
-ROOT = REPO / 'outputs/main_experiment_freeze_run01'
 MAIN = 'outputs/m123_final_quality_validation_run01'
-PARENT = 'outputs/m123_critical_path_and_joint_tuning_run01'
+ROOT = REPO / MAIN / 'freeze'
+PARENT = MAIN + '/provenance/parent_evidence'
 TMP_SCOPES = tuple(Path(p) for p in (
     '/tmp/omnidrive-final-quality-features',
     '/tmp/omnidrive-critical-full-features',
@@ -219,6 +219,22 @@ def clean():
 
 
 def verify():
+    if (REPO/MAIN/'consolidation/plan.json').exists():
+        from .consolidated_outputs import verify as verify_consolidation
+        verify_consolidation()
+        frozen=read(ROOT/'freeze_manifest.json')
+        assert digest(ROOT/'protected_tracked_files.json')==frozen['protected_tracked_sha256']
+        assert digest(ROOT/'protected_checkpoints.json')==frozen['protected_checkpoints_sha256']
+        for path,h in read(ROOT/'protected_tracked_files.json').items():
+            assert digest(REPO/path)==h,path
+        for path,entry in read(ROOT/'protected_checkpoints.json').items():
+            print('VERIFY_WEIGHT',path,flush=True)
+            assert digest(REPO/path)==entry['sha256'],path
+        assert digest(REPO/frozen['policy'])==frozen['policy_sha256']
+        assert str((REPO/'data/nuscenes').resolve())==frozen['dataset_symlink']['target']
+        validate_archives()
+        print('FROZEN_MAIN_AND_WEIGHTS_PASS',flush=True)
+        return
     frozen = read(ROOT / 'freeze_manifest.json')
     assert digest(ROOT / 'protected_tracked_files.json') == frozen['protected_tracked_sha256']
     assert digest(ROOT / 'protected_checkpoints.json') == frozen['protected_checkpoints_sha256']

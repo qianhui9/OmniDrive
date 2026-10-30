@@ -1,3 +1,0 @@
-# M1 implementation change
-
-source_digest.py: fast-path Python scalar leaves and hash contiguous numeric arrays directly. input_contract.py: hash exact contiguous buffers without allocating temporary tobytes copies. Canonical bytes and live mutable-state coverage are unchanged. No association, age, coordinate, image or descriptor rule changed. Legacy functions are confined to an external paired benchmark control; serving has one implementation. See before_after_executor_comparison.json for fresh-process results and executor_pilot_comparison.json for all pilot results including its outlier. Two logs do not establish a population-wide speedup. Stop further M1 edits after this bounded change.

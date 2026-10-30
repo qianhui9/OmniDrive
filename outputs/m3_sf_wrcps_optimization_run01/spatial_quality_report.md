@@ -1,9 +1,0 @@
-# 空间保真证据与边界
-
-最重要基础合同通过：同一真实M1/M2载体、同一问题/原采样RNG，8帧24问的Native与SF无核心输入实际扩展视觉embedding、position IDs、attention mask、token IDs、visual mask、prefill最后位置logits和完整自然生成tokens全部严格一致（24/24）。同一tensor存储身份也保留。温度0.1、top_p0.75、max_new_tokens320未改。证据见 no_core_equivalence/summary.json 和逐请求记录。
-
-旧5193…公交站问题由旧Composer的left恢复为与Native相同的right，参考为right-front，详见 spatial_failure_regression.json。这修复了旧无核心压缩造成的方向翻转；只是一例已暴露回归。没有重新验证所有图像物理事实，也没有将Teacher或自然语言参考当作物理证书。
-
-真实旧开发载体的13帧结构诊断中含5个有效核心帧。旧K128自由attention重构仅Ego一个原生槽位逐元素保留，新未训练K64保留397–404个；8个无核心帧完整保留513个且同一存储。K64按object/map特征余弦依赖做有限二部匹配，每组只移除32槽，未参与目标合并的槽位保持原值及原顺序；Ego不变。相邻索引不被当作物理邻接。余弦高并不能证明物理空间保真。详见 structural_diagnostic.json。
-
-有效核心下的新结构会增加64个稳定槽，移除64个原生槽并修改少量合并目标，因此仍可能损失方向、运动和数量关系。本轮训练数据门失败，没有已训练新Composer的同载体核心质量结果；不能因无核心严格等价就宣称WRCPS质量通过。K64相对K128的结构保留改进不等同于任务精度最优，也没有证据触发K32开发比较。

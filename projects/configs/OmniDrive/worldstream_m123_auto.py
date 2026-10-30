@@ -19,7 +19,7 @@ model = dict(
     m3_enable=True,
     m3_config=dict(mode='auto', state_context='augment', memory_budget_mb=512,
         reuse_strategy='wsdr_kv',block_size=32,quality_budget=0.02,
-        reuse_policy='outputs/final_route/m3_reuse_policy.json'))
+        reuse_policy='outputs/m123_final_quality_validation_run01/resources/final_route/m3_reuse_policy.json'))
 # Preserve deployed preprocessing and retain source camera poses in metadata.
 test_pipeline = [
     dict(type='LoadMultiViewImageFromFiles', to_float32=True),

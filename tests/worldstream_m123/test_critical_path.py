@@ -8,7 +8,7 @@ import numpy as np
 
 
 def reference_module(name):
-    path=Path('outputs/m123_critical_path_and_joint_tuning_run01/baseline_sources/worldstream/m1')/(name+'.py')
+    path=Path('outputs/m123_final_quality_validation_run01/baseline_sources/worldstream/m1')/(name+'.py')
     spec=importlib.util.spec_from_file_location('worldstream.m1._critical_reference_'+name,path)
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     return module

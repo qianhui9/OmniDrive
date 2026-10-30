@@ -1,7 +1,0 @@
-# Finite sequential DEV search
-
-Protocol was frozen before hyperparameter DEV, including equal weights across five workloads and1/2/3pp known-label budgets. P0 justified one additional pre-DEV drift-threshold point, recorded in m2_candidates_freeze.json. M1 candidates vary existing detection filtering and association gates; M2 candidates vary existing ordinary budget, global anchor interval and drift threshold. M3 candidates vary existing confidence/binding-risk gates only. No Cartesian search, new risk model or changed sampling.
-
-Selected default2pp: M1={'min_detection_score': 0.4}, M2={'ordinary_budget': 1}, M3 min_confidence=0.45, max_binding_risk=0.75. The1/2/3pp DEV choices are {'0.01': 1, '0.02': 1, '0.03': 1}. These are DEV measured operating points, not three separately retested final policies.
-
-Candidate module and task quality include separate known denominators, UNKNOWN, partial association continuity and severe errors. The M1 .4 threshold removes lower-score states, so conditional accuracy changes must be read together with retained-state/label counts; it does not prove improved full-object recall. Same-decision candidates and exact already-executed B/reference paths reuse receipts without counting extra GPU calls. Joint confirmation measures the other four cells; the existing3Q cell is reused. The final selected combination is tested on the three retrospective evaluation streams after freeze. No exhaustive or population-wide optimum is established.
