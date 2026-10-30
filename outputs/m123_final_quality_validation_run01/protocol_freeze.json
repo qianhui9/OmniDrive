@@ -1,0 +1,38 @@
+{
+  "base_commit": "40c8cdce74ef2e5cbdb8c2bb6eaa5ef42e2ad071",
+  "selection_sha256": "11f2bde13e4665cdfb43d1284baf66e7eaeffadd90b8f505e2d7a9e0d7bfb9a8",
+  "scope": "RETROSPECTIVE_CONFIGURATION_SELECTION",
+  "independent_TEST": false,
+  "causal_case_role": "POST_HOC_CAUSAL_DIAGNOSIS_ONLY",
+  "DEV_selection": "Only first two fixed extended_DEV streams, 16 frames each. Historical evaluation/error stream forbidden for selection.",
+  "original_M1_threshold": 0.3,
+  "original_M2_budget": 3,
+  "parameter_source": [
+    "worldstream/m1/config.py",
+    "worldstream/m2/config.py",
+    "GPU effective_runtime_jobs.jsonl"
+  ],
+  "candidate_limit": [
+    "R0: original/original",
+    "R1: .4/1",
+    "R2: original/1",
+    "R3: .4/original"
+  ],
+  "M3": "Unchanged current_only C-basic .45/.75, temporal risk/completeness disabled",
+  "common_candidate_objective": "Measured three-question DEV E2E on identical 32 frames; no invented missing five-workload means for R2/R3.",
+  "decision_rule": "Known paired B-C loss <= budget; separately zero new severe on DEV. Prefer candidates without >2pp loss in visible committed class-correct object recall or question-relevant eligible target recall versus R0. Then minimize common-cell E2E. If none qualifies retain fastest risk-failed research candidate. No further search.",
+  "budgets": [
+    0.01,
+    0.02,
+    0.03
+  ],
+  "default_budget": 0.02,
+  "detector_protocol": "Class-independent unique <2m / .5m ambiguity; bottom-to-gravity box conversion; raw score>=.3 fixed. All decoded boxes also retained for error trace.",
+  "recall_scope": "All mapped GT and separately visibility-qualified GT in already exposed subset; unmatched predictions UNKNOWN, never automatic FP.",
+  "FP_policy": "No certified exhaustive per-prediction negative adjudication: FP and unconditional precision NOT_CERTIFIED. Report conditional matched precision and conservative bounds.",
+  "feature_observer": "Actual returned M2 NCHW; per-camera/4x4 tiles/token quantiles, after model timer",
+  "historical_performance": "Prior frozen five-workload ABC results stay separate from new diagnostic means",
+  "production_default": false,
+  "no_training": true,
+  "sampling_unchanged": true
+}

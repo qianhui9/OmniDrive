@@ -1,0 +1,15 @@
+{
+  "scope": "POST_HOC_CAUSAL_DIAGNOSIS_ONLY",
+  "true_scene_first_sample": "94cd383effba4e688570233a060a13f4",
+  "history_frames": 16,
+  "historical_segment_start_index": 8,
+  "reason": "Historical final used a legal cold-start segment, not official scene first sample. Preserve that exact-error replay AND add official full-scene-origin replay; do not conflate initial conditions.",
+  "no_configuration_reselection": true,
+  "frozen_policy_sha256": "dd6dca3306cc13ce2697dd1781a94455a6dbcfe8d90b44cd4682c6be059b5559",
+  "jobs_sha256": "2d183febb24aac398a40456e45dadd55774c0b6a73dd324ca3c336f129dd82b8",
+  "GT_sha256": "32aa55dca1d0f27013e30d0752f3ffc58495c7affc1ec9f22a1a567507128037",
+  "reused_GT_sources": [],
+  "frames_not_previously_in_this_run": 8,
+  "all_extra_frames_role": "CAUSAL_HISTORY_ONLY, never DEV or TEST qualification",
+  "same_request_RNG": "Frame identity, question index, experiment seed/repeat are identical across arms. Question RNG uses actual frame_id, not segment-local index."
+}

@@ -1,0 +1,62 @@
+{
+  "new_only": {
+    "full_model_calls": 456,
+    "stateful_M123_calls": 376,
+    "native_calls": 80,
+    "question_requests": 1020,
+    "QA_frames": 396,
+    "idle_frames": 60,
+    "actual_LLM_forwards": 7015,
+    "actual_skips": 471
+  },
+  "by_stage": {
+    "causal": {
+      "full_model_calls": 40,
+      "stateful_M123_calls": 40,
+      "native_calls": 0,
+      "question_requests": 120,
+      "QA_frames": 40,
+      "idle_frames": 0,
+      "actual_LLM_forwards": 140,
+      "actual_skips": 110
+    },
+    "dev_quality": {
+      "full_model_calls": 128,
+      "stateful_M123_calls": 128,
+      "native_calls": 0,
+      "question_requests": 384,
+      "QA_frames": 128,
+      "idle_frames": 0,
+      "actual_LLM_forwards": 2391,
+      "actual_skips": 138
+    },
+    "selected_confirm": {
+      "full_model_calls": 208,
+      "stateful_M123_calls": 128,
+      "native_calls": 80,
+      "question_requests": 276,
+      "QA_frames": 148,
+      "idle_frames": 60,
+      "actual_LLM_forwards": 4095,
+      "actual_skips": 22
+    },
+    "scene_start_causal": {
+      "full_model_calls": 80,
+      "stateful_M123_calls": 80,
+      "native_calls": 0,
+      "question_requests": 240,
+      "QA_frames": 80,
+      "idle_frames": 0,
+      "actual_LLM_forwards": 389,
+      "actual_skips": 201
+    }
+  },
+  "distinct_input_frames": 48,
+  "distinct_logs": 3,
+  "historical_reused_receipts_do_not_count_as_new": true,
+  "actual_prefill_skips": 471,
+  "actual_decode_skips": 471,
+  "regressions_are_zero_full_model_experiments": true,
+  "all_frames_used_only_as_DEV_or_posthoc_diagnosis": true,
+  "new_independent_TEST_frames": 0
+}

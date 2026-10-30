@@ -1,0 +1,64 @@
+{
+  "statuses": [
+    "QUALITY_LATENCY_CANDIDATE_SELECTED",
+    "SELECTED_CANDIDATE_RESIDUAL_RISK_FAILED",
+    "INDEPENDENT_VALIDATION_INCOMPLETE"
+  ],
+  "selected": "R0",
+  "fastest": "R1",
+  "fastest_historical_risk_status": "FASTEST_CANDIDATE_RISK_FAILED",
+  "selection_scope": "RETROSPECTIVE_CONFIGURATION_SELECTION",
+  "research_performance_accepted": true,
+  "strict_risk_accepted": false,
+  "production_deployment_allowed": false,
+  "no_algorithm_change": true,
+  "M1_hash_optimization_retained": true,
+  "M2_sole_executor_retained": true,
+  "M3_C_basic_retained": true,
+  "historical_v3_v4_NO_GO_preserved": true,
+  "previous_fastest_failure_preserved": true,
+  "causal_finding": "Historical 8-frame cold start shows M1/M2 interaction (.4/1 fails; .4/3 correct; .3/1 fallback). Official 16-frame scene-origin replay shows .4 fails with BOTH M2 budgets, while .3 retains front-left with both. In every failed final frame correct-target vicinity decoded scores are already below .3, so the effect is history-mediated, not direct final-frame .4 filtering. C-basic cannot certify nearest-GT completeness from observed witnesses.",
+  "causal_window_chain_evidence": "causal_window_chain.json: previous .3543 witness removed by .4, mandatory CAM_FRONT_LEFT windows19/22 absent in both prefix blocks; current global suffix fully executes in all arms",
+  "M2_Full_to_selected_known_answer_loss": 0.02127659574468085,
+  "full_task_quality_certified": false,
+  "map_quality_evidence": "map_quality_audit.json; budget3 lane subset only, budget1 unscored",
+  "official_scene_start_case": {
+    "R0": {
+      "answer": "The nearest pedestrian is to the front-left.",
+      "fast": true,
+      "severe": false
+    },
+    "R3": {
+      "answer": "The nearest pedestrian is to the rear-left.",
+      "fast": true,
+      "severe": true
+    },
+    "R2": {
+      "answer": "The nearest pedestrian is to the front-left.",
+      "fast": true,
+      "severe": false
+    },
+    "R1": {
+      "answer": "The nearest pedestrian is to the rear-left.",
+      "fast": true,
+      "severe": true
+    },
+    "Full": {
+      "answer": "The nearest pedestrian is on the left side, walking on the sidewalk parallel to the road.",
+      "fast": false,
+      "severe": false
+    }
+  },
+  "selected_residual_absolute_severe": {
+    "requests": 48,
+    "scored": 39,
+    "UNKNOWN": 9,
+    "absolute_severe": 1,
+    "fast_severe": 1,
+    "matched_normal_B_unavailable": true,
+    "new_relative_to_B": null,
+    "scope": "POST_HOC_CAUSAL_HISTORY_ONLY_NOT_DEV_OR_TEST_SELECTION"
+  },
+  "constraints": "Independent TEST unavailable. Two DEV logs and one confirmation log do not certify a rare serious-error rate. Full-data/budget1 map/lane quality not certified.",
+  "next_action": "Freeze the sole method and this candidate; proceed to paper experiments with predeclared new independent data. No further tuning to the exposed case."
+}

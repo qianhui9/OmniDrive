@@ -1,0 +1,2541 @@
+{
+  "points": [
+    {
+      "label": "R0",
+      "M1": {},
+      "M2": {},
+      "performance": {
+        "frames": 32,
+        "independent_logs": 2,
+        "E2E_ms": {
+          "n": 32,
+          "mean": 1325.797056691954,
+          "p50": 1299.6043094899505,
+          "p95": 2103.5966113442555,
+          "p99": 2585.3640491515407,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M1_wall_ms": {
+          "n": 32,
+          "mean": 174.3321236135671,
+          "p50": 149.08978436142206,
+          "p95": 229.34208742808545,
+          "p99": 542.3446974717085,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_host_ms": {
+          "n": 32,
+          "mean": 369.62931259768084,
+          "p50": 492.53768753260374,
+          "p95": 501.56384645961225,
+          "p99": 507.3377964971587,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_CUDA_ms": {
+          "n": 32,
+          "mean": 369.64605581760406,
+          "p50": 492.55914306640625,
+          "p95": 501.5936782836914,
+          "p99": 507.36261993408203,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "suffix_refresh_frames": 23,
+        "suffix_reuse_frames": 9,
+        "question_requests": 96,
+        "LLM_forwards": 585,
+        "actual_skips": 45,
+        "prefill_including_cache_CUDA_ms": {
+          "n": 96,
+          "mean": 95.6299524307251,
+          "p50": 178.83084869384766,
+          "p95": 181.2044448852539,
+          "p99": 181.3419189453125,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "decode_forward_CUDA_ms": {
+          "n": 96,
+          "mean": 141.78716466824213,
+          "p50": 27.241984367370605,
+          "p95": 504.8418245315552,
+          "p99": 561.236146354675,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M3_runtime_wall_ms": {
+          "n": 32,
+          "mean": 733.7677479954436,
+          "p50": 576.3880126178265,
+          "p95": 1493.1359214941037,
+          "p99": 1925.1629617437727,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        }
+      },
+      "quality": {
+        "comparison": "R0_B->R0",
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "B_score": 0.5531914893617021,
+        "C_score": 0.9574468085106383,
+        "loss": -0.40425531914893614,
+        "loss_log_CI95": [
+          -0.6875,
+          -0.25806451612903225
+        ],
+        "conservative_all_request_loss_bounds": [
+          -0.7083333333333334,
+          0.3125
+        ],
+        "new_severe": 0,
+        "net_severe": 0,
+        "new_severe_log_CI95": [
+          0.0,
+          0.0
+        ],
+        "independent_logs": 2,
+        "pairs": [
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 0.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "deeb650a84054a07917eb84e21a358de",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "deeb650a84054a07917eb84e21a358de",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "ebd128c8164943538f360f11c10e26d5",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "ebd128c8164943538f360f11c10e26d5",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "10629cdea90242be94821898540d79be",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "10629cdea90242be94821898540d79be",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "07294f69a7564afe926cc3d343c3599a",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "07294f69a7564afe926cc3d343c3599a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "03d01b47ef714213b94aae1b95d5b44e",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "bdea805e042d412c92ad5c6e4ca7385b",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "a945d7d02c7a4ef98f1b5aaa1557f546",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "b4b81cfd5d734881ad386e5c2b00ed4a",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "f1424d3ab0e145a5a60d67c95164f156",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "d8e49e69a437461b8fb2bdfbff330a04",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "3aeb1dd281504f3098eb78149fca78e2",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "3f8c45e9f1b84f5abc2d4898f20c60b6",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "54c58e9e2c054cc290b17a6164fbcd0f",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "b32c097663ff4d30b83bd1857d64e790",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "5cea96ab7d324d958bb1db9da621b43c",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 0.0,
+            "fast": false
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "2ff6e2f9910b483ab578f0e162ee7c64",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "eb82a835419149aeae82c5e8ea64377b",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "c867c2092b554a5fb7a7db226dd7926a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "913104aa7a4f4917a651fdc062c7fc30",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "52ee039a8a97433987bba833d15396ab",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          }
+        ]
+      },
+      "fact_quality": {
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "answer_correctness": 0.9574468085106383,
+        "severe": 0,
+        "actual_skips": 45,
+        "unique_frame_questions": 96,
+        "unique_scored_frame_questions": 47,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "visible_object_recall": 0.6787878787878788,
+      "question_eligible_target_recall": 0.8085106382978723,
+      "coverage_gate": true,
+      "measurement_source": "Historical actual GPU receipts"
+    },
+    {
+      "label": "R1",
+      "M1": {
+        "min_detection_score": 0.4
+      },
+      "M2": {
+        "ordinary_budget": 1
+      },
+      "performance": {
+        "frames": 32,
+        "independent_logs": 2,
+        "E2E_ms": {
+          "n": 32,
+          "mean": 1239.2821293178713,
+          "p50": 1145.3720135614276,
+          "p95": 2121.640299097635,
+          "p99": 2591.900468990207,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M1_wall_ms": {
+          "n": 32,
+          "mean": 150.55965921783354,
+          "p50": 140.20104752853513,
+          "p95": 183.9643486775458,
+          "p99": 188.22698849253356,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_host_ms": {
+          "n": 32,
+          "mean": 335.05971034173854,
+          "p50": 478.8395054638386,
+          "p95": 497.94541995506734,
+          "p99": 498.65575827192515,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_CUDA_ms": {
+          "n": 32,
+          "mean": 335.0761179924011,
+          "p50": 478.85472106933594,
+          "p95": 497.9671829223633,
+          "p99": 498.6704696655273,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "suffix_refresh_frames": 21,
+        "suffix_reuse_frames": 11,
+        "question_requests": 96,
+        "LLM_forwards": 540,
+        "actual_skips": 43,
+        "prefill_including_cache_CUDA_ms": {
+          "n": 96,
+          "mean": 98.61289167404175,
+          "p50": 176.0956268310547,
+          "p95": 180.9226837158203,
+          "p99": 181.02343063354493,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "decode_forward_CUDA_ms": {
+          "n": 96,
+          "mean": 129.27095053593317,
+          "p50": 27.091808319091797,
+          "p95": 505.3678689002991,
+          "p99": 560.5378954887389,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M3_runtime_wall_ms": {
+          "n": 32,
+          "mean": 706.3154054194456,
+          "p50": 589.1962978057563,
+          "p95": 1488.4547868510708,
+          "p99": 1919.250136534684,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        }
+      },
+      "quality": {
+        "comparison": "R1_B->R1",
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "B_score": 0.5531914893617021,
+        "C_score": 0.9574468085106383,
+        "loss": -0.40425531914893614,
+        "loss_log_CI95": [
+          -0.75,
+          -0.22580645161290322
+        ],
+        "conservative_all_request_loss_bounds": [
+          -0.7083333333333334,
+          0.3125
+        ],
+        "new_severe": 0,
+        "net_severe": 0,
+        "new_severe_log_CI95": [
+          0.0,
+          0.0
+        ],
+        "independent_logs": 2,
+        "pairs": [
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 0.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "deeb650a84054a07917eb84e21a358de",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "deeb650a84054a07917eb84e21a358de",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "ebd128c8164943538f360f11c10e26d5",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "ebd128c8164943538f360f11c10e26d5",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "10629cdea90242be94821898540d79be",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "10629cdea90242be94821898540d79be",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "07294f69a7564afe926cc3d343c3599a",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "07294f69a7564afe926cc3d343c3599a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "03d01b47ef714213b94aae1b95d5b44e",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "bdea805e042d412c92ad5c6e4ca7385b",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "a945d7d02c7a4ef98f1b5aaa1557f546",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "b4b81cfd5d734881ad386e5c2b00ed4a",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "f1424d3ab0e145a5a60d67c95164f156",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "d8e49e69a437461b8fb2bdfbff330a04",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "3aeb1dd281504f3098eb78149fca78e2",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "3f8c45e9f1b84f5abc2d4898f20c60b6",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "54c58e9e2c054cc290b17a6164fbcd0f",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "b32c097663ff4d30b83bd1857d64e790",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "5cea96ab7d324d958bb1db9da621b43c",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 0.0,
+            "fast": false
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "2ff6e2f9910b483ab578f0e162ee7c64",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "eb82a835419149aeae82c5e8ea64377b",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "c867c2092b554a5fb7a7db226dd7926a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "913104aa7a4f4917a651fdc062c7fc30",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "52ee039a8a97433987bba833d15396ab",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          }
+        ]
+      },
+      "fact_quality": {
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "answer_correctness": 0.9574468085106383,
+        "severe": 0,
+        "actual_skips": 43,
+        "unique_frame_questions": 96,
+        "unique_scored_frame_questions": 47,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "visible_object_recall": 0.5818181818181818,
+      "question_eligible_target_recall": 0.6170212765957447,
+      "coverage_gate": false,
+      "measurement_source": "Historical actual GPU receipts"
+    },
+    {
+      "label": "R2",
+      "M1": {},
+      "M2": {
+        "ordinary_budget": 1
+      },
+      "performance": {
+        "frames": 32,
+        "independent_logs": 2,
+        "E2E_ms": {
+          "n": 32,
+          "mean": 1243.0711551423883,
+          "p50": 1210.634201997891,
+          "p95": 1989.3526644678786,
+          "p99": 2149.915978442878,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M1_wall_ms": {
+          "n": 32,
+          "mean": 153.5536985466024,
+          "p50": 150.95097408629954,
+          "p95": 186.15310890600085,
+          "p99": 192.13000903371722,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_host_ms": {
+          "n": 32,
+          "mean": 337.92184543563053,
+          "p50": 484.98160182498395,
+          "p95": 501.11197761725634,
+          "p99": 501.4839463727549,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_CUDA_ms": {
+          "n": 32,
+          "mean": 337.93876600265503,
+          "p50": 484.99671936035156,
+          "p95": 501.14624481201173,
+          "p99": 501.5016839599609,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "suffix_refresh_frames": 21,
+        "suffix_reuse_frames": 11,
+        "question_requests": 96,
+        "LLM_forwards": 528,
+        "actual_skips": 42,
+        "prefill_including_cache_CUDA_ms": {
+          "n": 96,
+          "mean": 101.21447134017944,
+          "p50": 178.6772003173828,
+          "p95": 181.2306137084961,
+          "p99": 181.54783096313477,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "decode_forward_CUDA_ms": {
+          "n": 96,
+          "mean": 126.26224688688914,
+          "p50": 27.26910400390625,
+          "p95": 505.25405836105347,
+          "p99": 556.8187511444091,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M3_runtime_wall_ms": {
+          "n": 32,
+          "mean": 703.9842917583883,
+          "p50": 622.8994121775031,
+          "p95": 1349.8890656977892,
+          "p99": 1538.2809430640193,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        }
+      },
+      "quality": {
+        "comparison": "R2_B->R2",
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "B_score": 0.5531914893617021,
+        "C_score": 0.9787234042553191,
+        "loss": -0.425531914893617,
+        "loss_log_CI95": [
+          -0.75,
+          -0.25806451612903225
+        ],
+        "conservative_all_request_loss_bounds": [
+          -0.71875,
+          0.3020833333333333
+        ],
+        "new_severe": 0,
+        "net_severe": 0,
+        "new_severe_log_CI95": [
+          0.0,
+          0.0
+        ],
+        "independent_logs": 2,
+        "pairs": [
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 0.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "deeb650a84054a07917eb84e21a358de",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "deeb650a84054a07917eb84e21a358de",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "ebd128c8164943538f360f11c10e26d5",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "ebd128c8164943538f360f11c10e26d5",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "10629cdea90242be94821898540d79be",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "10629cdea90242be94821898540d79be",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "07294f69a7564afe926cc3d343c3599a",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "07294f69a7564afe926cc3d343c3599a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "03d01b47ef714213b94aae1b95d5b44e",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "bdea805e042d412c92ad5c6e4ca7385b",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "a945d7d02c7a4ef98f1b5aaa1557f546",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "b4b81cfd5d734881ad386e5c2b00ed4a",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "f1424d3ab0e145a5a60d67c95164f156",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "d8e49e69a437461b8fb2bdfbff330a04",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "3aeb1dd281504f3098eb78149fca78e2",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "3f8c45e9f1b84f5abc2d4898f20c60b6",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "54c58e9e2c054cc290b17a6164fbcd0f",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "b32c097663ff4d30b83bd1857d64e790",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "5cea96ab7d324d958bb1db9da621b43c",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "2ff6e2f9910b483ab578f0e162ee7c64",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "eb82a835419149aeae82c5e8ea64377b",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "c867c2092b554a5fb7a7db226dd7926a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "913104aa7a4f4917a651fdc062c7fc30",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "52ee039a8a97433987bba833d15396ab",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          }
+        ]
+      },
+      "fact_quality": {
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "answer_correctness": 0.9787234042553191,
+        "severe": 0,
+        "actual_skips": 42,
+        "unique_frame_questions": 96,
+        "unique_scored_frame_questions": 47,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "visible_object_recall": 0.6242424242424243,
+      "question_eligible_target_recall": 0.6382978723404256,
+      "coverage_gate": false,
+      "measurement_source": "New actual GPU dev_quality receipts"
+    },
+    {
+      "label": "R3",
+      "M1": {
+        "min_detection_score": 0.4
+      },
+      "M2": {},
+      "performance": {
+        "frames": 32,
+        "independent_logs": 2,
+        "E2E_ms": {
+          "n": 32,
+          "mean": 1289.8182708740933,
+          "p50": 1266.1889474838972,
+          "p95": 2101.5483567258343,
+          "p99": 2578.545872354881,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M1_wall_ms": {
+          "n": 32,
+          "mean": 156.66778189188335,
+          "p50": 159.43950321525335,
+          "p95": 198.89822150580585,
+          "p99": 254.3908892618493,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_host_ms": {
+          "n": 32,
+          "mean": 369.0096696955152,
+          "p50": 491.32508947514,
+          "p95": 500.88375790510327,
+          "p99": 501.48629907518625,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_CUDA_ms": {
+          "n": 32,
+          "mean": 369.0265921354294,
+          "p50": 491.3424835205078,
+          "p95": 500.9027496337891,
+          "p99": 501.5238070678711,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "suffix_refresh_frames": 23,
+        "suffix_reuse_frames": 9,
+        "question_requests": 96,
+        "LLM_forwards": 569,
+        "actual_skips": 46,
+        "prefill_including_cache_CUDA_ms": {
+          "n": 96,
+          "mean": 93.89415756861369,
+          "p50": 179.1267852783203,
+          "p95": 181.12691116333008,
+          "p99": 181.42218551635742,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "decode_forward_CUDA_ms": {
+          "n": 96,
+          "mean": 137.8149093389511,
+          "p50": 27.10524845123291,
+          "p95": 505.3605604171753,
+          "p99": 561.1003590583799,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M3_runtime_wall_ms": {
+          "n": 32,
+          "mean": 716.2394783954369,
+          "p50": 576.9639622885734,
+          "p95": 1492.3719701590014,
+          "p99": 1925.001464593225,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        }
+      },
+      "quality": {
+        "comparison": "R3_B->R3",
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "B_score": 0.5531914893617021,
+        "C_score": 0.9574468085106383,
+        "loss": -0.40425531914893614,
+        "loss_log_CI95": [
+          -0.6875,
+          -0.25806451612903225
+        ],
+        "conservative_all_request_loss_bounds": [
+          -0.7083333333333334,
+          0.3125
+        ],
+        "new_severe": 0,
+        "net_severe": 0,
+        "new_severe_log_CI95": [
+          0.0,
+          0.0
+        ],
+        "independent_logs": 2,
+        "pairs": [
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+            "question": "Where is the nearest pedestrian relative to the vehicle?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 0.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": false
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "deeb650a84054a07917eb84e21a358de",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "deeb650a84054a07917eb84e21a358de",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "ebd128c8164943538f360f11c10e26d5",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "ebd128c8164943538f360f11c10e26d5",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "10629cdea90242be94821898540d79be",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "10629cdea90242be94821898540d79be",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "07294f69a7564afe926cc3d343c3599a",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "07294f69a7564afe926cc3d343c3599a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+            "question": "What type of vehicle is directly ahead?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+            "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "03d01b47ef714213b94aae1b95d5b44e",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "bdea805e042d412c92ad5c6e4ca7385b",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "a945d7d02c7a4ef98f1b5aaa1557f546",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "b4b81cfd5d734881ad386e5c2b00ed4a",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "f1424d3ab0e145a5a60d67c95164f156",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "d8e49e69a437461b8fb2bdfbff330a04",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "3aeb1dd281504f3098eb78149fca78e2",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "3f8c45e9f1b84f5abc2d4898f20c60b6",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "54c58e9e2c054cc290b17a6164fbcd0f",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "b32c097663ff4d30b83bd1857d64e790",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "5cea96ab7d324d958bb1db9da621b43c",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 0.0,
+            "fast": false
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "2ff6e2f9910b483ab578f0e162ee7c64",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "eb82a835419149aeae82c5e8ea64377b",
+            "question": "Is there a car in front?",
+            "loss": -1.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 0.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "c867c2092b554a5fb7a7db226dd7926a",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "913104aa7a4f4917a651fdc062c7fc30",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          },
+          {
+            "scene_id": "e55205b1f2894b49957905d7ddfdb96d",
+            "frame_id": "52ee039a8a97433987bba833d15396ab",
+            "question": "Is there a car in front?",
+            "loss": 0.0,
+            "new_severe": 0,
+            "severe_delta": 0,
+            "B": 1.0,
+            "C": 1.0,
+            "fast": true
+          }
+        ]
+      },
+      "fact_quality": {
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "answer_correctness": 0.9574468085106383,
+        "severe": 0,
+        "actual_skips": 46,
+        "unique_frame_questions": 96,
+        "unique_scored_frame_questions": 47,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "visible_object_recall": 0.6303030303030303,
+      "question_eligible_target_recall": 0.723404255319149,
+      "coverage_gate": false,
+      "measurement_source": "Historical actual GPU receipts"
+    }
+  ],
+  "pareto_labels": [
+    "R0",
+    "R1",
+    "R2",
+    "R3"
+  ],
+  "by_budget": {
+    "0.01": "R0",
+    "0.02": "R0",
+    "0.03": "R0"
+  },
+  "selection": "Predeclared known-answer and separate coverage gates, then common-cell E2E; no claim of global optimum",
+  "statistical_limit": "Two exposed DEV logs; differences descriptive. Four candidate observations span separate execution sessions."
+}

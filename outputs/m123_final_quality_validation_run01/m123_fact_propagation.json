@@ -1,0 +1,1591 @@
+{
+  "groups": [
+    {
+      "label": "R0",
+      "committed_objects": 385,
+      "requests": 96,
+      "parseable": 96,
+      "target_coverage": {
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "raw_recalled": 0.8297872340425532,
+        "committed_recalled": 0.8297872340425532,
+        "eligible_recalled": 0.8085106382978723,
+        "successes": {
+          "raw_recalled": 39,
+          "committed_recalled": 39,
+          "eligible_recalled": 38
+        },
+        "failure_breakdown": {
+          "raw": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 8,
+            "CONFIRMED_RECALLED": 39
+          },
+          "committed": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 8,
+            "CONFIRMED_RECALLED": 39
+          },
+          "eligible": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 8,
+            "CONFIRMED_RECALLED": 38,
+            "PREDICTION_MATCHING_UNKNOWN": 1
+          }
+        },
+        "UNKNOWN_reasons": {
+          "no_visible_GT_target": 47,
+          "visibility_ambiguous": 2
+        }
+      },
+      "eligible_candidates": 209,
+      "actual_admitted_and_skips": 45,
+      "actual_LLM_forwards": 585,
+      "fast_quality": {
+        "requests": 45,
+        "scored": 40,
+        "UNKNOWN": 5,
+        "answer_correctness": 1.0,
+        "severe": 0,
+        "actual_skips": 45,
+        "unique_frame_questions": 45,
+        "unique_scored_frame_questions": 40,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "fallback_quality": {
+        "requests": 51,
+        "scored": 7,
+        "UNKNOWN": 44,
+        "answer_correctness": 0.7142857142857143,
+        "severe": 0,
+        "actual_skips": 0,
+        "unique_frame_questions": 51,
+        "unique_scored_frame_questions": 7,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "wrong_target": 4,
+      "target_identity_scored": 36,
+      "target_identity_UNKNOWN": 60,
+      "performance": {
+        "frames": 32,
+        "independent_logs": 2,
+        "E2E_ms": {
+          "n": 32,
+          "mean": 1325.797056691954,
+          "p50": 1299.6043094899505,
+          "p95": 2103.5966113442555,
+          "p99": 2585.3640491515407,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M1_wall_ms": {
+          "n": 32,
+          "mean": 174.3321236135671,
+          "p50": 149.08978436142206,
+          "p95": 229.34208742808545,
+          "p99": 542.3446974717085,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_host_ms": {
+          "n": 32,
+          "mean": 369.62931259768084,
+          "p50": 492.53768753260374,
+          "p95": 501.56384645961225,
+          "p99": 507.3377964971587,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_CUDA_ms": {
+          "n": 32,
+          "mean": 369.64605581760406,
+          "p50": 492.55914306640625,
+          "p95": 501.5936782836914,
+          "p99": 507.36261993408203,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "suffix_refresh_frames": 23,
+        "suffix_reuse_frames": 9,
+        "question_requests": 96,
+        "LLM_forwards": 585,
+        "actual_skips": 45,
+        "prefill_including_cache_CUDA_ms": {
+          "n": 96,
+          "mean": 95.6299524307251,
+          "p50": 178.83084869384766,
+          "p95": 181.2044448852539,
+          "p99": 181.3419189453125,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "decode_forward_CUDA_ms": {
+          "n": 96,
+          "mean": 141.78716466824213,
+          "p50": 27.241984367370605,
+          "p95": 504.8418245315552,
+          "p99": 561.236146354675,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M3_runtime_wall_ms": {
+          "n": 32,
+          "mean": 733.7677479954436,
+          "p50": 576.3880126178265,
+          "p95": 1493.1359214941037,
+          "p99": 1925.1629617437727,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        }
+      }
+    },
+    {
+      "label": "R1",
+      "committed_objects": 218,
+      "requests": 96,
+      "parseable": 96,
+      "target_coverage": {
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "raw_recalled": 0.6808510638297872,
+        "committed_recalled": 0.6170212765957447,
+        "eligible_recalled": 0.6170212765957447,
+        "successes": {
+          "raw_recalled": 32,
+          "committed_recalled": 29,
+          "eligible_recalled": 29
+        },
+        "failure_breakdown": {
+          "raw": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 15,
+            "CONFIRMED_RECALLED": 32
+          },
+          "committed": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 18,
+            "CONFIRMED_RECALLED": 29
+          },
+          "eligible": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 18,
+            "CONFIRMED_RECALLED": 29
+          }
+        },
+        "UNKNOWN_reasons": {
+          "no_visible_GT_target": 47,
+          "visibility_ambiguous": 2
+        }
+      },
+      "eligible_candidates": 172,
+      "actual_admitted_and_skips": 43,
+      "actual_LLM_forwards": 540,
+      "fast_quality": {
+        "requests": 43,
+        "scored": 37,
+        "UNKNOWN": 6,
+        "answer_correctness": 1.0,
+        "severe": 0,
+        "actual_skips": 43,
+        "unique_frame_questions": 43,
+        "unique_scored_frame_questions": 37,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "fallback_quality": {
+        "requests": 53,
+        "scored": 10,
+        "UNKNOWN": 43,
+        "answer_correctness": 0.8,
+        "severe": 0,
+        "actual_skips": 0,
+        "unique_frame_questions": 53,
+        "unique_scored_frame_questions": 10,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "wrong_target": 2,
+      "target_identity_scored": 30,
+      "target_identity_UNKNOWN": 66,
+      "performance": {
+        "frames": 32,
+        "independent_logs": 2,
+        "E2E_ms": {
+          "n": 32,
+          "mean": 1239.2821293178713,
+          "p50": 1145.3720135614276,
+          "p95": 2121.640299097635,
+          "p99": 2591.900468990207,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M1_wall_ms": {
+          "n": 32,
+          "mean": 150.55965921783354,
+          "p50": 140.20104752853513,
+          "p95": 183.9643486775458,
+          "p99": 188.22698849253356,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_host_ms": {
+          "n": 32,
+          "mean": 335.05971034173854,
+          "p50": 478.8395054638386,
+          "p95": 497.94541995506734,
+          "p99": 498.65575827192515,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_CUDA_ms": {
+          "n": 32,
+          "mean": 335.0761179924011,
+          "p50": 478.85472106933594,
+          "p95": 497.9671829223633,
+          "p99": 498.6704696655273,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "suffix_refresh_frames": 21,
+        "suffix_reuse_frames": 11,
+        "question_requests": 96,
+        "LLM_forwards": 540,
+        "actual_skips": 43,
+        "prefill_including_cache_CUDA_ms": {
+          "n": 96,
+          "mean": 98.61289167404175,
+          "p50": 176.0956268310547,
+          "p95": 180.9226837158203,
+          "p99": 181.02343063354493,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "decode_forward_CUDA_ms": {
+          "n": 96,
+          "mean": 129.27095053593317,
+          "p50": 27.091808319091797,
+          "p95": 505.3678689002991,
+          "p99": 560.5378954887389,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M3_runtime_wall_ms": {
+          "n": 32,
+          "mean": 706.3154054194456,
+          "p50": 589.1962978057563,
+          "p95": 1488.4547868510708,
+          "p99": 1919.250136534684,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        }
+      }
+    },
+    {
+      "label": "R2",
+      "committed_objects": 396,
+      "requests": 96,
+      "parseable": 96,
+      "target_coverage": {
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "raw_recalled": 0.6808510638297872,
+        "committed_recalled": 0.6808510638297872,
+        "eligible_recalled": 0.6382978723404256,
+        "successes": {
+          "raw_recalled": 32,
+          "committed_recalled": 32,
+          "eligible_recalled": 30
+        },
+        "failure_breakdown": {
+          "raw": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 15,
+            "CONFIRMED_RECALLED": 32
+          },
+          "committed": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 15,
+            "CONFIRMED_RECALLED": 32
+          },
+          "eligible": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 16,
+            "CONFIRMED_RECALLED": 30,
+            "PREDICTION_MATCHING_UNKNOWN": 1
+          }
+        },
+        "UNKNOWN_reasons": {
+          "no_visible_GT_target": 47,
+          "visibility_ambiguous": 2
+        }
+      },
+      "eligible_candidates": 205,
+      "actual_admitted_and_skips": 42,
+      "actual_LLM_forwards": 528,
+      "fast_quality": {
+        "requests": 42,
+        "scored": 38,
+        "UNKNOWN": 4,
+        "answer_correctness": 1.0,
+        "severe": 0,
+        "actual_skips": 42,
+        "unique_frame_questions": 42,
+        "unique_scored_frame_questions": 38,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "fallback_quality": {
+        "requests": 54,
+        "scored": 9,
+        "UNKNOWN": 45,
+        "answer_correctness": 0.8888888888888888,
+        "severe": 0,
+        "actual_skips": 0,
+        "unique_frame_questions": 54,
+        "unique_scored_frame_questions": 9,
+        "independent_logs": 2,
+        "scored_logs": 1
+      },
+      "wrong_target": 3,
+      "target_identity_scored": 32,
+      "target_identity_UNKNOWN": 64,
+      "performance": {
+        "frames": 32,
+        "independent_logs": 2,
+        "E2E_ms": {
+          "n": 32,
+          "mean": 1243.0711551423883,
+          "p50": 1210.634201997891,
+          "p95": 1989.3526644678786,
+          "p99": 2149.915978442878,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M1_wall_ms": {
+          "n": 32,
+          "mean": 153.5536985466024,
+          "p50": 150.95097408629954,
+          "p95": 186.15310890600085,
+          "p99": 192.13000903371722,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_host_ms": {
+          "n": 32,
+          "mean": 337.92184543563053,
+          "p50": 484.98160182498395,
+          "p95": 501.11197761725634,
+          "p99": 501.4839463727549,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_CUDA_ms": {
+          "n": 32,
+          "mean": 337.93876600265503,
+          "p50": 484.99671936035156,
+          "p95": 501.14624481201173,
+          "p99": 501.5016839599609,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "suffix_refresh_frames": 21,
+        "suffix_reuse_frames": 11,
+        "question_requests": 96,
+        "LLM_forwards": 528,
+        "actual_skips": 42,
+        "prefill_including_cache_CUDA_ms": {
+          "n": 96,
+          "mean": 101.21447134017944,
+          "p50": 178.6772003173828,
+          "p95": 181.2306137084961,
+          "p99": 181.54783096313477,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "decode_forward_CUDA_ms": {
+          "n": 96,
+          "mean": 126.26224688688914,
+          "p50": 27.26910400390625,
+          "p95": 505.25405836105347,
+          "p99": 556.8187511444091,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M3_runtime_wall_ms": {
+          "n": 32,
+          "mean": 703.9842917583883,
+          "p50": 622.8994121775031,
+          "p95": 1349.8890656977892,
+          "p99": 1538.2809430640193,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        }
+      }
+    },
+    {
+      "label": "R3",
+      "committed_objects": 219,
+      "requests": 96,
+      "parseable": 96,
+      "target_coverage": {
+        "requests": 96,
+        "scored": 47,
+        "UNKNOWN": 49,
+        "raw_recalled": 0.8297872340425532,
+        "committed_recalled": 0.723404255319149,
+        "eligible_recalled": 0.723404255319149,
+        "successes": {
+          "raw_recalled": 39,
+          "committed_recalled": 34,
+          "eligible_recalled": 34
+        },
+        "failure_breakdown": {
+          "raw": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 8,
+            "CONFIRMED_RECALLED": 39
+          },
+          "committed": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 13,
+            "CONFIRMED_RECALLED": 34
+          },
+          "eligible": {
+            "NO_CORRECT_CLASS_CANDIDATE_WITHIN_2M": 13,
+            "CONFIRMED_RECALLED": 34
+          }
+        },
+        "UNKNOWN_reasons": {
+          "no_visible_GT_target": 47,
+          "visibility_ambiguous": 2
+        }
+      },
+      "eligible_candidates": 172,
+      "actual_admitted_and_skips": 46,
+      "actual_LLM_forwards": 569,
+      "fast_quality": {
+        "requests": 46,
+        "scored": 40,
+        "UNKNOWN": 6,
+        "answer_correctness": 1.0,
+        "severe": 0,
+        "actual_skips": 46,
+        "unique_frame_questions": 46,
+        "unique_scored_frame_questions": 40,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "fallback_quality": {
+        "requests": 50,
+        "scored": 7,
+        "UNKNOWN": 43,
+        "answer_correctness": 0.7142857142857143,
+        "severe": 0,
+        "actual_skips": 0,
+        "unique_frame_questions": 50,
+        "unique_scored_frame_questions": 7,
+        "independent_logs": 2,
+        "scored_logs": 2
+      },
+      "wrong_target": 4,
+      "target_identity_scored": 34,
+      "target_identity_UNKNOWN": 62,
+      "performance": {
+        "frames": 32,
+        "independent_logs": 2,
+        "E2E_ms": {
+          "n": 32,
+          "mean": 1289.8182708740933,
+          "p50": 1266.1889474838972,
+          "p95": 2101.5483567258343,
+          "p99": 2578.545872354881,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M1_wall_ms": {
+          "n": 32,
+          "mean": 156.66778189188335,
+          "p50": 159.43950321525335,
+          "p95": 198.89822150580585,
+          "p99": 254.3908892618493,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_host_ms": {
+          "n": 32,
+          "mean": 369.0096696955152,
+          "p50": 491.32508947514,
+          "p95": 500.88375790510327,
+          "p99": 501.48629907518625,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M2_CUDA_ms": {
+          "n": 32,
+          "mean": 369.0265921354294,
+          "p50": 491.3424835205078,
+          "p95": 500.9027496337891,
+          "p99": 501.5238070678711,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "suffix_refresh_frames": 23,
+        "suffix_reuse_frames": 9,
+        "question_requests": 96,
+        "LLM_forwards": 569,
+        "actual_skips": 46,
+        "prefill_including_cache_CUDA_ms": {
+          "n": 96,
+          "mean": 93.89415756861369,
+          "p50": 179.1267852783203,
+          "p95": 181.12691116333008,
+          "p99": 181.42218551635742,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "decode_forward_CUDA_ms": {
+          "n": 96,
+          "mean": 137.8149093389511,
+          "p50": 27.10524845123291,
+          "p95": 505.3605604171753,
+          "p99": 561.1003590583799,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        },
+        "M3_runtime_wall_ms": {
+          "n": 32,
+          "mean": 716.2394783954369,
+          "p50": 576.9639622885734,
+          "p95": 1492.3719701590014,
+          "p99": 1925.001464593225,
+          "p99_scope": "descriptive order statistic; insufficient tail sample"
+        }
+      }
+    }
+  ],
+  "route_switches": [
+    {
+      "label": "R1",
+      "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+      "question": "Is there a car in front?",
+      "R0_skip": true,
+      "candidate_skip": false,
+      "LLM_forward_delta": 3,
+      "request_wall_delta_ms": 236.07343900948763,
+      "R0_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "05408ba8eb9d4d8ba5542c76eaaa678d"
+          ],
+          "selected_annotation": "05408ba8eb9d4d8ba5542c76eaaa678d",
+          "source_frame": "3a7e7dbee620460cbbe09a942c5d23be",
+          "center_ego": [
+            42.39227133689269,
+            -0.051584840675104715,
+            0.6643029874031594
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "05408ba8eb9d4d8ba5542c76eaaa678d"
+          ],
+          "selected_annotation": "05408ba8eb9d4d8ba5542c76eaaa678d",
+          "source_frame": "3a7e7dbee620460cbbe09a942c5d23be",
+          "center_ego": [
+            42.39227133689269,
+            -0.051584840675104715,
+            0.6643029874031594
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      }
+    },
+    {
+      "label": "R1",
+      "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": true,
+      "candidate_skip": false,
+      "LLM_forward_delta": 2,
+      "request_wall_delta_ms": 206.98425639420748,
+      "R0_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "009938c572fe4ec68b4310d63743dd83"
+          ],
+          "selected_annotation": "009938c572fe4ec68b4310d63743dd83",
+          "source_frame": "4dc2e5fa449f41448824a40820f8ab36",
+          "center_ego": [
+            38.987921454233174,
+            -0.14936225266296788,
+            0.8072602998452751
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "009938c572fe4ec68b4310d63743dd83"
+          ],
+          "selected_annotation": "009938c572fe4ec68b4310d63743dd83",
+          "source_frame": "4dc2e5fa449f41448824a40820f8ab36",
+          "center_ego": [
+            38.987921454233174,
+            -0.14936225266296788,
+            0.8072602998452751
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      }
+    },
+    {
+      "label": "R1",
+      "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": true,
+      "candidate_skip": false,
+      "LLM_forward_delta": 2,
+      "request_wall_delta_ms": 208.3675917237997,
+      "R0_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "54d74f06d0e9446e84f0c2e0fbe63252"
+          ],
+          "selected_annotation": "54d74f06d0e9446e84f0c2e0fbe63252",
+          "source_frame": "a4ea60cc43244ddd82996667dab822f9",
+          "center_ego": [
+            32.12426852555757,
+            -0.04793572040125582,
+            0.891421354084855
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "54d74f06d0e9446e84f0c2e0fbe63252"
+          ],
+          "selected_annotation": "54d74f06d0e9446e84f0c2e0fbe63252",
+          "source_frame": "a4ea60cc43244ddd82996667dab822f9",
+          "center_ego": [
+            32.12426852555757,
+            -0.04793572040125582,
+            0.891421354084855
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      }
+    },
+    {
+      "label": "R1",
+      "frame_id": "eb82a835419149aeae82c5e8ea64377b",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": true,
+      "candidate_skip": false,
+      "LLM_forward_delta": 3,
+      "request_wall_delta_ms": 238.50521864369512,
+      "R0_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      },
+      "candidate_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      }
+    },
+    {
+      "label": "R1",
+      "frame_id": "c867c2092b554a5fb7a7db226dd7926a",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": false,
+      "candidate_skip": true,
+      "LLM_forward_delta": -4,
+      "request_wall_delta_ms": -268.4412132948637,
+      "R0_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      },
+      "candidate_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      }
+    },
+    {
+      "label": "R1",
+      "frame_id": "52ee039a8a97433987bba833d15396ab",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": false,
+      "candidate_skip": true,
+      "LLM_forward_delta": -15,
+      "request_wall_delta_ms": -544.6065682917833,
+      "R0_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      },
+      "candidate_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      }
+    },
+    {
+      "label": "R2",
+      "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+      "question": "Is there a car in front?",
+      "R0_skip": true,
+      "candidate_skip": false,
+      "LLM_forward_delta": 3,
+      "request_wall_delta_ms": 239.206338301301,
+      "R0_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "05408ba8eb9d4d8ba5542c76eaaa678d"
+          ],
+          "selected_annotation": "05408ba8eb9d4d8ba5542c76eaaa678d",
+          "source_frame": "3a7e7dbee620460cbbe09a942c5d23be",
+          "center_ego": [
+            42.39227133689269,
+            -0.051584840675104715,
+            0.6643029874031594
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "05408ba8eb9d4d8ba5542c76eaaa678d"
+          ],
+          "selected_annotation": "05408ba8eb9d4d8ba5542c76eaaa678d",
+          "source_frame": "3a7e7dbee620460cbbe09a942c5d23be",
+          "center_ego": [
+            42.39227133689269,
+            -0.051584840675104715,
+            0.6643029874031594
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      }
+    },
+    {
+      "label": "R2",
+      "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": true,
+      "candidate_skip": false,
+      "LLM_forward_delta": 2,
+      "request_wall_delta_ms": 211.08737122267485,
+      "R0_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "009938c572fe4ec68b4310d63743dd83"
+          ],
+          "selected_annotation": "009938c572fe4ec68b4310d63743dd83",
+          "source_frame": "4dc2e5fa449f41448824a40820f8ab36",
+          "center_ego": [
+            38.987921454233174,
+            -0.14936225266296788,
+            0.8072602998452751
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "009938c572fe4ec68b4310d63743dd83"
+          ],
+          "selected_annotation": "009938c572fe4ec68b4310d63743dd83",
+          "source_frame": "4dc2e5fa449f41448824a40820f8ab36",
+          "center_ego": [
+            38.987921454233174,
+            -0.14936225266296788,
+            0.8072602998452751
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      }
+    },
+    {
+      "label": "R2",
+      "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": true,
+      "candidate_skip": false,
+      "LLM_forward_delta": 2,
+      "request_wall_delta_ms": 210.1830281317234,
+      "R0_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "54d74f06d0e9446e84f0c2e0fbe63252"
+          ],
+          "selected_annotation": "54d74f06d0e9446e84f0c2e0fbe63252",
+          "source_frame": "a4ea60cc43244ddd82996667dab822f9",
+          "center_ego": [
+            32.12426852555757,
+            -0.04793572040125582,
+            0.891421354084855
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      },
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "category",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "annotation_ids": [
+            "54d74f06d0e9446e84f0c2e0fbe63252"
+          ],
+          "selected_annotation": "54d74f06d0e9446e84f0c2e0fbe63252",
+          "source_frame": "a4ea60cc43244ddd82996667dab822f9",
+          "center_ego": [
+            32.12426852555757,
+            -0.04793572040125582,
+            0.891421354084855
+          ],
+          "required_facts": [
+            "target_class",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "category",
+            "classes": [
+              "vehicle"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": true,
+            "selector": "nearest",
+            "required": [
+              "target_class",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "structured_category"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      }
+    },
+    {
+      "label": "R2",
+      "frame_id": "5cea96ab7d324d958bb1db9da621b43c",
+      "question": "Is there a car in front?",
+      "R0_skip": false,
+      "candidate_skip": true,
+      "LLM_forward_delta": -26,
+      "request_wall_delta_ms": -822.9995961301029,
+      "R0_quality": {
+        "known": true,
+        "score": 0.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front",
+            "right"
+          ],
+          "annotation_ids": [
+            "321f803a09c945f0980f41fc1b7bb439"
+          ],
+          "selected_annotation": "321f803a09c945f0980f41fc1b7bb439",
+          "source_frame": "5cea96ab7d324d958bb1db9da621b43c",
+          "center_ego": [
+            16.006995324817467,
+            -9.66398593214035,
+            1.1134241127935596
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front",
+            "rear"
+          ],
+          "negative": false,
+          "uncertain": true
+        },
+        "severe_error": false
+      },
+      "candidate_quality": {
+        "known": true,
+        "score": 1.0,
+        "reference": {
+          "known": true,
+          "task": "existence",
+          "semantic_class": "car",
+          "positive": true,
+          "motion": null,
+          "available_classes": [
+            "car"
+          ],
+          "directions": [
+            "front",
+            "right"
+          ],
+          "annotation_ids": [
+            "321f803a09c945f0980f41fc1b7bb439"
+          ],
+          "selected_annotation": "321f803a09c945f0980f41fc1b7bb439",
+          "source_frame": "5cea96ab7d324d958bb1db9da621b43c",
+          "center_ego": [
+            16.006995324817467,
+            -9.66398593214035,
+            1.1134241127935596
+          ],
+          "required_facts": [
+            "positive_existence",
+            "target_region",
+            "current_observation"
+          ],
+          "metric": "required_current_visible_object_facts",
+          "profile": {
+            "intent": "existence",
+            "classes": [
+              "car"
+            ],
+            "directions": [
+              "front"
+            ],
+            "near_m": 50.0,
+            "direct": false,
+            "selector": "any",
+            "required": [
+              "positive_existence",
+              "target_region",
+              "current_observation"
+            ],
+            "reason": "positive_witness_only"
+          }
+        },
+        "metric": "required_current_visible_object_facts",
+        "extracted": {
+          "classes": [
+            "car"
+          ],
+          "directions": [
+            "front"
+          ],
+          "negative": false,
+          "uncertain": false
+        },
+        "severe_error": false
+      }
+    },
+    {
+      "label": "R2",
+      "frame_id": "eb82a835419149aeae82c5e8ea64377b",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": true,
+      "candidate_skip": false,
+      "LLM_forward_delta": 3,
+      "request_wall_delta_ms": 239.12167781963944,
+      "R0_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      },
+      "candidate_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      }
+    },
+    {
+      "label": "R3",
+      "frame_id": "52ee039a8a97433987bba833d15396ab",
+      "question": "What type of vehicle is directly ahead?",
+      "R0_skip": false,
+      "candidate_skip": true,
+      "LLM_forward_delta": -15,
+      "request_wall_delta_ms": -544.6544582955539,
+      "R0_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      },
+      "candidate_quality": {
+        "known": false,
+        "score": null,
+        "severe_error": null,
+        "reason": "no_visible_GT_target"
+      }
+    }
+  ],
+  "no_M3_algorithm_change": true,
+  "selection_GT_offline_only": true
+}

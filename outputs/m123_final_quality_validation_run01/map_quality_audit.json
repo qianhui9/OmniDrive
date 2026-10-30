@@ -1,0 +1,80 @@
+{
+  "status": "SUBSET_EVALUATED",
+  "scope": "ONE_EXPOSED_DEV_LOG_16_FRAMES",
+  "selected": "R0",
+  "M1": 0.3,
+  "M2_budget": 3,
+  "GT_frames": 16,
+  "GT_lane_observations": 349,
+  "official_full_dataset_certification": false,
+  "budget1_quality": "MAP_QUALITY_NOT_CERTIFIED: budget1 lane predictions were not retained by the earlier worker; this new confirmation uses the frozen budget3 policy",
+  "other_unscored_geometry": "Only available lane/centerline evaluation, not all map attributes or safety semantics",
+  "evaluator": "Existing tools.worldstream_m2.map_eval.evaluate_map: unchanged official per-frame functions, workers4 CPU, original subset aggregation",
+  "evaluator_sha256": "4114f8255b37b3174f1bb4a1dcd757d897066469621a0967e8da15fef0bcf915",
+  "groups": {
+    "A": {
+      "metrics": {
+        "OpenLane-V2 Score": {
+          "DET_l": 0.08984977006912231,
+          "DET_t": 0.7692307829856873,
+          "TOP_ll": 0.0,
+          "TOP_lt": 0.0,
+          "score": 0.2147701382637024
+        },
+        "F-Score for 3D Lane": {
+          "score": 0.06062263548931127
+        }
+      },
+      "nonfinite_metrics_unavailable": [],
+      "GT_frames": 16,
+      "predicted_lane_observations": 4800
+    },
+    "B": {
+      "metrics": {
+        "OpenLane-V2 Score": {
+          "DET_l": 0.07523628324270248,
+          "DET_t": 0.7692307829856873,
+          "TOP_ll": 0.0,
+          "TOP_lt": 0.0,
+          "score": 0.21111676655709743
+        },
+        "F-Score for 3D Lane": {
+          "score": 0.06151105956424489
+        }
+      },
+      "nonfinite_metrics_unavailable": [],
+      "GT_frames": 16,
+      "predicted_lane_observations": 4800
+    },
+    "C": {
+      "metrics": {
+        "OpenLane-V2 Score": {
+          "DET_l": 0.07523628324270248,
+          "DET_t": 0.7692307829856873,
+          "TOP_ll": 0.0,
+          "TOP_lt": 0.0,
+          "score": 0.21111676655709743
+        },
+        "F-Score for 3D Lane": {
+          "score": 0.06151105956424489
+        }
+      },
+      "nonfinite_metrics_unavailable": [],
+      "GT_frames": 16,
+      "predicted_lane_observations": 4800,
+      "exact_same_predictions_as": "B",
+      "extra_evaluator_execution": false
+    }
+  },
+  "reported_primary_metrics": [
+    "OpenLane-V2 DET_l",
+    "3D Lane F-Score"
+  ],
+  "not_interpreted_as_model_quality": [
+    "DET_t",
+    "TOP_ll",
+    "TOP_lt",
+    "OpenLane composite"
+  ],
+  "uninterpreted_reason": "Empty traffic elements and zero topology are placeholders from existing helper; only actual lane predictions support a lane-quality claim."
+}

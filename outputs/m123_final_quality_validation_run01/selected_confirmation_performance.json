@@ -1,0 +1,4996 @@
+{
+  "selected": "R0",
+  "scope": "ONE_EXPOSED_DEV_LOG_DIAGNOSTIC",
+  "frames_per_cell": 16,
+  "new_model_calls": 208,
+  "reused_model_receipts": 32,
+  "native_A": "True native vision+generation, M1/M2/M3 disabled",
+  "groups": [
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "condition": "A",
+      "frames": 16,
+      "questions": 8,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 783.6978768464178,
+        "p50": 721.3090343866497,
+        "p95": 1205.4300465388224,
+        "p99": 1219.401535554789,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 8,
+        "mean": 1041.875580267515,
+        "p50": 1018.5916568152606,
+        "p95": 1214.7443725494668,
+        "p99": 1221.264400756918,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 8,
+        "mean": 525.5201734253205,
+        "p50": 525.4535414278507,
+        "p95": 526.8541431054473,
+        "p99": 526.9250684604049,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 8,
+        "mean": 515.1443090871908,
+        "p50": 492.8743427153677,
+        "p95": 687.9982894053683,
+        "p99": 694.8316686181352,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 8,
+        "mean": 1041.875580267515,
+        "p50": 1018.5916568152606,
+        "p95": 1214.7443725494668,
+        "p99": 1221.264400756918,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 8,
+        "mean": 1041.875580267515,
+        "p50": 1018.5916568152606,
+        "p95": 1214.7443725494668,
+        "p99": 1221.264400756918,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.276001925670613,
+      "QPS": 0.6380009628353065,
+      "peak_GPU_bytes": 16485122560,
+      "LLM_forwards": 111,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 915.6752689741552,
+        "p50": 915.6752689741552,
+        "p95": 915.6752689741552,
+        "p99": 915.6752689741552,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 796.5428567258641,
+        "p50": 747.6923747453839,
+        "p95": 1210.0872095441446,
+        "p99": 1220.3329681558535,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 479.67444229125977,
+        "p50": 479.9806823730469,
+        "p95": 481.1195373535156,
+        "p99": 481.5024475097656,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.4944393734181972,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 47.4820614035707,
+        "p50": 47.36692365258932,
+        "p95": 48.25793404597789,
+        "p99": 48.301064246334136,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 8,
+        "mean": 47.375031281262636,
+        "p50": 47.40790254436433,
+        "p95": 47.67651811707765,
+        "p99": 47.70738510880619,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.315572527470067,
+        "p50": 15.314154559746385,
+        "p95": 15.464471303857863,
+        "p99": 15.534259309060872,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 8,
+        "mean": 15.302006038837135,
+        "p50": 15.280327759683132,
+        "p95": 15.420454740524292,
+        "p99": 15.432405322790146,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 257.5721545435954,
+        "p50": 194.78241144679487,
+        "p95": 678.2363191014156,
+        "p99": 692.8792745573446,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.2690776309464127,
+        "p50": 0.2389964647591114,
+        "p95": 0.5460242973640561,
+        "p99": 0.5971139529719949,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 8,
+        "mean": 0.09391526691615582,
+        "p50": 0.09540258906781673,
+        "p95": 0.10078779887408018,
+        "p99": 0.10096394922584295,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 8,
+        "mean": 103.21459319675341,
+        "p50": 103.22544514201581,
+        "p95": 103.66081390529871,
+        "p99": 103.7622107937932,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 8,
+        "mean": 182.87456512451172,
+        "p50": 182.7716522216797,
+        "p95": 183.73452606201172,
+        "p99": 183.81624114990234,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 8,
+        "mean": 174.39901182660833,
+        "p50": 162.48658951371908,
+        "p95": 265.51354359835386,
+        "p99": 269.284953661263,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 8,
+        "mean": 325.36605882644653,
+        "p50": 303.21014308929443,
+        "p95": 495.46459341049194,
+        "p99": 502.47833738327023,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "condition": "B",
+      "frames": 16,
+      "questions": 8,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 885.8419263269752,
+        "p50": 842.4453870393336,
+        "p95": 1290.31771060545,
+        "p99": 1399.3334710830823,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 8,
+        "mean": 1101.4852942316793,
+        "p50": 1049.2780888453126,
+        "p95": 1362.9948842572048,
+        "p99": 1413.8689058134332,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 8,
+        "mean": 670.1985584222712,
+        "p50": 724.12767005153,
+        "p95": 734.4042816199362,
+        "p99": 735.6215955503285,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 8,
+        "mean": 381.97671610396355,
+        "p50": 365.4914414510131,
+        "p95": 623.5178168164565,
+        "p99": 680.2777875075117,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 8,
+        "mean": 1101.4852942316793,
+        "p50": 1049.2780888453126,
+        "p95": 1362.9948842572048,
+        "p99": 1413.8689058134332,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 8,
+        "mean": 1101.4852942316793,
+        "p50": 1049.2780888453126,
+        "p95": 1362.9948842572048,
+        "p99": 1413.8689058134332,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.1288695762531424,
+      "QPS": 0.5644347881265712,
+      "peak_GPU_bytes": 16754356736,
+      "LLM_forwards": 69,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 1022.022757679224,
+        "p50": 1022.022757679224,
+        "p95": 1022.022757679224,
+        "p99": 1022.022757679224,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 907.4894685375815,
+        "p50": 842.4453870393336,
+        "p95": 1276.3176634209228,
+        "p99": 1396.533461646177,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 466.53250551223755,
+        "p50": 493.644775390625,
+        "p95": 500.26868438720703,
+        "p99": 500.78491363525393,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.3534124519477857,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 156.41872168635018,
+        "p50": 162.49800566583872,
+        "p95": 178.09341743122786,
+        "p99": 179.29289320018142,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 8,
+        "mean": 160.28472024481744,
+        "p50": 161.9045145343989,
+        "p95": 170.22534150164574,
+        "p99": 172.27888417895883,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 173.5908419941552,
+        "p50": 179.81368396431208,
+        "p95": 195.63021685462445,
+        "p99": 197.29295258875936,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 8,
+        "mean": 177.28590569458902,
+        "p50": 179.2812526691705,
+        "p95": 187.05169942695647,
+        "p99": 188.9077281439677,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 466.5125751926098,
+        "p50": 493.621758883819,
+        "p95": 500.23617676924914,
+        "p99": 500.7592731853947,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 8,
+        "mean": 438.82536311866716,
+        "p50": 493.621758883819,
+        "p95": 497.9591483483091,
+        "p99": 498.21864780504256,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.308933303458616,
+        "p50": 15.323941130191088,
+        "p95": 15.451732091605663,
+        "p99": 15.453341417014599,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 8,
+        "mean": 15.314747288357466,
+        "p50": 15.339049510657787,
+        "p95": 15.439575095660985,
+        "p99": 15.448764250613749,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.0808483639266342,
+        "p50": 1.0775215923786163,
+        "p95": 1.2672855518758297,
+        "p99": 1.3566645793616772,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 8,
+        "mean": 1.0459190234541893,
+        "p50": 1.0335331317037344,
+        "p95": 1.1539708822965622,
+        "p99": 1.1569754779338837,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 197.92776188114658,
+        "p50": 126.34357390925288,
+        "p95": 548.9484337158501,
+        "p99": 670.6265539862214,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 8,
+        "mean": 6.57690514344722,
+        "p50": 6.577611202374101,
+        "p95": 6.6422947915270925,
+        "p99": 6.653577410615981,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.19353217794559896,
+        "p50": 0.17554918304085732,
+        "p95": 0.36179216112941504,
+        "p99": 0.362989935092628,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 8,
+        "mean": 0.08647044887766242,
+        "p50": 0.08603604510426521,
+        "p95": 0.09343314450234175,
+        "p99": 0.09419081266969442,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 8,
+        "mean": 100.02481506671757,
+        "p50": 99.97791703790426,
+        "p95": 100.5164435133338,
+        "p99": 100.53819593042135,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 8,
+        "mean": 179.1695671081543,
+        "p50": 178.97571563720703,
+        "p95": 180.09755630493163,
+        "p99": 180.23065628051756,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 8,
+        "mean": 200.18159675598145,
+        "p50": 184.19876861572266,
+        "p95": 441.2754180908202,
+        "p99": 498.322222290039,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 8,
+        "mean": 195.42197132110596,
+        "p50": 180.34956741333008,
+        "p95": 433.9379617691039,
+        "p99": 490.0886589431762,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "condition": "C",
+      "frames": 16,
+      "questions": 8,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 850.951033498859,
+        "p50": 729.7536821570247,
+        "p95": 1280.2237204741687,
+        "p99": 1399.2424455936998,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 8,
+        "mean": 1028.6234624218196,
+        "p50": 1090.1699925307184,
+        "p95": 1359.5695372205228,
+        "p99": 1415.1116089429706,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 8,
+        "mean": 673.2786045758985,
+        "p50": 724.0144631359726,
+        "p95": 736.7068427847698,
+        "p99": 739.3599519738927,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 8,
+        "mean": 249.03726327465847,
+        "p50": 194.80881188064814,
+        "p95": 622.4212433444335,
+        "p99": 679.6825444558634,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 8,
+        "mean": 1028.6234624218196,
+        "p50": 1090.1699925307184,
+        "p95": 1359.5695372205228,
+        "p99": 1415.1116089429706,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 8,
+        "mean": 1028.6234624218196,
+        "p50": 1090.1699925307184,
+        "p95": 1359.5695372205228,
+        "p99": 1415.1116089429706,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.1751557500180658,
+      "QPS": 0.5875778750090329,
+      "peak_GPU_bytes": 16754356736,
+      "LLM_forwards": 53,
+      "actual_prefill_skips": 4,
+      "actual_decode_skips": 4,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 1024.4875801727176,
+        "p50": 1024.4875801727176,
+        "p95": 1024.4875801727176,
+        "p99": 1024.4875801727176,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 860.8819287813579,
+        "p50": 727.0302185788751,
+        "p95": 1315.6699377112088,
+        "p99": 1406.3316890411081,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 466.2459738254547,
+        "p50": 492.37139892578125,
+        "p95": 500.7605895996094,
+        "p99": 501.28969116210936,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.2510392408060156,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 185.86346559459344,
+        "p50": 163.10400166548789,
+        "p95": 294.93296949658543,
+        "p99": 580.5242100032044,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 8,
+        "mean": 161.16969601716846,
+        "p50": 160.76182993128896,
+        "p95": 173.2919471571222,
+        "p99": 175.4076848598197,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 203.87993368785828,
+        "p50": 181.10490264371037,
+        "p95": 312.79770587570965,
+        "p99": 600.6994428578762,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 8,
+        "mean": 179.1844016406685,
+        "p50": 178.92490839585662,
+        "p95": 192.35986324492842,
+        "p99": 192.74289168883115,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 466.2236031726934,
+        "p50": 492.34931264072657,
+        "p95": 500.7386425277218,
+        "p99": 501.27187098842114,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 8,
+        "mean": 438.8753628008999,
+        "p50": 492.34931264072657,
+        "p95": 500.11416270863265,
+        "p99": 500.4360037436709,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.394128568004817,
+        "p50": 15.317918499931693,
+        "p95": 15.809226781129837,
+        "p99": 16.487271338701248,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 8,
+        "mean": 15.391550201456994,
+        "p50": 15.427679987624288,
+        "p95": 15.519035211764276,
+        "p99": 15.525173614732921,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.2052478559780866,
+        "p50": 1.110549783334136,
+        "p95": 1.6776151023805141,
+        "p99": 1.771844457834959,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 8,
+        "mean": 1.1541946441866457,
+        "p50": 1.0709569323807955,
+        "p95": 1.5589830465614796,
+        "p99": 1.5736127831041813,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 132.86302069900557,
+        "p50": 6.90957042388618,
+        "p95": 547.8352028876543,
+        "p99": 670.2189598232507,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 8,
+        "mean": 7.501188316382468,
+        "p50": 6.667720153927803,
+        "p95": 10.413559665903447,
+        "p99": 10.96715341322124,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.23863691603764892,
+        "p50": 0.17694593407213688,
+        "p95": 0.49892335664480925,
+        "p99": 0.6649741670116781,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 8,
+        "mean": 0.10535994078963995,
+        "p50": 0.10843155905604362,
+        "p95": 0.1193987438455224,
+        "p99": 0.12143653351813555,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 8,
+        "mean": 49.659536860417575,
+        "p50": 49.50529942288995,
+        "p95": 99.62072547059506,
+        "p99": 99.72890903707594,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 8,
+        "mean": 89.23403930664062,
+        "p50": 89.02655792236328,
+        "p95": 178.7609130859375,
+        "p99": 178.85981201171876,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 8,
+        "mean": 158.11806678771973,
+        "p50": 103.20323181152344,
+        "p95": 441.3964614868163,
+        "p99": 498.7313919067382,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 8,
+        "mean": 155.19322395324707,
+        "p50": 101.40299224853516,
+        "p95": 434.04314317703233,
+        "p99": 490.4358426856994,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 8,
+        "mean": 0.0022691674530506134,
+        "p50": 0.0019995495676994324,
+        "p95": 0.0034080585464835167,
+        "p99": 0.0035273609682917595,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 8,
+        "mean": 0.037806457839906216,
+        "p50": 0.040818238630890846,
+        "p95": 0.06270105950534342,
+        "p99": 0.07000132463872431,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 8,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "condition": "A",
+      "frames": 16,
+      "questions": 4,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 650.767610699404,
+        "p50": 518.494995078072,
+        "p95": 1074.2829974042252,
+        "p99": 1181.3775005051866,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 4,
+        "mean": 1049.4513643207029,
+        "p50": 1016.9446435756981,
+        "p95": 1181.3775005051866,
+        "p99": 1202.796401125379,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 12,
+        "mean": 517.8730261589711,
+        "p50": 517.9040387738496,
+        "p95": 519.1682341275737,
+        "p99": 519.3167929863557,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 4,
+        "mean": 501.0654052020982,
+        "p50": 462.5084570143372,
+        "p95": 658.7985733756794,
+        "p99": 683.111701128073,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 4,
+        "mean": 1049.4513643207029,
+        "p50": 1016.9446435756981,
+        "p95": 1181.3775005051866,
+        "p99": 1202.796401125379,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 4,
+        "mean": 1049.4513643207029,
+        "p50": 1016.9446435756981,
+        "p95": 1181.3775005051866,
+        "p99": 1202.796401125379,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.53664685143943,
+      "QPS": 0.3841617128598575,
+      "peak_GPU_bytes": 16222167040,
+      "LLM_forwards": 54,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 1029.6602877788246,
+        "p50": 1029.6602877788246,
+        "p95": 1029.6602877788246,
+        "p99": 1029.6602877788246,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 652.6494621454427,
+        "p50": 518.6171212699264,
+        "p95": 1095.9939564811064,
+        "p99": 1185.7196923205631,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 479.5564842224121,
+        "p50": 472.2202606201172,
+        "p95": 503.2642822265625,
+        "p99": 573.9854736328125,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.47745462270796296,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 12,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 12,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 54.7980104747694,
+        "p50": 47.16614191420376,
+        "p95": 78.4066243795678,
+        "p99": 151.83012334164226,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 12,
+        "mean": 47.163739994478725,
+        "p50": 47.205595998093486,
+        "p95": 47.674880316480994,
+        "p99": 47.7857759129256,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.388884261483327,
+        "p50": 15.306894667446613,
+        "p95": 15.935625066049397,
+        "p99": 16.623984114266932,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 12,
+        "mean": 15.278904931619763,
+        "p50": 15.270375879481435,
+        "p95": 15.469061280600727,
+        "p99": 15.612859292887151,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 12,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 125.26635130052455,
+        "p50": 0.0,
+        "p95": 537.2329346137121,
+        "p99": 658.7985733756794,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 12,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.17010245937854052,
+        "p50": 0.09394250810146332,
+        "p95": 0.44339289888739586,
+        "p99": 0.5204047076404095,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 12,
+        "mean": 0.08936796803027391,
+        "p50": 0.08984049782156944,
+        "p95": 0.09705787524580956,
+        "p99": 0.0972619466483593,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 4,
+        "mean": 101.69816040433943,
+        "p50": 101.6613005194813,
+        "p95": 102.0299349213019,
+        "p99": 102.08163232076913,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 4,
+        "mean": 179.6920394897461,
+        "p50": 179.70431518554688,
+        "p95": 179.79998016357422,
+        "p99": 179.80604095458983,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 4,
+        "mean": 168.1072892388329,
+        "p50": 148.30934931524098,
+        "p95": 251.81065471842882,
+        "p99": 264.6153453178704,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 4,
+        "mean": 313.5042715072632,
+        "p50": 276.4537591934204,
+        "p95": 470.01240339279167,
+        "p99": 493.92629507064817,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 4,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 4,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 4,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "condition": "B",
+      "frames": 16,
+      "questions": 4,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 819.0758418932091,
+        "p50": 727.3310341406614,
+        "p95": 1264.3351268488914,
+        "p99": 1394.8042380157858,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 4,
+        "mean": 1218.1744042318314,
+        "p50": 1182.199745438993,
+        "p95": 1394.8042380157858,
+        "p99": 1420.8980602491647,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 12,
+        "mean": 686.042987780335,
+        "p50": 723.541856976226,
+        "p95": 734.2865290120244,
+        "p99": 734.3376124277711,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 4,
+        "mean": 500.6488331127912,
+        "p50": 462.0732688345015,
+        "p95": 661.0474660992621,
+        "p99": 685.5996508151293,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 4,
+        "mean": 1218.1744042318314,
+        "p50": 1182.199745438993,
+        "p95": 1394.8042380157858,
+        "p99": 1420.8980602491647,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 4,
+        "mean": 1218.1744042318314,
+        "p50": 1182.199745438993,
+        "p95": 1394.8042380157858,
+        "p99": 1420.8980602491647,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.2208881630406818,
+      "QPS": 0.30522204076017045,
+      "peak_GPU_bytes": 16752995328,
+      "LLM_forwards": 54,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 1080.8766102418303,
+        "p50": 1080.8766102418303,
+        "p95": 1080.8766102418303,
+        "p99": 1080.8766102418303,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 857.6825534303983,
+        "p50": 727.3310341406614,
+        "p95": 1307.8248305711893,
+        "p99": 1403.5021787602457,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 461.0051553249359,
+        "p50": 486.5729064941406,
+        "p95": 495.2347869873047,
+        "p99": 495.4831146240234,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.4187695139179197,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 160.18262473517098,
+        "p50": 163.57108624652028,
+        "p95": 177.90303379297256,
+        "p99": 178.6189679056406,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 12,
+        "mean": 162.85067742380002,
+        "p50": 165.49703711643815,
+        "p95": 173.83331551682204,
+        "p99": 176.85044543351978,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 178.2711909036152,
+        "p50": 181.1256529763341,
+        "p95": 194.6436808211729,
+        "p99": 195.56797759141773,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 12,
+        "mean": 179.95053785853088,
+        "p50": 182.92694771662354,
+        "p95": 190.9630834357813,
+        "p99": 193.59946242067963,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 460.98467241972685,
+        "p50": 486.555757233873,
+        "p95": 495.2133686747402,
+        "p99": 495.4545322339982,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 12,
+        "mean": 452.34498536835116,
+        "p50": 486.555757233873,
+        "p95": 495.2937565278262,
+        "p99": 495.4706098046154,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.242799301631749,
+        "p50": 15.217928681522608,
+        "p95": 15.499077620916069,
+        "p99": 15.593482158146799,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 12,
+        "mean": 15.261789900250733,
+        "p50": 15.228473581373692,
+        "p95": 15.530545799992979,
+        "p99": 15.59977579396218,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.1104689037892967,
+        "p50": 1.088170800358057,
+        "p95": 1.4794653980061412,
+        "p99": 1.5960059827193618,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 12,
+        "mean": 1.0403848718851805,
+        "p50": 1.0726489126682281,
+        "p95": 1.1225954862311482,
+        "p99": 1.1282424861565232,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 132.44239566847682,
+        "p50": 6.5747888293117285,
+        "p95": 544.8135155020282,
+        "p99": 667.5902493065222,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 12,
+        "mean": 6.545093182163934,
+        "p50": 6.5397340804338455,
+        "p95": 6.682112300768495,
+        "p99": 6.695528971031308,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.13996177585795522,
+        "p50": 0.08721952326595783,
+        "p95": 0.32032711897045374,
+        "p99": 0.37889454979449505,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 12,
+        "mean": 0.08539199673881133,
+        "p50": 0.08440390229225159,
+        "p95": 0.0946632819250226,
+        "p99": 0.09791961405426264,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 4,
+        "mean": 98.78742299042642,
+        "p50": 98.73914998024702,
+        "p95": 99.06773921102285,
+        "p99": 99.10426530987024,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 4,
+        "mean": 177.12358474731445,
+        "p50": 177.2600326538086,
+        "p95": 177.50006256103515,
+        "p99": 177.50915557861327,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 4,
+        "mean": 320.40374755859375,
+        "p50": 282.0694580078125,
+        "p95": 480.8026260375976,
+        "p99": 505.306008605957,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 4,
+        "mean": 314.9230341911316,
+        "p50": 277.24321842193604,
+        "p95": 472.8896447181701,
+        "p99": 497.006395740509,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 4,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 4,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 4,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "condition": "C",
+      "frames": 16,
+      "questions": 4,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 759.0917092747986,
+        "p50": 726.0977411642671,
+        "p95": 1118.297576555051,
+        "p99": 1370.4620576696468,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 4,
+        "mean": 973.4884061617777,
+        "p50": 871.0052098613232,
+        "p95": 1370.4620576696468,
+        "p99": 1420.8949538925663,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 12,
+        "mean": 687.6261436458057,
+        "p50": 724.3481245823205,
+        "p95": 732.0501490496099,
+        "p99": 732.1663443557918,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_ms": {
+        "n": 4,
+        "mean": 270.9441026672721,
+        "p50": 194.19864704832435,
+        "p95": 649.0069094346835,
+        "p99": 685.9054093668236,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 4,
+        "mean": 973.4884061617777,
+        "p50": 871.0052098613232,
+        "p95": 1370.4620576696468,
+        "p99": 1420.8949538925663,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 4,
+        "mean": 973.4884061617777,
+        "p50": 871.0052098613232,
+        "p95": 1370.4620576696468,
+        "p99": 1420.8949538925663,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.3173638807824077,
+      "QPS": 0.32934097019560193,
+      "peak_GPU_bytes": 16753831936,
+      "LLM_forwards": 30,
+      "actual_prefill_skips": 2,
+      "actual_decode_skips": 2,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 1013.2290427573025,
+        "p50": 1013.2290427573025,
+        "p95": 1013.2290427573025,
+        "p99": 1013.2290427573025,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 782.5682347174734,
+        "p50": 724.3481245823205,
+        "p95": 1047.7838963270183,
+        "p99": 1356.359321624041,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 463.8376588821411,
+        "p50": 488.748046875,
+        "p95": 500.4556350708008,
+        "p99": 501.18990631103514,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.2866284525244116,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 155.6389176985249,
+        "p50": 162.36682306043804,
+        "p95": 174.12555497139692,
+        "p99": 177.61033345013857,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 12,
+        "mean": 160.70730227511376,
+        "p50": 163.19539537653327,
+        "p95": 169.45140096358955,
+        "p99": 172.02913134358823,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 172.96396475285292,
+        "p50": 180.11244293302298,
+        "p95": 190.95273315906525,
+        "p99": 194.7214301675558,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 12,
+        "mean": 177.9925669543445,
+        "p50": 180.82105228677392,
+        "p95": 186.4668591413647,
+        "p99": 188.79932601936162,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 463.8198554748669,
+        "p50": 488.73361363075674,
+        "p95": 500.43520086910576,
+        "p99": 501.1704723117873,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 12,
+        "mean": 455.49832249525934,
+        "p50": 489.1665221657604,
+        "p95": 500.6802913499996,
+        "p99": 501.2194904079661,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.497388114454225,
+        "p50": 15.36050927825272,
+        "p95": 16.210670000873506,
+        "p99": 17.405239562503994,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 12,
+        "mean": 15.571271729034683,
+        "p50": 15.384726924821734,
+        "p95": 16.608859854750335,
+        "p99": 17.48487753327936,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.0690893977880478,
+        "p50": 1.0778943542391062,
+        "p95": 1.2116828002035618,
+        "p99": 1.2356438674032688,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 12,
+        "mean": 1.046334276907146,
+        "p50": 1.069833291694522,
+        "p95": 1.1481401044875383,
+        "p99": 1.1597201321274042,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 74.68173728557304,
+        "p50": 6.589082535356283,
+        "p95": 475.5661669187248,
+        "p99": 656.4779988490044,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 12,
+        "mean": 6.565824577895303,
+        "p50": 6.570236524567008,
+        "p95": 6.626226636581123,
+        "p99": 6.626690304838121,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.13747028424404562,
+        "p50": 0.09225355461239815,
+        "p95": 0.2841820241883397,
+        "p99": 0.35369622055441136,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 12,
+        "mean": 0.09014585521072149,
+        "p50": 0.08894759230315685,
+        "p95": 0.10038469918072224,
+        "p99": 0.10177181102335453,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_wall_ms": {
+        "n": 4,
+        "mean": 49.40619645640254,
+        "p50": 48.98693831637502,
+        "p95": 99.39935430884361,
+        "p99": 99.60059821605682,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 4,
+        "mean": 88.88883209228516,
+        "p50": 88.44134521484375,
+        "p95": 178.40414581298828,
+        "p99": 178.61893951416016,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 4,
+        "mean": 180.03493118286133,
+        "p50": 103.38062286376953,
+        "p95": 467.38589401245105,
+        "p99": 504.17996200561515,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 4,
+        "mean": 176.91360759735107,
+        "p50": 101.47604751586914,
+        "p95": 459.43979930877674,
+        "p99": 495.6498281478881,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 4,
+        "mean": 0.21567312069237232,
+        "p50": 0.24260417558252811,
+        "p95": 0.3670464735478163,
+        "p99": 0.3740078117698431,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 4,
+        "mean": 0.0729127787053585,
+        "p50": 0.02993806265294552,
+        "p95": 0.18933597020804876,
+        "p99": 0.21030939184129233,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 4,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "condition": "A",
+      "frames": 16,
+      "questions": 16,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 1052.599504153477,
+        "p50": 1020.3619915992022,
+        "p95": 1227.3268677527085,
+        "p99": 1227.551396866329,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 1052.599504153477,
+        "p50": 1020.3619915992022,
+        "p95": 1227.3268677527085,
+        "p99": 1227.551396866329,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 16,
+        "mean": 525.0526143063325,
+        "p50": 493.2765781413764,
+        "p95": 698.1301272753626,
+        "p99": 698.3777214307338,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 16,
+        "mean": 1052.599504153477,
+        "p50": 1020.3619915992022,
+        "p95": 1227.3268677527085,
+        "p99": 1227.551396866329,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 1052.599504153477,
+        "p50": 1020.3619915992022,
+        "p95": 1227.3268677527085,
+        "p99": 1227.551396866329,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.9500289483835748,
+      "QPS": 0.9500289483835748,
+      "peak_GPU_bytes": 16485122560,
+      "LLM_forwards": 228,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 915.285655297339,
+        "p50": 915.285655297339,
+        "p95": 915.285655297339,
+        "p99": 915.285655297339,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 1063.571300668021,
+        "p50": 1021.1273480672389,
+        "p95": 1227.401710790582,
+        "p99": 1227.5663654739037,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 480.8054008483887,
+        "p50": 480.99493408203125,
+        "p95": 482.4332580566406,
+        "p99": 482.45427856445315,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.49881518301549177,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 47.605566040147096,
+        "p50": 47.59753588587046,
+        "p95": 48.250586027279496,
+        "p99": 48.26341983862221,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.315158845623955,
+        "p50": 15.30022919178009,
+        "p95": 15.545172966085374,
+        "p99": 15.550129185430706,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 525.0526143063325,
+        "p50": 493.2765781413764,
+        "p95": 698.1301272753626,
+        "p99": 698.3777214307338,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.5002938851248473,
+        "p50": 0.480082118883729,
+        "p95": 0.6504042539745569,
+        "p99": 0.6520387250930071,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 16,
+        "mean": 103.2940220029559,
+        "p50": 103.28273894265294,
+        "p95": 103.59597264323384,
+        "p99": 103.69679604191333,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 16,
+        "mean": 182.9801540374756,
+        "p50": 183.09477996826172,
+        "p95": 183.49029922485352,
+        "p99": 183.75756912231446,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 16,
+        "mean": 179.539943812415,
+        "p50": 162.6886238809675,
+        "p95": 270.62815404497087,
+        "p99": 270.8031340967864,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 16,
+        "mean": 334.94314193725586,
+        "p50": 303.54857635498047,
+        "p95": 504.84309673309326,
+        "p99": 505.08553524017333,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "condition": "B",
+      "frames": 16,
+      "questions": 16,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 1043.0164342105854,
+        "p50": 1008.3940103650093,
+        "p95": 1340.486317873001,
+        "p99": 1414.078026264906,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 1043.0164342105854,
+        "p50": 1008.3940103650093,
+        "p95": 1340.486317873001,
+        "p99": 1414.078026264906,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 16,
+        "mean": 344.5288788934704,
+        "p50": 313.7303988914937,
+        "p95": 601.4895471744239,
+        "p99": 677.2811318747699,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 16,
+        "mean": 1043.0164342105854,
+        "p50": 1008.3940103650093,
+        "p95": 1340.486317873001,
+        "p99": 1414.078026264906,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 1043.0164342105854,
+        "p50": 1008.3940103650093,
+        "p95": 1340.486317873001,
+        "p99": 1414.078026264906,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.9587576640217154,
+      "QPS": 0.9587576640217154,
+      "peak_GPU_bytes": 16754356736,
+      "LLM_forwards": 114,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 1027.2517609409988,
+        "p50": 1027.2517609409988,
+        "p95": 1027.2517609409988,
+        "p99": 1027.2517609409988,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 1042.4615201773122,
+        "p50": 1008.3940103650093,
+        "p95": 1193.057913566008,
+        "p99": 1286.4700675476345,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 467.22756934165955,
+        "p50": 493.0884552001953,
+        "p95": 501.56322479248047,
+        "p99": 502.4273910522461,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.33762121196841116,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 158.50740388850681,
+        "p50": 163.63859898410738,
+        "p95": 172.64297348447144,
+        "p99": 176.5176306013018,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 175.6563558592461,
+        "p50": 180.55747030302882,
+        "p95": 189.44529071450233,
+        "p99": 193.4566494077444,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 467.21200199681334,
+        "p50": 493.06869530119,
+        "p95": 501.52812409214675,
+        "p99": 502.4054495152086,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.343432663939893,
+        "p50": 15.327478526160121,
+        "p95": 15.532352146692574,
+        "p99": 15.557455667294562,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.076620479580015,
+        "p50": 1.0807323269546032,
+        "p95": 1.2440519640222192,
+        "p99": 1.256207120604813,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 352.14447262114845,
+        "p50": 320.364392362535,
+        "p95": 608.1055697286502,
+        "p99": 683.9458233909681,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.30451107886619866,
+        "p50": 0.2884275745600462,
+        "p95": 0.3831718349829316,
+        "p99": 0.38564756978303194,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 16,
+        "mean": 100.05711126723327,
+        "p50": 100.21348763257265,
+        "p95": 100.62604700215161,
+        "p99": 100.73195905424654,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 16,
+        "mean": 179.50547409057617,
+        "p50": 179.43841552734375,
+        "p95": 180.4638671875,
+        "p99": 180.53330078125,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 16,
+        "mean": 162.28072834014893,
+        "p50": 132.28643035888672,
+        "p95": 419.1156692504883,
+        "p99": 494.4528213500976,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 16,
+        "mean": 157.66093397140503,
+        "p50": 128.96807956695557,
+        "p95": 411.8726096153259,
+        "p99": 486.2550211906433,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "condition": "C",
+      "frames": 16,
+      "questions": 16,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 907.9385262739379,
+        "p50": 756.5390095114708,
+        "p95": 1341.5793601889163,
+        "p99": 1413.5666689369828,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 907.9385262739379,
+        "p50": 756.5390095114708,
+        "p95": 1341.5793601889163,
+        "p99": 1413.5666689369828,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 16,
+        "mean": 208.91708339331672,
+        "p50": 106.19220254011452,
+        "p95": 601.591404993087,
+        "p99": 676.9357514567673,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 16,
+        "mean": 907.9385262739379,
+        "p50": 756.5390095114708,
+        "p95": 1341.5793601889163,
+        "p99": 1413.5666689369828,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 907.9385262739379,
+        "p50": 756.5390095114708,
+        "p95": 1341.5793601889163,
+        "p99": 1413.5666689369828,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 1.1013961530015368,
+      "QPS": 1.1013961530015368,
+      "peak_GPU_bytes": 16754356736,
+      "LLM_forwards": 80,
+      "actual_prefill_skips": 8,
+      "actual_decode_skips": 8,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 1025.5818800069392,
+        "p50": 1025.5818800069392,
+        "p95": 1025.5818800069392,
+        "p99": 1025.5818800069392,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 862.7989352680743,
+        "p50": 733.8922487106174,
+        "p95": 1220.6078121205792,
+        "p99": 1293.38928099256,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 469.8522894382477,
+        "p50": 494.0535583496094,
+        "p95": 510.6588134765625,
+        "p99": 533.6918701171875,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.23828181760256176,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 156.52596269501373,
+        "p50": 162.2896131593734,
+        "p95": 180.0720776664093,
+        "p99": 188.26082965824753,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 173.77174328430556,
+        "p50": 179.34995493851602,
+        "p95": 197.41537375375628,
+        "p99": 205.89028587564826,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 469.8313325061463,
+        "p50": 494.0176389645785,
+        "p95": 510.6337968027219,
+        "p99": 533.6714730365202,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.355714247561991,
+        "p50": 15.332758659496903,
+        "p95": 15.633019851520658,
+        "p99": 15.676341438665986,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.087681419448927,
+        "p50": 1.0665825102478266,
+        "p95": 1.244666869752109,
+        "p99": 1.2550299754366279,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 216.34524231194519,
+        "p50": 112.79059760272503,
+        "p95": 608.2037582527846,
+        "p99": 683.4631418343633,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.2872147597372532,
+        "p50": 0.2670993562787771,
+        "p95": 0.3783468855544925,
+        "p99": 0.38418041076511145,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 16,
+        "mean": 50.11537962127477,
+        "p50": 49.91654492914677,
+        "p95": 100.42570903897285,
+        "p99": 100.44463537633419,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 16,
+        "mean": 89.80725765228271,
+        "p50": 89.62651062011719,
+        "p95": 179.89222717285156,
+        "p99": 179.91679992675782,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 16,
+        "mean": 117.61239731311798,
+        "p50": 14.969056129455566,
+        "p95": 418.9151840209961,
+        "p99": 494.15056610107416,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 16,
+        "mean": 114.81502556800842,
+        "p50": 13.62112045288086,
+        "p95": 411.6689496040344,
+        "p99": 485.9561120033264,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 16,
+        "mean": 0.002064305590465665,
+        "p50": 0.0020121224224567413,
+        "p95": 0.002412591129541397,
+        "p99": 0.002484116703271866,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 16,
+        "mean": 0.03096379805356264,
+        "p50": 0.04038750194013119,
+        "p95": 0.04393176641315222,
+        "p99": 0.04414047580212355,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "condition": "A",
+      "frames": 16,
+      "questions": 48,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 2121.260086685652,
+        "p50": 2107.8359610401094,
+        "p95": 2159.831332974136,
+        "p99": 2160.9130488708615,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 2121.260086685652,
+        "p50": 2107.8359610401094,
+        "p95": 2159.831332974136,
+        "p99": 2160.9130488708615,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 48,
+        "mean": 530.0508752116002,
+        "p50": 490.28585269115865,
+        "p95": 694.6092997677624,
+        "p99": 695.1263684034348,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 2121.260086685652,
+        "p50": 2107.8359610401094,
+        "p95": 2159.831332974136,
+        "p99": 2160.9130488708615,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.4714179115878445,
+      "QPS": 1.4142537347635336,
+      "peak_GPU_bytes": 16485124608,
+      "LLM_forwards": 697,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 2103.716207202524,
+        "p50": 2103.716207202524,
+        "p95": 2103.716207202524,
+        "p99": 2103.716207202524,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 2135.3406021371484,
+        "p50": 2146.814967272803,
+        "p95": 2160.191904939711,
+        "p99": 2160.9851632639766,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 483.0873737335205,
+        "p50": 483.12367248535156,
+        "p95": 485.0547180175781,
+        "p99": 485.39756469726564,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.7496264298826852,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 47.86537299514748,
+        "p50": 47.84142132848501,
+        "p95": 48.42838319018483,
+        "p99": 48.44538392499089,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.506137569900602,
+        "p50": 15.399196650832891,
+        "p95": 15.85302222520113,
+        "p99": 15.948870964348316,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 1590.1526256348006,
+        "p50": 1576.74240344204,
+        "p95": 1627.4430545745417,
+        "p99": 1628.0352893983945,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 1.264581282157451,
+        "p50": 1.236133510246873,
+        "p95": 1.4428861904889345,
+        "p99": 1.5656413976103067,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 48,
+        "mean": 101.25360815436579,
+        "p50": 100.313471397385,
+        "p95": 103.46367114689201,
+        "p99": 103.74178876634687,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 48,
+        "mean": 181.22901693979898,
+        "p50": 180.43545532226562,
+        "p95": 183.30157546997071,
+        "p99": 183.556590423584,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 48,
+        "mean": 183.11679865776873,
+        "p50": 162.64783684164286,
+        "p95": 270.38550216238946,
+        "p99": 270.4493113933131,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 48,
+        "mean": 341.71576531728107,
+        "p50": 303.5203504562378,
+        "p95": 504.59699420928956,
+        "p99": 504.7309663009644,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "condition": "B",
+      "frames": 16,
+      "questions": 48,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 1726.45347379148,
+        "p50": 1753.9825132116675,
+        "p95": 2019.0392880467698,
+        "p99": 2342.3158183461055,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 1726.45347379148,
+        "p50": 1753.9825132116675,
+        "p95": 2019.0392880467698,
+        "p99": 2342.3158183461055,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 48,
+        "mean": 337.63042477463995,
+        "p50": 241.33555055595934,
+        "p95": 569.0907133743167,
+        "p99": 633.1525744870306,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 1726.45347379148,
+        "p50": 1753.9825132116675,
+        "p95": 2019.0392880467698,
+        "p99": 2342.3158183461055,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.579222096152925,
+      "QPS": 1.737666288458775,
+      "peak_GPU_bytes": 16783912448,
+      "LLM_forwards": 331,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 2423.1349509209394,
+        "p50": 2423.1349509209394,
+        "p95": 2423.1349509209394,
+        "p99": 2423.1349509209394,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 1710.0061896101881,
+        "p50": 1769.1214850638062,
+        "p95": 1879.3322667945176,
+        "p99": 1883.3390403632075,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 473.29802417755127,
+        "p50": 491.648193359375,
+        "p95": 532.3864822387695,
+        "p99": 603.1057144165038,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.5907677835516526,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 165.10149856912903,
+        "p50": 165.22485925816,
+        "p95": 190.72799221612513,
+        "p99": 194.54311770386994,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 183.6388425435871,
+        "p50": 182.8892296180129,
+        "p95": 207.82938820775598,
+        "p99": 211.53006746899337,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 473.2749341346789,
+        "p50": 491.6266354266554,
+        "p95": 532.3481840314344,
+        "p99": 603.0868862057105,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.642436657799408,
+        "p50": 15.413098502904177,
+        "p95": 16.771961003541946,
+        "p99": 18.537938594818115,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.0685093293432146,
+        "p50": 1.0602446272969246,
+        "p95": 1.180082093924284,
+        "p99": 1.1845133267343044,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 1019.9330921168439,
+        "p50": 1050.9477560408413,
+        "p95": 1352.0300890086219,
+        "p99": 1555.5622979765756,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.6746995495632291,
+        "p50": 0.6723692640662193,
+        "p95": 0.7188412128016353,
+        "p99": 0.729623413644731,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 48,
+        "mean": 99.68928447536503,
+        "p50": 99.72644527442753,
+        "p95": 100.49689116422087,
+        "p99": 101.05638657230884,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 48,
+        "mean": 178.44737243652344,
+        "p50": 178.51842498779297,
+        "p95": 179.71660537719725,
+        "p99": 179.85545837402344,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 48,
+        "mean": 156.2790189186732,
+        "p50": 59.880592346191406,
+        "p95": 387.32735443115234,
+        "p99": 452.57537445068374,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 48,
+        "mean": 151.72533603509268,
+        "p50": 56.51046371459961,
+        "p95": 380.6431118965149,
+        "p99": 444.67380243301403,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "condition": "C",
+      "frames": 16,
+      "questions": 48,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 1366.1982605408411,
+        "p50": 1303.4421347547323,
+        "p95": 1908.7314147036523,
+        "p99": 2154.182374989614,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 1366.1982605408411,
+        "p50": 1303.4421347547323,
+        "p95": 1908.7314147036523,
+        "p99": 2154.182374989614,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 48,
+        "mean": 210.13913043619445,
+        "p50": 0.2946124877780676,
+        "p95": 569.4716938305646,
+        "p99": 636.1837099632249,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 1366.1982605408411,
+        "p50": 1303.4421347547323,
+        "p95": 1908.7314147036523,
+        "p99": 2154.182374989614,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.7319581856326818,
+      "QPS": 2.1958745568980453,
+      "peak_GPU_bytes": 16784224768,
+      "LLM_forwards": 249,
+      "actual_prefill_skips": 25,
+      "actual_decode_skips": 25,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 2215.5451150611043,
+        "p50": 2215.5451150611043,
+        "p95": 2215.5451150611043,
+        "p99": 2215.5451150611043,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 1255.1416001515463,
+        "p50": 1299.6043094899505,
+        "p95": 1388.733819965273,
+        "p99": 1463.672622088343,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 467.647456407547,
+        "p50": 492.99298095703125,
+        "p95": 504.35001373291016,
+        "p99": 508.4581130981445,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.46698148946740436,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 194.83945486717857,
+        "p50": 168.58392907306552,
+        "p95": 350.1970216166228,
+        "p99": 587.480874499306,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 212.2147521295119,
+        "p50": 185.6324141845107,
+        "p95": 369.08136447891593,
+        "p99": 605.3495458327233,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 467.6295004610438,
+        "p50": 492.9791400209069,
+        "p95": 504.31143993046135,
+        "p99": 508.43828979413956,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.34966501640156,
+        "p50": 15.374836977571249,
+        "p95": 15.548650408163667,
+        "p99": 15.592861594632268,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.0950324649456888,
+        "p50": 1.0901063214987516,
+        "p95": 1.2053275713697076,
+        "p99": 1.2723774882033467,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 637.989298615139,
+        "p50": 576.0089545510709,
+        "p95": 1358.6713480763137,
+        "p99": 1551.409640815109,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.6104909116402268,
+        "p50": 0.6042534951120615,
+        "p95": 0.6547775119543076,
+        "p99": 0.659019872546196,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 48,
+        "mean": 47.97372594475746,
+        "p50": 0.0,
+        "p95": 100.51668756641448,
+        "p99": 100.91898839455098,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 48,
+        "mean": 85.93608474731445,
+        "p50": 0.0,
+        "p95": 180.1626235961914,
+        "p99": 180.37677536010742,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 48,
+        "mean": 122.7429651816686,
+        "p50": 0.0,
+        "p95": 387.5755859375,
+        "p99": 453.9655392456056,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 48,
+        "mean": 120.05895145734151,
+        "p50": 0.0,
+        "p95": 380.861873626709,
+        "p99": 446.33601564407365,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 48,
+        "mean": 0.02308482847486933,
+        "p50": 0.0011099036782979965,
+        "p95": 0.09237034246325473,
+        "p99": 0.4627032345160845,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 48,
+        "mean": 0.03114771485949556,
+        "p50": 0.029687071219086647,
+        "p95": 0.04629890900105238,
+        "p99": 0.14481180813163538,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "condition": "A",
+      "frames": 16,
+      "questions": 48,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 2533.789445180446,
+        "p50": 2504.468300146982,
+        "p95": 3287.7015254925936,
+        "p99": 3480.562197929248,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 2533.789445180446,
+        "p50": 2504.468300146982,
+        "p95": 3287.7015254925936,
+        "p99": 3480.562197929248,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 48,
+        "mean": 667.3653287095173,
+        "p50": 593.8897908199579,
+        "p95": 1176.2519213370977,
+        "p99": 1560.1096656592565,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 2533.789445180446,
+        "p50": 2504.468300146982,
+        "p95": 3287.7015254925936,
+        "p99": 3480.562197929248,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.3946657848394282,
+      "QPS": 1.1839973545182845,
+      "peak_GPU_bytes": 16498424320,
+      "LLM_forwards": 953,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 3207.342911977321,
+        "p50": 3207.342911977321,
+        "p95": 3207.342911977321,
+        "p99": 3207.342911977321,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 2569.5106997154653,
+        "p50": 2527.9354946687818,
+        "p95": 3339.2562237568195,
+        "p99": 3490.8731375820935,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 483.46041679382324,
+        "p50": 483.4071044921875,
+        "p95": 484.60929107666016,
+        "p99": 484.62000274658203,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.7901587836892938,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 47.91895591188222,
+        "p50": 47.845943132415414,
+        "p95": 48.385296016931534,
+        "p99": 48.44149500131607,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.351917711086571,
+        "p50": 15.304590109735727,
+        "p95": 15.742080169729888,
+        "p99": 15.938043198548257,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 2002.0959861285519,
+        "p50": 1971.6756271664053,
+        "p95": 2755.7758641196415,
+        "p99": 2948.3199020614848,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 1.5621634374838322,
+        "p50": 1.5425430610775948,
+        "p95": 1.984631409868598,
+        "p99": 2.3633509408682585,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 48,
+        "mean": 100.86077379916485,
+        "p50": 100.53379065357149,
+        "p95": 103.76215947326273,
+        "p99": 104.16146884672344,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 48,
+        "mean": 181.6375354131063,
+        "p50": 180.89778900146484,
+        "p95": 183.97981872558594,
+        "p99": 188.1169731140137,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 48,
+        "mean": 255.80044940579683,
+        "p50": 216.88626357354224,
+        "p95": 524.0778545849023,
+        "p99": 726.6697224648672,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 48,
+        "mean": 476.3556731939316,
+        "p50": 404.54302310943604,
+        "p95": 978.4593894958493,
+        "p99": 1356.5781544303898,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "condition": "B",
+      "frames": 16,
+      "questions": 48,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 2540.1348786544986,
+        "p50": 2455.8271018322557,
+        "p95": 3390.6787062296644,
+        "p99": 3572.6498243631795,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 2540.1348786544986,
+        "p50": 2455.8271018322557,
+        "p95": 3390.6787062296644,
+        "p99": 3572.6498243631795,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 48,
+        "mean": 609.4889026329232,
+        "p50": 591.8486309237778,
+        "p95": 1169.421411119401,
+        "p99": 1562.0765854790811,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 2540.1348786544986,
+        "p50": 2455.8271018322557,
+        "p95": 3390.6787062296644,
+        "p99": 3572.6498243631795,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.3936798822784154,
+      "QPS": 1.1810396468352462,
+      "peak_GPU_bytes": 16754357760,
+      "LLM_forwards": 843,
+      "actual_prefill_skips": 0,
+      "actual_decode_skips": 0,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 3314.8574070073664,
+        "p50": 3314.8574070073664,
+        "p95": 3314.8574070073664,
+        "p99": 3314.8574070073664,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 2561.446744405354,
+        "p50": 2455.8271018322557,
+        "p95": 3438.468321436085,
+        "p99": 3582.2077474044636,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 468.78674936294556,
+        "p50": 494.99229431152344,
+        "p95": 503.16194915771484,
+        "p99": 504.45018768310547,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.7228352650424761,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 169.6089149627369,
+        "p50": 164.0568554867059,
+        "p95": 213.71071913745254,
+        "p99": 236.6262576309964,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 186.71373836696148,
+        "p50": 181.22369633056223,
+        "p95": 230.99261871539056,
+        "p99": 253.92130757682025,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 468.7705112155527,
+        "p50": 494.97622181661427,
+        "p95": 503.14129900652915,
+        "p99": 504.42809017840773,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.287684451323003,
+        "p50": 15.280059538781643,
+        "p95": 15.496928011998534,
+        "p99": 15.555389551445842,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.112371712224558,
+        "p50": 1.0444377548992634,
+        "p95": 1.349847880192101,
+        "p99": 1.5971824759617446,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 1836.0990682558622,
+        "p50": 1689.9542699102312,
+        "p95": 2745.1916352147236,
+        "p99": 2872.781803761609,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.8423699473496526,
+        "p50": 0.8201552554965019,
+        "p95": 1.167550217360258,
+        "p99": 1.2377559207379818,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 48,
+        "mean": 99.74302644453321,
+        "p50": 100.29359231702983,
+        "p95": 101.1394256260246,
+        "p99": 101.46157843992114,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 48,
+        "mean": 180.08718649546304,
+        "p50": 179.95503997802734,
+        "p95": 181.77357025146483,
+        "p99": 186.9429412841797,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 48,
+        "mean": 426.66626596450806,
+        "p50": 410.8533630371094,
+        "p95": 985.6622589111324,
+        "p99": 1379.1072302246098,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 48,
+        "mean": 419.03468811511993,
+        "p50": 404.09593868255615,
+        "p95": 970.0628589630123,
+        "p99": 1357.1275177192692,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "condition": "C",
+      "frames": 16,
+      "questions": 48,
+      "independent_scenes": 1,
+      "independent_logs": 1,
+      "e2e_ms": {
+        "n": 16,
+        "mean": 2399.3128280853853,
+        "p50": 2275.878197979182,
+        "p95": 3291.9869928155094,
+        "p99": 3318.8427329529077,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "QA_frame_e2e_ms": {
+        "n": 16,
+        "mean": 2399.3128280853853,
+        "p50": 2275.878197979182,
+        "p95": 3291.9869928155094,
+        "p99": 3318.8427329529077,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "no_QA_frame_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "response_ms": {
+        "n": 48,
+        "mean": 564.4399313120326,
+        "p50": 592.6371947862208,
+        "p95": 1170.9078090265389,
+        "p99": 1562.340402477421,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "single_question_response_e2e_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "QA_batch_response_e2e_ms": {
+        "n": 16,
+        "mean": 2399.3128280853853,
+        "p50": 2275.878197979182,
+        "p95": 3291.9869928155094,
+        "p99": 3318.8427329529077,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "response_definition": "response_ms is M3 per-question service only; single_question_response_e2e_ms is synchronized model-entry-to-return for one-QA frames. Three questions return as one batch; no paced-arrival queueing latency is measured.",
+      "FPS": 0.41678600151443557,
+      "QPS": 1.2503580045433067,
+      "peak_GPU_bytes": 16754357760,
+      "LLM_forwards": 809,
+      "actual_prefill_skips": 8,
+      "actual_decode_skips": 8,
+      "cold_e2e_ms": {
+        "n": 1,
+        "mean": 3325.5566679872572,
+        "p50": 3325.5566679872572,
+        "p95": 3325.5566679872572,
+        "p99": 3325.5566679872572,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "steady_e2e_ms": {
+        "n": 12,
+        "mean": 2381.4947886470086,
+        "p50": 2275.878197979182,
+        "p95": 3129.1083560790867,
+        "p99": 3250.459352089092,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "visual_cuda_span_ms": {
+        "n": 16,
+        "mean": 468.12832736968994,
+        "p50": 494.6610870361328,
+        "p95": 501.82694244384766,
+        "p99": 501.947444152832,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "M3_share_on_QA_frames": 0.7090070173720633,
+      "m1_wall_ms": {
+        "n": 16,
+        "mean": 164.20478792861104,
+        "p50": 162.90401411242783,
+        "p95": 223.98469829931855,
+        "p99": 252.71998913958666,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m1_including_adapters_ms": {
+        "n": 16,
+        "mean": 181.43730540759861,
+        "p50": 179.94443280622363,
+        "p95": 242.28930589742959,
+        "p99": 270.4205940011889,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m1_including_adapters_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m2_wall_ms": {
+        "n": 16,
+        "mean": 468.10967623605393,
+        "p50": 494.63909422047436,
+        "p95": 501.8092398531735,
+        "p99": 501.92962074652314,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m2_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "heads_wall_ms": {
+        "n": 16,
+        "mean": 15.368220658274367,
+        "p50": 15.340954065322876,
+        "p95": 15.67898120265454,
+        "p99": 15.716023347340524,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_heads_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "snapshot_wall_ms": {
+        "n": 16,
+        "mean": 1.0841005423571914,
+        "p50": 1.0887249372899532,
+        "p95": 1.2149193789809942,
+        "p99": 1.2485950719565153,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_snapshot_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "m3_wall_ms": {
+        "n": 16,
+        "mean": 1701.129631983349,
+        "p50": 1592.4887508153915,
+        "p95": 2599.039245629683,
+        "p99": 2682.104776101187,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_m3_wall_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "answer_export_ms": {
+        "n": 16,
+        "mean": 0.8234874985646456,
+        "p50": 0.8037034422159195,
+        "p95": 1.1383786331862211,
+        "p99": 1.1924447026103735,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "idle_answer_export_ms": {
+        "n": 0,
+        "mean": null,
+        "p50": null,
+        "p95": null,
+        "p99": null
+      },
+      "prefill_wall_ms": {
+        "n": 48,
+        "mean": 83.0316489834028,
+        "p50": 100.04774294793606,
+        "p95": 101.12533660139889,
+        "p99": 101.59351505804807,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "prefill_cuda_ms": {
+        "n": 48,
+        "mean": 150.08409309387207,
+        "p50": 179.80825805664062,
+        "p95": 181.93244247436525,
+        "p99": 187.44650207519533,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_wall_ms": {
+        "n": 48,
+        "mean": 411.948806365331,
+        "p50": 411.18377685546875,
+        "p95": 986.4111633300778,
+        "p99": 1379.1267785644534,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "decode_cuda_ms": {
+        "n": 48,
+        "mean": 404.90888929367065,
+        "p50": 404.3357582092285,
+        "p95": 970.4542365074154,
+        "p99": 1357.3816432762148,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "question_fact_extraction_wall_ms": {
+        "n": 48,
+        "mean": 0.026947779891391594,
+        "p50": 0.02969265915453434,
+        "p95": 0.054619298316538334,
+        "p99": 0.09187439922243364,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "answer_validity_check_wall_ms": {
+        "n": 48,
+        "mean": 0.011532897284875313,
+        "p50": 0.0009299255907535553,
+        "p95": 0.045954552479088306,
+        "p99": 0.04934952594339848,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      },
+      "position_admission_wall_ms": {
+        "n": 48,
+        "mean": 0.0,
+        "p50": 0.0,
+        "p95": 0.0,
+        "p99": 0.0,
+        "p99_scope": "descriptive order statistic; insufficient tail sample"
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "comparison": "B->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 819.0758418932091,
+      "to_ms": 759.0917092747986,
+      "speedup": 1.0790209297315558,
+      "delta_ms": -59.98413261841051,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 1.0790209297315558
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "comparison": "A->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 650.767610699404,
+      "to_ms": 759.0917092747986,
+      "speedup": 0.8572977451184621,
+      "delta_ms": 108.3240985753946,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 0.8572977451184621
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "comparison": "B->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 885.8419263269752,
+      "to_ms": 850.951033498859,
+      "speedup": 1.041002233330225,
+      "delta_ms": -34.89089282811619,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 1.041002233330225
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "comparison": "A->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 783.6978768464178,
+      "to_ms": 850.951033498859,
+      "speedup": 0.9209670662530179,
+      "delta_ms": 67.25315665244125,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 0.9209670662530179
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "comparison": "B->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 1043.0164342105854,
+      "to_ms": 907.9385262739379,
+      "speedup": 1.1487742881569194,
+      "delta_ms": -135.07790793664753,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 1.1487742881569194
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "comparison": "A->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 1052.599504153477,
+      "to_ms": 907.9385262739379,
+      "speedup": 1.1593290445259647,
+      "delta_ms": -144.66097787953913,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 1.1593290445259647
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "comparison": "B->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 1726.45347379148,
+      "to_ms": 1366.1982605408411,
+      "speedup": 1.2636917522556526,
+      "delta_ms": -360.2552132506389,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 1.2636917522556526
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "comparison": "A->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 2121.260086685652,
+      "to_ms": 1366.1982605408411,
+      "speedup": 1.5526736843054552,
+      "delta_ms": -755.0618261448108,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 1.5526736843054552
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "comparison": "B->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 2540.1348786544986,
+      "to_ms": 2399.3128280853853,
+      "speedup": 1.0586926593817645,
+      "delta_ms": -140.82205056911334,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 1.0586926593817645
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "comparison": "A->C",
+      "paired_frames": 16,
+      "independent_logs": 1,
+      "from_ms": 2533.789445180446,
+      "to_ms": 2399.3128280853853,
+      "speedup": 1.056047971536238,
+      "delta_ms": -134.47661709506065,
+      "speedup_log_CI95": null,
+      "delta_log_CI95_ms": null,
+      "log_speedups": {
+        "8c66d9d518c54aed98dce7e3095501bc": 1.056047971536238
+      },
+      "interval_scope": "Population/log uncertainty not estimable from one independent log; paired means are diagnostic only"
+    }
+  ],
+  "quality": [
+    {
+      "workload": "addressable",
+      "frequency": "every2",
+      "comparison": "B->C",
+      "requests": 8,
+      "scored": 5,
+      "UNKNOWN": 3,
+      "B_score": 0.6,
+      "C_score": 1.0,
+      "loss": -0.4,
+      "loss_log_CI95": null,
+      "conservative_all_request_loss_bounds": [
+        -0.625,
+        0.125
+      ],
+      "new_severe": 0,
+      "net_severe": 0,
+      "new_severe_log_CI95": null,
+      "independent_logs": 1,
+      "pairs": [
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "10629cdea90242be94821898540d79be",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        }
+      ]
+    },
+    {
+      "workload": "addressable",
+      "frequency": "every4",
+      "comparison": "B->C",
+      "requests": 4,
+      "scored": 2,
+      "UNKNOWN": 2,
+      "B_score": 0.5,
+      "C_score": 1.0,
+      "loss": -0.5,
+      "loss_log_CI95": null,
+      "conservative_all_request_loss_bounds": [
+        -0.75,
+        0.25
+      ],
+      "new_severe": 0,
+      "net_severe": 0,
+      "new_severe_log_CI95": null,
+      "independent_logs": 1,
+      "pairs": [
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "10629cdea90242be94821898540d79be",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        }
+      ]
+    },
+    {
+      "workload": "addressable",
+      "frequency": "one",
+      "comparison": "B->C",
+      "requests": 16,
+      "scored": 10,
+      "UNKNOWN": 6,
+      "B_score": 0.7,
+      "C_score": 1.0,
+      "loss": -0.3,
+      "loss_log_CI95": null,
+      "conservative_all_request_loss_bounds": [
+        -0.5625,
+        0.1875
+      ],
+      "new_severe": 0,
+      "net_severe": 0,
+      "new_severe_log_CI95": null,
+      "independent_logs": 1,
+      "pairs": [
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "deeb650a84054a07917eb84e21a358de",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "10629cdea90242be94821898540d79be",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "07294f69a7564afe926cc3d343c3599a",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        }
+      ]
+    },
+    {
+      "workload": "addressable",
+      "frequency": "three",
+      "comparison": "B->C",
+      "requests": 48,
+      "scored": 31,
+      "UNKNOWN": 17,
+      "B_score": 0.7096774193548387,
+      "C_score": 0.967741935483871,
+      "loss": -0.25806451612903225,
+      "loss_log_CI95": null,
+      "conservative_all_request_loss_bounds": [
+        -0.5208333333333334,
+        0.1875
+      ],
+      "new_severe": 0,
+      "net_severe": 0,
+      "new_severe_log_CI95": null,
+      "independent_logs": 1,
+      "pairs": [
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+          "question": "Where is the nearest pedestrian relative to the vehicle?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 0.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "deeb650a84054a07917eb84e21a358de",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "deeb650a84054a07917eb84e21a358de",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "ebd128c8164943538f360f11c10e26d5",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "ebd128c8164943538f360f11c10e26d5",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "10629cdea90242be94821898540d79be",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "10629cdea90242be94821898540d79be",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "07294f69a7564afe926cc3d343c3599a",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "07294f69a7564afe926cc3d343c3599a",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        }
+      ]
+    },
+    {
+      "workload": "mixed",
+      "frequency": "three",
+      "comparison": "B->C",
+      "requests": 48,
+      "scored": 21,
+      "UNKNOWN": 27,
+      "B_score": 0.8095238095238095,
+      "C_score": 0.9523809523809523,
+      "loss": -0.14285714285714285,
+      "loss_log_CI95": null,
+      "conservative_all_request_loss_bounds": [
+        -0.625,
+        0.5
+      ],
+      "new_severe": 0,
+      "net_severe": 0,
+      "new_severe_log_CI95": null,
+      "independent_logs": 1,
+      "pairs": [
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+          "question": "Are there any pedestrians visible in the scene?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+          "question": "Is there a pedestrian crossing visible?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+          "question": "Can you describe any visible traffic signs?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+          "question": "Are there any pedestrians visible?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+          "question": "Are there any pedestrians visible in the surrounding area?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+          "question": "Is there a visible traffic signal, and what is its current state?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+          "question": "Is there a designated bicycle lane on the road?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 0.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "deeb650a84054a07917eb84e21a358de",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+          "question": "Are there any pedestrians in the vicinity of the bus stop shelter?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "ebd128c8164943538f360f11c10e26d5",
+          "question": "Is there any oncoming traffic visible?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "10629cdea90242be94821898540d79be",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "07294f69a7564afe926cc3d343c3599a",
+          "question": "Is there a car in front?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+          "question": "Is there any oncoming traffic visible from the vehicle's perspective?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+          "question": "What type of vehicle is directly ahead?",
+          "loss": -1.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 0.0,
+          "C": 1.0,
+          "fast": true
+        },
+        {
+          "scene_id": "8c66d9d518c54aed98dce7e3095501bc",
+          "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+          "question": "Are there any pedestrians visible in the vicinity?",
+          "loss": 0.0,
+          "new_severe": 0,
+          "severe_delta": 0,
+          "B": 1.0,
+          "C": 1.0,
+          "fast": false
+        }
+      ]
+    }
+  ],
+  "reused": [
+    {
+      "condition": "B",
+      "frame_id": "c35b4490aa9b4597b59415e057f5fa49",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "deeb650a84054a07917eb84e21a358de",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "ebd128c8164943538f360f11c10e26d5",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "10629cdea90242be94821898540d79be",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "07294f69a7564afe926cc3d343c3599a",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "B",
+      "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "c35b4490aa9b4597b59415e057f5fa49",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "20d3ca8e756d4c87b8addc399a866d0c",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "5052ec0021f64f35ac8300aee5f84349",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "3a7e7dbee620460cbbe09a942c5d23be",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "4dc2e5fa449f41448824a40820f8ab36",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "9bb6116e8f194294bf5c2107c42acc1a",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "a4ea60cc43244ddd82996667dab822f9",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "86a69236763d42bf9da6247b8bcd88bb",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "8c5e199766d04d86a16e4fb9e64f44e1",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "deeb650a84054a07917eb84e21a358de",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "f0481221263c4f9cb7045c36723a09ea",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "ebd128c8164943538f360f11c10e26d5",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "10629cdea90242be94821898540d79be",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "07294f69a7564afe926cc3d343c3599a",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "e9e1871dddf94ba7ba46a76dcf027bab",
+      "origin_stage": "tune_m1"
+    },
+    {
+      "condition": "C",
+      "frame_id": "bd608be2ea8d4d0bac3a691bdcb20f08",
+      "origin_stage": "tune_m1"
+    }
+  ],
+  "all_intervals_population_unestimable": true,
+  "timing": "CUDA-synchronized model service wall. Input preparation and offline audit/export serialization excluded equally; answer export included. No arrival/queue simulation.",
+  "language_timing": "B/C prefill_cuda_ms includes cache GPU span; decode CUDA is sum of decode forwards. Legacy prefill_wall alias is CPU enqueue, decode_wall alias is CUDA loop span, not synchronized pure phase host wall.",
+  "memory": "Process peak can retain inactive allocations from other conditions; not standalone minimal footprint."
+}
