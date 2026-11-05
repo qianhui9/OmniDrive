@@ -32,9 +32,14 @@ def historical_source(commit, path):
 
 def source_revision(repository=REPOSITORY):
     """Identify live Git revisions, or the explicit standalone source inventory."""
-    if (Path(repository)/'.git').exists():
-        return subprocess.check_output(['git', 'rev-parse', 'HEAD'],
-                                       cwd=repository, text=True).strip()
+    git = Path(repository)/'.git'
+    if git.is_file() or (git/'HEAD').is_file():
+        try:
+            return subprocess.check_output(['git', 'rev-parse', 'HEAD'],
+                                           cwd=repository, text=True,
+                                           stderr=subprocess.DEVNULL).strip()
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            pass
     return 'standalone-sha256:'+manifest()['source_inventory_sha256']
 
 

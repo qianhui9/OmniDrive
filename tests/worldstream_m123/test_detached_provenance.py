@@ -20,6 +20,9 @@ def test_standalone_revision_uses_explicit_inventory(tmp_path, monkeypatch):
         raise AssertionError('Git must not be called in a standalone directory')
     monkeypatch.setattr(provenance.subprocess, 'check_output', unavailable)
     assert provenance.source_revision(tmp_path) == 'standalone-sha256:'+provenance.manifest()['source_inventory_sha256']
+    # Execution environments can recreate an empty .git mount point.
+    (tmp_path/'.git').mkdir()
+    assert provenance.source_revision(tmp_path) == 'standalone-sha256:'+provenance.manifest()['source_inventory_sha256']
 
 
 def test_only_exact_audited_launcher_migration_is_accepted():
