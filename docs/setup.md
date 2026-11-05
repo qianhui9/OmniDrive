@@ -1,92 +1,33 @@
-# Environment Setup
+# 当前服务器环境与 R0 运行入口
 
-**1. Download nuScenes**
+本机继续使用现有预热的 `OmniDrive` 环境，解释器固定为 `/home/qh/miniconda3/envs/OmniDrive/bin/python`。本次清理无需重装依赖、训练或修改权重。数据、模型文件与校验方式见 [运行指令](../tools/运行文件.md)。
 
-Download the [nuScenes dataset](https://www.nuscenes.org/download) to `./data/nuscenes`.
-
-**2. Download infos files**
-Download the [Info Files](https://github.com/NVlabs/OmniDrive/releases/download/v1.0/data_nusc.zip).
-
-Unzip the data_nusc.tar.gz and move the files into data/nuscenes/.
-
-The pkl info is generated using StreamPETR's data converter. We converted the GT in the lidar coordinate to an ego coordinate system using update_coords.py (to align with OpenLanev2) and added canbus/command information.
-
-**3. Install Packages**
-```shell
-cd /path/to/OmniDrive
-conda create -n omnidrive python=3.9
-pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
-pip install flash-attn==2.5.6
-pip install transformers==4.31.0 
-pip install mmcv-full==1.6.2 -f https://download.openmmlab.com/mmcv/dist/cu117/torch1.13/index.html
-pip install mmdet==2.28.2
-pip install mmsegmentation==0.30.0
-git clone https://github.com/open-mmlab/mmdetection3d.git
-cd mmdetection3d
-git checkout v1.0.0rc6 
-pip install -e .
-git clone https://github.com/OpenDriveLab/OpenLane-V2.git
-cd OpenLane-V2
-pip install -e .
-cd ..
-pip install -r requirements.txt
-```
-
-After preparation, you will be able to see the following directory structure:  
-
-**4. Folder structure**
-```
-OmniDrive
-├── projects/
-├── mmdetection3d/
-├── OpenLane-V2/
-├── tools/
-├── configs/
-├── ckpts/
-│   ├── pretrain_qformer/
-├── data/
-│   ├── nuscenes/
-│   │   ├── maps/
-│   │   ├── samples/
-│   │   ├── sweeps/
-│   │   ├── v1.0-test/
-│   │   ├── v1.0-trainval/
-│   │   ├── conv/
-│   │   ├── desc/
-│   │   ├── keywords/
-│   │   ├── vqa/
-│   │   ├── nuscenes2d_ego_temporal_infos_train.pkl
-│   │   ├── nuscenes2d_ego_temporal_infos_val.pkl
-│   │   ├── data_dict_sample.pkl
-│   │   ├── data_dict_subset_B.json
-│   │   ├── data_dict_subset_B_val.pkl
-│   │   ├── lane_obj_train.pkl
-```
-
-## Pretrained Weights
-```shell
-cd /path/to/OmniDrive
-mkdir ckpts
-```
-Please download the pretrained [2D llm weights](https://huggingface.co/exiawsh/pretrain_qformer/tree/main) and [vision encoder + projector weights](https://github.com/NVlabs/OmniDrive/releases/download/v1.0/eva02_petr_proj.pth) to ./ckpts.
-
-The [vision encoder + projector weights](https://github.com/NVlabs/OmniDrive/releases/download/v1.0/eva02_petr_proj.pth) are extracted from ckpts/pretrain_qformer/, which is pretrained by using llava data.
-
-The [pkl files](https://github.com/NVlabs/OmniDrive/releases/download/v1.0/eval_cf.zip), [evaluation](https://github.com/NVlabs/OmniDrive/releases/download/v1.0/eval_counter.py), [extraction](https://github.com/NVlabs/OmniDrive/releases/download/v1.0/extract_counter.py) scripts for counterfactual reasoning.
-
-
-
-
-
-## Current server CPU affinity
-
-CPU cores 4/5 are faulty on this server. Prefix execution commands with
-`taskset -c 0-3,6-31`; child processes inherit this affinity. For example:
+先进入项目根目录：
 
 ```bash
-conda activate OmniDrive
-taskset -c 0-3,6-31 python -m pytest tests/worldstream_m1 tests/worldstream_m2 tests/worldstream_m3 -q
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.verify_final_route
+cd /data/qh/phdCode/work4/OmniDrive
 ```
 
-The sole supported research route and execution boundaries are documented in [the final route](worldstream_final_route.md).
+CPU 4/5 存在硬件故障。执行命令必须以 `taskset -c 0-3,6-31` 启动，子进程继承该亲和性。
+
+检查解释器和依赖版本：
+
+```bash
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -c 'import os,sys,torch,transformers; print(sys.executable); print("torch",torch.__version__,"transformers",transformers.__version__); print("CPU",sorted(os.sched_getaffinity(0))); assert not {4,5}&os.sched_getaffinity(0)'
+```
+
+检查正式主入口帮助：
+
+```bash
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.frozen_main_benchmark --help
+```
+
+检查本次清理的完整参数、源码、数值逻辑及已删模块引用：
+
+```bash
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.r0_cleanup_validation audit
+```
+
+唯一改进研究配置为 [完整 R0 参数](../configs/worldstream_r0.json)，执行边界见 [主路线](worldstream_final_route.md)。Native PyTorch 保留作必要基线。旧 EVA-base/TinyLlama 的 TensorRT/EdgeLLM 部署代码已删除；它没有接入本轮 R0，不属于当前运行入口。
+
+CPU/CUDA 回归、完整五负载主实验、单独任务和官方评价的命令集中在 [运行指令](../tools/运行文件.md)。GPU 阶段使用能够访问真实 CUDA 的主机终端；其他任务占用 GPU 时等待，不停止其他用户进程。

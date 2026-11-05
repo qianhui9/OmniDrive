@@ -1,8 +1,10 @@
-"""Serialize this experiment's model-loading jobs before checking GPU idleness."""
-from contextlib import contextmanager
-import fcntl
-from pathlib import Path
+"""R0-required utilities; historical alternative runners have been retired."""
 
+from contextlib import contextmanager
+
+import fcntl
+
+from pathlib import Path
 
 @contextmanager
 def gpu_job_lock():

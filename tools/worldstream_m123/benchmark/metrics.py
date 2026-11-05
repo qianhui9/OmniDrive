@@ -1,9 +1,12 @@
-"""Offline metrics: missing evidence is never encoded as a measured zero."""
-import re
-import math
-from collections import Counter
-import numpy as np
+"""R0-required utilities; historical alternative runners have been retired."""
 
+import re
+
+import math
+
+from collections import Counter
+
+import numpy as np
 
 def finite_metrics(value):
     """Keep official undefined metrics null and record their exact paths."""
@@ -64,35 +67,6 @@ def quality_summary(rows):
                 numeric_questions=len(numeric),
                 numeric_count_match=ratio(sum(r['numeric_count_match'] for r in numeric), len(numeric)),
                 numeric_mae=ratio(sum(errors), len(errors)), numeric_mae_denominator=len(errors))
-
-
-def compare(base, final):
-    if base is None or final is None or base <= 0 or final <= 0:
-        return dict(latency_change_percent=None, speedup=None, throughput_change_percent=None)
-    return dict(latency_change_percent=(base-final)/base*100, speedup=base/final,
-                throughput_change_percent=(base/final-1)*100)
-
-
-def paired_scene_ci(rows, baseline='B0', final='B3', key='request_ms', seed=0):
-    """Bootstrap paired scene means; no pairing across different workloads."""
-    groups = {}
-    for r in rows:
-        if r['condition'] not in (baseline, final):
-            continue
-        pair = (r['workload'], r['repeat'], r['scene_id'], r['frame_id'], r.get('measurement_set'))
-        groups.setdefault(pair, {})[r['condition']] = r[key]
-    scenes = {}
-    for pair, values in groups.items():
-        if baseline in values and final in values:
-            scenes.setdefault(pair[2], []).append(values[final]-values[baseline])
-    if len(scenes) < 2:
-        return dict(status='NOT_AVAILABLE', paired_scenes=len(scenes), ci95_ms=None)
-    means = np.array([np.mean(x) for x in scenes.values()])
-    rng = np.random.RandomState(seed)
-    boot = np.mean(rng.choice(means, (2000, len(means))), axis=1)
-    return dict(status='MEASURED', paired_scenes=len(scenes),
-                final_minus_baseline_ms=float(means.mean()),
-                ci95_ms=np.percentile(boot, [2.5, 97.5]).tolist())
 
 
 def validate_sequence(infos):

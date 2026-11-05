@@ -1,35 +1,24 @@
-# 冻结的 M123 主实验
+# 唯一冻结主实验：完整 R0
 
-唯一研究配置：[final_research_policy.json](outputs/m123_final_quality_validation_run01/final_research_policy.json)。
+本地删除旧 `.git` 后，必要 Native 审计源码由独立快照提供，已有执行时源码哈希保留不变；迁移方式见 [源码溯源说明](docs/provenance/README.md)。
 
-- M1：`min_detection_score=0.3`，保留已优化的哈希执行器。
-- M2：`ordinary_budget=3`，保留唯一增量视觉执行器。
-- M3：`current_only / C-basic`，`min_confidence=0.45`、`max_binding_risk=0.75`。
-- 结果基准：`c8ddb66bf90ee2c4d4627751d5f9d3961133f810`。
-- 主实验数据与完整审计：[m123_final_quality_validation_run01](outputs/m123_final_quality_validation_run01/)。
-- 必要历史对照证据：[parent_evidence](outputs/m123_final_quality_validation_run01/provenance/parent_evidence/)。
+当前唯一改进配置为 [configs/worldstream_r0.json](configs/worldstream_r0.json)，正式模型入口为 [worldstream_m123_auto.py](projects/configs/OmniDrive/worldstream_m123_auto.py)。参数来自此前最终选择：M1 检测阈值0.3；M2 普通刷新预算3、全局间隔2；M3 current_only / C-basic / basic / 0.45 / 0.75，保留精确 prompt 历史 K8 目标模型验证和请求 RNG 隔离。完整参数以 JSON 为准。
 
-冻结的是研究路线，不是风险认证。保留“残余严重错误、独立 TEST 未完成、生产默认关闭”结论；不把已暴露 DEV 或事后病例升级成独立测试。
+Native PyTorch 保留作必要的 A/C 配对基线。WSDR-KV、持久 Prefill KV、旧视觉前缀与答案复用候选、替代执行器、参数搜索及未接入 R0 的 TensorRT/EdgeLLM 部署入口已退役。固定空值或关闭字段仅用于和原始完整配置清单对照。
 
-## 只重放冻结主路线
+## 当前运行与验证
 
-以下命令在项目根目录执行。第一条只准备新的输出目录，不使用 GPU；第二条需要空闲 GPU，会持有既有 GPU 锁，不能中止其他进程。
+- [运行指令](tools/运行文件.md)：统一环境、正式五负载、单独任务、官方评价、CPU/CUDA 回归和监测命令。
+- [主实验说明](R0_MAIN_BENCHMARK.md) 与 [主路线执行边界](docs/worldstream_final_route.md)。
+- [本次清理状态](outputs/r0_route_cleanup_validation_run01/WORK_STATE.md)：删除前后真实运行、源审计、回归和完整复现的进度。
+- [清理后完整复现输出](outputs/m123_r0_only_reproduction_run01/)：18 Log / 18 完整 Scene / 723 不同帧，五种负载、7,230 次正式调用及8次 pilot。最终是否完成以该目录 completion.json 和清理目录 full_reproduction_pipeline.json 为准，不能按计划数推定成功。
 
-```sh
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.freeze_cleanup prepare-replay --output /tmp/omnidrive-r0-main-replay
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.final_quality_capture main --root /tmp/omnidrive-r0-main-replay
-```
+主实验由保留的 `tools.worldstream_m123.frozen_main_benchmark` 准备与运行，报告由 `frozen_main_report`、`frozen_main_finalize` 和 `frozen_main_synthesis` 从真实收据生成。新实验必须使用新的不存在目录；参数不再搜索。
 
-只保留 R0 一套参数；A/B/C 是必要的 Native、正常语言路径与语言旁路对照，均不搜索参数。五种负载各 16 帧，完整重放 240 次模型调用。原报告是 208 次新执行加 32 个历史实测复用；重放结果另存，不能混为同一统计总体。
+## 历史证据与研究边界
 
-复现与历史证据校验见 [REPRODUCE.md](outputs/m123_final_quality_validation_run01/REPRODUCE.md)。其中 R1/R2/R3 仅属于已封存诊断，当前主路线不再运行这些参数选择阶段。
+[最终策略与原始审计](outputs/m123_final_quality_validation_run01/) 保持原字节，用于参数来源、模型资产校验和历史追溯。该目录的原始记录属于历史实验，其中旧工具命令不是当前运行入口。历史全18场景主实验可从 Git 提交 `b0b234af5cac169bdb620c7da4f4c3db8be12f29` 追溯，本次新调用不复用其收据冒充新实验。
 
-## 保留范围与清理记录
+冻结的是 R0 研究配置。已暴露数据、UNKNOWN、残余错误和新增严重错误均按原口径报告；用户允许一定错误比例，仍应明确报告分母和不可评分比例。本次不训练、不修改权重，不据此宣称独立 TEST 或生产风险认证通过。
 
-[冻结清单](outputs/m123_final_quality_validation_run01/freeze/freeze_manifest.json) 固定主配置、维护源码、检查点/初始化权重 SHA256 和环境版本。数据集软链接、Conda 环境和 Git 历史均保留。
-
-`outputs/` 仅保留 `m123_final_quality_validation_run01/`。旧目录中的必要收据、运行资源和性能对照已按原 SHA 迁入其 `provenance/`、`resources/` 与 `freeze/`；其他输出按用户指令删除，包括版本化旧实验。主请求级证据继续以无损 gzip 保存。
-
-完整旧输出可通过原冻结标签 `m123-main-r0-frozen-20261030` 追溯，未重写 Git 历史。历史完整性校验从固定提交读取已删除文件的 Git blob，与原 SHA 比较；历史执行源文件按原始快照核验，与当前路径维护代码分开记录。
-
-清理明细与释放量见 [cleanup_result.json](outputs/m123_final_quality_validation_run01/consolidation/cleanup_result.json)。释放的是磁盘空间，不清空进程内存、GPU 显存或系统页缓存。
+所有执行命令以 `taskset -c 0-3,6-31` 启动，使用 `/home/qh/miniconda3/envs/OmniDrive/bin/python`。GPU 被其他任务占用时等待，不停止其他用户进程。

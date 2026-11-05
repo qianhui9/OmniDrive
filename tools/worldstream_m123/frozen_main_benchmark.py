@@ -28,6 +28,7 @@ os.environ.setdefault('MPLCONFIGDIR', '/tmp/omnidrive-r0-main-mpl')
 from .benchmark.common import sha256, write, diagnostic_json, typed_digest
 from .continuous_stream import question_schedule
 from .selective_answer_reuse import encode_questions, validate_native_prompt_context, append
+from .source_provenance import historical_source, source_revision, validate_executed_source
 
 ROOT = Path('outputs/m123_r0_frozen_main_benchmark_run01')
 AUTHORITY = Path('outputs/m123_final_quality_validation_run01')
@@ -56,18 +57,16 @@ def source_hashes():
               Path('tools/worldstream_m123/critical_path.py')]
     paths += list(Path('tools/worldstream_m123/benchmark').glob('*.py'))
     paths += list(Path('configs').glob('worldstream*'))
+    paths += [Path('tools/worldstream_m123/source_provenance.py')]
+    paths += list(Path('docs/provenance').rglob('*'))
     return {str(p): sha256(p) for p in sorted(set(paths)) if p.is_file()}
 
 
 def historical_m3_config(policy_path):
-    """Evaluate the exact historical constructor's kwargs, then materialize ALL defaults."""
+    """Return the complete pre-cleanup R0 snapshot, including non-summary fields."""
     from worldstream.m3.config import M3Config
-    tree = ast.parse(Path('tools/worldstream_m123/critical_path.py').read_text())
-    node = next(n for n in ast.walk(tree) if isinstance(n, ast.Call)
-                and isinstance(n.func, ast.Name) and n.func.id == 'M3Runtime')
-    expression = ast.Expression(node.args[0]); ast.fix_missing_locations(expression)
-    kwargs = eval(compile(expression, '<historical M3 constructor>', 'eval'),
-                  {'dict': dict, 'str': str, 'policy': str(policy_path), 'job': {'mode': 'online'}})
+    from worldstream.r0 import m3_settings
+    kwargs = m3_settings(policy_path)
     return asdict(M3Config(**kwargs))
 
 
@@ -102,7 +101,7 @@ def select_complete_scenes(infos, scenes):
 def baseline_audit(root):
     initial = '0a644635'
     path = 'projects/mmdet3d_plugin/models/detectors/petr3d.py'
-    raw = subprocess.check_output(['git', 'show', initial + ':' + path])
+    raw = historical_source(initial, path)
     dst = root/'baseline_sources'/path; dst.parent.mkdir(parents=True); dst.write_bytes(raw)
     original = ast.parse(raw); current = ast.parse(Path(path).read_text())
     def methods(tree):
@@ -139,14 +138,14 @@ def prepare(root):
     for key, value in policy['M3'].items():
         if key in m3: assert m3[key] == value, key
         else: assert read(root/'reference_policy.json')[key] == value, key
-    commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    commit = source_revision()
     config = dict(status='FINAL_MAIN_CONFIGURATION', name='R0', source_commit=commit,
         original_research_commit='c8ddb66bf90ee2c4d4627751d5f9d3961133f810',
         authority=str(AUTHORITY/'final_research_policy.json'), authority_sha256=sha256(root/'authoritative_R0_policy.json'),
         M1=policy['M1'], M2=policy['M2'], M3=m3,
         M3_fact_policy=read(root/'reference_policy.json'), fact_policy_sha256=sha256(root/'reference_policy.json'),
         generation=dict(do_sample=True, temperature=.1, top_p=.75, num_beams=1, max_new_tokens=320, use_cache=True),
-        overrides_source='Exact critical_path.py historical M3 constructor and current dataclass defaults, not the parameter summary',
+        overrides_source='Complete pre-cleanup R0 constructor/default snapshot in configs/worldstream_r0.json',
         production_deployment_allowed=False, production_default=False, auto_apply=False,
         known_risk=policy['severe_error_status'], independent_TEST=False)
     write(root/'frozen_main_config.json', config)
@@ -274,7 +273,7 @@ def validate_frozen(root):
                      ('scene_selection.json','selected_scenes_sha256'),('workload_manifest.json','workloads_sha256'),
                      ('scene_condition_manifest.json','conditions_sha256'),('data_role_manifest.json','roles_sha256')]:
         assert sha256(root/name)==protocol[key],name
-    for p,h in read(root/'executed_source_hashes.json').items():assert sha256(p)==h,p
+    for p,h in read(root/'executed_source_hashes.json').items():validate_executed_source(p,h)
     assert sha256(AUTHORITY/'final_research_policy.json')==read(root/'frozen_main_config.json')['authority_sha256']
     return protocol
 

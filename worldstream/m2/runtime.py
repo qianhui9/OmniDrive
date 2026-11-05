@@ -60,17 +60,10 @@ class IncrementalVisionRuntime:
                     world_identity_authorized_pixel_reuse=False)
         return result,diag
 
-    def evaluate_offline_from_m1(self,images,manager,context,*,variant='D',window_targets=None):
-        # Historical tools share the serving executor and cache namespace.
-        from tools.worldstream_m2.offline_variants import evaluate_from_m1
-        return evaluate_from_m1(self,images,manager,context,variant,window_targets)
 
     def forward(self,images,m1_result=None,m1_state=None,execution_context=None,computation_state=None):
         return self._forward(images,m1_result,execution_context,computation_state)
 
-    def evaluate_offline(self,images,*,variant='D',m1_result=None,execution_context=None,computation_state=None,window_targets=None):
-        from tools.worldstream_m2.offline_variants import evaluate
-        return evaluate(self,images,variant,m1_result,execution_context,computation_state,window_targets)
 
     def _plan_refresh(self,x0,bundle,context,uncertainty,mandatory):
         for i in self.prefix:

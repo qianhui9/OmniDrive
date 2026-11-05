@@ -1,23 +1,13 @@
-# OmniDrive 单一研究主线
+# 唯一改进研究路线：R0
 
-研究目标：**World-Referenced Stateful VLM Serving with Dependency-Aligned GPU Execution and Efficient Semantic Consumption**。
+正式入口 `projects/configs/OmniDrive/worldstream_m123_auto.py` 继承原始模型和预处理，并从 `configs/worldstream_r0.json` 读取完整 R0。模型边界校验 M1/M2/M3 全部开启且参数吻合。Native 保留作实验基线，不是另一种改进候选。
 
-唯一正式入口：`projects/configs/OmniDrive/worldstream_m123_auto.py`，直接继承原始 `mask_eva_lane_det_vlm.py`，保持权重、EVA、Detection/Map、LoRA、Tokenizer 和原始 Decode。其他 worldstream 模型配置及替代执行器已退役。原始 OmniDrive 配置保留作独立参考基线。
+M1 使用普通一对一关联、时序可见性、局部支持、来源绑定及原子提交；检测阈值0.3。M2 使用唯一 WindowExecutor、普通刷新预算3、全局间隔2和漂移阈值0.7721027880907059。两模块数学执行、来源与缓存安全检查保持。
 
-执行顺序固定为：M1 Precheck → M2 窗口级视觉执行 → 原始 Detection/Map → M1 Commit → M3 Quality-Bounded WSDR-KV → 原始 Decode。M2 与 M3 的历史快照均在当前 Commit 之前冻结；M3 在 Commit 后消费冻结副本，不读取新提交状态冒充历史。
+M3 使用 C-basic：current_only、basic、置信支持阈值0.45、绑定风险上限0.75。支持且准入的问题由当前帧实际感知事实构造回答，零 LLM Forward。其他问题保留完整 object→ego→map 载体，执行完整 Prefill 与 World-Guided K8 目标模型验证；只使用精确 prompt 历史生成草稿。请求 RNG 隔离和 Sampling 校正保留。
 
-M1 只有普通 A 的几何门控、一次全局一对一分配与实际观测更新。正式配置开启 `temporal_visibility`、`local_support`、`source_linked_state`。场景、时间、epoch、执行签名、来源摘要、过期及原子事务检查保留。DQTrack、Shadow/Hint、身份消歧、深度搜索及替代身份历史策略不再提供配置开关。普通关联及观测支持不签发物理身份或几何真值认证。
+`reuse_strategy=exact_prefix` 是完整历史配置清单保留的字段；在本路线中没有持久 Prefill KV 复用。旧 ReusePlanner、PrefixKVCache、WSDR-KV、视觉前缀 Composer 和旧策略入口已删除。其配置值不能通过修改字段重新启用，M3Config 会拒绝非 R0 组合。
 
-M2 只有 `window/source_linked/maintain`。当前 WSGRR 使用状态事件、区域漂移、年龄、局部观测约束与窗口依赖闭包决定更新集，细节见 [M2 说明](worldstream_m2_window.md)。缓存未命中、来源失效、强制刷新或成本/质量准入不足，都将同一个 WindowExecutor 的更新集扩大至全部窗口。没有 camera/conditional 缓存执行器，也没有 Exact 绕过模式。Patch Embedding 与 block 2 起的全局依赖部分完整执行。
+完整字段记录保留为对照旧收据的兼容清单，包括固定关闭/空值字段；它们不再对应可选择的实现。全部正式参数见 JSON，不能仅按摘要重建。
 
-历史全形状点积策略曾用于数值对照；当前唯一 WindowExecutor 的 v2 策略在部分更新时对选定窗口执行 QKV/Attention/投影，对其有效 Token 执行 MLP，完整更新在该执行器中调用完整原生 Block。GEMM 形状变化需匹配当前策略重新认证，不能套用旧策略的位级一致结论。统计严格区分复用输出窗口、跳过 Attention 与完整 GPU 时间节省，不能把跳过窗口比例作为端到端加速比例。窗口成本表单独维护；旧策略证据不迁移，未获数值、任务质量与成本准入时全量更新。
-
-M3 保留完整当前载体与固定 object→ego→map 顺序。统一 ReusePlanner 根据一份实测质量—时延策略选择连续精确或有界近似 KV，再由同一个 PrefillExecutor 完成剩余 Prefill 和原始 Decode。无净收益或证据不足时 `reuse_length=0`；不调用原生 `lm_head.generate()` 作运行时回退。不兼容模型/生成契约显式报错。历史文本是否加入属于同一校准策略，仍保留来源和部分覆盖约束；本轮没有将历史文本变化混入 KV 实验。
-
-精确前缀保留严格 embedding/位置/mask 检查。跨帧近似使用自然连续帧校准的差异、风险和年龄/深度约束，不追求 logits 完全一致；必须分别报告任务质量变化。M2 窗口没有到 LLM token 的可靠映射，不能将连续 token 块称为空间窗口。
-
-M3 当前只读取 `outputs/final_route/m3_reuse_policy.json`；旧 M3 成本/质量批准文件完整保留但不参与主线决策。M2 的 `window_costs.json` 保持独立。完整调用、候选命中、实际跳过 token 和端到端净收益仍须分开报告。详见 [当前 M3 说明](worldstream_m3_wsdr_kv.md)。
-
-实际存在的报告：[执行契约测试](../outputs/m123_execution_contract_20261025/experiment_report.md)、[WSGRR 历史修复](../outputs/wsgrr_mainfix_20261023/experiment_report.md)、[本轮 GPU 短序列审计](../outputs/m123_execution_audit_20261025_run01/experiment_report.md)。旧报告保留其原始运行边界，不作为本轮新结果。当前质量—时延研究见 [WSDR-KV 报告](../outputs/m3_quality_bounded_20261026_run01/experiment_report.md)。完整验证集 Detection/Map 和语义精度、当前策略的独立数值/任务质量/净成本证据、历史文本独立质量、正式 KV 复用及端到端加速仍需分别验证。
-
-运行和数值验证命令见 `docs/worldstream_benchmark.md` 与 `docs/worldstream_m2_window.md`。
+这次整理不训练、不修改权重，不重新选择参数。历史暴露标记、UNKNOWN、覆盖损失及严重错误仍需报告。复现和测试命令见 [运行指令](../tools/运行文件.md)。

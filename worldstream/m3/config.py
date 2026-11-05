@@ -1,7 +1,5 @@
 """One quality-bounded WSDR policy; exact_prefix is a benchmark restriction."""
 from dataclasses import dataclass
-import math
-
 
 @dataclass(frozen=True)
 class M3Config:
@@ -10,56 +8,32 @@ class M3Config:
     min_prefix_tokens: int = 32
     model_version: str = ''
     state_context: str = 'augment'
-    reuse_strategy: str = 'wsdr_kv'
+    reuse_strategy: str = 'exact_prefix'
     reuse_policy: str = ''
-    quality_budget: float = .02
+    quality_budget: float = 0.02
     block_size: int = 32
     prefix_adapter: str = ''
     stable_anchor_max_frames: int = 8
     semantic_qualification: str = ''
     prefix_layout: str = 'legacy_fixed'
-    decode_strategy: str = 'native'  # history_draft is an unqualified research option
+    decode_strategy: str = 'world_guided'
     draft_length: int = 8
-    experimental_speculative_sampling: bool = False
-    target_aware_exact_only: bool = False
-    selective_answer_mode: str = 'off'
-    selective_answer_policy: str = ''
-    question_rng_enabled: bool = False
-    target_binding_enabled: bool = False
-    # Legacy experiment switches. A current_only policy refuses both; retained
-    # solely so frozen historical experiments can still be reconstructed.
+    experimental_speculative_sampling: bool = True
+    target_aware_exact_only: bool = True
+    selective_answer_mode: str = 'online'
+    selective_answer_policy: str = 'outputs/m123_final_quality_validation_run01/reference_policy.json'
+    question_rng_enabled: bool = True
+    target_binding_enabled: bool = True
     target_completeness_enabled: bool = False
     temporal_risk_enabled: bool = False
-    current_detection_support: bool = False
+    current_detection_support: bool = True
 
     def __post_init__(self):
-        if self.temporal_risk_enabled and not self.target_binding_enabled:
-            raise ValueError('Temporal risk requires current target binding')
-        if self.selective_answer_mode not in ('off','shadow','online'):
-            raise ValueError('Unknown selective answer mode')
-        if (self.selective_answer_mode!='off' or self.target_aware_exact_only) and self.decode_strategy!='world_guided':
-            raise ValueError('Selective answers require existing target-aware world_guided decode')
-        if self.selective_answer_mode=='online' and not self.selective_answer_policy:
-            raise ValueError('Online selective answers require a frozen development policy')
-        if self.decode_strategy not in ('native','history_draft','world_guided'):
-            raise ValueError('Unknown decode strategy')
-        if type(self.draft_length) is not int or not 1 <= self.draft_length <= 32:
-            raise ValueError('Invalid draft length')
-        if self.decode_strategy != 'native' and (self.prefix_adapter or self.prefix_layout != 'legacy_fixed'
-                or self.reuse_strategy != 'exact_prefix'):
-            raise ValueError('History decode requires complete native vision and exact_prefix configuration')
-        if self.mode != 'auto' or self.state_context != 'augment':
-            raise ValueError('M3 supports one automatic prefill/decode path')
-        if self.reuse_strategy not in ('exact_prefix', 'wsdr_kv'):
-            raise ValueError('Unknown M3 reuse strategy')
-        if self.prefix_layout not in ('legacy_fixed','sf_adaptive','world_compact_memory'):
-            raise ValueError('Unknown visual prefix layout')
-        if (self.prefix_adapter or self.prefix_layout in ('sf_adaptive','world_compact_memory')) and self.reuse_strategy != 'exact_prefix':
-            raise ValueError('WRCPS requires exact_prefix; native approximate policy is inapplicable')
-        if type(self.stable_anchor_max_frames) is not int or self.stable_anchor_max_frames < 1:
-            raise ValueError('Invalid stable anchor horizon')
-        if (not math.isfinite(self.memory_budget_mb) or self.memory_budget_mb < 0
-                or type(self.min_prefix_tokens) is not int or self.min_prefix_tokens < 1
-                or self.block_size not in (16, 32, 64)
-                or not math.isfinite(self.quality_budget) or not 0 <= self.quality_budget <= 1):
-            raise ValueError('Invalid cache or quality budget')
+        from dataclasses import asdict
+        from worldstream.r0 import m3_settings
+        expected = m3_settings(self.selective_answer_policy)
+        actual = asdict(self)
+        expected['model_version'] = self.model_version
+        if actual != expected:
+            bad = [k for k in expected if actual[k] != expected[k]]
+            raise ValueError('Only frozen R0 M3 settings are supported: ' + str(bad))

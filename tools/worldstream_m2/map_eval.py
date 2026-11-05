@@ -1,22 +1,24 @@
-"""Parallel, content-bound caching of UNCHANGED official per-frame functions.
+"""R0-required utilities; historical alternative runners have been retired."""
 
-All AP/topology/F-score aggregation still runs in the original evaluator, in its
-original frame order. No prediction filter, threshold or matching rule is changed.
-"""
 from concurrent.futures import ProcessPoolExecutor
+
 from contextlib import ExitStack
+
 import hashlib
+
 import importlib
+
 import json
+
 import multiprocessing
+
 import pickle
+
 from unittest.mock import patch
+
 import numpy as np
 
 _geometry_cache={}
-
-
-def has_geometry_cache():return bool(_geometry_cache)
 
 
 def geometry_key(name,xs,ys,mask=None,relax=False,categories=()):

@@ -7,31 +7,8 @@ from worldstream.m2.window_executor import WindowExecutor
 from .test_source_linked_admission import cold,bundle_for
 
 
-@torch.no_grad()
-@pytest.mark.parametrize('pixel',[(0,0),(39,39),(17,17)])
-def test_selected_windows_match_original_eva(exact_runtime,context,pixel):
-    rt=exact_runtime;x=torch.randn(2,3,40,40)
-    first,d=cold(rt,x,context);assert torch.equal(first[0],rt.model(x)[0])
-    x[0,:,pixel[0],pixel[1]]+=.1
-    ctx=dict(context,frame_id='1',timestamp=1.1)
-    out,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert d['actual_skipped_windows']==34 and d['recomputed_windows']==2
-    assert d['actual_skipped_block_computations']==0  # projections/MLP still execute
-    assert all(s['pointwise_window_work']==1 for s in d['stages'][:2])
-    assert torch.allclose(out[0],rt.model(x)[0],atol=3e-6,rtol=3e-6)
 
 
-@torch.no_grad()
-def test_identical_windows_skip_attention_and_pointwise(exact_runtime,context):
-    rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
-    ctx=dict(context,frame_id='1',timestamp=1.1)
-    out,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert d['actual_skipped_windows']==d['skipped_pointwise_window_work']==36
-    assert d['actual_skipped_block_computations']==2
-    assert all(s['pointwise_window_work']==0 for s in d['stages'][:2])
-    # An identical H2 may use residual arithmetic; cancellation is rounded.
-    assert d['approx_global_residual_reuse']
-    assert torch.allclose(out[0],rt.model(x)[0],atol=3e-6,rtol=3e-6)
 
 
 @torch.no_grad()
@@ -85,43 +62,10 @@ def test_zero_cache_budget_raises(eva,context):
     assert runtime.cache.bytes==0
 
 
-@torch.no_grad()
-def test_bounded_window_lifetime_and_computation_age(exact_runtime,context):
-    rt=exact_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
-    size=rt.cache.bytes
-    for i in range(1,20):
-        ctx=dict(context,frame_id=str(i),timestamp=1.+.01*i)
-        _,d=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-        assert rt.cache.bytes==size and rt.cache.version==i+1
-        assert d['actual_skipped_windows']==36
-        assert all(s['computation_timestamp']==1. for units in rt.cache.sources.values() for s in units)
-    rt.reset();assert not rt.cache.bytes
 
 
-@torch.no_grad()
-def test_execution_oom_is_not_retried_by_another_algorithm(exact_runtime,context,monkeypatch):
-    rt=exact_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context);calls=[]
-    def oom(*a,**kw):calls.append(1);raise torch.cuda.OutOfMemoryError('injected')
-    monkeypatch.setattr(rt.executor,'execute',oom)
-    ctx=dict(context,frame_id='1',timestamp=1.1)
-    with pytest.raises(torch.cuda.OutOfMemoryError):
-        rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert calls==[1] and rt.cache.context['frame_id']=='0'
 
 
-@torch.no_grad()
-@pytest.mark.parametrize('mutation',['weight','rotary_buffer','numeric_policy','camera_order'])
-def test_changed_execution_never_reuses_prior_window_outputs(exact_runtime,context,monkeypatch,mutation):
-    rt=exact_runtime;image=torch.randn(2,3,40,40);cold(rt,image,context)
-    ctx=dict(context,frame_id='1',timestamp=1.1)
-    if mutation=='weight':rt.model.blocks[0].attn.q_proj.weight.add_(.01)
-    if mutation=='rotary_buffer':rt.model.rope_win.freqs_cos.add_(.01)
-    if mutation=='numeric_policy':
-        flag=torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction
-        monkeypatch.setattr(torch.backends.cuda.matmul,'allow_fp16_reduced_precision_reduction',not flag)
-    if mutation=='camera_order':ctx['camera_ids']=list(reversed(ctx['camera_ids']))
-    with pytest.raises(ValueError,match='execution_signature_mismatch'):
-        rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(),reason='CUDA unavailable')

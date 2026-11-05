@@ -1,27 +1,35 @@
 # FINAL_MAIN_CONFIGURATION: R0
 
-本轮正式主实验入口：[frozen_main_config.json](outputs/m123_r0_frozen_main_benchmark_run01/frozen_main_config.json)。
-原始研究策略与此前冻结输出保持不变；完整快照继承其全部参数，并将 R0 标记为唯一 `FINAL_MAIN_CONFIGURATION`。本轮不运行任何参数选择。
+清理后的完整主实验已通过最终核验。唯一完整参数：[worldstream_r0.json](configs/worldstream_r0.json)；实际运行冻结快照：[frozen_main_config.json](outputs/m123_r0_only_reproduction_run01/frozen_main_config.json)。Native PyTorch 保留作必要配对基线。
 
-本轮使用 18 条官方验证 Log，各取字典序第一个完整可读 Scene，从官方首帧运行到末帧，共 723 个不同帧。A 为关闭 M1/M2/M3 的原始 Native 路径，C 为完整冻结 R0。五种既有负载已完成 7,230 次真实模型调用；8 次试运行单列，不进入主结果。A/C 顺序交替，所有输入、问题及请求初始 RNG 状态配对。
+本次重新执行 18 Log、18 完整 Scene、723 个不同帧、五种负载，共7,230次正式模型调用和8次 pilot。完整11,226个 A/C 问答与历史正式实验逐项比较，答案、评分、目标召回、FAST决策与请求随机状态零差异；M1/M2/M3主要非计时科学指标一致。没有复用历史收据冒充新执行。
 
-最终中文报告：[FINAL_RESEARCH_REPORT.md](outputs/m123_r0_frozen_main_benchmark_run01/FINAL_RESEARCH_REPORT.md)。五种负载 A/C 分别为 0.905、0.990、1.177、1.684、1.080；新增严重错误为 23 次观测、18 个唯一帧—问题病例。低频没有明确系统收益，目标覆盖损失与风险结论均保留。CPU 899 项通过、8 项跳过；RTX3090 CUDA 907 项通过；全部归档指标重算一致。
+| 负载 | 历史加速比 | 本次加速比 | 本次时延降低 |
+| --- | --- | --- | --- |
+| Every-4 | 0.9047× | 0.9053× | -10.46% |
+| Every-2 | 0.9903× | 0.9930× | -0.70% |
+| Every-1 | 1.1772× | 1.1835× | 15.51% |
+| Three-per-frame | 1.6836× | 1.6915× | 40.88% |
+| Mixed-three | 1.0796× | 1.0818× | 7.56% |
 
-研究参数为 M1 `.3`、M2 budget `3`、M3 `current_only/C-basic/.45/.75`，完整历史 Runtime 默认项也保留。通用部署模板与显式研究配置的差异见 `configuration_alignment_audit.json`；部署模板未改，生产默认仍关闭。所有验证 Log 保守标为历史暴露数据，不能声称独立 TEST。此前残余严重错误结论保留。
+Every-4 变慢，Every-2 的收益区间跨1；高频单问、每帧三问、混合三问的加速比95%区间均高于1。原有负载适用性结论保持。
 
-从项目根目录只读校验：
+CPU 352通过、4跳过；真实RTX3090 CUDA 356通过。21个必需交付文件、39个原始权重资产及受保护历史输出校验通过；无损归档后12组科学结果重算一致。测试总数减少来自旧实现测试退役，现行R0测试与数值控制保留。
 
-```sh
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.frozen_main_benchmark verify
+R0已评分事实平均准确率85.27%，严格非完全正确比例467/3085=15.14%；另有2528/5613个UNKNOWN。原有新增严重错误23次观测、18个唯一帧—问题病例保持；清理没有增加这些错误。数据仍属历史暴露验证数据，不宣称独立TEST或生产风险认证。
+
+最终报告：[FINAL_RESEARCH_REPORT.md](outputs/m123_r0_only_reproduction_run01/FINAL_RESEARCH_REPORT.md)。源码清理验收：[CLEANUP_VERIFICATION_REPORT.md](outputs/r0_route_cleanup_validation_run01/CLEANUP_VERIFICATION_REPORT.md)。逐问对照：[full18_question_comparison.json](outputs/r0_route_cleanup_validation_run01/full18_question_comparison.json)。
+
+从项目根目录只读核验冻结来源和历史证据：
+
+```bash
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.frozen_main_benchmark verify --root outputs/m123_r0_only_reproduction_run01
 ```
 
-正式 GPU 运行完成后，对原始收据重新计算指标：
+核验归档中的全部配对收据，并写入 `integrity_validation.json` 验证记录：
 
-```sh
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.frozen_main_report --verify
-taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.frozen_main_report
+```bash
+taskset -c 0-3,6-31 /home/qh/miniconda3/envs/OmniDrive/bin/python -m tools.worldstream_m123.frozen_main_report --root outputs/m123_r0_only_reproduction_run01 --verify
 ```
 
-主结果见 `outputs/m123_r0_frozen_main_benchmark_run01/main_results_tables.md`；完整执行与自动收尾步骤见 [FULL_REPRODUCE.md](outputs/m123_r0_frozen_main_benchmark_run01/FULL_REPRODUCE.md)，基础复现说明见同目录 `REPRODUCE.md`。只有 `main/run_status.json` 为 `COMPLETED`、完整性校验通过且主报告存在时，才能把该轮结果称为已完成。运行中的进度或单日志结果不能代替最终结论。
-
-环境固定为已有 OmniDrive Conda 与 RTX3090。所有命令排除故障 CPU4/5。GPU 被占用只等待，不停止其他进程；不安装包、不训练、不修改任何模型权重或 M1/M2/M3 算法源码。
+重新运行或重新生成报告的完整指令见 [运行文件](tools/运行文件.md)。新实验使用新的不存在目录；上面的已验收目录只用于核查已有证据。CPU 4/5不得使用，GPU被其他任务占用时等待，不停止其他用户进程。本次未训练、未改权重、未搜索参数、未推送Git。

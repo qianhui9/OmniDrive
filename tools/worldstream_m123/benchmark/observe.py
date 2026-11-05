@@ -1,74 +1,14 @@
-"""External observers. GT is consumed only after the native commit returns."""
+"""R0-required utilities; historical alternative runners have been retired."""
+
 import copy
+
 from collections import Counter
+
 from functools import wraps
+
 from time import perf_counter
 
 import torch
-
-from tools.worldstream_m1.identity_metrics import ContinuityMetrics, possible_instances
-from tools.worldstream_m1.identity_metrics import strict_labels
-from .common import diagnostic_json
-from .metrics import ratio
-
-
-class IdentityScorer:
-    def __init__(self, annotations):
-        self.annotations = annotations
-        self.counts = Counter()
-        self.scene = None
-        self.previous = {}
-        self.continuity = ContinuityMetrics()
-        self.finished = Counter()
-        self.scene_frames = 0
-
-    def update(self, frame, anchors, commit):
-        if self.scene != frame.scene_id:
-            self.finished.update(self.continuity.counts)
-            self.scene, self.previous = frame.scene_id, {}
-            self.continuity = ContinuityMetrics()
-            self.scene_frames = 0
-        annotations = self.annotations.get(frame.frame_id, [])
-        labels = strict_labels(anchors, annotations)
-        selected, ids = commit['selected_prediction_indices'], commit['committed_anchor_ids']
-        current = {aid: labels[index] for aid, index in zip(ids, selected) if index in labels}
-        eligible = set(self.previous.values()) & set(current.values())
-        edges = []
-        # The original scorer's candidate denominator is current selected
-        # predictions on non-initial frames; preserve that protocol explicitly.
-        if self.scene_frames:
-            self.counts['candidates'] += len(selected)
-        self.counts['eligible'] += len(eligible)
-        for aid, index in commit['association_pairs']:
-            old, new = self.previous.get(aid), labels.get(index)
-            known = old is not None and new is not None
-            status = 'correct' if known and old == new else 'wrong' if known else 'unknown'
-            self.counts[status] += 1
-            self.counts['accepted'] += 1
-            self.counts['scored'] += int(known)
-            edges.append(dict(anchor_id=aid, index=index, previous_gt=old, current_gt=new, status=status))
-        self.continuity.update(annotations, {v: k for k, v in current.items()},
-                               possible_instances(anchors, annotations))
-        self.counts['frames'] += 1
-        self.scene_frames += 1
-        self.previous = current
-        return edges
-
-    def summary(self):
-        c = {k: self.counts[k] for k in ('frames', 'candidates', 'eligible', 'accepted',
-                                        'scored', 'correct', 'wrong', 'unknown')}
-        continuity = {k: self.finished[k]+v for k, v in self.continuity.counts.items()}
-        return dict(counts=c, continuity=continuity,
-            association_precision=ratio(c['correct'], c['scored']),
-            wrong_association_rate=ratio(c['wrong'], c['scored']),
-            effective_recall=ratio(c['correct'], c['eligible']),
-            association_coverage=ratio(c['accepted'], c['candidates']),
-            alignment_precision=None, alignment_recall=None,
-            alignment_numerator=0, alignment_denominator=0,
-            scope='Offline partial Oracle: unique class/size/1m matching; not standard MOT. GT never enters online decisions.',
-            candidate_definition='selected predictions on scene frames after the first',
-            alignment_status='NOT_AVAILABLE: no independently scored alignment denominator')
-
 
 class Observer:
     def __init__(self, model):
@@ -243,10 +183,3 @@ class Observer:
             s['gpu_span_ms'] += start.elapsed_time(end)
             s['host_wall_ms'] += wall
         return stages
-
-
-def m1_record(model, observation):
-    frame, anchors, precheck = observation
-    manager = model.m1_manager
-    return frame, anchors, diagnostic_json(dict(precheck=precheck.to_dict(),
-        commit=copy.deepcopy(manager.last_commit_diagnostics), committed_state=manager.export_state_audit()))

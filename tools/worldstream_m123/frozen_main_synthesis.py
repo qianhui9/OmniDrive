@@ -55,24 +55,33 @@ def synthesize(root):
         Native_absolute_severe=verdict['A_absolute_severe'],R0_absolute_severe=verdict['C_absolute_severe'],
         Native_unique_severe=verdict['A_unique_severe_frame_questions'],R0_unique_severe=verdict['C_unique_severe_frame_questions'],
         average_improvement_does_not_offset_new_severe=True,production_allowed=False,independent_TEST=False)
-    write(root/'evidence_synthesis.json',dict(status='COMPLETED_WITH_RISK_FAILURE',
+    write(root/'evidence_synthesis.json',dict(status='COMPLETED_WITH_RISK_FAILURE' if verdict['new_severe_relative_to_Native'] else 'COMPLETED_WITH_LIMITATIONS',
         FINAL_MAIN_CONFIGURATION='R0',configuration_sha256=verdict['frozen_config_sha256'],
         completion=completion,workloads=matrix,answer_quality=quality,language=language,risk=risk,
         sources={n:sha256(root/n) for n in ('workload_results.json','m1_metrics.json','m2_metrics.json','m3_metrics.json',
             'final_research_verdict.json','reanalysis_validation.json')},
         main_configuration_decision='Suitable as a fixed research experiment configuration with disclosed limitations; no strict quality, safety or independent generalization pass.'))
+    selected=read(root/'scene_selection.json')['selected']
+    frames=sum(len(scene['tokens']) for scene in selected)
+    benefits=[g['workload'] for g in matrix if g['end_to_end_evidence']=='BENEFIT_ON_EXPOSED_SUBSET']
+    slower=[g['workload'] for g in matrix if g['end_to_end_evidence']=='SLOWER_ON_EXPOSED_SUBSET']
+    unresolved=[g['workload'] for g in matrix if g['end_to_end_evidence']=='NO_RESOLVED_BENEFIT']
+    performance='；'.join(label+'：'+('、'.join(values) or '无') for label,values in
+        [('区间支持 E2E 收益',benefits),('区间支持变慢',slower),('收益尚不明确',unresolved)])
+    best=max(matrix,key=lambda g:g['speedup'])
+    history_count=len(read(root/'historical_output_hashes.json'))
     lines=['# OmniDrive 冻结 R0 主实验最终报告','',
-        '正式评估已完成。唯一主配置为 **FINAL_MAIN_CONFIGURATION = R0**；M1/M2/M3 算法源码、模型权重和原 Native 逻辑均未修改，原有研究策略与历史输出保持原字节。',
-        '',f'范围：18 条历史暴露验证 Log、18 个从首帧到末帧的完整 Scene、723 个不同帧；正式 7,230 次模型调用，另有 8 次试运行。总计 7,238 次真实 RTX3090 模型调用、正式 11,226 个 A/C 问答请求。',
+        '正式评估已完成。唯一主配置为 **FINAL_MAIN_CONFIGURATION = R0**。本次使用已删除其他候选路线的 R0 代码；完整 R0 参数、学习权重、原 Native 生成逻辑及历史输出受冻结校验保护。删除前后等价性另见清理验证报告。',
+        '',f'范围：{len(selected)} 个从首帧到末帧的完整 Scene、{frames} 个不同帧，均为历史暴露验证数据；正式 {completion["main_full_model_calls"]:,} 次模型调用，另有 {completion["pilot_full_model_calls"]} 次试运行。总计 {completion["total_real_full_model_calls"]:,} 次真实 RTX3090 模型调用、正式 {aa["requests"]+cc["requests"]:,} 个 A/C 问答请求。',
         '',f'冻结配置 SHA256：`{verdict["frozen_config_sha256"]}`。完整配置及全部默认项见 frozen_main_config.json；实际生效参数与逐请求哈希见 main/effective_runtime_configs.jsonl 和原始收据。',
-        '', '**结论：高频单问、每帧三问和混合三问有完整 E2E 收益；低频 Every-4 更慢，Every-2 未得到明确收益。存在目标覆盖损失和新增严重错误，不能宣称严格质量或风险认证通过。**',
+        '', f'**本轮实测：{performance}。目标覆盖、UNKNOWN 和严重错误仍按原标准报告，不能宣称严格质量或风险认证通过。**',
         '', '## 1. 五种负载相对 Native 的真实差异','']
     lines.append(table(['负载','Native E2E ms','R0 E2E ms','A/C','时延降低','A/C 95% Log CI','新增严重观测'],[
         [g['workload'],f(g['Native_E2E_ms']),f(g['R0_E2E_ms']),f(g['speedup']),f(100*g['latency_reduction'],2)+'%',
             '['+f(g['CI95'][0])+', '+f(g['CI95'][1])+']',g['new_severe']] for g in matrix]))
     lines+=['','主计时包含输入加载、预处理、H2D、问题编码，以及同步完成的整个模型调用与答案导出。无 QA 视觉帧和冷启动均计入。离线摘要、GT 评分、收据写盘和特征误差计算在计时外；问题服务时间不是视觉帧 E2E。每个请求使用相同初始种子和独立 RNG，A/C 图像摘要、Token、相机顺序、时间戳逐项一致。',
         '', '## 2. 哪种问答频率收益最大，状态维护是否抵消收益','',
-        'Three-per-frame 收益最大。Every-4 的区间完全低于 1；Every-2 的区间跨过 1。它们说明模块节省无法自动覆盖低频问答时的持续状态维护。',
+        f'本轮点估计最高的负载为 {best["workload"]}（{f(best["speedup"])}×）。{performance}。模块节省是否覆盖持续状态维护成本，应按各负载的完整帧 E2E 及其区间判断。',
         '',f'M1 含适配器的平均成本为 {f(m1["cost_ms"]["mean"])} ms/视觉帧；Native 视觉 CUDA 均值 {f(m2["Native_Full_visual_CUDA_ms"]["mean"])} ms，增量视觉为 {f(m2["R0_incremental_visual_CUDA_ms"]["mean"])} ms。各模块均值是实际计时，但嵌套 host/CUDA 时间不能直接相加来解释 E2E。',
         '', '## 3. Cold Start、Transition、Steady State','']
     lines.append(table(['状态','帧观测/臂','Native E2E ms','R0 E2E ms','A/C'],[
@@ -103,13 +112,13 @@ def synthesize(root):
         '',f'A/C 的累计 Prefill CUDA 分别为 {f(language["prefill_CUDA_ms_A"]/1000)} / {f(language["prefill_CUDA_ms_C"]/1000)} 秒，Decode 为 {f(language["decode_CUDA_ms_A"]/1000)} / {f(language["decode_CUDA_ms_C"]/1000)} 秒。这些是各臂真实累计时间，不是单模块反事实净收益。',
         '', '## 8. 视觉与地图质量的代价','',
         f'M2 返回特征 Relative L2 均值为 {f(m2["feature_error"]["relative_l2"]["mean"],6)}。精确窗口计算/复用、必须/普通刷新以及逐相机数据均来自执行收据，而非理论 FLOP。',
-        '', '官方项目 Lane 评价覆盖这 723 帧：DET_l 与 3D Lane F-Score 分别报告；完整 150-Scene 检测 mAP/NDS、交通元素和拓扑质量仍为 NOT_CERTIFIED。子集结果不能替代全量官方评价。',
+        '', f'官方项目 Lane 评价覆盖这 {frames} 帧：DET_l 与 3D Lane F-Score 分别报告；完整 150-Scene 检测 mAP/NDS、交通元素和拓扑质量仍为 NOT_CERTIFIED。子集结果不能替代全量官方评价。',
         '', '## 9. 严重错误与适用范围','',
         f'Native / R0 的绝对严重错误观测为 {risk["Native_absolute_severe"]}/{risk["R0_absolute_severe"]}；R0 相对 Native 新增 {risk["new_severe_observations"]} 次，涉及 {risk["new_unique_frame_questions"]} 个唯一帧—问题病例。不同负载的重复观测不冒充独立物理病例。平均正确率改善不能抵消这些新增错误。',
-        '', '当前配置更适合高频、可由当前目标事实回答的多问负载。低频交互没有得到系统收益；可见目标覆盖下降、方位/最近目标错误、UNKNOWN 标签与历史暴露数据限制均保留。Position 前后、左右、对角、显式类别和可唯一匹配的最近目标错误见 position_error_breakdown.json。仅凭自由文本无法认证 Native 的物理最近目标身份，未观测到此类身份错误不能解释为零风险。',
+        '', '当前配置的收益范围以本轮五种负载的实测区间为准。可见目标覆盖、方位/最近目标错误、UNKNOWN 标签与历史暴露数据限制均保留。Position 前后、左右、对角、显式类别和可唯一匹配的最近目标错误见 position_error_breakdown.json。仅凭自由文本无法认证 Native 的物理最近目标身份，未观测到此类身份错误不能解释为零风险。',
         '', '## 10. 是否作为论文主实验配置','',
         '**可以作为固定完整 R0 的研究评估配置，性能主张限于本轮有证据的负载；不能作为无质量代价、严格风险通过或独立泛化通过的配置。** 所有 Log 都按历史暴露数据处理，生产默认关闭，不据此重新搜索参数。',
-        '', f'完整性与归档重分析均通过；CPU {completion["CPU"]["passed"]} 项通过、{completion["CPU"].get("skipped",0)} 项跳过，真实 RTX3090 CUDA {completion["CUDA"]["passed"]} 项通过。历史 655 个输出文件及所有原始权重保留原字节。六张主表、机器可读 CSV/JSON、PDF/SVG 图和复现命令均在本目录。',
+        '', f'完整性与归档重分析均通过；CPU {completion["CPU"]["passed"]} 项通过、{completion["CPU"].get("skipped",0)} 项跳过，真实 RTX3090 CUDA {completion["CUDA"]["passed"]} 项通过。历史 {history_count} 个输出文件及所有原始权重保留原字节。六张主表、机器可读 CSV/JSON、PDF/SVG 图和复现命令均在本目录。',
         '', '完整复现步骤见 REPRODUCE.md；本报告可通过 `tools.worldstream_m123.frozen_main_synthesis` 从已验证结果重新生成。']
     (root/'FINAL_RESEARCH_REPORT.md').write_text('\n'.join(lines)+'\n')
     print('FINAL_EVIDENCE_SYNTHESIS_WRITTEN')

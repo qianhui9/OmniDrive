@@ -1,11 +1,16 @@
-"""Shared bookkeeping for the sole mainline benchmark; no strategy decisions."""
-import hashlib
-import json
-import math
-from pathlib import Path
-import numpy as np
-import torch
+"""R0-required utilities; historical alternative runners have been retired."""
 
+import hashlib
+
+import json
+
+import math
+
+from pathlib import Path
+
+import numpy as np
+
+import torch
 
 def write(path, value):
     path = Path(path)
@@ -21,12 +26,14 @@ def write(path, value):
     temporary.write_text(payload + '\n')
     temporary.replace(path)
 
+
 def sha256(path):
     digest = hashlib.sha256()
     with Path(path).open('rb') as handle:
         for block in iter(lambda: handle.read(8 * 1024**2), b''):
             digest.update(block)
     return digest.hexdigest()
+
 
 def diagnostic_json(value):
     """Native diagnostics can contain unbounded uncertainty; never call it zero.
@@ -46,14 +53,6 @@ def diagnostic_json(value):
         return [diagnostic_json(v) for v in value]
     return value
 
-def ground_truth(token):
-    result = {}
-    for folder in ('conv/val', 'vqa/val'):
-        path = Path('data/nuscenes') / folder / (token+'.json')
-        if path.exists():
-            for pair in json.loads(path.read_text()):
-                result[pair['question']] = pair['answer']
-    return result
 
 def typed_digest(value):
     if hasattr(value,'tensor'):value=value.tensor

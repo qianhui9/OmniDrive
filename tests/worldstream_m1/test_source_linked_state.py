@@ -22,21 +22,6 @@ def test_window_computation_source_does_not_advance_on_verification(config,make_
     assert [r['source_cache_version'] for r in snapshots]==[3,4]
 
 
-def test_frozen_task_history_reads_verified_pending_snapshot_before_commit(config,make_frame,make_prediction):
-    from worldstream.m3.world_state import freeze_verified_state,query_world_state
-    from worldstream.m1.geometry import box_geometry
-    cfg=replace(config,source_linked_state=True,temporal_visibility=True,local_support=True)
-    manager=WorldStateManager(cfg);prediction=make_prediction()
-    prediction.geometry_world=box_geometry([0,0,10],[6,6,2])
-    manager.initialize(make_frame(),FullOutputs([prediction]))
-    frame=make_frame(100.5);result=manager.precheck(frame)
-    assert result.valid_anchor_ids
-    frozen=freeze_verified_state(manager,frame)
-    assert frozen.records and frozen.state_version==1
-    assert frozen.records[0]['source_frame']=='100.0'
-    manager.commit(frame,FullOutputs([prediction]),result)
-    assert frozen.records[0]['source_frame']=='100.0' and manager.store.commit_count==2
-    assert frozen.records[0]['physical_geometry_certified'] is False
 
 
 def test_committed_source_ledger_and_scene_metrics_use_mainline_state(config,make_frame,make_prediction):

@@ -1,10 +1,5 @@
-"""Quality-bounded WSDR-KV with complete current input and one executor."""
+"""Frozen R0 current-fact language consumption."""
 from .config import M3Config
 from .runtime import M3Runtime
 from .visual_state import CarrierLayout, ExpandedInput, expand_input
-from .reuse_planner import ReuseDecision
-from .world_prefix_composer import WorldPrefixComposer, WorldPrefixLayout
-from .stable_world import StableWorldAnchor, StableAnchorManager
-
-__all__ = ['M3Config', 'M3Runtime', 'CarrierLayout', 'ExpandedInput', 'expand_input', 'ReuseDecision',
-           'WorldPrefixComposer', 'WorldPrefixLayout', 'StableWorldAnchor', 'StableAnchorManager']
+__all__ = ['M3Config','M3Runtime','CarrierLayout','ExpandedInput','expand_input']

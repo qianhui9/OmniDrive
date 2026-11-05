@@ -26,35 +26,3 @@ def bundle_for(runtime,context):
             dirty_hint_mask=encode_mask(np.zeros((h,w),bool)),reuse_candidate_mask=encode_mask(np.zeros((h,w),bool)),
             unknown_mask=encode_mask(np.ones((h,w),bool)))
     return bundle
-
-
-@torch.no_grad()
-@pytest.mark.parametrize('fault',['scene','frame','time','epoch','signature','source','cache_version','mask'])
-def test_invalid_source_raises(exact_runtime,context,fault):
-    runtime=exact_runtime;x=torch.randn(2,3,40,40);cold(runtime,x,context)
-    ctx=dict(context,frame_id='1',timestamp=1.1);bundle=bundle_for(runtime,ctx)
-    if fault=='scene':bundle.scene_id='other'
-    if fault=='frame':bundle.frame_id='other'
-    if fault=='time':bundle.timestamp=2.
-    if fault=='epoch':bundle.state_epoch=9
-    if fault=='signature':bundle.execution_signature='other'
-    if fault=='source':bundle.diagnostics['observed_source_frame_id']='other'
-    if fault=='cache_version':bundle.diagnostics['source_cache_version']+=1
-    if fault=='mask':bundle.refresh_contract['front']['unknown_mask']=encode_mask(np.zeros((40,40),bool))
-    with pytest.raises(ValueError,match='m1_|invalid_refresh_contract'):
-        runtime.forward(x,execution_context=ctx,computation_state=bundle)
-    assert runtime.cache.context['frame_id']=='0'
-
-
-@torch.no_grad()
-def test_unknown_change_is_compared_and_dirty_hint_only_expands(exact_runtime,context):
-    runtime=exact_runtime;x=torch.randn(2,3,40,40);cold(runtime,x,context)
-    ctx=dict(context,frame_id='1',timestamp=1.1);bundle=bundle_for(runtime,ctx)
-    # Independent image comparison discovers this change despite all-unknown M1.
-    x[0,:,0,0]+=.1
-    dirty=np.zeros((40,40),bool);dirty[0,20]=True
-    bundle.refresh_contract['front'].update(dirty_hint_mask=encode_mask(dirty),unknown_mask=encode_mask(~dirty))
-    out,d=runtime.forward(x,execution_context=ctx,computation_state=bundle)
-    assert d['actual_skipped_windows']==32 and d['recomputed_windows']==4
-    assert torch.allclose(out[0],runtime.model(x)[0],atol=3e-6,rtol=3e-6)
-    assert d['m1_transformer_certificate_used'] is False

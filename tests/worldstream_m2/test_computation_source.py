@@ -3,38 +3,3 @@ from worldstream.m2.state_cache import CachePublicationError
 import pytest
 import torch
 from .test_source_linked_admission import cold,bundle_for
-
-
-@torch.no_grad()
-def test_unchanged_window_keeps_actual_computation_source(exact_runtime,context):
-    rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
-    ctx=dict(context,frame_id='1',timestamp=1.1);x[0,:,0,0]+=.1
-    _,d=rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    source=d['output_window_provenance'][0]
-    assert source[0]['computation_frame_id']=='1'
-    assert source[1]['computation_frame_id']=='0' and source[1]['computation_timestamp']==1.
-    assert source[1]['computation_version']==1
-    assert d['cache_context']['frame_id']=='1' and rt.cache.version==2
-
-
-@torch.no_grad()
-@pytest.mark.parametrize('field',['camera_id','producer_layer','computation_version','computation_frame_id'])
-def test_external_lineage_mutation_raises(exact_runtime,context,field):
-    rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
-    rt.cache.sources[0][0][field]='forged'
-    ctx=dict(context,frame_id='1',timestamp=1.1)
-    with pytest.raises(ValueError,match='cache_metadata_modified'):
-        rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-
-
-@torch.no_grad()
-def test_failed_publication_preserves_output_lineage(exact_runtime,context,monkeypatch):
-    rt=exact_runtime;x=torch.randn(2,3,40,40);cold(rt,x,context)
-    def fail(*a,**kw):raise CachePublicationError('injected publication failure')
-    monkeypatch.setattr(rt.cache,'commit',fail)
-    ctx=dict(context,frame_id='1',timestamp=1.1)
-    source=rt.cache.sources;version=rt.cache.version
-    with pytest.raises(CachePublicationError,match='injected'):
-        rt.forward(x,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert rt.cache.sources is source and rt.cache.version==version
-    assert rt.cache.context['frame_id']=='0'

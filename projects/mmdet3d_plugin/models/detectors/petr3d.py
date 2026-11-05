@@ -149,6 +149,10 @@ class Petr3D(MVXTwoStageDetector):
 
         self.test_flag = False
         self.worldstream_require_m123 = worldstream_require_m123
+        if worldstream_require_m123:
+            from worldstream.r0 import validate_runtime_settings
+            validate_runtime_settings(m1_enable,m1_execution_mode,m1_config,
+                                      m2_enable,m2_config,m3_enable,m3_config)
         self.m3_runtime = None
         if m3_enable:
             from worldstream.m3 import M3Runtime
@@ -501,17 +505,6 @@ class Petr3D(MVXTwoStageDetector):
                 timestamp = float(data['timestamp'].reshape(-1)[0])
                 stable_state = None
                 stable_snapshot_ms = 0.
-                if m3.config.prefix_adapter or m3.config.prefix_layout=='sf_adaptive':
-                    stable_snapshot_tick = time.perf_counter()
-                    from worldstream.m3.stable_world import freeze_stable_world
-                    if m3.semantic_qualifier is None:
-                        raise ValueError('WRCPS requires a validated EQ-SSC semantic qualification policy')
-                    stable_state = freeze_stable_world(self.m1_manager, dict(
-                        scene_id=str(meta['scene_token']), frame_id=str(meta['sample_idx']), timestamp=timestamp,
-                        state_epoch=self.m1_manager.store.generation,
-                        state_version=self.m1_manager.store.commit_count,
-                        state_execution_signature=self.m1_manager.store.execution_signature),m3.semantic_qualifier)
-                    stable_snapshot_ms = (time.perf_counter()-stable_snapshot_tick)*1000
                 m3_answers, self.m3_diagnostics = m3.generate(
                     lm_head=self.lm_head, input_ids_list=data['input_ids'][0],
                     vision_carriers=vision_embeded,
@@ -646,10 +639,6 @@ class Petr3D(MVXTwoStageDetector):
                     full_refresh_reasons=precheck.diagnostics.get('full_refresh_reasons', []))
                 def publish_precheck():
                     trace['stage'] = 'history_snapshot'
-                    if ((getattr(self,'m3_runtime',None) is not None and self.m3_runtime.config.decode_strategy=='native')
-                            or getattr(self,'worldstream_capture_m3_inputs',False)):
-                        from worldstream.m3.world_state import freeze_verified_state
-                        self.m3_verified_state=freeze_verified_state(self.m1_manager,frame)
                     if getattr(self,'m2_runtime',None) is not None:self._m2_context.update(execution_signature=frame.execution_signature)
                     if getattr(getattr(self,'m2_runtime',None),'config',None) is not None:
                         self._m2_context['state_epoch'] = precheck.diagnostics.get('state_epoch')
@@ -771,4 +760,3 @@ class Petr3D(MVXTwoStageDetector):
                 commit_diag = self.m1_manager.last_commit_diagnostics if trace['m1']['commit_completed'] else {}
                 append_result(settings.log_path, precheck, commit_diag,
                     self.m1_manager.export_state_audit(), experiment=dict(module_execution=trace))
-

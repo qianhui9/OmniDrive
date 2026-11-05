@@ -1,16 +1,9 @@
 """Calibration identity covers original parameters, numeric policy and input layout."""
 import pytest
 import torch
-from worldstream.m2.cost_model import cost_key
 from .test_source_linked_admission import cold,bundle_for
 
 
-def test_cost_key_is_block_checkpoint_and_layout_specific(eva):
-    x=torch.randn(2,10,10,32);key=cost_key(eva.blocks[0],x,0)
-    assert key!=cost_key(eva.blocks[0],x,1)
-    assert key!=cost_key(eva.blocks[0],x.transpose(1,2),0)
-    with torch.no_grad():eva.blocks[0].norm1.weight.add_(.1)
-    assert key!=cost_key(eva.blocks[0],x,0)
 
 
 @torch.no_grad()

@@ -20,14 +20,16 @@ def region(**kw):
     row.update(kw);return row
 
 
-def step(rt,image,context,index,regions=(),events=(),variant='D',edit=None):
+
+
+def step(rt,image,context,index,regions=(),events=(),edit=None):
     ctx=dict(context,frame_id=str(index),timestamp=1.+index*.01)
     b=bundle_for(rt,ctx) if rt.cache.images is not None else ComputationStateBundle(
         ctx['scene_id'],ctx['frame_id'],ctx['timestamp'],ctx['state_epoch'],ctx['execution_signature'],
         diagnostics=dict(full_refresh_hint=True))
     b.region_states=copy.deepcopy(list(regions));b.region_events=list(events)
     if edit:edit(b)
-    return rt.evaluate_offline(image,variant=variant,execution_context=ctx,computation_state=b)
+    return rt.forward(image,execution_context=ctx,computation_state=b)
 
 
 @pytest.fixture
@@ -204,20 +206,6 @@ def test_snapshot_failure_is_atomic_for_all_new_fields():
     assert all(cache.__dict__[k] is v for k,v in previous.items())
 
 
-@torch.no_grad()
-def test_offline_d_and_formal_share_execution_and_history(rt,context,monkeypatch):
-    rt.config=replace(rt.config,ordinary_budget=2)
-    image=torch.randn(2,3,40,40);step(rt,image,context,0)
-    calls=[];execute=rt.executor.execute
-    def observe(block,x,cache,ids):calls.append(len(ids));return execute(block,x,cache,ids)
-    monkeypatch.setattr(rt.executor,'execute',observe)
-    _,d=step(rt,image,context,1)
-    assert calls==[4,4] and not d['task_quality_certified']
-    assert not hasattr(rt,'costs')
-    ctx=dict(context,frame_id='2',timestamp=1.02)
-    _,d=rt.forward(image,execution_context=ctx,computation_state=bundle_for(rt,ctx))
-    assert d['actual_skipped_windows']==28 and d['cache_version']==3
-    assert d['full_update_reason'] is None
 
 
 @torch.no_grad()
@@ -253,16 +241,6 @@ def test_cuda_wsgrr_runtime_preserves_shapes_sources_and_approximate_output(eva,
     assert d['actual_skipped_windows']==28 and not d['window_reuse_quality_certified']
 
 
-@torch.no_grad()
-def test_no_m1_region_is_offline_only_and_retains_safety_expiry(rt,context):
-    rt.config=replace(rt.config,ordinary_budget=1,max_reuse_frames=2)
-    image=torch.randn(2,3,40,40)
-    step(rt,image,context,0,[region()],variant='NoM1Region')
-    _,d=step(rt,image,context,1,[region(event_flags=['state_jump'])],variant='NoM1Region')
-    assert d['region_refresh']['mandatory_windows']==0 and d['region_refresh']['ordinary_windows']==2
-    _,d=step(rt,image,context,2,[region(event_flags=['state_jump'])],variant='NoM1Region')
-    assert d['region_refresh']['mandatory_windows']==16
-    with pytest.raises(ValueError):M2Config(mode='NoM1Region')
 
 
 @torch.no_grad()
@@ -299,18 +277,3 @@ def test_compact_executor_only_projects_selected_windows_and_valid_mlp_tokens(ev
     assert ('qkv',(2,16,32)) in seen and ('mlp',(8,32)) in seen
     assert torch.allclose(output,block(x),atol=3e-6,rtol=3e-6)
     assert packed[[8,17],2:].eq(0).all()
-
-
-@torch.no_grad()
-def test_matched_offline_control_never_overrides_safety(rt,context):
-    rt.config=replace(rt.config,max_reuse_frames=2)
-    image=torch.randn(2,3,40,40)
-    def run(i):
-        ctx=dict(context,frame_id=str(i),timestamp=1+i*.01)
-        b=bundle_for(rt,ctx) if i else ComputationStateBundle(ctx['scene_id'],ctx['frame_id'],ctx['timestamp'],ctx['state_epoch'],ctx['execution_signature'],diagnostics={'full_refresh_hint':True})
-        return rt.evaluate_offline(image,variant='NoM1RegionMatched',execution_context=ctx,computation_state=b,window_targets=[2,4])[1]
-    run(0);d=run(1)
-    assert d['stages'][0]['executed_windows']==6
-    d=run(2)
-    assert d['region_refresh']['mandatory_windows']==12
-    assert d['stages'][0]['executed_windows']>=12

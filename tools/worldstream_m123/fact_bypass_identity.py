@@ -1,25 +1,18 @@
-"""Offline instance evaluation. Never imported by the inference runtime.
+"""R0-required utilities; historical alternative runners have been retired."""
 
-Use the existing v4 2m match radius / .5m ambiguity margin. Assignment is
-one-to-one over *all* current anchors, without using predicted class as a
-matching constraint. A wrong class must remain measurable as a wrong class.
-Center projection and nuScenes visibility are proxies, not image adjudication.
-"""
 import math
-from collections import Counter
 
 import numpy as np
+
 from scipy.optimize import linear_sum_assignment
 
 from worldstream.m3.answer_validity import fact_region, fact_directions
+
 from worldstream.m3.task_conditioner import question_facts
+
 from worldstream.m3.world_delta import VEHICLES
+
 from .selective_answer_reuse_report import grade
-
-UNKNOWN_REASONS = ('no_visible_GT_target', 'multiple_equally_plausible_GT_targets',
-    'visibility_ambiguous', 'detector_GT_matching_ambiguous',
-    'question_semantics_ambiguous', 'missing_annotation_support')
-
 
 def match_instances(anchors, objects, frame_id, timestamp):
     """Conservative global assignment; duplicates cannot share a GT receipt."""
@@ -115,13 +108,3 @@ def request_identity(proposal,target,matches):
             and physical['annotation_id'] in target['acceptable_annotation_ids']),
             matched_annotation=physical['annotation_id'],acceptable_annotation_ids=target['acceptable_annotation_ids'])
     return dict(object=physical,target=identity)
-
-
-def coverage(records,key):
-    known=[r for r in records if r[key]['known']]
-    reasons=Counter(r[key].get('reason') or 'missing_annotation_support' for r in records if not r[key]['known'])
-    return dict(requests=len(records),scored=len(known),UNKNOWN=len(records)-len(known),
-        score=sum(bool(r[key].get('correct')) for r in known)/len(known) if known else None,
-        unknown_reasons={k:reasons[k] for k in UNKNOWN_REASONS},
-        scored_scenes=len({r['scene_id'] for r in known}),
-        unique_scored_frame_questions=len({(r['frame_id'],r['question']) for r in known}))

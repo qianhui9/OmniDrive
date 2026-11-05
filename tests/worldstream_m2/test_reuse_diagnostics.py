@@ -8,15 +8,12 @@ import torch
 
 from worldstream.m1 import M1Config, WorldStateManager, FullOutputs
 from worldstream.m2 import IncrementalVisionRuntime
-from worldstream.m2.cost_model import CostModel, SCHEMA_VERSION, cost_key
 from worldstream.m2.dependency_planner import block0_input
 from worldstream.m2.state_cache import CachePublicationError
 from .test_live_m1_snapshot import frame_for
 
 
 def runtime_and_manager(eva, tmp_path):
-    path=tmp_path/'empty_costs.json'
-    path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,records=[],formal_quality_policy=dict(approved_counts=[]))))
     runtime=IncrementalVisionRuntime(eva)
     manager=WorldStateManager(M1Config.load('configs/worldstream_m1_final.yaml'))
     return runtime,manager
@@ -28,7 +25,7 @@ def step(runtime,manager,images,context,i,offline=False):
     precheck=manager.precheck(frame)
     ctx['state_epoch']=precheck.diagnostics['state_epoch']
     if offline:
-        result,diag=runtime.evaluate_offline_from_m1(images.float()/255,manager,ctx,variant='D')
+        result,diag=runtime.forward_from_m1(images.float()/255,manager,ctx)
     else:
         result,diag=runtime.forward_from_m1(images.float()/255,manager,ctx)
     manager.commit(frame,FullOutputs([],execution_receipt=diag),precheck)
@@ -59,21 +56,6 @@ def test_formal_initialization_and_live_m1_reuse(eva,context,tmp_path):
     assert not hasattr(rt,'costs')
 
 
-@torch.no_grad()
-def test_formal_and_d3_share_cache_namespace_and_plan(eva,context,tmp_path):
-    rt,manager=runtime_and_manager(eva,tmp_path)
-    image=torch.randint(0,256,(2,3,40,40),dtype=torch.uint8)
-    step(rt,manager,image,context,0)
-    ctx=dict(context,frame_id='1',timestamp=100.1)
-    frame=frame_for(image,ctx);result=manager.precheck(frame)
-    ctx['state_epoch']=result.diagnostics['state_epoch']
-    source=copy.copy(rt.cache)
-    formal,da=rt.forward_from_m1(image.float()/255,manager,ctx)
-    saved=rt.cache;rt.cache=copy.copy(source)
-    offline,db=rt.evaluate_offline_from_m1(image.float()/255,manager,ctx,variant='D')
-    assert torch.equal(formal[0],offline[0])
-    assert da['stages']==db['stages'] and da['cache_version']==db['cache_version']==2
-    assert rt.cache.signature==saved.signature
 
 
 @torch.no_grad()

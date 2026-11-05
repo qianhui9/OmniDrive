@@ -1,38 +1,9 @@
-# Current-only fact bypass
+# R0 M3：当前事实直答与目标验证解码
 
-`M3Runtime` remains the only language runtime. Its default
-`selective_answer_mode='off'` is unchanged. A research policy with
-`main_path='current_only'` answers supported questions from current committed M1
-facts and skips input expansion, prefill and decode. A miss executes the existing
-Target-Aware K8 generator. Question-level RNG isolation and the distinction
-between current detection evidence and M2 visual reuse qualification remain.
+唯一研究配置为完整冻结 C-basic。Runtime 先校验场景、帧、时间、相机和当前 Commit，再按问题选择实际感知事实。达到固定支持度与目标绑定准入条件时，构造 FAST 答案，不执行输入展开、Prefill 或 Decode。
 
-The current-only branch never looks up full historical answers. It rejects
-Temporal Risk and Target Completeness in both configuration and policy. The
-existing legacy branch and frozen source snapshots remain for reproducing
-historical experiments. No M1/M2 or model-weight changes are required.
+直答不读取完整历史答案，不以缺少目标推断 No；UNKNOWN 保持未知。未准入或不支持的问题仍使用完整当前视觉输入，经 PrefillExecutor 和原目标模型执行。精确 prompt 的历史生成仅作为 K8 草稿，经目标模型验证及 Sampling 校正，不直接当作当前答案。
 
-The policy can select `position_mode='basic'`, `'restricted'`, or `'fallback'`.
-Restricted mode adds exactly one test: selected current detector support must
-exceed `position_min_confidence`. That value must come from DEV. It is not a
-calibrated probability of correct nearest-target selection. Fallback mode is a
-diagnostic ablation. Category and positive Existence use the existing admission
-criteria. A missing object witness never justifies answering No.
+没有 WSDR 前缀规划器、持久 KV、跨问题语义草稿、视觉前缀 Composer 或旧 temporal/target-completeness 分支。`M3Config` 拒绝这些策略，JSON 中固定空值/关闭字段仅用于完整参数对照。
 
-The current delivery in `outputs/m3_final_fact_bypass_run01` is
-`INCOMPLETE_INDEPENDENT_VALIDATION`: local official validation logs were already
-used, and historical v4 scenes are in the model training partition. Its three
-candidate JSONs are deliberately `DIAGNOSTIC_ONLY_NOT_FROZEN`; the online runtime
-rejects them. A new DEV optimum or TEST speedup is not claimed. The historical
-best measured DEV configuration remains `target_dev_0`; v4 remains NO_GO.
-
-Offline evaluation in `fact_bypass_identity.py` distinguishes physical-object,
-question-target and answer-level correctness. Matches use current frame/time,
-class-independent one-to-one 3D assignment, a 2m distance limit and a .5m ambiguity
-margin. Duplicate detections cannot share a GT correctness receipt. A common
-answer among ambiguous instances may receive an answer label while its instance
-identity remains UNKNOWN. Visibility is an annotation/projection proxy; ambiguous
-visibility stays UNKNOWN. The old severe error remains in the frozen audit even
-when this stricter label protocol cannot decide it.
-
-See the run's `REPRODUCE.md` for exact CPU/CUDA regression and audit commands.
+支持度0.45不是错误率45%，风险上限0.75也不是概率校准。最终平均质量、FAST质量、物理目标身份和严重错误必须分开评价。运行命令与源码删除核验见 [运行指令](../tools/运行文件.md) 和 [benchmark](worldstream_benchmark.md)。

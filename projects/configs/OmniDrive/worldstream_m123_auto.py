@@ -1,25 +1,9 @@
-"""World-referenced stateful VLM serving: the only M1/M2/M3 route."""
-# Offline task acceptance allows absolute loss <= 0.10 for each task metric.
-# New AR3 / drift 0.912088305 lost mAP 0.105005685 > 0.10 on fresh heldout data.
-# Retain AR2 / 0.772102788; do not tune on the failed independent scenes.
-# See outputs/m123_latency_quality_20261027_run01/experiment_report.md.
-# World-risk follow-up passes fresh subset quality, but does not establish
-# stable computation speedup after controlling for scene and answer length.
-# Keep these parameters; see m123_world_risk_optimization_20261027_run01 report.
-# Aggregate task acceptance and complete service acceleration are separate results.
+"""Frozen full R0; Native remains the independent measurement baseline."""
 _base_ = ['./mask_eva_lane_det_vlm.py']
-model = dict(
-    worldstream_require_m123=True,
-    m1_enable=True, m1_execution_mode='observe_only',
-    m1_config='configs/worldstream_m1_final.yaml',
-    m2_enable=True,
-    m2_config=dict(mode='auto', reuse_boundary='window', state_interface='source_linked',
-        m1_service='maintain', memory_budget_mb=512, ordinary_budget=3, max_reuse_frames=8,
-        global_anchor_interval=2, global_drift_threshold=0.7721027880907059),
-    m3_enable=True,
-    m3_config=dict(mode='auto', state_context='augment', memory_budget_mb=512,
-        reuse_strategy='wsdr_kv',block_size=32,quality_budget=0.02,
-        reuse_policy='outputs/m123_final_quality_validation_run01/resources/final_route/m3_reuse_policy.json'))
+import json as _json
+from pathlib import Path as _Path
+model = _json.loads(_Path('configs/worldstream_r0.json').read_text())
+del _json, _Path
 # Preserve deployed preprocessing and retain source camera poses in metadata.
 test_pipeline = [
     dict(type='LoadMultiViewImageFromFiles', to_float32=True),

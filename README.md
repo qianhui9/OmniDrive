@@ -1,11 +1,17 @@
-# OmniDrive
+# OmniDrive / Frozen R0
 
-唯一推荐的 M1+M2+M3 研究入口：`projects/configs/OmniDrive/worldstream_m123_auto.py`。
+本地可在没有 `.git` 的情况下运行主实验；必要 Native 源码已导出并做 SHA256 校验，详见 [独立源码与溯源说明](docs/provenance/README.md)。GitHub 保留版本历史。
 
-M1 保留普通 A 关联。M2 的成本、来源或质量准入不通过时，更新集扩大到全部窗口，仍通过同一个 `WindowExecutor` 完成全量视觉计算。M3 使用 Quality-Bounded WSDR-KV 的统一校准策略，按任务、世界状态和连续视觉块变化选择精确或有界近似前缀；无质量预算内净收益时，令 `reuse_length=0`，仍通过同一个 `PrefillExecutor` 完成 Prefill 和 Decode。
+唯一改进研究配置为完整 **M1 + M2 + M3 R0**。入口是 `projects/configs/OmniDrive/worldstream_m123_auto.py`，完整参数来自 `configs/worldstream_r0.json`。Native 原配置保留为配对实验的必要基线；模型、权重和训练任务头保持原样。
 
-模块完成执行、实际复用与端到端加速分别测量。M3 当前读取 `outputs/final_route/m3_reuse_policy.json`，旧 M3 批准文件保留为历史记录；M2 的窗口成本/质量机制不变。近似复用可能改变回答，短序列研究校准不能替代完整集任务质量评估。
+执行顺序：M1 Precheck → M2 唯一窗口/全局增量执行器 → Detection/Map → M1 Commit → M3 当前事实准入 → FAST 直答或完整当前视觉 Prefill + K8 目标验证推测解码。FAST 不读取完整历史答案；R0 不持久复用 Prefill KV。
 
-M3 实现、质量预算和复现方法见 [WSDR-KV 说明](docs/worldstream_m3_wsdr_kv.md)，本轮真实结果见 [质量—时延报告](outputs/m3_quality_bounded_20261026_run01/experiment_report.md)。
+WSDR-KV、视觉前缀压缩/记忆、旧答案复用策略、时序风险/目标完整性候选、离线参数搜索、替代 M2 执行入口和未接入 R0 的旧 TensorRT/EdgeLLM 部署入口已退役。历史结果保留其原始含义，不作为本轮新测量。
 
-运行命令与边界见 [主线说明](docs/worldstream_final_route.md) 和 [benchmark 文档](docs/worldstream_benchmark.md)。本轮结果见 [真实 GPU 执行审计](outputs/m123_execution_audit_20261025_run01/experiment_report.md)，此前代码契约测试见 [2026-10-25 执行契约报告](outputs/m123_execution_contract_20261025/experiment_report.md)。
+- [最终清理验收报告](outputs/r0_route_cleanup_validation_run01/CLEANUP_VERIFICATION_REPORT.md)
+- [运行指令](tools/运行文件.md)
+- [主线与执行边界](docs/worldstream_final_route.md)
+- [主实验及删除验证](docs/worldstream_benchmark.md)
+- [冻结主实验说明](R0_MAIN_BENCHMARK.md)
+
+所有执行命令使用 OmniDrive 解释器并以 `taskset -c 0-3,6-31` 启动。GPU 占用时等待，不终止其他用户任务。实验默认不自动部署；固定配置不等于质量或独立泛化认证。

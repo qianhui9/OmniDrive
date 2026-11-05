@@ -1,11 +1,9 @@
 """Window execution owns canonical activations and rejects stale calibration."""
-from .conftest import synthetic_approval
 import json
 import pytest
 import torch
 
 from worldstream.m2 import IncrementalVisionRuntime
-from worldstream.m2.cost_model import CostModel, cost_key, SCHEMA_VERSION
 from worldstream.m2.packing import partition
 from worldstream.m2.state_cache import StateCache
 from worldstream.m2.window_executor import WindowExecutor
@@ -76,57 +74,10 @@ def test_window_cache_mutation_raises(admitted_runtime,context,target):
         runtime.forward(x,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
 
 
-def test_window_cost_key_includes_inner_normalization(eva):
-    x=torch.randn(2,10,10,32)
-    before=cost_key(eva.blocks[0],x,0)
-    eva.blocks[0].mlp.ffn_ln.eps*=2
-    assert before!=cost_key(eva.blocks[0],x,0)
 
 
-@pytest.mark.parametrize('fault',['nan','negative','bool_count','wrong_block','string_quality'])
-def test_invalid_window_costs_cannot_admit(eva,tmp_path,fault):
-    key=cost_key(eva.blocks[0],torch.zeros(2,10,10,32),0)
-    row=dict(key=key,block=0,updated=1,incremental_gpu_ms=.1,full_gpu_ms=1.,
-             incremental_wall_ms=.1,full_wall_ms=1.,quality_certified=True,numerical_verified=True)
-    if fault=='nan':row['full_wall_ms']=float('nan')
-    if fault=='negative':row['incremental_wall_ms']=-1.
-    if fault=='bool_count':row['updated']=True
-    if fault=='wrong_block':row['block']=1
-    if fault=='string_quality':row['quality_certified']='false'
-    path=tmp_path/'cost.json'
-    path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,records=[row],formal_quality_policy=dict(approved_counts=[1]))))
-    costs=CostModel(str(path))
-    assert costs.beneficial(key,1)[0] is False
-    if fault!='string_quality':assert costs.status=='invalid_cost_table'
 
 
-@torch.no_grad()
-@pytest.mark.parametrize('approved',[True,False])
-def test_auto_ignores_archived_cost_and_quality(eva,context,tmp_path,approved):
-    from .test_source_linked_admission import cold,bundle_for
-    from projects.mmdet3d_plugin.models.backbones.eva_vit import get_abs_pos
-    image=torch.randn(2,3,40,40);changed=image.clone();changed[0,:,0,0]+=.1
-    runtime=IncrementalVisionRuntime(eva,dict())
-    cold(runtime,image,context)
-    x=eva.patch_embed(changed)
-    x=x+get_abs_pos(eva.pos_embed,eva.pretrain_use_cls_token,x.shape[1:3])
-    records=[]
-    for i in runtime.prefix:
-        records.append(dict(key=cost_key(eva.blocks[i],x,i,model=eva,refresh_policy=runtime.config.refresh_signature()),block=i,updated=6,numerical_verified=True,
-            quality_certified=True,incremental_gpu_ms=.1,full_gpu_ms=1.,incremental_wall_ms=.1,full_wall_ms=1.))
-        x,_=runtime.executor.execute(eva.blocks[i],x,runtime.cache.outputs[i],torch.tensor([0]))
-    for row in records:row['approval']=synthetic_approval(tmp_path,row['key'],row['updated'])
-    # These synthetic costs are unit fixtures; they are never deployment evidence.
-    path=tmp_path/'synthetic_costs.json'
-    path.write_text(json.dumps(dict(schema_version=SCHEMA_VERSION,records=records,
-        production_ready=True,formal_quality_policy=dict(approved_counts=[6] if approved else []))))
-    assert not hasattr(runtime,'costs')
-    ctx=dict(context,frame_id='1',timestamp=1.1)
-    out,d=runtime.forward(changed,execution_context=ctx,computation_state=bundle_for(runtime,ctx))
-    assert d['actual_skipped_windows']==24
-    assert d['runtime_entered'] and d['execution_completed'] and d['actual_window_reuse']
-    assert not d['full_recompute'] and d['full_recompute_reason'] is None
-    assert d['planned_windows']==d['executed_windows'] and torch.isfinite(out[0]).all()
 
 
 @torch.no_grad()

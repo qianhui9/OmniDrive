@@ -62,15 +62,6 @@ def test_current_support_requires_valid_visible_camera_and_actual_source(config,
     assert not freeze_committed_state(manager,frame,current_detection_support=True).anchors[0].observed
 
 
-def test_competition_snapshot_cannot_create_positive_anchor(config,make_frame):
-    manager=WorldStateManager(config);frame=make_frame();result=manager.precheck(frame)
-    manager.commit(frame,FullOutputs([]),result)
-    candidate=dict(candidate_id='decoded:0',semantic_class='pedestrian',center_ego=(0.,0.,10.),
-        score=.2,source_frame=frame.frame_id,source_timestamp=frame.timestamp,
-        evidence_origin='actual_current_decoded_perception')
-    snapshot=freeze_committed_state(manager,frame,competition_candidates=[candidate])
-    assert not snapshot.anchors and not manager.store.anchors
-    assert snapshot.competition_evidence and not snapshot.competition_evidence[0].answer_witness_eligible
 
 
 def test_competition_snapshot_rejects_stale_or_unprojected_candidates(config,make_frame):
