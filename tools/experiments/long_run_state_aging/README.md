@@ -1,6 +1,38 @@
-# 连续运行与状态老化：五问、三阶段（Protocol v2）
+# 连续运行与状态老化：五问、三阶段（Protocol v3）
 
 2026-11-18 更新。主负载严格为每帧三个原固定事实问题 + 两个原始 QA。阶段为 Early / Middle / Late；不在阶段边界重置状态，不将短日志循环播放当作长视频。
+
+
+## 推荐：18 条真实日志扩样重跑
+
+新增独立配置 `expanded_config.yaml` 和入口 `run_expanded.sh`；原 `config.yaml` 仍保留单日志模式。扩样协议保持每帧五问、每条日志内 Early/Middle/Late 三等分、跨阶段状态连续，真实日志边界重置。
+
+```bash
+# 先核验全体 18 条日志的真实输入、问题和 GT；不加载 GPU 模型。
+bash tools/experiments/long_run_state_aging/run_expanded.sh --check-only
+
+# 可选：两条不同日志各首 9 帧的短 Smoke，核验真实日志边界重置。
+bash tools/experiments/long_run_state_aging/run_expanded.sh --smoke
+
+# 正式扩样：18 条完整日志 × 两方法 × 3 次独立重复。
+bash tools/experiments/long_run_state_aging/run_expanded.sh --run-full
+```
+
+正式配置严格要求 18 条完整日志，不能静默退化到较小子集；同时核验官方 scene.log_token，要求来自 18 个不同的 driving log，映射保存在 manifest 中。共有 723 个不同帧、每方法每次 3615 个原查询；正式总执行 4338 帧次、21690 个查询。输出独立保存到 `outputs/experiments/long_run_state_aging_expanded/run_<time>/`，不覆盖已有结果。
+
+**扩大的是场景覆盖，不是单日志连续时长。** 同一日志的三次重复不会被当成三个独立场景，也不会人为消除真实的 0 或 N/A。扩样场景仍来自既有主实验，不能称为新增独立测试集。
+
+预检新增 `sample_coverage.csv/json`：逐日志、逐阶段列出不同帧数、known/UNKNOWN GT 和唯一的采样问题事实变化查询数，后者不乘重复次数，也不等同于独立物理事件。正式结果同时报告实际可评分分母，不能只给百分比。
+
+`stage_summary.csv` 新增场景数、唯一可评分查询、唯一 Stale-eligible 查询转变和重复观测数量。`overall_summary.csv`、`scene_summary.csv`、`repeat_summary.csv` 分别给出总体、逐日志和逐重复结果。两原始 QA 的有限事实评分继续单列。
+
+统计采用 **2000 次配对场景聚类 bootstrap**：每次重采样完整日志，保留该日志的全部时间帧、五问和重复运行，两个方法用相同的场景抽样。报告 Accuracy、Stale、Mean E2E、P95 E2E 的经验 95% 区间；`paired_comparison.csv` 报告配对差值和时延相对降低率的区间。
+
+有以下限制时不伪造区间：有效场景不足两个、有效分母的 bootstrap 抽样比例不足 80%、零/全错误率导致非参数 bootstrap 无法反映未观测错误。点估计仍如实保留 0%/100%，CI 的 N/A 原因和有效抽样数单列。经验区间退化为点时也标出 `ci_empirically_degenerate`，不能据此宣称真实不确定性为零。
+
+每次重复的阶段均值及 P95 另计算 mean ± sample SD（ddof=1）。这是重复运行间波动，区别于场景 bootstrap CI；每次 P95 的平均也区别于主表的 pooled P95。Peak GPU/Cache 仍是实际观测最大值，不包装成长期内存上界。
+
+自动生成 `结果.md` 与 `report.md`（相同内容），并单独生成 `表1.md` 和 `paper_table.csv`，可直接取出所需七列表格。中间方法完成后会更新阶段性报告；只计两个方法均完整完成的同一 repeat，不把中断前缀混入主表。完整模型没有新算法开关、额外缓存清理或标注输入。
 
 ## 运行
 
@@ -69,7 +101,7 @@ QA GT 来自原 QA 引用与权威 nuScenes 标注。约 2 Hz 关键帧支持采
 
 ## 输出、恢复及历史协议
 
-- manifest.json：协议 v2、完整配置、源码/GT/输入/权重 SHA256、Git Commit 或不可读取原因、真实日志及阶段数、指标定义。
+- manifest.json：协议 v3、完整配置、源码/GT/输入/权重 SHA256、Git Commit 或不可读取原因、真实日志及阶段数、指标定义。
 - summary.json、stage_summary.csv、per_frame_metrics.csv、ogsm_state_aging.csv、davp_cache_aging.csv、qcse_cache_aging.csv、query_group_summary.csv、scored_queries.csv、report.md。
 - runs/repeat_NNN/{native,worldstream}/attempt_NNN：有效模型配置、身份、完整实际问答、逐帧收据及状态连续性、运行日志、完成标记。
 - figures/figure{1,2,3}_*.{pdf,png}：完整配对记录生成趋势、缓存峰值、缓存年龄与候选接受率三张图，图一按日志内原帧序号对齐。
@@ -78,12 +110,12 @@ prepared 模式只生成 N/A 表格和空明细，不生成虚构图。部分尝
 
 ```bash
 # 重生成派生报告，无推理。
-bash tools/experiments/long_run_state_aging/run.sh --report-only --output <v2输出目录>
+bash tools/experiments/long_run_state_aging/run.sh --report-only --output <v3输出目录>
 # 完整尝试保留；失败尝试使用新进程从首帧重跑，原部分记录保留。
-bash tools/experiments/long_run_state_aging/run.sh --resume --output <v2输出目录>
+bash tools/experiments/long_run_state_aging/run.sh --resume --output <v3输出目录>
 ```
 
-恢复不意味着恢复完整系统内存，不从半段接续，也不将不完整尝试合并成长序列。源码/输入变动拒绝恢复。旧四阶段 v1 收据和报告保持原文件，v2 不重新解释或覆盖它们，必须新建输出目录。此前 v1 验证见 VALIDATION.md；本次验证见 VALIDATION_v2.md。
+恢复不意味着恢复完整系统内存，不从半段接续，也不将不完整尝试合并成长序列。源码/输入变动拒绝恢复。旧 v1/v2 收据和报告保持原文件，v3 不重新解释或覆盖它们，必须新建输出目录。此前验证见 VALIDATION.md 和 VALIDATION_v2.md；扩样验证见 VALIDATION_v3.md。
 
 ## 代码复用与验证
 

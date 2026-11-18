@@ -2,6 +2,44 @@
 
 独立评测 Native VLM 与完整 frozen WorldStream R0；不修改生产模型、模块算法及主实验默认行为。
 
+## 扩样重跑（协议 v2，推荐）
+
+```bash
+taskset -c 0-3,6-31 bash tools/experiments/resource_overhead/run_expanded.sh
+```
+
+该命令使用 `config_54_s4_s5.json`：54 个完整场景、2,166 帧/负载、S4/S5、Native/WorldStream 各 3 次独立重复，共 12 个独立进程、25,992 帧正式测量。自动使用 OmniDrive Python 和指定 CPU 亲和性，GPU 忙时等待。结果新建于 `outputs/experiments/resource_overhead_expanded/run_<time>/`，不覆盖旧18场景结果。脚本支持将额外参数传给原 runner，例如 `--workloads S1 S2 S3 S4 S5` 可扩至全部负载。
+
+本次代码交付不启动正式 GPU 实验。可先用 `run_expanded.sh --prepare-only` 进行文件/权重/选择验证，或使用 `run_expanded.sh --smoke --check-gpu-once` 自行进行三帧 GPU 验证。`--cpu-smoke` 只执行 CPU/统计回归测试。
+
+### 扩样选择与可追溯性
+
+- 保留原18场景，候选限定在相同18个原始日志的完整验证场景。核对官方首尾帧、前后链、时间顺序、六相机文件与自然问题文件完整性。
+- 按 GT 对象数量、已有 `map_geoms` 几何 primitive 数量及官方场景描述中的 night/rain 标志，在每个日志内选择特征差异较大的场景并适度偏向稠密尾部。GT 仅用于推理前的采样，绝不作为模型输入；`map_geoms` 计数只是地图复杂度代理，不是模型地图预测质量。
+- 原18日志有1个仅1场景，无法每个日志都选3个。该日志取全部，其余名额按最少已入选数量、日志ID排序确定性重分配；当前为1个日志×1场景、15个日志×3场景、2个日志×4场景，总计54。不得重复场景凑数；可用场景不足时直接失败。
+- `scene_selection.json` 保存原场景、全部候选特征、筛除理由、每个新场景的入选理由和日志分布。`manifest.json` 冻结实际选定帧，并保留选择文件、配置、实际相机图像与问题文件的 SHA256。worker 启动后复核；按结果挑场景或运行中修改源码/输入会失败。
+- 这是有意覆盖稠密/复杂情况的采样，不是完整验证集的等概率抽样。按日志的 bootstrap 是所选覆盖下的稳健性描述，不能无条件视为整个 nuScenes 总体的置信区间。
+
+### CPU 基线与同步采集修正
+
+- 每个新 worker 启动前统一 `MALLOC_ARENA_MAX=2`、`MALLOC_TRIM_THRESHOLD_=131072`，在其导入 Python/Torch 前生效；只影响本次实验子进程，不修改系统环境或其他任务。
+- 权重加载后保存 raw baseline，`gc.collect()` 回收无引用的加载对象，再用 fresh RSS/USS 读取观察平台。默认至少5次、间隔0.2秒、窗口相对极差≤0.5%、最长8秒；取最后一次真实同读快照作为模型基线。未达到平台时停止并保留 trace，不挑最低值、不强制得到“好看”的基线。
+- 不调用 `malloc_trim`、CUDA `empty_cache`，不裁剪或额外清空 live 模块状态；场景 reset 完全复用主实验生命周期。
+- 帧结束和模型/预热后基线均强制调用 `psutil.memory_full_info()`，RSS/USS 取自同次结果；不再把加载阶段的旧 USS 配到新 RSS。后台低频 full read 之外只读 RSS，未新读 USS 时该样本 USS 为 null。
+- `memory_full_info` 涉及多个内核读取，并非原子快照；保存读取耗时。后台及主线程串行采样，避免互相覆盖；整个进程加载峰值继续由 ru_maxrss 保留。
+- 标准 Incremental 仍相对模型加载后的基线；另记录 warmup 后基线及其增量，供 `baseline_quality.csv` 敏感性比较。达到短时平台不保证不同进程的 allocator RSS 相同；跨进程实际基线及差异仍需报告。
+- 平均 RSS 改为按采样间隔积分的时间加权值。CPU/USS/模块统计本身有开销，采集读取时长及 accounting_ms 原样保存，仍不能将本工具作为正式时延基准。
+
+### 场景峰值、尾部与样本单位
+
+- 每场景只重置 CUDA **计数器**，不重置 CUDA 分配器；整次运行 GPU peak 为各场景 peak 的最大值。后台 RSS/NVML 同时按运行和场景归集。`gpu_peak_scope=scene`，原协议的累计运行 peak 不会误标成场景 peak。
+- `scene_memory.csv`：每方法/负载/重复/场景的实际 CUDA peak、RSS/USS/NVML sampled peak、相对模型与相对场景起点增量。
+- `scene_module_memory.csv`：各场景模块 retained state 的 Mean/P95/P99/Max；Total 先逐帧全局去重，再做任何统计。
+- `tail_memory.csv`：每次独立运行内先计算逐帧快照/模块状态的 Mean/P95/P99/Max，再统计重复间 Mean/SD/Peak。帧结束显存快照的分位数不能称为 CUDA 瞬时峰值的分位数。
+- `scene_mean_over_repeats.csv`、`scene_distribution.csv`：先平均同一场景的三次重复，再对54个场景峰值计算 Mean/P95/P99/Max；避免把同场景重复当作新增场景。
+- `paired_scene_ci.csv`：同场景/重复配对 WorldStream − Native，先平均重复，再按原日志聚类 bootstrap（默认2000次，固定 seed），给出“场景峰值差的平均值”的95%区间。不是对全局最大值的保证，也不把54个场景简单当成54个独立日志。
+- 保留原要求的 JSON/CSV/报告/三组 PDF/PNG，新增 `extended_statistics.json`、`extended_report.md`、自动中文 `结果.md`。全部新旧协议结果分开，不能把旧18场景与新54场景当作独立样本混合计数。
+
 ## 运行
 
 从项目根目录运行；脚本自动使用 `/home/qh/miniconda3/envs/OmniDrive/bin/python`，所有进程和采样线程继承 `taskset -c 0-3,6-31`。默认物理 GPU 0，可用 `--gpu` 修改。不会停止任何其他任务，GPU 忙时每 15 秒检查一次。

@@ -190,37 +190,61 @@ class ProcessMonitor:
         self.process = psutil.Process()
         self.interval, self.uss_interval = interval, uss_interval
         self.nvml = NVML(device, self.process.pid) if gpu else None
-        self.lock, self.stop_event = threading.Lock(), threading.Event()
+        self.lock, self.stop_event = threading.RLock(), threading.Event()
         self.errors = set()
         self.phases = {}
         self.phase = 'load'
+        self.scene = None
         self.last_uss_at, self.uss = 0., None
         self.thread = threading.Thread(target=self.loop, name='resource-sampler', daemon=True)
 
-    def sample(self):
+    def sample(self, full=False):
+        # Serialize background/foreground reads. Never attach a stale USS value
+        # from checkpoint loading to a fresh post-load RSS snapshot.
+        with self.lock:
+            return self._sample(full)
+
+    def _sample(self, full):
         now = time.perf_counter()
-        rss = self.process.memory_info().rss
-        if now - self.last_uss_at >= self.uss_interval:
+        uss = None
+        full_read = full or now - self.last_uss_at >= self.uss_interval
+        if full_read:
             try:
-                self.uss = getattr(self.process.memory_full_info(), 'uss', None)
+                info = self.process.memory_full_info()
+                rss, uss = info.rss, getattr(info, 'uss', None)
+                self.uss = uss
             except (psutil.Error, OSError) as exc:
                 self.errors.add(str(exc))
+                rss = self.process.memory_info().rss
             self.last_uss_at = now
+        else:
+            rss = self.process.memory_info().rss
         nvml = None
         if self.nvml is not None:
             try:
                 nvml = self.nvml.read()
             except (RuntimeError, AttributeError) as exc:
                 self.errors.add(str(exc))
-        record = dict(cpu_rss_bytes=rss, cpu_uss_bytes=self.uss, nvml_process_gpu_bytes=nvml)
+        record = dict(cpu_rss_bytes=rss, cpu_uss_bytes=uss, nvml_process_gpu_bytes=nvml,
+                      sample_monotonic_seconds=now, sample_duration_ms=(time.perf_counter()-now)*1000,
+                      rss_uss_same_read=full_read and uss is not None)
         with self.lock:
-            stat = self.phases.setdefault(self.phase, dict(samples=0, rss_sum=0, rss_peak=0, uss_peak=None, nvml_peak=None))
-            stat['samples'] += 1
-            stat['rss_sum'] += rss
-            stat['rss_peak'] = max(stat['rss_peak'], rss)
-            for key, value in [('uss_peak', self.uss), ('nvml_peak', nvml)]:
-                if value is not None:
-                    stat[key] = max(stat[key] or 0, value)
+            phases = [self.phase]
+            if self.phase == 'measurement' and self.scene is not None:
+                phases.append('scene:'+self.scene)
+            for phase in phases:
+                stat = self.phases.setdefault(phase, dict(samples=0, rss_sum=0, rss_peak=0, uss_peak=None,
+                    nvml_peak=None, rss_time_integral=0., sampled_seconds=0., last_at=now, last_rss=rss))
+                dt = now-stat['last_at']
+                stat['rss_time_integral'] += dt*stat['last_rss']
+                stat['sampled_seconds'] += dt
+                stat['last_at'], stat['last_rss'] = now, rss
+                stat['samples'] += 1
+                stat['rss_sum'] += rss
+                stat['rss_peak'] = max(stat['rss_peak'], rss)
+                for key, value in [('uss_peak', uss), ('nvml_peak', nvml)]:
+                    if value is not None:
+                        stat[key] = max(stat[key] or 0, value)
         return record
 
     def loop(self):
@@ -231,23 +255,54 @@ class ProcessMonitor:
                 self.errors.add(str(exc))
 
     def start(self):
-        self.sample()
+        self.sample(full=True)
         self.thread.start()
 
     def set_phase(self, phase):
         with self.lock:
             self.phase = phase
 
+    def set_scene(self, scene):
+        with self.lock:
+            self.scene = scene
+
     def finish(self):
         self.stop_event.set()
         self.thread.join()
-        self.sample()
+        self.sample(full=True)
         if self.nvml:
             self.nvml.close()
         return dict(phases=self.phases, errors=sorted(self.errors),
                     nvml_error=self.nvml.error if self.nvml else 'disabled',
                     process_lifetime_peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
                     sampling_interval_seconds=self.interval, uss_interval_seconds=self.uss_interval)
+
+
+def stable_cpu_baseline(monitor, config):
+    """Observe a quiescent loader; no cache flushing or allocator trimming.
+
+    Store the last real paired RSS/USS reading, not an average of different
+    instants. Record the full trace and fail if the plateau criterion times out.
+    """
+    count = config.get('min_samples', 5)
+    interval = config.get('interval_seconds', .2)
+    timeout = config.get('timeout_seconds', 8.)
+    tolerance = config.get('relative_tolerance', .005)
+    if count < 2 or interval <= 0 or timeout < interval*(count-1) or tolerance < 0:
+        raise ValueError('Invalid CPU baseline stability parameters')
+    trace, tick = [], time.perf_counter()
+    while True:
+        trace.append(monitor.sample(full=True))
+        window = trace[-count:]
+        rss = [r['cpu_rss_bytes'] for r in window]
+        uss = [r['cpu_uss_bytes'] for r in window if r['cpu_uss_bytes'] is not None]
+        spread = lambda xs: (max(xs)-min(xs))/max(1, max(xs))
+        stable = len(window) == count and spread(rss) <= tolerance and (not uss or spread(uss) <= tolerance)
+        if stable or time.perf_counter()-tick >= timeout:
+            return dict(stable=stable, criterion=config, samples=trace, resources=trace[-1],
+                        elapsed_seconds=time.perf_counter()-tick,
+                        cache_flush_performed=False, malloc_trim_performed=False)
+        time.sleep(interval)
 
 
 def cuda_snapshot():

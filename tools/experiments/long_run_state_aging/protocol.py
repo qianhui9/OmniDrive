@@ -7,7 +7,7 @@ from pathlib import Path
 from tools.environment_stability_eval.common import (ROOT, PYTHON, METHODS, read,
     write, jsonl, dump_jsonl, require_affinity)
 
-PROTOCOL_VERSION = 2
+PROTOCOL_VERSION = 3
 STAGES = ('Early', 'Middle', 'Late')
 
 
@@ -86,7 +86,7 @@ def read_journal(path):
 
 def validate_rows(manifest, rows, method, repeat, allow_partial=False):
     if manifest.get('protocol_version') != PROTOCOL_VERSION or list(manifest.get('stages', [])) != list(STAGES):
-        raise ValueError('Protocol changed: use a new v2 output directory; old four-stage runs are preserved')
+        raise ValueError('Protocol changed: use a new v3 output directory; previous runs are preserved')
     expected = [(s['scene_id'], i, t) for s in manifest['scenes']
                 for i, t in enumerate(s['tokens'])]
     actual = [(r['scene_id'], r['frame_index'], r['frame_id']) for r in rows]

@@ -16,6 +16,111 @@ from .run import now, write
 
 
 class AccountingTests(unittest.TestCase):
+    def test_expanded_selection_short_logs(self):
+        from .selection import choose_scenes
+        candidates = [dict(scene_id=f'{log}{i}', log_id=log,
+            selection_features=dict(object_mean=i, map_mean=i*i, night=False, rain=False))
+            for log, count in [('a', 1), ('b', 5), ('c', 5)] for i in range(count)]
+        selected = choose_scenes(candidates, ['a0', 'b0', 'c0'], 8)
+        self.assertEqual(len({s['scene_id'] for s in selected}), 8)
+        self.assertTrue({'a0', 'b0', 'c0'} <= {s['scene_id'] for s in selected})
+        self.assertEqual(sorted(sum(s['log_id'] == log for s in selected) for log in ('a', 'b', 'c')), [1, 3, 4])
+        self.assertTrue(any(s['selection_reason'] == 'short_log_slot_redistribution' for s in selected))
+        self.assertEqual(selected, choose_scenes(list(reversed(candidates)), ['a0', 'b0', 'c0'], 8))
+        with self.assertRaises(ValueError):
+            choose_scenes(candidates, ['a0', 'b0', 'c0'], 20)
+
+    def test_fresh_uss_and_scene_sampler(self):
+        monitor = ProcessMonitor(gpu=False)
+        monitor.uss = 1000000  # An old load-phase reading must never leak.
+        monitor.last_uss_at = time.perf_counter()
+        with patch.object(monitor.process, 'memory_info', return_value=SimpleNamespace(rss=100)), \
+             patch.object(monitor.process, 'memory_full_info', return_value=SimpleNamespace(rss=120, uss=90)):
+            row = monitor.sample()
+            self.assertIsNone(row['cpu_uss_bytes'])
+            monitor.set_phase('measurement')
+            monitor.set_scene('scene1')
+            row = monitor.sample(full=True)
+            self.assertEqual((row['cpu_rss_bytes'], row['cpu_uss_bytes']), (120, 90))
+            self.assertTrue(row['rss_uss_same_read'])
+            self.assertEqual(monitor.phases['scene:scene1']['rss_peak'], 120)
+            self.assertEqual(monitor.phases['measurement']['uss_peak'], 90)
+
+    def test_cpu_plateau_pass_and_timeout(self):
+        from .memory import stable_cpu_baseline
+        config = dict(min_samples=3, interval_seconds=.001, timeout_seconds=.008, relative_tolerance=0.)
+        monitor = SimpleNamespace(sample=lambda full: dict(cpu_rss_bytes=100, cpu_uss_bytes=80))
+        self.assertTrue(stable_cpu_baseline(monitor, config)['stable'])
+        counter = [0]
+        def oscillate(full):
+            counter[0] += 1
+            return dict(cpu_rss_bytes=100+100*(counter[0] % 2), cpu_uss_bytes=80)
+        result = stable_cpu_baseline(SimpleNamespace(sample=oscillate), config)
+        self.assertFalse(result['stable'])
+        self.assertFalse(result['cache_flush_performed'])
+
+    def test_scene_ci_averages_repeats(self):
+        from .extended_statistics import paired_log_ci, distribution
+        rows = []
+        for repeat in range(3):
+            for sid in range(4):
+                for method, delta in [('native', 0), ('worldstream', 1)]:
+                    rows.append(dict(method=method, workload='S4', repeat=repeat, scene_id=str(sid),
+                        log_id=str(sid//2), peak_gpu_allocated_GB=10+delta,
+                        peak_cpu_rss_GB=5+delta, incremental_peak_cpu_rss_GB=1+delta))
+        ci = paired_log_ci(rows, 3, samples=30)
+        for r in ci:
+            self.assertEqual((r['distinct_scenes'], r['log_clusters']), (4, 2))
+            self.assertEqual(r['mean_scene_peak_delta'], 1.)
+            self.assertEqual((r['ci95_low'], r['ci95_high']), (1., 1.))
+        d = distribution([0, 10, 20, 30, 40])
+        self.assertEqual(d['p95'], 38.)
+        self.assertEqual(d['p99'], 39.6)
+
+    def test_extended_outputs_cpu_fixtures(self):
+        # Unit-test fixtures only: no charts or benchmark results are produced.
+        from .extended_statistics import extend
+        import json
+        with tempfile.TemporaryDirectory(prefix='resource-extended-test-') as folder:
+            root = Path(folder)
+            scenes = [dict(scene_id=str(i), log_id=str(i)) for i in range(2)]
+            manifest = dict(scenes=scenes, config=dict(repeats=1, workloads=['S4'], seed=1, bootstrap_samples=10))
+            base = dict(cpu_rss_bytes=100, cpu_uss_bytes=80, gpu_allocated_bytes=0,
+                        rss_uss_same_read=True, sample_duration_ms=.1)
+            runs, frames = [], []
+            for method in ('native', 'worldstream'):
+                runs.append(dict(method=method, workload='S4', repeat=0, baseline=base,
+                    warmup_end=base, cpu_baseline_stable=True,
+                    metrics=dict(incremental_peak_cpu_rss_bytes=10, incremental_peak_cpu_rss_from_warmup_bytes=10)))
+                records = []
+                for scene in scenes:
+                    records.append(dict(**scene, frames=2, start=base,
+                        end=dict(gpu_peak_allocated_bytes=0, gpu_peak_reserved_bytes=0),
+                        sampling=dict(rss_peak=110, rss_time_integral=210, sampled_seconds=2,
+                                      rss_sum=210, samples=2, uss_peak=90, nvml_peak=None)))
+                    for fi in range(2):
+                        row = dict(method=method, workload='S4', repeat=0, scene_id=scene['scene_id'],
+                                   gpu_allocated_bytes=0, gpu_reserved_bytes=0, cpu_rss_bytes=100+fi,
+                                   cpu_uss_bytes=80+fi)
+                        row.update({c+'_'+k: 0 for c in ('OGSM', 'DAVP', 'QCSE')
+                                    for k in ('cpu_bytes', 'gpu_bytes', 'entries', 'elements')})
+                        if method == 'worldstream':
+                            # Opposing peaks: true same-frame Total max=100,
+                            # whereas summing independent maxima would be 200.
+                            row['OGSM_cpu_bytes'] = 100 if fi == 0 else 0
+                            row['DAVP_cpu_bytes'] = 0 if fi == 0 else 100
+                        frames.append(row)
+                write(root/'runs'/f'S4_r00_{method}'/'scene_resources.json', records)
+            extend(root, manifest, runs, frames)
+            result = json.loads((root/'extended_statistics.json').read_text())
+            self.assertEqual(len(result['scene_resources']), 4)
+            self.assertEqual(len(result['scene_module_distributions']), 4*4*4)
+            self.assertTrue((root/'tail_memory.csv').exists())
+            self.assertIn('95% CI', (root/'extended_report.md').read_text())
+            total = [r for r in result['scene_module_distributions'] if r['method'] == 'worldstream'
+                     and r['component'] == 'Total' and r['metric'] == 'cpu_MB']
+            self.assertTrue(all(r['maximum'] == .0001 for r in total))
+
     def test_relocated_policy_is_content_checked(self):
         from .run import validate_runtime_config
         with tempfile.TemporaryDirectory(prefix='resource-policy-') as folder:

@@ -1,6 +1,6 @@
 # FQ-3 环境事实变化响应协议
 
-本协议替换五问环境稳定性实验的论文主评估。Stable 与 Changed 均执行全部 FQ-3：
+本协议替换五问环境稳定性实验的论文主评估。Stable 与 Changed 均执行全部 FQ-3；最新主表另按已冻结 S1–S4 环境等级交叉统计四项指标：
 
 | 索引 | 任务 | 问题 |
 |---|---|---|
@@ -14,7 +14,7 @@
 
 - 每个 Scene 的每一帧都推理三个任务，不根据离线 GT 筛选模型输入。Stable / Changed 是同一问题所需 GT 回答事实的状态，不表示整幅环境绝对静止/变化。
 - 严格相邻帧、两端 GT 已知、事实 schema 相同且时间差 `(0,1]` 秒时，状态相同为 Stable，不同为 Changed。GT 未知、首帧、缺问或时间断点为 Unclassified；不跨未知帧追溯最近已知 GT。UNKNOWN 不当作模型答错或答对。GT 仅用于离线评分。
-- 主表只有 Stable / Changed 两类，列 Factual QA Accuracy、Stale Answer Rate、Change Response Delay；Stable 对后两项为 N/A。Accuracy 为既有主评分器的已知 GT 平均事实得分（另存完全正确比例）。
+- 保留两个独立轴：环境窗口按GT变化率分S1–S4；具体问题按相邻已知GT分Stable/Changed。**每个S等级都分别统计Stable Factual QA Accuracy、Changed Factual QA Accuracy、Stale Answer Rate、Change Response Delay**。总体Stable/Changed表保留作对账。Accuracy为既有主评分器的已知GT平均事实得分（另存完全正确比例）。
 - Changed 当前帧回答错且符合变化前 GT 才算 Stale。新增响应追踪对后续 Stable 帧也反复与本次变化之前冻结 GT 评分，记录连续历史错误次数和采样持续时间下界。
 - `T_response = t_first_correct - t_change`，以视频时间戳计；当前变化帧即正确时为0。0不是在线推理零耗时。遇下一 GT 变化、UNKNOWN、缺问、观测断点、Scene 结束或5秒上限停止；未响应为null。均值只对已响应样本，必须同时报告响应率、删失和同事件配对结果。
 - 模型相邻帧继续复用真实历史计算与缓存，仅在 Scene 边界重置。完整WorldStream与Native分别在新解释器运行；统一冻结权重、帧/问题、请求seed、精度和GPU。
@@ -22,6 +22,20 @@
 ## 可选变化细分
 
 现有 GT 能直接给“回答事实类别变化”和“回答方向变化”，但不是可靠的物理原因标签。最近目标可能切换；另存能唯一确定相同 instance ID 的子集。没有可见可靠正例时主评分器为UNKNOWN，不构造“对象不存在”的新负例，因此不假称Appearance/Disappearance覆盖完整。Occlusion、物理Motion与自车运动原因不能仅由相邻答案状态推出。本次细分仅作有据可查的附录，不进入论文核心表，不补造上述五种原因标签。
+
+## 四等级离线完整报告（无需重跑模型）
+
+```bash
+taskset -c 0-3,6-31 env OPENBLAS_NUM_THREADS=4 OMP_NUM_THREADS=4 MPLCONFIGDIR=/tmp/environment-stability-mpl /home/qh/miniconda3/envs/OmniDrive/bin/python -B -u -m tools.environment_stability_eval.fq3_levels --source tools/environment_stability_eval/outputs/fq3_full_20261118_run01
+```
+
+自动新建 `stability_levels_<timestamp>/`；`--output <不存在的目录>` 可指定。校验原完成文件、收据、模型输入配对、GT校准阈值和标签，重新评分并完整追踪响应后，再按变化起点的S等级聚合。**不能先过滤某等级的帧再追踪响应**，否则跨窗口响应会被错误截断。四等级点估计、分母、各项指标实际贡献Scene的bootstrap区间、配对响应、GT分布和论文图完整导出。
+
+沿用5秒窗口、132个其他val场景/5296帧的469个完整校准窗口，阈值为 `[0.025806451612903226, 0.03827227993439038, 0.05045871559633028]`。7个不足时长的尾窗62帧保留Unclassified，不塞入四等级；ALL仍含全部723帧。该“尾窗等级未分类”与“某查询缺少可比历史”是不同概念。
+
+25个Changed事件在S1/S2/S3/S4分别为1/2/5/17，必须报告小样本限制。无成功响应时Delay为N/A，成功事件当前帧正确时为0；二者不能混用。新统计须与总体Stable1063、Changed25及响应10/25对21/25严格对账，不能简单平均四等级百分比。
+
+固定首次四级报告在 `outputs/fq3_full_20261118_run01/stability_levels_v1/结果.md`；来源目录 `四级稳定性评估.md` 提供同内容入口。原已签署的总体 `结果.md` 和 `completion.json` 保持不变。
 
 ## CPU准备与文档验证
 

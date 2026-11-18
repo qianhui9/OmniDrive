@@ -53,7 +53,7 @@ def stream_rows():
 
 
 def test_stage_boundaries_do_not_reset_state_or_relabel_partial_stream():
-    manifest = dict(protocol_version=2, stages=STAGES, scenes=[dict(scene_id='scene', tokens=[str(i) for i in range(8)],
+    manifest = dict(protocol_version=3, stages=STAGES, scenes=[dict(scene_id='scene', tokens=[str(i) for i in range(8)],
                                 timestamps=[float(i) for i in range(8)])])
     rows = stream_rows()
     assert validate_rows(manifest, rows, 'worldstream', 0)
@@ -109,7 +109,7 @@ def test_real_ogsm_precheck_commit_crosses_three_statistics_stages():
 def test_partial_report_does_not_contribute_to_paired_results(tmp_path, monkeypatch):
     from . import report as report_module
     from .protocol import write, dump_jsonl
-    manifest = dict(protocol_version=2, stages=STAGES, effective_repeats=1, smoke=True, git_commit=None,
+    manifest = dict(protocol_version=3, stages=STAGES, effective_repeats=1, smoke=True, git_commit=None,
         scenes=[dict(scene_id='scene', name='fixture', measured_duration_seconds=7.,
                      stage_counts=stage_counts(8), tokens=[str(i) for i in range(8)],
                      timestamps=list(map(float, range(8))))],
@@ -257,7 +257,7 @@ def test_config_rejects_any_load_except_three_plus_two(tmp_path):
 
 
 def test_reordered_and_incomplete_frames_are_rejected():
-    manifest = dict(protocol_version=2, stages=STAGES, scenes=[dict(scene_id='scene', tokens=[str(i) for i in range(8)],
+    manifest = dict(protocol_version=3, stages=STAGES, scenes=[dict(scene_id='scene', tokens=[str(i) for i in range(8)],
                                 timestamps=[float(i) for i in range(8)])])
     rows = stream_rows()
     with pytest.raises(ValueError, match='Incomplete stream'):

@@ -144,7 +144,9 @@ def worker(out, directory, method, repeat, lock_fd):
                     row['processing_wall_ms'] = (time.perf_counter() - wall_tick) * 1000
                     append_record(handle, row)
                     calls += 1
-                    write(directory / 'progress.json', dict(frames=calls, frame_id=token, stage=row['stage']))
+                    write(directory / 'progress.json', dict(frames=calls, total_frames=len(tokens),
+                        scene_id=scene['scene_id'], scene_frame_index=fi,
+                        scene_frames=len(scene['tokens']), frame_id=token, stage=row['stage']))
                     print('FRAME', calls, method, row['stage'], token, flush=True)
         write(directory / 'complete.json', dict(frames=calls, receipts_sha256=sha(directory / 'receipts.jsonl'),
             system_state_restored=False, execution='Independent fresh process; cold scene start', pid=os.getpid()))

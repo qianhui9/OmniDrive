@@ -13,11 +13,25 @@ from .protocol import ROOT, PYTHON, METHODS, read, write, require_affinity
 def load_config(path):
     import yaml
     config = yaml.safe_load(path.read_text())
+    config.setdefault('smoke_scenes', 1)
+    config.setdefault('bootstrap_samples', 2000)
+    config.setdefault('bootstrap_seed', config['seed'])
+    config.setdefault('require_scene_count', None)
+    config.setdefault('require_independent_logs', False)
     if config['sequence_pool'] not in ('main-scenes', 'full-val'):
         raise ValueError('Unsupported sequence pool')
-    for name in ('repeats', 'sequence_count', 'smoke_frames'):
+    for name in ('repeats', 'sequence_count', 'smoke_frames', 'smoke_scenes'):
         if type(config[name]) is not int or config[name] < (3 if name == 'smoke_frames' else 1):
             raise ValueError('Invalid ' + name)
+    if type(config['bootstrap_samples']) is not int or config['bootstrap_samples'] < 100:
+        raise ValueError('Use at least 100 scene bootstrap draws')
+    if type(config['bootstrap_seed']) is not int:
+        raise ValueError('Invalid bootstrap seed')
+    if type(config['require_independent_logs']) is not bool:
+        raise ValueError('Invalid independent-log requirement')
+    if config['require_scene_count'] is not None and (
+            type(config['require_scene_count']) is not int or config['require_scene_count'] < 1):
+        raise ValueError('Invalid required scene count')
     if config['other_questions'] != 2 or config['r0_config'] != 'configs/worldstream_r0.json':
         raise ValueError('Use frozen R0 and exactly two original QA per frame')
     if (ROOT / config['data_root']).resolve() != (ROOT / 'data/nuscenes').resolve():
@@ -98,6 +112,11 @@ def launch(out):
                         raise
                 if code:
                     raise RuntimeError(f'{method} repeat {repeat} failed ({code}); see {directory}/runtime.log')
+                # Durable paired summaries after each method; no incomplete
+                # attempt contributes to the paired main table.
+                if not (repeat == manifest['effective_repeats'] - 1 and method == METHODS[-1]):
+                    from .report import report
+                    report(out)
 
 
 def main():

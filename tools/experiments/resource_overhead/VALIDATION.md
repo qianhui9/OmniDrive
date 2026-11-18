@@ -34,3 +34,14 @@ GPU 空闲后应先运行 `run.sh --smoke`，再在确认后运行默认 S1–S5
 - 正式测量末帧实际模块状态：OGSM CPU 15415814 bytes / GPU 0；DAVP CPU 773909 bytes / GPU 261482488 bytes；QCSE CPU 320637 bytes / GPU 0。CPU 含标记的 Python Estimated Memory；这些数值仅是三帧 Smoke 的末帧快照，不是完整实验结论。
 
 修改文件：`run.py`、`smoke.py`、`README.md`、`VALIDATION.md`。主实验和三个模块实现未修改。
+
+## 2026-11-18：扩样协议 v2 实现验证
+
+- 新增 `selection.py`、`extended_statistics.py`、`config_54_s4_s5.json`、`run_expanded.sh`；更新独立评测的 `run.py`、`memory.py`、`report.py`、`smoke.py` 与文档。生产模块及主实验未修改。
+- 实际验证 metadata：150 个完整可读取候选场景；在原18日志内选定54个场景、2,166帧；原18场景全部保留。一个日志仅1场景，按确定规则补分配：1个日志选1场景、15个日志选3场景、2个日志选4场景。
+- CPU Smoke 18项通过：涵盖实际 StateCache/AnswerMemory API、去重、旧USS不再配新RSS、同次RSS/USS读、平台成功/超时、日志短缺补分配、按日志聚类且先平均重复、尾部统计及新CSV/JSON/中文报告通路。
+- 使用测试夹具验证“两个模块峰值发生在不同帧”时 Total 按同帧求和，再取峰值，未将模块各自最大值相加。夹具只在临时测试目录，不作为实验结果或绘图数据。
+- Python AST、两份Shell语法和CLI帮助通过。
+- 在临时目录复制已有真实三帧GPU Smoke收据，重新运行原协议汇总及绘图通过，确认向后兼容；原始实验产物未改动。
+- 最终代码冻结后的扩样完整 CPU preflight 通过，产物在 `outputs/experiments/resource_overhead_expanded/preflight_54_v2_final_20261118/`，记录选择、权重/配置/源码及15,162个实际输入文件的SHA256。只读验证，无GPU推理。早期开发 preflight 仅保留为历史记录，不用于启动推理。
+- 本次未启动 GPU Smoke 或正式重跑：用户将自行执行 `taskset -c 0-3,6-31 bash tools/experiments/resource_overhead/run_expanded.sh`。v2真实GPU测量仍需该命令验证；不能将CPU测试或原协议结果当作新54场景结果。

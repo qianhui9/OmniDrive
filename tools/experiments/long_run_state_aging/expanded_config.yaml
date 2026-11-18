@@ -1,0 +1,19 @@
+# Broader scene coverage; never concatenate scenes or loop video frames.
+infos: data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl
+data_root: data/nuscenes
+main_manifest: outputs/m123_r0_only_reproduction_run01/scene_selection.json
+checkpoint: ckpts/iter_10548.pth
+r0_config: configs/worldstream_r0.json
+sequence_pool: main-scenes
+sequence_count: 18
+require_scene_count: 18
+require_independent_logs: true
+scene_ids: []
+repeats: 3
+seed: 20261030
+other_questions: 2
+smoke_frames: 9
+smoke_scenes: 2
+bootstrap_samples: 2000
+bootstrap_seed: 20261118
+output_root: outputs/experiments/long_run_state_aging_expanded

@@ -134,7 +134,7 @@ def report(out):
     manifest = read(out / 'manifest.json')
     from .protocol import PROTOCOL_VERSION
     if manifest.get('protocol_version') != PROTOCOL_VERSION:
-        raise ValueError('Legacy protocol is immutable; use a new three-stage output directory')
+        raise ValueError('Legacy protocol is immutable; use a new v3 output directory')
     gt = list(jsonl(out / 'query_ground_truth.jsonl'))
     objects = {r['frame_id']: r['objects'] for r in jsonl(out / 'evaluation_objects.jsonl')}
     attempts, selected, all_rows, all_events, per_attempt = [], {}, [], [], []
@@ -191,14 +191,54 @@ def report(out):
     paired_events = [r for i in paired_repeats for m in METHODS for r in selected[i, m][1]]
     for attempt in attempts:
         attempt['contributes_to_paired_results'] = attempt['complete'] and attempt['repeat'] in paired_repeats
-    stages = []
-    for stage in STAGES:
+    from .statistics import sample_counts, repeat_statistics, paired_intervals, METRICS
+    stages, overall_rows, comparisons = [], [], []
+    for stage in (*STAGES, 'ALL'):
+        parts = {method: [r for r in paired_rows if r['method'] == method and
+                          (stage == 'ALL' or r['stage'] == stage)] for method in METHODS}
+        query_parts = {method: [r for r in paired_events if r['method'] == method and
+                                (stage == 'ALL' or r['stage'] == stage)] for method in METHODS}
+        config = manifest.get('config', {})
+        intervals, deltas = paired_intervals(parts, query_parts,
+            samples=config.get('bootstrap_samples', 2000), seed=config.get('bootstrap_seed', 20261118))
+        stage_points = {}
         for method in METHODS:
-            fs = [r for r in paired_rows if r['stage'] == stage and r['method'] == method]
-            es = [e for e in paired_events if e['stage'] == stage and e['method'] == method]
-            stages.append(dict(scope='paired_pooled', stage=stage, method=method, paired_repeats=len(paired_repeats),
-                               **aggregate(fs, es), **(aging_aggregate(fs) if method == 'worldstream' else {})))
+            fs, es = parts[method], query_parts[method]
+            row = dict(scope='paired_pooled', stage=stage, method=method, paired_repeats=len(paired_repeats),
+                **aggregate(fs, es), **(aging_aggregate(fs) if method == 'worldstream' else {}),
+                **sample_counts(fs, es), **repeat_statistics(fs, es), **intervals[method])
+            stage_points[method] = row
+            (overall_rows if stage == 'ALL' else stages).append(row)
+        for metric in METRICS:
+            a, b = stage_points['native'][metric], stage_points['worldstream'][metric]
+            comparisons.append(dict(stage=stage, metric=metric + '_worldstream_minus_native',
+                point_estimate=b - a if a is not None and b is not None else None,
+                **deltas[metric + '_worldstream_minus_native']))
+        a, b = stage_points['native']['average_e2e_ms'], stage_points['worldstream']['average_e2e_ms']
+        comparisons.append(dict(stage=stage, metric='e2e_latency_reduction_percent',
+            point_estimate=100 * (1 - b / a) if a and b else None,
+            **deltas['e2e_latency_reduction_percent']))
     csv_replace(out / 'stage_summary.csv', stages + per_attempt, ('scope', 'stage', 'method'))
+    csv_replace(out / 'overall_summary.csv', overall_rows)
+    csv_replace(out / 'paired_comparison.csv', comparisons)
+    scene_rows, repeat_rows = [], []
+    for stage in (*STAGES, 'ALL'):
+        for method in METHODS:
+            for scene in manifest['scenes']:
+                fs = [r for r in paired_rows if r['method'] == method and r['scene_id'] == scene['scene_id'] and
+                      (stage == 'ALL' or r['stage'] == stage)]
+                es = [r for r in paired_events if r['method'] == method and r['scene_id'] == scene['scene_id'] and
+                      (stage == 'ALL' or r['stage'] == stage)]
+                scene_rows.append(dict(scene_id=scene['scene_id'], stage=stage, method=method,
+                    **aggregate(fs, es), **sample_counts(fs, es), **repeat_statistics(fs, es)))
+            for repeat in paired_repeats:
+                fs = [r for r in paired_rows if r['method'] == method and r['repeat'] == repeat and
+                      (stage == 'ALL' or r['stage'] == stage)]
+                es = [r for r in paired_events if r['method'] == method and r['repeat'] == repeat and
+                      (stage == 'ALL' or r['stage'] == stage)]
+                repeat_rows.append(dict(repeat=repeat, stage=stage, method=method, **aggregate(fs, es)))
+    csv_replace(out / 'scene_summary.csv', scene_rows)
+    csv_replace(out / 'repeat_summary.csv', repeat_rows, ('repeat', 'stage', 'method'))
     query_groups = []
     for stage in STAGES:
         for method in METHODS:
@@ -214,7 +254,7 @@ def report(out):
                     queries=len(es), **{k: stats[k] for k in ('scored_queries', 'unknown_queries',
                     'factual_qa_accuracy_percent', 'fully_correct_accuracy_percent',
                     'stale_answer_rate_percent', 'stale_answers', 'stale_eligible_queries')},
-                    holistic_generation_quality=None))
+                    **sample_counts([], es), holistic_generation_quality=None))
     csv_replace(out / 'query_group_summary.csv', query_groups)
     frames_export = []
     event_by_frame = defaultdict(list)
@@ -239,6 +279,9 @@ def report(out):
         report_time=datetime.now().astimezone().isoformat(), smoke=manifest['smoke'],
         manifest='manifest.json', scenes=manifest['scenes'], completed_paired_repeats=paired_repeats,
         effective_repeats=manifest['effective_repeats'], attempts=attempts, stage_summary=stages,
+        overall_summary=overall_rows, paired_comparison=comparisons,
+        uncertainty_definition=manifest.get('statistics_definition', 'Paired scene-cluster bootstrap; repeats stay inside each scene.'),
+        unique_GT_coverage=read(out / 'sample_coverage.json') if (out / 'sample_coverage.json').exists() else None,
         metrics_available=bool(paired_rows), partial_journals_excluded_from_pooled=True,
         cross_stage_state_continuity_verified=bool(paired_rows),
         missing_metrics=dict(exact_change_response_delay=manifest['response_delay_reason'],
@@ -321,6 +364,10 @@ def render_report(out, manifest, summary, stages):
     tmp = out / 'report.md.tmp'
     tmp.write_text('\n'.join(lines) + '\n')
     tmp.replace(out / 'report.md')
+    from .report_statistics import append_statistics
+    append_statistics(out, manifest, summary)
+    # Keep a stable Chinese entry point for the full automatically generated report.
+    (out / '结果.md').write_text((out / 'report.md').read_text())
 
 
 def plots(out, frames, events, stages):
@@ -349,8 +396,9 @@ def plots(out, frames, events, stages):
         xs, latencies, accuracies = [], [], []
         for start in range(0, maximum + 1, width):
             fs = [r for r in part if start <= r['frame_index'] < start + width]
+            frame_ids = {r['frame_id'] for r in fs}
             es = [e for e in events if e['method'] == method and e['scorable'] and
-                  e['frame_id'] in {r['frame_id'] for r in fs}]
+                  e['frame_id'] in frame_ids]
             xs.append(mean([r['frame_index'] + 1 for r in fs]))
             latencies.append(mean([r['e2e_ms'] for r in fs]))
             accuracies.append(mean([100 * e['score'] for e in es]))

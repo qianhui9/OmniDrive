@@ -42,6 +42,16 @@ def sha(path):
     return digest.hexdigest()
 
 
+def hash_inputs(paths):
+    result = {}
+    print('HASH_SELECTED_INPUTS', len(paths), flush=True)
+    for index, path in enumerate(paths, 1):
+        result[path] = sha(path)
+        if index % 1000 == 0 or index == len(paths):
+            print('HASH_SELECTED_INPUTS', index, '/', len(paths), flush=True)
+    return result
+
+
 def now():
     from zoneinfo import ZoneInfo
     return datetime.now(ZoneInfo('Asia/Shanghai')).isoformat()
@@ -198,7 +208,17 @@ def prepare(config, out, smoke):
     actual = sha(config['checkpoint'])
     if actual != config['checkpoint_sha256']:
         raise ValueError('Checkpoint differs from configured main experiment weight hash')
-    scenes = read(config['scene_manifest'])['selected']
+    selection_audit = None
+    selected_files = []
+    if config.get('scene_selection') == 'expanded_annotation_diversity':
+        from .selection import build_selection
+        scenes, selection_audit, selected_files = build_selection(config)
+        required.append(config['scene_metadata'])
+        write(out/'scene_selection.json', selection_audit)
+    else:
+        scenes = read(config['scene_manifest'])['selected']
+    if config.get('configuration_file'):
+        required.append(config['configuration_file'])
     if config['max_scenes']:
         scenes = scenes[:config['max_scenes']]
     if smoke:
@@ -222,16 +242,21 @@ def prepare(config, out, smoke):
         raise ValueError('Sampling intervals must be positive')
     sources = [p for folder in ('worldstream', 'projects', 'tools/worldstream_m123',
         'tools/experiments/resource_overhead') for p in Path(folder).rglob('*.py')]
-    sources += [HERE/'run.sh', HERE/'config.json', Path('configs/worldstream_r0.json')]
+    sources += [HERE/'run.sh', HERE/'run_expanded.sh', HERE/'config.json',
+                HERE/'config_54_s4_s5.json', Path('configs/worldstream_r0.json')]
     revision = source_revision()
     detached = read('docs/provenance/git_detachment.json') if Path('docs/provenance/git_detachment.json').exists() else None
     manifest = dict(status='PREPARED', created_at=now(), config=config, smoke=smoke,
+        protocol_version=config.get('protocol_version', 1),
         scenes=scenes, workloads=[workloads[w] for w in config['workloads']],
         frame_count=sum(len(s['tokens']) for s in scenes), source_revision=revision,
         git_commit=revision if not revision.startswith('standalone-') else None,
         exported_original_commit=detached.get('original_local_commit') if detached else None,
         git_note='Exported checkout has no live Git database; use source SHA256 inventory' if revision.startswith('standalone-') else None,
         checkpoint_sha256=actual, input_config_hashes={str(p): sha(p) for p in required},
+        selection_sha256=sha(out/'scene_selection.json') if selection_audit else None,
+        # Bind actual inputs for all newly selected scenes, not just filenames.
+        selected_input_hashes=hash_inputs(selected_files),
         source_hashes={str(p): sha(p) for p in sorted(set(sources))},
         cpu_affinity=sorted(os.sched_getaffinity(0)), python=PYTHON,
         units=dict(GB='10^9 bytes', MB='10^6 bytes'),
@@ -243,6 +268,13 @@ def prepare(config, out, smoke):
             module_ownership='Deduplicate globally in OGSM/DAVP/QCSE order; subset columns are not additive',
             average_cpu='Mean of interval RSS samples plus frame-boundary samples',
             repeats='Fresh subprocess for each method/workload/repeat; paired same request seeds'))
+    if config.get('protocol_version', 1) >= 2:
+        manifest['protocol'].update(
+            baseline='Paired RSS/USS plateau after strict load + gc.collect; no malloc_trim or cache flush',
+            average_cpu='Time-weighted RSS integration of sampler reads',
+            scene_peaks='CUDA peak stats reset per scene, run peak is maximum over scenes; allocated state retained',
+            uss='Fresh paired memory_full_info read at each frame/baseline; no stale USS attached to RSS',
+            additional_baseline='Post-warmup resources retained separately; never substitute for model baseline')
     write(out/'manifest.json', manifest)
     return manifest
 
@@ -261,6 +293,13 @@ def worker(args):
         for filename, expected in manifest['input_config_hashes'].items():
             if sha(filename) != expected:
                 raise RuntimeError('Input/config/weights changed since preparation: ' + filename)
+        if manifest.get('selection_sha256') and sha(args.output/'scene_selection.json') != manifest['selection_sha256']:
+            raise RuntimeError('Scene selection audit changed after preparation')
+        for index, (filename, expected) in enumerate(manifest.get('selected_input_hashes', {}).items(), 1):
+            if sha(filename) != expected:
+                raise RuntimeError('Selected input changed after preparation: '+filename)
+            if index % 1000 == 0:
+                print('VERIFY_SELECTED_INPUTS', index, '/', len(manifest['selected_input_hashes']), flush=True)
         import torch
         count = torch.cuda.device_count()
         if count != 1:
@@ -269,7 +308,8 @@ def worker(args):
         torch.cuda.set_device(0)
         torch.cuda.init()
         device_name = torch.cuda.get_device_name(0)
-        from .memory import ProcessMonitor, cuda_snapshot, module_snapshot
+        from .memory import ProcessMonitor, cuda_snapshot, module_snapshot, stable_cpu_baseline
+        accurate = cfg_run.get('protocol_version', 1) >= 2
         monitor = ProcessMonitor(cfg_run['gpu'], cfg_run['sample_interval_seconds'], cfg_run['uss_interval_seconds'])
         monitor.start()
         started = now()
@@ -300,7 +340,17 @@ def worker(args):
         model.worldstream_profile = False
         model.worldstream_request_rng_context = dict(repeat=args.repeat, experiment_seed=cfg_run['seed'])
         model.worldstream_audit_identity = dict(checkpoint_sha256=manifest['checkpoint_sha256'])
-        baseline = dict(**cuda_snapshot(), **monitor.sample())
+        raw_loaded = dict(**cuda_snapshot(), **monitor.sample(full=True))
+        stability = None
+        if accurate:
+            import gc
+            gc.collect()  # Collect dead loader objects; live state/caches remain untouched.
+            torch.cuda.synchronize()
+            stability = stable_cpu_baseline(monitor, cfg_run['cpu_baseline'])
+            write(dest/'cpu_baseline_stability.json', dict(raw_loaded=raw_loaded, **stability))
+            if not stability['stable']:
+                raise RuntimeError('CPU baseline did not stabilize; see cpu_baseline_stability.json')
+        baseline = dict(**cuda_snapshot(), **(stability['resources'] if stability else monitor.sample(full=True)))
         baseline_modules = module_snapshot(model)
         write(dest/'baseline.json', dict(resources=baseline, modules=baseline_modules))
         dataset = build_dataset(config.data.test)
@@ -314,6 +364,7 @@ def worker(args):
         effective = dict(runtime=runtime, torch=torch.__version__, cuda=torch.version.cuda,
             gpu=device_name, physical_gpu=cfg_run['gpu'], cuda_visible_devices=os.environ.get('CUDA_VISIBLE_DEVICES'),
             gpu_binding=cfg_run.get('gpu_binding'),
+            worker_environment={k: os.environ.get(k) for k in cfg_run.get('worker_environment', {})},
             cpu_affinity=sorted(os.sched_getaffinity(0)), batch_size=1,
             parameter_dtypes=sorted({str(p.dtype) for p in model.parameters()}),
             fp16=config.get('fp16'), pipeline=config.data.test.pipeline,
@@ -353,7 +404,7 @@ def worker(args):
                     assert trace['m1']['commit_completed']
                     assert model.m2_diagnostics['execution_completed'] and model.m3_diagnostics['execution_completed']
                 gpu = cuda_snapshot()
-                process = monitor.sample()
+                process = monitor.sample(full=True)
                 tick = time.perf_counter()
                 modules = module_snapshot(model)
                 accounting_ms = (time.perf_counter() - tick) * 1000
@@ -363,6 +414,7 @@ def worker(args):
                     request_seeds=[request_seed(context, q) for q in range(len(questions))],
                     camera_ids=list(meta['cam_infos']), image_shape=list(data['img'][0].shape),
                     input_dtype=str(data['img'][0].dtype), forward_ms=forward_ms,
+                    gpu_peak_scope='scene' if accurate and phase == 'measurement' else 'run',
                     accounting_ms=accounting_ms, **gpu, **process, modules=modules)
 
         monitor.set_phase('warmup')
@@ -375,16 +427,23 @@ def worker(args):
         with (dest/'warmup.jsonl').open('w') as stream:
             for fi, token in enumerate(scene['tokens'][:cfg_run['warmup_frames']]):
                 stream.write(json.dumps(frame(scene, fi, token, 'warmup'), allow_nan=False) + '\n')
-        warmup_end = dict(**cuda_snapshot(), **monitor.sample())
+        warmup_end = dict(**cuda_snapshot(), **monitor.sample(full=True))
         # Keep CUDA allocator/cache state; only normal benchmark scene lifecycle resets.
         torch.cuda.synchronize()
         torch.cuda.reset_peak_memory_stats()
         monitor.set_phase('measurement')
         measured_start = time.perf_counter()
         final = None
+        scene_records = []
+        run_peak_allocated, run_peak_reserved = 0, 0
         with (dest/'frames.jsonl').open('w') as stream:
             for scene in manifest['scenes']:
                 reset(model)
+                if accurate:
+                    torch.cuda.synchronize()
+                    torch.cuda.reset_peak_memory_stats()
+                    monitor.set_scene(scene['scene_id'])
+                    scene_start = dict(**cuda_snapshot(), **monitor.sample(full=True))
                 scene_path = dest/'answers'/'measurement'/scene['scene_id']
                 scene_path.mkdir(parents=True)
                 model.save_path = str(scene_path) + '/'
@@ -393,10 +452,24 @@ def worker(args):
                     stream.write(json.dumps(final, allow_nan=False) + '\n')
                     stream.flush()
                     print('FRAME', args.method, args.workload, args.repeat, fi, token, flush=True)
+                if accurate:
+                    scene_end = dict(**cuda_snapshot(), **monitor.sample(full=True))
+                    run_peak_allocated = max(run_peak_allocated, scene_end['gpu_peak_allocated_bytes'])
+                    run_peak_reserved = max(run_peak_reserved, scene_end['gpu_peak_reserved_bytes'])
+                    with monitor.lock:
+                        scene_sampling = dict(monitor.phases['scene:'+scene['scene_id']])
+                    scene_records.append(dict(scene_id=scene['scene_id'], log_id=scene['log_id'],
+                        method=args.method, workload=args.workload, repeat=args.repeat, frames=len(scene['tokens']),
+                        start=scene_start, end=scene_end, sampling=scene_sampling))
+                    monitor.set_scene(None)
         final_gpu = cuda_snapshot()
-        final_process = monitor.sample()
+        final_process = monitor.sample(full=True)
         sampling = monitor.finish()
         measured = sampling['phases']['measurement']
+        if accurate:
+            final_gpu['gpu_peak_allocated_bytes'] = run_peak_allocated
+            final_gpu['gpu_peak_reserved_bytes'] = run_peak_reserved
+            write(dest/'scene_resources.json', scene_records)
         metrics = dict(baseline_gpu_allocated_bytes=baseline['gpu_allocated_bytes'],
             baseline_gpu_reserved_bytes=baseline['gpu_reserved_bytes'],
             peak_gpu_allocated_bytes=final_gpu['gpu_peak_allocated_bytes'],
@@ -404,19 +477,29 @@ def worker(args):
             incremental_peak_gpu_allocated_bytes=max(0, final_gpu['gpu_peak_allocated_bytes'] - baseline['gpu_allocated_bytes']),
             incremental_peak_gpu_reserved_bytes=max(0, final_gpu['gpu_peak_reserved_bytes'] - baseline['gpu_reserved_bytes']),
             baseline_cpu_rss_bytes=baseline['cpu_rss_bytes'], peak_cpu_rss_bytes=measured['rss_peak'],
-            average_cpu_rss_bytes=measured['rss_sum'] / measured['samples'],
+            average_cpu_rss_bytes=(measured['rss_time_integral']/measured['sampled_seconds']
+                if accurate and measured['sampled_seconds'] else measured['rss_sum']/measured['samples']),
             incremental_peak_cpu_rss_bytes=max(0, measured['rss_peak'] - baseline['cpu_rss_bytes']),
             baseline_cpu_uss_bytes=baseline['cpu_uss_bytes'], peak_cpu_uss_bytes=measured['uss_peak'],
             nvml_peak_process_gpu_bytes=measured['nvml_peak'],
             process_lifetime_peak_cpu_rss_bytes=sampling['process_lifetime_peak_rss_bytes'],
             process_peak_gpu_allocated_bytes=max(warmup_end['gpu_peak_allocated_bytes'], final_gpu['gpu_peak_allocated_bytes']),
             process_peak_gpu_reserved_bytes=max(warmup_end['gpu_peak_reserved_bytes'], final_gpu['gpu_peak_reserved_bytes']))
+        if accurate:
+            metrics.update(
+                post_warmup_cpu_rss_bytes=warmup_end['cpu_rss_bytes'],
+                post_warmup_cpu_uss_bytes=warmup_end['cpu_uss_bytes'],
+                incremental_peak_cpu_rss_from_warmup_bytes=max(0, measured['rss_peak']-warmup_end['cpu_rss_bytes']),
+                incremental_peak_cpu_uss_bytes=max(0, measured['uss_peak']-baseline['cpu_uss_bytes'])
+                    if measured['uss_peak'] is not None and baseline['cpu_uss_bytes'] is not None else None)
         if measured['rss_peak'] <= 0 or final_gpu['gpu_peak_allocated_bytes'] <= 0:
             raise RuntimeError('Resource collection returned invalid measurements')
         write(dest/'result.json', dict(status='COMPLETED', method=args.method, workload=args.workload,
             repeat=args.repeat, pid=os.getpid(), started_at=started, finished_at=now(), frames=len(tokens),
             measurement_seconds=time.perf_counter()-measured_start, runtime=effective,
             baseline=baseline, baseline_modules=baseline_modules, warmup_end=warmup_end,
+            protocol_version=cfg_run.get('protocol_version', 1),
+            cpu_baseline_stable=stability['stable'] if stability else None,
             final_resources=dict(**final_gpu, **final_process), final_modules=final['modules'], sampling=sampling, metrics=metrics))
 
 
@@ -455,6 +538,7 @@ def main():
         worker(args)
         return
     cfg = read(args.config)
+    cfg['configuration_file'] = str(args.config.resolve())
     for key in ('repeats', 'workloads', 'methods', 'gpu', 'max_scenes', 'max_frames_per_scene', 'warmup_frames'):
         if getattr(args, key) is not None:
             cfg[key] = getattr(args, key)
@@ -484,7 +568,8 @@ def main():
                 if args.check_gpu_once:
                     cmd.append('--check-gpu-once')
                 with (out/f'{workload}_r{repeat:02d}_{method}.log').open('w') as log:
-                    result = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
+                    env = dict(os.environ, **cfg.get('worker_environment', {}))
+                    result = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, env=env)
                 if result.returncode:
                     write(out/'status.json', dict(status='GPU_BUSY' if result.returncode == 75 else 'FAILED',
                         finished_at=now(), command=cmd, returncode=result.returncode))

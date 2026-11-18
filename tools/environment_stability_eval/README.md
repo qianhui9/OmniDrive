@@ -1,6 +1,10 @@
 # WorldStream 环境语义稳定性实验
 
+新增 **FQ-3 扩充评估入口**：`run_expanded.sh`，默认保留原18场景并扩展到120个完整评估场景，另30个场景校准，先盘点真实变化事件再配对推理。完整命令、恢复方式及新旧阈值版本说明见 [EXPANDED.md](EXPANDED.md)。本入口会自动输出四级四指标及响应覆盖；旧18场景结果保留。
+
 2026-11-18 主协议已更新为**仅 FQ-3 的 Stable/Changed 变化响应评估**，见 [FQ3.md](FQ3.md)；使用 `fq3.yaml`（`other_questions: 0`）与 `python -m tools.environment_stability_eval.fq3`，不再将本页以下旧五问命令用于新论文主表。旧运行与原始结果保留。新版重新执行真实三问负载，重点报告 Change Response Delay、Stable/Changed Factual QA Accuracy 及 Stale Answer Rate。
+
+最新报告同时保留 **S1/S2/S3/S4 环境等级 × 每查询 Stable/Changed** 两个独立分组轴。四级标签已在 FQ-3 推理前冻结；新入口 `python -m tools.environment_stability_eval.fq3_levels` 从完整三问结果离线生成各级 Stable Accuracy、Changed Accuracy、Stale Answer Rate 和 Change Response Delay，不重新推理、不改变 GT 阈值。默认结果见 `outputs/fq3_full_20261118_run01/stability_levels_v1/结果.md`，来源目录另有 `四级稳定性评估.md` 便于打开。
 
 **最新统计口径：** [正式结果](outputs/run_20261117_113951_740642/结果.md)已核验与主实验使用同一评分器和 mean-score 公式，主 FPS/QPS 已改用累计 E2E 分母；原持续吞吐保留为辅助值。跨实验负载差异和离线重统计说明见 [MAIN_PROTOCOL.md](../worldstream_ablation/MAIN_PROTOCOL.md)。下文原始协议和推理代码保留不变。
 

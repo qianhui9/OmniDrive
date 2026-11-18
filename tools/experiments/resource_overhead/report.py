@@ -162,6 +162,11 @@ def summarize(root):
     write(root/'summary.json', summary)
     render_report(root, summary)
     plot(root, summaries, breakdowns, frames)
+    if manifest.get('protocol_version', 1) >= 2:
+        from .extended_statistics import extend
+        summary['extended_statistics'] = extend(root, manifest, results, frames)
+        write(root/'summary.json', summary)
+        (root/'结果.md').write_text((root/'report.md').read_text()+'\n'+(root/'extended_report.md').read_text())
     print('SUMMARIZED', root)
 
 
@@ -194,7 +199,16 @@ def render_report(root, result):
             m = row['metrics']
             text.append('| ' + row['component'] + ' | ' + ' | '.join(fmt(m[k]) for k in (
                 'cpu_MB_temporal_mean', 'gpu_MB_temporal_mean', 'entries_temporal_mean', 'elements_temporal_mean')) + ' |')
-    text += ['', '## S1–S5 与完整指标', '',
+    text += ['', '## 分负载资源峰值与增量（GB）', '',
+        '| Workload | Method | Peak GPU Allocated | Incremental GPU | Peak CPU RSS | Incremental CPU RSS |',
+        '|---|---|---:|---:|---:|---:|']
+    for row in result['summary']:
+        if row['workload'] == 'ALL':
+            continue
+        text.append('| '+row['workload']+' | '+row['method']+' | '+' | '.join(fmt(row['metrics'][k]) for k in (
+            'peak_gpu_allocated_GB', 'incremental_peak_gpu_allocated_GB', 'peak_cpu_rss_GB',
+            'incremental_peak_cpu_rss_GB'))+' |')
+    text += ['', '## 各负载基础与完整指标', '',
         '| Method | Workload | Baseline GPU (GB) | Peak Reserved (GB) | Baseline RSS (GB) | Average RSS (GB) |',
         '|---|---|---:|---:|---:|---:|']
     for row in result['summary']:
@@ -214,6 +228,14 @@ def render_report(root, result):
     for r in result['independent_runs']:
         sampling = r['sampling']
         text.append(f"- 采集状态 {r['method']}/{r['workload']}/r{r['repeat']}: NVML={sampling['nvml_error'] or 'available'}; errors={sampling['errors']}")
+    if manifest.get('protocol_version', 1) >= 2:
+        text += ['', '## 协议 v2 的采集口径', '',
+            '- 上述通用说明中的旧采样口径由本段更新：帧/基线 RSS 和 USS 来自同次 memory_full_info，未复用旧 USS；单次读取并非跨内核文件的原子快照，保留读取时长。',
+            '- 模型加载后 gc.collect 回收已无引用的加载对象，等待 RSS/USS 达到配置的平台阈值；未达到时失败并保留 trace。不调用 malloc_trim、empty_cache，不裁剪任何 live 模块状态。',
+            '- 新进程使用固定的 CPU allocator 环境（见 runtime.json），这是统一的实验设置，不保证不同进程的模型基线数值完全一致。',
+            '- 平均 RSS 为采样间隔的时间加权积分。USS 的后台采样低频，但帧快照强制 fresh full read。',
+            '- CUDA peak 计数器每场景重置，整次运行 peak 为所有场景 peak 的最大值；只重置计数器，保留 allocator 和模块实际状态。',
+            '- 预热后另记基线及其 CPU 增量用于敏感性分析，主表仍相对模型加载基线。逐场景真峰值、帧快照 P95/P99、按日志聚类的场景差值置信区间见 extended_report.md。']
     (root/'report.md').write_text('\n'.join(text) + '\n')
 
 
