@@ -1,0 +1,131 @@
+{
+  "variants": [
+    {
+      "name": "native",
+      "label": "Native VLM",
+      "ogsm": "off",
+      "davp": "off",
+      "qcse": "off"
+    },
+    {
+      "name": "worldstream",
+      "label": "WorldStream / Full OGSM / Full DAVP / Full QCSE",
+      "ogsm": "full",
+      "davp": "full",
+      "qcse": "full"
+    },
+    {
+      "name": "without_ogsm",
+      "label": "w/o OGSM",
+      "ogsm": "off",
+      "davp": "image_difference",
+      "qcse": "candidate_only"
+    },
+    {
+      "name": "without_davp",
+      "label": "w/o DAVP",
+      "ogsm": "full",
+      "davp": "off",
+      "qcse": "full"
+    },
+    {
+      "name": "without_qcse",
+      "label": "w/o QCSE",
+      "ogsm": "full",
+      "davp": "full",
+      "qcse": "off"
+    },
+    {
+      "name": "ogsm_tracking",
+      "label": "Tracking-based State",
+      "ogsm": "tracking",
+      "davp": "full",
+      "qcse": "full"
+    },
+    {
+      "name": "ogsm_geometry",
+      "label": "Geometry-based Validation",
+      "ogsm": "geometry",
+      "davp": "full",
+      "qcse": "full"
+    },
+    {
+      "name": "ogsm_flow",
+      "label": "Flow-based Validation",
+      "ogsm": "flow",
+      "davp": "full",
+      "qcse": "full"
+    },
+    {
+      "name": "davp_periodic",
+      "label": "Periodic Window Refresh",
+      "ogsm": "full",
+      "davp": "periodic",
+      "qcse": "full"
+    },
+    {
+      "name": "davp_feature_drift",
+      "label": "Feature-Drift-based Refresh",
+      "ogsm": "full",
+      "davp": "feature_drift",
+      "qcse": "full"
+    },
+    {
+      "name": "davp_region_mapping",
+      "label": "Region-to-Window Mapping",
+      "ogsm": "full",
+      "davp": "region_mapping",
+      "qcse": "full"
+    },
+    {
+      "name": "qcse_exact_cache",
+      "label": "Exact Answer Cache",
+      "ogsm": "full",
+      "davp": "full",
+      "qcse": "exact_cache"
+    },
+    {
+      "name": "qcse_semantic_cache",
+      "label": "Semantic Answer Cache",
+      "ogsm": "full",
+      "davp": "full",
+      "qcse": "semantic_cache"
+    },
+    {
+      "name": "qcse_prompt_kv",
+      "label": "Prompt/KV Cache",
+      "ogsm": "full",
+      "davp": "full",
+      "qcse": "prompt_kv"
+    }
+  ],
+  "tables": {
+    "module": [
+      "native",
+      "worldstream",
+      "without_ogsm",
+      "without_davp",
+      "without_qcse"
+    ],
+    "ogsm": [
+      "ogsm_tracking",
+      "ogsm_geometry",
+      "ogsm_flow",
+      "worldstream"
+    ],
+    "davp": [
+      "davp_periodic",
+      "davp_feature_drift",
+      "davp_region_mapping",
+      "worldstream"
+    ],
+    "qcse": [
+      "qcse_exact_cache",
+      "qcse_semantic_cache",
+      "qcse_prompt_kv",
+      "worldstream"
+    ]
+  },
+  "baseline": "native",
+  "full_reference": "worldstream"
+}

@@ -21,7 +21,10 @@ import torch
 import cv2
 import copy
 import matplotlib.pyplot as plt
-from map_api import NuScenesMap
+if __package__:
+    from .map_api import NuScenesMap
+else:
+    from map_api import NuScenesMap
 from skimage.draw import polygon
 import math
 import pickle

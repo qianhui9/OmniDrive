@@ -1,5 +1,7 @@
 # 唯一冻结主实验：完整 R0
 
+事实问答与规划补充评估已封装为 `taskset -c 0-3,6-31 bash tools/run_r0_task_metrics.sh`；默认沿用当前18个主实验Scene，分别推理后汇总问答性能/质量及1s、2s、3s的ADE、碰撞和道路越界率。指标定义与其他范围入口见 [任务评估说明](docs/r0_task_metrics.md)。
+
 本地删除旧 `.git` 后，必要 Native 审计源码由独立快照提供，已有执行时源码哈希保留不变；迁移方式见 [源码溯源说明](docs/provenance/README.md)。
 
 当前唯一改进配置为 [configs/worldstream_r0.json](configs/worldstream_r0.json)，正式模型入口为 [worldstream_m123_auto.py](projects/configs/OmniDrive/worldstream_m123_auto.py)。参数来自此前最终选择：M1 检测阈值0.3；M2 普通刷新预算3、全局间隔2；M3 current_only / C-basic / basic / 0.45 / 0.75，保留精确 prompt 历史 K8 目标模型验证和请求 RNG 隔离。完整参数以 JSON 为准。

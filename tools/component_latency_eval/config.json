@@ -1,0 +1,16 @@
+{
+  "trials": 5,
+  "latency_scope": "forward_only_v2",
+  "seed": 20261030,
+  "infos": "data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl",
+  "checkpoint": "ckpts/iter_10548.pth",
+  "main_manifest": "outputs/m123_r0_only_reproduction_run01",
+  "reference_manifest": "outputs/worldstream_ablation_full_run01/manifest.json",
+  "other_questions": 2,
+  "warmup_frames": 4,
+  "smoke_frames": 3,
+  "smoke_pairs": 2,
+  "overhead_warning_fraction": 0.05,
+  "event_batch_frames": 32,
+  "output_root": "tools/component_latency_eval/outputs"
+}

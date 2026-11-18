@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "passed": 50,
+  "command": "taskset -c 0-3,6-31 env OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 PYTHONDONTWRITEBYTECODE=1 /home/qh/miniconda3/envs/OmniDrive/bin/python -B -m pytest tools/worldstream_ablation/test_mechanisms.py tests/worldstream_m123/test_r0_only_route.py tests/worldstream_m3/test_r0_runtime.py -q -p no:cacheprovider --disable-warnings",
+  "mechanism_checks": 21,
+  "existing_R0_regressions": 29,
+  "warnings": 19,
+  "elapsed_seconds": 2.02,
+  "GPU_inference": false,
+  "shell_syntax_check": "PASS",
+  "python_AST_parse": "PASS",
+  "executed_MACs_independently_checked_with_torch_profiler": true,
+  "query_scoped_negation_regression": "PASS"
+}

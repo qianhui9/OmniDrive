@@ -1,0 +1,23 @@
+# All paths are relative to the OmniDrive project root and exist on this server.
+infos: data/nuscenes/nuscenes2d_ego_temporal_infos_val.pkl
+data_root: data/nuscenes
+main_manifest: outputs/m123_r0_only_reproduction_run01/scene_selection.json
+checkpoint: ckpts/iter_10548.pth
+r0_config: configs/worldstream_r0.json
+scope: main-scenes
+other_questions: 2
+seed: 20261030
+repeats: 1
+# nuScenes keyframes are nominally 2 Hz; 5-second bins contain about 10 frames.
+# No pre-existing semantic-window protocol exists; this is a new fixed protocol.
+window_seconds: 5.0
+max_transition_gap_seconds: 1.0
+calibration: remaining-val-scenes
+threshold_quantiles: [0.25, 0.5, 0.75]
+# Null means fit on calibration GT BEFORE either method runs. Ties stay together.
+thresholds: null
+warmup_frames: 4
+smoke_frames: 3
+bootstrap_samples: 2000
+response_horizon_seconds: 5.0
+output_root: tools/environment_stability_eval/outputs
